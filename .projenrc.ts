@@ -13,19 +13,6 @@ const project = new JsiiProject({
   keywords: ["aws", "pdk", "jsii", "projen"],
   prettier: true,
   repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-  publishToMaven: {
-    mavenGroupId: "aws.prototyping.sdk",
-    mavenArtifactId: "aws-prototyping-sdk",
-    javaPackage: "aws.prototyping.sdk",
-  },
-  publishToPypi: {
-    distName: "aws-prototyping-sdk",
-    module: "aws-prototyping-sdk",
-  },
-  publishToNuget: {
-    dotNetNamespace: "Aws.Prototying.Sdk",
-    packageId: "Aws.Prototyping.Sdk",
-  },
   devDeps: [
     "@commitlint/cli",
     "@commitlint/config-conventional",
