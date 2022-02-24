@@ -39,7 +39,7 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.compileTask.reset();
     this.testTask.reset();
 
-    this.addDevDeps("aws-pdk", "@nrwl/cli", "@nrwl/workspace");
+    this.addDevDeps("aws-prototyping-sdk", "@nrwl/cli", "@nrwl/workspace");
 
     new IgnoreFile(this, ".nxignore").exclude(
       "test-reports",
