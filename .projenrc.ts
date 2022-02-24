@@ -29,6 +29,10 @@ const project = new JsiiProject({
     "oss-attribution-generator",
   ],
   peerDeps: ["projen"],
+  publishToPypi: {
+    distName: "aws-prototyping-sdk",
+    module: "aws-prototyping-sdk"
+  }
 });
 
 project.release?.addJobs({

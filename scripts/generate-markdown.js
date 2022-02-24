@@ -8,6 +8,7 @@ const docgen = require('jsii-docgen');
 const PAGES_YAML_TEMPLATE = '---\nnav:\n';
 const SUPPORTED_LANGUAGES = [
   docgen.Language.TYPESCRIPT,
+  docgen.Language.PYTHON
 ];
 
 async function main() {
