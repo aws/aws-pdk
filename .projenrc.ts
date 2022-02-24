@@ -64,6 +64,15 @@ const licenseCheckerTask = project.addTask("license:check", {
   exec: "license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'",
 });
 
+project.addFields({
+  resolutions: {
+    "ansi-regex": "^5.0.1",
+    "underscore": "^1.12.1",
+    "deep-extend": "^0.5.1",
+    "debug": "^2.6.9"
+  }
+});
+
 // Commit lint and commitizen settings
 project.addFields({
   config: {
