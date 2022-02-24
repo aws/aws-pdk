@@ -31,11 +31,6 @@ const project = new JsiiProject({
   peerDeps: ["projen"],
 });
 
-project.release?.publisher.addGitHubPrePublishingSteps({
-  name: "build:docs",
-  run: "npx projen build:docs"
-})
-
 project.release?.addJobs({
   release_docs: {
     runsOn: ["ubuntu-latest"],
@@ -69,6 +64,14 @@ project.release?.addJobs({
         ].join("\n"),
       },
       {
+        name: "Upload docs to Github",
+        run: "cd dist/docs && zip -r docs.zip * && gh release upload $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip",
+        env: {
+          "GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}",
+          "GITHUB_REPOSITORY": "${{ github.repository }}"
+        }
+      },
+      {
         name: "Prepare Commit",
         run: [
           "rsync --delete --exclude=.git --recursive dist/docs/ .",
@@ -77,14 +80,6 @@ project.release?.addJobs({
           "git add .",
           "git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')"
         ].join("\n"),
-      },
-      {
-        name: "Upload docs to Github",
-        run: "cd dist/docs && zip -r docs.zip * && gh release upload $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip",
-        env: {
-          "GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}",
-          "GITHUB_REPOSITORY": "${{ github.repository }}"
-        }
       },
       {
         name: "Push",
@@ -170,9 +165,11 @@ project.gitignore.exclude(
 ].forEach((s) => project.addPackageIgnore(s));
 
 // Generate docs for each supported language into a micro-site
-project.addTask("build:docs", {
+const buildDocsTask = project.addTask("build:docs", {
   exec: "./scripts/build-docs.sh",
 });
+
+project.tasks.tryFind("release:mainline")?.spawn(buildDocsTask);
 
 // Add additional tests
 project.testTask.spawn(gitSecretsScanTask);
