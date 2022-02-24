@@ -75,7 +75,7 @@ project.release?.addJobs({
         name: "Prepare Commit",
         run: [
           "mv dist ${{ runner.temp }}/dist",
-          "rsync --delete --exclude=.git --recursive ${{ runner.temp }}/dist/docs .",
+          "rsync --delete --exclude=.git --recursive ${{ runner.temp }}/dist/docs/* .",
           "touch .nojekyll",
           "git add .",
           "git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')"
