@@ -1,8 +1,4 @@
 #!/bin/bash
-if [ $SKIP_DOCS ]; then
-  echo "Skipping doc generation due to presence of SKIP_DOCS."
-  exit 0
-fi
 
 ###
 # Builds a documentation website.

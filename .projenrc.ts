@@ -107,18 +107,15 @@ project.addPackageIgnore("/docs/");
 project.addPackageIgnore("/scripts/");
 
 // Generate docs for each supported language into a micro-site
-project.postCompileTask.exec("./scripts/build-docs.sh");
+project.addTask("build:docs", {
+  exec: "./scripts/build-docs.sh"
+});
 
 // Add additional tests
 project.testTask.spawn(gitSecretsScanTask);
 project.testTask.spawn(licenseCheckerTask);
 
-// Package codebase
-project.packageTask.reset();
-project.packageTask.exec("mkdir -p dist");
-project.packageTask.spawn(generateAttributionTask);
-project.packageTask.exec(
-  "rsync -a . dist --exclude .git --exclude node_modules --exclude docs --exclude dist"
-);
+// Add attribution when packaging
+project.packageTask.prependSpawn(generateAttributionTask);
 
 project.synth();

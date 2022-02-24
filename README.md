@@ -21,7 +21,8 @@ via a `npx projen <task>` command.
 
 A list of key tasks are as follows:
 
-* `build` - *compiles (tsc and jsii), generates docs (cross language), tests and packages (into dist).*
+* `build` - *compiles (tsc and jsii), tests and packages (into dist).*
+* `build:docs` - *generates a micro-site in all supported languages*
 * `package-all` - *Generates ready-to-publish language-specific packages for jsii modules (into dist).*
 * `clean` - *deletes all generated build artifacts and directories.*
 * `test` - *runs jest tests, eslint, git-secrets-scan & license-checker.*
