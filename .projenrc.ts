@@ -4,15 +4,15 @@
 import { JsiiProject } from 'projen/lib/cdk';
 
 const project = new JsiiProject({
-  author: "Adrian Dimech",
-  authorAddress: "dimecha@amazon.com",
+  author: "AWS APJ COPE",
+  authorAddress: "apj-cope@amazon.com",
   defaultReleaseBranch: "mainline",
   name: "aws-pdk",
   docgen: false,
   projenrcTs: true,
   keywords: ["aws", "pdk", "jsii", "projen"],
   prettier: true,
-  repositoryUrl: "https://github.com/dimecha/refactor.git",
+  repositoryUrl: "https://github.com/aws/aws-pdk",
   publishToMaven: {
     mavenGroupId: "software.amazon.awspdk",
     mavenArtifactId: "aws-pdk",
@@ -103,6 +103,7 @@ project.eslint?.addRules({
 project.gitignore.exclude("/.tools/", "/.idea/", "LICENSE-THIRD-PARTY", ".DS_Store", "build");
 
 // Update npmignore
+project.addPackageIgnore("/build/");
 project.addPackageIgnore("/docs/");
 project.addPackageIgnore("/scripts/");
 
