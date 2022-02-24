@@ -65,7 +65,7 @@ project.release?.addJobs({
       },
       {
         name: "Upload docs to Github",
-        run: "cd dist/docs && zip -r docs.zip * && gh release upload $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip",
+        run: "zip -r docs.zip dist/docs/* && gh release upload $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip",
         env: {
           "GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}",
           "GITHUB_REPOSITORY": "${{ github.repository }}"
