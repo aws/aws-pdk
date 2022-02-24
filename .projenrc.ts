@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { JsiiProject } from "projen/lib/cdk";
+import { JobPermission } from "projen/lib/github/workflows-model";
 
 const project = new JsiiProject({
   author: "AWS APJ COPE",
@@ -29,6 +30,68 @@ const project = new JsiiProject({
   ],
   peerDeps: ["projen"],
 });
+
+project.release?.publisher.addGitHubPrePublishingSteps({
+  name: "build:docs",
+  run: "npx projen build:docs"
+})
+
+project.release?.addJobs({
+  release_docs: {
+    runsOn: ["ubuntu-latest"],
+    needs: ["release_github"],
+    permissions: {
+      contents: JobPermission.WRITE
+    },
+    if: "needs.release.outputs.latest_commit == github.sha",
+    steps: [
+      {
+        name: "Check out",
+        uses: "actions/checkout@v2.4.0",
+        with: {
+          "ref": "gh-pages",
+          "fetch-depth": 0
+        }
+      },
+      {
+        name: "Download build artifacts",
+        uses: "actions/download-artifact@v2",
+        with: {
+          "name": "build-artifact",
+          "path": "dist"
+        }
+      },
+      {
+        name: "Configure Git",
+        run: [
+          `git config user.name "AWS PDK Automation"`,
+          `git config user.email "aws-pdk+automation@amazon.com"`,
+        ].join("\n"),
+      },
+      {
+        name: "Prepare Commit",
+        run: [
+          "rsync --delete --exclude=.git --recursive dist/docs/ .",
+          "rm -rf dist",
+          "touch .nojekyll",
+          "git add .",
+          "git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')"
+        ].join("\n"),
+      },
+      {
+        name: "Upload docs to Github",
+        run: "cd dist/docs && zip -r docs.zip * && gh release upload $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip",
+        env: {
+          "GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}",
+          "GITHUB_REPOSITORY": "${{ github.repository }}"
+        }
+      },
+      {
+        name: "Push",
+        run: "git push origin gh-pages:gh-pages",
+      },
+    ],
+  }});
 
 // Custom targets
 project.addTask("prepare", {

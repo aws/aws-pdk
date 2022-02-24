@@ -57,6 +57,8 @@ jobs:
         run: mv dist .repo
       - name: Collect GitHub Metadata
         run: mv .repo/dist dist
+      - name: build:docs
+        run: npx projen build:docs
       - name: Release
         run: errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY -F dist/changelog.md -t $(cat dist/releasetag.txt) --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode -ne 0 ] && ! grep -q "Release.tag_name already exists" $errout; then cat $errout; exit $exitcode; fi
         env:
@@ -93,3 +95,38 @@ jobs:
           NPM_DIST_TAG: latest
           NPM_REGISTRY: registry.npmjs.org
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  release_docs:
+    needs: release_github
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: needs.release.outputs.latest_commit == github.sha
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2.4.0
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artifact
+          path: dist
+      - name: Configure Git
+        run: |-
+          git config user.name "AWS PDK Automation"
+          git config user.email "aws-pdk+automation@amazon.com"
+      - name: Prepare Commit
+        run: |-
+          rsync --delete --exclude=.git --recursive dist/docs/ .
+          rm -rf dist
+          touch .nojekyll
+          git add .
+          git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')
+      - name: Upload docs to Github
+        run: cd dist/docs && zip -r docs.zip * && gh release upload $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+      - name: Push
+        run: git push origin gh-pages:gh-pages
