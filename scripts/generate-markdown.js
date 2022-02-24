@@ -8,9 +8,6 @@ const docgen = require('jsii-docgen');
 const PAGES_YAML_TEMPLATE = '---\nnav:\n';
 const SUPPORTED_LANGUAGES = [
   docgen.Language.TYPESCRIPT,
-  docgen.Language.JAVA,
-  docgen.Language.CSHARP,
-  docgen.Language.PYTHON,
 ];
 
 async function main() {
@@ -20,6 +17,11 @@ async function main() {
     (c) => c.split('.')[1],
   );
   const tasks = [];
+
+  fs.writeFileSync(`build/docs/content/.pages.yml`,
+    `${PAGES_YAML_TEMPLATE}${SUPPORTED_LANGUAGES
+      .map((language) => `  - ${language.name}`)
+      .join('\n')}`)
 
   SUPPORTED_LANGUAGES.map((l) => l.name).forEach((language) => {
     fs.mkdirSync(`build/docs/content/${language}`, { recursive: true });
