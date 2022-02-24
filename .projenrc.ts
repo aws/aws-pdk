@@ -1,30 +1,30 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { JsiiProject } from 'projen/lib/cdk';
+import { JsiiProject } from "projen/lib/cdk";
 
 const project = new JsiiProject({
   author: "AWS APJ COPE",
   authorAddress: "apj-cope@amazon.com",
   defaultReleaseBranch: "mainline",
-  name: "aws-pdk",
+  name: "aws-prototyping-sdk",
   docgen: false,
   projenrcTs: true,
   keywords: ["aws", "pdk", "jsii", "projen"],
   prettier: true,
-  repositoryUrl: "https://github.com/aws/aws-pdk",
+  repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
   publishToMaven: {
-    mavenGroupId: "software.amazon.awspdk",
-    mavenArtifactId: "aws-pdk",
-    javaPackage: "software.amazon.awspdk",
+    mavenGroupId: "aws.prototyping.sdk",
+    mavenArtifactId: "aws-prototyping-sdk",
+    javaPackage: "aws.prototyping.sdk",
   },
   publishToPypi: {
-    distName: "awspdk",
-    module: "awspdk",
+    distName: "aws-prototyping-sdk",
+    module: "aws-prototyping-sdk",
   },
   publishToNuget: {
-    dotNetNamespace: "Amazon.PDK",
-    packageId: "Amazon.PDK",
+    dotNetNamespace: "Aws.Prototying.Sdk",
+    packageId: "Aws.Prototyping.Sdk",
   },
   devDeps: [
     "@commitlint/cli",
@@ -40,18 +40,16 @@ const project = new JsiiProject({
     "license-checker",
     "oss-attribution-generator",
   ],
-  peerDeps: [
-    "projen"
-  ]
+  peerDeps: ["projen"],
 });
 
 // Custom targets
 project.addTask("prepare", {
-  exec: "husky install"
+  exec: "husky install",
 });
 
 project.addTask("clean", {
-  exec: "rm -rf dist build lib test-reports coverage LICENSE-THIRD-PARTY"
+  exec: "rm -rf dist build lib test-reports coverage LICENSE-THIRD-PARTY",
 });
 
 const generateAttributionTask = project.addTask("generate:attribution", {
@@ -67,10 +65,10 @@ const licenseCheckerTask = project.addTask("license:check", {
 project.addFields({
   resolutions: {
     "ansi-regex": "^5.0.1",
-    "underscore": "^1.12.1",
+    underscore: "^1.12.1",
     "deep-extend": "^0.5.1",
-    "debug": "^2.6.9"
-  }
+    debug: "^2.6.9",
+  },
 });
 
 // Commit lint and commitizen settings
@@ -100,16 +98,30 @@ project.eslint?.addRules({
 });
 
 // Update .gitignore
-project.gitignore.exclude("/.tools/", "/.idea/", "LICENSE-THIRD-PARTY", ".DS_Store", "build");
+project.gitignore.exclude(
+  "/.tools/",
+  "/.idea/",
+  "LICENSE-THIRD-PARTY",
+  ".DS_Store",
+  "build"
+);
 
 // Update npmignore
-project.addPackageIgnore("/build/");
-project.addPackageIgnore("/docs/");
-project.addPackageIgnore("/scripts/");
+[
+  "/.gitattributes",
+  "/.prettierignore",
+  "/.prettierrc.json",
+  "/.projenrc.ts",
+  "/.husky/",
+  "/.tools/",
+  "/build/",
+  "/docs/",
+  "/scripts/",
+].forEach((s) => project.addPackageIgnore(s));
 
 // Generate docs for each supported language into a micro-site
 project.addTask("build:docs", {
-  exec: "./scripts/build-docs.sh"
+  exec: "./scripts/build-docs.sh",
 });
 
 // Add additional tests

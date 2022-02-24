@@ -1,6 +1,6 @@
-# aws-pdk
+# aws-prototyping-sdk
 
-Prototyping Development Kit (PDK) is a package which contains re-usable L2 and L3 CDK constructs.
+AWS Prototyping SDK (PDK) is a package which contains re-usable L2 and L3 CDK constructs.
 
 ## Getting Started
 
