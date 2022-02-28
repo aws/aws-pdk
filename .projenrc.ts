@@ -17,6 +17,7 @@ const project = new JsiiProject({
   devDeps: [
     "@commitlint/cli",
     "@commitlint/config-conventional",
+    "@nrwl/devkit",
     "aws-cdk-lib",
     "constructs",
     "cz-conventional-changelog",
@@ -31,8 +32,8 @@ const project = new JsiiProject({
   peerDeps: ["projen"],
   publishToPypi: {
     distName: "aws-prototyping-sdk",
-    module: "aws-prototyping-sdk"
-  }
+    module: "aws-prototyping-sdk",
+  },
 });
 
 project.release?.addJobs({
@@ -40,7 +41,7 @@ project.release?.addJobs({
     runsOn: ["ubuntu-latest"],
     needs: ["release_github"],
     permissions: {
-      contents: JobPermission.WRITE
+      contents: JobPermission.WRITE,
     },
     if: "needs.release.outputs.latest_commit == github.sha",
     steps: [
@@ -48,17 +49,17 @@ project.release?.addJobs({
         name: "Check out",
         uses: "actions/checkout@v2.4.0",
         with: {
-          "ref": "gh-pages",
-          "fetch-depth": 0
-        }
+          ref: "gh-pages",
+          "fetch-depth": 0,
+        },
       },
       {
         name: "Download build artifacts",
         uses: "actions/download-artifact@v2",
         with: {
-          "name": "build-artifact",
-          "path": "dist"
-        }
+          name: "build-artifact",
+          path: "dist",
+        },
       },
       {
         name: "Configure Git",
@@ -71,9 +72,9 @@ project.release?.addJobs({
         name: "Upload docs to Github",
         run: "zip -r docs.zip dist/docs/* && gh release upload $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip",
         env: {
-          "GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}",
-          "GITHUB_REPOSITORY": "${{ github.repository }}"
-        }
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}",
+          GITHUB_REPOSITORY: "${{ github.repository }}",
+        },
       },
       {
         name: "Prepare Commit",
@@ -82,7 +83,7 @@ project.release?.addJobs({
           "rsync --delete --exclude=.git --recursive ${{ runner.temp }}/dist/docs/ .",
           "touch .nojekyll",
           "git add .",
-          "git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')"
+          "git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')",
         ].join("\n"),
       },
       {
@@ -90,7 +91,8 @@ project.release?.addJobs({
         run: "git push origin gh-pages:gh-pages",
       },
     ],
-  }});
+  },
+});
 
 // Custom targets
 project.addTask("prepare", {
@@ -144,6 +146,9 @@ project.eslint?.addRules({
     ],
     2,
   ],
+});
+project.eslint?.addRules({
+  "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
 });
 
 // Update .gitignore

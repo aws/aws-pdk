@@ -3,12 +3,14 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { IgnoreFile, JsonFile, Project } from "projen";
+import { IgnoreFile, JsonFile, Project, TextFile } from "projen";
 import { NodeProject } from "projen/lib/javascript";
 import {
   TypeScriptProject,
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
+
+const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 
 export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {}
 
@@ -48,9 +50,20 @@ export class NxMonorepoProject extends TypeScriptProject {
       ".pytest_cache"
     );
 
+    new TextFile(this, NX_MONOREPO_PLUGIN_PATH, {
+      readonly: true,
+      lines: fs
+        .readFileSync(
+          "./node_modules/aws-prototyping-sdk/lib/pdk_projen/nx_monorepo/plugin/nx-monorepo-plugin.js"
+        )
+        .toString("utf-8")
+        .split("\n"),
+    });
+
     new JsonFile(this, "nx.json", {
       obj: {
         extends: "@nrwl/workspace/presets/npm.json",
+        plugins: [`./${NX_MONOREPO_PLUGIN_PATH}`],
         npmScope: "monorepo",
         tasksRunnerOptions: {
           default: {
@@ -61,6 +74,7 @@ export class NxMonorepoProject extends TypeScriptProject {
             },
           },
         },
+        implicitDependencies: this.implicitDependencies,
         targetDependencies: {
           build: [
             {
@@ -107,37 +121,26 @@ export class NxMonorepoProject extends TypeScriptProject {
         subProject.outdir
       );
 
-      if (subProject instanceof NodeProject) {
-        if (this.implicitDependencies[subProject.name]) {
-          subProject.package.addField("nx", {
-            implicitDependencies: this.implicitDependencies[subProject.name],
-          });
-        }
-      } else {
-        if (fs.existsSync(subProject.outdir)) {
-          // generate a package.json if not found
-          const manifest: any = {};
-          manifest.name = subProject.name;
-          manifest.scripts = subProject.tasks.all.reduce(
-            (p, c) => ({
-              [c.name]: `npx projen ${c.name}`,
-              ...p,
-            }),
-            {}
-          );
-          manifest.version = "0.0.0";
+      if (
+        !(subProject instanceof NodeProject) &&
+        fs.existsSync(subProject.outdir)
+      ) {
+        // generate a package.json if not found
+        const manifest: any = {};
+        manifest.name = subProject.name;
+        manifest.scripts = subProject.tasks.all.reduce(
+          (p, c) => ({
+            [c.name]: `npx projen ${c.name}`,
+            ...p,
+          }),
+          {}
+        );
+        manifest.version = "0.0.0";
 
-          if (this.implicitDependencies[subProject.name]) {
-            manifest.nx = {
-              implicitDependencies: this.implicitDependencies[subProject.name],
-            };
-          }
-
-          new JsonFile(subProject, "package.json", {
-            obj: manifest,
-            readonly: true,
-          });
-        }
+        new JsonFile(subProject, "package.json", {
+          obj: manifest,
+          readonly: true,
+        });
       }
     });
 
