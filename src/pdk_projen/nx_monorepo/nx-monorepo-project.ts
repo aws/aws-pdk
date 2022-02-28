@@ -114,17 +114,27 @@ export class NxMonorepoProject extends TypeScriptProject {
   preSynthesize() {
     super.preSynthesize();
 
-    const subProjectLocations: { [pkg: string]: string } = {};
-    this.subProjects.forEach((subProject) => {
-      subProjectLocations[subProject.name] = path.relative(
-        this.outdir,
-        subProject.outdir
-      );
+    // Add workspaces for each subproject
+    this.package.addField(
+      "workspaces",
+      this.subProjects.map((subProject) =>
+        path.relative(this.outdir, subProject.outdir)
+      )
+    );
+  }
 
-      if (
-        !(subProject instanceof NodeProject) &&
-        fs.existsSync(subProject.outdir)
-      ) {
+  synth() {
+    // Check to see if a new subProject was added
+    const newSubProject = this.subProjects.find(
+      (subProject) => !fs.existsSync(subProject.outdir)
+    );
+
+    // Need to synth before generating the package.json otherwise the subdirectory won't exist
+    newSubProject && super.synth();
+
+    this.subProjects
+      .filter((subProject) => !(subProject instanceof NodeProject))
+      .forEach((subProject) => {
         // generate a package.json if not found
         const manifest: any = {};
         manifest.name = subProject.name;
@@ -141,10 +151,8 @@ export class NxMonorepoProject extends TypeScriptProject {
           obj: manifest,
           readonly: true,
         });
-      }
-    });
+      });
 
-    // Add workspaces for each subproject
-    this.package.addField("workspaces", Object.values(subProjectLocations));
+    super.synth();
   }
 }
