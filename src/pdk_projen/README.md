@@ -147,8 +147,8 @@ If we wanted to build infra, we can run the following command: `npx nx build inf
 ```
 
 As you can see from the above logs, the webapp build target was executed first as this is a dependency
-of infra. NX will also cache builds, so if I re-run the same command again you will notice the build completes
-in a fraction of the time.
+of infra. NX will also cache builds, so if the same command is re-run (without modifying anything) you will notice the 
+build completes in a fraction of the time.
 
 #### Example 2 - Implicit dependencies
 
@@ -255,6 +255,10 @@ From the root of the monorepo run `npx nx graph`. This will open a browser showi
 
 1. Ensure you have run `npx projen` from the root of the monorepo.
 2. Sometimes the nx cache can become stale and can be cleared by running `npx nx clear-cache`.
+
+#### How do I build everything in my monorepo without a specific target package?
+
+`npx nx run-many --target=build --all`
 
 #### I am running a different target, however the dependencies are not being executed.
 

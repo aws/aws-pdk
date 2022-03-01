@@ -12,31 +12,71 @@ import {
 
 const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 
+/**
+ * Supported enums for a TargetDependency.
+ */
 export enum TargetDependencyProject {
+  /**
+   * Only rely on the package where the target is called.
+   *
+   * This is usually done for test like targets where you only want to run unit
+   * tests on the target packages without testing all dependent packages.
+   */
   SELF = "self",
+  /**
+   * Target relies on executing the target against all dependencies first.
+   *
+   * This is usually done for build like targets where you want to build all
+   * dependant projects first.
+   */
   DEPENDENCIES = "dependencies",
 }
 
+/**
+ * Represents an NX Target Dependency.
+ */
 export interface TargetDependency {
+  /**
+   * Projen target i.e: build, test, etc
+   */
   readonly target: string;
+
+  /**
+   * Target dependencies.
+   */
   readonly projects: TargetDependencyProject;
 }
 
+/**
+ * Configuration for nx targetDependencies.
+ */
 export type TargetDependencies = { [target: string]: TargetDependency[] };
 
+/**
+ * Configuration options for the NxMonorepoProject.
+ */
 export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
   /**
+   * Configuration for NX TargetDependencies.
+   *
+   * @link https://nx.dev/configuration/packagejson#target-dependencies
    * @default {}
    */
   readonly targetDependencies?: TargetDependencies;
 
   /**
+   * List of patterns to include in the .nxignore file.
+   *
+   * @link https://nx.dev/configuration/packagejson#nxignore
    * @default []
    */
   readonly nxIgnorePatterns?: string[];
 }
 
 /**
+ * This project type will bootstrap a NX based monorepo with support for polygot
+ * builds, build caching, dependency graph visualization and much more.
+ *
  * @pjid nx-monorepo
  */
 export class NxMonorepoProject extends TypeScriptProject {
@@ -114,6 +154,14 @@ export class NxMonorepoProject extends TypeScriptProject {
     });
   }
 
+  /**
+   * Create an implicit dependency between two Project's. This is typically
+   * used in polygot repos where a Typescript project wants a build dependency
+   * on a Python project as an example.
+   *
+   * @param dependent project you want to have the dependency.
+   * @param dependee project you wish to depend on.
+   */
   public addImplicitDependency(dependent: Project, dependee: Project) {
     if (this.implicitDependencies[dependent.name]) {
       this.implicitDependencies[dependent.name].push(dependee.name);
@@ -129,6 +177,9 @@ export class NxMonorepoProject extends TypeScriptProject {
     return subProjects.sort((a, b) => a.name.localeCompare(b.name));
   }
 
+  /**
+   * @inheritDoc
+   */
   preSynthesize() {
     super.preSynthesize();
 
@@ -141,6 +192,9 @@ export class NxMonorepoProject extends TypeScriptProject {
     );
   }
 
+  /**
+   * @inheritDoc
+   */
   synth() {
     // Check to see if a new subProject was added
     const newSubProject = this.subProjects.find(

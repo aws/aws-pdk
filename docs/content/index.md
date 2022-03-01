@@ -1,3 +1,3 @@
-# AWS-PDK
+# AWS Prototyping SDK (PDK)
 
-Welcome!
+The PDK contains a set of re-usable CDK constructs, vended in multiple languages for use in prototyping engagements.
