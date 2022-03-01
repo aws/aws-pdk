@@ -472,6 +472,20 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#how-do-i-run-a-target-just-on-a-specific-package" class="md-nav__link">
+    How do I run a target just on a specific package?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-add-a-new-target-to-a-projen-sub-project" class="md-nav__link">
+    How do I add a new target to a projen Sub Project?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#i-have-added-a-project-in-projenrcts-but-it-isnt-synthesizing" class="md-nav__link">
     I have added a project in .projenrc.ts but it isn't synthesizing?
   </a>
@@ -2879,6 +2893,20 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#how-do-i-run-a-target-just-on-a-specific-package" class="md-nav__link">
+    How do I run a target just on a specific package?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-add-a-new-target-to-a-projen-sub-project" class="md-nav__link">
+    How do I add a new target to a projen Sub Project?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#i-have-added-a-project-in-projenrcts-but-it-isnt-synthesizing" class="md-nav__link">
     I have added a project in .projenrc.ts but it isn't synthesizing?
   </a>
@@ -5249,6 +5277,28 @@ running this command we will notice our directory will resemble the following:</
 <p>As you can see from the above logs, the build was executed sequentially for each package in the correct
 order.</p>
 <h3 id="faq">FAQ</h3>
+<h4 id="how-do-i-run-a-target-just-on-a-specific-package">How do I run a target just on a specific package?</h4>
+<p>To run a package specific target, you can do the following:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span> packages/&lt;my-package&gt;
+npx projen &lt;target&gt;
+</code></pre></div>
+<h4 id="how-do-i-add-a-new-target-to-a-projen-sub-project">How do I add a new target to a projen Sub Project?</h4>
+<p>In your <code>.projenrc.ts</code>, do the following:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span> <span class="nx">infra</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">AwsCdkTypeScriptApp</span><span class="p">({</span>
+  <span class="nx">cdkVersion</span><span class="o">:</span> <span class="s2">&quot;2.0.0&quot;</span><span class="p">,</span>
+  <span class="nx">defaultReleaseBranch</span><span class="o">:</span> <span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;infra&quot;</span><span class="p">,</span>
+  <span class="nx">devDeps</span><span class="o">:</span> <span class="p">[</span><span class="nx">webapp</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">],</span> <span class="c1">// CDK App depends on the webapp</span>
+  <span class="nx">parent</span>: <span class="kt">project</span><span class="p">,</span>
+  <span class="nx">outdir</span><span class="o">:</span> <span class="s2">&quot;packages/infra&quot;</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="nx">infra</span><span class="p">.</span><span class="nx">addTask</span><span class="p">(</span><span class="s2">&quot;new-target&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">exec</span><span class="o">:</span> <span class="s2">&quot;echo \&quot;hi\&quot;&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>As usual, ensure you run <code>npx projen</code> in the root directory to synthesize your change.</p>
+<p>From here is it just a case of executing <code>npx projen new-target</code> in the package directory.</p>
 <h4 id="i-have-added-a-project-in-projenrcts-but-it-isnt-synthesizing">I have added a project in .projenrc.ts but it isn't synthesizing?</h4>
 <ol>
 <li>Ensure that the <code>parent</code> property of the project is set to the monorepo project.</li>
