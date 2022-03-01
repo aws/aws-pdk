@@ -12,7 +12,29 @@ import {
 
 const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 
-export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {}
+export enum TargetDependencyProject {
+  SELF = "self",
+  DEPENDENCIES = "dependencies",
+}
+
+export interface TargetDependency {
+  readonly target: string;
+  readonly projects: TargetDependencyProject;
+}
+
+export type TargetDependencies = { [target: string]: TargetDependency[] };
+
+export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
+  /**
+   * @default {}
+   */
+  readonly targetDependencies?: TargetDependencies;
+
+  /**
+   * @default []
+   */
+  readonly nxIgnorePatterns?: string[];
+}
 
 /**
  * @pjid nx-monorepo
@@ -47,7 +69,8 @@ export class NxMonorepoProject extends TypeScriptProject {
       "test-reports",
       "target",
       ".env",
-      ".pytest_cache"
+      ".pytest_cache",
+      ...(options.nxIgnorePatterns || [])
     );
 
     new TextFile(this, NX_MONOREPO_PLUGIN_PATH, {
@@ -82,12 +105,7 @@ export class NxMonorepoProject extends TypeScriptProject {
               projects: "dependencies",
             },
           ],
-          test: [
-            {
-              target: "test",
-              projects: "dependencies",
-            },
-          ],
+          ...(options.targetDependencies || {}),
         },
         affected: {
           defaultBase: "mainline",
