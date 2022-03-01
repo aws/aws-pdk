@@ -635,6 +635,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#how-do-i-build-everything-in-my-monorepo-without-a-specific-target-package" class="md-nav__link">
+    How do I build everything in my monorepo without a specific target package?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#i-am-running-a-different-target-however-the-dependencies-are-not-being-executed" class="md-nav__link">
     I am running a different target, however the dependencies are not being executed.
   </a>
@@ -3833,6 +3840,13 @@
           <li class="md-nav__item">
   <a href="#i-have-updated-a-dependency-however-the-build-or-graph-viz-is-not-detecting-any-changes" class="md-nav__link">
     I have updated a dependency, however the build or graph viz is not detecting any changes.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-build-everything-in-my-monorepo-without-a-specific-target-package" class="md-nav__link">
+    How do I build everything in my monorepo without a specific target package?
   </a>
   
 </li>
@@ -7045,8 +7059,8 @@ package.json and also updating the <code>workspace</code> property in the root p
  &gt;  NX   Successfully ran target build <span class="k">for</span> project infra
 </code></pre></div>
 <p>As you can see from the above logs, the webapp build target was executed first as this is a dependency
-of infra. NX will also cache builds, so if I re-run the same command again you will notice the build completes
-in a fraction of the time.</p>
+of infra. NX will also cache builds, so if the same command is re-run (without modifying anything) you will notice the
+build completes in a fraction of the time.</p>
 <h4 id="example-2-implicit-dependencies">Example 2 - Implicit dependencies</h4>
 <p>Some project require implementing components in different languages and as such a mechanism must exist
 to declare implicit build dependencies between these various packages.</p>
@@ -7138,6 +7152,8 @@ order.</p>
 <li>Ensure you have run <code>npx projen</code> from the root of the monorepo.</li>
 <li>Sometimes the nx cache can become stale and can be cleared by running <code>npx nx clear-cache</code>.</li>
 </ol>
+<h4 id="how-do-i-build-everything-in-my-monorepo-without-a-specific-target-package">How do I build everything in my monorepo without a specific target package?</h4>
+<p><code>npx nx run-many --target=build --all</code></p>
 <h4 id="i-am-running-a-different-target-however-the-dependencies-are-not-being-executed">I am running a different target, however the dependencies are not being executed.</h4>
 <p>By default, only the <code>build</code> target is configured to rely on it's dependencies. To configure additional targets, update
 the NXMonorepoProject as follows:</p>
@@ -7171,6 +7187,7 @@ package in your monorepo.</p>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
 <h3 id="nxmonorepoprojectoptions">NxMonorepoProjectOptions <a name="NxMonorepoProjectOptions" id="aws-prototyping-sdk.pdk_projen.NxMonorepoProjectOptions"></a></h3>
+<p>Configuration options for the NxMonorepoProject.</p>
 <h4 id="initializer">Initializer <a name="Initializer" id="aws-prototyping-sdk.pdk_projen.NxMonorepoProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws</span><span class="o">-</span><span class="n">prototyping</span><span class="o">-</span><span class="n">sdk</span> <span class="kn">import</span> <span class="nn">pdk_projen</span>
 
@@ -7966,12 +7983,12 @@ package in your monorepo.</p>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_projen.NxMonorepoProjectOptions.property.nxIgnorePatterns">nx_ignore_patterns</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>List of patterns to include in the .nxignore file.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_projen.NxMonorepoProjectOptions.property.targetDependencies">target_dependencies</a></code></td>
 <td><code>typing.Mapping[typing.List[<a href="#aws-prototyping-sdk.pdk_projen.TargetDependency">TargetDependency</a>]]</code></td>
-<td><em>No description.</em></td>
+<td>Configuration for NX TargetDependencies.</td>
 </tr>
 </tbody>
 </table>
@@ -9189,6 +9206,10 @@ package in your monorepo.</p>
 <li><em>Type:</em> typing.List[str]</li>
 <li><em>Default:</em> []</li>
 </ul>
+<p>List of patterns to include in the .nxignore file.</p>
+<blockquote>
+<p><a href="https://nx.dev/configuration/packagejson#nxignore">https://nx.dev/configuration/packagejson#nxignore</a></p>
+</blockquote>
 <hr />
 <h5 id="target_dependenciesoptional"><code>target_dependencies</code><sup>Optional</sup> <a name="target_dependencies" id="aws-prototyping-sdk.pdk_projen.NxMonorepoProjectOptions.property.targetDependencies"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">target_dependencies</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">TargetDependency</span><span class="p">]]</span>
@@ -9197,8 +9218,13 @@ package in your monorepo.</p>
 <li><em>Type:</em> typing.Mapping[typing.List[<a href="#aws-prototyping-sdk.pdk_projen.TargetDependency">TargetDependency</a>]]</li>
 <li><em>Default:</em> {}</li>
 </ul>
+<p>Configuration for NX TargetDependencies.</p>
+<blockquote>
+<p><a href="https://nx.dev/configuration/packagejson#target-dependencies">https://nx.dev/configuration/packagejson#target-dependencies</a></p>
+</blockquote>
 <hr />
 <h3 id="targetdependency">TargetDependency <a name="TargetDependency" id="aws-prototyping-sdk.pdk_projen.TargetDependency"></a></h3>
+<p>Represents an NX Target Dependency.</p>
 <h4 id="initializer_1">Initializer <a name="Initializer" id="aws-prototyping-sdk.pdk_projen.TargetDependency.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws</span><span class="o">-</span><span class="n">prototyping</span><span class="o">-</span><span class="n">sdk</span> <span class="kn">import</span> <span class="nn">pdk_projen</span>
 
@@ -9220,12 +9246,12 @@ package in your monorepo.</p>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_projen.TargetDependency.property.projects">projects</a></code></td>
 <td><code><a href="#aws-prototyping-sdk.pdk_projen.TargetDependencyProject">TargetDependencyProject</a></code></td>
-<td><em>No description.</em></td>
+<td>Target dependencies.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_projen.TargetDependency.property.target">target</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Projen target i.e: build, test, etc.</td>
 </tr>
 </tbody>
 </table>
@@ -9236,6 +9262,7 @@ package in your monorepo.</p>
 <ul>
 <li><em>Type:</em> <a href="#aws-prototyping-sdk.pdk_projen.TargetDependencyProject">TargetDependencyProject</a></li>
 </ul>
+<p>Target dependencies.</p>
 <hr />
 <h5 id="targetrequired"><code>target</code><sup>Required</sup> <a name="target" id="aws-prototyping-sdk.pdk_projen.TargetDependency.property.target"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">target</span><span class="p">:</span> <span class="nb">str</span>
@@ -9243,9 +9270,11 @@ package in your monorepo.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Projen target i.e: build, test, etc.</p>
 <hr />
 <h2 id="classes">Classes <a name="Classes" id="Classes"></a></h2>
 <h3 id="nxmonorepoproject">NxMonorepoProject <a name="NxMonorepoProject" id="aws-prototyping-sdk.pdk_projen.NxMonorepoProject"></a></h3>
+<p>This project type will bootstrap a NX based monorepo with support for polygot builds, build caching, dependency graph visualization and much more.</p>
 <h4 id="initializers">Initializers <a name="Initializers" id="aws-prototyping-sdk.pdk_projen.NxMonorepoProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws</span><span class="o">-</span><span class="n">prototyping</span><span class="o">-</span><span class="n">sdk</span> <span class="kn">import</span> <span class="nn">pdk_projen</span>
 
@@ -10040,12 +10069,12 @@ package in your monorepo.</p>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_projen.NxMonorepoProject.Initializer.parameter.nxIgnorePatterns">nx_ignore_patterns</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>List of patterns to include in the .nxignore file.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_projen.NxMonorepoProject.Initializer.parameter.targetDependencies">target_dependencies</a></code></td>
 <td><code>typing.Mapping[typing.List[<a href="#aws-prototyping-sdk.pdk_projen.TargetDependency">TargetDependency</a>]]</code></td>
-<td><em>No description.</em></td>
+<td>Configuration for NX TargetDependencies.</td>
 </tr>
 </tbody>
 </table>
@@ -11023,12 +11052,20 @@ package in your monorepo.</p>
 <li><em>Type:</em> typing.List[str]</li>
 <li><em>Default:</em> []</li>
 </ul>
+<p>List of patterns to include in the .nxignore file.</p>
+<blockquote>
+<p><a href="https://nx.dev/configuration/packagejson#nxignore">https://nx.dev/configuration/packagejson#nxignore</a></p>
+</blockquote>
 <hr />
 <h5 id="target_dependenciesoptional_1"><code>target_dependencies</code><sup>Optional</sup> <a name="target_dependencies" id="aws-prototyping-sdk.pdk_projen.NxMonorepoProject.Initializer.parameter.targetDependencies"></a></h5>
 <ul>
 <li><em>Type:</em> typing.Mapping[typing.List[<a href="#aws-prototyping-sdk.pdk_projen.TargetDependency">TargetDependency</a>]]</li>
 <li><em>Default:</em> {}</li>
 </ul>
+<p>Configuration for NX TargetDependencies.</p>
+<blockquote>
+<p><a href="https://nx.dev/configuration/packagejson#target-dependencies">https://nx.dev/configuration/packagejson#target-dependencies</a></p>
+</blockquote>
 <hr />
 <h4 id="methods">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
@@ -11149,7 +11186,7 @@ package in your monorepo.</p>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_projen.NxMonorepoProject.addImplicitDependency">add_implicit_dependency</a></code></td>
-<td><em>No description.</em></td>
+<td>Create an implicit dependency between two Project's.</td>
 </tr>
 </tbody>
 </table>
@@ -11531,15 +11568,19 @@ package in your monorepo.</p>
   <span class="n">dependee</span><span class="p">:</span> <span class="n">Project</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
+<p>Create an implicit dependency between two Project's.</p>
+<p>This is typically used in polygot repos where a Typescript project wants a build dependency on a Python project as an example.</p>
 <h6 id="dependentrequired"><code>dependent</code><sup>Required</sup> <a name="dependent" id="aws-prototyping-sdk.pdk_projen.NxMonorepoProject.addImplicitDependency.parameter.dependent"></a></h6>
 <ul>
 <li><em>Type:</em> projen.Project</li>
 </ul>
+<p>project you want to have the dependency.</p>
 <hr />
 <h6 id="dependeerequired"><code>dependee</code><sup>Required</sup> <a name="dependee" id="aws-prototyping-sdk.pdk_projen.NxMonorepoProject.addImplicitDependency.parameter.dependee"></a></h6>
 <ul>
 <li><em>Type:</em> projen.Project</li>
 </ul>
+<p>project you wish to depend on.</p>
 <hr />
 <h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
@@ -12355,18 +12396,23 @@ package in your monorepo.</p>
 <tbody>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_projen.TargetDependencyProject.SELF">SELF</a></code></td>
-<td><em>No description.</em></td>
+<td>Only rely on the package where the target is called.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_projen.TargetDependencyProject.DEPENDENCIES">DEPENDENCIES</a></code></td>
-<td><em>No description.</em></td>
+<td>Target relies on executing the target against all dependencies first.</td>
 </tr>
 </tbody>
 </table>
 <hr />
+<p>Supported enums for a TargetDependency.</p>
 <h4 id="self"><code>SELF</code> <a name="SELF" id="aws-prototyping-sdk.pdk_projen.TargetDependencyProject.SELF"></a></h4>
+<p>Only rely on the package where the target is called.</p>
+<p>This is usually done for test like targets where you only want to run unit tests on the target packages without testing all dependent packages.</p>
 <hr />
 <h4 id="dependencies"><code>DEPENDENCIES</code> <a name="DEPENDENCIES" id="aws-prototyping-sdk.pdk_projen.TargetDependencyProject.DEPENDENCIES"></a></h4>
+<p>Target relies on executing the target against all dependencies first.</p>
+<p>This is usually done for build like targets where you want to build all dependant projects first.</p>
 <hr />
 
   <hr>
