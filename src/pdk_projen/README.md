@@ -241,6 +241,38 @@ order.
 
 ### FAQ
 
+#### How do I run a target just on a specific package?
+
+To run a package specific target, you can do the following:
+
+```shell
+cd packages/<my-package>
+npx projen <target>
+```
+
+#### How do I add a new target to a projen Sub Project?
+
+In your `.projenrc.ts`, do the following:
+
+```ts
+const infra = new AwsCdkTypeScriptApp({
+  cdkVersion: "2.0.0",
+  defaultReleaseBranch: "mainline",
+  name: "infra",
+  devDeps: [webapp.package.packageName], // CDK App depends on the webapp
+  parent: project,
+  outdir: "packages/infra",
+});
+
+infra.addTask("new-target", {
+  exec: "echo \"hi\""
+});
+```
+
+As usual, ensure you run `npx projen` in the root directory to synthesize your change.
+
+From here is it just a case of executing `npx projen new-target` in the package directory. 
+
 #### I have added a project in .projenrc.ts but it isn't synthesizing?
 
 1. Ensure that the `parent` property of the project is set to the monorepo project.

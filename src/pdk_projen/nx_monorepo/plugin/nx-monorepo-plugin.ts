@@ -7,8 +7,7 @@ import * as fs from "fs";
 import * as path from "path";
 const { ProjectGraphBuilder } = require("@nrwl/devkit");
 
-// @ts-ignore
-export const processProjectGraph = (graph: any, context: any) => {
+export const processProjectGraph = (graph: any) => {
   const builder = new ProjectGraphBuilder(graph);
 
   const nx = JSON.parse(
