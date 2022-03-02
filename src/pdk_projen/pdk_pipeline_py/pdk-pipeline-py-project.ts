@@ -4,6 +4,7 @@
 import * as path from "path";
 import { SampleDir } from "projen";
 import { AwsCdkPythonApp, AwsCdkPythonAppOptions } from "projen/lib/awscdk";
+import { Pytest } from "projen/lib/python";
 
 /**
  * Configuration options for the PDKPipelinePyProject.
@@ -20,6 +21,7 @@ export class PdkPipelinePyProject extends AwsCdkPythonApp {
     super({
       github: false,
       sample: false,
+      pytest: false,
       ...options,
     });
 
@@ -30,7 +32,22 @@ export class PdkPipelinePyProject extends AwsCdkPythonApp {
         "..",
         "..",
         "sample",
-        "pdk_pipeline_py"
+        "pdk_pipeline_py",
+        "src"
+      ),
+    });
+
+    this.pytest = new Pytest(this, options.pytestOptions);
+
+    new SampleDir(this, this.testdir, {
+      sourceDir: path.join(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "sample",
+        "pdk_pipeline_py",
+        "tests"
       ),
     });
   }

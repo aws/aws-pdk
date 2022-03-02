@@ -38,7 +38,20 @@ export class PDKPipelineTsProject extends AwsCdkTypeScriptApp {
         "..",
         "..",
         "sample",
-        "pdk_pipeline_ts"
+        "pdk_pipeline_ts",
+        "src"
+      ),
+    });
+
+    new SampleDir(this, this.testdir, {
+      sourceDir: path.join(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "sample",
+        "pdk_pipeline_ts",
+        "test"
       ),
     });
   }

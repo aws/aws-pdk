@@ -105,12 +105,8 @@ export class NxMonorepoProject extends TypeScriptProject {
       package: false,
       prettier: true,
       projenrcTs: true,
-      projenrcTsOptions: {
-        projenCodeDir: "",
-      },
       release: false,
       sampleCode: false,
-      name: "monorepo",
       defaultReleaseBranch: "mainline",
     });
 
