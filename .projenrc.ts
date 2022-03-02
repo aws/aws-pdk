@@ -29,7 +29,8 @@ const project = new JsiiProject({
     "license-checker",
     "oss-attribution-generator",
   ],
-  peerDeps: ["projen"],
+  peerDeps: ["projen", "constructs", "aws-cdk-lib"],
+  deps: ["constructs", "aws-cdk-lib"],
   publishToPypi: {
     distName: "aws-prototyping-sdk",
     module: "aws-prototyping-sdk",

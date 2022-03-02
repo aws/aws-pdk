@@ -13,6 +13,14 @@ import {
 const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 
 /**
+ * Supported languages to generate sample code.
+ */
+export enum SampleLanguage {
+  TYPESCRIPT = "ts",
+  PYTHON = "py",
+}
+
+/**
  * Supported enums for a TargetDependency.
  */
 export enum TargetDependencyProject {
@@ -71,6 +79,13 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
    * @default []
    */
   readonly nxIgnorePatterns?: string[];
+
+  /**
+   * Language to generate sample code on first synthesis
+   *
+   * @default undefined
+   */
+  readonly sampleLanguage?: SampleLanguage;
 }
 
 /**
@@ -90,6 +105,9 @@ export class NxMonorepoProject extends TypeScriptProject {
       package: false,
       prettier: true,
       projenrcTs: true,
+      projenrcTsOptions: {
+        projenCodeDir: "",
+      },
       release: false,
       sampleCode: false,
       name: "monorepo",
@@ -152,6 +170,27 @@ export class NxMonorepoProject extends TypeScriptProject {
         },
       },
     });
+
+    if (options.sampleLanguage) {
+      if (fs.existsSync(path.join(this.outdir, ".projenrc.ts.bk"))) {
+        console.log(
+          "Ignoring generation of sample code as this is a destructive action and should only be set on initial synthesis."
+        );
+      } else {
+        fs.copyFileSync(
+          path.join(this.outdir, ".projenrc.ts"),
+          ".projenrc.ts.bk"
+        ); // Make a backup of the existing .projenrc.ts just in case
+
+        fs.copyFileSync(
+          path.join(
+            this.outdir,
+            `node_modules/aws-prototyping-sdk/sample/nx_monorepo/nx-monorepo-sample-${options.sampleLanguage}.ts`
+          ),
+          ".projenrc.ts"
+        );
+      }
+    }
   }
 
   /**
