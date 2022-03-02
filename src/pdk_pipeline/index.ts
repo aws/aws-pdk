@@ -69,11 +69,7 @@ export interface PDKPipelineProps extends CodePipelineProps {
 export class PDKPipeline extends CodePipeline {
   private readonly codeRepository: Repository;
 
-  public constructor(
-    scope: Construct,
-    id: string,
-    { synth, ...props }: PDKPipelineProps
-  ) {
+  public constructor(scope: Construct, id: string, props: PDKPipelineProps) {
     const codeRepository = new Repository(scope, "CodeRepository", {
       repositoryName: props.repositoryName,
     });
@@ -89,6 +85,7 @@ export class PDKPipeline extends CodePipeline {
     } = props.synthShellStepPartialProps || {};
 
     const codePipelineProps: CodePipelineProps = {
+      ...props,
       synth: new ShellStep("Synth", {
         input: CodePipelineSource.codeCommit(
           codeRepository,
@@ -102,7 +99,6 @@ export class PDKPipeline extends CodePipeline {
         primaryOutputDirectory: props.primarySynthDirectory,
         ...(synthShellStepPartialProps || {}),
       }),
-      ...props,
     };
 
     super(scope, id, codePipelineProps);

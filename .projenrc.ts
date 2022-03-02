@@ -35,6 +35,12 @@ const project = new JsiiProject({
     distName: "aws_prototyping_sdk",
     module: "aws_prototyping_sdk",
   },
+  publishToMaven: {
+    mavenEndpoint: "https://aws.oss.sonatype.org",
+    mavenGroupId: "software.aws.awsprototypingsdk",
+    mavenArtifactId: "aws-prototyping-sdk",
+    javaPackage: "software.aws.awsprototypingsdk",
+  }
 });
 
 project.release?.addJobs({
