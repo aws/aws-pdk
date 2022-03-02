@@ -19,6 +19,7 @@ const project = new JsiiProject({
     "@commitlint/config-conventional",
     "@nrwl/devkit",
     "aws-cdk-lib",
+    "aws-prototyping-sdk@^0.0.17",
     "constructs",
     "cz-conventional-changelog",
     "eslint-plugin-header",
@@ -32,8 +33,8 @@ const project = new JsiiProject({
   peerDeps: ["projen", "constructs", "aws-cdk-lib"],
   deps: ["constructs", "aws-cdk-lib"],
   publishToPypi: {
-    distName: "aws-prototyping-sdk",
-    module: "aws-prototyping-sdk",
+    distName: "aws_prototyping_sdk",
+    module: "aws_prototyping_sdk",
   },
 });
 
