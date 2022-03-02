@@ -19,7 +19,6 @@ const project = new JsiiProject({
     "@commitlint/config-conventional",
     "@nrwl/devkit",
     "aws-cdk-lib",
-    "aws-prototyping-sdk@^0.0.17",
     "constructs",
     "cz-conventional-changelog",
     "eslint-plugin-header",
