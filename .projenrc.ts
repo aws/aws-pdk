@@ -40,6 +40,8 @@ const project = new JsiiProject({
     mavenGroupId: "software.aws.awsprototypingsdk",
     mavenArtifactId: "aws-prototyping-sdk",
     javaPackage: "software.aws.awsprototypingsdk",
+    mavenRepositoryUrl: "https://aws.oss.sonatype.org/content/repositories/releases",
+    mavenServerId: "sonatype-nexus-staging"
   }
 });
 
