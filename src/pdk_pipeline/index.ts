@@ -105,9 +105,9 @@ export class PDKPipeline extends CodePipeline {
 
     this.codeRepository = codeRepository;
 
-    new CfnOutput(scope, "CodeRepositoryArn", {
-      exportName: "CodeRepositoryHttpUrl",
-      value: this.codeRepository.repositoryCloneUrlHttp,
+    new CfnOutput(scope, "CodeRepositoryGRCUrl", {
+      exportName: "CodeRepositoryGRCUrl",
+      value: this.codeRepository.repositoryCloneUrlGrc,
     });
   }
 }
