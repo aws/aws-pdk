@@ -1,6 +1,6 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
-import { pdk_pipeline } from 'aws-prototyping-sdk';
 import { Construct } from 'constructs';
+import { pdk_pipeline } from 'aws-prototyping-sdk';
 
 export class PipelineStack extends Stack {
   readonly pipeline: pdk_pipeline.PDKPipeline;

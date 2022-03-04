@@ -218,27 +218,25 @@ const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
   }
 }));
 
-configureSampleTs(new TypeScriptProject({
+const sampleNxMonorepoTs = configureSampleTs(new TypeScriptProject({
   parent: monorepo,
   outdir: "samples/sample-nx-monorepo",
   defaultReleaseBranch: "mainline",
   name: "sample-nx-monorepo",
   sampleCode: false,
   deps: [
-    "aws-prototyping-sdk@file:../../packages/aws-prototyping-sdk",
     "aws-cdk-lib",
     "constructs"
   ]
 }));
 
-configureSampleTs(new TypeScriptProject({
+const samplePdkPipelineTs = configureSampleTs(new TypeScriptProject({
   parent: monorepo,
   outdir: "samples/sample-pdk-pipeline-ts",
   defaultReleaseBranch: "mainline",
   name: "sample-pdk-pipeline-ts",
   sampleCode: false,
   deps: [
-    "aws-prototyping-sdk@file:../../packages/aws-prototyping-sdk",
     "aws-cdk-lib",
     "constructs"
   ]
@@ -260,6 +258,8 @@ const samplePdkPipelinePy = configureSamplePy(new PythonProject({
   ]
 }));
 
+monorepo.addImplicitDependency(sampleNxMonorepoTs, awsPrototypingSdk);
+monorepo.addImplicitDependency(samplePdkPipelineTs, awsPrototypingSdk);
 monorepo.addImplicitDependency(samplePdkPipelinePy, awsPrototypingSdk);
 
 monorepo.synth();
