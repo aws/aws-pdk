@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This is need until https://github.com/aws/jsii/issues/3408 is resolved
 cd dist/python
