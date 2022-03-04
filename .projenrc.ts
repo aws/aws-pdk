@@ -89,13 +89,17 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
   });
 
   // task extensions
-  project.packageTask.prependSpawn(generateAttributionTask);
-  project.packageTask.prependSpawn(licenseCheckerTask);
+  project.packageTask.reset();
 
   // license-checker and attribute-generator requires deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
-  project.packageTask.prependExec("mkdir -p .tmp && cd .tmp && ln -s -f ../../../node_modules . && ln -s -f ../package.json package.json");
-  project.packageTask.prependExec("./scripts/copy-samples.sh");
+  project.packageTask.exec("./scripts/copy-samples.sh");
+  project.packageTask.exec("mkdir -p .tmp && cd .tmp && ln -s -f ../../../node_modules . && ln -s -f ../package.json package.json");
+  project.packageTask.spawn(licenseCheckerTask);
+  project.packageTask.spawn(generateAttributionTask);
+  project.packageTask.exec("if [ ! -z ${CI} ]; then mkdir -p dist && rsync -a . dist --exclude .git --exclude node_modules; fi");
+  project.packageTask.spawn(project.tasks.tryFind("package-all")!);
   project.packageTask.exec("rm -rf .tmp");
+
   project.addTask("clean", {
     exec: "rm -rf dist build lib samples test-reports coverage LICENSE-THIRD-PARTY",
   });
