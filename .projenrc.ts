@@ -1,8 +1,10 @@
-import {pdk_projen} from 'aws-prototyping-sdk';
-import {JsiiProject} from 'projen/lib/cdk';
-import {Release} from 'projen/lib/release';
-import {DependencyType} from 'projen';
+import { pdk_projen } from 'aws-prototyping-sdk';
+import { JsiiProject } from 'projen/lib/cdk';
+import { Release } from 'projen/lib/release';
+import { DependencyType } from 'projen';
 import { NodeProject } from 'projen/lib/javascript';
+import { TypeScriptProject } from 'projen/lib/typescript';
+import { PythonProject } from 'projen/lib/python';
 
 const resolveDependencies = (project: NodeProject): NodeProject => {
   // resolutions
@@ -57,7 +59,14 @@ const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.N
 };
 
 const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
-  project.addDevDeps("license-checker", "oss-attribution-generator");
+  new Release(project, {
+    versionFile: "package.json", // this is where "version" is set after bump
+    task: project.buildTask,
+    branch: "mainline",
+    artifactsDirectory: project.artifactsDirectory,
+  });
+
+  project.gitignore.exclude("samples");
 
   // Update npmignore
   [
@@ -85,9 +94,10 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
 
   // license-checker and attribute-generator requires deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
   project.packageTask.prependExec("mkdir -p .tmp && cd .tmp && ln -s -f ../../../node_modules . && ln -s -f ../package.json package.json");
+  project.packageTask.prependExec("./scripts/copy-samples.sh");
   project.packageTask.exec("rm -rf .tmp");
   project.addTask("clean", {
-    exec: "rm -rf dist build lib test-reports coverage LICENSE-THIRD-PARTY",
+    exec: "rm -rf dist build lib samples test-reports coverage LICENSE-THIRD-PARTY",
   });
 
   // jsii requires peer deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
@@ -138,6 +148,22 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
   return project;
 };
 
+const configureSampleTs = (project: TypeScriptProject): TypeScriptProject => {
+  project.package.addField("private", true);
+
+  return project;
+}
+
+const configureSamplePy = (project: PythonProject) : PythonProject => {
+  // Re-deploy any changes to dependant local packages
+  project.tasks.tryFind("install")?.reset();
+  project.preCompileTask.exec("pip install --upgrade pip");
+  project.preCompileTask.exec("pip install -r requirements.txt --force-reinstall");
+  project.preCompileTask.exec("pip install -r requirements-dev.txt");
+
+  return project;
+}
+
 const monorepo = configureMonorepo(new pdk_projen.NxMonorepoProject({
   defaultReleaseBranch: "mainline",
   eslint: false,
@@ -151,7 +177,7 @@ const monorepo = configureMonorepo(new pdk_projen.NxMonorepoProject({
   ],
 }));
 
-const awsPrototypingSdk = new JsiiProject({
+const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
   parent: monorepo,
   outdir: "packages/aws-prototyping-sdk",
   author: "AWS APJ COPE",
@@ -170,6 +196,8 @@ const awsPrototypingSdk = new JsiiProject({
     "exponential-backoff",
     "jsii-docgen",
     "jsii-pacmak",
+    "license-checker",
+    "oss-attribution-generator",
     "standard-version@^9",
   ],
   peerDeps: ["projen", "constructs", "aws-cdk-lib"],
@@ -184,15 +212,50 @@ const awsPrototypingSdk = new JsiiProject({
     mavenArtifactId: "aws-prototyping-sdk",
     javaPackage: "software.aws.awsprototypingsdk",
   }
-});
+}));
 
-new Release(awsPrototypingSdk, {
-  versionFile: "package.json", // this is where "version" is set after bump
-  task: awsPrototypingSdk.buildTask,
-  branch: "mainline",
-  artifactsDirectory: awsPrototypingSdk.artifactsDirectory,
-});
+configureSampleTs(new TypeScriptProject({
+  parent: monorepo,
+  outdir: "samples/sample-nx-monorepo",
+  defaultReleaseBranch: "mainline",
+  name: "sample-nx-monorepo",
+  sampleCode: false,
+  deps: [
+    "aws-prototyping-sdk@file:../../packages/aws-prototyping-sdk",
+    "aws-cdk-lib",
+    "constructs"
+  ]
+}));
 
-configureAwsPrototypingSdk(awsPrototypingSdk);
+configureSampleTs(new TypeScriptProject({
+  parent: monorepo,
+  outdir: "samples/sample-pdk-pipeline-ts",
+  defaultReleaseBranch: "mainline",
+  name: "sample-pdk-pipeline-ts",
+  sampleCode: false,
+  deps: [
+    "aws-prototyping-sdk@file:../../packages/aws-prototyping-sdk",
+    "aws-cdk-lib",
+    "constructs"
+  ]
+}));
+
+const samplePdkPipelinePy = configureSamplePy(new PythonProject({
+  parent: monorepo,
+  outdir: "samples/sample-pdk-pipeline-py",
+  authorEmail: "",
+  authorName: "",
+  moduleName: "infra",
+  sample: false,
+  name: "sample-pdk-pipeline-py",
+  version: "0.0.0",
+  deps: [
+    "aws-cdk-lib",
+    "constructs",
+    "../../packages/aws-prototyping-sdk/dist/python/aws_prototyping_sdk-0.0.0-py3-none-any.whl"
+  ]
+}));
+
+monorepo.addImplicitDependency(samplePdkPipelinePy, awsPrototypingSdk);
 
 monorepo.synth();

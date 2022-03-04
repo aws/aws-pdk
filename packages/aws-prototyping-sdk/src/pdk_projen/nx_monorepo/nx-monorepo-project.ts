@@ -181,7 +181,7 @@ export class NxMonorepoProject extends TypeScriptProject {
         fs.copyFileSync(
           path.join(
             this.outdir,
-            `node_modules/aws-prototyping-sdk/sample/nx_monorepo/nx-monorepo-sample-${options.sampleLanguage}.ts`
+            `node_modules/aws-prototyping-sdk/samples/sample-nx-monorepo/src/nx-monorepo-sample-${options.sampleLanguage}.ts`
           ),
           ".projenrc.ts"
         );
@@ -245,6 +245,7 @@ export class NxMonorepoProject extends TypeScriptProject {
         // generate a package.json if not found
         const manifest: any = {};
         manifest.name = subProject.name;
+        manifest.private = true;
         manifest.scripts = subProject.tasks.all.reduce(
           (p, c) => ({
             [c.name]: `npx projen ${c.name}`,

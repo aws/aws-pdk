@@ -14,10 +14,3 @@ cd ..
 rm $FILE
 mv .tmp/$FILE $FILE
 rm -rf .tmp
-#rm $FILE.tar
-#cd $FILE/src/aws_prototyping_sdk
-#awk '{sub("from . import pdk_projen","")}1' __init__.py > temp.txt && mv temp.txt __init__.py
-#cd ../../..
-#tar -cf $FILE.tar $FILE
-#rm -rf $FILE
-#gzip $FILE.tar

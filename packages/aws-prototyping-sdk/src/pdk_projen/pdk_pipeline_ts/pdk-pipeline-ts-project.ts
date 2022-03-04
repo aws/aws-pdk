@@ -37,8 +37,8 @@ export class PDKPipelineTsProject extends AwsCdkTypeScriptApp {
         "..",
         "..",
         "..",
-        "sample",
-        "pdk_pipeline_ts",
+        "samples",
+        "sample-pdk-pipeline-ts",
         "src"
       ),
     });
@@ -49,8 +49,8 @@ export class PDKPipelineTsProject extends AwsCdkTypeScriptApp {
         "..",
         "..",
         "..",
-        "sample",
-        "pdk_pipeline_ts",
+        "samples",
+        "sample-pdk-pipeline-ts",
         "test"
       ),
     });

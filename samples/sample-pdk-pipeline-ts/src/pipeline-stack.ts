@@ -1,6 +1,6 @@
-import { Stack, StackProps } from "aws-cdk-lib";
-import { Construct } from "constructs";
-import { pdk_pipeline } from "aws-prototyping-sdk";
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { pdk_pipeline } from 'aws-prototyping-sdk';
+import { Construct } from 'constructs';
 
 export class PipelineStack extends Stack {
   readonly pipeline: pdk_pipeline.PDKPipeline;
@@ -8,9 +8,9 @@ export class PipelineStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-    this.pipeline = new pdk_pipeline.PDKPipeline(this, "ApplicationPipeline", {
-      primarySynthDirectory: "packages/infra/cdk.out",
-      repositoryName: "monorepo",
+    this.pipeline = new pdk_pipeline.PDKPipeline(this, 'ApplicationPipeline', {
+      primarySynthDirectory: 'packages/infra/cdk.out',
+      repositoryName: 'monorepo',
       publishAssetsInParallel: false,
       prBuildChecker: true,
       crossAccountKeys: true,

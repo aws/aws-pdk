@@ -31,9 +31,9 @@ export class PdkPipelinePyProject extends AwsCdkPythonApp {
         "..",
         "..",
         "..",
-        "sample",
-        "pdk_pipeline_py",
-        "src"
+        "samples",
+        "sample-pdk-pipeline-py",
+        "infra"
       ),
     });
 
@@ -45,8 +45,8 @@ export class PdkPipelinePyProject extends AwsCdkPythonApp {
         "..",
         "..",
         "..",
-        "sample",
-        "pdk_pipeline_py",
+        "samples",
+        "sample-pdk-pipeline-py",
         "tests"
       ),
     });
