@@ -34,6 +34,16 @@ const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.N
       "build"
   );
 
+  // resolutions
+  monorepo.addFields({
+    resolutions: {
+      "ansi-regex": "^5.0.1",
+      underscore: "^1.12.1",
+      "deep-extend": "^0.5.1",
+      debug: "^2.6.9",
+    },
+  });
+
   monorepo.testTask.spawn(gitSecretsScanTask);
 
   return monorepo;
@@ -84,16 +94,6 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
   });
   buildDocsTask.prependSpawn(project.preCompileTask);
   project.tasks.tryFind("release:mainline")?.spawn(buildDocsTask);
-
-  // resolutions
-  project.addFields({
-    resolutions: {
-      "ansi-regex": "^5.0.1",
-      underscore: "^1.12.1",
-      "deep-extend": "^0.5.1",
-      debug: "^2.6.9",
-    },
-  });
 
   // eslint extensions
   project.eslint?.addPlugins("header");
