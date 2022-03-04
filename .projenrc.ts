@@ -64,6 +64,7 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
     "/.gitattributes",
     "/.prettierignore",
     "/.prettierrc.json",
+    "/.tmp/",
     "/build/",
     "/docs/",
     "/scripts/",
@@ -103,7 +104,7 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
   project.tasks.tryFind("release:mainline")?.spawn(buildDocsTask);
 
   // This is need until https://github.com/aws/jsii/issues/3408 is resolved
-  project.tasks.tryFind("package:python")?.exec("./scripts/python-package-hack.sh");
+  project.tasks.tryFind("package:python")?.exec("chmod +x ./scripts/python-package-hack.sh && ./scripts/python-package-hack.sh");
 
   // eslint extensions
   project.eslint?.addPlugins("header");
