@@ -24,38 +24,6 @@
         }
       ]
     },
-    "build:docs": {
-      "name": "build:docs",
-      "steps": [
-        {
-          "exec": "./scripts/build-docs.sh"
-        }
-      ]
-    },
-    "bump": {
-      "name": "bump",
-      "description": "Bumps version based on latest git tag and generates a changelog entry",
-      "env": {
-        "OUTFILE": "package.json",
-        "CHANGELOG": "dist/changelog.md",
-        "BUMPFILE": "dist/version.txt",
-        "RELEASETAG": "dist/releasetag.txt"
-      },
-      "steps": [
-        {
-          "builtin": "release/bump-version"
-        }
-      ],
-      "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
-    },
-    "clean": {
-      "name": "clean",
-      "steps": [
-        {
-          "exec": "rm -rf dist build lib test-reports coverage LICENSE-THIRD-PARTY"
-        }
-      ]
-    },
     "clobber": {
       "name": "clobber",
       "description": "hard resets to HEAD of origin and cleans the local repo",
@@ -88,23 +56,9 @@
       ],
       "condition": "git diff --exit-code > /dev/null"
     },
-    "compat": {
-      "name": "compat",
-      "description": "Perform API compatibility check against latest version",
-      "steps": [
-        {
-          "exec": "jsii-diff npm:$(node -p \"require('./package.json').name\") -k --ignore-file .compatignore || (echo \"\nUNEXPECTED BREAKING CHANGES: add keys such as 'removed:constructs.Node.of' to .compatignore to skip.\n\" && exit 1)"
-        }
-      ]
-    },
     "compile": {
       "name": "compile",
-      "description": "Only compile",
-      "steps": [
-        {
-          "exec": "jsii --silence-warnings=reserved-word --no-fix-peer-dependencies"
-        }
-      ]
+      "description": "Only compile"
     },
     "default": {
       "name": "default",
@@ -127,23 +81,6 @@
         }
       ]
     },
-    "eslint": {
-      "name": "eslint",
-      "description": "Runs eslint against the codebase",
-      "steps": [
-        {
-          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js"
-        }
-      ]
-    },
-    "generate:attribution": {
-      "name": "generate:attribution",
-      "steps": [
-        {
-          "exec": "generate-attribution && mv oss-attribution/attribution.txt LICENSE-THIRD-PARTY && rm -rf oss-attribution"
-        }
-      ]
-    },
     "git-secrets-scan": {
       "name": "git-secrets-scan",
       "steps": [
@@ -152,76 +89,9 @@
         }
       ]
     },
-    "license:check": {
-      "name": "license:check",
-      "steps": [
-        {
-          "exec": "license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
-        }
-      ]
-    },
     "package": {
       "name": "package",
-      "description": "Creates the distribution package",
-      "steps": [
-        {
-          "spawn": "generate:attribution"
-        },
-        {
-          "exec": "if [ ! -z ${CI} ]; then mkdir -p dist && rsync -a . dist --exclude .git --exclude node_modules; else npx projen package-all; fi"
-        }
-      ]
-    },
-    "package-all": {
-      "name": "package-all",
-      "description": "Packages artifacts for all target languages",
-      "steps": [
-        {
-          "spawn": "package:js"
-        },
-        {
-          "spawn": "package:java"
-        },
-        {
-          "spawn": "package:python"
-        }
-      ]
-    },
-    "package:java": {
-      "name": "package:java",
-      "description": "Create java language bindings",
-      "steps": [
-        {
-          "exec": "jsii_version=$(node -p \"JSON.parse(fs.readFileSync('.jsii')).jsiiVersion.split(' ')[0]\")"
-        },
-        {
-          "exec": "npx jsii-pacmak@$jsii_version -v --target java"
-        }
-      ]
-    },
-    "package:js": {
-      "name": "package:js",
-      "description": "Create js language bindings",
-      "steps": [
-        {
-          "exec": "jsii_version=$(node -p \"JSON.parse(fs.readFileSync('.jsii')).jsiiVersion.split(' ')[0]\")"
-        },
-        {
-          "exec": "npx jsii-pacmak@$jsii_version -v --target js"
-        }
-      ]
-    },
-    "package:python": {
-      "name": "package:python",
-      "description": "Create python language bindings",
-      "steps": [
-        {
-          "exec": "jsii_version=$(node -p \"JSON.parse(fs.readFileSync('.jsii')).jsiiVersion.split(' ')[0]\")"
-        },
-        {
-          "exec": "npx jsii-pacmak@$jsii_version -v --target python"
-        }
-      ]
+      "description": "Creates the distribution package"
     },
     "post-compile": {
       "name": "post-compile",
@@ -243,81 +113,12 @@
         }
       ]
     },
-    "release:mainline": {
-      "name": "release:mainline",
-      "description": "Prepare a release from \"mainline\" branch",
-      "env": {
-        "RELEASE": "true"
-      },
-      "steps": [
-        {
-          "exec": "rm -fr dist"
-        },
-        {
-          "spawn": "bump"
-        },
-        {
-          "spawn": "build"
-        },
-        {
-          "spawn": "unbump"
-        },
-        {
-          "exec": "git diff --ignore-space-at-eol --exit-code"
-        },
-        {
-          "spawn": "build:docs"
-        }
-      ]
-    },
     "test": {
       "name": "test",
       "description": "Run tests",
       "steps": [
         {
-          "exec": "jest --passWithNoTests --all --updateSnapshot"
-        },
-        {
-          "spawn": "eslint"
-        },
-        {
           "spawn": "git-secrets-scan"
-        },
-        {
-          "spawn": "license:check"
-        }
-      ]
-    },
-    "test:update": {
-      "name": "test:update",
-      "description": "Update jest snapshots",
-      "steps": [
-        {
-          "exec": "jest --updateSnapshot"
-        }
-      ]
-    },
-    "test:watch": {
-      "name": "test:watch",
-      "description": "Run jest in watch mode",
-      "steps": [
-        {
-          "exec": "jest --watch"
-        }
-      ]
-    },
-    "unbump": {
-      "name": "unbump",
-      "description": "Restores version to 0.0.0",
-      "env": {
-        "OUTFILE": "package.json",
-        "CHANGELOG": "dist/changelog.md",
-        "BUMPFILE": "dist/version.txt",
-        "RELEASETAG": "dist/releasetag.txt"
-      },
-      "steps": [
-        {
-          "builtin": "release/reset-version"
         }
       ]
     },
@@ -347,7 +148,7 @@
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade @commitlint/cli @commitlint/config-conventional @nrwl/devkit @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk-lib constructs cz-conventional-changelog eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-header eslint-plugin-import eslint-plugin-prettier eslint exponential-backoff husky jest jest-junit jsii jsii-diff jsii-docgen jsii-pacmak json-schema license-checker npm-check-updates oss-attribution-generator prettier standard-version ts-jest ts-node typescript aws-cdk-lib constructs aws-cdk-lib constructs"
+          "exec": "yarn upgrade @commitlint/cli @commitlint/config-conventional @nrwl/cli @nrwl/workspace @types/node aws-prototyping-sdk cz-conventional-changelog husky npm-check-updates prettier ts-node typescript"
         },
         {
           "exec": "npx projen"
@@ -383,7 +184,7 @@
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade projen projen"
+          "exec": "yarn upgrade projen"
         },
         {
           "exec": "npx projen"
@@ -398,7 +199,7 @@
       "description": "Watch & compile in the background",
       "steps": [
         {
-          "exec": "jsii -w --silence-warnings=reserved-word --no-fix-peer-dependencies"
+          "exec": "tsc --build -w"
         }
       ]
     }

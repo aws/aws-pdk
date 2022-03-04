@@ -1,33 +1,153 @@
-// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: Apache-2.0
+import {pdk_projen} from 'aws-prototyping-sdk';
+import {JsiiProject} from 'projen/lib/cdk';
+import {Release} from 'projen/lib/release';
+import {DependencyType} from 'projen';
 
-import { JsiiProject } from "projen/lib/cdk";
-import { JobPermission } from "projen/lib/github/workflows-model";
+const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.NxMonorepoProject => {
+  monorepo.addTask("prepare", {
+    exec: "husky install",
+  });
 
-const project = new JsiiProject({
+  const gitSecretsScanTask = monorepo.addTask("git-secrets-scan", {
+    exec: "./scripts/git-secrets-scan.sh",
+  });
+
+  // Commit lint and commitizen settings
+  monorepo.addFields({
+    config: {
+      commitizen: {
+        path: "./node_modules/cz-conventional-changelog",
+      },
+    },
+    commitlint: {
+      extends: ["@commitlint/config-conventional"],
+    },
+  });
+
+  // Update .gitignore
+  monorepo.gitignore.exclude(
+      "/.tools/",
+      "/.idea/",
+      ".tmp",
+      "LICENSE-THIRD-PARTY",
+      ".DS_Store",
+      "build"
+  );
+
+  monorepo.testTask.spawn(gitSecretsScanTask);
+
+  return monorepo;
+};
+
+const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
+  project.addDevDeps("license-checker", "oss-attribution-generator");
+
+  // Update npmignore
+  [
+    "/.gitattributes",
+    "/.prettierignore",
+    "/.prettierrc.json",
+    "/build/",
+    "/docs/",
+    "/scripts/",
+  ].forEach((s) => project.addPackageIgnore(s));
+
+  // OSS requirements
+  const generateAttributionTask = project.addTask("generate:attribution", {
+    exec: "cd .tmp && generate-attribution && mv oss-attribution/attribution.txt ../LICENSE-THIRD-PARTY",
+  });
+
+  const licenseCheckerTask = project.addTask("license:check", {
+    exec: "cd .tmp && license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'",
+  });
+
+  // task extensions
+  project.packageTask.prependSpawn(generateAttributionTask);
+  project.packageTask.prependSpawn(licenseCheckerTask);
+
+  // license-checker and attribute-generator requires deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
+  project.packageTask.prependExec("mkdir -p .tmp && cd .tmp && ln -s -f ../../../node_modules . && ln -s -f ../package.json package.json");
+  project.packageTask.exec("rm -rf .tmp");
+  project.addTask("clean", {
+    exec: "rm -rf dist build lib test-reports coverage LICENSE-THIRD-PARTY",
+  });
+
+  // jsii requires peer deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
+  project.preCompileTask.exec(`rm -rf node_modules && mkdir node_modules && cd node_modules && ${project.deps.all
+      .filter(d => d.type === DependencyType.PEER)
+      .map(d => `cp -R ../../../node_modules/${d.name} .`)
+      .join(" && ")}`);
+
+  // Generate docs for each supported language into a micro-site
+  const buildDocsTask = project.addTask("build:docs", {
+    exec: "./scripts/build-docs.sh",
+  });
+  buildDocsTask.prependSpawn(project.preCompileTask);
+  project.tasks.tryFind("release:mainline")?.spawn(buildDocsTask);
+
+  // resolutions
+  project.addFields({
+    resolutions: {
+      "ansi-regex": "^5.0.1",
+      underscore: "^1.12.1",
+      "deep-extend": "^0.5.1",
+      debug: "^2.6.9",
+    },
+  });
+
+  // eslint extensions
+  project.eslint?.addPlugins("header");
+  project.eslint?.addRules({
+    "header/header": [
+      2,
+      "line",
+      [
+        " Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.",
+        " SPDX-License-Identifier: Apache-2.0",
+      ],
+      2,
+    ],
+  });
+  project.eslint?.addRules({
+    "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
+  });
+
+  return project;
+};
+
+const monorepo = configureMonorepo(new pdk_projen.NxMonorepoProject({
+  defaultReleaseBranch: "mainline",
+  eslint: false,
+  name: "aws-prototyping-sdk-monorepo",
+  devDeps: [
+    "aws-prototyping-sdk",
+    "@commitlint/cli",
+    "@commitlint/config-conventional",
+    "cz-conventional-changelog",
+    "husky",
+  ],
+}));
+
+const awsPrototypingSdk = new JsiiProject({
+  parent: monorepo,
+  outdir: "packages/aws-prototyping-sdk",
   author: "AWS APJ COPE",
   authorAddress: "apj-cope@amazon.com",
   defaultReleaseBranch: "mainline",
   name: "aws-prototyping-sdk",
   docgen: false,
-  projenrcTs: true,
   keywords: ["aws", "pdk", "jsii", "projen"],
   prettier: true,
   repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
   devDeps: [
-    "@commitlint/cli",
-    "@commitlint/config-conventional",
     "@nrwl/devkit",
     "aws-cdk-lib",
     "constructs",
-    "cz-conventional-changelog",
     "eslint-plugin-header",
     "exponential-backoff",
-    "husky",
     "jsii-docgen",
     "jsii-pacmak",
-    "license-checker",
-    "oss-attribution-generator",
+    "standard-version@^9",
   ],
   peerDeps: ["projen", "constructs", "aws-cdk-lib"],
   deps: ["constructs", "aws-cdk-lib"],
@@ -43,155 +163,13 @@ const project = new JsiiProject({
   }
 });
 
-project.release?.addJobs({
-  release_docs: {
-    runsOn: ["ubuntu-latest"],
-    needs: ["release_github"],
-    permissions: {
-      contents: JobPermission.WRITE,
-    },
-    if: "needs.release.outputs.latest_commit == github.sha",
-    steps: [
-      {
-        name: "Check out",
-        uses: "actions/checkout@v2.4.0",
-        with: {
-          ref: "gh-pages",
-          "fetch-depth": 0,
-        },
-      },
-      {
-        name: "Download build artifacts",
-        uses: "actions/download-artifact@v2",
-        with: {
-          name: "build-artifact",
-          path: "dist",
-        },
-      },
-      {
-        name: "Configure Git",
-        run: [
-          `git config user.name "AWS PDK Automation"`,
-          `git config user.email "aws-pdk+automation@amazon.com"`,
-        ].join("\n"),
-      },
-      {
-        name: "Upload docs to Github",
-        run: "zip -r docs.zip dist/docs/* && gh release upload $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip",
-        env: {
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}",
-          GITHUB_REPOSITORY: "${{ github.repository }}",
-        },
-      },
-      {
-        name: "Prepare Commit",
-        run: [
-          "mv dist ${{ runner.temp }}/dist",
-          "rsync --delete --exclude=.git --recursive ${{ runner.temp }}/dist/docs/ .",
-          "touch .nojekyll",
-          "git add .",
-          "git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')",
-        ].join("\n"),
-      },
-      {
-        name: "Push",
-        run: "git push origin gh-pages:gh-pages",
-      },
-    ],
-  },
+new Release(awsPrototypingSdk, {
+  versionFile: "package.json", // this is where "version" is set after bump
+  task: awsPrototypingSdk.buildTask,
+  branch: "mainline",
+  artifactsDirectory: awsPrototypingSdk.artifactsDirectory,
 });
 
-// Custom targets
-project.addTask("prepare", {
-  exec: "husky install",
-});
+configureAwsPrototypingSdk(awsPrototypingSdk);
 
-project.addTask("clean", {
-  exec: "rm -rf dist build lib test-reports coverage LICENSE-THIRD-PARTY",
-});
-
-const generateAttributionTask = project.addTask("generate:attribution", {
-  exec: "generate-attribution && mv oss-attribution/attribution.txt LICENSE-THIRD-PARTY && rm -rf oss-attribution",
-});
-const gitSecretsScanTask = project.addTask("git-secrets-scan", {
-  exec: "./scripts/git-secrets-scan.sh",
-});
-const licenseCheckerTask = project.addTask("license:check", {
-  exec: "license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'",
-});
-
-project.addFields({
-  resolutions: {
-    "ansi-regex": "^5.0.1",
-    underscore: "^1.12.1",
-    "deep-extend": "^0.5.1",
-    debug: "^2.6.9",
-  },
-});
-
-// Commit lint and commitizen settings
-project.addFields({
-  config: {
-    commitizen: {
-      path: "./node_modules/cz-conventional-changelog",
-    },
-  },
-  commitlint: {
-    extends: ["@commitlint/config-conventional"],
-  },
-});
-
-// eslint extensions
-project.eslint?.addPlugins("header");
-project.eslint?.addRules({
-  "header/header": [
-    2,
-    "line",
-    [
-      " Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.",
-      " SPDX-License-Identifier: Apache-2.0",
-    ],
-    2,
-  ],
-});
-project.eslint?.addRules({
-  "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
-});
-
-// Update .gitignore
-project.gitignore.exclude(
-  "/.tools/",
-  "/.idea/",
-  "LICENSE-THIRD-PARTY",
-  ".DS_Store",
-  "build"
-);
-
-// Update npmignore
-[
-  "/.gitattributes",
-  "/.prettierignore",
-  "/.prettierrc.json",
-  "/.projenrc.ts",
-  "/.husky/",
-  "/.tools/",
-  "/build/",
-  "/docs/",
-  "/scripts/",
-].forEach((s) => project.addPackageIgnore(s));
-
-// Generate docs for each supported language into a micro-site
-const buildDocsTask = project.addTask("build:docs", {
-  exec: "./scripts/build-docs.sh",
-});
-
-project.tasks.tryFind("release:mainline")?.spawn(buildDocsTask);
-
-// Add additional tests
-project.testTask.spawn(gitSecretsScanTask);
-project.testTask.spawn(licenseCheckerTask);
-
-// Add attribution when packaging
-project.packageTask.prependSpawn(generateAttributionTask);
-
-project.synth();
+monorepo.synth();

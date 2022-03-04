@@ -26,8 +26,10 @@ jobs:
           git config user.email "github-actions@github.com"
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
+      - name: build
+        run: npx nx run-many --target=build --all
       - name: release:mainline
-        run: npx projen release:mainline
+        run: npx nx release:mainline aws-prototyping-sdk
       - name: Check for new commits
         id: git_remote
         run: echo ::set-output name=latest_commit::"$(git ls-remote origin -h ${{ github.ref }} | cut -f1)"
@@ -36,7 +38,7 @@ jobs:
         uses: actions/upload-artifact@v2.1.1
         with:
           name: build-artifact
-          path: dist
+          path: packages/aws-prototyping-sdk/dist
   release_github:
     name: Publish to GitHub Releases
     needs: release
@@ -52,13 +54,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-artifact
-          path: dist
+          path: packages/aws-prototyping-sdk/dist
       - name: Prepare Repository
-        run: mv dist .repo
+        run: mv packages/aws-prototyping-sdk/dist .repo
       - name: Collect GitHub Metadata
-        run: mv .repo/dist dist
+        run: mv .repo/dist packages/aws-prototyping-sdk/dist
       - name: Release
         run: errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY -F dist/changelog.md -t $(cat dist/releasetag.txt) --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode -ne 0 ] && ! grep -q "Release.tag_name already exists" $errout; then cat $errout; exit $exitcode; fi
+        working-directory: packages/aws-prototyping-sdk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -78,17 +81,18 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-artifact
-          path: dist
+          path: packages/aws-prototyping-sdk/dist
       - name: Prepare Repository
-        run: mv dist .repo
+        run: mv packages/aws-prototyping-sdk/dist .repo
       - name: Install Dependencies
         run: cd .repo && yarn install --check-files --frozen-lockfile
       - name: Create js artifact
         run: cd .repo && npx projen package:js
       - name: Collect js Artifact
-        run: mv .repo/dist dist
+        run: mv .repo/dist packages/aws-prototyping-sdk/dist
       - name: Release
         run: npx -p publib@latest publib-npm
+        working-directory: packages/aws-prototyping-sdk
         env:
           NPM_DIST_TAG: latest
           NPM_REGISTRY: registry.npmjs.org
@@ -112,17 +116,18 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-artifact
-          path: dist
+          path: packages/aws-prototyping-sdk/dist
       - name: Prepare Repository
-        run: mv dist .repo
+        run: mv packages/aws-prototyping-sdk/dist .repo
       - name: Install Dependencies
         run: cd .repo && yarn install --check-files --frozen-lockfile
       - name: Create java artifact
         run: cd .repo && npx projen package:java
       - name: Collect java Artifact
-        run: mv .repo/dist dist
+        run: mv .repo/dist packages/aws-prototyping-sdk/dist
       - name: Release
         run: npx -p publib@latest publib-maven
+        working-directory: packages/aws-prototyping-sdk
         env:
           MAVEN_ENDPOINT: https://aws.oss.sonatype.org
           MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
@@ -148,17 +153,18 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-artifact
-          path: dist
+          path: packages/aws-prototyping-sdk/dist
       - name: Prepare Repository
-        run: mv dist .repo
+        run: mv packages/aws-prototyping-sdk/dist .repo
       - name: Install Dependencies
         run: cd .repo && yarn install --check-files --frozen-lockfile
       - name: Create python artifact
         run: cd .repo && npx projen package:python
       - name: Collect python Artifact
-        run: mv .repo/dist dist
+        run: mv .repo/dist packages/aws-prototyping-sdk/dist
       - name: Release
         run: npx -p publib@latest publib-pypi
+        working-directory: packages/aws-prototyping-sdk
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}

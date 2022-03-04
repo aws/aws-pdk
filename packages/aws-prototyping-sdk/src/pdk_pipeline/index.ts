@@ -67,7 +67,7 @@ export interface PDKPipelineProps extends CodePipelineProps {
  * automated PR builds and approvals.
  */
 export class PDKPipeline extends CodePipeline {
-  private readonly codeRepository: Repository;
+  readonly codeRepository: Repository;
 
   public constructor(scope: Construct, id: string, props: PDKPipelineProps) {
     const codeRepository = new Repository(scope, "CodeRepository", {
