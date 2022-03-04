@@ -155,6 +155,10 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
 const configureSampleTs = (project: TypeScriptProject): TypeScriptProject => {
   project.package.addField("private", true);
 
+  project.eslint?.addRules({
+    "import/no-extraneous-dependencies": "off",
+  });
+
   return project;
 }
 
