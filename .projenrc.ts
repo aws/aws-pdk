@@ -102,6 +102,9 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
   buildDocsTask.prependSpawn(project.preCompileTask);
   project.tasks.tryFind("release:mainline")?.spawn(buildDocsTask);
 
+  // This is need until https://github.com/aws/jsii/issues/3408 is resolved
+  project.tasks.tryFind("package:python")?.exec("./scripts/python-package-hack.sh");
+
   // eslint extensions
   project.eslint?.addPlugins("header");
   project.eslint?.addRules({
