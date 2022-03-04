@@ -2,6 +2,21 @@ import {pdk_projen} from 'aws-prototyping-sdk';
 import {JsiiProject} from 'projen/lib/cdk';
 import {Release} from 'projen/lib/release';
 import {DependencyType} from 'projen';
+import { NodeProject } from 'projen/lib/javascript';
+
+const resolveDependencies = (project: NodeProject): NodeProject => {
+  // resolutions
+  project.addFields({
+    resolutions: {
+      "ansi-regex": "^5.0.1",
+      underscore: "^1.12.1",
+      "deep-extend": "^0.5.1",
+      debug: "^2.6.9",
+    },
+  });
+
+  return project;
+}
 
 const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.NxMonorepoProject => {
   monorepo.addTask("prepare", {
@@ -34,15 +49,7 @@ const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.N
       "build"
   );
 
-  // resolutions
-  monorepo.addFields({
-    resolutions: {
-      "ansi-regex": "^5.0.1",
-      underscore: "^1.12.1",
-      "deep-extend": "^0.5.1",
-      debug: "^2.6.9",
-    },
-  });
+  resolveDependencies(monorepo);
 
   monorepo.testTask.spawn(gitSecretsScanTask);
 
@@ -111,6 +118,18 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
   project.eslint?.addRules({
     "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
   });
+
+  // resolutions
+  project.addFields({
+    resolutions: {
+      "ansi-regex": "^5.0.1",
+      underscore: "^1.12.1",
+      "deep-extend": "^0.5.1",
+      debug: "^2.6.9",
+    },
+  });
+
+  resolveDependencies(project);
 
   return project;
 };
