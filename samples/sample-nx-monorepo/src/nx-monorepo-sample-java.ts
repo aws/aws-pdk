@@ -6,17 +6,16 @@ const monorepo = new pdk_projen.NxMonorepoProject({
   name: 'monorepo',
 });
 
-new pdk_projen.PDKPipelinePyProject({
-  authorEmail: '',
-  authorName: '',
+new pdk_projen.PDKPipelineJavaProject({
+  artifactId: 'infra',
   cdkVersion: '2.0.0',
-  moduleName: 'infra',
-  name: 'infra',
-  version: '0.0.0',
+  groupId: 'software.aws',
+  mainClass: 'software.aws.Pipeline -Dexec.classpathScope=\"test\"',
   parent: monorepo,
   outdir: 'packages/infra',
-  appEntrypoint: 'infra/pipeline.py',
-  deps: ['aws-prototyping-sdk'],
+  name: 'infra',
+  version: '0.0.0',
+  deps: ["software.aws.awsprototypingsdk/aws-prototyping-sdk@0.0.34"],
 });
 
 monorepo.synth();

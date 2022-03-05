@@ -16,7 +16,7 @@ export interface PDKPipelinePyProjectOptions extends AwsCdkPythonAppOptions {}
  *
  * @pjid pdk-pipeline-py
  */
-export class PdkPipelinePyProject extends AwsCdkPythonApp {
+export class PDKPipelinePyProject extends AwsCdkPythonApp {
   constructor(options: PDKPipelinePyProjectOptions) {
     super({
       github: false,

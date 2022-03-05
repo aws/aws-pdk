@@ -17,6 +17,7 @@ const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 export enum SampleLanguage {
   TYPESCRIPT = "ts",
   PYTHON = "py",
+  JAVA = "java",
 }
 
 /**

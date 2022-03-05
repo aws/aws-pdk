@@ -1,10 +1,13 @@
-import * as pdk_projen  from 'aws-prototyping-sdk/src/pdk_projen/index';
-import { JsiiProject } from 'projen/lib/cdk';
-import { Release } from 'projen/lib/release';
-import { DependencyType } from 'projen';
-import { NodeProject } from 'projen/lib/javascript';
-import { TypeScriptProject } from 'projen/lib/typescript';
-import { PythonProject } from 'projen/lib/python';
+import * as pdk_projen from "aws-prototyping-sdk/src/pdk_projen/index";
+import * as fs from "fs";
+import { XMLParser, XMLBuilder } from "fast-xml-parser"
+import { JsiiProject } from "projen/lib/cdk";
+import { Release } from "projen/lib/release";
+import { DependencyType } from "projen";
+import { NodeProject } from "projen/lib/javascript";
+import { TypeScriptProject } from "projen/lib/typescript";
+import { PythonProject } from "projen/lib/python";
+import { JavaProject } from "projen/lib/java";
 
 const resolveDependencies = (project: NodeProject): NodeProject => {
   // resolutions
@@ -18,7 +21,7 @@ const resolveDependencies = (project: NodeProject): NodeProject => {
   });
 
   return project;
-}
+};
 
 const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.NxMonorepoProject => {
   // Compile pdk as we depend on it in order to bootstrap this repo
@@ -167,12 +170,39 @@ const configureSampleTs = (project: TypeScriptProject): TypeScriptProject => {
   return project;
 }
 
-const configureSamplePy = (project: PythonProject) : PythonProject => {
+const configureSamplePy = (project: PythonProject): PythonProject => {
   // Re-deploy any changes to dependant local packages
   project.tasks.tryFind("install")?.reset();
   project.preCompileTask.exec("pip install --upgrade pip");
   project.preCompileTask.exec("pip install -r requirements.txt --force-reinstall");
   project.preCompileTask.exec("pip install -r requirements-dev.txt");
+
+  return project;
+}
+
+const configureSampleJava = (project: JavaProject): JavaProject => {
+  project.deps.postSynthesize = () => {
+    const parser = new XMLParser({
+      ignoreDeclaration: true
+    });
+    let pom = parser.parse(fs.readFileSync(`${project.outdir}/pom.xml`));
+
+    pom.project.dependencies.dependency = [...pom.project.dependencies.dependency, {
+      groupId: "software.aws.awsprototypingsdk",
+      artifactId: "aws-prototyping-sdk",
+      version: "0.0.0",
+      scope: "system",
+      systemPath: "${basedir}/../../packages/aws-prototyping-sdk/dist/java/software/aws/awsprototypingsdk/aws-prototyping-sdk/0.0.0/aws-prototyping-sdk-0.0.0.jar"
+    }];
+
+    const builder = new XMLBuilder({
+      format: true
+    });
+    const newPom = builder.build(pom);
+
+    fs.chmodSync(`${project.outdir}/pom.xml`, "600");
+    fs.writeFileSync(`${project.outdir}/pom.xml`, newPom, { mode: "400" });
+  }
 
   return project;
 }
@@ -213,6 +243,7 @@ const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
     "oss-attribution-generator",
     "standard-version@^9",
   ],
+  bundledDeps: ["fast-xml-parser"],
   peerDeps: ["projen", "constructs", "aws-cdk-lib"],
   deps: ["constructs", "aws-cdk-lib"],
   publishToPypi: {
@@ -269,6 +300,20 @@ const samplePdkPipelinePy = configureSamplePy(new PythonProject({
   ]
 }));
 
+const samplePdkPipelineJava = configureSampleJava(new JavaProject({
+  parent: monorepo,
+  outdir: "samples/sample-pdk-pipeline-java",
+  artifactId: 'sample-pdk-pipeline-java',
+  groupId: 'sample.pdk.pipeline',
+  name: "sample-pdk-pipeline-java",
+  version: "0.0.0",
+  sample: false,
+  deps: [
+    "software.amazon.awscdk/aws-cdk-lib@2.15.0",
+  ]
+}));
+
 monorepo.addImplicitDependency(samplePdkPipelinePy, awsPrototypingSdk);
+monorepo.addImplicitDependency(samplePdkPipelineJava, awsPrototypingSdk);
 
 monorepo.synth();
