@@ -181,6 +181,8 @@ const configureSamplePy = (project: PythonProject): PythonProject => {
 }
 
 const configureSampleJava = (project: JavaProject): JavaProject => {
+  project.testTask.exec("mvn test");
+
   project.deps.postSynthesize = () => {
     const parser = new XMLParser({
       ignoreDeclaration: true
@@ -308,8 +310,13 @@ const samplePdkPipelineJava = configureSampleJava(new JavaProject({
   name: "sample-pdk-pipeline-java",
   version: "0.0.0",
   sample: false,
+  junit: false,
   deps: [
     "software.amazon.awscdk/aws-cdk-lib@2.15.0",
+  ],
+  testDeps: [
+    "org.junit.jupiter/junit-jupiter-api@5.7.0",
+    "org.junit.jupiter/junit-jupiter-engine@5.7.0"
   ]
 }));
 
