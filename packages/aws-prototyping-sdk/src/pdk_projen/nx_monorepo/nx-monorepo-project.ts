@@ -4,7 +4,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import { IgnoreFile, JsonFile, Project, TextFile } from "projen";
-import { NodeProject } from "projen/lib/javascript";
 import {
   TypeScriptProject,
   TypeScriptProjectOptions,
@@ -117,7 +116,7 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.compileTask.reset();
     this.testTask.reset();
 
-    this.addDevDeps("aws-prototyping-sdk", "@nrwl/cli", "@nrwl/workspace");
+    this.addDevDeps("@nrwl/cli", "@nrwl/workspace");
 
     new IgnoreFile(this, ".nxignore").exclude(
       "test-reports",
@@ -240,12 +239,19 @@ export class NxMonorepoProject extends TypeScriptProject {
     newSubProject && super.synth();
 
     this.subProjects
-      .filter((subProject) => !(subProject instanceof NodeProject))
+      .filter(
+        (subProject) =>
+          !fs.existsSync(`${subProject.outdir}/package.json`) ||
+          JSON.parse(
+            fs.readFileSync(`${subProject.outdir}/package.json`).toString()
+          ).__pdk__
+      )
       .forEach((subProject) => {
         // generate a package.json if not found
         const manifest: any = {};
         manifest.name = subProject.name;
         manifest.private = true;
+        manifest.__pdk__ = true;
         manifest.scripts = subProject.tasks.all.reduce(
           (p, c) => ({
             [c.name]: `npx projen ${c.name}`,

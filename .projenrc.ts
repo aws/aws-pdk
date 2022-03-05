@@ -1,4 +1,4 @@
-import { pdk_projen } from 'aws-prototyping-sdk';
+import * as pdk_projen  from 'aws-prototyping-sdk/src/pdk_projen/index';
 import { JsiiProject } from 'projen/lib/cdk';
 import { Release } from 'projen/lib/release';
 import { DependencyType } from 'projen';
@@ -21,6 +21,9 @@ const resolveDependencies = (project: NodeProject): NodeProject => {
 }
 
 const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.NxMonorepoProject => {
+  // Compile pdk as we depend on it in order to bootstrap this repo
+  monorepo.defaultTask?.prependExec("cd packages/aws-prototyping-sdk && $(if [ ! -d lib ]; then npx projen compile > /dev/null; fi;)");
+
   monorepo.addTask("prepare", {
     exec: "husky install",
   });
@@ -105,10 +108,12 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
   });
 
   // jsii requires peer deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
+  // TODO: make this more robust as this assumes all deps default to the root node_modules
   project.preCompileTask.exec(`rm -rf node_modules && mkdir node_modules && cd node_modules && ${project.deps.all
       .filter(d => d.type === DependencyType.PEER)
       .map(d => `cp -R ../../../node_modules/${d.name} .`)
       .join(" && ")}`);
+  project.postCompileTask.exec("rm -rf node_modules");
 
   // Generate docs for each supported language into a micro-site
   const buildDocsTask = project.addTask("build:docs", {
@@ -177,7 +182,7 @@ const monorepo = configureMonorepo(new pdk_projen.NxMonorepoProject({
   eslint: false,
   name: "aws-prototyping-sdk-monorepo",
   devDeps: [
-    "aws-prototyping-sdk",
+    "aws-prototyping-sdk@0.0.0",
     "@commitlint/cli",
     "@commitlint/config-conventional",
     "cz-conventional-changelog",
@@ -222,7 +227,7 @@ const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
   }
 }));
 
-const sampleNxMonorepoTs = configureSampleTs(new TypeScriptProject({
+configureSampleTs(new TypeScriptProject({
   parent: monorepo,
   outdir: "samples/sample-nx-monorepo",
   defaultReleaseBranch: "mainline",
@@ -230,11 +235,12 @@ const sampleNxMonorepoTs = configureSampleTs(new TypeScriptProject({
   sampleCode: false,
   deps: [
     "aws-cdk-lib",
-    "constructs"
+    "constructs",
+    "aws-prototyping-sdk@0.0.0"
   ]
 }));
 
-const samplePdkPipelineTs = configureSampleTs(new TypeScriptProject({
+configureSampleTs(new TypeScriptProject({
   parent: monorepo,
   outdir: "samples/sample-pdk-pipeline-ts",
   defaultReleaseBranch: "mainline",
@@ -242,7 +248,8 @@ const samplePdkPipelineTs = configureSampleTs(new TypeScriptProject({
   sampleCode: false,
   deps: [
     "aws-cdk-lib",
-    "constructs"
+    "constructs",
+    "aws-prototyping-sdk@0.0.0"
   ]
 }));
 
@@ -262,8 +269,6 @@ const samplePdkPipelinePy = configureSamplePy(new PythonProject({
   ]
 }));
 
-monorepo.addImplicitDependency(sampleNxMonorepoTs, awsPrototypingSdk);
-monorepo.addImplicitDependency(samplePdkPipelineTs, awsPrototypingSdk);
 monorepo.addImplicitDependency(samplePdkPipelinePy, awsPrototypingSdk);
 
 monorepo.synth();
