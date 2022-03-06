@@ -220,6 +220,9 @@ const monorepo = configureMonorepo(new pdk_projen.NxMonorepoProject({
     "cz-conventional-changelog",
     "husky",
   ],
+  depsUpgradeOptions: {
+    exclude: ["aws-prototyping-sdk"]
+  }
 }));
 
 const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
@@ -270,7 +273,10 @@ configureSampleTs(new TypeScriptProject({
     "aws-cdk-lib",
     "constructs",
     "aws-prototyping-sdk@0.0.0"
-  ]
+  ],
+  depsUpgradeOptions: {
+    exclude: ["aws-prototyping-sdk"]
+  }
 }));
 
 configureSampleTs(new TypeScriptProject({
@@ -283,7 +289,10 @@ configureSampleTs(new TypeScriptProject({
     "aws-cdk-lib",
     "constructs",
     "aws-prototyping-sdk@0.0.0"
-  ]
+  ],
+  depsUpgradeOptions: {
+    exclude: ["aws-prototyping-sdk"]
+  }
 }));
 
 const samplePdkPipelinePy = configureSamplePy(new PythonProject({
@@ -299,7 +308,7 @@ const samplePdkPipelinePy = configureSamplePy(new PythonProject({
     "aws-cdk-lib",
     "constructs",
     "../../packages/aws-prototyping-sdk/dist/python/aws_prototyping_sdk-0.0.0-py3-none-any.whl"
-  ]
+  ],
 }));
 
 const samplePdkPipelineJava = configureSampleJava(new JavaProject({
