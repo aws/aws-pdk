@@ -110,4 +110,13 @@ export class PDKPipeline extends CodePipeline {
       value: this.codeRepository.repositoryCloneUrlGrc,
     });
   }
+
+  buildPipeline() {
+    super.buildPipeline();
+
+    new CfnOutput(this, "SynthBuildProjectArn", {
+      exportName: "SynthBuildProjectArn",
+      value: this.synthProject.projectArn,
+    });
+  }
 }
