@@ -10,4 +10,5 @@ class PipelineStack(Stack):
                                                  repository_name="monorepo",
                                                  publish_assets_in_parallel=False,
                                                  cross_account_keys=True,
+                                                 sonar_code_scanner_config=self.node.try_get_context("sonarqubeScannerConfig"),
                                                  synth=pipelines.ShellStep("Unused", commands=[]))

@@ -14,6 +14,7 @@ export class PipelineStack extends Stack {
       publishAssetsInParallel: false,
       crossAccountKeys: true,
       synth: {},
+      sonarCodeScannerConfig: this.node.tryGetContext('sonarqubeScannerConfig'),
     });
   }
 }

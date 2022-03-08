@@ -7,6 +7,7 @@ import software.amazon.awscdk.pipelines.FileSet;
 import software.amazon.awscdk.pipelines.IFileSetProducer;
 import software.aws.awsprototypingsdk.pdk_pipeline.PDKPipeline;
 import software.aws.awsprototypingsdk.pdk_pipeline.PDKPipelineProps;
+import software.aws.awsprototypingsdk.pdk_pipeline.SonarCodeScannerConfig;
 import software.constructs.Construct;
 
 public class PipelineStack extends Stack {
@@ -20,6 +21,7 @@ public class PipelineStack extends Stack {
                 .repositoryName("monorepo")
                 .publishAssetsInParallel(false)
                 .crossAccountKeys(true)
+                .sonarCodeScannerConfig((SonarCodeScannerConfig)this.getNode().tryGetContext("sonarqubeScannerConfig"))
                 .synth(new IFileSetProducer() {
                     @Override
                     public @Nullable FileSet getPrimaryOutput() {

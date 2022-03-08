@@ -91,9 +91,7 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
   /**
    * @default {}
    */
-  readonly sampleContextJson?: {
-    [key: string]: any;
-  };
+  readonly sampleContextJson?: string;
 }
 
 /**
@@ -186,25 +184,21 @@ export class NxMonorepoProject extends TypeScriptProject {
           ".projenrc.ts.bk"
         ); // Make a backup of the existing .projenrc.ts just in case
 
-        let sampleProjenTs = fs
-          .readFileSync(
-            path.join(
-              this.outdir,
-              `node_modules/aws-prototyping-sdk/samples/sample-nx-monorepo/src/nx-monorepo-sample-${options.sampleLanguage}.ts`
-            )
-          )
-          .toString("utf-8");
-
-        options.sampleContextJson &&
-          (sampleProjenTs = sampleProjenTs.replace(
-            "context: {}",
-            `context: ${options.sampleContextJson}`
-          ));
-
-        fs.writeFileSync(
-          path.join(this.outdir, ".projenrc.ts"),
-          sampleProjenTs
+        fs.copyFileSync(
+          path.join(
+            this.outdir,
+            `node_modules/aws-prototyping-sdk/samples/sample-nx-monorepo/src/nx-monorepo-sample-${options.sampleLanguage}.ts`
+          ),
+          ".projenrc.ts"
         );
+
+        if (options.sampleContextJson) {
+          new JsonFile(this, ".cdk.context.json", {
+            obj: JSON.parse(options.sampleContextJson),
+            readonly: false,
+            marker: false,
+          });
+        }
       }
     }
   }
@@ -258,6 +252,16 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     // Need to synth before generating the package.json otherwise the subdirectory won't exist
     newSubProject && super.synth();
+
+    const bootstrapCdkJsonPath = path.join(this.outdir, ".cdk.context.json");
+    const infraSubproject = this.subProjects.find((s) => s.name === "infra");
+    if (fs.existsSync(bootstrapCdkJsonPath) && infraSubproject) {
+      fs.copyFileSync(
+        bootstrapCdkJsonPath,
+        path.join(infraSubproject.outdir, "cdk.context.json")
+      );
+      fs.unlinkSync(bootstrapCdkJsonPath);
+    }
 
     this.subProjects
       .filter(

@@ -118,9 +118,7 @@ export class PDKPipeline extends CodePipeline {
     super(scope, id, codePipelineProps);
 
     this.codeRepository = codeRepository;
-    this.sonarCodeScannerConfig =
-      props.sonarCodeScannerConfig ||
-      this.node.tryGetContext("sonarqubeScannerConfig");
+    this.sonarCodeScannerConfig = props.sonarCodeScannerConfig;
 
     new CfnOutput(scope, "CodeRepositoryGRCUrl", {
       exportName: "CodeRepositoryGRCUrl",

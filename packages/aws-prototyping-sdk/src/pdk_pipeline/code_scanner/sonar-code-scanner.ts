@@ -26,6 +26,7 @@ export interface SonarCodeScannerConfig {
   readonly sonarqubeAuthorizedGroup: string;
   readonly sonarqubeProjectName: string;
   readonly sonarqubeTags?: string[];
+  readonly preArchiveCommands?: string[];
 }
 
 export interface SonarCodeScannerProps extends SonarCodeScannerConfig {
@@ -99,6 +100,7 @@ export class SonarCodeScanner extends Construct {
               cfnNagScan(props.cfnNagIgnorePath),
               sonarqubeScanner(),
               ...generateSonarqubeReports(),
+              ...(props.preArchiveCommands || []),
             ],
           },
         },
