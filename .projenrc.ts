@@ -307,6 +307,7 @@ const samplePdkPipelinePy = configureSamplePy(new PythonProject({
   deps: [
     "aws-cdk-lib",
     "constructs",
+    "pyhumps",
     "../../packages/aws-prototyping-sdk/dist/python/aws_prototyping_sdk-0.0.0-py3-none-any.whl"
   ],
 }));
