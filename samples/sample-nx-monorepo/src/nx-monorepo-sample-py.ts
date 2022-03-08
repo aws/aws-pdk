@@ -18,7 +18,7 @@ new pdk_projen.PDKPipelinePyProject({
   parent: monorepo,
   outdir: 'packages/infra',
   appEntrypoint: 'infra/pipeline.py',
-  deps: ['aws-prototyping-sdk'],
+  deps: ['aws-prototyping-sdk', 'pyhumps'],
 });
 
 monorepo.synth();

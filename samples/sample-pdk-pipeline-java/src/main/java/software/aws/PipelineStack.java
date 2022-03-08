@@ -1,14 +1,20 @@
 package software.aws;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.jetbrains.annotations.Nullable;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.pipelines.FileSet;
 import software.amazon.awscdk.pipelines.IFileSetProducer;
+import software.amazon.jsii.JsiiObjectMapper;
 import software.aws.awsprototypingsdk.pdk_pipeline.PDKPipeline;
 import software.aws.awsprototypingsdk.pdk_pipeline.PDKPipelineProps;
 import software.aws.awsprototypingsdk.pdk_pipeline.SonarCodeScannerConfig;
 import software.constructs.Construct;
+
+import java.util.List;
+import java.util.function.Function;
 
 public class PipelineStack extends Stack {
     private PDKPipeline pipeline;
@@ -16,12 +22,31 @@ public class PipelineStack extends Stack {
     public PipelineStack(Construct scope, String id, @Nullable StackProps props) {
         super(scope, id, props);
 
+        SonarCodeScannerConfig sonarConfig = null;
+        Object sonarCtx = this.getNode().tryGetContext("sonarqubeScannerConfig");
+
+        if (sonarCtx != null) {
+            JsonNode ctxJson = JsiiObjectMapper.valueToTree(sonarCtx).get("$jsii.map");
+
+            sonarConfig = SonarCodeScannerConfig.builder()
+                    .cfnNagIgnorePath(getNode(ctxJson, "cfnNagIgnorePath", JsonNode::asText))
+                    .sonarqubeAuthorizedGroup(getNode(ctxJson, "sonarqubeAuthorizedGroup", JsonNode::asText))
+                    .sonarqubeEndpoint(getNode(ctxJson, "sonarqubeEndpoint", JsonNode::asText))
+                    .sonarqubeProjectName(getNode(ctxJson, "sonarqubeProjectName", JsonNode::asText))
+                    .sonarqubeSpecificProfileOrGateName(getNode(ctxJson, "sonarqubeSpecificProfileOrGateName", JsonNode::asText))
+                    .sonarqubeDefaultProfileOrGateName(getNode(ctxJson, "sonarqubeDefaultProfileOrGateName", JsonNode::asText))
+                    .preArchiveCommands(getNode(ctxJson, "preArchiveCommands", (node) -> JsiiObjectMapper.INSTANCE.convertValue(node, new TypeReference<List<String>>() {})))
+                    .sonarqubeTags(getNode(ctxJson, "sonarqubeTags", (node) -> JsiiObjectMapper.INSTANCE.convertValue(node, new TypeReference<List<String>>() {})))
+                    .build();
+            System.out.println(sonarConfig.$jsii$toJson());
+        }
+
         this.pipeline = new PDKPipeline(this, "ApplicationPipeline", PDKPipelineProps.builder()
                 .primarySynthDirectory("packages/infra/cdk.out")
                 .repositoryName("monorepo")
                 .publishAssetsInParallel(false)
                 .crossAccountKeys(true)
-                .sonarCodeScannerConfig((SonarCodeScannerConfig)this.getNode().tryGetContext("sonarqubeScannerConfig"))
+                .sonarCodeScannerConfig(sonarConfig)
                 .synth(new IFileSetProducer() {
                     @Override
                     public @Nullable FileSet getPrimaryOutput() {
@@ -29,6 +54,11 @@ public class PipelineStack extends Stack {
                     }
                 })
                 .build());
+    }
+
+    private static <T> T getNode(JsonNode parent, String fieldName, Function<JsonNode, T> supplier) {
+        JsonNode node = parent.get(fieldName);
+        return node != null ? supplier.apply(node) : null;
     }
 
     public PDKPipeline getPipeline() {
