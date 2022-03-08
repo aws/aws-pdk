@@ -38,7 +38,6 @@ public class PipelineStack extends Stack {
                     .preArchiveCommands(getNode(ctxJson, "preArchiveCommands", (node) -> JsiiObjectMapper.INSTANCE.convertValue(node, new TypeReference<List<String>>() {})))
                     .sonarqubeTags(getNode(ctxJson, "sonarqubeTags", (node) -> JsiiObjectMapper.INSTANCE.convertValue(node, new TypeReference<List<String>>() {})))
                     .build();
-            System.out.println(sonarConfig.$jsii$toJson());
         }
 
         this.pipeline = new PDKPipeline(this, "ApplicationPipeline", PDKPipelineProps.builder()
