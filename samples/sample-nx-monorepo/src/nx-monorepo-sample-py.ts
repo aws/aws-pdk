@@ -1,4 +1,5 @@
 import { pdk_projen } from 'aws-prototyping-sdk';
+import { ApprovalLevel } from 'projen/lib/awscdk';
 
 const monorepo = new pdk_projen.NxMonorepoProject({
   defaultReleaseBranch: 'mainline',
@@ -13,11 +14,11 @@ new pdk_projen.PDKPipelinePyProject({
   moduleName: 'infra',
   name: 'infra',
   version: '0.0.0',
+  requireApproval: ApprovalLevel.NEVER,
   parent: monorepo,
   outdir: 'packages/infra',
   appEntrypoint: 'infra/pipeline.py',
   deps: ['aws-prototyping-sdk'],
-  context: {},
 });
 
 monorepo.synth();

@@ -1,4 +1,5 @@
 import { pdk_projen } from 'aws-prototyping-sdk';
+import { ApprovalLevel } from 'projen/lib/awscdk';
 
 const monorepo = new pdk_projen.NxMonorepoProject({
   defaultReleaseBranch: 'mainline',
@@ -12,11 +13,11 @@ new pdk_projen.PDKPipelineJavaProject({
   groupId: 'software.aws',
   mainClass: 'software.aws.Pipeline -Dexec.classpathScope=\"test\"',
   parent: monorepo,
+  requireApproval: ApprovalLevel.NEVER,
   outdir: 'packages/infra',
   name: 'infra',
   version: '0.0.0',
   deps: ['software.aws.awsprototypingsdk/aws-prototyping-sdk@0.0.34'],
-  context: {},
 });
 
 monorepo.synth();
