@@ -16,6 +16,7 @@ new pdk_projen.PDKPipelineJavaProject({
   name: 'infra',
   version: '0.0.0',
   deps: ['software.aws.awsprototypingsdk/aws-prototyping-sdk@0.0.34'],
+  context: {},
 });
 
 monorepo.synth();

@@ -14,6 +14,7 @@ new pdk_projen.PDKPipelineTsProject({
   parent: monorepo,
   outdir: 'packages/infra',
   deps: ['aws-prototyping-sdk'],
+  context: {},
 });
 
 monorepo.synth();

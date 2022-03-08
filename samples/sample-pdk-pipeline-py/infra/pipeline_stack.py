@@ -9,6 +9,5 @@ class PipelineStack(Stack):
                                                  primary_synth_directory="packages/infra/cdk.out",
                                                  repository_name="monorepo",
                                                  publish_assets_in_parallel=False,
-                                                 pr_build_checker=True,
                                                  cross_account_keys=True,
                                                  synth=pipelines.ShellStep("Unused", commands=[]))

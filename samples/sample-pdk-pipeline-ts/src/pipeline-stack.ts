@@ -12,7 +12,6 @@ export class PipelineStack extends Stack {
       primarySynthDirectory: 'packages/infra/cdk.out',
       repositoryName: 'monorepo',
       publishAssetsInParallel: false,
-      prBuildChecker: true,
       crossAccountKeys: true,
       synth: {},
     });

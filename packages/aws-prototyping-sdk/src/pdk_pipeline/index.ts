@@ -11,6 +11,12 @@ import {
   ShellStepProps,
 } from "aws-cdk-lib/pipelines";
 import { Construct } from "constructs";
+import {
+  SonarCodeScanner,
+  SonarCodeScannerConfig,
+} from "./code_scanner/sonar-code-scanner";
+
+export * from "./code_scanner/sonar-code-scanner";
 
 const DEFAULT_BRANCH_NAME = "mainline";
 
@@ -59,6 +65,13 @@ export interface PDKPipelineProps extends CodePipelineProps {
    * @default mainline
    */
   readonly defaultBranchName?: string;
+
+  /**
+   * Configuration for enabling Sonarqube code scanning.
+   *
+   * @default undefined
+   */
+  readonly sonarCodeScannerConfig?: SonarCodeScannerConfig;
 }
 
 /**
@@ -68,6 +81,7 @@ export interface PDKPipelineProps extends CodePipelineProps {
  */
 export class PDKPipeline extends CodePipeline {
   readonly codeRepository: Repository;
+  private readonly sonarCodeScannerConfig?: SonarCodeScannerConfig;
 
   public constructor(scope: Construct, id: string, props: PDKPipelineProps) {
     const codeRepository = new Repository(scope, "CodeRepository", {
@@ -104,6 +118,9 @@ export class PDKPipeline extends CodePipeline {
     super(scope, id, codePipelineProps);
 
     this.codeRepository = codeRepository;
+    this.sonarCodeScannerConfig =
+      props.sonarCodeScannerConfig ||
+      this.node.tryGetContext("sonarqubeScannerConfig");
 
     new CfnOutput(scope, "CodeRepositoryGRCUrl", {
       exportName: "CodeRepositoryGRCUrl",
@@ -114,9 +131,13 @@ export class PDKPipeline extends CodePipeline {
   buildPipeline() {
     super.buildPipeline();
 
-    new CfnOutput(this, "SynthBuildProjectArn", {
-      exportName: "SynthBuildProjectArn",
-      value: this.synthProject.projectArn,
-    });
+    this.sonarCodeScannerConfig &&
+      new SonarCodeScanner(this, "SonarCodeScanner", {
+        artifactBucketArn: this.pipeline.artifactBucket.bucketArn,
+        artifactBucketKeyArn:
+          this.pipeline.artifactBucket.encryptionKey?.keyArn,
+        synthBuildArn: this.synthProject.projectArn,
+        ...this.sonarCodeScannerConfig,
+      });
   }
 }

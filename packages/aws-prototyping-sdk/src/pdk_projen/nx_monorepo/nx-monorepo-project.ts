@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import * as console from "console";
 import * as fs from "fs";
 import * as path from "path";
 import { IgnoreFile, JsonFile, Project, TextFile } from "projen";
@@ -86,6 +87,13 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
    * @default undefined
    */
   readonly sampleLanguage?: SampleLanguage;
+
+  /**
+   * @default {}
+   */
+  readonly sampleContextJson?: {
+    [key: string]: any;
+  };
 }
 
 /**
@@ -178,12 +186,24 @@ export class NxMonorepoProject extends TypeScriptProject {
           ".projenrc.ts.bk"
         ); // Make a backup of the existing .projenrc.ts just in case
 
-        fs.copyFileSync(
-          path.join(
-            this.outdir,
-            `node_modules/aws-prototyping-sdk/samples/sample-nx-monorepo/src/nx-monorepo-sample-${options.sampleLanguage}.ts`
-          ),
-          ".projenrc.ts"
+        let sampleProjenTs = fs
+          .readFileSync(
+            path.join(
+              this.outdir,
+              `node_modules/aws-prototyping-sdk/samples/sample-nx-monorepo/src/nx-monorepo-sample-${options.sampleLanguage}.ts`
+            )
+          )
+          .toString("utf-8");
+
+        options.sampleContextJson &&
+          (sampleProjenTs = sampleProjenTs.replace(
+            "context: {}",
+            `context: ${options.sampleContextJson}`
+          ));
+
+        fs.writeFileSync(
+          path.join(this.outdir, ".projenrc.ts"),
+          sampleProjenTs
         );
       }
     }
