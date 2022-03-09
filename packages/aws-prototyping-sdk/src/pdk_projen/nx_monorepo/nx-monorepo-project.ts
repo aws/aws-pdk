@@ -239,6 +239,9 @@ export class NxMonorepoProject extends TypeScriptProject {
         path.relative(this.outdir, subProject.outdir)
       )
     );
+
+    // Disable default task on subprojects as this isn't supported in a monorepo
+    this.subProjects.forEach((subProject) => subProject.defaultTask?.reset());
   }
 
   /**
