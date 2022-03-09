@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { CfnOutput } from "aws-cdk-lib";
 import {
   BuildEnvironmentVariableType,
   BuildSpec,
@@ -158,6 +159,11 @@ export class SonarCodeScanner extends Construct {
           ],
         }),
       }),
+    });
+
+    new CfnOutput(this, "SonarqubeSecretArn", {
+      exportName: "SonarqubeSecretArn",
+      value: sonarQubeToken.secretArn,
     });
   }
 }
