@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { CfnOutput } from "aws-cdk-lib";
+import { CfnOutput, RemovalPolicy } from "aws-cdk-lib";
 import { Repository } from "aws-cdk-lib/aws-codecommit";
 import {
   CodePipeline,
@@ -72,6 +72,12 @@ export interface PDKPipelineProps extends CodePipelineProps {
    * @default undefined
    */
   readonly sonarCodeScannerConfig?: SonarCodeScannerConfig;
+
+  /**
+   * Possible values for a resource's Removal Policy
+   * The removal policy controls what happens to the resource if it stops being managed by CloudFormation.
+   */
+  readonly codeCommitRemovalPolicy?: RemovalPolicy;
 }
 
 /**
@@ -87,6 +93,9 @@ export class PDKPipeline extends CodePipeline {
     const codeRepository = new Repository(scope, "CodeRepository", {
       repositoryName: props.repositoryName,
     });
+    codeRepository.applyRemovalPolicy(
+      props.codeCommitRemovalPolicy ?? RemovalPolicy.RETAIN
+    );
 
     // TODO: Implement prBuildChecker
 
