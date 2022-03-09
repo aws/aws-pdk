@@ -4,7 +4,9 @@
 import { SonarCodeScannerProps } from "./sonar-code-scanner";
 
 const cube = (path: string, action: string = "GET", args?: string) =>
-  `curl -X ${action} -u $SONARQUBE_TOKEN: "$SONARQUBE_ENDPOINT${path}" ${args}`;
+  `curl -X ${action} -u $SONARQUBE_TOKEN: "$SONARQUBE_ENDPOINT${path}" ${
+    args || ""
+  }`;
 
 const setupSonarqubeQualityGates = (
   defaultProfileOrGateName: string,
