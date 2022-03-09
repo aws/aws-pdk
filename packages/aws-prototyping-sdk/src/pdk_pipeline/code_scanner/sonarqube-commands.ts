@@ -90,13 +90,19 @@ const setupSonarqubeProject = ({
 
 export const generateSonarqubeReports = () => [
   cube(
-    "/api/bitegarden/report/pdf_issues_breakdown?resource=$PROJECT_NAME&branch=mainline", "GET", "--output reports/prototype-issues-report.pdf"
+    "/api/bitegarden/report/pdf_issues_breakdown?resource=$PROJECT_NAME&branch=mainline",
+    "GET",
+    "--output reports/prototype-issues-report.pdf"
   ),
   cube(
-    "/api/bitegarden/report/pdf?resource=$PROJECT_NAME&branch=mainline", "GET", "--output reports/prototype-executive-report.pdf"
+    "/api/bitegarden/report/pdf?resource=$PROJECT_NAME&branch=mainline",
+    "GET",
+    "--output reports/prototype-executive-report.pdf"
   ),
   cube(
-    "/api/security_reports/download?project=$PROJECT_NAME", "GET", "--output reports/prototype-security-report.pdf"
+    "/api/security_reports/download?project=$PROJECT_NAME",
+    "GET",
+    "--output reports/prototype-security-report.pdf"
   ),
 ];
 
@@ -108,7 +114,7 @@ export const createSonarqubeProject = (props: SonarCodeScannerProps) => [
   `if [[ "$(echo $CREATE_PROJECT_OUTPUT | jq .errors)" == "null" ]]; then ${setupSonarqubeProject(
     props
   )}; fi;`,
-  'mkdir -p reports',
+  "mkdir -p reports",
 ];
 
 export const sonarqubeScanner = () =>
