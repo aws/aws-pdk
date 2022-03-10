@@ -116,7 +116,6 @@ export const createSonarqubeProject = (props: SonarCodeScannerProps) => [
   `if [[ "$(echo $CREATE_PROJECT_OUTPUT | jq .errors)" == "null" ]]; then ${setupSonarqubeProject(
     props
   )}; fi;`,
-  "mkdir -p reports",
 ];
 
 export const sonarqubeScanner = (excludeGlobsForScan?: string[]) =>

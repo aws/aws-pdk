@@ -107,6 +107,7 @@ export class SonarCodeScanner extends Construct {
             commands: [
               ...unpackSourceAndArtifacts(props.includeGlobsForScan),
               ...createSonarqubeProject(props),
+              "mkdir -p src/reports",
               owaspScan(),
               cfnNagScan(props.cdkOutDir, props.cfnNagIgnorePath),
               "cd src",
