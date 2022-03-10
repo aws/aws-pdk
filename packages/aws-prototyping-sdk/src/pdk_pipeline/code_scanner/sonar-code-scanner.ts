@@ -101,7 +101,7 @@ export class SonarCodeScanner extends Construct {
         },
         phases: {
           install: {
-            commands: ["gem install cfn-nag"],
+            commands: ["npm install -g aws-cdk", "gem install cfn-nag"],
           },
           build: {
             commands: [
