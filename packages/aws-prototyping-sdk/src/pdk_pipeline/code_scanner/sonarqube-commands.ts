@@ -119,8 +119,9 @@ export const createSonarqubeProject = (props: SonarCodeScannerProps) => [
   "mkdir -p reports",
 ];
 
-export const sonarqubeScanner = () =>
+export const sonarqubeScanner = (excludeGlobsForScan?: string[]) =>
   [
+    "cd src",
     "npx sonarqube-scanner -Dsonar.login=$SONARQUBE_TOKEN",
     "-Dsonar.projectKey=$PROJECT_NAME",
     "-Dsonar.projectName=$PROJECT_NAME",
@@ -129,4 +130,10 @@ export const sonarqubeScanner = () =>
     "-Dsonar.host.url=$SONARQUBE_ENDPOINT",
     "-Dsonar.cfn.nag.reportFiles=reports/cfn-nag-report.json",
     "-Dsonar.dependencyCheck.htmlReportPath=reports/dependency-check-report.html",
+    "-Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info",
+    "-Dsonar.clover.reportPath=**/coverage/clover.xml",
+    `-Dsonar.exclusions="**/reports/**,**/coverage/**${
+      excludeGlobsForScan ? `,${excludeGlobsForScan.join(",")}` : ""
+    }"`,
+    "-Dsonar.sources=.",
   ].join(" ");

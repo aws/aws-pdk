@@ -21,6 +21,9 @@ import {
 
 export interface SonarCodeScannerConfig {
   readonly cfnNagIgnorePath?: string;
+  readonly cdkOutDir?: string;
+  readonly excludeGlobsForScan?: string[];
+  readonly includeGlobsForScan?: string[];
   readonly sonarqubeEndpoint: string;
   readonly sonarqubeDefaultProfileOrGateName: string;
   readonly sonarqubeSpecificProfileOrGateName?: string;
@@ -36,23 +39,30 @@ export interface SonarCodeScannerProps extends SonarCodeScannerConfig {
   readonly artifactBucketKeyArn?: string;
 }
 
-const unpackSourceAndArtifacts = () => [
-  'export SYNTH_ARTIFACT_URI=`echo $SYNTH_ARTIFACT_LOCATION | awk \'{sub("arn:aws:s3:::","s3://")}1\' $1`',
-  'export SYNTH_SOURCE_URI=`echo $SYNTH_SOURCE_VERSION | awk \'{sub("arn:aws:s3:::","s3://")}1\' $1`',
+const unpackSourceAndArtifacts = (includeGlobsForScan?: string[]) => [
+  'export BUILT_ARTIFACT_URI=`aws codebuild batch-get-builds --ids $SYNTH_BUILD_ID | jq -r \'.builds[0].secondaryArtifacts[] | select(.artifactIdentifier == "Synth__") | .location\' | awk \'{sub("arn:aws:s3:::","s3://")}1\' $1`',
+  "export SYNTH_SOURCE_URI=`aws codebuild batch-get-builds --ids $SYNTH_BUILD_ID | jq -r '.builds[0].sourceVersion' | awk '{sub(\"arn:aws:s3:::\",\"s3://\")}1' $1`",
   "aws s3 cp $SYNTH_SOURCE_URI source.zip",
-  "aws s3 cp $SYNTH_ARTIFACT_URI dist.zip",
-  "unzip source.zip",
-  "unzip dist.zip -d cdk.out",
-  "rm source.zip dist.zip",
+  "aws s3 cp BUILT_ARTIFACT_URI built.zip",
+  "unzip source.zip -d src",
+  "unzip built.zip -d built",
+  "rm source.zip built.zip",
+  `rsync -a built/* src --include="*/" ${
+    includeGlobsForScan
+      ? includeGlobsForScan.map((g) => `--include ${g}`).join(" ")
+      : ""
+  } --include="**/coverage/**" --include="**/cdk.out/**" --exclude="**/node_modules/**/*" --exclude="**/.env/**" --exclude="*" --prune-empty-dirs`,
 ];
 
 const owaspScan = () =>
-  "npx owasp-dependency-check --format HTML --out reports --exclude '**/node_modules/**/*' --exclude '**/reports/**/*' --exclude '**/cdk.out/**/*' --exclude '**/.env/**/*' --exclude '**/dist/**/*' --exclude '**/.git/**/*' --scan . --enableExperimental --bin /tmp/dep-check --disableRetireJS";
+  `npx owasp-dependency-check --format HTML --out src/reports --exclude '**/.git/**/*' --scan src --enableExperimental --bin /tmp/dep-check --disableRetireJS`;
 
-const cfnNagScan = (cfnNagIgnorePath?: string) =>
-  `cfn_nag ${
-    cfnNagIgnorePath ?? ""
-  } cdk.out/**/*.template.json --output-format=json > reports/cfn-nag-report.json`;
+const cfnNagScan = (cdkOutDir?: string, cfnNagIgnorePath?: string) =>
+  cdkOutDir
+    ? `cfn_nag ${
+        cfnNagIgnorePath ? `--deny-list-path=${cfnNagIgnorePath}` : ""
+      } built/${cdkOutDir}/**/*.template.json --output-format=json > src/reports/cfn-nag-report.json`
+    : 'echo "skipping cfn_nag as no cdkOutDir was specified.';
 
 export class SonarCodeScanner extends Construct {
   constructor(scope: Construct, id: string, props: SonarCodeScannerProps) {
@@ -95,11 +105,11 @@ export class SonarCodeScanner extends Construct {
           },
           build: {
             commands: [
-              ...unpackSourceAndArtifacts(),
+              ...unpackSourceAndArtifacts(props.includeGlobsForScan),
               ...createSonarqubeProject(props),
               owaspScan(),
-              cfnNagScan(props.cfnNagIgnorePath),
-              sonarqubeScanner(),
+              cfnNagScan(props.cdkOutDir, props.cfnNagIgnorePath),
+              sonarqubeScanner(props.excludeGlobsForScan),
               ...generateSonarqubeReports(),
               ...(props.preArchiveCommands || []),
             ],
@@ -141,20 +151,6 @@ export class SonarCodeScanner extends Construct {
               name: "SYNTH_BUILD_ID",
               type: "PLAINTEXT",
               value: EventField.fromPath("$.detail.build-id"),
-            },
-            {
-              name: "SYNTH_ARTIFACT_LOCATION",
-              type: "PLAINTEXT",
-              value: EventField.fromPath(
-                "$.detail.additional-information.artifact.location"
-              ),
-            },
-            {
-              name: "SYNTH_SOURCE_VERSION",
-              type: "PLAINTEXT",
-              value: EventField.fromPath(
-                "$.detail.additional-information.source-version"
-              ),
             },
           ],
         }),

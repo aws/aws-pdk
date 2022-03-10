@@ -107,27 +107,36 @@ export class PDKPipeline extends CodePipeline {
       ...synthShellStepPartialProps
     } = props.synthShellStepPartialProps || {};
 
+    const synthShellStep = new ShellStep("Synth", {
+      input: CodePipelineSource.codeCommit(
+        codeRepository,
+        props.defaultBranchName || DEFAULT_BRANCH_NAME
+      ),
+      installCommands: ["yarn install --frozen-lockfile"],
+      commands:
+        commands && commands.length > 0
+          ? commands
+          : ["npx nx run-many --target=build --all"],
+      primaryOutputDirectory: props.primarySynthDirectory,
+      ...(synthShellStepPartialProps || {}),
+    });
+
+    synthShellStep.addOutputDirectory(".");
+
     const codePipelineProps: CodePipelineProps = {
       ...props,
-      synth: new ShellStep("Synth", {
-        input: CodePipelineSource.codeCommit(
-          codeRepository,
-          props.defaultBranchName || DEFAULT_BRANCH_NAME
-        ),
-        installCommands: ["yarn install --frozen-lockfile"],
-        commands:
-          commands && commands.length > 0
-            ? commands
-            : ["npx nx run-many --target=build --all"],
-        primaryOutputDirectory: props.primarySynthDirectory,
-        ...(synthShellStepPartialProps || {}),
-      }),
+      synth: synthShellStep,
     };
 
     super(scope, id, codePipelineProps);
 
     this.codeRepository = codeRepository;
-    this.sonarCodeScannerConfig = props.sonarCodeScannerConfig;
+    this.sonarCodeScannerConfig = props.sonarCodeScannerConfig
+      ? {
+          cdkOutDir: props.primarySynthDirectory,
+          ...props.sonarCodeScannerConfig,
+        }
+      : undefined;
 
     new CfnOutput(scope, "CodeRepositoryGRCUrl", {
       exportName: "CodeRepositoryGRCUrl",
