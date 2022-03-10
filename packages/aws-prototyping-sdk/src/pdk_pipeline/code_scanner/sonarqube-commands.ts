@@ -121,7 +121,6 @@ export const createSonarqubeProject = (props: SonarCodeScannerProps) => [
 
 export const sonarqubeScanner = (excludeGlobsForScan?: string[]) =>
   [
-    "cd src",
     "npx sonarqube-scanner -Dsonar.login=$SONARQUBE_TOKEN",
     "-Dsonar.projectKey=$PROJECT_NAME",
     "-Dsonar.projectName=$PROJECT_NAME",
