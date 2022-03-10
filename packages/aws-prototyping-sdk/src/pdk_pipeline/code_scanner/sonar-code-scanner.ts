@@ -105,6 +105,7 @@ export class SonarCodeScanner extends Construct {
           },
           build: {
             commands: [
+              "export RESOLVED_SOURCE_VERSION=`aws codebuild batch-get-builds --ids $SYNTH_BUILD_ID | jq -r '.builds[0].resolvedSourceVersion'`",
               ...unpackSourceAndArtifacts(props.includeGlobsForScan),
               ...createSonarqubeProject(props),
               "mkdir -p src/reports",

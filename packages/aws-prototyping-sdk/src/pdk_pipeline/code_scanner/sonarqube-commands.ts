@@ -123,7 +123,7 @@ export const sonarqubeScanner = (excludeGlobsForScan?: string[]) =>
     "npx sonarqube-scanner -Dsonar.login=$SONARQUBE_TOKEN",
     "-Dsonar.projectKey=$PROJECT_NAME",
     "-Dsonar.projectName=$PROJECT_NAME",
-    "-Dsonar.projectVersion=`git rev-parse --short HEAD`",
+    "-Dsonar.projectVersion=`echo $RESOLVED_SOURCE_VERSION | cut -c1-7`",
     "-Dsonar.branch.name=mainline",
     "-Dsonar.host.url=$SONARQUBE_ENDPOINT",
     "-Dsonar.cfn.nag.reportFiles=reports/cfn-nag-report.json",
