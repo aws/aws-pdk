@@ -17,6 +17,9 @@ const resolveDependencies = (project: NodeProject): NodeProject => {
       underscore: "^1.12.1",
       "deep-extend": "^0.5.1",
       debug: "^2.6.9",
+      "minimist": "^1.2.6",
+      "ejs": "^3.1.7",
+      "async": "^2.6.4"
     },
   });
 
@@ -145,16 +148,6 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
     "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
   });
 
-  // resolutions
-  project.addFields({
-    resolutions: {
-      "ansi-regex": "^5.0.1",
-      underscore: "^1.12.1",
-      "deep-extend": "^0.5.1",
-      debug: "^2.6.9",
-    },
-  });
-
   resolveDependencies(project);
 
   return project;
@@ -251,6 +244,7 @@ const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
   bundledDeps: ["fast-xml-parser"],
   peerDeps: ["projen", "constructs", "aws-cdk-lib"],
   deps: ["constructs", "aws-cdk-lib"],
+  projenDevDependency: true,
   publishToPypi: {
     distName: "aws_prototyping_sdk",
     module: "aws_prototyping_sdk",
