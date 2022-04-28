@@ -34,7 +34,7 @@ async function main() {
         .join('\n')}`,
     );
 
-    submodules.forEach((submodule) => {
+    submodules.filter(submodule => submodule === 'pdk_projen' ? language === 'typescript' : true).forEach((submodule) => {
       fs.mkdirSync(`build/docs/content/${language}/${submodule}`, {
         recursive: true,
       });

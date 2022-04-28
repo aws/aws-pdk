@@ -55,6 +55,7 @@ const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.N
       "/.tools/",
       "/.idea/",
       ".tmp",
+      "*.bk",
       "LICENSE-THIRD-PARTY",
       ".DS_Store",
       "build"
@@ -100,13 +101,23 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
   // task extensions
   project.packageTask.reset();
 
+  project.packageTask.exec("if [ -f .jsii.bk ]; then mv .jsii.bk .jsii; fi;");
+  project.packageTask.exec("if [ -f src/index.ts.bk ]; then mv src/index.ts.bk src/index.ts; fi;");
+
   // license-checker and attribute-generator requires deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
   project.packageTask.exec("./scripts/copy-samples.sh");
   project.packageTask.exec("mkdir -p .tmp && cd .tmp && ln -s -f ../../../node_modules . && ln -s -f ../package.json package.json");
   project.packageTask.spawn(licenseCheckerTask);
   project.packageTask.spawn(generateAttributionTask);
   project.packageTask.exec("if [ ! -z ${CI} ]; then mkdir -p dist && rsync -a . dist --exclude .git --exclude node_modules; fi");
-  project.packageTask.spawn(project.tasks.tryFind("package-all")!);
+  project.packageTask.spawn(project.tasks.tryFind("package:js")!);
+  // Don't transpile pdk_projen submodules for languages other than TS
+  project.packageTask.exec("mv .jsii .jsii.bk && mv src/index.ts src/index.ts.bk");
+  project.packageTask.exec(`awk '{sub(\"export \\\\* as pdk_projen from \\"./pdk_projen\\";\",\"\")}1' src/index.ts.bk > src/index.ts`);
+  project.packageTask.spawn(project.tasks.tryFind("compile")!);
+  project.packageTask.spawn(project.tasks.tryFind("package:java")!);
+  project.packageTask.spawn(project.tasks.tryFind("package:python")!);
+  project.packageTask.exec("mv .jsii.bk .jsii && mv src/index.ts.bk src/index.ts");
   project.packageTask.exec("rm -rf .tmp");
 
   project.addTask("clean", {
@@ -127,9 +138,6 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
   });
   buildDocsTask.prependSpawn(project.preCompileTask);
   project.tasks.tryFind("release:mainline")?.spawn(buildDocsTask);
-
-  // This is need until https://github.com/aws/jsii/issues/3408 is resolved
-  project.tasks.tryFind("package:python")?.exec("chmod +x ./scripts/python-package-hack.sh && ./scripts/python-package-hack.sh");
 
   // eslint extensions
   project.eslint?.addPlugins("header");

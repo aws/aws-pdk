@@ -153,6 +153,12 @@
       "description": "Creates the distribution package",
       "steps": [
         {
+          "exec": "if [ -f .jsii.bk ]; then mv .jsii.bk .jsii; fi;"
+        },
+        {
+          "exec": "if [ -f src/index.ts.bk ]; then mv src/index.ts.bk src/index.ts; fi;"
+        },
+        {
           "exec": "./scripts/copy-samples.sh"
         },
         {
@@ -168,7 +174,25 @@
           "exec": "if [ ! -z ${CI} ]; then mkdir -p dist && rsync -a . dist --exclude .git --exclude node_modules; fi"
         },
         {
-          "spawn": "package-all"
+          "spawn": "package:js"
+        },
+        {
+          "exec": "mv .jsii .jsii.bk && mv src/index.ts src/index.ts.bk"
+        },
+        {
+          "exec": "awk '{sub(\"export \\\\* as pdk_projen from \\\"./pdk_projen\\\";\",\"\")}1' src/index.ts.bk > src/index.ts"
+        },
+        {
+          "spawn": "compile"
+        },
+        {
+          "spawn": "package:java"
+        },
+        {
+          "spawn": "package:python"
+        },
+        {
+          "exec": "mv .jsii.bk .jsii && mv src/index.ts.bk src/index.ts"
         },
         {
           "exec": "rm -rf .tmp"
@@ -214,9 +238,6 @@
       "steps": [
         {
           "exec": "jsii-pacmak -v --target python"
-        },
-        {
-          "exec": "chmod +x ./scripts/python-package-hack.sh && ./scripts/python-package-hack.sh"
         }
       ]
     },
