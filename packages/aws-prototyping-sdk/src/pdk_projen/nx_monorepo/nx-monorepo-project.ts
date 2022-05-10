@@ -1,7 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import * as console from "console";
 import * as fs from "fs";
 import * as path from "path";
 import { IgnoreFile, JsonFile, Project, TextFile } from "projen";
@@ -11,15 +10,6 @@ import {
 } from "projen/lib/typescript";
 
 const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
-
-/**
- * Supported languages to generate sample code.
- */
-export enum SampleLanguage {
-  TYPESCRIPT = "ts",
-  PYTHON = "py",
-  JAVA = "java",
-}
 
 /**
  * Supported enums for a TargetDependency.
@@ -80,18 +70,6 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
    * @default []
    */
   readonly nxIgnorePatterns?: string[];
-
-  /**
-   * Language to generate sample code on first synthesis
-   *
-   * @default undefined
-   */
-  readonly sampleLanguage?: SampleLanguage;
-
-  /**
-   * @default {}
-   */
-  readonly sampleContextJson?: string;
 }
 
 /**
@@ -172,35 +150,6 @@ export class NxMonorepoProject extends TypeScriptProject {
         },
       },
     });
-
-    if (options.sampleLanguage) {
-      if (fs.existsSync(path.join(this.outdir, ".projenrc.ts.bk"))) {
-        console.log(
-          "Ignoring generation of sample code as this is a destructive action and should only be set on initial synthesis."
-        );
-      } else {
-        fs.copyFileSync(
-          path.join(this.outdir, ".projenrc.ts"),
-          ".projenrc.ts.bk"
-        ); // Make a backup of the existing .projenrc.ts just in case
-
-        fs.copyFileSync(
-          path.join(
-            this.outdir,
-            `node_modules/aws-prototyping-sdk/samples/sample-nx-monorepo/src/nx-monorepo-sample-${options.sampleLanguage}.ts`
-          ),
-          ".projenrc.ts"
-        );
-
-        if (options.sampleContextJson) {
-          new JsonFile(this, ".cdk.context.json", {
-            obj: JSON.parse(options.sampleContextJson),
-            readonly: false,
-            marker: false,
-          });
-        }
-      }
-    }
   }
 
   /**
@@ -255,16 +204,6 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     // Need to synth before generating the package.json otherwise the subdirectory won't exist
     newSubProject && super.synth();
-
-    const bootstrapCdkJsonPath = path.join(this.outdir, ".cdk.context.json");
-    const infraSubproject = this.subProjects.find((s) => s.name === "infra");
-    if (fs.existsSync(bootstrapCdkJsonPath) && infraSubproject) {
-      fs.copyFileSync(
-        bootstrapCdkJsonPath,
-        path.join(infraSubproject.outdir, "cdk.context.json")
-      );
-      fs.unlinkSync(bootstrapCdkJsonPath);
-    }
 
     this.subProjects
       .filter(

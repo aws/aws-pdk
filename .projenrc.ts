@@ -259,22 +259,6 @@ const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
 
 configureSampleTs(new TypeScriptProject({
   parent: monorepo,
-  outdir: "samples/sample-nx-monorepo",
-  defaultReleaseBranch: "mainline",
-  name: "sample-nx-monorepo",
-  sampleCode: false,
-  deps: [
-    "aws-cdk-lib",
-    "constructs",
-    "aws-prototyping-sdk@0.0.0"
-  ],
-  depsUpgradeOptions: {
-    exclude: ["aws-prototyping-sdk"]
-  }
-}));
-
-configureSampleTs(new TypeScriptProject({
-  parent: monorepo,
   outdir: "samples/sample-pdk-pipeline-ts",
   defaultReleaseBranch: "mainline",
   name: "sample-pdk-pipeline-ts",
