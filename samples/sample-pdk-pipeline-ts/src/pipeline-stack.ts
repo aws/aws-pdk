@@ -10,7 +10,7 @@ export class PipelineStack extends Stack {
 
     this.pipeline = new pdk_pipeline.PDKPipeline(this, 'ApplicationPipeline', {
       primarySynthDirectory: 'packages/infra/cdk.out',
-      repositoryName: 'monorepo',
+      repositoryName: this.node.tryGetContext('repositoryName') || 'monorepo',
       publishAssetsInParallel: false,
       crossAccountKeys: true,
       synth: {},
