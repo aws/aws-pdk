@@ -21,7 +21,13 @@ export class PDKPipelineJavaProject extends AwsCdkJavaApp {
       sample: false,
       junit: false,
       ...options,
+      mainClass:
+        options.mainClass ||
+        'software.aws.Pipeline -Dexec.classpathScope="test"',
+      cdkVersion: options.cdkVersion || "2.0.0",
     });
+
+    this.addDependency("software.aws.awsprototypingsdk/aws-prototyping-sdk@^0");
 
     this.testTask.exec("mvn test");
     this.addTestDependency("org.junit.jupiter/junit-jupiter-api@5.7.0");

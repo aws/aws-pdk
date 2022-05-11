@@ -244,7 +244,7 @@ const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
   bundledDeps: ["fast-xml-parser"],
   peerDeps: ["projen", "constructs", "aws-cdk-lib"],
   deps: ["constructs", "aws-cdk-lib"],
-  projenDevDependency: true,
+  projenDevDependency: false,
   publishToPypi: {
     distName: "aws_prototyping_sdk",
     module: "aws_prototyping_sdk",

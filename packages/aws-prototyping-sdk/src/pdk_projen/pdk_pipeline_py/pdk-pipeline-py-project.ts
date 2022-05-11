@@ -23,7 +23,13 @@ export class PDKPipelinePyProject extends AwsCdkPythonApp {
       sample: false,
       pytest: false,
       ...options,
+      appEntrypoint: options.appEntrypoint || "infra/pipeline.py",
+      cdkVersion: options.cdkVersion || "2.0.0",
     });
+
+    ["aws-prototyping-sdk", "pyhumps"].forEach((dep) =>
+      this.addDependency(dep)
+    );
 
     new SampleDir(this, this.moduleName, {
       sourceDir: path.join(
