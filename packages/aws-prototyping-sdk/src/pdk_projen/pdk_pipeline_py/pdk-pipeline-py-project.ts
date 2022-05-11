@@ -23,7 +23,8 @@ export class PDKPipelinePyProject extends AwsCdkPythonApp {
       sample: false,
       pytest: false,
       ...options,
-      appEntrypoint: options.appEntrypoint || "infra/pipeline.py",
+      appEntrypoint:
+        options.appEntrypoint || `${options.moduleName}/pipeline.py`,
       cdkVersion: options.cdkVersion || "2.0.0",
     });
 
