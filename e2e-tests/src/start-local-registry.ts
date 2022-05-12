@@ -24,4 +24,8 @@ export const startLocalRegistry: () => Promise<ChildProcess> = () => new Promise
   childFork.on('error', (err) => {
     reject([err]);
   });
+
+  childFork.on('exit', (err) => {
+    reject([err]);
+  });
 });

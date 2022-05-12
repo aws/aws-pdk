@@ -315,6 +315,7 @@ const e2eTests = new TypeScriptProject({
   name: "e2e-tests",
   devDeps: [
     "aws-prototyping-sdk@0.0.0",
+    "ts-node",
     "verdaccio",
     "verdaccio-auth-memory",
     "verdaccio-memory"],
@@ -323,6 +324,7 @@ const e2eTests = new TypeScriptProject({
 });
 
 e2eTests.package.addField("private", true);
+e2eTests.testTask.reset("npx ts-node src/use-local-registry.ts");
 
 monorepo.addImplicitDependency(samplePdkPipelinePy, awsPrototypingSdk);
 monorepo.addImplicitDependency(samplePdkPipelineJava, awsPrototypingSdk);
