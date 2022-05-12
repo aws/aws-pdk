@@ -22,26 +22,21 @@ export const publishPDKToLocalRegistry = async () => {
     .trim()
     .split('.')[0];
 
-  try {
-    // NPM >= 7 requires an auth token. We can use a fake one given this is local.
-    if (+npmMajorVersion >= 7) {
-      await fs.writeFileSync(
-        './.npmrc',
-        `registry=${
-          process.env.npm_config_registry
-        }\n${process.env.npm_config_registry.replace(
-          'http:',
-          '',
-        )}/:_authToken=fake`,
-      );
-    }
-
-    execSync(`npm publish ${PDK_PACKAGE_PATH}`, {
-      env: process.env, // Ensures this is targeting the local registry
-      stdio: 'inherit',
-    });
-  } catch (e) {
-    console.log(e);
-    process.exit(1);
+  // NPM >= 7 requires an auth token. We can use a fake one given this is local.
+  if (+npmMajorVersion >= 7) {
+    await fs.writeFileSync(
+      './.npmrc',
+      `registry=${
+        process.env.npm_config_registry
+      }\n${process.env.npm_config_registry.replace(
+        'http:',
+        '',
+      )}/:_authToken=fake`,
+    );
   }
+
+  execSync(`npm publish ${PDK_PACKAGE_PATH}`, {
+    env: process.env, // Ensures this is targeting the local registry
+    stdio: 'inherit',
+  });
 };
