@@ -308,6 +308,22 @@ const samplePdkPipelineJava = configureSampleJava(new JavaProject({
   ]
 }));
 
+const e2eTests = new TypeScriptProject({
+  parent: monorepo,
+  outdir: "e2e-tests",
+  defaultReleaseBranch: "mainline",
+  name: "e2e-tests",
+  devDeps: [
+    "aws-prototyping-sdk@0.0.0",
+    "verdaccio",
+    "verdaccio-auth-memory",
+    "verdaccio-memory"],
+  gitignore: [".npmrc"],
+  sampleCode: false,
+});
+
+e2eTests.package.addField("private", true);
+
 monorepo.addImplicitDependency(samplePdkPipelinePy, awsPrototypingSdk);
 monorepo.addImplicitDependency(samplePdkPipelineJava, awsPrototypingSdk);
 
