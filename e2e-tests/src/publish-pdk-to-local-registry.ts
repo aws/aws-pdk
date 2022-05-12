@@ -17,7 +17,7 @@ export const publishPDKToLocalRegistry = async () => {
     throw Error('Local registry not configured.');
   }
 
-  const npmMajorVersion = execSync('npm --version')
+  const npmMajorVersion = execSync('npm --version --no-workspaces')
     .toString('utf-8')
     .trim()
     .split('.')[0];
@@ -35,7 +35,7 @@ export const publishPDKToLocalRegistry = async () => {
     );
   }
 
-  execSync(`npm publish ${PDK_PACKAGE_PATH}`, {
+  execSync(`npm publish ${PDK_PACKAGE_PATH} --no-workspaces`, {
     env: process.env, // Ensures this is targeting the local registry
     stdio: 'inherit',
   });
