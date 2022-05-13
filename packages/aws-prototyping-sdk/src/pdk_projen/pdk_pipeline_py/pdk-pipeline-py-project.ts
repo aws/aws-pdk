@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import * as fs from "fs";
 import * as path from "path";
 import { SampleDir } from "projen";
 import { AwsCdkPythonApp, AwsCdkPythonAppOptions } from "projen/lib/awscdk";
@@ -46,15 +47,24 @@ export class PDKPipelinePyProject extends AwsCdkPythonApp {
     this.pytest = new Pytest(this, options.pytestOptions);
 
     new SampleDir(this, this.testdir, {
-      sourceDir: path.join(
-        __dirname,
-        "..",
-        "..",
-        "..",
-        "samples",
-        "sample-pdk-pipeline-py",
-        "tests"
-      ),
+      files: {
+        "__init__.py": "",
+        "test_pipeline.py": fs
+          .readFileSync(
+            path.join(
+              __dirname,
+              "..",
+              "..",
+              "..",
+              "samples",
+              "sample-pdk-pipeline-py",
+              "tests",
+              "test_pipeline.py"
+            )
+          )
+          .toString()
+          .replace("infra.", `${this.moduleName}.`),
+      },
     });
   }
 }
