@@ -22,9 +22,9 @@ export class PDKPipelineJavaProject extends AwsCdkJavaApp {
       junit: false,
       ...options,
       mainClass:
-        options.mainClass ||
-        'software.aws.Pipeline -Dexec.classpathScope="test"',
-      cdkVersion: options.cdkVersion || "2.0.0",
+        options.mainClass !== "org.acme.MyApp"
+          ? options.mainClass
+          : 'software.aws.Pipeline -Dexec.classpathScope="test"',
     });
 
     this.addDependency("software.aws.awsprototypingsdk/aws-prototyping-sdk@^0");
@@ -33,16 +33,48 @@ export class PDKPipelineJavaProject extends AwsCdkJavaApp {
     this.addTestDependency("org.junit.jupiter/junit-jupiter-api@5.7.0");
     this.addTestDependency("org.junit.jupiter/junit-jupiter-engine@5.7.0");
 
-    new SampleDir(this, "src", {
-      sourceDir: path.join(
-        __dirname,
-        "..",
-        "..",
-        "..",
-        "samples",
-        "sample-pdk-pipeline-java",
-        "src"
-      ),
-    });
+    const mainPackage = this.mainClass
+      .split(" ")[0]
+      .split(".")
+      .slice(0, -1)
+      .join(".");
+    new SampleDir(
+      this,
+      path.join("src", "main", "java", ...mainPackage.split(".")),
+      {
+        sourceDir: path.join(
+          __dirname,
+          "..",
+          "..",
+          "..",
+          "samples",
+          "sample-pdk-pipeline-java",
+          "src",
+          "main",
+          "java",
+          "software",
+          "aws"
+        ),
+      }
+    );
+    new SampleDir(
+      this,
+      path.join("src", "test", "java", ...mainPackage.split(".")),
+      {
+        sourceDir: path.join(
+          __dirname,
+          "..",
+          "..",
+          "..",
+          "samples",
+          "sample-pdk-pipeline-java",
+          "src",
+          "test",
+          "java",
+          "software",
+          "aws"
+        ),
+      }
+    );
   }
 }

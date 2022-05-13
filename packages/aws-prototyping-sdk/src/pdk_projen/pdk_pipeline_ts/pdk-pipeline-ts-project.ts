@@ -30,7 +30,6 @@ export class PDKPipelineTsProject extends AwsCdkTypeScriptApp {
       sampleCode: false,
       ...options,
       appEntrypoint: options.appEntrypoint || "pipeline.ts",
-      cdkVersion: options.cdkVersion || "2.0.0",
     });
 
     this.addDeps("aws-prototyping-sdk");
