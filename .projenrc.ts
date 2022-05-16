@@ -101,7 +101,6 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
   project.packageTask.reset();
 
   // license-checker and attribute-generator requires deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
-  project.packageTask.exec("./scripts/copy-samples.sh");
   project.packageTask.exec("mkdir -p .tmp && cd .tmp && ln -s -f ../../../node_modules . && ln -s -f ../package.json package.json");
   project.packageTask.spawn(licenseCheckerTask);
   project.packageTask.spawn(generateAttributionTask);
@@ -120,6 +119,7 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
       .map(d => `cp -R ../../../node_modules/${d.name} .`)
       .join(" && ")}`);
   project.postCompileTask.exec("rm -rf node_modules");
+  project.postCompileTask.exec("./scripts/copy-samples.sh");
 
   // Generate docs for each supported language into a micro-site
   const buildDocsTask = project.addTask("build:docs", {
