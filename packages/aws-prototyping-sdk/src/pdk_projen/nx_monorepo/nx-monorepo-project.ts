@@ -113,12 +113,7 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     new TextFile(this, NX_MONOREPO_PLUGIN_PATH, {
       readonly: true,
-      lines: fs
-        .readFileSync(
-          "./node_modules/aws-prototyping-sdk/lib/pdk_projen/nx_monorepo/plugin/nx-monorepo-plugin.js"
-        )
-        .toString("utf-8")
-        .split("\n"),
+      lines: fs.readFileSync(getPluginPath()).toString("utf-8").split("\n"),
     });
 
     new JsonFile(this, "nx.json", {
@@ -236,4 +231,12 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     super.synth();
   }
+}
+
+function getPluginPath() {
+  const prefix =
+    process.env.NODE_ENV === "test"
+      ? "./lib/" // If unit test from within this package
+      : "./node_modules/aws-prototyping-sdk/lib/";
+  return `${prefix}pdk_projen/nx_monorepo/plugin/nx-monorepo-plugin.js`;
 }

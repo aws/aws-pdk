@@ -12,6 +12,10 @@ export const useLocalRegistry = async () => {
     registryProcess = await startLocalRegistry();
     await publishPDKToLocalRegistry();
 
+    // HACK: Projen is using NODE_ENV internally with tests so we need to modify this :(
+    // https://github.com/projen/projen/blob/e5899dd04a575209424a08fe90bde99e07ac6c7b/src/common.ts#L5
+    process.env.NODE_ENV='_test';
+
     execSync('jest --passWithNoTests --all --updateSnapshot', {
       env: process.env,
       stdio: 'inherit',
