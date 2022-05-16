@@ -33,15 +33,6 @@ const DEFAULT_BRANCH_NAME = "mainline";
  */
 export interface PDKPipelineProps extends CodePipelineProps {
   /**
-   * Enables a build job to trigger on PR merges to the defaultBranchName. This
-   * will automatically build the codebase and add an Approval to the PR on
-   * successful build.
-   *
-   * @default true
-   */
-  readonly prBuildChecker?: boolean;
-
-  /**
    * Name of the CodeCommit repository to create.
    */
   readonly repositoryName: string;
@@ -67,7 +58,7 @@ export interface PDKPipelineProps extends CodePipelineProps {
   readonly defaultBranchName?: string;
 
   /**
-   * Configuration for enabling Sonarqube code scanning.
+   * Configuration for enabling Sonarqube code scanning on a successful synth.
    *
    * @default undefined
    */
@@ -96,8 +87,6 @@ export class PDKPipeline extends CodePipeline {
     codeRepository.applyRemovalPolicy(
       props.codeCommitRemovalPolicy ?? RemovalPolicy.RETAIN
     );
-
-    // TODO: Implement prBuildChecker
 
     // ignore input and primaryOutputDirectory
     const {
