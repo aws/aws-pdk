@@ -18,12 +18,16 @@ describe('pdk-pipeline-py E2E Tests', () => {
         stdio: 'inherit',
       });
 
+      // TODO: Uncomment once this is published: https://github.com/aws/jsii/commit/8ef8ef2fe1e5559ef77a5b7ba0dbb67f52329927
+
       // verify it builds successfully
       // execSync('npx projen build', {
       //   cwd: tempFolder,
       //   env: process.env,
       //   stdio: 'inherit',
       // });
+      //
+      // expect(generateSnapshot(tempFolder)).toMatchSnapshot();
     });
   });
 });

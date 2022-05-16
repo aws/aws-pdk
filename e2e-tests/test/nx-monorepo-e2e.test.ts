@@ -1,4 +1,5 @@
 import { execSync } from 'child_process';
+import fs from 'fs';
 import { executeInTempFolderSync } from '../src/fs-utils';
 
 /**
@@ -24,6 +25,12 @@ describe('nx-monorepo E2E Tests', () => {
         env: process.env,
         stdio: 'inherit',
       });
+
+      const snapshot = ['package.json', 'nx.json', '.nxignore', '.nx/plugins/nx-monorepo-plugin.js'].reduce((prev: any, curr: string) => {
+        return { ...prev, [curr]: fs.readFileSync(`${tempFolder}/${curr}`).toString() };
+      }, {});
+
+      expect(snapshot).toMatchSnapshot();
     });
   });
 });

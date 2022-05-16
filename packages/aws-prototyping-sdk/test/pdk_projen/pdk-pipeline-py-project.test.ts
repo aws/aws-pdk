@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { synthSnapshot } from "projen/lib/util/synth";
+import { SynthOutput, synthSnapshot } from "projen/lib/util/synth";
 import { PDKPipelinePyProject } from "../../src/pdk_projen";
 
 describe("PDK Pipeline Py Unit Tests", () => {
@@ -9,12 +9,12 @@ describe("PDK Pipeline Py Unit Tests", () => {
     const project = new PDKPipelinePyProject({
       authorEmail: "test@test.com",
       authorName: "test",
-      moduleName: "with_context",
+      moduleName: "defaults",
       version: "0.0.0",
       cdkVersion: "2.0.0",
       name: "Defaults",
     });
-    expect(synthSnapshot(project)).toMatchSnapshot();
+    expect(sanitizeOutput(synthSnapshot(project))).toMatchSnapshot();
   });
 
   it("With Context", () => {
@@ -37,24 +37,28 @@ describe("PDK Pipeline Py Unit Tests", () => {
         },
       },
     });
-    const output = synthSnapshot(project);
-    Object.keys(output)
-      .filter((k) => k.includes("__pycache__"))
-      .forEach((k) => delete output[k]);
 
-    expect(output).toMatchSnapshot();
+    expect(sanitizeOutput(synthSnapshot(project))).toMatchSnapshot();
   });
 
   it("Custom AppEntrypoint", () => {
     const project = new PDKPipelinePyProject({
       authorEmail: "test@test.com",
       authorName: "test",
-      moduleName: "with_context",
+      moduleName: "custom_app_entrypoint",
       version: "0.0.0",
       cdkVersion: "2.0.0",
       name: "CustomAppEntrypoint",
       appEntrypoint: "updated.py",
     });
-    expect(synthSnapshot(project)).toMatchSnapshot();
+    expect(sanitizeOutput(synthSnapshot(project))).toMatchSnapshot();
   });
 });
+
+function sanitizeOutput(output: SynthOutput) {
+  Object.keys(output)
+    .filter((k) => k.includes("__pycache__"))
+    .forEach((k) => delete output[k]);
+
+  return output;
+}

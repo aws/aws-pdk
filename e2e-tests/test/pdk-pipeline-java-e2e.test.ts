@@ -5,15 +5,15 @@ import { generateSnapshot } from './snapshot-utils';
 /**
  * Series of End to End tests.
  */
-describe('pdk-pipeline-ts E2E Tests', () => {
+describe('pdk-pipeline-java E2E Tests', () => {
 
   /**
-   * Test to ensure we can instantiate a pdk-pipeline-ts construct and it
+   * Test to ensure we can instantiate a pdk-pipeline-java construct and it
    * builds successfully.
    */
-  it('pdk-pipeline-ts-create', async () => {
+  it('pdk-pipeline-java-create', async () => {
     executeInTempFolderSync('pdk-pipeline-ts-create', (tempFolder) => {
-      execSync('npx projen new --from aws-prototyping-sdk pdk-pipeline-ts --no-git', {
+      execSync('npx projen new --from aws-prototyping-sdk pdk-pipeline-java --no-git', {
         cwd: tempFolder,
         env: process.env, // This is important to make sure we use the local registry!
         stdio: 'inherit',
