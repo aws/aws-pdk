@@ -708,13 +708,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr_build_checkeroptional" class="md-nav__link">
-    pr_build_checkerOptional 
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#sonar_code_scanner_configoptional" class="md-nav__link">
     sonar_code_scanner_configOptional 
   </a>
@@ -1311,13 +1304,6 @@
           <li class="md-nav__item">
   <a href="#default_branch_nameoptional_1" class="md-nav__link">
     default_branch_nameOptional 
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pr_build_checkeroptional_1" class="md-nav__link">
-    pr_build_checkerOptional 
   </a>
   
 </li>
@@ -2023,13 +2009,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr_build_checkeroptional" class="md-nav__link">
-    pr_build_checkerOptional 
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#sonar_code_scanner_configoptional" class="md-nav__link">
     sonar_code_scanner_configOptional 
   </a>
@@ -2631,13 +2610,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr_build_checkeroptional_1" class="md-nav__link">
-    pr_build_checkerOptional 
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#sonar_code_scanner_configoptional_1" class="md-nav__link">
     sonar_code_scanner_configOptional 
   </a>
@@ -2962,7 +2934,6 @@ automated PR builds and approvals.</p>
   <span class="n">repository_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">code_commit_removal_policy</span><span class="p">:</span> <span class="n">RemovalPolicy</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_branch_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">pr_build_checker</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">sonar_code_scanner_config</span><span class="p">:</span> <span class="n">SonarCodeScannerConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">synth_shell_step_partial_props</span><span class="p">:</span> <span class="n">ShellStepProps</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
@@ -3082,14 +3053,9 @@ automated PR builds and approvals.</p>
 <td>Branch to trigger the pipeline execution.</td>
 </tr>
 <tr>
-<td><code><a href="#aws-prototyping-sdk.pdk_pipeline.PDKPipeline.Initializer.parameter.prBuildChecker">pr_build_checker</a></code></td>
-<td><code>bool</code></td>
-<td>Enables a build job to trigger on PR merges to the defaultBranchName.</td>
-</tr>
-<tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.PDKPipeline.Initializer.parameter.sonarCodeScannerConfig">sonar_code_scanner_config</a></code></td>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig">SonarCodeScannerConfig</a></code></td>
-<td>Configuration for enabling Sonarqube code scanning.</td>
+<td>Configuration for enabling Sonarqube code scanning on a successful synth.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.PDKPipeline.Initializer.parameter.synthShellStepPartialProps">synth_shell_step_partial_props</a></code></td>
@@ -3291,22 +3257,12 @@ on the pipeline itself and prefer to deploy changes using <code>cdk deploy</code
 </ul>
 <p>Branch to trigger the pipeline execution.</p>
 <hr />
-<h5 id="pr_build_checkeroptional"><code>pr_build_checker</code><sup>Optional</sup> <a name="pr_build_checker" id="aws-prototyping-sdk.pdk_pipeline.PDKPipeline.Initializer.parameter.prBuildChecker"></a></h5>
-<ul>
-<li><em>Type:</em> bool</li>
-<li><em>Default:</em> true</li>
-</ul>
-<p>Enables a build job to trigger on PR merges to the defaultBranchName.</p>
-<p>This
-will automatically build the codebase and add an Approval to the PR on
-successful build.</p>
-<hr />
 <h5 id="sonar_code_scanner_configoptional"><code>sonar_code_scanner_config</code><sup>Optional</sup> <a name="sonar_code_scanner_config" id="aws-prototyping-sdk.pdk_pipeline.PDKPipeline.Initializer.parameter.sonarCodeScannerConfig"></a></h5>
 <ul>
 <li><em>Type:</em> <a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig">SonarCodeScannerConfig</a></li>
 <li><em>Default:</em> undefined</li>
 </ul>
-<p>Configuration for enabling Sonarqube code scanning.</p>
+<p>Configuration for enabling Sonarqube code scanning on a successful synth.</p>
 <hr />
 <h5 id="synth_shell_step_partial_propsoptional"><code>synth_shell_step_partial_props</code><sup>Optional</sup> <a name="synth_shell_step_partial_props" id="aws-prototyping-sdk.pdk_pipeline.PDKPipeline.Initializer.parameter.synthShellStepPartialProps"></a></h5>
 <ul>
@@ -3620,72 +3576,72 @@ this type-testing method instead.</p>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.sonarqubeAuthorizedGroup">sonarqube_authorized_group</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Group name in Sonarqube with access to administer this project.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.sonarqubeDefaultProfileOrGateName">sonarqube_default_profile_or_gate_name</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Default profile/gate name i.e: your org profile.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.sonarqubeEndpoint">sonarqube_endpoint</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>endpoint of the sonarqube instance i.e: https://<your-sonarqube-endpoint>.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.sonarqubeProjectName">sonarqube_project_name</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Name of the project to create in Sonarqube.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.cdkOutDir">cdk_out_dir</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>directory containing the synthesized cdk resources.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.cfnNagIgnorePath">cfn_nag_ignore_path</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>path to a file containing the cfn nag suppression rules.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.excludeGlobsForScan">exclude_globs_for_scan</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>glob patterns to exclude from sonar scan.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.includeGlobsForScan">include_globs_for_scan</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>glob patterns to include from sonar scan.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.preArchiveCommands">pre_archive_commands</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>Hook which allows custom commands to be executed before the process commences the archival process.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.sonarqubeSpecificProfileOrGateName">sonarqube_specific_profile_or_gate_name</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Specific profile/gate name i.e: language specific.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.sonarqubeTags">sonarqube_tags</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>Tags to associate with this project.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.artifactBucketArn">artifact_bucket_arn</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>S3 bucket ARN containing the built artifacts from the synth build.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.synthBuildArn">synth_build_arn</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>ARN for the CodeBuild task responsible for executing the synth command.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.artifactBucketKeyArn">artifact_bucket_key_arn</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Artifact bucket key ARN used to encrypt the artifacts.</td>
 </tr>
 </tbody>
 </table>
@@ -3704,71 +3660,88 @@ this type-testing method instead.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Group name in Sonarqube with access to administer this project.</p>
 <hr />
 <h5 id="sonarqube_default_profile_or_gate_namerequired"><code>sonarqube_default_profile_or_gate_name</code><sup>Required</sup> <a name="sonarqube_default_profile_or_gate_name" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.sonarqubeDefaultProfileOrGateName"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Default profile/gate name i.e: your org profile.</p>
+<p>Note: These need to be set up in Sonarqube manually.</p>
 <hr />
 <h5 id="sonarqube_endpointrequired"><code>sonarqube_endpoint</code><sup>Required</sup> <a name="sonarqube_endpoint" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.sonarqubeEndpoint"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>endpoint of the sonarqube instance i.e: https://<your-sonarqube-endpoint>.</p>
+<p>Note: Ensure a trailing '/' is not included.</p>
 <hr />
 <h5 id="sonarqube_project_namerequired"><code>sonarqube_project_name</code><sup>Required</sup> <a name="sonarqube_project_name" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.sonarqubeProjectName"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Name of the project to create in Sonarqube.</p>
 <hr />
 <h5 id="cdk_out_diroptional"><code>cdk_out_dir</code><sup>Optional</sup> <a name="cdk_out_dir" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.cdkOutDir"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>directory containing the synthesized cdk resources.</p>
 <hr />
 <h5 id="cfn_nag_ignore_pathoptional"><code>cfn_nag_ignore_path</code><sup>Optional</sup> <a name="cfn_nag_ignore_path" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.cfnNagIgnorePath"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>path to a file containing the cfn nag suppression rules.</p>
 <hr />
 <h5 id="exclude_globs_for_scanoptional"><code>exclude_globs_for_scan</code><sup>Optional</sup> <a name="exclude_globs_for_scan" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.excludeGlobsForScan"></a></h5>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>glob patterns to exclude from sonar scan.</p>
 <hr />
 <h5 id="include_globs_for_scanoptional"><code>include_globs_for_scan</code><sup>Optional</sup> <a name="include_globs_for_scan" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.includeGlobsForScan"></a></h5>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>glob patterns to include from sonar scan.</p>
 <hr />
 <h5 id="pre_archive_commandsoptional"><code>pre_archive_commands</code><sup>Optional</sup> <a name="pre_archive_commands" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.preArchiveCommands"></a></h5>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>Hook which allows custom commands to be executed before the process commences the archival process.</p>
 <hr />
 <h5 id="sonarqube_specific_profile_or_gate_nameoptional"><code>sonarqube_specific_profile_or_gate_name</code><sup>Optional</sup> <a name="sonarqube_specific_profile_or_gate_name" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.sonarqubeSpecificProfileOrGateName"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Specific profile/gate name i.e: language specific.</p>
+<p>Note: These need to be set up in Sonarqube manually.</p>
 <hr />
 <h5 id="sonarqube_tagsoptional"><code>sonarqube_tags</code><sup>Optional</sup> <a name="sonarqube_tags" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.sonarqubeTags"></a></h5>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>Tags to associate with this project.</p>
 <hr />
 <h5 id="artifact_bucket_arnrequired"><code>artifact_bucket_arn</code><sup>Required</sup> <a name="artifact_bucket_arn" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.artifactBucketArn"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>S3 bucket ARN containing the built artifacts from the synth build.</p>
 <hr />
 <h5 id="synth_build_arnrequired"><code>synth_build_arn</code><sup>Required</sup> <a name="synth_build_arn" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.synthBuildArn"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>ARN for the CodeBuild task responsible for executing the synth command.</p>
 <hr />
 <h5 id="artifact_bucket_key_arnoptional"><code>artifact_bucket_key_arn</code><sup>Optional</sup> <a name="artifact_bucket_key_arn" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScanner.Initializer.parameter.artifactBucketKeyArn"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Artifact bucket key ARN used to encrypt the artifacts.</p>
 <hr />
 <h4 id="methods_1">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
@@ -3890,7 +3863,6 @@ if you pass in [] the default commands of this construct will be retained.</p>
   <span class="n">repository_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">code_commit_removal_policy</span><span class="p">:</span> <span class="n">RemovalPolicy</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_branch_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">pr_build_checker</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">sonar_code_scanner_config</span><span class="p">:</span> <span class="n">SonarCodeScannerConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">synth_shell_step_partial_props</span><span class="p">:</span> <span class="n">ShellStepProps</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
@@ -4001,14 +3973,9 @@ if you pass in [] the default commands of this construct will be retained.</p>
 <td>Branch to trigger the pipeline execution.</td>
 </tr>
 <tr>
-<td><code><a href="#aws-prototyping-sdk.pdk_pipeline.PDKPipelineProps.property.prBuildChecker">pr_build_checker</a></code></td>
-<td><code>bool</code></td>
-<td>Enables a build job to trigger on PR merges to the defaultBranchName.</td>
-</tr>
-<tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.PDKPipelineProps.property.sonarCodeScannerConfig">sonar_code_scanner_config</a></code></td>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig">SonarCodeScannerConfig</a></code></td>
-<td>Configuration for enabling Sonarqube code scanning.</td>
+<td>Configuration for enabling Sonarqube code scanning on a successful synth.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.PDKPipelineProps.property.synthShellStepPartialProps">synth_shell_step_partial_props</a></code></td>
@@ -4238,18 +4205,6 @@ on the pipeline itself and prefer to deploy changes using <code>cdk deploy</code
 </ul>
 <p>Branch to trigger the pipeline execution.</p>
 <hr />
-<h5 id="pr_build_checkeroptional_1"><code>pr_build_checker</code><sup>Optional</sup> <a name="pr_build_checker" id="aws-prototyping-sdk.pdk_pipeline.PDKPipelineProps.property.prBuildChecker"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">pr_build_checker</span><span class="p">:</span> <span class="nb">bool</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> bool</li>
-<li><em>Default:</em> true</li>
-</ul>
-<p>Enables a build job to trigger on PR merges to the defaultBranchName.</p>
-<p>This
-will automatically build the codebase and add an Approval to the PR on
-successful build.</p>
-<hr />
 <h5 id="sonar_code_scanner_configoptional_1"><code>sonar_code_scanner_config</code><sup>Optional</sup> <a name="sonar_code_scanner_config" id="aws-prototyping-sdk.pdk_pipeline.PDKPipelineProps.property.sonarCodeScannerConfig"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonar_code_scanner_config</span><span class="p">:</span> <span class="n">SonarCodeScannerConfig</span>
 </code></pre></div>
@@ -4257,7 +4212,7 @@ successful build.</p>
 <li><em>Type:</em> <a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig">SonarCodeScannerConfig</a></li>
 <li><em>Default:</em> undefined</li>
 </ul>
-<p>Configuration for enabling Sonarqube code scanning.</p>
+<p>Configuration for enabling Sonarqube code scanning on a successful synth.</p>
 <hr />
 <h5 id="synth_shell_step_partial_propsoptional_1"><code>synth_shell_step_partial_props</code><sup>Optional</sup> <a name="synth_shell_step_partial_props" id="aws-prototyping-sdk.pdk_pipeline.PDKPipelineProps.property.synthShellStepPartialProps"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">synth_shell_step_partial_props</span><span class="p">:</span> <span class="n">ShellStepProps</span>
@@ -4301,57 +4256,57 @@ a partial ShellStepProps.</p>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.sonarqubeAuthorizedGroup">sonarqube_authorized_group</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Group name in Sonarqube with access to administer this project.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.sonarqubeDefaultProfileOrGateName">sonarqube_default_profile_or_gate_name</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Default profile/gate name i.e: your org profile.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.sonarqubeEndpoint">sonarqube_endpoint</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>endpoint of the sonarqube instance i.e: https://<your-sonarqube-endpoint>.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.sonarqubeProjectName">sonarqube_project_name</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Name of the project to create in Sonarqube.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.cdkOutDir">cdk_out_dir</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>directory containing the synthesized cdk resources.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.cfnNagIgnorePath">cfn_nag_ignore_path</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>path to a file containing the cfn nag suppression rules.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.excludeGlobsForScan">exclude_globs_for_scan</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>glob patterns to exclude from sonar scan.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.includeGlobsForScan">include_globs_for_scan</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>glob patterns to include from sonar scan.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.preArchiveCommands">pre_archive_commands</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>Hook which allows custom commands to be executed before the process commences the archival process.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.sonarqubeSpecificProfileOrGateName">sonarqube_specific_profile_or_gate_name</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Specific profile/gate name i.e: language specific.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.sonarqubeTags">sonarqube_tags</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>Tags to associate with this project.</td>
 </tr>
 </tbody>
 </table>
@@ -4362,6 +4317,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Group name in Sonarqube with access to administer this project.</p>
 <hr />
 <h5 id="sonarqube_default_profile_or_gate_namerequired_1"><code>sonarqube_default_profile_or_gate_name</code><sup>Required</sup> <a name="sonarqube_default_profile_or_gate_name" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.sonarqubeDefaultProfileOrGateName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonarqube_default_profile_or_gate_name</span><span class="p">:</span> <span class="nb">str</span>
@@ -4369,6 +4325,8 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Default profile/gate name i.e: your org profile.</p>
+<p>Note: These need to be set up in Sonarqube manually.</p>
 <hr />
 <h5 id="sonarqube_endpointrequired_1"><code>sonarqube_endpoint</code><sup>Required</sup> <a name="sonarqube_endpoint" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.sonarqubeEndpoint"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonarqube_endpoint</span><span class="p">:</span> <span class="nb">str</span>
@@ -4376,6 +4334,8 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>endpoint of the sonarqube instance i.e: https://<your-sonarqube-endpoint>.</p>
+<p>Note: Ensure a trailing '/' is not included.</p>
 <hr />
 <h5 id="sonarqube_project_namerequired_1"><code>sonarqube_project_name</code><sup>Required</sup> <a name="sonarqube_project_name" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.sonarqubeProjectName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonarqube_project_name</span><span class="p">:</span> <span class="nb">str</span>
@@ -4383,6 +4343,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Name of the project to create in Sonarqube.</p>
 <hr />
 <h5 id="cdk_out_diroptional_1"><code>cdk_out_dir</code><sup>Optional</sup> <a name="cdk_out_dir" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.cdkOutDir"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cdk_out_dir</span><span class="p">:</span> <span class="nb">str</span>
@@ -4390,6 +4351,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>directory containing the synthesized cdk resources.</p>
 <hr />
 <h5 id="cfn_nag_ignore_pathoptional_1"><code>cfn_nag_ignore_path</code><sup>Optional</sup> <a name="cfn_nag_ignore_path" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.cfnNagIgnorePath"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cfn_nag_ignore_path</span><span class="p">:</span> <span class="nb">str</span>
@@ -4397,6 +4359,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>path to a file containing the cfn nag suppression rules.</p>
 <hr />
 <h5 id="exclude_globs_for_scanoptional_1"><code>exclude_globs_for_scan</code><sup>Optional</sup> <a name="exclude_globs_for_scan" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.excludeGlobsForScan"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">exclude_globs_for_scan</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -4404,6 +4367,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>glob patterns to exclude from sonar scan.</p>
 <hr />
 <h5 id="include_globs_for_scanoptional_1"><code>include_globs_for_scan</code><sup>Optional</sup> <a name="include_globs_for_scan" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.includeGlobsForScan"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">include_globs_for_scan</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -4411,6 +4375,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>glob patterns to include from sonar scan.</p>
 <hr />
 <h5 id="pre_archive_commandsoptional_1"><code>pre_archive_commands</code><sup>Optional</sup> <a name="pre_archive_commands" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.preArchiveCommands"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">pre_archive_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -4418,6 +4383,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>Hook which allows custom commands to be executed before the process commences the archival process.</p>
 <hr />
 <h5 id="sonarqube_specific_profile_or_gate_nameoptional_1"><code>sonarqube_specific_profile_or_gate_name</code><sup>Optional</sup> <a name="sonarqube_specific_profile_or_gate_name" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.sonarqubeSpecificProfileOrGateName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonarqube_specific_profile_or_gate_name</span><span class="p">:</span> <span class="nb">str</span>
@@ -4425,6 +4391,8 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Specific profile/gate name i.e: language specific.</p>
+<p>Note: These need to be set up in Sonarqube manually.</p>
 <hr />
 <h5 id="sonarqube_tagsoptional_1"><code>sonarqube_tags</code><sup>Optional</sup> <a name="sonarqube_tags" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerConfig.property.sonarqubeTags"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonarqube_tags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -4432,8 +4400,10 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>Tags to associate with this project.</p>
 <hr />
 <h3 id="sonarcodescannerprops">SonarCodeScannerProps <a name="SonarCodeScannerProps" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps"></a></h3>
+<p>SonarCodeScanners properties.</p>
 <h4 id="initializer_2">Initializer <a name="Initializer" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">pdk_pipeline</span>
 
@@ -4467,72 +4437,72 @@ a partial ShellStepProps.</p>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.sonarqubeAuthorizedGroup">sonarqube_authorized_group</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Group name in Sonarqube with access to administer this project.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.sonarqubeDefaultProfileOrGateName">sonarqube_default_profile_or_gate_name</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Default profile/gate name i.e: your org profile.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.sonarqubeEndpoint">sonarqube_endpoint</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>endpoint of the sonarqube instance i.e: https://<your-sonarqube-endpoint>.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.sonarqubeProjectName">sonarqube_project_name</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Name of the project to create in Sonarqube.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.cdkOutDir">cdk_out_dir</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>directory containing the synthesized cdk resources.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.cfnNagIgnorePath">cfn_nag_ignore_path</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>path to a file containing the cfn nag suppression rules.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.excludeGlobsForScan">exclude_globs_for_scan</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>glob patterns to exclude from sonar scan.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.includeGlobsForScan">include_globs_for_scan</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>glob patterns to include from sonar scan.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.preArchiveCommands">pre_archive_commands</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>Hook which allows custom commands to be executed before the process commences the archival process.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.sonarqubeSpecificProfileOrGateName">sonarqube_specific_profile_or_gate_name</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Specific profile/gate name i.e: language specific.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.sonarqubeTags">sonarqube_tags</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
+<td>Tags to associate with this project.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.artifactBucketArn">artifact_bucket_arn</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>S3 bucket ARN containing the built artifacts from the synth build.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.synthBuildArn">synth_build_arn</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>ARN for the CodeBuild task responsible for executing the synth command.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.artifactBucketKeyArn">artifact_bucket_key_arn</a></code></td>
 <td><code>str</code></td>
-<td><em>No description.</em></td>
+<td>Artifact bucket key ARN used to encrypt the artifacts.</td>
 </tr>
 </tbody>
 </table>
@@ -4543,6 +4513,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Group name in Sonarqube with access to administer this project.</p>
 <hr />
 <h5 id="sonarqube_default_profile_or_gate_namerequired_2"><code>sonarqube_default_profile_or_gate_name</code><sup>Required</sup> <a name="sonarqube_default_profile_or_gate_name" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.sonarqubeDefaultProfileOrGateName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonarqube_default_profile_or_gate_name</span><span class="p">:</span> <span class="nb">str</span>
@@ -4550,6 +4521,8 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Default profile/gate name i.e: your org profile.</p>
+<p>Note: These need to be set up in Sonarqube manually.</p>
 <hr />
 <h5 id="sonarqube_endpointrequired_2"><code>sonarqube_endpoint</code><sup>Required</sup> <a name="sonarqube_endpoint" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.sonarqubeEndpoint"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonarqube_endpoint</span><span class="p">:</span> <span class="nb">str</span>
@@ -4557,6 +4530,8 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>endpoint of the sonarqube instance i.e: https://<your-sonarqube-endpoint>.</p>
+<p>Note: Ensure a trailing '/' is not included.</p>
 <hr />
 <h5 id="sonarqube_project_namerequired_2"><code>sonarqube_project_name</code><sup>Required</sup> <a name="sonarqube_project_name" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.sonarqubeProjectName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonarqube_project_name</span><span class="p">:</span> <span class="nb">str</span>
@@ -4564,6 +4539,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Name of the project to create in Sonarqube.</p>
 <hr />
 <h5 id="cdk_out_diroptional_2"><code>cdk_out_dir</code><sup>Optional</sup> <a name="cdk_out_dir" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.cdkOutDir"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cdk_out_dir</span><span class="p">:</span> <span class="nb">str</span>
@@ -4571,6 +4547,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>directory containing the synthesized cdk resources.</p>
 <hr />
 <h5 id="cfn_nag_ignore_pathoptional_2"><code>cfn_nag_ignore_path</code><sup>Optional</sup> <a name="cfn_nag_ignore_path" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.cfnNagIgnorePath"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cfn_nag_ignore_path</span><span class="p">:</span> <span class="nb">str</span>
@@ -4578,6 +4555,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>path to a file containing the cfn nag suppression rules.</p>
 <hr />
 <h5 id="exclude_globs_for_scanoptional_2"><code>exclude_globs_for_scan</code><sup>Optional</sup> <a name="exclude_globs_for_scan" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.excludeGlobsForScan"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">exclude_globs_for_scan</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -4585,6 +4563,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>glob patterns to exclude from sonar scan.</p>
 <hr />
 <h5 id="include_globs_for_scanoptional_2"><code>include_globs_for_scan</code><sup>Optional</sup> <a name="include_globs_for_scan" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.includeGlobsForScan"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">include_globs_for_scan</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -4592,6 +4571,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>glob patterns to include from sonar scan.</p>
 <hr />
 <h5 id="pre_archive_commandsoptional_2"><code>pre_archive_commands</code><sup>Optional</sup> <a name="pre_archive_commands" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.preArchiveCommands"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">pre_archive_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -4599,6 +4579,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>Hook which allows custom commands to be executed before the process commences the archival process.</p>
 <hr />
 <h5 id="sonarqube_specific_profile_or_gate_nameoptional_2"><code>sonarqube_specific_profile_or_gate_name</code><sup>Optional</sup> <a name="sonarqube_specific_profile_or_gate_name" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.sonarqubeSpecificProfileOrGateName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonarqube_specific_profile_or_gate_name</span><span class="p">:</span> <span class="nb">str</span>
@@ -4606,6 +4587,8 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Specific profile/gate name i.e: language specific.</p>
+<p>Note: These need to be set up in Sonarqube manually.</p>
 <hr />
 <h5 id="sonarqube_tagsoptional_2"><code>sonarqube_tags</code><sup>Optional</sup> <a name="sonarqube_tags" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.sonarqubeTags"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">sonarqube_tags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -4613,6 +4596,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
+<p>Tags to associate with this project.</p>
 <hr />
 <h5 id="artifact_bucket_arnrequired_1"><code>artifact_bucket_arn</code><sup>Required</sup> <a name="artifact_bucket_arn" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.artifactBucketArn"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">artifact_bucket_arn</span><span class="p">:</span> <span class="nb">str</span>
@@ -4620,6 +4604,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>S3 bucket ARN containing the built artifacts from the synth build.</p>
 <hr />
 <h5 id="synth_build_arnrequired_1"><code>synth_build_arn</code><sup>Required</sup> <a name="synth_build_arn" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.synthBuildArn"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">synth_build_arn</span><span class="p">:</span> <span class="nb">str</span>
@@ -4627,6 +4612,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>ARN for the CodeBuild task responsible for executing the synth command.</p>
 <hr />
 <h5 id="artifact_bucket_key_arnoptional_1"><code>artifact_bucket_key_arn</code><sup>Optional</sup> <a name="artifact_bucket_key_arn" id="aws-prototyping-sdk.pdk_pipeline.SonarCodeScannerProps.property.artifactBucketKeyArn"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">artifact_bucket_key_arn</span><span class="p">:</span> <span class="nb">str</span>
@@ -4634,6 +4620,7 @@ a partial ShellStepProps.</p>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>Artifact bucket key ARN used to encrypt the artifacts.</p>
 <hr />
 
   <hr>
@@ -4641,7 +4628,7 @@ a partial ShellStepProps.</p>
   <small>
     
       Last update:
-      2022-05-13
+      2022-05-16
     
   </small>
 </div>
