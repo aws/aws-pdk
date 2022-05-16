@@ -16,6 +16,11 @@ export const useLocalRegistry = async () => {
     // https://github.com/projen/projen/blob/e5899dd04a575209424a08fe90bde99e07ac6c7b/src/common.ts#L5
     process.env.NODE_ENV='_test';
 
+    execSync('npm install -g aws-cdk', {
+      env: process.env,
+      stdio: 'inherit',
+    });
+
     execSync('jest --passWithNoTests --all --updateSnapshot', {
       env: process.env,
       stdio: 'inherit',
