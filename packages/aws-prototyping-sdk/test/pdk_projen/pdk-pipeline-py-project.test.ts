@@ -37,7 +37,12 @@ describe("PDK Pipeline Py Unit Tests", () => {
         },
       },
     });
-    expect(synthSnapshot(project)).toMatchSnapshot();
+    const output = synthSnapshot(project);
+    Object.keys(output)
+      .filter((k) => k.includes("__pycache__"))
+      .forEach((k) => delete output[k]);
+
+    expect(output).toMatchSnapshot();
   });
 
   it("Custom AppEntrypoint", () => {

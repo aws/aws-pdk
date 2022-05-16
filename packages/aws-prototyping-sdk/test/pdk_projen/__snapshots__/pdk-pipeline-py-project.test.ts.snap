@@ -1326,16 +1326,6 @@ def template():
 def test_pipeline_found(template):
   template.resource_count_is(\\"AWS::CodePipeline::Pipeline\\", 1)
 ",
-  "with_context/__pycache__/pipeline_stack.cpython-37.pyc": "B
-
-    ��yb�  �               @   s@   d dl mZ d dlmZmZ d dlZd dlZG dd� de�ZdS )�    )�pdk_pipeline)�Stack�	pipelinesNc                   s   e Zd Z� fdd�Z�  ZS )�
-PipelineStackc                s�   t � j||f|� | j�d�}| j�d�}d }|d kr:d}|d k	r\`tjf t�t�t	�
-|����}tj| dd|dd|tj
-dg d	�d
-�| _d S )NZsonarqubeScannerConfig�repositoryNameZmonorepo�Pipelinezpackages/infra/cdk.outFTZUnused)�commands)Zprimary_synth_directory�repository_name�publish_assets_in_parallel�cross_account_keysZsonar_code_scanner_config�synth)�super�__init__�node�try_get_contextr   ZSonarCodeScannerConfig�json�loads�dumps�humpsZ
-decamelizeZPDKPipeliner   �	ShellStep�pipeline)�self�scope�id�kwargs�contextZ	repo_nameZsonar_config)�	__class__� �V/Users/dimecha/Projects/aws-pdk/samples/sample-pdk-pipeline-py/infra/pipeline_stack.pyr      s    zPipelineStack.__init__)�__name__�
-__module__�__qualname__r   �
-__classcell__r   r   )r   r   r      s   r   )Zaws_prototyping_sdkr   �aws_cdkr   r   r   r   r   r   r   r   r   �<module>   s   ",
   "with_context/application_stack.py": "from aws_cdk import Stack
 
 class ApplicationStack(Stack):
