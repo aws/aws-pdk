@@ -12,7 +12,7 @@ process.env.YARN_REGISTRY = process.env.npm_config_registry;
 /**
  * Publishes the PDK to a local Verdaccio registry.
  */
-export const publishPDKToLocalRegistry = async () => {
+export const publishPDKToLocalRegistry = () => {
   if (!process.env.npm_config_registry?.startsWith('http://localhost')) {
     throw Error('Local registry not configured.');
   }
@@ -24,7 +24,7 @@ export const publishPDKToLocalRegistry = async () => {
 
   // NPM >= 7 requires an auth token. We can use a fake one given this is local.
   if (+npmMajorVersion >= 7) {
-    await fs.writeFileSync(
+    fs.writeFileSync(
       './.npmrc',
       `registry=${
         process.env.npm_config_registry

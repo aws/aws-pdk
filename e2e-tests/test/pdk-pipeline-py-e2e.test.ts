@@ -26,8 +26,6 @@ describe('pdk-pipeline-py E2E Tests', () => {
       //   env: process.env,
       //   stdio: 'inherit',
       // });
-      //
-      // expect(generateSnapshot(tempFolder)).toMatchSnapshot();
     });
   });
 });

@@ -1,6 +1,5 @@
 import { execSync } from 'child_process';
 import { executeInTempFolderSync } from '../src/fs-utils';
-import { generateSnapshot } from './snapshot-utils';
 
 /**
  * Series of End to End tests.
@@ -13,7 +12,7 @@ describe('pdk-pipeline-ts E2E Tests', () => {
    */
   it('pdk-pipeline-ts-create', async () => {
     executeInTempFolderSync('pdk-pipeline-ts-create', (tempFolder) => {
-      execSync('npx projen new --from aws-prototyping-sdk pdk-pipeline-ts --no-git', {
+      execSync('npx projen new --from aws-prototyping-sdk pdk-pipeline-ts --no-git --name pdk-pipeline-ts-create', {
         cwd: tempFolder,
         env: process.env, // This is important to make sure we use the local registry!
         stdio: 'inherit',
@@ -25,8 +24,6 @@ describe('pdk-pipeline-ts E2E Tests', () => {
         env: process.env,
         stdio: 'inherit',
       });
-
-      expect(generateSnapshot(tempFolder)).toMatchSnapshot();
     });
   });
 });

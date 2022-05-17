@@ -321,10 +321,16 @@ const e2eTests = new TypeScriptProject({
     "verdaccio-memory"],
   gitignore: [".npmrc"],
   sampleCode: false,
+  jest: true,
+  jestOptions: {
+    jestConfig: {
+      globalSetup: "<rootDir>/src/global-setup.ts",
+      globalTeardown: "<rootDir>/src/global-teardown.ts"
+    }
+  }
 });
 
 e2eTests.package.addField("private", true);
-e2eTests.testTask.reset("npx ts-node src/use-local-registry.ts");
 
 monorepo.addImplicitDependency(samplePdkPipelinePy, awsPrototypingSdk);
 monorepo.addImplicitDependency(samplePdkPipelineJava, awsPrototypingSdk);

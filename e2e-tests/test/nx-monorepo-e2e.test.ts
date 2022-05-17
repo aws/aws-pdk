@@ -1,5 +1,4 @@
 import { execSync } from 'child_process';
-import fs from 'fs';
 import { executeInTempFolderSync } from '../src/fs-utils';
 
 /**
@@ -13,7 +12,7 @@ describe('nx-monorepo E2E Tests', () => {
    */
   it('nx-monorepo-create', async () => {
     executeInTempFolderSync('nx-monorepo-create', (tempFolder) => {
-      execSync('npx projen new --from aws-prototyping-sdk nx-monorepo --no-git', {
+      execSync('npx projen new --from aws-prototyping-sdk nx-monorepo --no-git --name nx-monorepo-create', {
         cwd: tempFolder,
         env: process.env, // This is important to make sure we use the local registry!
         stdio: 'inherit',
@@ -25,12 +24,6 @@ describe('nx-monorepo E2E Tests', () => {
         env: process.env,
         stdio: 'inherit',
       });
-
-      const snapshot = ['package.json', 'nx.json', '.nxignore', '.nx/plugins/nx-monorepo-plugin.js'].reduce((prev: any, curr: string) => {
-        return { ...prev, [curr]: fs.readFileSync(`${tempFolder}/${curr}`).toString() };
-      }, {});
-
-      expect(snapshot).toMatchSnapshot();
     });
   });
 });
