@@ -203,10 +203,11 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.subProjects
       .filter(
         (subProject) =>
-          !fs.existsSync(`${subProject.outdir}/package.json`) ||
-          JSON.parse(
-            fs.readFileSync(`${subProject.outdir}/package.json`).toString()
-          ).__pdk__
+          !subProject.tryFindObjectFile("package.json") ||
+          (fs.existsSync(`${subProject.outdir}/package.json`) &&
+            JSON.parse(
+              fs.readFileSync(`${subProject.outdir}/package.json`).toString()
+            ).__pdk__)
       )
       .forEach((subProject) => {
         // generate a package.json if not found

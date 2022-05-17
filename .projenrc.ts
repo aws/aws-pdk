@@ -3,16 +3,18 @@ import * as fs from "fs";
 import { XMLParser, XMLBuilder } from "fast-xml-parser"
 import { JsiiProject } from "projen/lib/cdk";
 import { Release } from "projen/lib/release";
-import { DependencyType } from "projen";
+import { DependencyType, Project } from 'projen';
 import { NodeProject } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { PythonProject } from "projen/lib/python";
 import { JavaProject } from "projen/lib/java";
+import { TargetDependencyProject } from 'aws-prototyping-sdk/src/pdk_projen/index';
 
 const resolveDependencies = (project: NodeProject): NodeProject => {
   // resolutions
   project.addFields({
     resolutions: {
+      "@types/prettier": "2.6.0",
       "ansi-regex": "^5.0.1",
       underscore: "^1.12.1",
       "deep-extend": "^0.5.1",
@@ -25,6 +27,13 @@ const resolveDependencies = (project: NodeProject): NodeProject => {
 
   return project;
 };
+
+const configureUpgradeDependenciesTask = (project: Project): any => {
+  const upgradeTask = project.tasks.tryFind("upgrade");
+  upgradeTask && project.addTask("upgrade-deps").spawn(upgradeTask);
+
+  return project;
+}
 
 const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.NxMonorepoProject => {
   // Compile pdk as we depend on it in order to bootstrap this repo
@@ -63,6 +72,10 @@ const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.N
   resolveDependencies(monorepo);
 
   monorepo.testTask.spawn(gitSecretsScanTask);
+
+  const upgradeDepsTask = monorepo.addTask("upgrade-deps");
+  upgradeDepsTask.exec("npx nx run-many --target=upgrade-deps --all --parallel=1");
+  upgradeDepsTask.exec("npx projen upgrade");
 
   return monorepo;
 };
@@ -128,9 +141,6 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
   buildDocsTask.prependSpawn(project.preCompileTask);
   project.tasks.tryFind("release:mainline")?.spawn(buildDocsTask);
 
-  // This is need until https://github.com/aws/jsii/issues/3408 is resolved
-  project.tasks.tryFind("package:python")?.exec("chmod +x ./scripts/python-package-hack.sh && ./scripts/python-package-hack.sh");
-
   // eslint extensions
   project.eslint?.addPlugins("header");
   project.eslint?.addRules({
@@ -150,7 +160,7 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
 
   resolveDependencies(project);
 
-  return project;
+  return configureUpgradeDependenciesTask(project);
 };
 
 const configureSampleTs = (project: TypeScriptProject): TypeScriptProject => {
@@ -160,7 +170,7 @@ const configureSampleTs = (project: TypeScriptProject): TypeScriptProject => {
     "import/no-extraneous-dependencies": "off",
   });
 
-  return project;
+  return configureUpgradeDependenciesTask(project);
 }
 
 const configureSamplePy = (project: PythonProject): PythonProject => {
@@ -170,7 +180,7 @@ const configureSamplePy = (project: PythonProject): PythonProject => {
   project.preCompileTask.exec("pip install -r requirements.txt --force-reinstall");
   project.preCompileTask.exec("pip install -r requirements-dev.txt");
 
-  return project;
+  return configureUpgradeDependenciesTask(project);
 }
 
 const configureSampleJava = (project: JavaProject): JavaProject => {
@@ -199,7 +209,7 @@ const configureSampleJava = (project: JavaProject): JavaProject => {
     fs.writeFileSync(`${project.outdir}/pom.xml`, newPom, { mode: "400" });
   }
 
-  return project;
+  return configureUpgradeDependenciesTask(project);
 }
 
 const monorepo = configureMonorepo(new pdk_projen.NxMonorepoProject({
@@ -215,6 +225,14 @@ const monorepo = configureMonorepo(new pdk_projen.NxMonorepoProject({
   ],
   depsUpgradeOptions: {
     exclude: ["aws-prototyping-sdk"]
+  },
+  targetDependencies: {
+    upgrade: [
+      {
+        target: "upgrade",
+        projects: TargetDependencyProject.DEPENDENCIES
+      }
+    ]
   }
 }));
 
@@ -308,7 +326,7 @@ const samplePdkPipelineJava = configureSampleJava(new JavaProject({
   ]
 }));
 
-const e2eTests = new TypeScriptProject({
+const e2eTests = configureUpgradeDependenciesTask(new TypeScriptProject({
   parent: monorepo,
   outdir: "e2e-tests",
   defaultReleaseBranch: "mainline",
@@ -328,7 +346,7 @@ const e2eTests = new TypeScriptProject({
       globalTeardown: "<rootDir>/src/global-teardown.ts"
     }
   }
-});
+}));
 
 e2eTests.package.addField("private", true);
 
