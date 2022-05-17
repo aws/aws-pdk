@@ -36,9 +36,6 @@ const configureUpgradeDependenciesTask = (project: Project): any => {
 }
 
 const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.NxMonorepoProject => {
-  // Compile pdk as we depend on it in order to bootstrap this repo
-  monorepo.defaultTask?.prependExec("cd packages/aws-prototyping-sdk && $(if [ ! -d lib ]; then npx projen compile > /dev/null; fi;)");
-
   monorepo.addTask("prepare", {
     exec: "husky install",
   });
@@ -125,6 +122,7 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
     exec: "rm -rf dist build lib samples test-reports coverage LICENSE-THIRD-PARTY",
   });
 
+  project.compileTask.exec("rsync -a ./src/** ./lib --include=\"*/\" --include=\"**/*.js\" --exclude=\"*\" --prune-empty-dirs");
   // jsii requires peer deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
   // TODO: make this more robust as this assumes all deps default to the root node_modules
   project.preCompileTask.exec(`rm -rf node_modules && mkdir node_modules && cd node_modules && ${project.deps.all

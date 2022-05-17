@@ -235,9 +235,8 @@ export class NxMonorepoProject extends TypeScriptProject {
 }
 
 function getPluginPath() {
-  const prefix =
-    process.env.NODE_ENV === "test"
-      ? "./lib/" // If unit test from within this package
-      : "./node_modules/aws-prototyping-sdk/lib/";
-  return `${prefix}pdk_projen/nx_monorepo/plugin/nx-monorepo-plugin.js`;
+  const pluginDir = fs.existsSync("./node_modules/aws-prototyping-sdk/lib/")
+    ? "lib"
+    : "src";
+  return `./node_modules/aws-prototyping-sdk/${pluginDir}/pdk_projen/nx_monorepo/plugin/nx-monorepo-plugin.js`;
 }

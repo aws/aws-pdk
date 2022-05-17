@@ -1,13 +1,11 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-/* eslint-disable @typescript-eslint/no-require-imports */
-
-import * as fs from "fs";
-import * as path from "path";
+const fs = require("fs");
+const path = require("path");
 const { ProjectGraphBuilder } = require("@nrwl/devkit");
 
-export const processProjectGraph = (graph: any) => {
+exports.processProjectGraph = (graph) => {
   const builder = new ProjectGraphBuilder(graph);
 
   const nx = JSON.parse(
@@ -15,7 +13,7 @@ export const processProjectGraph = (graph: any) => {
       .readFileSync(path.resolve(findRoot(__dirname), "nx.json"))
       .toString("utf-8")
   );
-  const implicitDependencies: { [dependant: string]: string[] } =
+  const implicitDependencies =
     nx.implicitDependencies;
 
   Object.entries(implicitDependencies).forEach(([dependant, dependees]) => {
@@ -27,7 +25,7 @@ export const processProjectGraph = (graph: any) => {
   return builder.getUpdatedProjectGraph();
 };
 
-const findRoot = (dir: string): string => {
+const findRoot = (dir) => {
   if (path.dirname(dir) === dir) {
     return process.cwd();
   } else if (fs.existsSync(path.join(dir, "nx.json"))) {
