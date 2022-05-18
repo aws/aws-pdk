@@ -70,6 +70,14 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
    * @default []
    */
   readonly nxIgnorePatterns?: string[];
+
+  /**
+   * List of package globs to exclude from hoisting in the workspace.
+   *
+   * @link https://classic.yarnpkg.com/blog/2018/02/15/nohoist/
+   * @default []
+   */
+  readonly noHoistGlobs?: string[];
 }
 
 /**
@@ -80,6 +88,7 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
  */
 export class NxMonorepoProject extends TypeScriptProject {
   private readonly implicitDependencies: { [pkg: string]: string[] } = {};
+  private readonly noHoistGlobs?: string[] = [];
 
   constructor(options: NxMonorepoProjectOptions) {
     super({
@@ -93,6 +102,8 @@ export class NxMonorepoProject extends TypeScriptProject {
       sampleCode: false,
       defaultReleaseBranch: "mainline",
     });
+
+    this.noHoistGlobs = options.noHoistGlobs;
 
     // Never publish a monorepo root package.
     this.package.addField("private", true);
@@ -177,12 +188,12 @@ export class NxMonorepoProject extends TypeScriptProject {
     super.preSynthesize();
 
     // Add workspaces for each subproject
-    this.package.addField(
-      "workspaces",
-      this.subProjects.map((subProject) =>
+    this.package.addField("workspaces", {
+      packages: this.subProjects.map((subProject) =>
         path.relative(this.outdir, subProject.outdir)
-      )
-    );
+      ),
+      nohoist: this.noHoistGlobs,
+    });
 
     // Disable default task on subprojects as this isn't supported in a monorepo
     this.subProjects.forEach((subProject) => subProject.defaultTask?.reset());
