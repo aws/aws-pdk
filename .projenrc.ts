@@ -219,6 +219,7 @@ const monorepo = configureMonorepo(new pdk_projen.NxMonorepoProject({
     "@commitlint/cli",
     "@commitlint/config-conventional",
     "cz-conventional-changelog",
+    "fast-xml-parser",
     "husky",
   ],
   depsUpgradeOptions: {
@@ -257,7 +258,6 @@ const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
     "oss-attribution-generator",
     "standard-version@^9",
   ],
-  bundledDeps: ["fast-xml-parser"],
   peerDeps: ["projen", "constructs", "aws-cdk-lib"],
   deps: ["constructs", "aws-cdk-lib"],
   projenDevDependency: false,
