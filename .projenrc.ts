@@ -7,7 +7,7 @@ import { NodeProject } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { PythonProject } from "projen/lib/python";
 import { JavaProject } from "projen/lib/java";
-import { PDKProject } from "aws-prototyping-sdk/src/project";
+import { Maturity, PDKProject } from "@aws/aws-pdk-project/src/project";
 import { NxMonorepoProject, TargetDependencyProject } from "@aws/aws-pdk-nx-monorepo/src/project";
 
 const resolveDependencies = (project: NodeProject): NodeProject => {
@@ -193,7 +193,7 @@ const configureSampleJava = (project: JavaProject): JavaProject => {
       artifactId: "aws-prototyping-sdk",
       version: "0.0.0",
       scope: "system",
-      systemPath: "${basedir}/../../packages/aws-prototyping-sdk/dist/java/software/aws/awsprototypingsdk/aws-prototyping-sdk/0.0.0/aws-prototyping-sdk-0.0.0.jar"
+      systemPath: "${basedir}/../../../dist/java/software/aws/awsprototypingsdk/aws-pdk-lib/0.0.0/aws-pdk-lib-0.0.0.jar"
     }];
 
     const builder = new XMLBuilder({
@@ -208,12 +208,13 @@ const configureSampleJava = (project: JavaProject): JavaProject => {
   return configureUpgradeDependenciesTask(project);
 }
 
+
 const monorepo = configureMonorepo(new NxMonorepoProject({
   defaultReleaseBranch: "mainline",
   eslint: false,
   name: "aws-prototyping-sdk-monorepo",
   devDeps: [
-    "aws-prototyping-sdk@0.0.0",
+    "@aws/aws-pdk-project@0.0.0",
     "@aws/aws-pdk-nx-monorepo@0.0.0",
     "@commitlint/cli",
     "@commitlint/config-conventional",
@@ -222,7 +223,7 @@ const monorepo = configureMonorepo(new NxMonorepoProject({
     "husky",
   ],
   depsUpgradeOptions: {
-    exclude: ["aws-prototyping-sdk", "@aws/aws-pdk-nx-monorepo"]
+    exclude: ["@aws/aws-pdk-nx-monorepo", "@aws/aws-pdk-project"]
   },
   targetDependencies: {
     upgrade: [
@@ -242,7 +243,45 @@ const monorepo = configureMonorepo(new NxMonorepoProject({
   ]
 }));
 
-const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
+const pdkProject = new TypeScriptProject({
+  parent: monorepo,
+  outdir: "tools/@aws/aws-pdk-project",
+  defaultReleaseBranch: "mainline",
+  name: "@aws/aws-pdk-project",
+  sampleCode: false,
+  devDeps: [
+    "projen",
+  ],
+  peerDeps: ["projen"]
+});
+
+pdkProject.package.addField("private", true);
+
+const uberGen = new TypeScriptProject({
+  parent: monorepo,
+  outdir: "tools/@aws/aws-pdk-ubergen",
+  defaultReleaseBranch: "mainline",
+  name: "@aws/aws-pdk-ubergen",
+  sampleCode: false,
+  bin: {
+    "ubergen": "bin/ubergen"
+  },
+  tsconfig: {
+    include: ["**/bin/*.ts"],
+    compilerOptions: {
+      rootDir: ".",
+      outDir: undefined
+    }
+  },
+  gitignore: ["*.d.ts", "*.js"],
+  devDeps: ["@types/fs-extra"],
+  deps: ["fs-extra"]
+});
+
+uberGen.package.addField("private", true);
+uberGen.postCompileTask.exec("npm link");
+
+configureAwsPrototypingSdk(new JsiiProject({
   parent: monorepo,
   outdir: "packages/aws-prototyping-sdk",
   author: "AWS APJ COPE",
@@ -295,10 +334,10 @@ configureSampleTs(new TypeScriptProject({
   deps: [
     "aws-cdk-lib",
     "constructs",
-    "aws-prototyping-sdk@0.0.0"
+    "@aws/aws-pdk-lib@0.0.0"
   ],
   depsUpgradeOptions: {
-    exclude: ["aws-prototyping-sdk"]
+    exclude: ["@aws/aws-pdk-lib"]
   }
 }));
 
@@ -315,7 +354,7 @@ const samplePdkPipelinePy = configureSamplePy(new PythonProject({
     "aws-cdk-lib",
     "constructs",
     "pyhumps",
-    "../../packages/aws-prototyping-sdk/dist/python/aws_prototyping_sdk-0.0.0-py3-none-any.whl"
+    "../../../dist/python/aws_prototyping_sdk.aws_pdk_lib-0.0.0-py3-none-any.whl"
   ],
 }));
 
@@ -343,7 +382,7 @@ const e2eTests = configureUpgradeDependenciesTask(new TypeScriptProject({
   defaultReleaseBranch: "mainline",
   name: "e2e-tests",
   devDeps: [
-    "aws-prototyping-sdk@0.0.0",
+    "@aws/aws-pdk-lib@0.0.0",
     "ts-node",
     "verdaccio",
     "verdaccio-auth-memory",
@@ -361,10 +400,7 @@ const e2eTests = configureUpgradeDependenciesTask(new TypeScriptProject({
 
 e2eTests.package.addField("private", true);
 
-monorepo.addImplicitDependency(samplePdkPipelinePy, awsPrototypingSdk);
-monorepo.addImplicitDependency(samplePdkPipelineJava, awsPrototypingSdk);
-
-new PDKProject({
+const awsPdkLib = new PDKProject({
   parent: monorepo,
   author: "AWS APJ COPE",
   authorAddress: "apj-cope@amazon.com",
@@ -372,7 +408,32 @@ new PDKProject({
   name: "aws-pdk-lib",
   keywords: ["aws", "pdk", "jsii", "projen"],
   repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+  devDeps: ["@aws/aws-pdk-ubergen@0.0.0", "@aws/aws-pdk-nx-monorepo@0.0.0", "@aws/aws-pdk-pipeline@0.0.0","projen", "constructs", "aws-cdk-lib"],
+  peerDeps: ["projen", "constructs", "aws-cdk-lib"],
+  maturity: Maturity.STABLE,
+  sampleCode: false,
+  excludeTypescript: ["**/samples/**"],
+  outdir: "."
 });
+
+monorepo.addImplicitDependency(samplePdkPipelinePy, awsPdkLib);
+monorepo.addImplicitDependency(samplePdkPipelineJava, awsPdkLib);
+
+awsPdkLib.preCompileTask.exec("ubergen");
+awsPdkLib.package.addField("ubergen", {
+  "exclude": true,
+  "excludeExperimentalModules": true
+});
+awsPdkLib.package.addField("main", "./index.js");
+awsPdkLib.package.addField("types", "./index.d.ts");
+awsPdkLib.package.manifest.jsii.tsc.rootDir = ".";
+awsPdkLib.package.manifest.jsii.tsc.outDir = ".";
+
+const copyDistTask = awsPdkLib.addTask("copy-dist", {
+  exec: "rm -rf ../../../dist && cp -R ./dist ../../.."
+});
+
+awsPdkLib.packageTask.spawn(copyDistTask);
 
 const pdkPipelineProject = new PDKProject({
   parent: monorepo,
@@ -392,6 +453,7 @@ const pdkPipelineProject = new PDKProject({
     "aws-cdk-lib",
     "constructs"
   ],
+  maturity: Maturity.STABLE
 });
 
 pdkPipelineProject.postCompileTask.exec("./scripts/copy-samples.sh");
@@ -405,7 +467,8 @@ const nxMonorepoProject = new PDKProject({
   keywords: ["aws", "pdk", "jsii", "projen"],
   repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
   devDeps: ["projen"],
-  peerDeps: ["projen"]
+  peerDeps: ["projen"],
+  maturity: Maturity.STABLE
 });
 
 nxMonorepoProject.compileTask.exec("rsync -a ./src/** ./lib --include=\"*/\" --include=\"**/*.js\" --exclude=\"*\" --prune-empty-dirs");

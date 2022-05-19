@@ -1,4 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-export * as project from "./project";
+export class Hello {
+  public sayHello() {
+    return "hello, world!";
+  }
+}

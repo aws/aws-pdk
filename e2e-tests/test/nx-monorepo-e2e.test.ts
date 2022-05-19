@@ -12,7 +12,7 @@ describe('nx-monorepo E2E Tests', () => {
    */
   it('nx-monorepo-create', async () => {
     executeInTempFolderSync('nx-monorepo-create', (tempFolder) => {
-      execSync('npx projen new --from aws-prototyping-sdk nx-monorepo --no-git --name nx-monorepo-create', {
+      execSync('npx projen new --from @aws/aws-pdk-lib nx-monorepo --no-git --name nx-monorepo-create', {
         cwd: tempFolder,
         env: process.env, // This is important to make sure we use the local registry!
         stdio: 'inherit',

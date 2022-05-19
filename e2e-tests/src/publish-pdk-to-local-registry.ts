@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 
-const PDK_PACKAGE_PATH = '../packages/aws-prototyping-sdk/dist/js/aws-prototyping-sdk@0.0.0.jsii.tgz';
+const PDK_PACKAGE_PATH = '../packages/@aws/aws-pdk-lib/dist/js/aws-pdk-lib@0.0.0.jsii.tgz';
 
 /**
  * Registry configuration is specified via env params.

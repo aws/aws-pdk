@@ -14,6 +14,6 @@ export const executeInTempFolderSync = (testCase: string, executor: (tempFolder:
   try {
     executor(tempFolder);
   } finally {
-    fs.rmSync(tempFolder, { recursive: true });
+    // fs.rmSync(tempFolder, { recursive: true });
   }
 };

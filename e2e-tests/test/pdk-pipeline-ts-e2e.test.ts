@@ -12,7 +12,7 @@ describe('pdk-pipeline-ts E2E Tests', () => {
    */
   it('pdk-pipeline-ts-create', async () => {
     executeInTempFolderSync('pdk-pipeline-ts-create', (tempFolder) => {
-      execSync('npx projen new --from aws-prototyping-sdk pdk-pipeline-ts --no-git --name pdk-pipeline-ts-create', {
+      execSync('npx projen new --from @aws/aws-pdk-lib pdk-pipeline-ts --no-git --name pdk-pipeline-ts-create', {
         cwd: tempFolder,
         env: process.env, // This is important to make sure we use the local registry!
         stdio: 'inherit',

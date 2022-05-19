@@ -1,4 +1,4 @@
-from aws_prototyping_sdk import pdk_pipeline
+from aws_prototyping_sdk.aws_pdk_lib.aws_pdk_pipeline.construct import PDKPipeline, SonarCodeScannerConfig
 from aws_cdk import Stack, pipelines
 import json
 import humps
@@ -15,9 +15,9 @@ class PipelineStack(Stack):
             repo_name = "monorepo"
 
         if context is not None:
-            sonar_config = pdk_pipeline.SonarCodeScannerConfig(**json.loads(json.dumps(humps.decamelize(context))))
+            sonar_config = SonarCodeScannerConfig(**json.loads(json.dumps(humps.decamelize(context))))
 
-        self.pipeline = pdk_pipeline.PDKPipeline(self, "Pipeline",
+        self.pipeline = PDKPipeline(self, "Pipeline",
                                                  primary_synth_directory="packages/infra/cdk.out",
                                                  repository_name=repo_name,
                                                  publish_assets_in_parallel=False,
