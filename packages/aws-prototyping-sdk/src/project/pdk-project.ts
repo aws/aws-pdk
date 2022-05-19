@@ -8,8 +8,8 @@ export interface PDKProjectOptions extends JsiiProjectOptions {}
 
 export class PDKProject extends JsiiProject {
   constructor(options: PDKProjectOptions) {
-    const nameWithUnderscore = options.name.replace("-", "_");
-    const condensedName = options.name.replace("-", "");
+    const nameWithUnderscore = options.name.replace(/-/g, "_");
+    const condensedName = options.name.replace(/-/g, "");
 
     super({
       ...options,
@@ -23,8 +23,8 @@ export class PDKProject extends JsiiProject {
       readme: {
         contents: "TODO",
       },
-      packageName: `@aws/pdk-${options.name}`,
-      outdir: `packages/@aws/pdk-${options.name}`,
+      packageName: `@aws/${options.name}`,
+      outdir: `packages/@aws/${options.name}`,
       publishToPypi: {
         distName: `aws_prototyping_sdk.${nameWithUnderscore}`,
         module: `aws_prototyping_sdk.${nameWithUnderscore}`,
@@ -32,19 +32,21 @@ export class PDKProject extends JsiiProject {
       publishToMaven: {
         mavenEndpoint: "https://aws.oss.sonatype.org",
         mavenGroupId: "software.aws.awsprototypingsdk",
-        mavenArtifactId: `aws-pdk-${options.name}`,
+        mavenArtifactId: `${options.name}`,
         javaPackage: `software.aws.awsprototypingsdk.${condensedName}`,
       },
     });
 
-    if (this.deps.all.find((dep) => "aws-prototyping-sdk" === dep.name)) {
+    if (this.deps.all.find((dep) => "@aws/aws-pdk-lib" === dep.name)) {
       throw new Error(
-        "PDK Projects cannot have a dependency on the aws-prototyping-sdk!"
+        "PDK Projects cannot have a dependency on the aws-pdk-lib!"
       );
     }
 
-    if (!this.name.match(/^[a-z-]+(?<!-)$/)) {
-      throw new Error("name should be lowercase and include optional hyphens");
+    if (!this.name.match(/^aws-pdk-[a-z-]+(?<!-)$/)) {
+      throw new Error(
+        "name should be lowercase, include optional hyphens and start with prefix: aws-pdk-"
+      );
     }
 
     if (!this.parent) {

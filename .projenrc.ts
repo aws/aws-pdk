@@ -1,4 +1,3 @@
-import * as pdk_projen from "aws-prototyping-sdk/src/pdk_projen/index";
 import * as fs from "fs";
 import { XMLParser, XMLBuilder } from "fast-xml-parser"
 import { JsiiProject } from "projen/lib/cdk";
@@ -8,7 +7,8 @@ import { NodeProject } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { PythonProject } from "projen/lib/python";
 import { JavaProject } from "projen/lib/java";
-import { TargetDependencyProject } from 'aws-prototyping-sdk/src/pdk_projen/index';
+import { PDKProject } from "aws-prototyping-sdk/src/project";
+import { NxMonorepoProject, TargetDependencyProject } from "@aws/aws-pdk-nx-monorepo/src/project";
 
 const resolveDependencies = (project: NodeProject): NodeProject => {
   // resolutions
@@ -35,7 +35,7 @@ const configureUpgradeDependenciesTask = (project: Project): any => {
   return project;
 }
 
-const configureMonorepo = (monorepo: pdk_projen.NxMonorepoProject): pdk_projen.NxMonorepoProject => {
+const configureMonorepo = (monorepo: NxMonorepoProject): NxMonorepoProject => {
   monorepo.addTask("prepare", {
     exec: "husky install",
   });
@@ -122,7 +122,6 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
     exec: "rm -rf dist build lib samples test-reports coverage LICENSE-THIRD-PARTY",
   });
 
-  project.compileTask.exec("rsync -a ./src/** ./lib --include=\"*/\" --include=\"**/*.js\" --exclude=\"*\" --prune-empty-dirs");
   // jsii requires peer deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
   // TODO: make this more robust as this assumes all deps default to the root node_modules
   project.preCompileTask.exec(`rm -rf node_modules && mkdir node_modules && cd node_modules && ${project.deps.all
@@ -130,7 +129,6 @@ const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
       .map(d => `cp -R ../../../node_modules/${d.name} .`)
       .join(" && ")}`);
   project.postCompileTask.exec("rm -rf node_modules");
-  project.postCompileTask.exec("./scripts/copy-samples.sh");
 
   // Generate docs for each supported language into a micro-site
   const buildDocsTask = project.addTask("build:docs", {
@@ -210,12 +208,13 @@ const configureSampleJava = (project: JavaProject): JavaProject => {
   return configureUpgradeDependenciesTask(project);
 }
 
-const monorepo = configureMonorepo(new pdk_projen.NxMonorepoProject({
+const monorepo = configureMonorepo(new NxMonorepoProject({
   defaultReleaseBranch: "mainline",
   eslint: false,
   name: "aws-prototyping-sdk-monorepo",
   devDeps: [
     "aws-prototyping-sdk@0.0.0",
+    "@aws/aws-pdk-nx-monorepo@0.0.0",
     "@commitlint/cli",
     "@commitlint/config-conventional",
     "cz-conventional-changelog",
@@ -223,7 +222,7 @@ const monorepo = configureMonorepo(new pdk_projen.NxMonorepoProject({
     "husky",
   ],
   depsUpgradeOptions: {
-    exclude: ["aws-prototyping-sdk"]
+    exclude: ["aws-prototyping-sdk", "@aws/aws-pdk-nx-monorepo"]
   },
   targetDependencies: {
     upgrade: [
@@ -232,7 +231,15 @@ const monorepo = configureMonorepo(new pdk_projen.NxMonorepoProject({
         projects: TargetDependencyProject.DEPENDENCIES
       }
     ]
-  }
+  },
+  noHoistGlobs: [
+    "**/@aws/aws-pdk-lib/aws-cdk-lib",
+    "**/@aws/aws-pdk-lib/aws-cdk-lib/*",
+    "**/@aws/aws-pdk-lib/projen",
+    "**/@aws/aws-pdk-lib/projen/*",
+    "**/@aws/aws-pdk-lib/constructs",
+    "**/@aws/aws-pdk-lib/constructs/*"
+  ]
 }));
 
 const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
@@ -270,14 +277,20 @@ const awsPrototypingSdk = configureAwsPrototypingSdk(new JsiiProject({
     mavenGroupId: "software.aws.awsprototypingsdk",
     mavenArtifactId: "aws-prototyping-sdk",
     javaPackage: "software.aws.awsprototypingsdk",
+  },
+  tsconfigDev: {
+    compilerOptions: {
+      lib: ["esNext"],
+      target: "ESNext"
+    }
   }
 }));
 
 configureSampleTs(new TypeScriptProject({
   parent: monorepo,
-  outdir: "samples/sample-pdk-pipeline-ts",
+  outdir: "samples/typescript/pdk-pipeline-sample-ts",
   defaultReleaseBranch: "mainline",
-  name: "sample-pdk-pipeline-ts",
+  name: "pdk-pipeline-sample-ts",
   sampleCode: false,
   deps: [
     "aws-cdk-lib",
@@ -291,12 +304,12 @@ configureSampleTs(new TypeScriptProject({
 
 const samplePdkPipelinePy = configureSamplePy(new PythonProject({
   parent: monorepo,
-  outdir: "samples/sample-pdk-pipeline-py",
+  outdir: "samples/python/pdk-pipeline-sample-py",
   authorEmail: "",
   authorName: "",
   moduleName: "infra",
   sample: false,
-  name: "sample-pdk-pipeline-py",
+  name: "pdk-pipeline-sample-py",
   version: "0.0.0",
   deps: [
     "aws-cdk-lib",
@@ -308,10 +321,10 @@ const samplePdkPipelinePy = configureSamplePy(new PythonProject({
 
 const samplePdkPipelineJava = configureSampleJava(new JavaProject({
   parent: monorepo,
-  outdir: "samples/sample-pdk-pipeline-java",
-  artifactId: 'sample-pdk-pipeline-java',
-  groupId: 'sample.pdk.pipeline',
-  name: "sample-pdk-pipeline-java",
+  outdir: "samples/java/pdk-pipeline-sample-java",
+  artifactId: 'pdk-pipeline-sample-java',
+  groupId: 'pdk.pipeline.sample',
+  name: "pdk-pipeline-sample-java",
   version: "0.0.0",
   sample: false,
   junit: false,
@@ -350,5 +363,51 @@ e2eTests.package.addField("private", true);
 
 monorepo.addImplicitDependency(samplePdkPipelinePy, awsPrototypingSdk);
 monorepo.addImplicitDependency(samplePdkPipelineJava, awsPrototypingSdk);
+
+new PDKProject({
+  parent: monorepo,
+  author: "AWS APJ COPE",
+  authorAddress: "apj-cope@amazon.com",
+  defaultReleaseBranch: "mainline",
+  name: "aws-pdk-lib",
+  keywords: ["aws", "pdk", "jsii", "projen"],
+  repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+});
+
+const pdkPipelineProject = new PDKProject({
+  parent: monorepo,
+  author: "AWS APJ COPE",
+  authorAddress: "apj-cope@amazon.com",
+  defaultReleaseBranch: "mainline",
+  name: "aws-pdk-pipeline",
+  keywords: ["aws", "pdk", "jsii", "projen"],
+  repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+  devDeps: [
+    "projen",
+    "aws-cdk-lib",
+    "constructs",
+  ],
+  peerDeps: [
+    "projen",
+    "aws-cdk-lib",
+    "constructs"
+  ],
+});
+
+pdkPipelineProject.postCompileTask.exec("./scripts/copy-samples.sh");
+
+const nxMonorepoProject = new PDKProject({
+  parent: monorepo,
+  author: "AWS APJ COPE",
+  authorAddress: "apj-cope@amazon.com",
+  defaultReleaseBranch: "mainline",
+  name: "aws-pdk-nx-monorepo",
+  keywords: ["aws", "pdk", "jsii", "projen"],
+  repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+  devDeps: ["projen"],
+  peerDeps: ["projen"]
+});
+
+nxMonorepoProject.compileTask.exec("rsync -a ./src/** ./lib --include=\"*/\" --include=\"**/*.js\" --exclude=\"*\" --prune-empty-dirs");
 
 monorepo.synth();
