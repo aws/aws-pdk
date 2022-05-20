@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { SampleDir } from 'projen';
-import { JsiiProject, JsiiProjectOptions } from 'projen/lib/cdk';
+import { JsiiJavaTarget, JsiiProject, JsiiProjectOptions, JsiiPythonTarget } from 'projen/lib/cdk';
 
 export enum Maturity {
   STABLE = 'stable',
@@ -14,6 +14,10 @@ export interface PDKProjectOptions extends JsiiProjectOptions {
    * @default "experimental"
    */
   readonly maturity?: Maturity;
+
+  readonly publishToPypiConfig?: JsiiPythonTarget;
+
+  readonly publishToMavenConfig?: JsiiJavaTarget;
 }
 
 export class PDKProject extends JsiiProject {
@@ -38,11 +42,11 @@ export class PDKProject extends JsiiProject {
       name,
       packageName: name,
       outdir: `packages/@aws/${options.name}`,
-      publishToPypi: {
+      publishToPypi: options.publishToPypiConfig || {
         distName: `aws_prototyping_sdk.${nameWithUnderscore}`,
         module: `aws_prototyping_sdk.${nameWithUnderscore}`,
       },
-      publishToMaven: {
+      publishToMaven: options.publishToMavenConfig || {
         mavenEndpoint: 'https://aws.oss.sonatype.org',
         mavenGroupId: 'software.aws.awsprototypingsdk',
         mavenArtifactId: `${options.name}`,

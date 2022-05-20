@@ -1,4 +1,4 @@
-from aws_prototyping_sdk.aws_pdk_lib.aws_pdk_pipeline.construct import PDKPipeline, SonarCodeScannerConfig
+from aws_prototyping_sdk.aws_pdk_pipeline import PDKPipeline, SonarCodeScannerConfig
 from aws_cdk import Stack, pipelines
 import json
 import humps

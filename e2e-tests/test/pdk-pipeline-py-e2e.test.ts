@@ -1,4 +1,5 @@
 import { execSync } from 'child_process';
+import path from 'path';
 import { executeInTempFolderSync } from '../src/fs-utils';
 
 /**
@@ -12,9 +13,26 @@ describe('pdk-pipeline-py E2E Tests', () => {
    */
   it('pdk-pipeline-py-create', async () => {
     executeInTempFolderSync('pdk-pipeline-py-create', (tempFolder) => {
-      execSync('npx projen new --from @aws/aws-pdk-lib pdk-pipeline-py --no-git --module-name=e2e_python', {
+      execSync('npx projen new --from @aws/aws-pdk-lib pdk-pipeline-py --no-git --module-name=e2e_python --synth=false', {
         cwd: tempFolder,
-        env: process.env, // This is important to make sure we use the local registry!
+        env: process.env,
+        stdio: 'inherit',
+      });
+
+      const wheelFile = path.join(__dirname, "../../dist/python/aws_prototyping_sdk-0.0.0-py3-none-any.whl");
+      execSync(`awk '{sub("\\"@aws/aws-pdk-lib\\"","\\"${wheelFile}\\"")}1' .projenrc.py > temp.txt && mv temp.txt .projenrc.py`, {
+        cwd: tempFolder,
+        env: process.env,
+        stdio: 'inherit',
+      });
+
+      execSync(`pip install ${wheelFile} --force-reinstall && python .projenrc.py`,{
+        cwd: tempFolder,
+        stdio: 'inherit',
+      });
+
+      execSync('npx projen build', {
+        cwd: tempFolder,
         stdio: 'inherit',
       });
 

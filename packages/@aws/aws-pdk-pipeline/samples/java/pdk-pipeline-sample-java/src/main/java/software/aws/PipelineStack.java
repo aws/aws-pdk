@@ -8,9 +8,9 @@ import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.pipelines.FileSet;
 import software.amazon.awscdk.pipelines.IFileSetProducer;
 import software.amazon.jsii.JsiiObjectMapper;
-import software.aws.awsprototypingsdk.awspdkpipeline.construct.PDKPipeline;
-import software.aws.awsprototypingsdk.awspdkpipeline.construct.PDKPipelineProps;
-import software.aws.awsprototypingsdk.awspdkpipeline.construct.SonarCodeScannerConfig;
+import software.aws.awsprototypingsdk.awspdkpipeline.PDKPipeline;
+import software.aws.awsprototypingsdk.awspdkpipeline.PDKPipelineProps;
+import software.aws.awsprototypingsdk.awspdkpipeline.SonarCodeScannerConfig;
 import software.constructs.Construct;
 
 import java.util.List;

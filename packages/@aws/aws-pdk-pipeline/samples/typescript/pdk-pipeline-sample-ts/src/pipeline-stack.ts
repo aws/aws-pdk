@@ -1,4 +1,4 @@
-import { PDKPipeline } from '@aws/aws-pdk-lib/aws-pdk-pipeline/lib/construct';
+import { PDKPipeline } from '@aws/aws-pdk-lib/aws-pdk-pipeline';
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
