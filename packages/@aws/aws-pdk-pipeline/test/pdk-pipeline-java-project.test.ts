@@ -19,15 +19,19 @@ describe("PDK Pipeline Java Unit Tests", () => {
   });
 
   it("projenrc synth correctly", () => {
-    const project = new PDKPipelineJavaProject(renderProjenInitOptions("@aws/aws-pdk-pipeline.PDKPipelineJavaProject", {
-      artifactId: "test",
-      cdkVersion: "2.0.0",
-      groupId: "test",
-      mainClass: "software.aws.Pipeline",
-      version: "0.0.0",
-      name: "ProjenRc",
-    }));
-    expect(synthSnapshot(project)["src/test/java/projenrc.java"]).toMatchSnapshot();
+    const project = new PDKPipelineJavaProject(
+      renderProjenInitOptions("@aws/aws-pdk-pipeline.PDKPipelineJavaProject", {
+        artifactId: "test",
+        cdkVersion: "2.0.0",
+        groupId: "test",
+        mainClass: "software.aws.Pipeline",
+        version: "0.0.0",
+        name: "ProjenRc",
+      })
+    );
+    expect(
+      synthSnapshot(project)["src/test/java/projenrc.java"]
+    ).toMatchSnapshot();
   });
 
   it("With Context", () => {

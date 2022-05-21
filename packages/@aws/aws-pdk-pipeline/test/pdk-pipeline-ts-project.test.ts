@@ -16,11 +16,13 @@ describe("PDK Pipeline TS Unit Tests", () => {
   });
 
   it("projenrc synth correctly", () => {
-    const project = new PDKPipelineTsProject(renderProjenInitOptions("@aws/aws-pdk-pipeline.PDKPipelineTsProject", {
-      cdkVersion: "2.0.0",
-      defaultReleaseBranch: "mainline",
-      name: "ProjenRc",
-    }));
+    const project = new PDKPipelineTsProject(
+      renderProjenInitOptions("@aws/aws-pdk-pipeline.PDKPipelineTsProject", {
+        cdkVersion: "2.0.0",
+        defaultReleaseBranch: "mainline",
+        name: "ProjenRc",
+      })
+    );
     expect(synthSnapshot(project)[".projenrc.ts"]).toMatchSnapshot();
   });
 

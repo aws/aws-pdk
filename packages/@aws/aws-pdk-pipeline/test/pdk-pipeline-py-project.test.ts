@@ -19,14 +19,16 @@ describe("PDK Pipeline Py Unit Tests", () => {
   });
 
   it("projenrc synth correctly", () => {
-    const project = new PDKPipelinePyProject(renderProjenInitOptions("@aws/aws-pdk-pipeline.PDKPipelinePyProject", {
-      authorEmail: "test@test.com",
-      authorName: "test",
-      moduleName: "defaults",
-      version: "0.0.0",
-      cdkVersion: "2.0.0",
-      name: "ProjenRc",
-    }));
+    const project = new PDKPipelinePyProject(
+      renderProjenInitOptions("@aws/aws-pdk-pipeline.PDKPipelinePyProject", {
+        authorEmail: "test@test.com",
+        authorName: "test",
+        moduleName: "defaults",
+        version: "0.0.0",
+        cdkVersion: "2.0.0",
+        name: "ProjenRc",
+      })
+    );
     expect(synthSnapshot(project)[".projenrc.py"]).toMatchSnapshot();
   });
 
