@@ -1,8 +1,6 @@
 import * as fs from "fs";
 import { XMLParser, XMLBuilder } from "fast-xml-parser"
-import { JsiiProject } from "projen/lib/cdk";
-import { Release } from "projen/lib/release";
-import { DependencyType, Project } from 'projen';
+import { Project } from 'projen';
 import { NodeProject } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { PythonProject } from "projen/lib/python";
@@ -75,88 +73,6 @@ const configureMonorepo = (monorepo: NxMonorepoProject): NxMonorepoProject => {
   upgradeDepsTask.exec("npx projen upgrade");
 
   return monorepo;
-};
-
-const configureAwsPrototypingSdk = (project: JsiiProject): JsiiProject => {
-  new Release(project, {
-    versionFile: "package.json", // this is where "version" is set after bump
-    task: project.buildTask,
-    branch: "mainline",
-    artifactsDirectory: project.artifactsDirectory,
-  });
-
-  project.gitignore.exclude("samples");
-
-  // Update npmignore
-  [
-    "/.gitattributes",
-    "/.prettierignore",
-    "/.prettierrc.json",
-    "/.tmp/",
-    "/build/",
-    "/docs/",
-    "/scripts/",
-  ].forEach((s) => project.addPackageIgnore(s));
-
-  // OSS requirements
-  const generateAttributionTask = project.addTask("generate:attribution", {
-    exec: "cd .tmp && generate-attribution && mv oss-attribution/attribution.txt ../LICENSE-THIRD-PARTY",
-  });
-
-  const licenseCheckerTask = project.addTask("license:check", {
-    exec: "cd .tmp && license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'",
-  });
-
-  // task extensions
-  project.packageTask.reset();
-
-  // license-checker and attribute-generator requires deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
-  project.packageTask.exec("mkdir -p .tmp && cd .tmp && ln -s -f ../../../node_modules . && ln -s -f ../package.json package.json");
-  project.packageTask.spawn(licenseCheckerTask);
-  project.packageTask.spawn(generateAttributionTask);
-  project.packageTask.exec("if [ ! -z ${CI} ]; then mkdir -p dist && rsync -a . dist --exclude .git --exclude node_modules; fi");
-  project.packageTask.spawn(project.tasks.tryFind("package-all")!);
-  project.packageTask.exec("rm -rf .tmp");
-
-  project.addTask("clean", {
-    exec: "rm -rf dist build lib samples test-reports coverage LICENSE-THIRD-PARTY",
-  });
-
-  // jsii requires peer deps not to be hoisted. This is a workaround for: https://github.com/yarnpkg/yarn/issues/7672
-  // TODO: make this more robust as this assumes all deps default to the root node_modules
-  project.preCompileTask.exec(`rm -rf node_modules && mkdir node_modules && cd node_modules && ${project.deps.all
-      .filter(d => d.type === DependencyType.PEER)
-      .map(d => `cp -R ../../../node_modules/${d.name} .`)
-      .join(" && ")}`);
-  project.postCompileTask.exec("rm -rf node_modules");
-
-  // Generate docs for each supported language into a micro-site
-  const buildDocsTask = project.addTask("build:docs", {
-    exec: "./scripts/build-docs.sh",
-  });
-  buildDocsTask.prependSpawn(project.preCompileTask);
-  project.tasks.tryFind("release:mainline")?.spawn(buildDocsTask);
-
-  // eslint extensions
-  project.eslint?.addPlugins("header");
-  project.eslint?.addRules({
-    "header/header": [
-      2,
-      "line",
-      [
-        " Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.",
-        " SPDX-License-Identifier: Apache-2.0",
-      ],
-      2,
-    ],
-  });
-  project.eslint?.addRules({
-    "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
-  });
-
-  resolveDependencies(project);
-
-  return configureUpgradeDependenciesTask(project);
 };
 
 const configureSampleTs = (project: TypeScriptProject): TypeScriptProject => {
@@ -281,49 +197,6 @@ const uberGen = new TypeScriptProject({
 uberGen.package.addField("private", true);
 uberGen.postCompileTask.exec("npm link");
 
-configureAwsPrototypingSdk(new JsiiProject({
-  parent: monorepo,
-  outdir: "packages/aws-prototyping-sdk",
-  author: "AWS APJ COPE",
-  authorAddress: "apj-cope@amazon.com",
-  defaultReleaseBranch: "mainline",
-  name: "aws-prototyping-sdk",
-  docgen: false,
-  keywords: ["aws", "pdk", "jsii", "projen"],
-  prettier: true,
-  repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-  devDeps: [
-    "@nrwl/devkit",
-    "aws-cdk-lib",
-    "constructs",
-    "eslint-plugin-header",
-    "exponential-backoff",
-    "jsii-docgen",
-    "jsii-pacmak",
-    "license-checker",
-    "oss-attribution-generator",
-    "standard-version@^9",
-  ],
-  peerDeps: ["projen", "constructs", "aws-cdk-lib"],
-  deps: ["constructs", "aws-cdk-lib"],
-  projenDevDependency: false,
-  publishToPypi: {
-    distName: "aws_prototyping_sdk",
-    module: "aws_prototyping_sdk",
-  },
-  publishToMaven: {
-    mavenEndpoint: "https://aws.oss.sonatype.org",
-    mavenGroupId: "software.aws.awsprototypingsdk",
-    mavenArtifactId: "aws-prototyping-sdk",
-    javaPackage: "software.aws.awsprototypingsdk",
-  },
-  tsconfigDev: {
-    compilerOptions: {
-      lib: ["esNext"],
-      target: "ESNext"
-    }
-  }
-}));
 
 const samplePdkPipelineTs = configureSampleTs(new TypeScriptProject({
   parent: monorepo,
@@ -375,30 +248,6 @@ const samplePdkPipelineJava = configureSampleJava(new JavaProject({
     "org.junit.jupiter/junit-jupiter-engine@5.7.0"
   ]
 }));
-
-const e2eTests = configureUpgradeDependenciesTask(new TypeScriptProject({
-  parent: monorepo,
-  outdir: "e2e-tests",
-  defaultReleaseBranch: "mainline",
-  name: "e2e-tests",
-  devDeps: [
-    "@aws/aws-pdk-lib@0.0.0",
-    "ts-node",
-    "verdaccio",
-    "verdaccio-auth-memory",
-    "verdaccio-memory"],
-  gitignore: [".npmrc"],
-  sampleCode: false,
-  jest: true,
-  jestOptions: {
-    jestConfig: {
-      globalSetup: "<rootDir>/src/global-setup.ts",
-      globalTeardown: "<rootDir>/src/global-teardown.ts"
-    }
-  }
-}));
-
-e2eTests.package.addField("private", true);
 
 const awsPdkLib = new PDKProject({
   parent: monorepo,

@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { renderProjenInitOptions } from "projen/lib/javascript/render-options";
 import { synthSnapshot } from "projen/lib/util/synth";
 import { PDKPipelineTsProject } from "../src";
 
@@ -12,6 +13,15 @@ describe("PDK Pipeline TS Unit Tests", () => {
       name: "Defaults",
     });
     expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("projenrc synth correctly", () => {
+    const project = new PDKPipelineTsProject(renderProjenInitOptions("@aws/aws-pdk-pipeline.PDKPipelineTsProject", {
+      cdkVersion: "2.0.0",
+      defaultReleaseBranch: "mainline",
+      name: "ProjenRc",
+    }));
+    expect(synthSnapshot(project)[".projenrc.ts"]).toMatchSnapshot();
   });
 
   it("With Context", () => {
