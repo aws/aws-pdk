@@ -33,14 +33,7 @@ export class PDKPipelinePyProject extends AwsCdkPythonApp {
     );
 
     new SampleDir(this, this.moduleName, {
-      sourceDir: path.join(
-        __dirname,
-        "..",
-        "samples",
-        "python",
-        "pdk-pipeline-sample-py",
-        "infra"
-      ),
+      sourceDir: path.join(__dirname, "..", "samples", "python", "infra"),
     });
 
     this.pytest = new Pytest(this, options.pytestOptions);
@@ -55,7 +48,6 @@ export class PDKPipelinePyProject extends AwsCdkPythonApp {
               "..",
               "samples",
               "python",
-              "pdk-pipeline-sample-py",
               "tests",
               "test_pipeline.py"
             )

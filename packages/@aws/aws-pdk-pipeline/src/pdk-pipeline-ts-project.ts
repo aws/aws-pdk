@@ -35,25 +35,11 @@ export class PDKPipelineTsProject extends AwsCdkTypeScriptApp {
     this.addDeps("@aws/aws-pdk-lib");
 
     new SampleDir(this, this.srcdir, {
-      sourceDir: path.join(
-        __dirname,
-        "..",
-        "samples",
-        "typescript",
-        "pdk-pipeline-sample-ts",
-        "src"
-      ),
+      sourceDir: path.join(__dirname, "..", "samples", "typescript", "src"),
     });
 
     new SampleDir(this, this.testdir, {
-      sourceDir: path.join(
-        __dirname,
-        "..",
-        "samples",
-        "typescript",
-        "pdk-pipeline-sample-ts",
-        "test"
-      ),
+      sourceDir: path.join(__dirname, "..", "samples", "typescript", "test"),
     });
   }
 }
