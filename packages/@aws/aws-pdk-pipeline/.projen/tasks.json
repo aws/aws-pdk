@@ -75,6 +75,14 @@
       "name": "default",
       "description": "Synthesize project files"
     },
+    "docgen": {
+      "name": "docgen",
+      "steps": [
+        {
+          "exec": "docgen"
+        }
+      ]
+    },
     "eject": {
       "name": "eject",
       "description": "Remove projen from the project",
@@ -102,6 +110,9 @@
       "steps": [
         {
           "exec": "if [ ! -z ${CI} ]; then mkdir -p dist && rsync -a . dist --exclude .git --exclude node_modules; else npx projen package-all; fi"
+        },
+        {
+          "spawn": "docgen"
         }
       ]
     },
@@ -200,19 +211,19 @@
           "exec": "yarn upgrade npm-check-updates"
         },
         {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor"
+          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@aws/aws-pdk-docgen'"
         },
         {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor"
+          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@aws/aws-pdk-docgen'"
         },
         {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor"
+          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@aws/aws-pdk-docgen'"
         },
         {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor"
+          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@aws/aws-pdk-docgen'"
         },
         {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor"
+          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@aws/aws-pdk-docgen'"
         },
         {
           "exec": "yarn install --check-files"

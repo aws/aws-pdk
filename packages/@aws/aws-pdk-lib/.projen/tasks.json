@@ -83,6 +83,14 @@
       "name": "default",
       "description": "Synthesize project files"
     },
+    "docgen": {
+      "name": "docgen",
+      "steps": [
+        {
+          "exec": "docgen"
+        }
+      ]
+    },
     "eject": {
       "name": "eject",
       "description": "Remove projen from the project",
@@ -110,6 +118,9 @@
       "steps": [
         {
           "exec": "if [ ! -z ${CI} ]; then mkdir -p dist && rsync -a . dist --exclude .git --exclude node_modules; else npx projen package-all; fi"
+        },
+        {
+          "spawn": "docgen"
         },
         {
           "spawn": "copy-dist"
@@ -216,19 +227,19 @@
           "exec": "yarn upgrade npm-check-updates"
         },
         {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@aws/aws-pdk-nx-monorepo,@aws/aws-pdk-pipeline,@aws/aws-pdk-ubergen'"
+          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@aws/aws-pdk-docgen,@aws/aws-pdk-nx-monorepo,@aws/aws-pdk-pipeline,@aws/aws-pdk-ubergen'"
         },
         {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@aws/aws-pdk-nx-monorepo,@aws/aws-pdk-pipeline,@aws/aws-pdk-ubergen'"
+          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@aws/aws-pdk-docgen,@aws/aws-pdk-nx-monorepo,@aws/aws-pdk-pipeline,@aws/aws-pdk-ubergen'"
         },
         {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@aws/aws-pdk-nx-monorepo,@aws/aws-pdk-pipeline,@aws/aws-pdk-ubergen'"
+          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@aws/aws-pdk-docgen,@aws/aws-pdk-nx-monorepo,@aws/aws-pdk-pipeline,@aws/aws-pdk-ubergen'"
         },
         {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@aws/aws-pdk-nx-monorepo,@aws/aws-pdk-pipeline,@aws/aws-pdk-ubergen'"
+          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@aws/aws-pdk-docgen,@aws/aws-pdk-nx-monorepo,@aws/aws-pdk-pipeline,@aws/aws-pdk-ubergen'"
         },
         {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@aws/aws-pdk-nx-monorepo,@aws/aws-pdk-pipeline,@aws/aws-pdk-ubergen'"
+          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@aws/aws-pdk-docgen,@aws/aws-pdk-nx-monorepo,@aws/aws-pdk-pipeline,@aws/aws-pdk-ubergen'"
         },
         {
           "exec": "yarn install --check-files"

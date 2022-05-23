@@ -150,12 +150,12 @@ const monorepo = configureMonorepo(new NxMonorepoProject({
     ]
   },
   noHoistGlobs: [
-    "**/@aws/aws-pdk-lib/aws-cdk-lib",
-    "**/@aws/aws-pdk-lib/aws-cdk-lib/*",
-    "**/@aws/aws-pdk-lib/projen",
-    "**/@aws/aws-pdk-lib/projen/*",
-    "**/@aws/aws-pdk-lib/constructs",
-    "**/@aws/aws-pdk-lib/constructs/*"
+    "**/@aws/*/aws-cdk-lib",
+    "**/@aws/*/aws-cdk-lib/*",
+    "**/@aws/*/projen",
+    "**/@aws/*/projen/*",
+    "**/@aws/*/constructs",
+    "**/@aws/*/constructs/*"
   ]
 }));
 
@@ -191,6 +191,22 @@ const uberGen = new TypeScriptProject({
   },
   gitignore: ["*.d.ts", "*.js"],
   devDeps: ["@types/fs-extra"],
+  deps: ["fs-extra"]
+});
+
+uberGen.package.addField("private", true);
+uberGen.postCompileTask.exec("npm link");
+
+new TypeScriptProject({
+  parent: monorepo,
+  outdir: "tools/@aws/aws-pdk-docgen",
+  defaultReleaseBranch: "mainline",
+  name: "@aws/aws-pdk-docgen",
+  sampleCode: false,
+  bin: {
+    "docgen": "bin/docgen"
+  },
+  devDeps: ["exponential-backoff", "jsii-docgen"],
   deps: ["fs-extra"]
 });
 
