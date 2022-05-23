@@ -56,13 +56,6 @@ export class PDKProject extends JsiiProject {
     const upgradeTask = this.tasks.tryFind('upgrade');
     upgradeTask && this.addTask('upgrade-deps').spawn(upgradeTask);
 
-    this.addDevDeps("@aws/aws-pdk-docgen@0.0.0");
-
-    const docGenTask = this.addTask("docgen", {
-      exec: "docgen"
-    })
-    this.packageTask.spawn(docGenTask);
-
     if (this.deps.all.find((dep) => '@aws/aws-pdk-lib' === dep.name)) {
       throw new Error(
         'PDK Projects cannot have a dependency on the aws-pdk-lib!',

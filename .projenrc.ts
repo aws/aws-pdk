@@ -204,7 +204,7 @@ new TypeScriptProject({
   name: "@aws/aws-pdk-docgen",
   sampleCode: false,
   bin: {
-    "docgen": "bin/docgen"
+    "build-docs": "bin/build-docs"
   },
   devDeps: ["exponential-backoff", "jsii-docgen"],
   deps: ["fs-extra"]
@@ -342,5 +342,25 @@ monorepo.addImplicitDependency(samplePdkPipelinePy, awsPdkLib);
 monorepo.addImplicitDependency(samplePdkPipelineJava, awsPdkLib);
 
 nxMonorepoProject.compileTask.exec("rsync -a ./src/** ./lib --include=\"*/\" --include=\"**/*.js\" --exclude=\"*\" --prune-empty-dirs");
+
+const docsProject = new PythonProject({
+  parent: monorepo,
+  outdir: "docs",
+  authorEmail: "",
+  authorName: "",
+  moduleName: "docs",
+  sample: false,
+  pytest: false,
+  name: "docs",
+  version: "0.0.0",
+  deps: [
+    "mkdocs",
+    "mkdocs-awesome-pages-plugin",
+    "mkdocs-material",
+    "mkdocs-git-revision-date-plugin"
+  ],
+});
+
+docsProject.packageTask.exec("./scripts/build-docs");
 
 monorepo.synth();
