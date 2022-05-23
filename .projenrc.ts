@@ -197,7 +197,7 @@ const uberGen = new TypeScriptProject({
 uberGen.package.addField("private", true);
 uberGen.postCompileTask.exec("npm link");
 
-new TypeScriptProject({
+const docgen = new TypeScriptProject({
   parent: monorepo,
   outdir: "tools/@aws/aws-pdk-docgen",
   defaultReleaseBranch: "mainline",
@@ -209,6 +209,8 @@ new TypeScriptProject({
   devDeps: ["exponential-backoff", "jsii-docgen"],
   deps: ["fs-extra"]
 });
+
+docgen.compileTask.reset();
 
 uberGen.package.addField("private", true);
 uberGen.postCompileTask.exec("npm link");
