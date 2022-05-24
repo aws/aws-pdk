@@ -5,7 +5,7 @@ import { NodeProject } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { PythonProject } from "projen/lib/python";
 import { JavaProject } from "projen/lib/java";
-import { Maturity, PDKProject } from "@aws/aws-pdk-project/src";
+import { Maturity, PDKProject } from "@aws-prototyping-sdk/pdk-project/src";
 import { NxMonorepoProject, TargetDependencyProject } from "@aws/aws-pdk-nx-monorepo/src";
 
 const resolveDependencies = (project: NodeProject): NodeProject => {
@@ -71,6 +71,7 @@ const configureMonorepo = (monorepo: NxMonorepoProject): NxMonorepoProject => {
   const upgradeDepsTask = monorepo.addTask("upgrade-deps");
   upgradeDepsTask.exec("npx nx run-many --target=upgrade-deps --all --parallel=1");
   upgradeDepsTask.exec("npx projen upgrade");
+  upgradeDepsTask.exec("npx projen");
 
   return monorepo;
 };
@@ -130,7 +131,7 @@ const monorepo = configureMonorepo(new NxMonorepoProject({
   eslint: false,
   name: "aws-prototyping-sdk-monorepo",
   devDeps: [
-    "@aws/aws-pdk-project@0.0.0",
+    "@aws-prototyping-sdk/pdk-project@0.0.0",
     "@aws/aws-pdk-nx-monorepo@0.0.0",
     "@commitlint/cli",
     "@commitlint/config-conventional",
@@ -138,9 +139,6 @@ const monorepo = configureMonorepo(new NxMonorepoProject({
     "fast-xml-parser",
     "husky",
   ],
-  depsUpgradeOptions: {
-    exclude: ["@aws/aws-pdk-nx-monorepo", "@aws/aws-pdk-project"]
-  },
   targetDependencies: {
     upgrade: [
       {
@@ -161,9 +159,9 @@ const monorepo = configureMonorepo(new NxMonorepoProject({
 
 const pdkProject = new TypeScriptProject({
   parent: monorepo,
-  outdir: "tools/@aws/aws-pdk-project",
+  outdir: "internal/pdk-project",
   defaultReleaseBranch: "mainline",
-  name: "@aws/aws-pdk-project",
+  name: "@aws-prototyping-sdk/pdk-project",
   sampleCode: false,
   devDeps: [
     "projen",
@@ -173,47 +171,28 @@ const pdkProject = new TypeScriptProject({
 
 pdkProject.package.addField("private", true);
 
-const uberGen = new TypeScriptProject({
+const buildTools = new TypeScriptProject({
   parent: monorepo,
-  outdir: "tools/@aws/aws-pdk-ubergen",
+  outdir: "internal/build-tools",
   defaultReleaseBranch: "mainline",
-  name: "@aws/aws-pdk-ubergen",
+  name: "@aws-prototyping-sdk/build-tools",
   sampleCode: false,
   bin: {
-    "ubergen": "bin/ubergen"
-  },
-  tsconfig: {
-    include: ["**/bin/*.ts"],
-    compilerOptions: {
-      rootDir: ".",
-      outDir: undefined
-    }
-  },
-  gitignore: ["*.d.ts", "*.js"],
-  devDeps: ["@types/fs-extra"],
-  deps: ["fs-extra"]
-});
-
-uberGen.package.addField("private", true);
-uberGen.postCompileTask.exec("npm link");
-
-const docgen = new TypeScriptProject({
-  parent: monorepo,
-  outdir: "tools/@aws/aws-pdk-docgen",
-  defaultReleaseBranch: "mainline",
-  name: "@aws/aws-pdk-docgen",
-  sampleCode: false,
-  bin: {
+    "ubergen": "bin/ubergen",
     "build-docs": "bin/build-docs"
   },
-  devDeps: ["exponential-backoff", "jsii-docgen"],
-  deps: ["fs-extra"]
+  gitignore: ["*.d.ts", "*.js"],
+  devDeps: ["@types/fs-extra", "exponential-backoff", "jsii-docgen"],
+  deps: ["fs-extra"],
+  tsconfig: {
+    compilerOptions: {
+      outDir: "bin",
+    }
+  }
 });
 
-docgen.compileTask.reset();
-
-uberGen.package.addField("private", true);
-uberGen.postCompileTask.exec("npm link");
+buildTools.package.addField("private", true);
+buildTools.postCompileTask.exec("npm link");
 
 new PDKProject({
   parent: monorepo,
@@ -305,7 +284,7 @@ const awsPdkLib = new PDKProject({
   name: "aws-pdk-lib",
   keywords: ["aws", "pdk", "jsii", "projen"],
   repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-  devDeps: ["@aws/aws-pdk-nx-monorepo@0.0.0", "@aws/aws-pdk-pipeline@0.0.0", "@aws/aws-pdk-ubergen@0.0.0", "projen", "constructs", "aws-cdk-lib"],
+  devDeps: ["@aws/aws-pdk-nx-monorepo@0.0.0", "@aws/aws-pdk-pipeline@0.0.0", "@aws-prototyping-sdk/build-tools@0.0.0", "projen", "constructs", "aws-cdk-lib"],
   peerDeps: ["projen", "constructs", "aws-cdk-lib"],
   maturity: Maturity.STABLE,
   sampleCode: false,
@@ -347,7 +326,7 @@ nxMonorepoProject.compileTask.exec("rsync -a ./src/** ./lib --include=\"*/\" --i
 
 const docsProject = new PythonProject({
   parent: monorepo,
-  outdir: "docs",
+  outdir: "internal/docs",
   authorEmail: "",
   authorName: "",
   moduleName: "docs",
@@ -364,5 +343,8 @@ const docsProject = new PythonProject({
 });
 
 docsProject.packageTask.exec("./scripts/build-docs");
+
+monorepo.addImplicitDependency(docsProject, awsPdkLib);
+monorepo.addImplicitDependency(docsProject, buildTools);
 
 monorepo.synth();

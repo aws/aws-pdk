@@ -55,17 +55,17 @@ interface PackageJson {
       readonly dotnet?: {
         readonly namespace: string;
         readonly [key: string]: unknown;
-      },
+      };
       readonly java?: {
         readonly package: string;
         readonly [key: string]: unknown;
-      },
+      };
       readonly python?: {
         readonly module: string;
         readonly [key: string]: unknown;
-      },
-      readonly [language: string]: unknown,
-    },
+      };
+      readonly [language: string]: unknown;
+    };
   };
   readonly name: string;
   readonly types: string;
@@ -78,7 +78,7 @@ interface PackageJson {
 
     /**
      * Whether to exclude this package from the uber package
-     * 
+     *
      * @default false
      */
     readonly exclude?: boolean;
