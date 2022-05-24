@@ -131,7 +131,7 @@ async function findLibrariesToPackage(uberPackageJson: PackageJson): Promise<rea
 
   const deprecatedPackages = uberPackageJson.ubergen?.deprecatedPackages;
   const result = new Array<LibraryReference>();
-  const librariesRoot = path.resolve(ROOT_PATH, 'packages', '@aws');
+  const librariesRoot = path.resolve(ROOT_PATH, 'packages');
 
   for (const dir of await fs.readdir(librariesRoot)) {
     const packageJson = await fs.readJson(path.resolve(librariesRoot, dir, 'package.json')) as PackageJson;
@@ -152,7 +152,7 @@ async function findLibrariesToPackage(uberPackageJson: PackageJson): Promise<rea
     result.push({
       packageJson,
       root: path.join(librariesRoot, dir),
-      shortName: packageJson.name.slice('@aws/'.length),
+      shortName: packageJson.name === 'aws-prototyping-sdk' ? packageJson.name : packageJson.name.slice('@aws-prototyping-sdk/'.length),
     });
   }
 

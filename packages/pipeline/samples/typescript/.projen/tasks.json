@@ -5,9 +5,6 @@
       "description": "Full release build",
       "steps": [
         {
-          "spawn": "default"
-        },
-        {
           "spawn": "pre-compile"
         },
         {
@@ -58,16 +55,16 @@
     },
     "compile": {
       "name": "compile",
-      "description": "Only compile"
+      "description": "Only compile",
+      "steps": [
+        {
+          "exec": "tsc --build"
+        }
+      ]
     },
     "default": {
       "name": "default",
-      "description": "Synthesize project files",
-      "steps": [
-        {
-          "exec": "ts-node --project tsconfig.dev.json .projenrc.ts"
-        }
-      ]
+      "description": "Synthesize project files"
     },
     "eject": {
       "name": "eject",
@@ -81,17 +78,26 @@
         }
       ]
     },
-    "git-secrets-scan": {
-      "name": "git-secrets-scan",
+    "eslint": {
+      "name": "eslint",
+      "description": "Runs eslint against the codebase",
       "steps": [
         {
-          "exec": "./scripts/git-secrets-scan.sh"
+          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js"
         }
       ]
     },
     "package": {
       "name": "package",
-      "description": "Creates the distribution package"
+      "description": "Creates the distribution package",
+      "steps": [
+        {
+          "exec": "mkdir -p dist/js"
+        },
+        {
+          "exec": "mv $(npm pack) dist/js/"
+        }
+      ]
     },
     "post-compile": {
       "name": "post-compile",
@@ -105,20 +111,33 @@
       "name": "pre-compile",
       "description": "Prepare the project for compilation"
     },
-    "prepare": {
-      "name": "prepare",
-      "steps": [
-        {
-          "exec": "husky install"
-        }
-      ]
-    },
     "test": {
       "name": "test",
       "description": "Run tests",
       "steps": [
         {
-          "spawn": "git-secrets-scan"
+          "exec": "jest --passWithNoTests --all --updateSnapshot"
+        },
+        {
+          "spawn": "eslint"
+        }
+      ]
+    },
+    "test:update": {
+      "name": "test:update",
+      "description": "Update jest snapshots",
+      "steps": [
+        {
+          "exec": "jest --updateSnapshot"
+        }
+      ]
+    },
+    "test:watch": {
+      "name": "test:watch",
+      "description": "Run jest in watch mode",
+      "steps": [
+        {
+          "exec": "jest --watch"
         }
       ]
     },
@@ -133,19 +152,19 @@
           "exec": "yarn upgrade npm-check-updates"
         },
         {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pdk-project'"
+          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='aws-prototyping-sdk'"
         },
         {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pdk-project'"
+          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='aws-prototyping-sdk'"
         },
         {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pdk-project'"
+          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='aws-prototyping-sdk'"
         },
         {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pdk-project'"
+          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='aws-prototyping-sdk'"
         },
         {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pdk-project'"
+          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='aws-prototyping-sdk'"
         },
         {
           "exec": "yarn install --check-files"
@@ -165,13 +184,7 @@
       "name": "upgrade-deps",
       "steps": [
         {
-          "exec": "npx nx run-many --target=upgrade-deps --all --parallel=1"
-        },
-        {
-          "exec": "npx projen upgrade"
-        },
-        {
-          "exec": "npx projen"
+          "spawn": "upgrade"
         }
       ]
     },

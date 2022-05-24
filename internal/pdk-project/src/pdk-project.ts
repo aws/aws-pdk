@@ -24,7 +24,7 @@ export class PDKProject extends JsiiProject {
   constructor(options: PDKProjectOptions) {
     const nameWithUnderscore = options.name.replace(/-/g, '_');
     const condensedName = options.name.replace(/-/g, '');
-    const name = `@aws/${options.name}`;
+    const name = options.name === 'aws-prototyping-sdk' ? options.name : `@aws-prototyping-sdk/${options.name}`;
 
     super({
       ...options,
@@ -41,7 +41,7 @@ export class PDKProject extends JsiiProject {
       },
       name,
       packageName: name,
-      outdir: `packages/@aws/${options.name}`,
+      outdir: `packages/${options.name}`,
       publishToPypi: options.publishToPypiConfig || {
         distName: `aws_prototyping_sdk.${nameWithUnderscore}`,
         module: `aws_prototyping_sdk.${nameWithUnderscore}`,
@@ -56,15 +56,15 @@ export class PDKProject extends JsiiProject {
     const upgradeTask = this.tasks.tryFind('upgrade');
     upgradeTask && this.addTask('upgrade-deps').spawn(upgradeTask);
 
-    if (this.deps.all.find((dep) => '@aws/aws-pdk-lib' === dep.name)) {
+    if (this.deps.all.find((dep) => 'aws-prototyping-sdk' === dep.name)) {
       throw new Error(
-        'PDK Projects cannot have a dependency on the aws-pdk-lib!',
+        'PDK Projects cannot have a dependency on the aws-prototyping-sdk!',
       );
     }
 
-    if (!this.name.match(/^@aws\/aws-pdk-[a-z-]+(?<!-)$/)) {
+    if (!this.name.match(/^(@aws-prototyping-sdk\/[a-z-]+(?<!-)|aws-prototyping-sdk)$/)) {
       throw new Error(
-        'name should be lowercase, include optional hyphens and start with prefix: aws-pdk-',
+        'name should be lowercase and include optional hyphens.',
       );
     }
 

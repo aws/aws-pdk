@@ -13,7 +13,7 @@ const SUPPORTED_LANGUAGES = [
 ];
 
 const cwd = process.cwd();
-const RELATIVE_PKG_ROOT = `${cwd}/../../packages/@aws`;
+const RELATIVE_PKG_ROOT = `${cwd}/../../packages`;
 
 async function main() {
   fs.rmdirSync(`${cwd}/build`, { recursive: true });
