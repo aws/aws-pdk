@@ -1,21 +1,21 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { backOff } from 'exponential-backoff';
-import * as fs from 'fs-extra';
-import { Documentation, Language } from 'jsii-docgen';
+const backOff = require('exponential-backoff');
+const fs = require('fs-extra');
+const docgen = require('jsii-docgen');
 
 const PAGES_YAML_TEMPLATE = '---\nnav:\n';
 const SUPPORTED_LANGUAGES = [
-  Language.TYPESCRIPT,
-  Language.PYTHON,
-  Language.JAVA,
+  docgen.Language.TYPESCRIPT,
+  docgen.Language.PYTHON,
+  docgen.Language.JAVA,
 ];
 
-const cwd = process.cwd();
-const RELATIVE_PKG_ROOT = `${cwd}/../../packages`;
-
 async function main() {
+  const cwd = process.cwd();
+  const RELATIVE_PKG_ROOT = `${cwd}/../../packages`;
+
   fs.rmdirSync(`${cwd}/build`, { recursive: true });
   fs.mkdirSync(`${cwd}/build/docs`, { recursive: true });
 
@@ -27,7 +27,7 @@ async function main() {
       .map((language) => `  - ${language.name}`)
       .join('\n')}`);
 
-  const mappings: {[pkg: string]: {[lang: string]: string}} = fs.readdirSync(RELATIVE_PKG_ROOT)
+  const mappings = fs.readdirSync(RELATIVE_PKG_ROOT)
     .filter(p => fs.existsSync(`${RELATIVE_PKG_ROOT}/${p}/.jsii`))
     .reduce((prev, curr) => {
       const jsiiTargets = JSON.parse(fs.readFileSync(`${RELATIVE_PKG_ROOT}/${curr}/.jsii`).toString()).targets;
@@ -35,9 +35,9 @@ async function main() {
       return {
         ...prev,
         [curr]: {
-          [Language.TYPESCRIPT.name]: jsiiTargets.js.npm,
-          [Language.PYTHON.name]: jsiiTargets.python.distName,
-          [Language.JAVA.name]: jsiiTargets.java.maven.artifactId,
+          [docgen.Language.TYPESCRIPT.name]: jsiiTargets.js.npm,
+          [docgen.Language.PYTHON.name]: jsiiTargets.python.distName,
+          [docgen.Language.JAVA.name]: jsiiTargets.java.maven.artifactId,
         },
       };
     }, {});
@@ -57,10 +57,10 @@ async function main() {
         recursive: true,
       });
 
-      const docs = await Documentation.forProject(`${RELATIVE_PKG_ROOT}/${pkg}`);
-      const markdown = await backOff(async () =>
+      const docs = await docgen.Documentation.forProject(`${RELATIVE_PKG_ROOT}/${pkg}`);
+      const markdown = await backOff.backOff(async () =>
         docs.toMarkdown({
-          language: Language.fromString(language),
+          language: docgen.Language.fromString(language),
           allSubmodules: true,
           readme: true,
         }),

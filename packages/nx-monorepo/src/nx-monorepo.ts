@@ -3,7 +3,8 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { IgnoreFile, JsonFile, Project, TextFile } from "projen";
+import { IgnoreFile, JsonFile, Project, TextFile, YamlFile } from "projen";
+import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import {
   TypeScriptProject,
   TypeScriptProjectOptions,
@@ -188,15 +189,37 @@ export class NxMonorepoProject extends TypeScriptProject {
     super.preSynthesize();
 
     // Add workspaces for each subproject
-    this.package.addField("workspaces", {
-      packages: this.subProjects.map((subProject) =>
-        path.relative(this.outdir, subProject.outdir)
-      ),
-      nohoist: this.noHoistGlobs,
-    });
+    if (this.package.packageManager === NodePackageManager.PNPM) {
+      new YamlFile(this, "pnpm-workspace.yaml", {
+        readonly: true,
+        obj: {
+          packages: this.subProjects.map((subProject) =>
+            path.relative(this.outdir, subProject.outdir)
+          ),
+        },
+      });
+    } else {
+      this.package.addField("workspaces", {
+        packages: this.subProjects.map((subProject) =>
+          path.relative(this.outdir, subProject.outdir)
+        ),
+        nohoist: this.noHoistGlobs,
+      });
+    }
 
-    // Disable default task on subprojects as this isn't supported in a monorepo
-    this.subProjects.forEach((subProject) => subProject.defaultTask?.reset());
+    this.subProjects.forEach((subProject) => {
+      // Disable default task on subprojects as this isn't supported in a monorepo
+      subProject.defaultTask?.reset();
+
+      if (
+        subProject instanceof NodeProject &&
+        subProject.package.packageManager !== this.package.packageManager
+      ) {
+        throw new Error(
+          `${subProject.name} packageManager does not match the monorepo packageManager: ${this.package.packageManager}.`
+        );
+      }
+    });
   }
 
   /**

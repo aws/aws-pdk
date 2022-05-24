@@ -61,7 +61,8 @@ const configureMonorepo = (monorepo: NxMonorepoProject): NxMonorepoProject => {
       ".tmp",
       "LICENSE-THIRD-PARTY",
       ".DS_Store",
-      "build"
+      "build",
+      ".env"
   );
 
   resolveDependencies(monorepo);
@@ -131,8 +132,11 @@ const monorepo = configureMonorepo(new NxMonorepoProject({
   eslint: false,
   name: "aws-prototyping-sdk-monorepo",
   devDeps: [
+    "nx",
+    "@nrwl/devkit",
     "@aws-prototyping-sdk/pdk-project@0.0.0",
     "@aws-prototyping-sdk/nx-monorepo@0.0.0",
+    "@aws-prototyping-sdk/pipeline@0.0.0",
     "@commitlint/cli",
     "@commitlint/config-conventional",
     "cz-conventional-changelog",
@@ -185,10 +189,9 @@ const buildTools = new TypeScriptProject({
   sampleCode: false,
   bin: {
     "ubergen": "bin/ubergen",
-    "build-docs": "bin/build-docs"
   },
   gitignore: ["*.d.ts", "*.js"],
-  devDeps: ["@types/fs-extra", "exponential-backoff", "jsii-docgen"],
+  devDeps: ["@types/fs-extra"],
   deps: ["fs-extra"],
   tsconfig: {
     compilerOptions: {
@@ -200,7 +203,7 @@ const buildTools = new TypeScriptProject({
 buildTools.package.addField("private", true);
 buildTools.postCompileTask.exec("npm link");
 
-new PDKProject({
+const pipelineProject = new PDKProject({
   parent: monorepo,
   author: "AWS APJ COPE",
   authorAddress: "apj-cope@amazon.com",
@@ -218,14 +221,16 @@ new PDKProject({
     "aws-cdk-lib",
     "constructs"
   ],
-  maturity: Maturity.STABLE
+  maturity: Maturity.STABLE,
 });
+
+pipelineProject.addPackageIgnore("**/node_modules");
 
 const samplePdkPipelineTs = configureSampleTs(new TypeScriptProject({
   parent: monorepo,
   outdir: "packages/pipeline/samples/typescript",
   defaultReleaseBranch: "mainline",
-  name: "pdk-pipeline-sample-ts",
+  name: "pipeline-sample-ts",
   sampleCode: false,
   deps: [
     "aws-cdk-lib",
@@ -241,7 +246,7 @@ const samplePdkPipelinePy = configureSamplePy(new PythonProject({
   authorName: "",
   moduleName: "infra",
   sample: false,
-  name: "pdk-pipeline-sample-py",
+  name: "pipeline-sample-py",
   version: "0.0.0",
   deps: [
     "aws-cdk-lib",
@@ -279,6 +284,7 @@ const nxMonorepoProject = new PDKProject({
   repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
   devDeps: ["projen"],
   peerDeps: ["projen"],
+  bundledDeps: ["@nrwl/devkit"],
   maturity: Maturity.STABLE
 });
 
@@ -324,25 +330,22 @@ monorepo.addImplicitDependency(samplePdkPipelineJava, awsPrototypingSdk);
 
 nxMonorepoProject.compileTask.exec("rsync -a ./src/** ./lib --include=\"*/\" --include=\"**/*.js\" --exclude=\"*\" --prune-empty-dirs");
 
-const docsProject = new PythonProject({
+const docsProject = new TypeScriptProject({
   parent: monorepo,
   outdir: "internal/docs",
-  authorEmail: "",
-  authorName: "",
-  moduleName: "docs",
-  sample: false,
-  pytest: false,
+  defaultReleaseBranch: "mainline",
+  sampleCode: false,
+  jest: false,
   name: "docs",
-  version: "0.0.0",
-  deps: [
-    "mkdocs",
-    "mkdocs-awesome-pages-plugin",
-    "mkdocs-material",
-    "mkdocs-git-revision-date-plugin"
+  devDeps: [
+    "@types/fs-extra", "exponential-backoff", "jsii-docgen"
   ],
+  deps: ["fs-extra"]
 });
 
-docsProject.packageTask.exec("./scripts/build-docs");
+docsProject.compileTask.reset();
+docsProject.testTask.reset();
+docsProject.packageTask.reset("./scripts/build-docs");
 
 monorepo.addImplicitDependency(docsProject, awsPrototypingSdk);
 monorepo.addImplicitDependency(docsProject, buildTools);

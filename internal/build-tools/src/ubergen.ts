@@ -134,7 +134,12 @@ async function findLibrariesToPackage(uberPackageJson: PackageJson): Promise<rea
   const librariesRoot = path.resolve(ROOT_PATH, 'packages');
 
   for (const dir of await fs.readdir(librariesRoot)) {
-    const packageJson = await fs.readJson(path.resolve(librariesRoot, dir, 'package.json')) as PackageJson;
+    const packageJsonPath = path.resolve(librariesRoot, dir, 'package.json');
+    if (!fs.pathExistsSync(packageJsonPath)) {
+      continue;
+    }
+
+    const packageJson = await fs.readJson(packageJsonPath) as PackageJson;
 
     if (packageJson.ubergen?.exclude || EXCLUDED_PACKAGES.includes(packageJson.name)) {
       console.log(`\t⚠️ Skipping (ubergen excluded):   ${packageJson.name}`);
