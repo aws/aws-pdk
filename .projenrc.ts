@@ -5,7 +5,7 @@ import { NodeProject } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { PythonProject } from "projen/lib/python";
 import { JavaProject } from "projen/lib/java";
-import { Maturity, PDKProject } from "@aws/aws-pdk-project/src/project";
+import { Maturity, PDKProject } from "@aws/aws-pdk-project/src";
 import { NxMonorepoProject, TargetDependencyProject } from "@aws/aws-pdk-nx-monorepo/src";
 
 const resolveDependencies = (project: NodeProject): NodeProject => {

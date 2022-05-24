@@ -26,7 +26,6 @@ async function main() {
       .map((language) => `  - ${language.name}`)
       .join('\n')}`);
 
-
   const mappings = fs.readdirSync(`${cwd}/../packages/@aws`)
   .filter(p => fs.existsSync(`${cwd}/../packages/@aws/${p}/.jsii`))
   .reduce((prev, curr) => {
@@ -36,7 +35,7 @@ async function main() {
       ...prev,
       [curr]: {
         [docgen.Language.TYPESCRIPT.name]: jsiiTargets.js.npm,
-        [docgen.Language.PYTHON.name]: jsiiTargets.python.module.split(".").splice(1).join("."),
+        [docgen.Language.PYTHON.name]: jsiiTargets.python.distName,
         [docgen.Language.JAVA.name]: jsiiTargets.java.maven.artifactId
       }
     }
