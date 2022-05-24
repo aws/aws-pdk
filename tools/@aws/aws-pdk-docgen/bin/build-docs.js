@@ -28,7 +28,7 @@ async function main() {
 
 
   const mappings = fs.readdirSync(`${cwd}/../packages/@aws`)
-  .filter(p => fs.existsSync(`${cwd}/../packages/@aws/${p}/dist/docs`))
+  .filter(p => fs.existsSync(`${cwd}/../packages/@aws/${p}/.jsii`))
   .reduce((prev, curr) => {
     const jsiiTargets = JSON.parse(fs.readFileSync(`${cwd}/../packages/@aws/${curr}/.jsii`).toString()).targets;
 
@@ -61,7 +61,7 @@ async function main() {
       const markdown = await backOff.backOff(async () =>
         docs.toMarkdown({
           language: docgen.Language.fromString(language),
-          allSubmodules: false,
+          allSubmodules: true,
           readme: true,
         }),
       );
