@@ -53,8 +53,6 @@ export class PDKProject extends JsiiProject {
         javaPackage: `software.aws.awsprototypingsdk.${condensedName}`,
       },
     });
-    const upgradeTask = this.tasks.tryFind('upgrade');
-    upgradeTask && this.addTask('upgrade-deps').spawn(upgradeTask);
 
     if (this.deps.all.find((dep) => 'aws-prototyping-sdk' === dep.name)) {
       throw new Error(
