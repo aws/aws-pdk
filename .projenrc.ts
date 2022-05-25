@@ -288,6 +288,7 @@ const nxMonorepoProject = new PDKProject({
   maturity: Maturity.STABLE
 });
 
+const filesGlobsToKeep = ["node_modules", ".git*", ".npm*", ".projen", "LICENSE", "README.md", "tsconfig*", "package.json"];
 const awsPrototypingSdk = new PDKProject({
   parent: monorepo,
   author: "AWS APJ COPE",
@@ -295,6 +296,8 @@ const awsPrototypingSdk = new PDKProject({
   defaultReleaseBranch: "mainline",
   name: "aws-prototyping-sdk",
   keywords: ["aws", "pdk", "jsii", "projen"],
+  eslint: false,
+  prettier: false,
   repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
   devDeps: ["@aws-prototyping-sdk/nx-monorepo@0.0.0", "@aws-prototyping-sdk/pipeline@0.0.0", "@aws-prototyping-sdk/build-tools@0.0.0", "projen", "constructs", "aws-cdk-lib"],
   peerDeps: ["projen", "constructs", "aws-cdk-lib"],
@@ -311,9 +314,11 @@ const awsPrototypingSdk = new PDKProject({
     mavenGroupId: 'software.aws.awsprototypingsdk',
     mavenArtifactId: `aws-prototyping-sdk`,
     javaPackage: `software.aws.awsprototypingsdk`,
-  }
+  },
+  gitignore: ["*", ...filesGlobsToKeep.map(f => `!${f}`)],
 });
 
+awsPrototypingSdk.preCompileTask.exec(`find . -maxdepth 1 ${[".", "..", ...filesGlobsToKeep].map(f => `! -name "${f}"`).join(" ")} -exec rm -rf {} \\;`);
 awsPrototypingSdk.preCompileTask.exec("ubergen");
 awsPrototypingSdk.package.addField("ubergen", {
   "exclude": true,

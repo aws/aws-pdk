@@ -31,7 +31,7 @@ export class PDKProject extends JsiiProject {
       github: false,
       sampleCode: false,
       docgen: false,
-      prettier: true,
+      prettier: options.prettier || true,
       projenDevDependency: false,
       srcdir: 'src',
       testdir: 'test',
