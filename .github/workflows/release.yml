@@ -35,12 +35,14 @@ jobs:
       - name: Check for new commits
         id: git_remote
         run: echo ::set-output name=latest_commit::"$(git ls-remote origin -h ${{ github.ref }} | cut -f1)"
+      - name: Extract Dists
+        run: rsync -a . ./dist --include="*/" --include="/internal/docs/dist/**" --include="/packages/*/dist/**" --exclude="*" --prune-empty-dirs
       - name: Upload artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
         uses: actions/upload-artifact@v2.1.1
         with:
           name: build-artifact
-          path: .
+          path: ./dist
   release_github:
     name: Publish to GitHub Releases
     needs: release
@@ -58,7 +60,7 @@ jobs:
           name: build-artifact
       - name: Release
         run: errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY -F dist/changelog.md -t $(cat dist/releasetag.txt) --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode -ne 0 ] && ! grep -q "Release.tag_name already exists" $errout; then cat $errout; exit $exitcode; fi
-        working-directory: packages/aws-prototyping-sdk
+        working-directory: dist/packages/aws-prototyping-sdk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -79,7 +81,8 @@ jobs:
         with:
           name: build-artifact
       - name: Release
-        run: npx nx run-many --target=publish:npm --all
+        working-directory: dist/packages
+        run: for d in *; do cd $d && npx -p publib@latest publib-npm && cd ..; done;
         env:
           NPM_DIST_TAG: latest
           NPM_REGISTRY: registry.npmjs.org
@@ -104,7 +107,8 @@ jobs:
         with:
           name: build-artifact
       - name: Release
-        run: npx nx run-many --target=publish:maven --all
+        working-directory: dist/packages
+        run: for d in *; do cd $d && npx -p publib@latest publib-maven && cd ..; done;
         env:
           MAVEN_ENDPOINT: https://aws.oss.sonatype.org
           MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
@@ -131,7 +135,8 @@ jobs:
         with:
           name: build-artifact
       - name: Release
-        run: npx nx run-many --target=publish:pypi --all
+        working-directory: dist/packages
+        run: for d in *; do cd $d && npx -p publib@latest publib-pypi && cd ..; done;
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
@@ -156,13 +161,13 @@ jobs:
           git config user.name "AWS PDK Automation"
           git config user.email "aws-pdk+automation@amazon.com"
       - name: Upload docs to Github
-        run: zip -r docs.zip internal/docs/dist/docs/* && gh release upload $(cat packages/aws-prototyping-sdk/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
+        run: zip -r docs.zip dist/internal/docs/dist/docs/* && gh release upload $(cat dist/packages/aws-prototyping-sdk/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
       - name: Prepare Commit
         run: |-
-          mv internal/docs/dist ${{ runner.temp }}/dist
+          mv dist/internal/docs/dist ${{ runner.temp }}/dist
           rsync --delete --exclude=.git --recursive ${{ runner.temp }}/dist/docs/ .
           touch .nojekyll
           git add .

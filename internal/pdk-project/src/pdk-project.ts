@@ -111,18 +111,6 @@ class PDKRelease extends Release {
     project.packageTask.spawn(project.tasks.tryFind('package-all')!);
     project.npmignore?.addPatterns('!LICENSE_THIRD_PARTY');
 
-    project.addTask('publish:npm', {
-      exec: 'npx -p publib@latest publib-npm',
-    });
-
-    project.addTask('publish:maven', {
-      exec: 'npx -p publib@latest publib-maven',
-    });
-
-    project.addTask('publish:pypi', {
-      exec: 'npx -p publib@latest publib-pypi',
-    });
-
     const releaseTask = project.tasks.tryFind('release:mainline')!;
     releaseTask.reset();
     releaseTask.env('RELEASE', 'true');
