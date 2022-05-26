@@ -26,12 +26,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
                   target: "upgrade",
                   projects: TargetDependencyProject.DEPENDENCIES
                 }
-              ],
-              'release:mainline': [
-                {
-                  target: 'release:mainline',
-                  projects: TargetDependencyProject.DEPENDENCIES
-                }
               ]
             },
             noHoistGlobs: [

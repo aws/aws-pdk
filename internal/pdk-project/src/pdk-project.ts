@@ -123,12 +123,12 @@ class PDKRelease extends Release {
       exec: 'npx -p publib@latest publib-pypi',
     });
 
-    const releaseTask = project.tasks.tryFind("release:mainline")!;
+    const releaseTask = project.tasks.tryFind('release:mainline')!;
     releaseTask.reset();
-    releaseTask.env("RELEASE", "true");
-    releaseTask.exec("rm -rf dist");
-    releaseTask.spawn(project.tasks.tryFind("bump")!);
+    releaseTask.env('RELEASE', 'true');
+    releaseTask.exec('rm -rf dist');
+    releaseTask.spawn(project.tasks.tryFind('bump')!);
     releaseTask.spawn(project.buildTask);
-    releaseTask.spawn(project.tasks.tryFind("unbump")!);
+    releaseTask.spawn(project.tasks.tryFind('unbump')!);
   }
 }
