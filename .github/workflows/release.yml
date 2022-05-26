@@ -28,6 +28,10 @@ jobs:
         run: npx nx run-many --target=build --all
       - name: release:mainline
         run: npx nx run-many --target=release:mainline --all
+      - name: synth
+        run: npx projen
+      - name: Check for mutations
+        run: git diff --ignore-space-at-eol --exit-code
       - name: Check for new commits
         id: git_remote
         run: echo ::set-output name=latest_commit::"$(git ls-remote origin -h ${{ github.ref }} | cut -f1)"
