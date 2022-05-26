@@ -80,7 +80,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
               "LICENSE-THIRD-PARTY",
               ".DS_Store",
               "build",
-              ".env"
+              ".env",
+              "tsconfig.tsbuildinfo"
           );
         
           resolveDependencies(this);
