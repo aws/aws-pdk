@@ -3,6 +3,7 @@
 
 import { SampleDir } from 'projen';
 import { JsiiJavaTarget, JsiiProject, JsiiProjectOptions, JsiiPythonTarget } from 'projen/lib/cdk';
+import { Release } from 'projen/lib/release';
 
 export enum Maturity {
   STABLE = 'stable',
@@ -52,6 +53,7 @@ export class PDKProject extends JsiiProject {
         mavenArtifactId: `${options.name}`,
         javaPackage: `software.aws.awsprototypingsdk.${condensedName}`,
       },
+      gitignore: [...options.gitignore || [], "LICENSE_THIRD_PARTY"]
     });
 
     if (this.deps.all.find((dep) => 'aws-prototyping-sdk' === dep.name)) {
@@ -87,5 +89,38 @@ export class PDKProject extends JsiiProject {
         },
       });
     }
+
+    new PDKRelease(this);
+  }
+}
+
+class PDKRelease extends Release {
+  constructor(project: PDKProject) {
+    super(project, {
+      versionFile: "package.json",
+      task: project.buildTask,
+      branch: "mainline",
+      artifactsDirectory: project.artifactsDirectory,
+    });
+
+    project.addDevDeps("license-checker", "oss-attribution-generator");
+
+    project.packageTask.reset();
+    project.packageTask.exec("npx license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'");
+    project.packageTask.exec("npx generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution");
+    project.packageTask.spawn(project.tasks.tryFind("package-all")!);
+    project.npmignore?.addPatterns("!LICENSE_THIRD_PARTY");
+
+    project.addTask("publish:npm", {
+      exec: "npx -p publib@latest publib-npm"
+    });
+
+    project.addTask("publish:maven", {
+      exec: "npx -p publib@latest publib-maven"
+    });
+
+    project.addTask("publish:pypi", {
+      exec: "npx -p publib@latest publib-pypi"
+    });
   }
 }
