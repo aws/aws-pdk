@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v2.1.1
         with:
           name: build-artifact
-          path: ./dist
+          path: dist
   release_github:
     name: Publish to GitHub Releases
     needs: release
@@ -58,6 +58,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-artifact
+          path: dist
       - name: Release
         run: errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY -F dist/changelog.md -t $(cat dist/releasetag.txt) --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode -ne 0 ] && ! grep -q "Release.tag_name already exists" $errout; then cat $errout; exit $exitcode; fi
         working-directory: dist/packages/aws-prototyping-sdk
@@ -80,6 +81,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-artifact
+          path: dist
       - name: Release
         working-directory: dist/packages
         run: for d in *; do cd $d && npx -p publib@latest publib-npm && cd ..; done;
@@ -106,6 +108,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-artifact
+          path: dist
       - name: Release
         working-directory: dist/packages
         run: for d in *; do cd $d && npx -p publib@latest publib-maven && cd ..; done;
@@ -134,6 +137,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-artifact
+          path: dist
       - name: Release
         working-directory: dist/packages
         run: for d in *; do cd $d && npx -p publib@latest publib-pypi && cd ..; done;
@@ -156,6 +160,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-artifact
+          path: dist
       - name: Configure Git
         run: |-
           git config user.name "AWS PDK Automation"
