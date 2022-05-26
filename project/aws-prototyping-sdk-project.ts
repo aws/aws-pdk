@@ -8,7 +8,8 @@ const filesGlobsToKeep = [
     ".projen", 
     "LICENSE", 
     "README.md", 
-    "tsconfig*", 
+    "tsconfig.dev.json",
+    "tsconfig.json", 
     "package.json"];
 
 export class AwsPrototypingSdkProject extends PDKProject {
@@ -23,7 +24,7 @@ export class AwsPrototypingSdkProject extends PDKProject {
             eslint: false,
             prettier: false,
             repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-            devDeps: ["@aws-prototyping-sdk/nx-monorepo@0.0.0", "@aws-prototyping-sdk/pipeline@0.0.0", "@aws-prototyping-sdk/build-tools@0.0.0"],
+            devDeps: ["@aws-prototyping-sdk/nx-monorepo@0.0.0", "@aws-prototyping-sdk/pipeline@0.0.0", "@aws-prototyping-sdk/build-tools@0.0.0", "projen"],
             peerDeps: ["projen", "constructs", "aws-cdk-lib"],
             deps: ["projen", "constructs", "aws-cdk-lib"],
             maturity: Maturity.STABLE,
