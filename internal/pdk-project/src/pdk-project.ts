@@ -118,5 +118,9 @@ class PDKRelease extends Release {
     releaseTask.spawn(project.tasks.tryFind('bump')!);
     releaseTask.spawn(project.buildTask);
     releaseTask.spawn(project.tasks.tryFind('unbump')!);
+
+    project.package.addField('publishConfig', {
+      access: 'public',
+    });
   }
 }
