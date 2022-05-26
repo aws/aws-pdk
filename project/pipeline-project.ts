@@ -18,7 +18,7 @@ export class PipelineProject extends PDKProject {
             name: "pipeline",
             keywords: ["aws", "pdk", "jsii", "projen"],
             repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-            devDeps: [
+            deps: [
               "projen",
               "aws-cdk-lib",
               "constructs"
