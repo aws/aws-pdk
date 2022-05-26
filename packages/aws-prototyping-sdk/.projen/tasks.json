@@ -38,6 +38,14 @@
       ],
       "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
     },
+    "clean": {
+      "name": "clean",
+      "steps": [
+        {
+          "exec": "find . -maxdepth 1 ! -name \".\" ! -name \"..\" ! -name \"dist\" ! -name \"node_modules\" ! -name \".git*\" ! -name \".npm*\" ! -name \".projen\" ! -name \"LICENSE\" ! -name \"README.md\" ! -name \"tsconfig*\" ! -name \"package.json\" -exec rm -rf {} \\;"
+        }
+      ]
+    },
     "clobber": {
       "name": "clobber",
       "description": "hard resets to HEAD of origin and cleans the local repo",
@@ -174,7 +182,7 @@
       "description": "Prepare the project for compilation",
       "steps": [
         {
-          "exec": "find . -maxdepth 1 ! -name \".\" ! -name \"..\" ! -name \"node_modules\" ! -name \".git*\" ! -name \".npm*\" ! -name \".projen\" ! -name \"LICENSE\" ! -name \"README.md\" ! -name \"tsconfig*\" ! -name \"package.json\" -exec rm -rf {} \\;"
+          "spawn": "clean"
         },
         {
           "exec": "ubergen"
@@ -223,6 +231,10 @@
         },
         {
           "spawn": "unbump"
+        },
+        {
+          "exec": "npx projen",
+          "cwd": "../.."
         },
         {
           "exec": "git diff --ignore-space-at-eol --exit-code"

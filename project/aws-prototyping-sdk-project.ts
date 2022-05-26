@@ -1,4 +1,4 @@
-import { Project } from 'projen';
+import { Project, TaskStepOptions } from 'projen';
 import { Maturity, PDKProject } from "../internal/pdk-project/src";
 
 const filesGlobsToKeep = [
@@ -42,7 +42,11 @@ export class AwsPrototypingSdkProject extends PDKProject {
             gitignore: ["*", ...filesGlobsToKeep.map(f => `!${f}`)],
           });
 
-          this.preCompileTask.exec(`find . -maxdepth 1 ${[".", "..", ...filesGlobsToKeep].map(f => `! -name "${f}"`).join(" ")} -exec rm -rf {} \\;`);
+          const cleanTask = this.addTask("clean", {
+            exec: `find . -maxdepth 1 ${[".", "..", "dist", ...filesGlobsToKeep].map(f => `! -name "${f}"`).join(" ")} -exec rm -rf {} \\;`
+          });
+
+          this.preCompileTask.spawn(cleanTask);
           this.preCompileTask.exec("ubergen");
           this.package.addField("ubergen", {
             "exclude": true,
@@ -52,5 +56,24 @@ export class AwsPrototypingSdkProject extends PDKProject {
           this.package.addField("types", "./index.d.ts");
           this.package.manifest.jsii.tsc.rootDir = ".";
           this.package.manifest.jsii.tsc.outDir = ".";
+
+          // Re-synth before performing git diff to ensure package.json is unchanged
+          const releaseTask = this.tasks.tryFind("release:mainline")!;
+          const releaseSteps = releaseTask.steps;
+          releaseSteps.splice(releaseSteps.length - 1, 0, {cwd: "../..", exec: "npx projen"});
+          releaseTask.reset();
+          releaseSteps.forEach((step) => {
+            console
+            const options: TaskStepOptions | undefined = (step.name || step.cwd) ? {
+              name: step.name,
+              cwd: step.cwd
+            } : undefined;
+
+            if (step.spawn) {
+              releaseTask.spawn(this.tasks.tryFind(step.spawn)!, options);
+            } else if (step.exec) {
+              releaseTask.exec(step.exec, options);
+            }
+          })
     }
 }
