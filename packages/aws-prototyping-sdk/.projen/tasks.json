@@ -21,17 +21,6 @@
         }
       ]
     },
-    "build:docs": {
-      "name": "build:docs",
-      "steps": [
-        {
-          "spawn": "pre-compile"
-        },
-        {
-          "exec": "./scripts/build-docs.sh"
-        }
-      ]
-    },
     "bump": {
       "name": "bump",
       "description": "Bumps version based on latest git tag and generates a changelog entry",
@@ -53,7 +42,7 @@
       "name": "clean",
       "steps": [
         {
-          "exec": "rm -rf dist build lib samples test-reports coverage LICENSE-THIRD-PARTY"
+          "exec": "find . -maxdepth 1 ! -name \".\" ! -name \"..\" ! -name \"dist\" ! -name \"node_modules\" ! -name \".git*\" ! -name \".npm*\" ! -name \".projen\" ! -name \"LICENSE\" ! -name \"README.md\" ! -name \"tsconfig*\" ! -name \"package.json\" -exec rm -rf {} \\;"
         }
       ]
     },
@@ -104,9 +93,6 @@
       "steps": [
         {
           "exec": "jsii --silence-warnings=reserved-word"
-        },
-        {
-          "exec": "rsync -a ./src/** ./lib --include=\"*/\" --include=\"**/*.js\" --exclude=\"*\" --prune-empty-dirs"
         }
       ]
     },
@@ -126,52 +112,18 @@
         }
       ]
     },
-    "eslint": {
-      "name": "eslint",
-      "description": "Runs eslint against the codebase",
-      "steps": [
-        {
-          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js"
-        }
-      ]
-    },
-    "generate:attribution": {
-      "name": "generate:attribution",
-      "steps": [
-        {
-          "exec": "cd .tmp && generate-attribution && mv oss-attribution/attribution.txt ../LICENSE-THIRD-PARTY"
-        }
-      ]
-    },
-    "license:check": {
-      "name": "license:check",
-      "steps": [
-        {
-          "exec": "cd .tmp && license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
-        }
-      ]
-    },
     "package": {
       "name": "package",
       "description": "Creates the distribution package",
       "steps": [
         {
-          "exec": "mkdir -p .tmp && cd .tmp && ln -s -f ../../../node_modules . && ln -s -f ../package.json package.json"
+          "exec": "npx license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
         },
         {
-          "spawn": "license:check"
-        },
-        {
-          "spawn": "generate:attribution"
-        },
-        {
-          "exec": "if [ ! -z ${CI} ]; then mkdir -p dist && rsync -a . dist --exclude .git --exclude node_modules; fi"
+          "exec": "npx generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution"
         },
         {
           "spawn": "package-all"
-        },
-        {
-          "exec": "rm -rf .tmp"
         }
       ]
     },
@@ -219,15 +171,7 @@
     },
     "post-compile": {
       "name": "post-compile",
-      "description": "Runs after successful compilation",
-      "steps": [
-        {
-          "exec": "rm -rf node_modules"
-        },
-        {
-          "exec": "./scripts/copy-samples.sh"
-        }
-      ]
+      "description": "Runs after successful compilation"
     },
     "post-upgrade": {
       "name": "post-upgrade",
@@ -238,7 +182,34 @@
       "description": "Prepare the project for compilation",
       "steps": [
         {
-          "exec": "rm -rf node_modules && mkdir node_modules && cd node_modules && cp -R ../../../node_modules/aws-cdk-lib . && cp -R ../../../node_modules/constructs . && cp -R ../../../node_modules/projen ."
+          "spawn": "clean"
+        },
+        {
+          "exec": "ubergen"
+        }
+      ]
+    },
+    "publish:maven": {
+      "name": "publish:maven",
+      "steps": [
+        {
+          "exec": "npx -p publib@latest publib-maven"
+        }
+      ]
+    },
+    "publish:npm": {
+      "name": "publish:npm",
+      "steps": [
+        {
+          "exec": "npx -p publib@latest publib-npm"
+        }
+      ]
+    },
+    "publish:pypi": {
+      "name": "publish:pypi",
+      "steps": [
+        {
+          "exec": "npx -p publib@latest publib-pypi"
         }
       ]
     },
@@ -250,7 +221,7 @@
       },
       "steps": [
         {
-          "exec": "rm -fr dist"
+          "exec": "rm -rf dist"
         },
         {
           "spawn": "bump"
@@ -260,12 +231,6 @@
         },
         {
           "spawn": "unbump"
-        },
-        {
-          "exec": "git diff --ignore-space-at-eol --exit-code"
-        },
-        {
-          "spawn": "build:docs"
         }
       ]
     },
@@ -275,9 +240,6 @@
       "steps": [
         {
           "exec": "jest --passWithNoTests --all --updateSnapshot"
-        },
-        {
-          "spawn": "eslint"
         }
       ]
     },
@@ -326,19 +288,19 @@
           "exec": "yarn upgrade npm-check-updates"
         },
         {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor"
+          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@aws-prototyping-sdk/build-tools,@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pipeline'"
         },
         {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor"
+          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@aws-prototyping-sdk/build-tools,@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pipeline'"
         },
         {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor"
+          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@aws-prototyping-sdk/build-tools,@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pipeline'"
         },
         {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor"
+          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@aws-prototyping-sdk/build-tools,@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pipeline'"
         },
         {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor"
+          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@aws-prototyping-sdk/build-tools,@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pipeline'"
         },
         {
           "exec": "yarn install --check-files"
