@@ -207,12 +207,12 @@ export class NxMonorepoProject extends TypeScriptProject {
       });
     }
 
-    this.subProjects.forEach((subProject) => {
+    this.subProjects.forEach((subProject: any) => {
       // Disable default task on subprojects as this isn't supported in a monorepo
       subProject.defaultTask?.reset();
 
       if (
-        subProject instanceof NodeProject &&
+        (subProject instanceof NodeProject || subProject.package) &&
         subProject.package.packageManager !== this.package.packageManager
       ) {
         throw new Error(

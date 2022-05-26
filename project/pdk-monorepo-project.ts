@@ -114,9 +114,9 @@ const configureUpgradeDependenciesTask = (project: Project): void => {
   upgradeTask && project.addTask("upgrade-deps").spawn(upgradeTask);
 }
 
-const resolveDependencies = (project: Project): void => {
+const resolveDependencies = (project: any): void => {
     // resolutions
-    if (project instanceof NodeProject) {
+    if (project instanceof NodeProject || project.package) {
       project.addFields({
         resolutions: {
           "@types/prettier": "2.6.0",
