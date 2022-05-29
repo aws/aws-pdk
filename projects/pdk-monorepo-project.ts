@@ -2,6 +2,9 @@ import { NxMonorepoProject, TargetDependencyProject } from "../packages/nx-monor
 import { NodeProject } from "projen/lib/javascript";
 import { Project } from "projen";
 
+/**
+ * Contains configuration for the PDK monorepo (root package).
+ */
 export class PDKMonorepoProject extends NxMonorepoProject {
     constructor() {
         super({
@@ -11,7 +14,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
             devDeps: [
               "nx",
               "@nrwl/devkit",
-              "@aws-prototyping-sdk/pdk-project@0.0.0",
               "@aws-prototyping-sdk/nx-monorepo@0.0.0",
               "@aws-prototyping-sdk/pipeline@0.0.0",
               "@commitlint/cli",
@@ -110,11 +112,22 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     }
 }
 
+/**
+ * Adds an 'upgrade-deps' delegate task if an 'upgrade' task is found. This is needed as there are
+ * issues with NX and tasks named 'upgrade'.
+ * 
+ * @param project Project instance to configure.
+ */
 const configureUpgradeDependenciesTask = (project: Project): void => {
   const upgradeTask = project.tasks.tryFind("upgrade");
   upgradeTask && project.addTask("upgrade-deps").spawn(upgradeTask);
 }
 
+/**
+ * Resolves dependencies for projects of type NodeProject.
+ * 
+ * @param project Project instance to configure.
+ */
 const resolveDependencies = (project: any): void => {
     // resolutions
     if (project instanceof NodeProject || project.package) {

@@ -14,7 +14,7 @@ const SUPPORTED_LANGUAGES = [
 
 async function main() {
   const cwd = process.cwd();
-  const RELATIVE_PKG_ROOT = `${cwd}/../../packages`;
+  const RELATIVE_PKG_ROOT = `${cwd}/../packages`;
 
   fs.existsSync(`${cwd}/build`) && fs.rmdirSync(`${cwd}/build`, { recursive: true });
   fs.mkdirSync(`${cwd}/build/docs`, { recursive: true });

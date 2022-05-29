@@ -42,7 +42,7 @@ for committing changes. To commit your changes run the following commands:
 
 ```bash
 git add -A # stage your changes
-git cz # launch commitizen
+npx cz # launch commitizen
 ```
 
 An interactive UI will be displayed which you can follow to get your change committed.

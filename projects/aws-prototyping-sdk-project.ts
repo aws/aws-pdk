@@ -1,10 +1,14 @@
 import { Project } from 'projen';
-import { Maturity, PDKProject } from "../internal/pdk-project/src";
+import { Maturity, PDKProject } from "../private/pdk-project";
 
+/**
+ * File patterns to keep in the .gitignore. Also used to determine which files to keep when cleaning.
+ */
 const filesGlobsToKeep = [
     "node_modules",
     ".git*",
     ".npm*",
+    "scripts",
     ".projen", 
     "LICENSE", 
     "README.md", 
@@ -12,6 +16,9 @@ const filesGlobsToKeep = [
     "tsconfig.json", 
     "package.json"];
 
+/**
+ * Contains configuration for the aws-prototyping-sdk package.
+ */
 export class AwsPrototypingSdkProject extends PDKProject {
     constructor(parent: Project) {
         super({
@@ -24,13 +31,19 @@ export class AwsPrototypingSdkProject extends PDKProject {
             eslint: false,
             prettier: false,
             repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-            devDeps: ["@aws-prototyping-sdk/nx-monorepo@0.0.0", "@aws-prototyping-sdk/pipeline@0.0.0", "@aws-prototyping-sdk/build-tools@0.0.0", "projen"],
+            devDeps: ["@aws-prototyping-sdk/nx-monorepo@0.0.0", "@aws-prototyping-sdk/pipeline@0.0.0", "projen", "ts-node", "fs-extra"],
             peerDeps: ["projen", "constructs", "aws-cdk-lib"],
             deps: ["projen", "constructs", "aws-cdk-lib"],
             maturity: Maturity.STABLE,
             sampleCode: false,
             excludeTypescript: ["**/samples/**"],
             outdir: ".",
+            tsconfigDev: {
+              compilerOptions: {
+                outDir: ".",
+                rootDir: "."
+              }
+            },
             publishToPypiConfig: {
               distName: `aws_prototyping_sdk`,
               module: `aws_prototyping_sdk`,
@@ -44,13 +57,15 @@ export class AwsPrototypingSdkProject extends PDKProject {
             gitignore: ["*", ...filesGlobsToKeep.map(f => `!${f}`)],
           });
 
+          this.npmignore?.addPatterns("/scripts/");
+
           const cleanTask = this.addTask("clean", {
             exec: `find . -maxdepth 1 ${[".", "..", "dist", ...filesGlobsToKeep].map(f => `! -name "${f}"`).join(" ")} -exec rm -rf {} \\;`
           });
 
           this.preCompileTask.spawn(cleanTask);
-          this.preCompileTask.exec("ubergen");
-          this.package.addField("ubergen", {
+          this.preCompileTask.exec("./scripts/bundle.ts");
+          this.package.addField("bundle", {
             "exclude": true,
             "excludeExperimentalModules": true
           });

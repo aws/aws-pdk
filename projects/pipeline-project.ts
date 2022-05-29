@@ -1,4 +1,4 @@
-import { Maturity, PDKProject } from "../internal/pdk-project/src";
+import { Maturity, PDKProject } from "../private/pdk-project";
 import { Project } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { PythonProject } from "projen/lib/python";
@@ -6,6 +6,9 @@ import { TypeScriptProject } from "projen/lib/typescript";
 import * as fs from "fs";
 import { XMLParser, XMLBuilder } from "fast-xml-parser"
 
+/**
+ * Contains configuration for the PipelineProject.
+ */
 export class PipelineProject extends PDKProject {
     private _samples: Project[] = [];
 
@@ -45,6 +48,9 @@ export class PipelineProject extends PDKProject {
     }
 }
 
+/**
+ * Nested Typescript Sample Project configuration.
+ */
 export class PipelineTypescriptSampleProject extends TypeScriptProject {
     constructor(parent: Project) {
         super({
@@ -67,6 +73,9 @@ export class PipelineTypescriptSampleProject extends TypeScriptProject {
     }
 }
 
+/**
+ * Nested Python Sample Project configuration.
+ */
 export class PipelinePythonSampleProject extends PythonProject {
     constructor(parent: Project) {
         super({
@@ -94,6 +103,9 @@ export class PipelinePythonSampleProject extends PythonProject {
     }
 }
 
+/**
+ * Nested Java Sample Project configuration.
+ */
 export class PipelineJavaSampleProject extends JavaProject {
     constructor(parent: Project) {
         super({

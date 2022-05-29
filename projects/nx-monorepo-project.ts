@@ -1,6 +1,9 @@
 import { Project } from 'projen';
-import { Maturity, PDKProject } from "../internal/pdk-project/src";
+import { Maturity, PDKProject } from "../private/pdk-project";
 
+/**
+ * Contains configuration for the NXMonorepoProject.
+ */
 export class NXMonorepoProject extends PDKProject {
     constructor(parent: Project) {
         super({

@@ -1,17 +1,20 @@
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Project } from 'projen';
 
+/**
+ * Contains configuration for the docs package.
+ */
 export class DocsProject extends TypeScriptProject {
     constructor(parent: Project) {
         super({
           parent,
-          outdir: "internal/docs",
+          outdir: "docs",
           defaultReleaseBranch: "mainline",
           sampleCode: false,
           jest: false,
           name: "docs",
           devDeps: [
-            "@types/fs-extra", "exponential-backoff", "jsii-docgen"
+            "@types/fs-extra", "exponential-backoff", "jsii-docgen", "aws-prototyping-sdk@0.0.0"
           ],
           deps: ["fs-extra"]
         });
