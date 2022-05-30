@@ -186,14 +186,9 @@ async function verifyDependencies(packageJson: any, libraries: readonly LibraryR
       toBundle[depName] = requiredVersion;
     }
 
-    if (library.packageJson.name in packageJson.devDependencies) {
-      const existingVersion = packageJson.devDependencies[library.packageJson.name];
-      if (existingVersion !== library.packageJson.version) {
-        throw new Error(`\t⚠️ Incorrect dependency: ${library.packageJson.name} (expected ${library.packageJson.version}, found ${packageJson.devDependencies[library.packageJson.name]})`);
-      }
-      continue;
+    if (!(library.packageJson.name in packageJson.devDependencies)) {
+      throw new Error(`\t⚠️ Missing dev dependency: ${library.packageJson.name}`);
     }
-    throw new Error(`\t⚠️ Missing dev dependency: ${library.packageJson.name}`);
   }
 
   const workspacePath = path.resolve(ROOT_PATH, 'package.json');
