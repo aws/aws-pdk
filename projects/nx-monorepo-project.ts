@@ -1,5 +1,6 @@
 import { Project } from 'projen';
-import { Maturity, PDKProject } from "../private/pdk-project";
+import { Stability } from 'projen/lib/cdk';
+import { PDKProject } from "../private/pdk-project";
 
 /**
  * Contains configuration for the NXMonorepoProject.
@@ -18,7 +19,7 @@ export class NXMonorepoProject extends PDKProject {
           deps: ["projen"],
           peerDeps: ["projen"],
           bundledDeps: ["@nrwl/devkit"],
-          maturity: Maturity.STABLE
+          stability: Stability.STABLE
         });
 
         this.compileTask.exec("rsync -a ./src/** ./lib --include=\"*/\" --include=\"**/*.js\" --exclude=\"*\" --prune-empty-dirs");

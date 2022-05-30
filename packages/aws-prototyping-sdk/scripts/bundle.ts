@@ -4,6 +4,7 @@ import * as console from 'console';
 import * as path from 'path';
 import * as process from 'process';
 import * as fs from 'fs-extra';
+import { Stability } from 'projen/lib/cdk';
 
 
 // The directory where our 'package.json' lives
@@ -18,7 +19,7 @@ async function main() {
   console.log(`🌴  workspace root path is: ${ROOT_PATH}`);
   const uberPackageJson = await fs.readJson(UBER_PACKAGE_JSON_PATH) as PackageJson;
   const libraries = await findLibrariesToPackage(uberPackageJson);
-  // await verifyDependencies(uberPackageJson, libraries);
+  await verifyDependencies(uberPackageJson, libraries);
   await prepareSourceFiles(libraries, uberPackageJson);
 
   // if explicitExports is set to `false`, remove the "exports" section from package.json
@@ -76,7 +77,6 @@ interface PackageJson {
   readonly [key: string]: unknown;
   readonly bundle?: {
     readonly deprecatedPackages?: readonly string[];
-    readonly excludeExperimentalModules?: boolean;
 
     /**
      * Whether to exclude this package from the uber package
@@ -144,7 +144,7 @@ async function findLibrariesToPackage(uberPackageJson: PackageJson): Promise<rea
     const packageJson = await fs.readJson(packageJsonPath) as PackageJson;
 
     if (packageJson.bundle?.exclude || EXCLUDED_PACKAGES.includes(packageJson.name)) {
-      console.log(`\t⚠️ Skipping (bundle excluded):   ${packageJson.name}`);
+      console.log(`\t⚠️ Skipping (bundle excluded):    ${packageJson.name}`);
       continue;
     } else if (packageJson.jsii == null ) {
       console.log(`\t⚠️ Skipping (not jsii-enabled):   ${packageJson.name}`);
@@ -154,6 +154,9 @@ async function findLibrariesToPackage(uberPackageJson: PackageJson): Promise<rea
       continue;
     } else if (packageJson.deprecated) {
       console.log(`\t⚠️ Skipping (deprecated):         ${packageJson.name}`);
+      continue;
+    } else if (packageJson.stability !== Stability.STABLE) {
+      console.log(`\t⚠️ Skipping (non stable):         ${packageJson.name}`);
       continue;
     }
     result.push({
@@ -168,101 +171,61 @@ async function findLibrariesToPackage(uberPackageJson: PackageJson): Promise<rea
   return result;
 }
 
-// async function verifyDependencies(packageJson: any, libraries: readonly LibraryReference[]): Promise<void> {
-//   console.log('🧐 Verifying dependencies are complete...');
+async function verifyDependencies(packageJson: any, libraries: readonly LibraryReference[]): Promise<void> {
+  console.log('🧐 Verifying dependencies are complete...');
+  const toBundle: Record<string, string> = {};
 
-//   let changed = false;
-//   const toBundle: Record<string, string> = {};
+  for (const library of libraries) {
+    for (const depName of library.packageJson.bundleDependencies ?? library.packageJson.bundledDependencies ?? []) {
+      const requiredVersion = library.packageJson.devDependencies?.[depName]
+        ?? library.packageJson.dependencies?.[depName]
+        ?? '*';
+      if (toBundle[depName] != null && toBundle[depName] !== requiredVersion) {
+        throw new Error(`Required to bundle different versions of ${depName}: ${toBundle[depName]} and ${requiredVersion}.`);
+      }
+      toBundle[depName] = requiredVersion;
+    }
 
-//   for (const library of libraries) {
-//     for (const depName of library.packageJson.bundleDependencies ?? library.packageJson.bundledDependencies ?? []) {
-//       const requiredVersion = library.packageJson.devDependencies?.[depName]
-//         ?? library.packageJson.dependencies?.[depName]
-//         ?? '*';
-//       if (toBundle[depName] != null && toBundle[depName] !== requiredVersion) {
-//         throw new Error(`Required to bundle different versions of ${depName}: ${toBundle[depName]} and ${requiredVersion}.`);
-//       }
-//       toBundle[depName] = requiredVersion;
-//     }
+    if (library.packageJson.name in packageJson.devDependencies) {
+      const existingVersion = packageJson.devDependencies[library.packageJson.name];
+      if (existingVersion !== library.packageJson.version) {
+        throw new Error(`\t⚠️ Incorrect dependency: ${library.packageJson.name} (expected ${library.packageJson.version}, found ${packageJson.devDependencies[library.packageJson.name]})`);
+      }
+      continue;
+    }
+    throw new Error(`\t⚠️ Missing dev dependency: ${library.packageJson.name}`);
+  }
 
-//     if (library.packageJson.name in packageJson.devDependencies) {
-//       const existingVersion = packageJson.devDependencies[library.packageJson.name];
-//       if (existingVersion !== library.packageJson.version) {
-//         console.log(`\t⚠️ Incorrect dependency: ${library.packageJson.name} (expected ${library.packageJson.version}, found ${packageJson.devDependencies[library.packageJson.name]})`);
-//         packageJson.devDependencies[library.packageJson.name] = library.packageJson.version;
-//         changed = true;
-//       }
-//       continue;
-//     }
-//     console.log(`\t⚠️ Missing dependency: ${library.packageJson.name}`);
-//     changed = true;
-//     packageJson.devDependencies = sortObject({
-//       ...packageJson.devDependencies ?? {},
-//       [library.packageJson.name]: library.packageJson.version,
-//     });
-//   }
-//   const workspacePath = path.resolve(ROOT_PATH, 'package.json');
-//   const workspace = await fs.readJson(workspacePath);
-//   let workspaceChanged = false;
+  const workspacePath = path.resolve(ROOT_PATH, 'package.json');
+  const workspace = await fs.readJson(workspacePath);
 
-//   const spuriousBundledDeps = new Set<string>(packageJson.bundledDependencies ?? []);
-//   for (const [name, version] of Object.entries(toBundle)) {
-//     spuriousBundledDeps.delete(name);
+  const spuriousBundledDeps = new Set<string>(packageJson.bundledDependencies ?? []);
+  for (const [name, version] of Object.entries(toBundle)) {
+    spuriousBundledDeps.delete(name);
 
-//     const nohoist = `${packageJson.name}/${name}`;
-//     if (!workspace.workspaces.nohoist?.includes(nohoist)) {
-//       console.log(`\t⚠️ Missing yarn workspace nohoist: ${nohoist}`);
-//       workspace.workspaces.nohoist = Array.from(new Set([
-//         ...workspace.workspaces.nohoist ?? [],
-//         nohoist,
-//         `${nohoist}/**`,
-//       ])).sort();
-//       workspaceChanged = true;
-//     }
+    const nohoist = `${packageJson.name}/${name}`;
+    if (!workspace.workspaces.nohoist?.includes(nohoist)) {
+      throw new Error(`\t⚠️ Missing yarn workspace nohoist: ${nohoist}`);
+    }
 
-//     if (!(packageJson.bundledDependencies?.includes(name))) {
-//       console.log(`\t⚠️ Missing bundled dependency: ${name} at ${version}`);
-//       packageJson.bundledDependencies = [
-//         ...packageJson.bundledDependencies ?? [],
-//         name,
-//       ].sort();
-//       changed = true;
-//     }
+    if (!(packageJson.bundledDependencies?.includes(name))) {
+      throw new Error(`\t⚠️ Missing bundled dependency: ${name} at ${version}`);
+    }
 
-//     if (packageJson.dependencies?.[name] !== version) {
-//       console.log(`\t⚠️ Missing or incorrect dependency: ${name} at ${version}`);
-//       packageJson.dependencies = sortObject({
-//         ...packageJson.dependencies ?? {},
-//         [name]: version,
-//       });
-//       changed = true;
-//     }
-//   }
-//   packageJson.bundledDependencies = packageJson.bundledDependencies?.filter((dep: string) => !spuriousBundledDeps.has(dep));
-//   for (const toRemove of Array.from(spuriousBundledDeps)) {
-//     delete packageJson.dependencies[toRemove];
-//     changed = true;
-//   }
+    if (packageJson.dependencies?.[name] !== version) {
+      throw new Error(`\t⚠️ Missing or incorrect dependency: ${name} at ${version}`);
+    }
+  }
+  packageJson.bundledDependencies = packageJson.bundledDependencies?.filter((dep: string) => !spuriousBundledDeps.has(dep));
+  if (spuriousBundledDeps.size > 0) {
+    throw new Error(`\t⚠️ Spurious bundled dependencies detected. Please remove from dependencies: ${spuriousBundledDeps}`);
+  }
 
-//   if (workspaceChanged) {
-//     await fs.writeFile(workspacePath, JSON.stringify(workspace, null, 2) + '\n', { encoding: 'utf-8' });
-//     console.log('\t❌ Updated the yarn workspace configuration. Re-run "yarn install", and commit the changes.');
-//   }
-
-//   if (changed) {
-//     await fs.writeFile(UBER_PACKAGE_JSON_PATH, JSON.stringify(packageJson, null, 2) + '\n', { encoding: 'utf8' });
-
-//     throw new Error('Fixed dependency inconsistencies. Commit the updated package.json file.');
-//   }
-//   console.log('\t✅ Dependencies are correct!');
-// }
+  console.log('\t✅ Dependencies are correct!');
+}
 
 async function prepareSourceFiles(libraries: readonly LibraryReference[], packageJson: PackageJson) {
   console.log('📝 Preparing source files...');
-
-  if (packageJson.bundle?.excludeExperimentalModules) {
-    console.log('\t 👩🏻‍🔬 \'excludeExperimentalModules\' enabled. Regenerating all experimental modules as L1s using cfn2ts...');
-  }
 
   const libRoot = resolveLibRoot(packageJson);
 
@@ -329,25 +292,7 @@ async function transformPackage(
   allLibraries: readonly LibraryReference[],
 ) {
   await fs.mkdirp(destination);
-
-  if (uberPackageJson.bundle?.excludeExperimentalModules && library.packageJson.stability === 'experimental') {
-    const destinationLib = path.join(destination, 'lib');
-    await fs.mkdirp(destinationLib);
-
-    // const alphaPackageName = `${library.packageJson.name}-alpha`;
-
-    // // create a lib/index.ts which only exports the generated files
-    // fs.writeFileSync(path.join(destinationLib, 'index.ts'),
-    //   /// logic copied from `create-missing-libraries.ts`
-    //   cfnScopes.map(s => (s === 'AWS::Serverless' ? 'AWS::SAM' : s).split('::')[1].toLocaleLowerCase())
-    //     .map(s => `export * from './${s}.generated';`)
-    //     .join('\n'));
-    // await pkglint.createLibraryReadme(cfnScopes[0], path.join(destination, 'README.md'), alphaPackageName);
-
-    await copyOrTransformFiles(destination, destination, allLibraries, uberPackageJson);
-  } else {
-    await copyOrTransformFiles(library.root, destination, allLibraries, uberPackageJson);
-  }
+  await copyOrTransformFiles(library.root, destination, allLibraries, uberPackageJson);
 
   await fs.writeFile(
     path.join(destination, 'index.ts'),
@@ -457,16 +402,6 @@ const IGNORED_FILE_NAMES = new Set([
 function shouldIgnoreFile(name: string): boolean {
   return IGNORED_FILE_NAMES.has(name);
 }
-
-// function sortObject<T>(obj: Record<string, T>): Record<string, T> {
-//   const result: Record<string, T> = {};
-
-//   for (const [key, value] of Object.entries(obj).sort((l, r) => l[0].localeCompare(r[0]))) {
-//     result[key] = value;
-//   }
-
-//   return result;
-// }
 
 /**
  * Turn potential backslashes into forward slashes

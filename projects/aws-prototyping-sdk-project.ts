@@ -1,5 +1,6 @@
 import { Project } from 'projen';
-import { Maturity, PDKProject } from "../private/pdk-project";
+import { Stability } from 'projen/lib/cdk';
+import { PDKProject } from "../private/pdk-project";
 
 /**
  * File patterns to keep in the .gitignore. Also used to determine which files to keep when cleaning.
@@ -35,7 +36,8 @@ export class AwsPrototypingSdkProject extends PDKProject {
             devDeps: ["@aws-prototyping-sdk/nx-monorepo@0.0.0", "@aws-prototyping-sdk/pipeline@0.0.0", "projen", "ts-node", "fs-extra"],
             peerDeps: ["projen", "constructs", "aws-cdk-lib"],
             deps: ["projen", "constructs", "aws-cdk-lib"],
-            maturity: Maturity.STABLE,
+            bundledDeps: ["@nrwl/devkit"],
+            stability: Stability.STABLE,
             sampleCode: false,
             excludeTypescript: ["**/samples/**"],
             outdir: ".",
@@ -68,7 +70,6 @@ export class AwsPrototypingSdkProject extends PDKProject {
           this.preCompileTask.exec("./scripts/bundle.ts");
           this.package.addField("bundle", {
             "exclude": true,
-            "excludeExperimentalModules": true
           });
           this.package.addField("main", "./index.js");
           this.package.addField("types", "./index.d.ts");

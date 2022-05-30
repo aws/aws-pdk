@@ -1,5 +1,6 @@
-import { Maturity, PDKProject } from "../private/pdk-project";
+import { PDKProject } from "../private/pdk-project";
 import { Project } from "projen";
+import { Stability } from 'projen/lib/cdk';
 import { JavaProject } from "projen/lib/java";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
@@ -32,7 +33,7 @@ export class PipelineProject extends PDKProject {
               "aws-cdk-lib",
               "constructs"
             ],
-            maturity: Maturity.STABLE,
+            stability: Stability.STABLE,
           });
 
         this.addPackageIgnore("**/node_modules");

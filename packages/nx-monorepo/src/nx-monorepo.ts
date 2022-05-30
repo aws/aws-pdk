@@ -13,6 +13,16 @@ import {
 const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 
 /**
+ * Configuration for nx targetDependencies.
+ */
+export type TargetDependencies = { [target: string]: TargetDependency[] };
+
+/**
+ * Implicit Dependencies map.
+ */
+export type ImplicitDependencies = { [pkg: string]: string[] };
+
+/**
  * Supported enums for a TargetDependency.
  */
 export enum TargetDependencyProject {
@@ -48,19 +58,22 @@ export interface TargetDependency {
 }
 
 /**
- * Configuration for nx targetDependencies.
+ * NX configurations.
+ *
+ * @link https://nx.dev/configuration/packagejson
  */
-export type TargetDependencies = { [target: string]: TargetDependency[] };
-
-/**
- * Configuration options for the NxMonorepoProject.
- */
-export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
+export interface NXConfig {
   /**
-   * Configuration for NX TargetDependencies.
+   * Configuration for Implicit Dependnecies.
+   *
+   * @link https://nx.dev/configuration/packagejson#implicitdependencies
+   */
+  readonly implicitDependencies?: ImplicitDependencies;
+
+  /**
+   * Configuration for TargetDependencies.
    *
    * @link https://nx.dev/configuration/packagejson#target-dependencies
-   * @default {}
    */
   readonly targetDependencies?: TargetDependencies;
 
@@ -68,17 +81,37 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
    * List of patterns to include in the .nxignore file.
    *
    * @link https://nx.dev/configuration/packagejson#nxignore
-   * @default []
    */
-  readonly nxIgnorePatterns?: string[];
+  readonly nxIgnore?: string[];
+}
 
+/**
+ * Workspace configurations.
+ *
+ * @link https://classic.yarnpkg.com/lang/en/docs/workspaces/
+ */
+export interface WorkspaceConfig {
   /**
    * List of package globs to exclude from hoisting in the workspace.
    *
    * @link https://classic.yarnpkg.com/blog/2018/02/15/nohoist/
-   * @default []
    */
-  readonly noHoistGlobs?: string[];
+  readonly noHoist?: string[];
+}
+
+/**
+ * Configuration options for the NxMonorepoProject.
+ */
+export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
+  /**
+   * Configuration for NX.
+   */
+  readonly nxConfig?: NXConfig;
+
+  /**
+   * Configuration for workspace.
+   */
+  readonly workspaceConfig?: WorkspaceConfig;
 }
 
 /**
@@ -88,8 +121,12 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
  * @pjid nx-monorepo
  */
 export class NxMonorepoProject extends TypeScriptProject {
-  private readonly implicitDependencies: { [pkg: string]: string[] } = {};
-  private readonly noHoistGlobs?: string[] = [];
+  // mutable data structures
+  private readonly implicitDependencies: ImplicitDependencies;
+
+  // immutable data structures
+  private readonly nxConfig?: NXConfig;
+  private readonly workspaceConfig?: WorkspaceConfig;
 
   constructor(options: NxMonorepoProjectOptions) {
     super({
@@ -104,7 +141,9 @@ export class NxMonorepoProject extends TypeScriptProject {
       defaultReleaseBranch: "mainline",
     });
 
-    this.noHoistGlobs = options.noHoistGlobs;
+    this.nxConfig = options.nxConfig;
+    this.workspaceConfig = options.workspaceConfig;
+    this.implicitDependencies = this.nxConfig?.implicitDependencies || {};
 
     // Never publish a monorepo root package.
     this.package.addField("private", true);
@@ -120,7 +159,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       "target",
       ".env",
       ".pytest_cache",
-      ...(options.nxIgnorePatterns || [])
+      ...(this.nxConfig?.nxIgnore || [])
     );
 
     new TextFile(this, NX_MONOREPO_PLUGIN_PATH, {
@@ -150,7 +189,7 @@ export class NxMonorepoProject extends TypeScriptProject {
               projects: "dependencies",
             },
           ],
-          ...(options.targetDependencies || {}),
+          ...(this.nxConfig?.targetDependencies || {}),
         },
         affected: {
           defaultBase: "mainline",
@@ -203,7 +242,7 @@ export class NxMonorepoProject extends TypeScriptProject {
         packages: this.subProjects.map((subProject) =>
           path.relative(this.outdir, subProject.outdir)
         ),
-        nohoist: this.noHoistGlobs,
+        nohoist: this.workspaceConfig?.noHoist,
       });
     }
 

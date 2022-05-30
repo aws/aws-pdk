@@ -22,36 +22,42 @@ export class PDKMonorepoProject extends NxMonorepoProject {
               "fast-xml-parser",
               "husky",
             ],
-            targetDependencies: {
-              upgrade: [
-                {
-                  target: "upgrade",
-                  projects: TargetDependencyProject.DEPENDENCIES
-                }
-              ]
+            nxConfig: {
+              targetDependencies: {
+                upgrade: [
+                  {
+                    target: "upgrade",
+                    projects: TargetDependencyProject.DEPENDENCIES
+                  }
+                ]
+              },
             },
-            noHoistGlobs: [
-              "**/aws-prototyping-sdk/aws-cdk-lib",
-              "**/aws-prototyping-sdk/aws-cdk-lib/*",
-              "**/aws-prototyping-sdk/projen",
-              "**/aws-prototyping-sdk/projen/*",
-              "**/aws-prototyping-sdk/constructs",
-              "**/aws-prototyping-sdk/constructs/*",
-              "**/@aws-prototyping-sdk/*/aws-cdk-lib",
-              "**/@aws-prototyping-sdk/*/aws-cdk-lib/*",
-              "**/@aws-prototyping-sdk/*/projen",
-              "**/@aws-prototyping-sdk/*/projen/*",
-              "**/@aws-prototyping-sdk/*/constructs",
-              "**/@aws-prototyping-sdk/*/constructs/*",
-              "**/aws-prototyping-sdk/license-checker",
-              "**/aws-prototyping-sdk/license-checker/*",
-              "**/aws-prototyping-sdk/oss-attribution-generator",
-              "**/aws-prototyping-sdk/oss-attribution-generator/*",
-              "**/@aws-prototyping-sdk/*/license-checker",
-              "**/@aws-prototyping-sdk/*/license-checker/*",
-              "**/@aws-prototyping-sdk/*/oss-attribution-generator",
-              "**/@aws-prototyping-sdk/*/oss-attribution-generator/*",
-            ]
+            workspaceConfig: {
+              noHoist: [
+                "aws-prototyping-sdk/aws-cdk-lib",
+                "aws-prototyping-sdk/aws-cdk-lib/*",
+                "aws-prototyping-sdk/projen",
+                "aws-prototyping-sdk/projen/*",
+                "aws-prototyping-sdk/@nrwl/devkit",
+                "aws-prototyping-sdk/@nrwl/devkit/*",
+                "aws-prototyping-sdk/constructs",
+                "aws-prototyping-sdk/constructs/*",
+                "aws-prototyping-sdk/license-checker",
+                "aws-prototyping-sdk/license-checker/*",
+                "aws-prototyping-sdk/oss-attribution-generator",
+                "aws-prototyping-sdk/oss-attribution-generator/*",
+                "@aws-prototyping-sdk/*/aws-cdk-lib",
+                "@aws-prototyping-sdk/*/aws-cdk-lib/*",
+                "@aws-prototyping-sdk/*/projen",
+                "@aws-prototyping-sdk/*/projen/*",
+                "@aws-prototyping-sdk/*/constructs",
+                "@aws-prototyping-sdk/*/constructs/*",
+                "@aws-prototyping-sdk/*/license-checker",
+                "@aws-prototyping-sdk/*/license-checker/*",
+                "@aws-prototyping-sdk/*/oss-attribution-generator",
+                "@aws-prototyping-sdk/*/oss-attribution-generator/*",
+              ]
+            }
           });
 
           this.addTask("prepare", {

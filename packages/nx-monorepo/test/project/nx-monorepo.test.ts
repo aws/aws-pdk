@@ -19,7 +19,9 @@ describe("NX Monorepo Unit Tests", () => {
     const project = new NxMonorepoProject({
       defaultReleaseBranch: "mainline",
       name: "IgnorePatterns",
-      nxIgnorePatterns: ["pattern1.txt", "**/foo.ts"],
+      nxConfig: {
+        nxIgnore: ["pattern1.txt", "**/foo.ts"],
+      },
     });
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
@@ -28,11 +30,15 @@ describe("NX Monorepo Unit Tests", () => {
     const project = new NxMonorepoProject({
       defaultReleaseBranch: "mainline",
       name: "TargetDependencies",
-      targetDependencies: {
-        test: [
-          { target: "test", projects: TargetDependencyProject.DEPENDENCIES },
-        ],
-        eslint: [{ target: "eslint", projects: TargetDependencyProject.SELF }],
+      nxConfig: {
+        targetDependencies: {
+          test: [
+            { target: "test", projects: TargetDependencyProject.DEPENDENCIES },
+          ],
+          eslint: [
+            { target: "eslint", projects: TargetDependencyProject.SELF },
+          ],
+        },
       },
     });
     expect(synthSnapshot(project)).toMatchSnapshot();

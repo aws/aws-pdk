@@ -2,20 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { SampleDir } from 'projen';
-import { JsiiJavaTarget, JsiiProject, JsiiProjectOptions, JsiiPythonTarget } from 'projen/lib/cdk';
+import { JsiiJavaTarget, JsiiProject, JsiiProjectOptions, JsiiPythonTarget, Stability } from 'projen/lib/cdk';
 import { Release } from 'projen/lib/release';
 
-export enum Maturity {
-  STABLE = 'stable',
-  EXPERIMENTAL = 'experimental'
-}
-
 export interface PDKProjectOptions extends JsiiProjectOptions {
-  /**
-   * @default "experimental"
-   */
-  readonly maturity?: Maturity;
-
   readonly publishToPypiConfig?: JsiiPythonTarget;
 
   readonly publishToMavenConfig?: JsiiJavaTarget;
@@ -29,6 +19,7 @@ export class PDKProject extends JsiiProject {
 
     super({
       ...options,
+      stability: options.stability || Stability.EXPERIMENTAL,
       github: false,
       sampleCode: false,
       docgen: false,
@@ -36,7 +27,6 @@ export class PDKProject extends JsiiProject {
       projenDevDependency: false,
       srcdir: 'src',
       testdir: 'test',
-      stability: options.maturity || Maturity.EXPERIMENTAL,
       readme: {
         contents: 'TODO',
       },
@@ -55,6 +45,10 @@ export class PDKProject extends JsiiProject {
       },
       gitignore: [...options.gitignore || [], 'LICENSE_THIRD_PARTY'],
     });
+
+    if (options.stability && !(Object.values(Stability).find(f => f === options.stability))) {
+      throw new Error(`stability must be one of: ${Object.values(Stability)}`)
+    }
 
     if (this.deps.all.find((dep) => 'aws-prototyping-sdk' === dep.name)) {
       throw new Error(
