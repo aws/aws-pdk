@@ -9,6 +9,7 @@ const filesGlobsToKeep = [
     ".git*",
     ".npm*",
     "scripts",
+    "scripts/*.ts",
     ".projen", 
     "LICENSE", 
     "README.md", 
