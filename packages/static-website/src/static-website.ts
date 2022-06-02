@@ -15,10 +15,6 @@ import {
 } from "aws-cdk-lib/aws-s3-deployment";
 import { Construct } from "constructs";
 import { CloudfrontWebAcl } from "./cloudfront-web-acl";
-import {
-  StaticWebsiteAuth,
-  StaticWebsiteAuthProps,
-} from "./static-website-auth";
 
 const DEFAULT_RUNTIME_CONFIG_FILENAME = "runtime-config.json";
 
@@ -121,22 +117,6 @@ export interface StaticWebsiteProps {
   readonly websiteContentPath: string;
 
   /**
-   * Determines if a Cognito Identity Pool and Authentication providers should also be deployed.
-   *
-   * By default this is enabled and a Cognito User Pool will be created on your behalf.
-   *
-   * @default - true
-   */
-  readonly enableWebsiteAuth?: boolean;
-
-  /**
-   * Configuration for the Static Website Auth.
-   *
-   * This is only used if enableWebsiteAuth is enabled.
-   */
-  readonly authProps?: StaticWebsiteAuthProps;
-
-  /**
    * How CloudFront should handle requests that are not successful (e.g., PageNotFound).
    *
    * @default - [{httpStatus: 404,responseHttpStatus: 200,responsePagePath: '/index.html'}]
@@ -176,12 +156,9 @@ export class StaticWebsite extends Construct {
   public readonly websiteBucket: Bucket;
   public readonly cloudFrontDistribution: Distribution;
   public readonly bucketDeployment: BucketDeployment;
-  public readonly websiteAuth?: StaticWebsiteAuth;
 
   constructor(scope: Construct, id: string, props: StaticWebsiteProps) {
     super(scope, id);
-
-    let runtimeConfig = props.runtimeOptions?.jsonPayload;
 
     this.validateProps(props);
 
@@ -226,34 +203,16 @@ export class StaticWebsite extends Construct {
       }
     );
 
-    if (props.enableWebsiteAuth !== false) {
-      this.websiteAuth = new StaticWebsiteAuth(
-        this,
-        "WebsiteAuth",
-        props.authProps
-      );
-
-      if (!runtimeConfig) {
-        runtimeConfig = {};
-      }
-
-      runtimeConfig.websiteAuth = {
-        userPoolId: this.websiteAuth.userPool?.userPoolId,
-        userPoolWebClientId: this.websiteAuth.userPoolClient?.userPoolClientId,
-        identityPoolId: this.websiteAuth.identityPool.identityPoolId,
-      };
-    }
-
     // Deploy Website
     this.bucketDeployment = new BucketDeployment(this, "WebsiteDeployment", {
       sources: [
         Source.asset(props.websiteContentPath),
-        ...(runtimeConfig
+        ...(props.runtimeOptions
           ? [
               Source.jsonData(
                 props.runtimeOptions?.jsonFileName ||
                   DEFAULT_RUNTIME_CONFIG_FILENAME,
-                runtimeConfig
+                props.runtimeOptions?.jsonPayload
               ),
             ]
           : []),
