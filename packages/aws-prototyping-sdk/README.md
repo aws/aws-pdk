@@ -13,6 +13,7 @@ To illustrate, at the time of writing the following individual packages are publ
         |_ pipeline       : [stable]
         |_ nx-monorepo    : [stable]
         |_ static-website : [experimental]
+        |_ identity       : [experimental]
 ```
 
 The aws-prototyping-sdk package will bundle all stable packages and export them as namespaces as follows:
