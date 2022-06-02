@@ -1,0 +1,929 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Static Website Unit Tests Defaults 1`] = `
+Object {
+  "Parameters": Object {
+    "BootstrapVersion": Object {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": Object {
+    "AWS679f53fac002430cb0da5b7982bd22872D164C4C": Object {
+      "DependsOn": Array [
+        "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "9ab58259097ac1249b4061ac6e823f78810b11c4c760a30324f6d012fe8e6440.zip",
+        },
+        "Handler": "index.handler",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs12.x",
+        "Timeout": 120,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536": Object {
+      "DependsOn": Array [
+        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "f98b78092dcdd31f5e6d47489beb5f804d4835ef86a8085d0a2053cb9ae711da.zip",
+        },
+        "Handler": "index.handler",
+        "Layers": Array [
+          Object {
+            "Ref": "DefaultsWebsiteDeploymentAwsCliLayerD5AA12CC",
+          },
+        ],
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+            "Arn",
+          ],
+        },
+        "Runtime": "python3.7",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsWebsiteBucket3263D025",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DefaultsWebsiteBucket3263D025",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "cloudfront:GetInvalidation",
+                "cloudfront:CreateInvalidation",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+        "Roles": Array [
+          Object {
+            "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": Object {
+      "DependsOn": Array [
+        "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "0758db37a61ce7177f50559cad0340df233a2001b5880615afa517203dd67c21.zip",
+        },
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Lambda function for auto-deleting objects in ",
+              Object {
+                "Ref": "DefaultsWebsiteBucket3263D025",
+              },
+              " S3 bucket.",
+            ],
+          ],
+        },
+        "Handler": "__entrypoint__.handler",
+        "MemorySize": 128,
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs12.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsCloudfrontDistributionF4EA1054": Object {
+      "Properties": Object {
+        "DistributionConfig": Object {
+          "CustomErrorResponses": Array [
+            Object {
+              "ErrorCode": 404,
+              "ResponseCode": 200,
+              "ResponsePagePath": "/index.html",
+            },
+          ],
+          "DefaultCacheBehavior": Object {
+            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+            "Compress": true,
+            "TargetOriginId": "DefaultsCloudfrontDistributionOrigin1BA23CD94",
+            "ViewerProtocolPolicy": "redirect-to-https",
+          },
+          "Enabled": true,
+          "HttpVersion": "http2",
+          "IPV6Enabled": true,
+          "Origins": Array [
+            Object {
+              "CustomOriginConfig": Object {
+                "OriginProtocolPolicy": "http-only",
+                "OriginSSLProtocols": Array [
+                  "TLSv1.2",
+                ],
+              },
+              "DomainName": Object {
+                "Fn::Select": Array [
+                  2,
+                  Object {
+                    "Fn::Split": Array [
+                      "/",
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DefaultsWebsiteBucket3263D025",
+                          "WebsiteURL",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              "Id": "DefaultsCloudfrontDistributionOrigin1BA23CD94",
+            },
+          ],
+          "WebACLId": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:aws:wafv2:us-east-1:",
+                Object {
+                  "Ref": "AWS::AccountId",
+                },
+                ":global/webacl/WebsiteAcl_DefaultsWebsiteAcl851D3A03/",
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsWebsiteAclCreateD833F225",
+                    "Summary.Id",
+                  ],
+                },
+              ],
+            ],
+          },
+        },
+      },
+      "Type": "AWS::CloudFront::Distribution",
+    },
+    "DefaultsWebsiteAclCreateCustomResourcePolicy7011FDE8": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "wafv2:CreateWebACL",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DefaultsWebsiteAclCreateCustomResourcePolicy7011FDE8",
+        "Roles": Array [
+          Object {
+            "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DefaultsWebsiteAclCreateD833F225": Object {
+      "DeletionPolicy": "Delete",
+      "DependsOn": Array [
+        "DefaultsWebsiteAclCreateCustomResourcePolicy7011FDE8",
+      ],
+      "Properties": Object {
+        "Create": "{\\"service\\":\\"WAFV2\\",\\"action\\":\\"createWebACL\\",\\"parameters\\":{\\"Name\\":\\"WebsiteAcl_DefaultsWebsiteAcl851D3A03\\",\\"DefaultAction\\":{\\"Allow\\":{}},\\"Scope\\":\\"CLOUDFRONT\\",\\"VisibilityConfig\\":{\\"CloudWatchMetricsEnabled\\":true,\\"MetricName\\":\\"WebsiteAcl\\",\\"SampledRequestsEnabled\\":true},\\"Rules\\":[{\\"Name\\":\\"AWS-AWSManagedRulesCommonRuleSet\\",\\"Priority\\":0,\\"Statement\\":{\\"ManagedRuleGroupStatement\\":{\\"VendorName\\":\\"AWS\\",\\"Name\\":\\"AWSManagedRulesCommonRuleSet\\"}},\\"OverrideAction\\":{\\"None\\":{}},\\"VisibilityConfig\\":{\\"MetricName\\":\\"AWS-AWSManagedRulesCommonRuleSet\\",\\"CloudWatchMetricsEnabled\\":true,\\"SampledRequestsEnabled\\":true}}]},\\"region\\":\\"us-east-1\\",\\"physicalResourceId\\":{\\"responsePath\\":\\"Summary.Id\\"}}",
+        "InstallLatestAwsSdk": true,
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::AWS",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteAclDelete7CCC03C8": Object {
+      "DeletionPolicy": "Delete",
+      "DependsOn": Array [
+        "DefaultsWebsiteAclDeleteCustomResourcePolicy9938C27E",
+      ],
+      "Properties": Object {
+        "Create": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "{\\"service\\":\\"WAFV2\\",\\"action\\":\\"getWebACL\\",\\"parameters\\":{\\"Name\\":\\"WebsiteAcl_DefaultsWebsiteAcl851D3A03\\",\\"Scope\\":\\"CLOUDFRONT\\",\\"Id\\":\\"",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsWebsiteAclCreateD833F225",
+                  "Summary.Id",
+                ],
+              },
+              "\\"},\\"region\\":\\"us-east-1\\",\\"physicalResourceId\\":{\\"responsePath\\":\\"LockToken\\"}}",
+            ],
+          ],
+        },
+        "Delete": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "{\\"service\\":\\"WAFV2\\",\\"action\\":\\"deleteWebACL\\",\\"parameters\\":{\\"Name\\":\\"WebsiteAcl_DefaultsWebsiteAcl851D3A03\\",\\"Scope\\":\\"CLOUDFRONT\\",\\"Id\\":\\"",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsWebsiteAclCreateD833F225",
+                  "Summary.Id",
+                ],
+              },
+              "\\",\\"LockToken\\":\\"PHYSICAL:RESOURCEID:\\"},\\"region\\":\\"us-east-1\\"}",
+            ],
+          ],
+        },
+        "InstallLatestAwsSdk": true,
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::AWS",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteAclDeleteCustomResourcePolicy9938C27E": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "wafv2:GetWebACL",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            Object {
+              "Action": "wafv2:DeleteWebACL",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DefaultsWebsiteAclDeleteCustomResourcePolicy9938C27E",
+        "Roles": Array [
+          Object {
+            "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DefaultsWebsiteAuthIdentityPoolA5302149": Object {
+      "DependsOn": Array [
+        "DefaultsWebsiteAuthUserPoolC6D9D4BD",
+        "DefaultsWebsiteAuthUserPoolUserPoolAuthenticationProviderClient61E95AE2",
+        "DefaultsWebsiteAuthUserPoolWebClientFCD92822",
+      ],
+      "Properties": Object {
+        "AllowUnauthenticatedIdentities": false,
+        "CognitoIdentityProviders": Array [
+          Object {
+            "ClientId": Object {
+              "Ref": "DefaultsWebsiteAuthUserPoolUserPoolAuthenticationProviderClient61E95AE2",
+            },
+            "ProviderName": Object {
+              "Fn::Join": Array [
+                "",
+                Array [
+                  "cognito-idp.",
+                  Object {
+                    "Ref": "AWS::Region",
+                  },
+                  ".",
+                  Object {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/",
+                  Object {
+                    "Ref": "DefaultsWebsiteAuthUserPoolC6D9D4BD",
+                  },
+                ],
+              ],
+            },
+            "ServerSideTokenCheck": true,
+          },
+        ],
+      },
+      "Type": "AWS::Cognito::IdentityPool",
+    },
+    "DefaultsWebsiteAuthIdentityPoolAuthenticatedRole3AA35517": Object {
+      "DependsOn": Array [
+        "DefaultsWebsiteAuthUserPoolC6D9D4BD",
+        "DefaultsWebsiteAuthUserPoolUserPoolAuthenticationProviderClient61E95AE2",
+        "DefaultsWebsiteAuthUserPoolWebClientFCD92822",
+      ],
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": Object {
+                "ForAnyValue:StringLike": Object {
+                  "cognito-identity.amazonaws.com:amr": "authenticated",
+                },
+                "StringEquals": Object {
+                  "cognito-identity.amazonaws.com:aud": Object {
+                    "Ref": "DefaultsWebsiteAuthIdentityPoolA5302149",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Federated": "cognito-identity.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Default Authenticated Role for Identity Pool ",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsWebsiteAuthIdentityPoolA5302149",
+                  "Name",
+                ],
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsWebsiteAuthIdentityPoolDefaultRoleAttachmentDC39B17D": Object {
+      "DependsOn": Array [
+        "DefaultsWebsiteAuthUserPoolC6D9D4BD",
+        "DefaultsWebsiteAuthUserPoolUserPoolAuthenticationProviderClient61E95AE2",
+        "DefaultsWebsiteAuthUserPoolWebClientFCD92822",
+      ],
+      "Properties": Object {
+        "IdentityPoolId": Object {
+          "Ref": "DefaultsWebsiteAuthIdentityPoolA5302149",
+        },
+        "Roles": Object {
+          "authenticated": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsWebsiteAuthIdentityPoolAuthenticatedRole3AA35517",
+              "Arn",
+            ],
+          },
+          "unauthenticated": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsWebsiteAuthIdentityPoolUnauthenticatedRole5ADADBFA",
+              "Arn",
+            ],
+          },
+        },
+      },
+      "Type": "AWS::Cognito::IdentityPoolRoleAttachment",
+    },
+    "DefaultsWebsiteAuthIdentityPoolUnauthenticatedRole5ADADBFA": Object {
+      "DependsOn": Array [
+        "DefaultsWebsiteAuthUserPoolC6D9D4BD",
+        "DefaultsWebsiteAuthUserPoolUserPoolAuthenticationProviderClient61E95AE2",
+        "DefaultsWebsiteAuthUserPoolWebClientFCD92822",
+      ],
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": Object {
+                "ForAnyValue:StringLike": Object {
+                  "cognito-identity.amazonaws.com:amr": "unauthenticated",
+                },
+                "StringEquals": Object {
+                  "cognito-identity.amazonaws.com:aud": Object {
+                    "Ref": "DefaultsWebsiteAuthIdentityPoolA5302149",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Federated": "cognito-identity.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Default Unauthenticated Role for Identity Pool ",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsWebsiteAuthIdentityPoolA5302149",
+                  "Name",
+                ],
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsWebsiteAuthUserPoolC6D9D4BD": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "AccountRecoverySetting": Object {
+          "RecoveryMechanisms": Array [
+            Object {
+              "Name": "verified_phone_number",
+              "Priority": 1,
+            },
+            Object {
+              "Name": "verified_email",
+              "Priority": 2,
+            },
+          ],
+        },
+        "AdminCreateUserConfig": Object {
+          "AllowAdminCreateUserOnly": true,
+        },
+        "EmailVerificationMessage": "The verification code to your new account is {####}",
+        "EmailVerificationSubject": "Verify your new account",
+        "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "VerificationMessageTemplate": Object {
+          "DefaultEmailOption": "CONFIRM_WITH_CODE",
+          "EmailMessage": "The verification code to your new account is {####}",
+          "EmailSubject": "Verify your new account",
+          "SmsMessage": "The verification code to your new account is {####}",
+        },
+      },
+      "Type": "AWS::Cognito::UserPool",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "DefaultsWebsiteAuthUserPoolUserPoolAuthenticationProviderClient61E95AE2": Object {
+      "Properties": Object {
+        "AllowedOAuthFlows": Array [
+          "implicit",
+          "code",
+        ],
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthScopes": Array [
+          "profile",
+          "phone",
+          "email",
+          "openid",
+          "aws.cognito.signin.user.admin",
+        ],
+        "CallbackURLs": Array [
+          "https://example.com",
+        ],
+        "SupportedIdentityProviders": Array [
+          "COGNITO",
+        ],
+        "UserPoolId": Object {
+          "Ref": "DefaultsWebsiteAuthUserPoolC6D9D4BD",
+        },
+      },
+      "Type": "AWS::Cognito::UserPoolClient",
+    },
+    "DefaultsWebsiteAuthUserPoolWebClientFCD92822": Object {
+      "Properties": Object {
+        "AllowedOAuthFlows": Array [
+          "implicit",
+          "code",
+        ],
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthScopes": Array [
+          "profile",
+          "phone",
+          "email",
+          "openid",
+          "aws.cognito.signin.user.admin",
+        ],
+        "CallbackURLs": Array [
+          "https://example.com",
+        ],
+        "ExplicitAuthFlows": Array [
+          "ALLOW_USER_PASSWORD_AUTH",
+          "ALLOW_USER_SRP_AUTH",
+          "ALLOW_REFRESH_TOKEN_AUTH",
+        ],
+        "SupportedIdentityProviders": Array [
+          "COGNITO",
+        ],
+        "UserPoolId": Object {
+          "Ref": "DefaultsWebsiteAuthUserPoolC6D9D4BD",
+        },
+      },
+      "Type": "AWS::Cognito::UserPoolClient",
+    },
+    "DefaultsWebsiteBucket3263D025": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "Tags": Array [
+          Object {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+          Object {
+            "Key": "aws-cdk:cr-owned:fb67e0d5",
+            "Value": "true",
+          },
+        ],
+        "VersioningConfiguration": Object {
+          "Status": "Enabled",
+        },
+        "WebsiteConfiguration": Object {
+          "IndexDocument": "index.html",
+        },
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteBucketAutoDeleteObjectsCustomResourceD840F8F2": Object {
+      "DeletionPolicy": "Delete",
+      "DependsOn": Array [
+        "DefaultsWebsiteBucketPolicy594E6643",
+      ],
+      "Properties": Object {
+        "BucketName": Object {
+          "Ref": "DefaultsWebsiteBucket3263D025",
+        },
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteBucketPolicy594E6643": Object {
+      "Properties": Object {
+        "Bucket": Object {
+          "Ref": "DefaultsWebsiteBucket3263D025",
+        },
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:*",
+              "Condition": Object {
+                "Bool": Object {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": Object {
+                "AWS": "*",
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsWebsiteBucket3263D025",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DefaultsWebsiteBucket3263D025",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::GetAtt": Array [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsWebsiteBucket3263D025",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DefaultsWebsiteBucket3263D025",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "DefaultsWebsiteDeploymentAwsCliLayerD5AA12CC": Object {
+      "Properties": Object {
+        "Content": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8ad7bbf8be94e05d569da95ddb82511dcc959f25054825394cbb86028ccd1b6a.zip",
+        },
+        "Description": "/opt/awscli/aws",
+      },
+      "Type": "AWS::Lambda::LayerVersion",
+    },
+    "DefaultsWebsiteDeploymentCustomResource326CD6C1": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "DestinationBucketName": Object {
+          "Ref": "DefaultsWebsiteBucket3263D025",
+        },
+        "DistributionId": Object {
+          "Ref": "DefaultsCloudfrontDistributionF4EA1054",
+        },
+        "Prune": true,
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536",
+            "Arn",
+          ],
+        },
+        "SourceBucketNames": Array [
+          Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+        ],
+        "SourceMarkers": Array [
+          Object {},
+          Object {
+            "<<marker:0xbaba:0>>": Object {
+              "Ref": "DefaultsWebsiteAuthUserPoolC6D9D4BD",
+            },
+            "<<marker:0xbaba:1>>": Object {
+              "Ref": "DefaultsWebsiteAuthUserPoolWebClientFCD92822",
+            },
+            "<<marker:0xbaba:2>>": Object {
+              "Ref": "DefaultsWebsiteAuthIdentityPoolA5302149",
+            },
+          },
+        ],
+        "SourceObjectKeys": Array [
+          "7437da8fda7c87d52b2a4a0207d1b7a53bcf23a37a8a9cb73693f1c53a380b9a.zip",
+          "57dd748a124f48b57240bcaeba6407d204415b9daeab7fa5051d5aee19f84516.zip",
+        ],
+        "SystemMetadata": Object {
+          "sse": "AES256",
+        },
+      },
+      "Type": "Custom::CDKBucketDeployment",
+      "UpdateReplacePolicy": "Delete",
+    },
+  },
+  "Rules": Object {
+    "CheckBootstrapVersion": Object {
+      "Assertions": Array [
+        Object {
+          "Assert": Object {
+            "Fn::Not": Array [
+              Object {
+                "Fn::Contains": Array [
+                  Array [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  Object {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

@@ -4,7 +4,7 @@
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { synthSnapshot } from "projen/lib/util/synth";
-import { NxMonorepoProject, TargetDependencyProject } from "../../src";
+import { NxMonorepoProject, TargetDependencyProject } from "../src";
 
 describe("NX Monorepo Unit Tests", () => {
   it("Empty Monorepo", () => {

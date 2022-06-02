@@ -1,6 +1,6 @@
 # aws-prototyping-sdk
 
-AWS Prototyping SDK (PDK) is a package which contains re-usable L2 and L3 CDK constructs.
+AWS Prototyping SDK (PDK) is a package which contains re-usable CDK and Projen constructs.
 
 ## Getting Started
 
@@ -16,38 +16,17 @@ yarn
 
 ## Usage of projen
 
-This package is built using [projen](https://github.com/projen/projen) and as such all build tasks should be invoked
-via a `npx projen <task>` command.
+This package is built using [projen](https://github.com/projen/projen) and [nx](https://nx.dev/getting-started/intro) as such all tasks should be invoked
+via either:
 
-A list of key tasks are as follows:
+- `npx nx run-many --target=<task> --all` - executes the <task> on every package, in dependency order.
+- `npx nx run <package_name>:<task>` - executes the <task> on the specified <package_name>. 
 
-* `build` - *compiles (tsc and jsii), tests and packages (into dist).*
-* `build:docs` - *generates a micro-site in all supported languages*
-* `package-all` - *Generates ready-to-publish language-specific packages for jsii modules (into dist).*
-* `clean` - *deletes all generated build artifacts and directories.*
-* `test` - *runs jest tests, eslint, git-secrets-scan & license-checker.*
+To build the full project, run `npx nx run-many --target=build --all`
 
 ## Security
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
-
-## Contributing
-
-This package utilizes [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) and as such all
-commit messages will need to adopt this format. A `commit-msg` hook is installed as part of this package to
-enforce correct commit message structure and will be run anytime a `git commit ...` is executed.
-
-[Commitizen](https://github.com/commitizen/cz-cli) has been installed for your convenience which provides a guided UI
-for committing changes. To commit your changes run the following commands:
-
-```bash
-git add -A # stage your changes
-npx cz # launch commitizen
-```
-
-An interactive UI will be displayed which you can follow to get your change committed.
-
-See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 ## License
 

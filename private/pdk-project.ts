@@ -69,17 +69,13 @@ export class PDKProject extends JsiiProject {
     if (options.sampleCode === undefined || options.sampleCode === true) {
       new SampleDir(this, this.srcdir, {
         files: {
-          'index.ts':
-            'export * as construct from "./construct";\nexport * as project from "./project";',
-          'construct/index.ts': 'export default "IMPLEMENT ME";',
-          'project/index.ts': 'export default "IMPLEMENT ME";',
+          'index.ts': '// export * from \'my-construct\';',
         },
       });
 
       new SampleDir(this, this.testdir, {
         files: {
-          'construct/.gitkeep': '',
-          'project/.gitkeep': '',
+          '.gitkeep': '// Delete me once tests are added',
         },
       });
     }

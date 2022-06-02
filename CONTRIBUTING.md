@@ -1,11 +1,12 @@
 # Contributing Guidelines
 
-Thank you for your interest in contributing to our project. Whether it's a bug report, new feature, correction, or additional
-documentation, we greatly value feedback and contributions from our community.
+Thank you for your interest in contributing to our project. Whether it's a bug report, new feature, correction, or additional documentation, we greatly value feedback and contributions from our community.
 
-Please read through this document before submitting any issues or pull requests to ensure we have all the necessary
-information to effectively respond to your bug report or contribution.
+Please read through this document before submitting any issues or pull requests to ensure we have all the necessary information to effectively respond to your bug report or contribution.
 
+## Project Structure
+
+TODO: Talk about PDKProject, testing, etc.
 
 ## Reporting Bugs/Feature Requests
 
@@ -19,6 +20,19 @@ reported the issue. Please try to include as much information as you can. Detail
 * Any modifications you've made relevant to the bug
 * Anything unusual about your environment or deployment
 
+## Contributing
+
+This package utilizes [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) and as such all commit messages will need to adopt this format. A `commit-msg` hook is installed as part of this package to enforce correct commit message structure and will be run anytime a `git commit ...` is executed.
+
+[Commitizen](https://github.com/commitizen/cz-cli) has been installed for your convenience which provides a guided UI
+for committing changes. To commit your changes run the following commands:
+
+```bash
+git add -A # stage your changes
+npx cz # launch commitizen
+```
+
+An interactive UI will be displayed which you can follow to get your change committed.
 
 ## Contributing via Pull Requests
 Contributions via pull requests are much appreciated. Before sending us a pull request, please ensure that:

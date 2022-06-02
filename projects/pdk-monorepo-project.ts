@@ -126,7 +126,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
  */
 const configureUpgradeDependenciesTask = (project: Project): void => {
   const upgradeTask = project.tasks.tryFind("upgrade");
-  upgradeTask && project.addTask("upgrade-deps").spawn(upgradeTask);
+  upgradeTask && !project.tasks.tryFind("upgrade-deps") && project.addTask("upgrade-deps").spawn(upgradeTask);
 }
 
 /**
