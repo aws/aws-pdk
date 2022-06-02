@@ -3,7 +3,6 @@
 
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { parse } from 'ts-command-line-args';
-import {PROJEN_MARKER} from "projen/lib/common";
 import {writeFile} from "projen/lib/util";
 
 interface Arguments {
@@ -18,13 +17,9 @@ interface Arguments {
   });
   console.log('Parsing spec', args.specPath);
 
-  const parsedSpec = await SwaggerParser.parse(args.specPath);
+  const parsedSpec = await SwaggerParser.bundle(args.specPath);
 
-  writeFile(args.outputPath, JSON.stringify({
-    ...parsedSpec,
-    // Include the marker to indicate this is a generated file
-    '//': PROJEN_MARKER,
-  }, null, 2), {
+  writeFile(args.outputPath, JSON.stringify(parsedSpec, null, 2), {
     readonly: true,
   });
 

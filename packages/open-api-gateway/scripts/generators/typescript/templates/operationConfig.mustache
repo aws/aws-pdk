@@ -40,17 +40,6 @@ export const OperationLookup = {
     {{/operations}}
 };
 
-// Utility type for converting union type to tuple type
-type UnionToTuple<T> = (
-    (T extends any ? (t: T) => T : never) extends infer U
-        ? (U extends any ? (u: U) => any : never) extends (v: infer V) => any
-            ? V
-            : never
-        : never
-) extends (_: any) => infer W
-    ? [...UnionToTuple<Exclude<T, W>>, W]
-    : [];
-
 // Standard apigateway request parameters (query parameters or path parameters, multi or single value)
 type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
 
@@ -71,6 +60,11 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
     return decodedParameters;
 };
 
+/**
+ * Parse the body if the content type is json, otherwise leave as a raw string
+ */
+const parseBody = (body: string, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? JSON.parse(body || '{}') : body;
+
 // Api gateway lambda handler type
 type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
 
@@ -81,63 +75,58 @@ export interface OperationResponse<T, ApiError> {
     body?: T | ApiError;
 }
 
-// Primitive types
-type Primitive = string | number | boolean;
-// Types in the parameter object that won't be in the body of the request
-type NonBodyTypes = Primitive | Primitive[] | undefined;
-
-// Properties of the request input that will be in the request body (there will be only one)
-type RequestBody<RequestInput> = {
-    [P in keyof RequestInput as RequestInput[P] extends NonBodyTypes ? never : P]: RequestInput[P];
-};
-// The property of the request input that has the request body
-type RequestBodyProperty<RequestInput> = UnionToTuple<keyof RequestBody<RequestInput>>[0];
-// The type of the request body, given the input
-type RequestBodyValue<RequestInput> = RequestBodyProperty<RequestInput> extends keyof RequestBody<RequestInput>
-    ? RequestBody<RequestInput>[RequestBodyProperty<RequestInput>]
-    : never;
-
-// The non-body types of the request input are the parameters (either array or singular)
-type RequestParametersRaw<RequestInput> = Omit<RequestInput, keyof RequestBody<RequestInput>>;
-// Single-value request parameters are always a string
-type RequestParameters<RequestInput> = {
-    [P in keyof RequestParametersRaw<RequestInput> as RequestParametersRaw<RequestInput>[P] extends any[] | undefined
-        ? never
-        : P]: string;
-};
-// Multi-value request parameters are always a string[]
-type RequestArrayParameters<RequestInput> = {
-    [P in keyof RequestParametersRaw<RequestInput> as RequestParametersRaw<RequestInput>[P] extends any[] | undefined
-        ? P
-        : never]: string[];
-};
-
 // Input for a lambda handler for an operation
-export type LambdaRequestParameters<RequestInput> = {
-    requestParameters: RequestParameters<RequestInput>,
-    requestArrayParameters: RequestArrayParameters<RequestInput>,
-    body: RequestBodyValue<RequestInput>,
+export type LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody> = {
+    requestParameters: RequestParameters,
+    requestArrayParameters: RequestArrayParameters,
+    body: RequestBody,
 };
 
 // Type for a lambda handler function to be wrapped
-export type LambdaHandlerFunction<RequestInput, RequestOutput, ApiError> = (
-    requestParameters: LambdaRequestParameters<RequestInput>,
+export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> = (
+    input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
     event: any,
     context: any,
 ) => Promise<OperationResponse<RequestOutput, ApiError>>;
-
-export type LambdaHandlerWrapper<RequestInput, RequestOutput, ApiError> = (
-    handler: LambdaHandlerFunction<RequestInput, RequestOutput, ApiError>
-) => ApiGatewayLambdaHandler;
-
-const parseBody = (body: string, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? JSON.parse(body || '{}') : body;
 
 {{#operations}}
 {{#operation}}
 // Type alias for the request
 type {{operationIdCamelCase}}RequestInput = {{#allParams.0}}{{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request{{/allParams.0}}{{^allParams.0}}{}{{/allParams.0}};
+
+/**
+ * Single-value path/query parameters for {{operationIdCamelCase}}
+ */
+export interface {{operationIdCamelCase}}RequestParameters {
+{{#allParams}}
+{{^isBodyParam}}
+{{^isArray}}
+    readonly {{baseName}}{{^required}}?{{/required}}: string;
+{{/isArray}}
+{{/isBodyParam}}
+{{/allParams}}
+}
+
+/**
+ * Multi-value query parameters for {{operationIdCamelCase}}
+ */
+export interface {{operationIdCamelCase}}RequestArrayParameters {
+{{#allParams}}
+{{^isBodyParam}}
+{{#isArray}}
+    readonly {{baseName}}{{^required}}?{{/required}}: string[];
+{{/isArray}}
+{{/isBodyParam}}
+{{/allParams}}
+}
+
+/**
+ * Request body parameter for {{operationIdCamelCase}}
+ */
+export type {{operationIdCamelCase}}RequestBody = {{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}never{{/bodyParam}};
+
 // Type that the handler function provided to the wrapper must conform to
-type {{operationIdCamelCase}}HandlerFunction<ApiError> = LambdaHandlerFunction<{{operationIdCamelCase}}RequestInput, {{returnType}}, ApiError>;
+type {{operationIdCamelCase}}HandlerFunction<ApiError> = LambdaHandlerFunction<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody, {{returnType}}, ApiError>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of {{nickname}}
@@ -146,13 +135,13 @@ export const {{nickname}}Handler = <ApiError>(handler: {{operationIdCamelCase}}H
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
-    }) as RequestParameters<{{operationIdCamelCase}}RequestInput>;
+    }) as unknown as {{operationIdCamelCase}}RequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
-    }) as RequestArrayParameters<{{operationIdCamelCase}}RequestInput>;
+    }) as unknown as {{operationIdCamelCase}}RequestArrayParameters;
 
-    const body = parseBody(event.body, [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}]) as RequestBodyValue<{{operationIdCamelCase}}RequestInput>;
+    const body = parseBody(event.body, [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}]) as {{operationIdCamelCase}}RequestBody;
 
     const response = await handler({
         requestParameters,
@@ -167,14 +156,3 @@ export const {{nickname}}Handler = <ApiError>(handler: {{operationIdCamelCase}}H
 };
 {{/operation}}
 {{/operations}}
-
-// Look up path and http method for a given operation name
-export interface OperationRequestInputs {
-    {{#operations}}
-    {{#operation}}
-    {{nickname}}: {{operationIdCamelCase}}RequestInput,
-    {{/operation}}
-    {{/operations}}
-}
-
-export type OperationRequestInput<OperationKey extends keyof OperationRequestInputs> = OperationRequestInputs[OperationKey];

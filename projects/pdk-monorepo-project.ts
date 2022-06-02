@@ -81,6 +81,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
           "@aws-prototyping-sdk/*/oss-attribution-generator/*",
           "@aws-prototyping-sdk/open-api-gateway/openapi-types",
           "@aws-prototyping-sdk/open-api-gateway/openapi-types/*",
+          "@aws-prototyping-sdk/open-api-gateway/fs-extra",
+          "@aws-prototyping-sdk/open-api-gateway/fs-extra/*",
         ],
       },
     });
@@ -112,6 +114,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     this.gitignore.exclude(
       "/.tools/",
       "/.idea/",
+      "*.iml",
       ".tmp",
       "LICENSE-THIRD-PARTY",
       ".DS_Store",

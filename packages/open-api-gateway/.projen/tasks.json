@@ -125,6 +125,9 @@
         },
         {
           "spawn": "package-all"
+        },
+        {
+          "spawn": "test:integration"
         }
       ]
     },
@@ -215,6 +218,14 @@
         }
       ]
     },
+    "test:integration": {
+      "name": "test:integration",
+      "steps": [
+        {
+          "exec": "jest test-integration --testMatch \"**/*.test.ts\""
+        }
+      ]
+    },
     "test:update": {
       "name": "test:update",
       "description": "Update jest snapshots",
@@ -260,19 +271,19 @@
           "exec": "yarn upgrade npm-check-updates"
         },
         {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor"
+          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo'"
         },
         {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor"
+          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo'"
         },
         {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor"
+          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo'"
         },
         {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor"
+          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo'"
         },
         {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor"
+          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo'"
         },
         {
           "exec": "yarn install --check-files"
@@ -285,14 +296,6 @@
         },
         {
           "spawn": "post-upgrade"
-        }
-      ]
-    },
-    "upgrade-deps": {
-      "name": "upgrade-deps",
-      "steps": [
-        {
-          "spawn": "upgrade"
         }
       ]
     },

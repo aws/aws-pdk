@@ -15,7 +15,13 @@ export class OpenApiGatewayProject extends PDKProject {
       name: 'open-api-gateway',
       keywords: ["aws", "pdk", "projen"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: ["projen"],
+      devDeps: [
+        "@aws-prototyping-sdk/nx-monorepo@0.0.0",
+        "projen",
+        "verdaccio",
+        "verdaccio-auth-memory",
+        "verdaccio-memory",
+      ],
       deps: [
         "projen",
         "aws-cdk-lib",
@@ -33,6 +39,13 @@ export class OpenApiGatewayProject extends PDKProject {
       ],
       stability: Stability.EXPERIMENTAL,
     });
+
+    // Run integration tests after packaging, since they depend on the packaged artifact
+    const integrationTestTask = this.addTask('test:integration', {
+      exec: 'jest test-integration --testMatch "**/*.test.ts"',
+    });
+
+    this.packageTask.spawn(integrationTestTask);
 
     this.addPackageIgnore("**/node_modules");
   }
