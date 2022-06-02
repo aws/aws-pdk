@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+working_dir=$(pwd)
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
+
+# Create a temporary directory
+tmp_dir=$(mktemp -d -t parse-openapi-spec)
+cd $tmp_dir
+
+# Copy the parse script into the temp directory
+cp -r $script_dir/* .
+
+# Install dependencies
+npm install --save-dev ts-node @apidevtools/swagger-parser ts-command-line-args projen
+
+# Run the parse script
+npx ts-node parse-openapi-spec.ts "$@"
+
+# Clean up
+cd $working_dir
+rm -rf $tmp_dir

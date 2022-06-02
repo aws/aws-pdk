@@ -17,6 +17,7 @@ import { AwsPrototypingSdkProject } from "./projects/aws-prototyping-sdk-project
 import { DocsProject } from "./projects/docs-project";
 import { IdentityProject } from "./projects/identity-project";
 import { NXMonorepoProject } from "./projects/nx-monorepo-project";
+import { OpenApiGatewayProject } from "./projects/open-api-gateway-project";
 import { PDKMonorepoProject } from "./projects/pdk-monorepo-project";
 import { PipelineProject } from "./projects/pipeline-project";
 import { StaticWebsiteProject } from "./projects/static-website-project";
@@ -33,6 +34,7 @@ const pipelineProject = new PipelineProject(monorepoProject);
 const awsPrototypingSdkProject = new AwsPrototypingSdkProject(monorepoProject);
 new StaticWebsiteProject(monorepoProject);
 new IdentityProject(monorepoProject);
+new OpenApiGatewayProject(monorepoProject);
 
 // implicit dependencies
 pipelineProject.samples.forEach((sample) =>

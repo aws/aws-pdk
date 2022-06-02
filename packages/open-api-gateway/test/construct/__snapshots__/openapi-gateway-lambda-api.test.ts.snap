@@ -1,0 +1,674 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`OpenAPI Gateway Lambda Api Construct Unit Tests Synth 1`] = `
+Object {
+  "Outputs": Object {
+    "ApiTestEndpointC91A82E8": Object {
+      "Value": Object {
+        "Fn::Join": Array [
+          "",
+          Array [
+            "https://",
+            Object {
+              "Ref": "ApiTest0B514494",
+            },
+            ".execute-api.",
+            Object {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            Object {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            Object {
+              "Ref": "ApiTestDeploymentStageprod77F35FA8",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": Object {
+    "BootstrapVersion": Object {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": Object {
+    "ApiTest0B514494": Object {
+      "Properties": Object {
+        "Body": Object {
+          "info": Object {
+            "title": "Test API",
+            "version": "1.0.0",
+          },
+          "openapi": "3.0.3",
+          "paths": Object {
+            "/test": Object {
+              "get": Object {
+                "operationId": "testOperation",
+                "responses": Object {
+                  "200": Object {
+                    "content": Object {
+                      "application/json": Object {
+                        "schema": Object {
+                          "properties": Object {
+                            "message": Object {
+                              "type": "string",
+                            },
+                          },
+                          "type": "object",
+                        },
+                      },
+                    },
+                    "description": "Successful response",
+                    "headers": Object {},
+                  },
+                },
+                "x-amazon-apigateway-auth": Object {
+                  "type": "NONE",
+                },
+                "x-amazon-apigateway-integration": Object {
+                  "httpMethod": "POST",
+                  "passthroughBehavior": "WHEN_NO_MATCH",
+                  "type": "AWS_PROXY",
+                  "uri": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:",
+                        Object {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":apigateway:",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        ":lambda:path/2015-03-31/functions/",
+                        Object {
+                          "Fn::GetAtt": Array [
+                            "LambdaD247545B",
+                            "Arn",
+                          ],
+                        },
+                        "/invocations",
+                      ],
+                    ],
+                  },
+                },
+              },
+            },
+          },
+          "x-amazon-apigateway-gateway-responses": Object {
+            "BAD_REQUEST_BODY": Object {
+              "responseTemplates": Object {
+                "application/json": "{\\"message\\": \\"$context.error.validationErrorString\\"}",
+              },
+              "statusCode": 400,
+            },
+          },
+          "x-amazon-apigateway-request-validator": "all",
+          "x-amazon-apigateway-request-validators": Object {
+            "all": Object {
+              "validateRequestBody": true,
+              "validateRequestParameters": true,
+            },
+          },
+        },
+        "Name": "ApiTest",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "ApiTestAccount2AC853EB": Object {
+      "DependsOn": Array [
+        "ApiTest0B514494",
+      ],
+      "Properties": Object {
+        "CloudWatchRoleArn": Object {
+          "Fn::GetAtt": Array [
+            "ApiTestCloudWatchRole49F4F360",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+    },
+    "ApiTestCloudWatchRole49F4F360": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestDeployment59A5FA032c19e7dfc4d878c4b5d945b82a5312c1": Object {
+      "Properties": Object {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": Object {
+          "Ref": "ApiTest0B514494",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "ApiTestDeploymentStageprod77F35FA8": Object {
+      "Properties": Object {
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA032c19e7dfc4d878c4b5d945b82a5312c1",
+        },
+        "RestApiId": Object {
+          "Ref": "ApiTest0B514494",
+        },
+        "StageName": "prod",
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "ApiTestLambdaPermissiontestOperationECAC1A2D": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Ref": "LambdaD247545B",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "ApiTest0B514494",
+              },
+              "/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "LambdaD247545B": Object {
+      "DependsOn": Array [
+        "LambdaServiceRoleA8ED4D3B",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "ZipFile": "code",
+        },
+        "Handler": "handler",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "LambdaServiceRoleA8ED4D3B",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs16.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "LambdaServiceRoleA8ED4D3B": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+  },
+  "Rules": Object {
+    "CheckBootstrapVersion": Object {
+      "Assertions": Array [
+        Object {
+          "Assert": Object {
+            "Fn::Not": Array [
+              Object {
+                "Fn::Contains": Array [
+                  Array [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  Object {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`OpenAPI Gateway Lambda Api Construct Unit Tests With IAM Auth and CORS 1`] = `
+Object {
+  "Outputs": Object {
+    "ApiTestEndpointC91A82E8": Object {
+      "Value": Object {
+        "Fn::Join": Array [
+          "",
+          Array [
+            "https://",
+            Object {
+              "Ref": "ApiTest0B514494",
+            },
+            ".execute-api.",
+            Object {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            Object {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            Object {
+              "Ref": "ApiTestDeploymentStageprod77F35FA8",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": Object {
+    "BootstrapVersion": Object {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": Object {
+    "ApiTest0B514494": Object {
+      "Properties": Object {
+        "Body": Object {
+          "info": Object {
+            "title": "Test API",
+            "version": "1.0.0",
+          },
+          "openapi": "3.0.3",
+          "paths": Object {
+            "/test": Object {
+              "get": Object {
+                "operationId": "testOperation",
+                "responses": Object {
+                  "200": Object {
+                    "content": Object {
+                      "application/json": Object {
+                        "schema": Object {
+                          "properties": Object {
+                            "message": Object {
+                              "type": "string",
+                            },
+                          },
+                          "type": "object",
+                        },
+                      },
+                    },
+                    "description": "Successful response",
+                    "headers": Object {
+                      "Access-Control-Allow-Headers": Object {
+                        "schema": Object {
+                          "type": "string",
+                        },
+                      },
+                      "Access-Control-Allow-Methods": Object {
+                        "schema": Object {
+                          "type": "string",
+                        },
+                      },
+                      "Access-Control-Allow-Origin": Object {
+                        "schema": Object {
+                          "type": "string",
+                        },
+                      },
+                    },
+                  },
+                },
+                "x-amazon-apigateway-auth": Object {
+                  "type": "AWS_IAM",
+                },
+                "x-amazon-apigateway-integration": Object {
+                  "httpMethod": "POST",
+                  "passthroughBehavior": "WHEN_NO_MATCH",
+                  "type": "AWS_PROXY",
+                  "uri": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:",
+                        Object {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":apigateway:",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        ":lambda:path/2015-03-31/functions/",
+                        Object {
+                          "Fn::GetAtt": Array [
+                            "LambdaD247545B",
+                            "Arn",
+                          ],
+                        },
+                        "/invocations",
+                      ],
+                    ],
+                  },
+                },
+              },
+              "options": Object {
+                "description": "Enable CORS by returning the correct headers",
+                "responses": Object {
+                  "200": Object {
+                    "content": Object {},
+                    "description": "Default response for CORS method",
+                    "headers": Object {
+                      "Access-Control-Allow-Headers": Object {
+                        "schema": Object {
+                          "type": "string",
+                        },
+                      },
+                      "Access-Control-Allow-Methods": Object {
+                        "schema": Object {
+                          "type": "string",
+                        },
+                      },
+                      "Access-Control-Allow-Origin": Object {
+                        "schema": Object {
+                          "type": "string",
+                        },
+                      },
+                    },
+                  },
+                },
+                "summary": "CORS Support",
+                "x-amazon-apigateway-integration": Object {
+                  "requestTemplates": Object {
+                    "application/json": "{\\"statusCode\\": 200}",
+                  },
+                  "responses": Object {
+                    "default": Object {
+                      "responseParameters": Object {
+                        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                        "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      },
+                      "responseTemplates": Object {
+                        "application/json": "{}",
+                      },
+                      "statusCode": "200",
+                    },
+                  },
+                  "type": "mock",
+                },
+              },
+            },
+          },
+          "x-amazon-apigateway-gateway-responses": Object {
+            "BAD_REQUEST_BODY": Object {
+              "responseParameters": Object {
+                "gatewayresponse.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "gatewayresponse.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "gatewayresponse.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "responseTemplates": Object {
+                "application/json": "{\\"message\\": \\"$context.error.validationErrorString\\"}",
+              },
+              "statusCode": 400,
+            },
+          },
+          "x-amazon-apigateway-request-validator": "all",
+          "x-amazon-apigateway-request-validators": Object {
+            "all": Object {
+              "validateRequestBody": true,
+              "validateRequestParameters": true,
+            },
+          },
+        },
+        "Name": "ApiTest",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "ApiTestAccount2AC853EB": Object {
+      "DependsOn": Array [
+        "ApiTest0B514494",
+      ],
+      "Properties": Object {
+        "CloudWatchRoleArn": Object {
+          "Fn::GetAtt": Array [
+            "ApiTestCloudWatchRole49F4F360",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+    },
+    "ApiTestCloudWatchRole49F4F360": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestDeployment59A5FA030122928b0149760ff9dad9a1e9321b54": Object {
+      "Properties": Object {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": Object {
+          "Ref": "ApiTest0B514494",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "ApiTestDeploymentStageprod77F35FA8": Object {
+      "Properties": Object {
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA030122928b0149760ff9dad9a1e9321b54",
+        },
+        "RestApiId": Object {
+          "Ref": "ApiTest0B514494",
+        },
+        "StageName": "prod",
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "ApiTestLambdaPermissiontestOperationECAC1A2D": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Ref": "LambdaD247545B",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              Object {
+                "Ref": "ApiTest0B514494",
+              },
+              "/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "LambdaD247545B": Object {
+      "DependsOn": Array [
+        "LambdaServiceRoleA8ED4D3B",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "ZipFile": "code",
+        },
+        "Handler": "handler",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "LambdaServiceRoleA8ED4D3B",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs16.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "LambdaServiceRoleA8ED4D3B": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+  },
+  "Rules": Object {
+    "CheckBootstrapVersion": Object {
+      "Assertions": Array [
+        Object {
+          "Assert": Object {
+            "Fn::Not": Array [
+              Object {
+                "Fn::Contains": Array [
+                  Array [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  Object {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

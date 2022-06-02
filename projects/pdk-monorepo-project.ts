@@ -79,6 +79,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
           "@aws-prototyping-sdk/*/license-checker/*",
           "@aws-prototyping-sdk/*/oss-attribution-generator",
           "@aws-prototyping-sdk/*/oss-attribution-generator/*",
+          "@aws-prototyping-sdk/open-api-gateway/openapi-types",
+          "@aws-prototyping-sdk/open-api-gateway/openapi-types/*",
         ],
       },
     });
