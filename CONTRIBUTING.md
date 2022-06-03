@@ -73,3 +73,17 @@ If you discover a potential security issue in this project we ask that you notif
 See the [LICENSE](LICENSE) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
 
 We may ask you to sign a [Contributor License Agreement (CLA)](http://en.wikipedia.org/wiki/Contributor_License_Agreement) for larger changes.
+
+
+## FAQ
+
+### Type mismatch
+
+If you run into an issue that resembles:
+
+```bash
+Type 'import(".../aws-pdk/node_modules/aws-prototyping-sdk/node_modules/projen/lib/ignore-file").IgnoreFile' is not assignable to type 'import(".../aws-pdk/node_modules/projen/lib/ignore-file").IgnoreFile'.
+Types have separate declarations of a private property '_patterns'.
+```
+
+This means there are two conflicting versions of a package in the monorepo. To resolve this, from the root directory run: `npx projen upgrade-deps`. This will bump all dependencies to be the same/latest versions and update the yarn.lock file.

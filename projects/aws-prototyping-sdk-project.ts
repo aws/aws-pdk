@@ -33,9 +33,23 @@ export class AwsPrototypingSdkProject extends PDKProject {
             eslint: false,
             prettier: false,
             repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-            devDeps: ["@aws-prototyping-sdk/nx-monorepo@0.0.0", "@aws-prototyping-sdk/pipeline@0.0.0", "projen", "ts-node", "fs-extra"],
-            peerDeps: ["projen", "constructs", "aws-cdk-lib"],
-            deps: ["projen", "constructs", "aws-cdk-lib"],
+            devDeps: [
+              "@aws-prototyping-sdk/nx-monorepo@0.0.0",
+              "@aws-prototyping-sdk/pipeline@0.0.0",
+              "projen",
+              "ts-node",
+              "fs-extra"
+            ],
+            peerDeps: [
+              "projen",
+              "constructs",
+              "aws-cdk-lib"
+            ],
+            deps: [
+              "projen",
+              "constructs",
+              "aws-cdk-lib"
+            ],
             bundledDeps: ["@nrwl/devkit"],
             stability: Stability.STABLE,
             sampleCode: false,

@@ -1,6 +1,5 @@
 import { NxMonorepoProject, TargetDependencyProject } from "../packages/nx-monorepo/src";
 import { NodeProject } from "projen/lib/javascript";
-import { Project } from "projen";
 
 /**
  * Contains configuration for the PDK monorepo (root package).
@@ -21,6 +20,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
               "cz-conventional-changelog",
               "fast-xml-parser",
               "husky",
+              "syncpack"
             ],
             nxConfig: {
               targetDependencies: {
@@ -97,8 +97,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
           this.testTask.spawn(gitSecretsScanTask);
         
           const upgradeDepsTask = this.addTask("upgrade-deps");
-          upgradeDepsTask.exec("npx nx run-many --target=upgrade-deps --all --parallel=1");
-          upgradeDepsTask.exec("npx projen upgrade");
+          upgradeDepsTask.exec("npx syncpack fix-mismatches");
           upgradeDepsTask.exec("npx projen");
     }
 
@@ -111,22 +110,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         this.subProjects.forEach((subProject) => {
             // Resolve any problematic dependencies
             resolveDependencies(subProject);
-
-            // Add upgrade-deps task to subprojects
-            configureUpgradeDependenciesTask(subProject);
         });
     }
-}
-
-/**
- * Adds an 'upgrade-deps' delegate task if an 'upgrade' task is found. This is needed as there are
- * issues with NX and tasks named 'upgrade'.
- * 
- * @param project Project instance to configure.
- */
-const configureUpgradeDependenciesTask = (project: Project): void => {
-  const upgradeTask = project.tasks.tryFind("upgrade");
-  upgradeTask && !project.tasks.tryFind("upgrade-deps") && project.addTask("upgrade-deps").spawn(upgradeTask);
 }
 
 /**

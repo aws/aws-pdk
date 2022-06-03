@@ -5,7 +5,7 @@ import {
   PhysicalResourceId,
   PhysicalResourceIdReference,
 } from "aws-cdk-lib/custom-resources";
-import { WAFV2 } from "aws-sdk";
+import { WAFV2 } from "aws-sdk"; // eslint-disable-line
 import { Construct } from "constructs";
 
 const ACL_REGION = "us-east-1";
