@@ -1427,12 +1427,17 @@ Object {
       },
       \\"Type\\": \\"AWS::IAM::Policy\\",
     },
-    \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\": Object {
+    \\"ApplicationPipelineCodeBuildActionRole155C9984\\": Object {
       \\"Properties\\": Object {
         \\"AssumeRolePolicyDocument\\": Object {
           \\"Statement\\": Array [
             Object {
               \\"Action\\": \\"sts:AssumeRole\\",
+              \\"Condition\\": Object {
+                \\"Bool\\": Object {
+                  \\"aws:ViaAWSService\\": \\"codepipeline.amazonaws.com\\",
+                },
+              },
               \\"Effect\\": \\"Allow\\",
               \\"Principal\\": Object {
                 \\"AWS\\": Object {
@@ -1459,7 +1464,7 @@ Object {
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },
-    \\"ApplicationPipelineBuildSynthCodePipelineActionRoleDefaultPolicy619D502A\\": Object {
+    \\"ApplicationPipelineCodeBuildActionRoleDefaultPolicyC8190973\\": Object {
       \\"Properties\\": Object {
         \\"PolicyDocument\\": Object {
           \\"Statement\\": Array [
@@ -1477,13 +1482,27 @@ Object {
                 ],
               },
             },
+            Object {
+              \\"Action\\": Array [
+                \\"codebuild:BatchGetBuilds\\",
+                \\"codebuild:StartBuild\\",
+                \\"codebuild:StopBuild\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ApplicationPipelineUpdatePipelineSelfMutation36D37AA8\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
-        \\"PolicyName\\": \\"ApplicationPipelineBuildSynthCodePipelineActionRoleDefaultPolicy619D502A\\",
+        \\"PolicyName\\": \\"ApplicationPipelineCodeBuildActionRoleDefaultPolicyC8190973\\",
         \\"Roles\\": Array [
           Object {
-            \\"Ref\\": \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\",
+            \\"Ref\\": \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
           },
         ],
       },
@@ -1650,7 +1669,7 @@ Object {
                 ],
                 \\"RoleArn\\": Object {
                   \\"Fn::GetAtt\\": Array [
-                    \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\",
+                    \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
                     \\"Arn\\",
                   ],
                 },
@@ -1682,7 +1701,7 @@ Object {
                 \\"Name\\": \\"SelfMutate\\",
                 \\"RoleArn\\": Object {
                   \\"Fn::GetAtt\\": Array [
-                    \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\",
+                    \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
                     \\"Arn\\",
                   ],
                 },
@@ -1784,17 +1803,7 @@ Object {
               \\"Effect\\": \\"Allow\\",
               \\"Resource\\": Object {
                 \\"Fn::GetAtt\\": Array [
-                  \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\",
-                  \\"Arn\\",
-                ],
-              },
-            },
-            Object {
-              \\"Action\\": \\"sts:AssumeRole\\",
-              \\"Effect\\": \\"Allow\\",
-              \\"Resource\\": Object {
-                \\"Fn::GetAtt\\": Array [
-                  \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\",
+                  \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
                   \\"Arn\\",
                 ],
               },
@@ -1923,68 +1932,6 @@ Object {
         \\"Roles\\": Array [
           Object {
             \\"Ref\\": \\"ApplicationPipelineSourceCodeCommitCodePipelineActionRoleD8186B88\\",
-          },
-        ],
-      },
-      \\"Type\\": \\"AWS::IAM::Policy\\",
-    },
-    \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\": Object {
-      \\"Properties\\": Object {
-        \\"AssumeRolePolicyDocument\\": Object {
-          \\"Statement\\": Array [
-            Object {
-              \\"Action\\": \\"sts:AssumeRole\\",
-              \\"Effect\\": \\"Allow\\",
-              \\"Principal\\": Object {
-                \\"AWS\\": Object {
-                  \\"Fn::Join\\": Array [
-                    \\"\\",
-                    Array [
-                      \\"arn:\\",
-                      Object {
-                        \\"Ref\\": \\"AWS::Partition\\",
-                      },
-                      \\":iam::\\",
-                      Object {
-                        \\"Ref\\": \\"AWS::AccountId\\",
-                      },
-                      \\":root\\",
-                    ],
-                  ],
-                },
-              },
-            },
-          ],
-          \\"Version\\": \\"2012-10-17\\",
-        },
-      },
-      \\"Type\\": \\"AWS::IAM::Role\\",
-    },
-    \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDefaultPolicy50395AF4\\": Object {
-      \\"Properties\\": Object {
-        \\"PolicyDocument\\": Object {
-          \\"Statement\\": Array [
-            Object {
-              \\"Action\\": Array [
-                \\"codebuild:BatchGetBuilds\\",
-                \\"codebuild:StartBuild\\",
-                \\"codebuild:StopBuild\\",
-              ],
-              \\"Effect\\": \\"Allow\\",
-              \\"Resource\\": Object {
-                \\"Fn::GetAtt\\": Array [
-                  \\"ApplicationPipelineUpdatePipelineSelfMutation36D37AA8\\",
-                  \\"Arn\\",
-                ],
-              },
-            },
-          ],
-          \\"Version\\": \\"2012-10-17\\",
-        },
-        \\"PolicyName\\": \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDefaultPolicy50395AF4\\",
-        \\"Roles\\": Array [
-          Object {
-            \\"Ref\\": \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\",
           },
         ],
       },
@@ -3880,12 +3827,17 @@ Object {
       },
       \\"Type\\": \\"AWS::IAM::Policy\\",
     },
-    \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\": Object {
+    \\"ApplicationPipelineCodeBuildActionRole155C9984\\": Object {
       \\"Properties\\": Object {
         \\"AssumeRolePolicyDocument\\": Object {
           \\"Statement\\": Array [
             Object {
               \\"Action\\": \\"sts:AssumeRole\\",
+              \\"Condition\\": Object {
+                \\"Bool\\": Object {
+                  \\"aws:ViaAWSService\\": \\"codepipeline.amazonaws.com\\",
+                },
+              },
               \\"Effect\\": \\"Allow\\",
               \\"Principal\\": Object {
                 \\"AWS\\": Object {
@@ -3912,7 +3864,7 @@ Object {
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },
-    \\"ApplicationPipelineBuildSynthCodePipelineActionRoleDefaultPolicy619D502A\\": Object {
+    \\"ApplicationPipelineCodeBuildActionRoleDefaultPolicyC8190973\\": Object {
       \\"Properties\\": Object {
         \\"PolicyDocument\\": Object {
           \\"Statement\\": Array [
@@ -3930,13 +3882,27 @@ Object {
                 ],
               },
             },
+            Object {
+              \\"Action\\": Array [
+                \\"codebuild:BatchGetBuilds\\",
+                \\"codebuild:StartBuild\\",
+                \\"codebuild:StopBuild\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ApplicationPipelineUpdatePipelineSelfMutation36D37AA8\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
-        \\"PolicyName\\": \\"ApplicationPipelineBuildSynthCodePipelineActionRoleDefaultPolicy619D502A\\",
+        \\"PolicyName\\": \\"ApplicationPipelineCodeBuildActionRoleDefaultPolicyC8190973\\",
         \\"Roles\\": Array [
           Object {
-            \\"Ref\\": \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\",
+            \\"Ref\\": \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
           },
         ],
       },
@@ -4103,7 +4069,7 @@ Object {
                 ],
                 \\"RoleArn\\": Object {
                   \\"Fn::GetAtt\\": Array [
-                    \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\",
+                    \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
                     \\"Arn\\",
                   ],
                 },
@@ -4135,7 +4101,7 @@ Object {
                 \\"Name\\": \\"SelfMutate\\",
                 \\"RoleArn\\": Object {
                   \\"Fn::GetAtt\\": Array [
-                    \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\",
+                    \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
                     \\"Arn\\",
                   ],
                 },
@@ -4237,17 +4203,7 @@ Object {
               \\"Effect\\": \\"Allow\\",
               \\"Resource\\": Object {
                 \\"Fn::GetAtt\\": Array [
-                  \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\",
-                  \\"Arn\\",
-                ],
-              },
-            },
-            Object {
-              \\"Action\\": \\"sts:AssumeRole\\",
-              \\"Effect\\": \\"Allow\\",
-              \\"Resource\\": Object {
-                \\"Fn::GetAtt\\": Array [
-                  \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\",
+                  \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
                   \\"Arn\\",
                 ],
               },
@@ -4376,68 +4332,6 @@ Object {
         \\"Roles\\": Array [
           Object {
             \\"Ref\\": \\"ApplicationPipelineSourceCodeCommitCodePipelineActionRoleD8186B88\\",
-          },
-        ],
-      },
-      \\"Type\\": \\"AWS::IAM::Policy\\",
-    },
-    \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\": Object {
-      \\"Properties\\": Object {
-        \\"AssumeRolePolicyDocument\\": Object {
-          \\"Statement\\": Array [
-            Object {
-              \\"Action\\": \\"sts:AssumeRole\\",
-              \\"Effect\\": \\"Allow\\",
-              \\"Principal\\": Object {
-                \\"AWS\\": Object {
-                  \\"Fn::Join\\": Array [
-                    \\"\\",
-                    Array [
-                      \\"arn:\\",
-                      Object {
-                        \\"Ref\\": \\"AWS::Partition\\",
-                      },
-                      \\":iam::\\",
-                      Object {
-                        \\"Ref\\": \\"AWS::AccountId\\",
-                      },
-                      \\":root\\",
-                    ],
-                  ],
-                },
-              },
-            },
-          ],
-          \\"Version\\": \\"2012-10-17\\",
-        },
-      },
-      \\"Type\\": \\"AWS::IAM::Role\\",
-    },
-    \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDefaultPolicy50395AF4\\": Object {
-      \\"Properties\\": Object {
-        \\"PolicyDocument\\": Object {
-          \\"Statement\\": Array [
-            Object {
-              \\"Action\\": Array [
-                \\"codebuild:BatchGetBuilds\\",
-                \\"codebuild:StartBuild\\",
-                \\"codebuild:StopBuild\\",
-              ],
-              \\"Effect\\": \\"Allow\\",
-              \\"Resource\\": Object {
-                \\"Fn::GetAtt\\": Array [
-                  \\"ApplicationPipelineUpdatePipelineSelfMutation36D37AA8\\",
-                  \\"Arn\\",
-                ],
-              },
-            },
-          ],
-          \\"Version\\": \\"2012-10-17\\",
-        },
-        \\"PolicyName\\": \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDefaultPolicy50395AF4\\",
-        \\"Roles\\": Array [
-          Object {
-            \\"Ref\\": \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\",
           },
         ],
       },
@@ -6348,12 +6242,17 @@ Object {
       },
       \\"Type\\": \\"AWS::IAM::Policy\\",
     },
-    \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\": Object {
+    \\"ApplicationPipelineCodeBuildActionRole155C9984\\": Object {
       \\"Properties\\": Object {
         \\"AssumeRolePolicyDocument\\": Object {
           \\"Statement\\": Array [
             Object {
               \\"Action\\": \\"sts:AssumeRole\\",
+              \\"Condition\\": Object {
+                \\"Bool\\": Object {
+                  \\"aws:ViaAWSService\\": \\"codepipeline.amazonaws.com\\",
+                },
+              },
               \\"Effect\\": \\"Allow\\",
               \\"Principal\\": Object {
                 \\"AWS\\": Object {
@@ -6380,7 +6279,7 @@ Object {
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },
-    \\"ApplicationPipelineBuildSynthCodePipelineActionRoleDefaultPolicy619D502A\\": Object {
+    \\"ApplicationPipelineCodeBuildActionRoleDefaultPolicyC8190973\\": Object {
       \\"Properties\\": Object {
         \\"PolicyDocument\\": Object {
           \\"Statement\\": Array [
@@ -6398,13 +6297,27 @@ Object {
                 ],
               },
             },
+            Object {
+              \\"Action\\": Array [
+                \\"codebuild:BatchGetBuilds\\",
+                \\"codebuild:StartBuild\\",
+                \\"codebuild:StopBuild\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ApplicationPipelineUpdatePipelineSelfMutation36D37AA8\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
-        \\"PolicyName\\": \\"ApplicationPipelineBuildSynthCodePipelineActionRoleDefaultPolicy619D502A\\",
+        \\"PolicyName\\": \\"ApplicationPipelineCodeBuildActionRoleDefaultPolicyC8190973\\",
         \\"Roles\\": Array [
           Object {
-            \\"Ref\\": \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\",
+            \\"Ref\\": \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
           },
         ],
       },
@@ -6571,7 +6484,7 @@ Object {
                 ],
                 \\"RoleArn\\": Object {
                   \\"Fn::GetAtt\\": Array [
-                    \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\",
+                    \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
                     \\"Arn\\",
                   ],
                 },
@@ -6603,7 +6516,7 @@ Object {
                 \\"Name\\": \\"SelfMutate\\",
                 \\"RoleArn\\": Object {
                   \\"Fn::GetAtt\\": Array [
-                    \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\",
+                    \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
                     \\"Arn\\",
                   ],
                 },
@@ -6705,17 +6618,7 @@ Object {
               \\"Effect\\": \\"Allow\\",
               \\"Resource\\": Object {
                 \\"Fn::GetAtt\\": Array [
-                  \\"ApplicationPipelineBuildSynthCodePipelineActionRoleBDCC8F46\\",
-                  \\"Arn\\",
-                ],
-              },
-            },
-            Object {
-              \\"Action\\": \\"sts:AssumeRole\\",
-              \\"Effect\\": \\"Allow\\",
-              \\"Resource\\": Object {
-                \\"Fn::GetAtt\\": Array [
-                  \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\",
+                  \\"ApplicationPipelineCodeBuildActionRole155C9984\\",
                   \\"Arn\\",
                 ],
               },
@@ -6844,68 +6747,6 @@ Object {
         \\"Roles\\": Array [
           Object {
             \\"Ref\\": \\"ApplicationPipelineSourceCodeCommitCodePipelineActionRoleD8186B88\\",
-          },
-        ],
-      },
-      \\"Type\\": \\"AWS::IAM::Policy\\",
-    },
-    \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\": Object {
-      \\"Properties\\": Object {
-        \\"AssumeRolePolicyDocument\\": Object {
-          \\"Statement\\": Array [
-            Object {
-              \\"Action\\": \\"sts:AssumeRole\\",
-              \\"Effect\\": \\"Allow\\",
-              \\"Principal\\": Object {
-                \\"AWS\\": Object {
-                  \\"Fn::Join\\": Array [
-                    \\"\\",
-                    Array [
-                      \\"arn:\\",
-                      Object {
-                        \\"Ref\\": \\"AWS::Partition\\",
-                      },
-                      \\":iam::\\",
-                      Object {
-                        \\"Ref\\": \\"AWS::AccountId\\",
-                      },
-                      \\":root\\",
-                    ],
-                  ],
-                },
-              },
-            },
-          ],
-          \\"Version\\": \\"2012-10-17\\",
-        },
-      },
-      \\"Type\\": \\"AWS::IAM::Role\\",
-    },
-    \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDefaultPolicy50395AF4\\": Object {
-      \\"Properties\\": Object {
-        \\"PolicyDocument\\": Object {
-          \\"Statement\\": Array [
-            Object {
-              \\"Action\\": Array [
-                \\"codebuild:BatchGetBuilds\\",
-                \\"codebuild:StartBuild\\",
-                \\"codebuild:StopBuild\\",
-              ],
-              \\"Effect\\": \\"Allow\\",
-              \\"Resource\\": Object {
-                \\"Fn::GetAtt\\": Array [
-                  \\"ApplicationPipelineUpdatePipelineSelfMutation36D37AA8\\",
-                  \\"Arn\\",
-                ],
-              },
-            },
-          ],
-          \\"Version\\": \\"2012-10-17\\",
-        },
-        \\"PolicyName\\": \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDefaultPolicy50395AF4\\",
-        \\"Roles\\": Array [
-          Object {
-            \\"Ref\\": \\"ApplicationPipelineUpdatePipelineSelfMutateCodePipelineActionRoleDAB6E268\\",
           },
         ],
       },
