@@ -1209,6 +1209,20 @@ aws-prototyping-sdk library.</p>
 |_ WAF V2 ACL                                |_ index.html (+ other website files and assets)
                                              |_ runtime-config.json
 </code></pre></div>
+<p>A typical use case is to create a static website with AuthN. To accomplish this, we can leverage the UserIdentity to create the User Pool (Cognito by default) and Identity Pool. We can then pipe the respective pool id's as runtimeOptions into the StaticWebsite. After the website is deployed, these values can be interrogated from the runtime-config.json deployed alongside the website in order to perform authentication within the app using something like the <a href="https://docs.amplify.aws/lib/client-configuration/configuring-amplify-categories/q/platform/js/#authentication-amazon-cognito">Amplify Auth API</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="n">user_identity</span> <span class="o">=</span> <span class="n">UserIdentity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;UserIdentity&quot;</span><span class="p">)</span>
+<span class="n">StaticWebsite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;StaticWebsite&quot;</span><span class="p">,</span>
+    <span class="n">website_content_path</span><span class="o">=</span><span class="s2">&quot;../&lt;path&gt;/&lt;to&gt;/&lt;built&gt;/&lt;website&gt;&quot;</span><span class="p">,</span>
+    <span class="n">runtime_options</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;json_payload&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;identity_pool_id&quot;</span><span class="p">:</span> <span class="n">user_identity</span><span class="o">.</span><span class="n">identity_pool</span><span class="o">.</span><span class="n">identity_pool_id</span><span class="p">,</span>
+            <span class="s2">&quot;user_pool_id&quot;</span><span class="p">:</span> <span class="n">user_identity</span><span class="o">.</span><span class="n">user_pool</span><span class="o">.</span><span class="n">user_pool_id</span><span class="p">,</span>
+            <span class="s2">&quot;user_pool_client_id&quot;</span><span class="p">:</span> <span class="n">user_identity</span><span class="o">.</span><span class="n">user_pool_client</span><span class="o">.</span><span class="n">user_pool_client_id</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="constructs">Constructs <a name="Constructs" id="Constructs"></a></h2>
 <h3 id="cloudfrontwebacl">CloudfrontWebAcl <a name="CloudfrontWebAcl" id="@aws-prototyping-sdk/static-website.CloudfrontWebAcl"></a></h3>
@@ -1413,6 +1427,7 @@ and commonly occurring vulnerabilities described in OWASP publications such as O
   <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span><span class="p">,</span>
   <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">website_content_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">default_root_object</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">domain_options</span><span class="p">:</span> <span class="n">CloudfrontDomainOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">error_responses</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ErrorResponse</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging_options</span><span class="p">:</span> <span class="n">CloudfrontLoggingOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1443,6 +1458,11 @@ and commonly occurring vulnerabilities described in OWASP publications such as O
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.websiteContentPath">website_content_path</a></code></td>
 <td><code>str</code></td>
 <td>Path to the directory containing the static website files and assets.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.defaultRootObject">default_root_object</a></code></td>
+<td><code>str</code></td>
+<td>The object that you want CloudFront to request from your origin (for example, index.html) when a viewer requests the root URL for your distribution.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.domainOptions">domain_options</a></code></td>
@@ -1488,6 +1508,13 @@ and commonly occurring vulnerabilities described in OWASP publications such as O
 </ul>
 <p>Path to the directory containing the static website files and assets.</p>
 <p>This directory must contain an index.html file.</p>
+<hr />
+<h5 id="default_root_objectoptional"><code>default_root_object</code><sup>Optional</sup> <a name="default_root_object" id="@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.defaultRootObject"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> index.html</li>
+</ul>
+<p>The object that you want CloudFront to request from your origin (for example, index.html) when a viewer requests the root URL for your distribution.</p>
 <hr />
 <h5 id="domain_optionsoptional"><code>domain_options</code><sup>Optional</sup> <a name="domain_options" id="@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.domainOptions"></a></h5>
 <ul>
@@ -2140,6 +2167,7 @@ are only known at deploy time.</p>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">static_website</span><span class="o">.</span><span class="n">StaticWebsiteProps</span><span class="p">(</span>
   <span class="n">website_content_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">default_root_object</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">domain_options</span><span class="p">:</span> <span class="n">CloudfrontDomainOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">error_responses</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ErrorResponse</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging_options</span><span class="p">:</span> <span class="n">CloudfrontLoggingOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2161,6 +2189,11 @@ are only known at deploy time.</p>
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.websiteContentPath">website_content_path</a></code></td>
 <td><code>str</code></td>
 <td>Path to the directory containing the static website files and assets.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.defaultRootObject">default_root_object</a></code></td>
+<td><code>str</code></td>
+<td>The object that you want CloudFront to request from your origin (for example, index.html) when a viewer requests the root URL for your distribution.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.domainOptions">domain_options</a></code></td>
@@ -2198,6 +2231,15 @@ are only known at deploy time.</p>
 </ul>
 <p>Path to the directory containing the static website files and assets.</p>
 <p>This directory must contain an index.html file.</p>
+<hr />
+<h5 id="default_root_objectoptional_1"><code>default_root_object</code><sup>Optional</sup> <a name="default_root_object" id="@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.defaultRootObject"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">default_root_object</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> index.html</li>
+</ul>
+<p>The object that you want CloudFront to request from your origin (for example, index.html) when a viewer requests the root URL for your distribution.</p>
 <hr />
 <h5 id="domain_optionsoptional_1"><code>domain_options</code><sup>Optional</sup> <a name="domain_options" id="@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.domainOptions"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">domain_options</span><span class="p">:</span> <span class="n">CloudfrontDomainOptions</span>

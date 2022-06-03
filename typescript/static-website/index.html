@@ -1209,6 +1209,19 @@ aws-prototyping-sdk library.</p>
 |_ WAF V2 ACL                                |_ index.html (+ other website files and assets)
                                              |_ runtime-config.json
 </code></pre></div>
+<p>A typical use case is to create a static website with AuthN. To accomplish this, we can leverage the UserIdentity to create the User Pool (Cognito by default) and Identity Pool. We can then pipe the respective pool id's as runtimeOptions into the StaticWebsite. After the website is deployed, these values can be interrogated from the runtime-config.json deployed alongside the website in order to perform authentication within the app using something like the <a href="https://docs.amplify.aws/lib/client-configuration/configuring-amplify-categories/q/platform/js/#authentication-amazon-cognito">Amplify Auth API</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">userIdentity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UserIdentity</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;UserIdentity&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">StaticWebsite</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;StaticWebsite&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">websiteContentPath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;../&lt;path&gt;/&lt;to&gt;/&lt;built&gt;/&lt;website&gt;&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nx">runtimeOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">jsonPayload</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nx">identityPoolId</span><span class="o">:</span><span class="w"> </span><span class="kt">userIdentity.identityPool.identityPoolId</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nx">userPoolId</span><span class="o">:</span><span class="w"> </span><span class="kt">userIdentity.userPool?.userPoolId</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nx">userPoolClientId</span><span class="o">:</span><span class="w"> </span><span class="kt">userIdentity.userPoolClient?.userPoolClientId</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+</code></pre></div>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="constructs">Constructs <a name="Constructs" id="Constructs"></a></h2>
 <h3 id="cloudfrontwebacl">CloudfrontWebAcl <a name="CloudfrontWebAcl" id="@aws-prototyping-sdk/static-website.CloudfrontWebAcl"></a></h3>
@@ -2050,6 +2063,11 @@ are only known at deploy time.</p>
 <td>Path to the directory containing the static website files and assets.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.defaultRootObject">defaultRootObject</a></code></td>
+<td><code>string</code></td>
+<td>The object that you want CloudFront to request from your origin (for example, index.html) when a viewer requests the root URL for your distribution.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.domainOptions">domainOptions</a></code></td>
 <td><code><a href="#@aws-prototyping-sdk/static-website.CloudfrontDomainOptions">CloudfrontDomainOptions</a></code></td>
 <td>Configuration related to using custom domain names/certificates.</td>
@@ -2085,6 +2103,15 @@ are only known at deploy time.</p>
 </ul>
 <p>Path to the directory containing the static website files and assets.</p>
 <p>This directory must contain an index.html file.</p>
+<hr />
+<h5 id="defaultrootobjectoptional"><code>defaultRootObject</code><sup>Optional</sup> <a name="defaultRootObject" id="@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.defaultRootObject"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">defaultRootObject</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+<li><em>Default:</em> index.html</li>
+</ul>
+<p>The object that you want CloudFront to request from your origin (for example, index.html) when a viewer requests the root URL for your distribution.</p>
 <hr />
 <h5 id="domainoptionsoptional"><code>domainOptions</code><sup>Optional</sup> <a name="domainOptions" id="@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.domainOptions"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">domainOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">CloudfrontDomainOptions</span><span class="p">;</span><span class="w"></span>
