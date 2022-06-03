@@ -117,6 +117,14 @@ export interface StaticWebsiteProps {
   readonly websiteContentPath: string;
 
   /**
+   * The object that you want CloudFront to request from your origin (for example, index.html)
+   * when a viewer requests the root URL for your distribution.
+   *
+   * @default - index.html
+   */
+  readonly defaultRootObject?: string;
+
+  /**
    * How CloudFront should handle requests that are not successful (e.g., PageNotFound).
    *
    * @default - [{httpStatus: 404,responseHttpStatus: 200,responsePagePath: '/index.html'}]
@@ -160,11 +168,11 @@ export class StaticWebsite extends Construct {
   constructor(scope: Construct, id: string, props: StaticWebsiteProps) {
     super(scope, id);
 
+    const defaultRootObject = props.defaultRootObject || "index.html";
     this.validateProps(props);
 
     // S3 Bucket to hold website files
     this.websiteBucket = new Bucket(this, "WebsiteBucket", {
-      websiteIndexDocument: "index.html",
       versioned: true,
       enforceSSL: true,
       autoDeleteObjects: true,
@@ -187,13 +195,14 @@ export class StaticWebsite extends Construct {
           origin: new S3Origin(this.websiteBucket),
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },
+        defaultRootObject,
         certificate: props.domainOptions?.certificate,
         domainNames: props.domainOptions?.domainNames,
         errorResponses: [
           {
             httpStatus: 404, // We need to redirect "key not found errors" to index.html for single page apps
             responseHttpStatus: 200,
-            responsePagePath: "/index.html",
+            responsePagePath: `/${defaultRootObject}`,
           },
         ],
         enableLogging: props.loggingOptions?.enableLogging,
@@ -231,18 +240,12 @@ export class StaticWebsite extends Construct {
   private validateRuntimeConfig = (config: RuntimeOptions) => {
     if (!config) {
       throw new Error(
-        `validateRuntimeConfig onlt accepts non-null RuntimeOptions.`
+        `validateRuntimeConfig only accepts non-null RuntimeOptions.`
       );
     }
 
     if (config.jsonFileName && !config.jsonFileName.endsWith(".json")) {
       throw new Error(`RuntimeOptions.jsonFileName must be a json file.`);
-    }
-
-    try {
-      JSON.parse(config.jsonPayload);
-    } catch (e) {
-      throw new Error(`Invalid jsonPayload ${e}`);
     }
   };
 }

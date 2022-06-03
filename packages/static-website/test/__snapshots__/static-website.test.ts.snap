@@ -300,34 +300,32 @@ Object {
             "TargetOriginId": "DefaultsCloudfrontDistributionOrigin1BA23CD94",
             "ViewerProtocolPolicy": "redirect-to-https",
           },
+          "DefaultRootObject": "index.html",
           "Enabled": true,
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "Origins": Array [
             Object {
-              "CustomOriginConfig": Object {
-                "OriginProtocolPolicy": "http-only",
-                "OriginSSLProtocols": Array [
-                  "TLSv1.2",
-                ],
-              },
               "DomainName": Object {
-                "Fn::Select": Array [
-                  2,
-                  Object {
-                    "Fn::Split": Array [
-                      "/",
-                      Object {
-                        "Fn::GetAtt": Array [
-                          "DefaultsWebsiteBucket3263D025",
-                          "WebsiteURL",
-                        ],
-                      },
-                    ],
-                  },
+                "Fn::GetAtt": Array [
+                  "DefaultsWebsiteBucket3263D025",
+                  "RegionalDomainName",
                 ],
               },
               "Id": "DefaultsCloudfrontDistributionOrigin1BA23CD94",
+              "S3OriginConfig": Object {
+                "OriginAccessIdentity": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "origin-access-identity/cloudfront/",
+                      Object {
+                        "Ref": "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E",
+                      },
+                    ],
+                  ],
+                },
+              },
             },
           ],
           "WebACLId": Object {
@@ -351,6 +349,14 @@ Object {
         },
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E": Object {
+      "Properties": Object {
+        "CloudFrontOriginAccessIdentityConfig": Object {
+          "Comment": "Identity for DefaultsCloudfrontDistributionOrigin1BA23CD94",
+        },
+      },
+      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "DefaultsWebsiteAclCreateCustomResourcePolicy7011FDE8": Object {
       "Properties": Object {
@@ -480,9 +486,6 @@ Object {
         "VersioningConfiguration": Object {
           "Status": "Enabled",
         },
-        "WebsiteConfiguration": Object {
-          "IndexDocument": "index.html",
-        },
       },
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Delete",
@@ -584,6 +587,32 @@ Object {
                   ],
                 },
               ],
+            },
+            Object {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Principal": Object {
+                "CanonicalUser": Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E",
+                    "S3CanonicalUserId",
+                  ],
+                },
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsWebsiteBucket3263D025",
+                        "Arn",
+                      ],
+                    },
+                    "/*",
+                  ],
+                ],
+              },
             },
           ],
           "Version": "2012-10-17",
