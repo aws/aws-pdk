@@ -1095,6 +1095,20 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#nx-monorepo" class="md-nav__link">
+    nx-monorepo
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipeline" class="md-nav__link">
+    pipeline
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#api-reference" class="md-nav__link">
     API Reference 
   </a>
@@ -1318,6 +1332,114 @@
 <p>To import experimental constructs, a dependency on the individual package is required. In the case of <code>static-website</code> a dependency on <code>@aws-prototyping-sdk/static-website</code> is required. The constructs can then be imported as follows:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
 <span class="kn">from</span> <span class="nn">aws_prototyping_sdk.static_website</span> <span class="kn">import</span> <span class="n">StaticWebsite</span>
+</code></pre></div>
+<h2 id="nx-monorepo">nx-monorepo</h2>
+<p>The nx-monorepo package vends a NxMonorepoProject Projen construct that adds <a href="https://nx.dev/getting-started/intro">NX</a> monorepo support and manages your yarn/npm/pnpm workspaces on your behalf. This construct enables polygot builds (and inter language build dependencies), build caching, dependency visualization and much, much more.</p>
+<p>The PDK itself uses the nx-monorepo project itself and is a good reference for seeing how a complex, polygot monorepo can be set up.</p>
+<p>To get started simply run the following command in an empty directory:</p>
+<div class="highlight"><pre><span></span><code>npx projen new --from aws-prototyping-sdk nx-monorepo
+</code></pre></div>
+<p>This will boostrap a new Projen monorepo and contain the following in the .projenrc.ts:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
+
+<span class="n">project</span> <span class="o">=</span> <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">NxMonorepoProject</span><span class="p">(</span>
+    <span class="n">default_release_branch</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+    <span class="n">dev_deps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-package&quot;</span>
+<span class="p">)</span>
+
+<span class="n">project</span><span class="o">.</span><span class="n">synth</span><span class="p">()</span>
+</code></pre></div>
+<p>To add new packages to the monorepo, you can simply add them as a child to the monorepo. To demonstrate, lets add a PDK Pipeline TS Project as a child as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
+
+<span class="n">project</span> <span class="o">=</span> <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">NxMonorepoProject</span><span class="p">(</span>
+    <span class="n">default_release_branch</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+    <span class="n">dev_deps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-package&quot;</span>
+<span class="p">)</span>
+
+<span class="n">PDKPipelineTsProject</span><span class="p">(</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/cicd&quot;</span><span class="p">,</span>
+    <span class="n">default_release_branch</span><span class="o">=</span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cicd&quot;</span><span class="p">,</span>
+    <span class="n">cdk_version</span><span class="o">=</span><span class="s2">&quot;2.1.0&quot;</span>
+<span class="p">)</span>
+
+<span class="n">project</span><span class="o">.</span><span class="n">synth</span><span class="p">()</span>
+</code></pre></div>
+<p>Once added, run <code>npx projen</code> from the root directory. You will now notice a new TS package has been created under the packages/cicd path.</p>
+<p>Now lets add a python project to the monorepo and add a inter-language build dependency.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
+<span class="kn">from</span> <span class="nn">aws_prototyping_sdk.pipeline</span> <span class="kn">import</span> <span class="n">PDKPipelineTsProject</span>
+<span class="kn">from</span> <span class="nn">projen.python</span> <span class="kn">import</span> <span class="n">PythonProject</span>
+
+<span class="n">project</span> <span class="o">=</span> <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">NxMonorepoProject</span><span class="p">(</span>
+    <span class="n">default_release_branch</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+    <span class="n">dev_deps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;test&quot;</span>
+<span class="p">)</span>
+
+<span class="n">pipeline_project</span> <span class="o">=</span> <span class="n">PDKPipelineTsProject</span><span class="p">(</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/cicd&quot;</span><span class="p">,</span>
+    <span class="n">default_release_branch</span><span class="o">=</span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cicd&quot;</span><span class="p">,</span>
+    <span class="n">cdk_version</span><span class="o">=</span><span class="s2">&quot;2.1.0&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Standard Projen projects also work here</span>
+<span class="n">pythonlib</span> <span class="o">=</span> <span class="n">PythonProject</span><span class="p">(</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/pythonlib&quot;</span><span class="p">,</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">author_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;pythonlib&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pythonlib&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.0.0&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Pipeline project depends on pythonlib to build first</span>
+<span class="n">project</span><span class="o">.</span><span class="n">add_implicit_dependency</span><span class="p">(</span><span class="n">pipeline_project</span><span class="p">,</span> <span class="n">pythonlib</span><span class="p">)</span>
+
+<span class="n">project</span><span class="o">.</span><span class="n">synth</span><span class="p">()</span>
+</code></pre></div>
+<p>Run <code>npx projen</code> from the root directory. You will now notice a new Python package has been created under packages/pythonlib.</p>
+<p>To visualize our dependency graph, run the following command from the root directory: <code>npx nx graph</code>.</p>
+<p>Now lets test building our project, from the root directory run <code>npx nx run-many --target=build --all</code>. As you can see, the pythonlib was built first followed by the cicd package.</p>
+<p>The NxMonorepoProject also manages your yarn/pnpm workspaces for you and synthesizes these into your package.json pnpm-workspace.yml respectively.</p>
+<p>For more information on NX commands, refer to this <a href="https://nx.dev/using-nx/nx-cli">documentation</a>.</p>
+<h2 id="pipeline">pipeline</h2>
+<p>The pipeline module vends an extension to CDK's CodePipeline construct, named PDKPipeline. It additionally creates a CodeCommit repository and by default is configured to build the project assumming nx-monorepo is being used (although this can be changed). A Sonarqube Scanner can also be configured to trigger a scan whenever the synth build job completes successfully. This Scanner is non-blocking and as such is not instrumented as part of the pipeline.</p>
+<p>The architecture for the PDKPipeline is as follows:</p>
+<div class="highlight"><pre><span></span><code>CodeCommit repository -&gt; CodePipeline
+                             |-&gt; EventBridge Rule (On Build Succeded) -&gt; CodeBuild (Sonar Scan)
+                             |-&gt; Secret (sonarqube token)
+</code></pre></div>
+<p>This module additionally vends multiple Projen Projects, one for each of the supported languages. These projects aim to bootstrap your project by providing sample code which uses the PDKPipeline construct.</p>
+<p>For example, in .projenrc.ts:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="n">PDKPipelineTsProject</span><span class="p">(</span>
+    <span class="n">cdk_version</span><span class="o">=</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span>
+    <span class="n">default_release_branch</span><span class="o">=</span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
+    <span class="n">dev_deps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-pipeline&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>This will generate a package in typescript containing CDK boilerplate for a pipeline stack (which instantiates PDKPipeline), sets up a Dev stage with an Application Stage containing an empty ApplicationStack (to be implemented). Once this package is synthesized, you can run <code>npx projen</code> and projen will synthesize your cloudformation.</p>
+<p>Alternatively, you can initialize a project using the cli (in an empty directory) for each of the supported languages as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Typescript</span>
+npx projen new --from aws-prototyping-sdk pdk-pipeline-ts
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Python</span>
+npx projen new --from aws-prototyping-sdk pdk-pipeline-py
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Java</span>
+npx projen new --from aws-prototyping-sdk pdk-pipeline-java
 </code></pre></div>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="constructs">Constructs <a name="Constructs" id="Constructs"></a></h2>
