@@ -9,7 +9,7 @@ import { IdentityProject } from "./projects/identity-project";
 // root/parent project
 const monorepoProject = new PDKMonorepoProject();
 
-// internal
+// docs
 new DocsProject(monorepoProject);
 
 // public packages

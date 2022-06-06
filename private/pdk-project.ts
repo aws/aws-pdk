@@ -5,12 +5,30 @@ import { SampleDir } from 'projen';
 import { JsiiJavaTarget, JsiiProject, JsiiProjectOptions, JsiiPythonTarget, Stability } from 'projen/lib/cdk';
 import { Release } from 'projen/lib/release';
 
+/**
+ * Configuration options for the PDK Project.
+ */
 export interface PDKProjectOptions extends JsiiProjectOptions {
+  /**
+     * Publish to pypi
+     * 
+     * @default - package will be published with module name: aws_prototyping_sdk.<your_package_name>
+     */
   readonly publishToPypiConfig?: JsiiPythonTarget;
 
+  /**
+     * Publish to maven
+     * 
+     * @default - package will be published with package name: software.aws.awsprototypingsdk.<yourpackagename>
+     */
   readonly publishToMavenConfig?: JsiiJavaTarget;
 }
 
+/**
+ * Project type to be used when creating new Constructs.
+ * 
+ * This project handles correct naming for the PDK, along with validation and auto publishing of artifacts to the various package managers.
+ */
 export class PDKProject extends JsiiProject {
   constructor(options: PDKProjectOptions) {
     const nameWithUnderscore = options.name.replace(/-/g, '_');
@@ -84,6 +102,10 @@ export class PDKProject extends JsiiProject {
   }
 }
 
+/**
+ * Enforces licenses and attribution are checked and included as part of the release distributable. Sets up a release:mainline task which
+ * bumps package versions using semantic versioning.
+ */
 class PDKRelease extends Release {
   constructor(project: PDKProject) {
     super(project, {
