@@ -1,6 +1,6 @@
 The aws-prototyping-sdk provides stable CDK and Projen constructs, allowing developers to have access to higher level abstractions than provided by the CDK or Projen alone.
 
-For detailed documentation, please refer to the [documentation website](TODO).
+For detailed documentation, please refer to the [documentation website](https://aws.github.io/aws-prototyping-sdk/).
 
 ## Bundling
 

@@ -22,6 +22,7 @@ import { PDKProject } from "../private/pdk-project";
  */
 const filesGlobsToKeep = [
   "node_modules",
+  ".eslintrc.json",
   ".git*",
   ".npm*",
   "scripts",
