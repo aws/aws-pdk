@@ -224,34 +224,23 @@ export class NxMonorepoProject extends TypeScriptProject {
   /**
    * @inheritDoc
    */
-  preSynthesize() {
-    super.preSynthesize();
+  synth() {
+    this.validateSubProjects();
+    this.updateWorkspace();
+    this.synthesizeNonNodePackageJson();
+    super.synth();
+  }
 
-    // Add workspaces for each subproject
-    if (this.package.packageManager === NodePackageManager.PNPM) {
-      new YamlFile(this, "pnpm-workspace.yaml", {
-        readonly: true,
-        obj: {
-          packages: this.subProjects.map((subProject) =>
-            path.relative(this.outdir, subProject.outdir)
-          ),
-        },
-      });
-    } else {
-      this.package.addField("workspaces", {
-        packages: this.subProjects.map((subProject) =>
-          path.relative(this.outdir, subProject.outdir)
-        ),
-        nohoist: this.workspaceConfig?.noHoist,
-      });
-    }
-
+  /**
+   * Ensures subprojects don't have a default task and that all packages use the same package manager.
+   */
+  private validateSubProjects() {
     this.subProjects.forEach((subProject: any) => {
       // Disable default task on subprojects as this isn't supported in a monorepo
       subProject.defaultTask?.reset();
 
       if (
-        (subProject instanceof NodeProject || subProject.package) &&
+        isNodeProject(subProject) &&
         subProject.package.packageManager !== this.package.packageManager
       ) {
         throw new Error(
@@ -262,27 +251,12 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   /**
-   * @inheritDoc
+   * For non-node projects, a package.json is required in order to be discovered by NX.
    */
-  synth() {
-    // Check to see if a new subProject was added
-    const newSubProject = this.subProjects.find(
-      (subProject) => !fs.existsSync(subProject.outdir)
-    );
-
-    // Need to synth before generating the package.json otherwise the subdirectory won't exist
-    newSubProject && super.synth();
-
+  private synthesizeNonNodePackageJson() {
     this.subProjects
-      .filter(
-        (subProject) =>
-          !subProject.tryFindObjectFile("package.json") ||
-          (fs.existsSync(`${subProject.outdir}/package.json`) &&
-            JSON.parse(
-              fs.readFileSync(`${subProject.outdir}/package.json`).toString()
-            ).__pdk__)
-      )
-      .forEach((subProject) => {
+      .filter((subProject: any) => !isNodeProject(subProject))
+      .forEach((subProject: Project) => {
         // generate a package.json if not found
         const manifest: any = {};
         manifest.name = subProject.name;
@@ -302,9 +276,41 @@ export class NxMonorepoProject extends TypeScriptProject {
           readonly: true,
         });
       });
-
-    super.synth();
   }
+
+  /**
+   * Add a submodule entry to the appropriate workspace file.
+   */
+  private updateWorkspace() {
+    // Add workspaces for each subproject
+    if (this.package.packageManager === NodePackageManager.PNPM) {
+      new YamlFile(this, "pnpm-workspace.yaml", {
+        readonly: true,
+        obj: {
+          packages: this.subProjects.map((subProject) =>
+            path.relative(this.outdir, subProject.outdir)
+          ),
+        },
+      });
+    } else {
+      this.package.addField("workspaces", {
+        packages: this.subProjects.map((subProject) =>
+          path.relative(this.outdir, subProject.outdir)
+        ),
+        nohoist: this.workspaceConfig?.noHoist,
+      });
+    }
+  }
+}
+
+/**
+ * Determines if the passed in project is of type NodeProject.
+ *
+ * @param project Project instance.
+ * @returns true if the project instance is of type NodeProject.
+ */
+function isNodeProject(project: any) {
+  return project instanceof NodeProject || project.package;
 }
 
 function getPluginPath() {
