@@ -175,7 +175,12 @@ npx cz # launch commitizen
 
 An interactive UI will be displayed which you can follow to get your change committed.
 
+## Release schedule
+
+The PDK has a full-cd release pipeline. Assuming all tests and CI workflows succeed, you can expect a new release to be published to all package managers within 30 minutes of a PR being merged.
+
 ## Finding contributions to work on
+
 Looking at the existing issues is a great way to find something to contribute on. As our projects, by default, use the default GitHub issue labels (enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any 'help wanted' issues is a great place to start.
 
 
