@@ -81,6 +81,7 @@ export class AwsPrototypingSdkProject extends PDKProject {
             exec: `find . -maxdepth 1 ${[".", "..", "dist", ...filesGlobsToKeep].map(f => `! -name "${f}"`).join(" ")} -exec rm -rf {} \\;`
           });
 
+          this.packageTask.exec("cd ../.. && npx projen"); // Clean up package.json
           this.preCompileTask.spawn(cleanTask);
           this.preCompileTask.exec("./scripts/bundle.ts");
           this.package.addField("bundle", {
