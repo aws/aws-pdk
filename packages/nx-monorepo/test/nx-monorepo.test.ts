@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { synthSnapshot } from "projen/lib/util/synth";
@@ -42,6 +43,41 @@ describe("NX Monorepo Unit Tests", () => {
       },
     });
     expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("PNPM", () => {
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "mainline",
+      name: "PNPM",
+      packageManager: NodePackageManager.PNPM,
+    });
+    new TypeScriptProject({
+      name: "ts-subproject",
+      outdir: "packages/ts-subproject",
+      parent: project,
+      packageManager: NodePackageManager.PNPM,
+      defaultReleaseBranch: "mainline",
+    });
+
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("Validate consistent Package Managers", () => {
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "mainline",
+      name: "PNPM",
+      packageManager: NodePackageManager.PNPM,
+    });
+    new TypeScriptProject({
+      name: "ts-subproject",
+      outdir: "packages/ts-subproject",
+      parent: project,
+      defaultReleaseBranch: "mainline",
+    });
+
+    expect(() => synthSnapshot(project)).toThrow(
+      "ts-subproject packageManager does not match the monorepo packageManager: pnpm."
+    );
   });
 
   it("Composite", () => {
