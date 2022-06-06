@@ -75,14 +75,9 @@ describe("NX Monorepo Unit Tests", () => {
       defaultReleaseBranch: "mainline",
     });
 
-    try {
-      synthSnapshot(project);
-    } catch (e) {
-      // @ts-ignore
-      expect(e.message).toEqual(
-        "ts-subproject packageManager does not match the monorepo packageManager: pnpm."
-      );
-    }
+    expect(() => synthSnapshot(project)).toThrow(
+      "ts-subproject packageManager does not match the monorepo packageManager: pnpm."
+    );
   });
 
   it("Composite", () => {
