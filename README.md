@@ -21,8 +21,8 @@ yarn
 This package is built using [projen](https://github.com/projen/projen) and [nx](https://nx.dev/getting-started/intro) as such all tasks should be invoked
 via either:
 
-- `npx nx run-many --target=<task> --all` - executes the <task> on every package, in dependency order.
-- `npx nx run <package_name>:<task>` - executes the <task> on the specified <package_name>. 
+- `npx nx run-many --target=<task> --all` - executes the `<task>` on every package, in dependency order.
+- `npx nx run <package_name>:<task>` - executes the `<task>` on the specified `<package_name>`. 
 
 To build the full project, run `npx nx run-many --target=build --all`
 
