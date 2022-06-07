@@ -29,7 +29,6 @@ const filesGlobsToKeep = [
   "scripts/*.ts",
   ".projen",
   "LICENSE",
-  ".README.md",
   "README.md",
   "tsconfig.dev.json",
   "tsconfig.json",
@@ -84,7 +83,7 @@ export class AwsPrototypingSdkProject extends PDKProject {
       gitignore: ["*", ...filesGlobsToKeep.map((f) => `!${f}`)],
     });
 
-    this.npmignore?.addPatterns("/scripts/", ".README.md");
+    this.npmignore?.addPatterns("/scripts/");
 
     const cleanTask = this.addTask("clean", {
       exec: `find . -maxdepth 1 ${[".", "..", "dist", ...filesGlobsToKeep]
