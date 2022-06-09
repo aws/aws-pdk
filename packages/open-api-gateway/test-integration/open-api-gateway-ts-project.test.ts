@@ -5,9 +5,6 @@ import {publishToLocalRegistry} from "./utils/publish-to-local-registry";
 import {startLocalRegistry} from "./utils/start-local-registry";
 import * as path from "path";
 
-// Set a 10min timeout for these integ tests
-jest.setTimeout(10 * 1000 * 1000);
-
 describe('OpenAPI Gateway Ts Project Integration Tests', () => {
 
   beforeAll(async () => {
@@ -19,11 +16,6 @@ describe('OpenAPI Gateway Ts Project Integration Tests', () => {
     // HACK: Projen is using NODE_ENV internally with tests so we need to modify this :(
     // https://github.com/projen/projen/blob/e5899dd04a575209424a08fe90bde99e07ac6c7b/src/common.ts#L5
     process.env.NODE_ENV = '_test';
-
-    execSync('npm install -g aws-cdk', {
-      env: process.env,
-      stdio: 'inherit',
-    });
   });
 
   afterAll(async () => {

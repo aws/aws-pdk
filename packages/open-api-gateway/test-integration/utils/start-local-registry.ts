@@ -9,10 +9,12 @@ import * as path from 'path';
 export const startLocalRegistry: () => Promise<ChildProcess> = () => new Promise((resolve, reject) => {
   const pathVerdaccioModule = require.resolve('verdaccio/bin/verdaccio');
   const configPath = path.join(__dirname, 'config.yaml');
+  //
+  process.env.VERDACCIO_HANDLE_KILL_SIGNALS = "true";
   const childFork = fork(
     pathVerdaccioModule,
     ['-c', configPath],
-    { silent: false },
+    { silent: false, detached: true },
   );
 
   childFork.on('message', (msg: string[]) => {
