@@ -133,15 +133,28 @@ export class PDKMonorepoProject extends NxMonorepoProject {
   /**
    * @inheritDoc
    */
-  preSynthesize() {
-    super.preSynthesize();
-
+  synth() {
     this.subProjects.forEach((subProject) => {
       // Resolve any problematic dependencies
       resolveDependencies(subProject);
 
       this.addHeader(subProject);
+
+      const relativeDir = `${subProject.outdir.split(subProject.root.outdir)[1]}`;
+      this.overrideProjectTargets(subProject, {
+        build: {
+          outputs: [`${relativeDir}/dist`, `${relativeDir}/lib`, `${relativeDir}/target`],
+          dependsOn: [
+            {
+              target: 'build',
+              projects: TargetDependencyProject.DEPENDENCIES
+            }
+          ]
+        }
+      });
     });
+
+    super.synth();
   }
 
   addHeader(project: any) {
