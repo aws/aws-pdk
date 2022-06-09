@@ -58,6 +58,7 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
   public readonly generatedTypescriptClient: TypeScriptProject;
 
   private readonly hasParent: boolean;
+  private readonly specDir: string = "spec";
 
   constructor(options: OpenApiGatewayTsProjectOptions) {
     super({
@@ -65,11 +66,23 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
       sampleCode: false,
       tsconfig: {
         compilerOptions: {
+          // Root dir needs to include src and spec
           rootDir: ".",
           lib: ["dom", "es2019"],
         },
       },
     });
+
+    // Allow spec to be imported, using both the source and spec directories as project roots.
+    this.tsconfig?.addInclude(`${this.specDir}/**/*.json`);
+    this.package.addField(
+      "main",
+      path.join(this.libdir, this.srcdir, "index.js")
+    );
+    this.package.addField(
+      "types",
+      path.join(this.libdir, this.srcdir, "index.d.ts")
+    );
 
     // Set to private since this either uses workspaces or has file dependencies
     this.package.addField("private", true);
@@ -77,18 +90,13 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     // Generated project should have a dependency on this project, in order to run the generation scripts
     this.addDeps(OPENAPI_GATEWAY_PDK_PACKAGE_NAME, "constructs", "aws-cdk-lib");
 
-    const specDir = "spec";
-
-    // Synthesize the sample spec and parse it on synthesis
+    // Synthesize the openapi spec early since it's used by the generated typescript client, which is also synth'd early
     const spec = new OpenApiSpecProject({
-      parent: this,
       name: `${this.name}-spec`,
-      outdir: specDir,
+      parent: this,
+      outdir: this.specDir,
     });
     spec.synth();
-
-    // Allow spec to be imported
-    this.tsconfig?.addInclude(`${specDir}/**/*.json`);
 
     const codegenDir = "generated";
 

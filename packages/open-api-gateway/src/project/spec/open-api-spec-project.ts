@@ -15,7 +15,7 @@
  ******************************************************************************************************************** */
 
 import * as path from "path";
-import { Project, ProjectOptions, SampleFile } from "projen";
+import { Project, SampleFile, ProjectOptions } from "projen";
 import { ParsedSpec } from "./components/parsed-spec";
 
 /**
@@ -25,6 +25,7 @@ export class OpenApiSpecProject extends Project {
   public readonly specPath: string;
   public readonly parsedSpecPath: string;
 
+  public readonly specDir: string = "spec";
   public readonly specFileName: string = "spec.yaml";
   public readonly parsedSpecFileName: string = "parsed-spec.json";
 
@@ -34,6 +35,7 @@ export class OpenApiSpecProject extends Project {
   constructor(options: ProjectOptions) {
     super(options);
     this.specPath = path.join(this.outdir, this.specFileName);
+    this.parsedSpecPath = path.join(this.outdir, this.parsedSpecFileName);
 
     // Create a sample OpenAPI spec yaml if not defined
     new SampleFile(this, this.specFileName, {
@@ -47,9 +49,7 @@ export class OpenApiSpecProject extends Project {
       ),
     });
 
-    this.parsedSpecPath = path.resolve(this.outdir, this.parsedSpecFileName);
-
-    // Parser will run on synthesis to produce the parsed spec.
+    // Parse the spec to produce a consolidated, bundled spec which can be read by cdk constructs or other tooling
     new ParsedSpec(this, {
       specPath: this.specPath,
       outputPath: this.parsedSpecPath,

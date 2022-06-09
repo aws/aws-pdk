@@ -15,37 +15,30 @@
  ******************************************************************************************************************** */
 
 import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
-import * as fs from "fs-extra";
-import { Project } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
-import { directorySnapshot } from "projen/lib/util/synth";
+import { synthSnapshot } from "projen/lib/util/synth";
 import { ClientLanguage, OpenApiGatewayTsProject } from "../../src/project";
 
-/**
- * Similar to projen's synthSnapshot, but ignores node_modules and yarn.lock
- */
-const synthSnapshot = (project: Project) => {
-  // Set/restore the projen disable post env var, as per the implementation of synthSnapshot
+describe("OpenAPI Gateway Ts Unit Tests", () => {
+  // Disable post synthesis for each test, given generated code is synthesized early, during the construction of the
+  // project.
   // See https://github.com/projen/projen/blob/e5899dd04a575209424a08fe90bde99e07ac6c7b/src/util/synth.ts#L33
   const ENV_PROJEN_DISABLE_POST = process.env.PROJEN_DISABLE_POST;
-  try {
-    process.env.PROJEN_DISABLE_POST = "true";
-    project.synth();
-    return directorySnapshot(project.outdir, {
-      excludeGlobs: ["**/node_modules/**", "**/yarn.lock"],
-    });
-  } finally {
-    fs.removeSync(project.outdir);
 
+  beforeEach(() => {
+    // Disable post synth
+    process.env.PROJEN_DISABLE_POST = "true";
+  });
+
+  afterEach(() => {
+    // Restore projen post synth environment
     if (ENV_PROJEN_DISABLE_POST === undefined) {
       delete process.env.PROJEN_DISABLE_POST;
     } else {
       process.env.PROJEN_DISABLE_POST = ENV_PROJEN_DISABLE_POST;
     }
-  }
-};
+  });
 
-describe("OpenAPI Gateway Ts Unit Tests", () => {
   it.each([
     NodePackageManager.YARN,
     NodePackageManager.NPM,
