@@ -91,6 +91,8 @@ The jsii runtimes in non-javascript languages do not use `npm install`, and as a
 
 At a minimum, your package should include a `index.ts` file which exports all of your public classes/constructs. Please refer to existing packages for reference.
 
+Your package should also include a `README.md` file which describes your constructs at a high level and optionally provide a tutorial on how to use it. This is very important as this content will be rendered on the docuemntation website and is the first port of call for end users.
+
 In terms of testing, it is desired for each package to aim for a *minimum of 80% coverage* in unit tests.
 
 #### Testing CDK constructs
@@ -173,7 +175,16 @@ npx cz # launch commitizen
 
 An interactive UI will be displayed which you can follow to get your change committed.
 
+Package versioning is determined based on the semantic commit and as such it is very important this format is followed. A PR checker will also run to ensure the format of your commit message is compliant.
+
+**Important:** Breaking changes should only ever apply to `stable` packages (those bundled in `aws-prototyping-sdk`). Whilst `experimental` packages may have 'breaking changes', we should not treat them as such from a semVer perspective and instead just increment the minor version.
+
+## Release schedule
+
+The PDK has a full-cd release pipeline. Assuming all tests and CI workflows succeed, you can expect a new release to be published to all package managers within 30 minutes of a PR being merged.
+
 ## Finding contributions to work on
+
 Looking at the existing issues is a great way to find something to contribute on. As our projects, by default, use the default GitHub issue labels (enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any 'help wanted' issues is a great place to start.
 
 

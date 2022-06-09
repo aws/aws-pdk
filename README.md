@@ -28,6 +28,10 @@ To build the full project, run `npx nx run-many --target=build --all`
 
 Any change to `projects/*` or `.projenrc.ts` requires a synth to be executed. To do this, run: `npx projen` from the root directory.
 
+## Documentation
+
+For documentation including examples and a full API reference, visit: [https://aws.github.io/aws-prototyping-sdk/](https://aws.github.io/aws-prototyping-sdk/)
+
 ## Contributing
 
 See [CONTRIBUTING](CONTRIBUTING.md) for more information.

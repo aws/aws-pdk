@@ -256,22 +256,9 @@ async function prepareSourceFiles(libraries: readonly LibraryReference[], packag
     copySubmoduleExports(packageJson.exports, library, library.shortName);
   }
 
-  stitchSubmoduleReadmes(libRoot, libraries);
-
   await fs.writeFile(path.join(libRoot, 'index.ts'), indexStatements.join('\n'), { encoding: 'utf8' });
 
   console.log('\t🍺 Success!');
-}
-
-function stitchSubmoduleReadmes(libRoot: string, libraries: readonly LibraryReference[]) {
-  let stitchedReadme = "";
-  for (const library of  libraries) {
-    stitchedReadme += `\n## ${library.shortName}\n`;
-    stitchedReadme += fs.readFileSync(`${libRoot}/${library.shortName}/README.md`).toString();
-  }
-
-  fs.rmSync(`${libRoot}/README.md`, { force: true });
-  fs.writeFileSync(`${libRoot}/README.md`, `${fs.readFileSync(`${libRoot}/.README.md`).toString()}${stitchedReadme}`, { mode: "444" });
 }
 
 /**

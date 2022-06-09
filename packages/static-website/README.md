@@ -13,7 +13,7 @@ A typical use case is to create a static website with AuthN. To accomplish this,
 ```ts
 const userIdentity = new UserIdentity(this, 'UserIdentity');
 new StaticWebsite(this, 'StaticWebsite', {
-    websiteContentPath: '../<path>/<to>/<built>/<website>',
+    websiteContentPath: '<relative>/<path>/<to>/<built>/<website>',
     runtimeOptions: {
         jsonPayload: {
             identityPoolId: userIdentity.identityPool.identityPoolId,

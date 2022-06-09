@@ -10,60 +10,6 @@ Object {
     },
   },
   "Resources": Object {
-    "AWS679f53fac002430cb0da5b7982bd22872D164C4C": Object {
-      "DependsOn": Array [
-        "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
-      ],
-      "Properties": Object {
-        "Code": Object {
-          "S3Bucket": Object {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "9ab58259097ac1249b4061ac6e823f78810b11c4c760a30324f6d012fe8e6440.zip",
-        },
-        "Handler": "index.handler",
-        "Role": Object {
-          "Fn::GetAtt": Array [
-            "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs12.x",
-        "Timeout": 120,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": Array [
-          Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "arn:",
-                Object {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
     "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536": Object {
       "DependsOn": Array [
         "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
@@ -208,6 +154,22 @@ Object {
             },
             Object {
               "Action": Array [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsWebsiteBucketKeyAD72391B",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
                 "cloudfront:GetInvalidation",
                 "cloudfront:CreateInvalidation",
               ],
@@ -329,21 +291,9 @@ Object {
             },
           ],
           "WebACLId": Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "arn:aws:wafv2:us-east-1:",
-                Object {
-                  "Ref": "AWS::AccountId",
-                },
-                ":global/webacl/WebsiteAcl_DefaultsWebsiteAcl851D3A03/",
-                Object {
-                  "Fn::GetAtt": Array [
-                    "DefaultsWebsiteAclCreateD833F225",
-                    "Summary.Id",
-                  ],
-                },
-              ],
+            "Fn::GetAtt": Array [
+              "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C",
+              "WebAclArn",
             ],
           },
         },
@@ -358,113 +308,220 @@ Object {
       },
       "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
-    "DefaultsWebsiteAclCreateCustomResourcePolicy7011FDE8": Object {
+    "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "ID": "WebsiteAcl",
+        "MANAGED_RULES": Array [
+          Object {
+            "name": "AWSManagedRulesCommonRuleSet",
+            "vendor": "AWS",
+          },
+        ],
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0": Object {
+      "DependsOn": Array [
+        "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerServiceRoleDefaultPolicy916A8D60",
+        "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerServiceRole55188EEB",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "4fd2693e05bb250e72fa474e98df9157f03d5a62739de147eb0744663b4b6d9d.zip",
+        },
+        "Environment": Object {
+          "Variables": Object {
+            "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
+          },
+        },
+        "FunctionName": "CloudfrontWebAclCustomResource",
+        "Handler": "index.onEvent",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerServiceRole55188EEB",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs16.x",
+        "Timeout": 300,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerServiceRole55188EEB": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerServiceRoleDefaultPolicy916A8D60": Object {
       "Properties": Object {
         "PolicyDocument": Object {
           "Statement": Array [
             Object {
-              "Action": "wafv2:CreateWebACL",
+              "Action": Array [
+                "wafv2:CreateWebACL",
+                "wafv2:DeleteWebACL",
+                "wafv2:UpdateWebACL",
+                "wafv2:GetWebACL",
+                "wafv2:CreateIPSet",
+                "wafv2:DeleteIPSet",
+                "wafv2:UpdateIPSet",
+                "wafv2:GetIPSet",
+              ],
               "Effect": "Allow",
               "Resource": "*",
             },
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "DefaultsWebsiteAclCreateCustomResourcePolicy7011FDE8",
+        "PolicyName": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerServiceRoleDefaultPolicy916A8D60",
         "Roles": Array [
           Object {
-            "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+            "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerServiceRole55188EEB",
           },
         ],
       },
       "Type": "AWS::IAM::Policy",
     },
-    "DefaultsWebsiteAclCreateD833F225": Object {
-      "DeletionPolicy": "Delete",
+    "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB": Object {
       "DependsOn": Array [
-        "DefaultsWebsiteAclCreateCustomResourcePolicy7011FDE8",
+        "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEventServiceRoleDefaultPolicyEEB18523",
+        "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEventServiceRole439E39E5",
       ],
       "Properties": Object {
-        "Create": "{\\"service\\":\\"WAFV2\\",\\"action\\":\\"createWebACL\\",\\"parameters\\":{\\"Name\\":\\"WebsiteAcl_DefaultsWebsiteAcl851D3A03\\",\\"DefaultAction\\":{\\"Allow\\":{}},\\"Scope\\":\\"CLOUDFRONT\\",\\"VisibilityConfig\\":{\\"CloudWatchMetricsEnabled\\":true,\\"MetricName\\":\\"WebsiteAcl\\",\\"SampledRequestsEnabled\\":true},\\"Rules\\":[{\\"Name\\":\\"AWS-AWSManagedRulesCommonRuleSet\\",\\"Priority\\":0,\\"Statement\\":{\\"ManagedRuleGroupStatement\\":{\\"VendorName\\":\\"AWS\\",\\"Name\\":\\"AWSManagedRulesCommonRuleSet\\"}},\\"OverrideAction\\":{\\"None\\":{}},\\"VisibilityConfig\\":{\\"MetricName\\":\\"AWS-AWSManagedRulesCommonRuleSet\\",\\"CloudWatchMetricsEnabled\\":true,\\"SampledRequestsEnabled\\":true}}]},\\"region\\":\\"us-east-1\\",\\"physicalResourceId\\":{\\"responsePath\\":\\"Summary.Id\\"}}",
-        "InstallLatestAwsSdk": true,
-        "ServiceToken": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "eaeb69bc290b516fe3b049f89d6118b22249df682fbabf56af300cf345198574.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/Defaults/WebsiteAcl/CloudfrontWebAclProvider)",
+        "Environment": Object {
+          "Variables": Object {
+            "USER_ON_EVENT_FUNCTION_ARN": Object {
+              "Fn::GetAtt": Array [
+                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "Handler": "framework.onEvent",
+        "Role": Object {
           "Fn::GetAtt": Array [
-            "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+            "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEventServiceRole439E39E5",
             "Arn",
           ],
         },
+        "Runtime": "nodejs12.x",
+        "Timeout": 900,
       },
-      "Type": "Custom::AWS",
-      "UpdateReplacePolicy": "Delete",
+      "Type": "AWS::Lambda::Function",
     },
-    "DefaultsWebsiteAclDelete7CCC03C8": Object {
-      "DeletionPolicy": "Delete",
-      "DependsOn": Array [
-        "DefaultsWebsiteAclDeleteCustomResourcePolicy9938C27E",
-      ],
+    "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEventServiceRole439E39E5": Object {
       "Properties": Object {
-        "Create": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "{\\"service\\":\\"WAFV2\\",\\"action\\":\\"getWebACL\\",\\"parameters\\":{\\"Name\\":\\"WebsiteAcl_DefaultsWebsiteAcl851D3A03\\",\\"Scope\\":\\"CLOUDFRONT\\",\\"Id\\":\\"",
-              Object {
-                "Fn::GetAtt": Array [
-                  "DefaultsWebsiteAclCreateD833F225",
-                  "Summary.Id",
-                ],
-              },
-              "\\"},\\"region\\":\\"us-east-1\\",\\"physicalResourceId\\":{\\"responsePath\\":\\"LockToken\\"}}",
-            ],
-          ],
-        },
-        "Delete": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "{\\"service\\":\\"WAFV2\\",\\"action\\":\\"deleteWebACL\\",\\"parameters\\":{\\"Name\\":\\"WebsiteAcl_DefaultsWebsiteAcl851D3A03\\",\\"Scope\\":\\"CLOUDFRONT\\",\\"Id\\":\\"",
-              Object {
-                "Fn::GetAtt": Array [
-                  "DefaultsWebsiteAclCreateD833F225",
-                  "Summary.Id",
-                ],
-              },
-              "\\",\\"LockToken\\":\\"PHYSICAL:RESOURCEID:\\"},\\"region\\":\\"us-east-1\\"}",
-            ],
-          ],
-        },
-        "InstallLatestAwsSdk": true,
-        "ServiceToken": Object {
-          "Fn::GetAtt": Array [
-            "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "Custom::AWS",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "DefaultsWebsiteAclDeleteCustomResourcePolicy9938C27E": Object {
-      "Properties": Object {
-        "PolicyDocument": Object {
+        "AssumeRolePolicyDocument": Object {
           "Statement": Array [
             Object {
-              "Action": "wafv2:GetWebACL",
+              "Action": "sts:AssumeRole",
               "Effect": "Allow",
-              "Resource": "*",
-            },
-            Object {
-              "Action": "wafv2:DeleteWebACL",
-              "Effect": "Allow",
-              "Resource": "*",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
             },
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "DefaultsWebsiteAclDeleteCustomResourcePolicy9938C27E",
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEventServiceRoleDefaultPolicyEEB18523": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEventServiceRoleDefaultPolicyEEB18523",
         "Roles": Array [
           Object {
-            "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+            "Ref": "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEventServiceRole439E39E5",
           },
         ],
       },
@@ -473,6 +530,24 @@ Object {
     "DefaultsWebsiteBucket3263D025": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
+        "BucketEncryption": Object {
+          "ServerSideEncryptionConfiguration": Array [
+            Object {
+              "ServerSideEncryptionByDefault": Object {
+                "KMSMasterKeyID": Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsWebsiteBucketKeyAD72391B",
+                    "Arn",
+                  ],
+                },
+                "SSEAlgorithm": "aws:kms",
+              },
+            },
+          ],
+        },
+        "LoggingConfiguration": Object {
+          "LogFilePrefix": "access-logs",
+        },
         "Tags": Array [
           Object {
             "Key": "aws-cdk:auto-delete-objects",
@@ -508,6 +583,48 @@ Object {
       },
       "Type": "Custom::S3AutoDeleteObjects",
       "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteBucketKeyAD72391B": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "Description": "Created by Default/Defaults/WebsiteBucket",
+        "KeyPolicy": Object {
+          "Statement": Array [
+            Object {
+              "Action": "kms:*",
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":iam::",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":root",
+                    ],
+                  ],
+                },
+              },
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "aws-cdk:cr-owned:fb67e0d5",
+            "Value": "true",
+          },
+        ],
+      },
+      "Type": "AWS::KMS::Key",
+      "UpdateReplacePolicy": "Retain",
     },
     "DefaultsWebsiteBucketPolicy594E6643": Object {
       "Properties": Object {
@@ -656,9 +773,6 @@ Object {
         "SourceObjectKeys": Array [
           "a79f62b4071246acc1e8e834ba67dc3bbf15a3662e39d31667fa59315ef86f56.zip",
         ],
-        "SystemMetadata": Object {
-          "sse": "AES256",
-        },
       },
       "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
