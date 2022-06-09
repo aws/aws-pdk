@@ -30,6 +30,8 @@ const filesGlobsToKeep = [
   ".projen",
   "LICENSE",
   "README.md",
+  ".prettierignore",
+  ".prettierrc.json",
   "tsconfig.dev.json",
   "tsconfig.json",
   "package.json",
