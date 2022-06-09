@@ -977,6 +977,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#projecttarget" class="md-nav__link">
+    ProjectTarget 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#targetdependency" class="md-nav__link">
     TargetDependency 
   </a>
@@ -1140,6 +1147,7 @@
 
 <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">NXConfig</span><span class="p">(</span>
   <span class="n">implicit_dependencies</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">nx_cloud_read_only_access_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">nx_ignore</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">target_dependencies</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">TargetDependency</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
@@ -1158,6 +1166,11 @@
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NXConfig.property.implicitDependencies">implicit_dependencies</a></code></td>
 <td><code>typing.Mapping[typing.List[str]]</code></td>
 <td>Configuration for Implicit Dependnecies.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NXConfig.property.nxCloudReadOnlyAccessToken">nx_cloud_read_only_access_token</a></code></td>
+<td><code>str</code></td>
+<td>Read only access token if enabling nx cloud.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NXConfig.property.nxIgnore">nx_ignore</a></code></td>
@@ -1182,6 +1195,14 @@
 <blockquote>
 <p><a href="https://nx.dev/configuration/packagejson#implicitdependencies">https://nx.dev/configuration/packagejson#implicitdependencies</a></p>
 </blockquote>
+<hr />
+<h5 id="nx_cloud_read_only_access_tokenoptional"><code>nx_cloud_read_only_access_token</code><sup>Optional</sup> <a name="nx_cloud_read_only_access_token" id="aws-prototyping-sdk.nx_monorepo.NXConfig.property.nxCloudReadOnlyAccessToken"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">nx_cloud_read_only_access_token</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Read only access token if enabling nx cloud.</p>
 <hr />
 <h5 id="nx_ignoreoptional"><code>nx_ignore</code><sup>Optional</sup> <a name="nx_ignore" id="aws-prototyping-sdk.nx_monorepo.NXConfig.property.nxIgnore"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">nx_ignore</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -3315,9 +3336,59 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>Configuration for workspace.</p>
 <hr />
+<h3 id="projecttarget">ProjectTarget <a name="ProjectTarget" id="aws-prototyping-sdk.nx_monorepo.ProjectTarget"></a></h3>
+<p>Project Target.</p>
+<h4 id="initializer_2">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.ProjectTarget.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
+
+<span class="n">nx_monorepo</span><span class="o">.</span><span class="n">ProjectTarget</span><span class="p">(</span>
+  <span class="n">depends_on</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">TargetDependency</span><span class="p">],</span>
+  <span class="n">outputs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.ProjectTarget.property.dependsOn">depends_on</a></code></td>
+<td><code>typing.List[<a href="#aws-prototyping-sdk.nx_monorepo.TargetDependency">TargetDependency</a>]</code></td>
+<td>List of Target Dependencies.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.ProjectTarget.property.outputs">outputs</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>List of outputs to cache, relative to the root of the monorepo.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="depends_onrequired"><code>depends_on</code><sup>Required</sup> <a name="depends_on" id="aws-prototyping-sdk.nx_monorepo.ProjectTarget.property.dependsOn"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">depends_on</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">TargetDependency</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[<a href="#aws-prototyping-sdk.nx_monorepo.TargetDependency">TargetDependency</a>]</li>
+</ul>
+<p>List of Target Dependencies.</p>
+<hr />
+<h5 id="outputsoptional"><code>outputs</code><sup>Optional</sup> <a name="outputs" id="aws-prototyping-sdk.nx_monorepo.ProjectTarget.property.outputs"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">outputs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>List of outputs to cache, relative to the root of the monorepo.</p>
+<p>note: must start with leading /</p>
+<hr />
 <h3 id="targetdependency">TargetDependency <a name="TargetDependency" id="aws-prototyping-sdk.nx_monorepo.TargetDependency"></a></h3>
 <p>Represents an NX Target Dependency.</p>
-<h4 id="initializer_2">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.TargetDependency.Initializer"></a></h4>
+<h4 id="initializer_3">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.TargetDependency.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
 
 <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">TargetDependency</span><span class="p">(</span>
@@ -3325,7 +3396,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">target</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3369,14 +3440,14 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <blockquote>
 <p><a href="https://classic.yarnpkg.com/lang/en/docs/workspaces/">https://classic.yarnpkg.com/lang/en/docs/workspaces/</a></p>
 </blockquote>
-<h4 id="initializer_3">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.WorkspaceConfig.Initializer"></a></h4>
+<h4 id="initializer_4">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.WorkspaceConfig.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
 
 <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">WorkspaceConfig</span><span class="p">(</span>
   <span class="n">no_hoist</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5394,6 +5465,10 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addImplicitDependency">add_implicit_dependency</a></code></td>
 <td>Create an implicit dependency between two Project's.</td>
 </tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.overrideProjectTargets">override_project_targets</a></code></td>
+<td>Allow project specific target overrides.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -5844,7 +5919,24 @@ on a Python project as an example.</p>
 </ul>
 <p>project you wish to depend on.</p>
 <hr />
-<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
+<h5 id="override_project_targets"><code>override_project_targets</code> <a name="override_project_targets" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.overrideProjectTargets"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">override_project_targets</span><span class="p">(</span>
+  <span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">,</span>
+  <span class="n">targets</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">ProjectTarget</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+<p>Allow project specific target overrides.</p>
+<h6 id="projectrequired"><code>project</code><sup>Required</sup> <a name="project" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.overrideProjectTargets.parameter.project"></a></h6>
+<ul>
+<li><em>Type:</em> projen.Project</li>
+</ul>
+<hr />
+<h6 id="targetsrequired"><code>targets</code><sup>Required</sup> <a name="targets" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.overrideProjectTargets.parameter.targets"></a></h6>
+<ul>
+<li><em>Type:</em> typing.Mapping[<a href="#aws-prototyping-sdk.nx_monorepo.ProjectTarget">ProjectTarget</a>]</li>
+</ul>
+<hr />
+<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6142,6 +6234,11 @@ on a Python project as an example.</p>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.tsconfigEslint">tsconfig_eslint</a></code></td>
 <td><code>projen.javascript.TypescriptConfig</code></td>
+<td><em>No description.</em></td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.subProjects">sub_projects</a></code></td>
+<td><code>typing.List[projen.Project]</code></td>
 <td><em>No description.</em></td>
 </tr>
 </tbody>
@@ -6623,6 +6720,13 @@ release workflow.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> projen.javascript.TypescriptConfig</li>
+</ul>
+<hr />
+<h5 id="sub_projectsrequired"><code>sub_projects</code><sup>Required</sup> <a name="sub_projects" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.subProjects"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">sub_projects</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Project</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[projen.Project]</li>
 </ul>
 <hr />
 <h4 id="constants">Constants <a name="Constants" id="Constants"></a></h4>
