@@ -12,6 +12,7 @@ jobs:
     env:
       CI: "true"
       NX_CLOUD_DISTRIBUTED_EXECUTION: true
+      NX_CLOUD_DISTRIBUTED_EXECUTION_STOP_AGENTS_ON_FAILURE: true
       NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
     steps:
       - name: Checkout
@@ -21,12 +22,14 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         uses: nrwl/nx-set-shas@v2
+        with:
+          main-branch-name: 'mainline'
       - name: Install dependencies
         run: yarn install --check-files
       - name: Start NX CI Run
         run: npx nx-cloud start-ci-run    
       - name: Build
-        run: npx nx affected --target=build --parallel --max-parallel=4
+        run: npx nx run-many --target=build --all --parallel=4
       - name: Stop NX Agents
         run: npx nx-cloud stop-all-agents
       - name: Synth

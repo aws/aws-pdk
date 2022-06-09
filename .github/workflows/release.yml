@@ -14,6 +14,7 @@ jobs:
     env:
       CI: "true"
       NX_CLOUD_DISTRIBUTED_EXECUTION: true
+      NX_CLOUD_DISTRIBUTED_EXECUTION_STOP_AGENTS_ON_FAILURE: true
       NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
     steps:
       - name: Checkout
@@ -22,6 +23,8 @@ jobs:
           fetch-depth: 0
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         uses: nrwl/nx-set-shas@v2
+        with:
+          main-branch-name: 'mainline'
       - name: Set git identity
         run: |-
           git config user.name "github-actions"
@@ -31,7 +34,7 @@ jobs:
       - name: Start NX CI Run
         run: npx nx-cloud start-ci-run    
       - name: Build
-        run: npx nx affected --target=build --parallel --max-parallel=4
+        run: npx nx run-many --target=build --all --parallel=4
       - name: Release
         run: npx nx run-many --target=release:mainline --all --parallel --max-parallel=4
       - name: Stop NX Agents
