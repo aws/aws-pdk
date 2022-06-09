@@ -5,6 +5,8 @@ import {publishToLocalRegistry} from "./utils/publish-to-local-registry";
 import {startLocalRegistry} from "./utils/start-local-registry";
 import * as path from "path";
 
+// Set a 10min timeout for these integ tests
+jest.setTimeout(10 * 1000 * 1000);
 
 describe('OpenAPI Gateway Ts Project Integration Tests', () => {
 
@@ -30,7 +32,7 @@ describe('OpenAPI Gateway Ts Project Integration Tests', () => {
     globalThis.__REGISTRY_PROCESS__ && globalThis.__REGISTRY_PROCESS__.kill();
   });
 
-  it.skip('Within Monorepo', () => {
+  it('Within Monorepo', () => {
     executeInTempFolderSync('open-api-gateway-monorepo', (tempFolder) => {
       // Create a monorepo project
       execSync('npx --yes projen new --from aws-prototyping-sdk nx-monorepo --no-git --name open-api-gateway-monorepo-ts-test', {
@@ -95,7 +97,7 @@ project.synth();
     });
   });
 
-  it.skip('Standalone', () => {
+  it('Standalone', () => {
     executeInTempFolderSync('open-api-gateway', (tempFolder) => {
       execSync('npx --yes projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts --no-git --name open-api-gateway-ts-test', {
         cwd: tempFolder,
