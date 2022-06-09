@@ -30,7 +30,7 @@ describe('OpenAPI Gateway Ts Project Integration Tests', () => {
     globalThis.__REGISTRY_PROCESS__ && globalThis.__REGISTRY_PROCESS__.kill();
   });
 
-  it('Within Monorepo', () => {
+  it.skip('Within Monorepo', () => {
     executeInTempFolderSync('open-api-gateway-monorepo', (tempFolder) => {
       // Create a monorepo project
       execSync('npx --yes projen new --from aws-prototyping-sdk nx-monorepo --no-git --name open-api-gateway-monorepo-ts-test', {
@@ -95,7 +95,7 @@ project.synth();
     });
   });
 
-  it('Standalone', () => {
+  it.skip('Standalone', () => {
     executeInTempFolderSync('open-api-gateway', (tempFolder) => {
       execSync('npx --yes projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts --no-git --name open-api-gateway-ts-test', {
         cwd: tempFolder,
