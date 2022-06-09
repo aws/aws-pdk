@@ -4,6 +4,10 @@ on:
     branches:
       - mainline
   workflow_dispatch: {}
+env:
+  NX_CLOUD_DISTRIBUTED_EXECUTION: true
+  NX_CLOUD_DISTRIBUTED_EXECUTION_STOP_AGENTS_ON_FAILURE: true
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -13,9 +17,6 @@ jobs:
       latest_commit: ${{ steps.git_remote.outputs.latest_commit }}
     env:
       CI: "true"
-      NX_CLOUD_DISTRIBUTED_EXECUTION: true
-      NX_CLOUD_DISTRIBUTED_EXECUTION_STOP_AGENTS_ON_FAILURE: true
-      NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
