@@ -36,12 +36,11 @@ jobs:
         run: npx nx-cloud start-ci-run    
       - name: Build
         run: npx nx run-many --target=build --all --parallel=4
-      - name: Release
-        run: npx nx run-many --target=release:mainline --all --parallel --max-parallel=4
       - name: Stop NX Agents
+        if: always()
         run: npx nx-cloud stop-all-agents
-      - name: synth
-        run: npx projen
+      - name: Release
+        run: NX_CLOUD_DISTRIBUTED_EXECUTION=false npx nx run-many --target=release:mainline --all --parallel --max-parallel=4
       - name: Check for mutations
         run: git diff --ignore-space-at-eol --exit-code
       - name: Check for new commits
