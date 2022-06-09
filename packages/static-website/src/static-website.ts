@@ -14,85 +14,22 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import { RemovalPolicy } from "aws-cdk-lib";
-import { ICertificate } from "aws-cdk-lib/aws-certificatemanager";
 import {
-  AddBehaviorOptions,
   Distribution,
-  ErrorResponse,
+  DistributionProps,
   ViewerProtocolPolicy,
+  IOrigin,
+  OriginBindConfig,
+  OriginBindOptions,
 } from "aws-cdk-lib/aws-cloudfront";
 import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
-import { Bucket, IBucket } from "aws-cdk-lib/aws-s3";
-import {
-  BucketDeployment,
-  ServerSideEncryption,
-  Source,
-} from "aws-cdk-lib/aws-s3-deployment";
+import { Key } from "aws-cdk-lib/aws-kms";
+import { Bucket, BucketEncryption, IBucket } from "aws-cdk-lib/aws-s3";
+import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import { Construct } from "constructs";
 import { CloudfrontWebAcl } from "./cloudfront-web-acl";
 
 const DEFAULT_RUNTIME_CONFIG_FILENAME = "runtime-config.json";
-
-/**
- * Options for configuring the default origin behavior.
- */
-export interface OriginBehaviourOptions extends AddBehaviorOptions {}
-
-/**
- * Configuration related to using custom domain names/certificates in Cloudfront.
- */
-export interface CloudfrontDomainOptions {
-  /**
-   * A certificate to associate with the distribution. The certificate must be located in N. Virginia (us-east-1).
-   *
-   * @default - the CloudFront wildcard certificate (*.cloudfront.net) will be used.
-   */
-  readonly certificate: ICertificate;
-
-  /**
-   * Alternative domain names for this distribution.
-   *
-   * If you want to use your own domain name, such as www.example.com, instead of the cloudfront.net domain name,
-   * you can add an alternate domain name to your distribution. If you attach a certificate to the distribution,
-   * you must add (at least one of) the domain names of the certificate to this list.
-   *
-   * @default - The distribution will only support the default generated name (e.g., d111111abcdef8.cloudfront.net)
-   */
-  readonly domainNames: string[];
-}
-
-/**
- * Configuration related to Cloudfront Logging
- */
-export interface CloudfrontLoggingOptions {
-  /**
-   * Enable access logging for the distribution.
-   *
-   * @default - false, unless `logBucket` is specified.
-   */
-  readonly enableLogging?: boolean;
-
-  /**
-   * The Amazon S3 bucket to store the access logs in.
-   *
-   * @default - A bucket is created if `enableLogging` is true
-   */
-  readonly logBucket?: IBucket;
-
-  /**
-   * Specifies whether you want CloudFront to include cookies in access logs
-   *
-   * @default false
-   */
-  readonly logIncludesCookies?: boolean;
-
-  /**
-   * An optional string that you want CloudFront to prefix to the access log filenames for this distribution.
-   *
-   * @default - no prefix
-   */
-  readonly logFilePrefix?: string;
-}
 
 /**
  * Dynamic configuration which gets resolved only during deployment.
@@ -132,43 +69,33 @@ export interface StaticWebsiteProps {
   readonly websiteContentPath: string;
 
   /**
-   * The object that you want CloudFront to request from your origin (for example, index.html)
-   * when a viewer requests the root URL for your distribution.
-   *
-   * @default - index.html
-   */
-  readonly defaultRootObject?: string;
-
-  /**
-   * How CloudFront should handle requests that are not successful (e.g., PageNotFound).
-   *
-   * @default - [{httpStatus: 404,responseHttpStatus: 200,responsePagePath: '/index.html'}]
-   */
-  readonly errorResponses?: ErrorResponse[];
-
-  /**
    * Dynamic configuration which gets resolved only during deployment.
    */
   readonly runtimeOptions?: RuntimeOptions;
 
   /**
-   * Configuration related to using custom domain names/certificates.
+   * A predefined KMS customer encryption key to use for the default bucket that gets created.
+   *
+   * Note: This is only used if the websiteBucket is left undefined, otherwise all settings from the provided websiteBucket will be used.
    */
-  readonly domainOptions?: CloudfrontDomainOptions;
+  readonly defaultWebsiteBucketEncryptionKey?: Key;
 
   /**
-   * Configuration related to Cloudfront Logging.
+   * Predefined bucket to deploy the website into.
    */
-  readonly loggingOptions?: CloudfrontLoggingOptions;
+  readonly websiteBucket?: IBucket;
 
   /**
-   * Options for configuring the default origin behavior.
+   * Custom distribution properties.
+   *
+   * Note: defaultBehaviour.origin is a required parameter, however it will not be used as this construct will wire it on your behalf.
+   * You will need to pass in an instance of StaticWebsiteOrigin (NoOp) to keep the compiler happy.
    */
-  readonly originBehaviourOptions?: OriginBehaviourOptions;
+  readonly distributionProps?: DistributionProps;
 }
 
 /**
- * Deploys a Static Website using a private S3 bucket as an origin and Cloudfront as the entrypoint.
+ * Deploys a Static Website using by default a private S3 bucket as an origin and Cloudfront as the entrypoint.
  *
  * This construct configures a webAcl containing rules that are generally applicable to web applications. This
  * provides protection against exploitation of a wide range of vulnerabilities, including some of the high risk
@@ -176,54 +103,58 @@ export interface StaticWebsiteProps {
  *
  */
 export class StaticWebsite extends Construct {
-  public readonly websiteBucket: Bucket;
+  public readonly websiteBucket: IBucket;
   public readonly cloudFrontDistribution: Distribution;
   public readonly bucketDeployment: BucketDeployment;
 
   constructor(scope: Construct, id: string, props: StaticWebsiteProps) {
     super(scope, id);
 
-    const defaultRootObject = props.defaultRootObject || "index.html";
     this.validateProps(props);
 
     // S3 Bucket to hold website files
-    this.websiteBucket = new Bucket(this, "WebsiteBucket", {
-      versioned: true,
-      enforceSSL: true,
-      autoDeleteObjects: true,
-      removalPolicy: RemovalPolicy.DESTROY,
-    });
+    this.websiteBucket =
+      props.websiteBucket ??
+      new Bucket(this, "WebsiteBucket", {
+        versioned: true,
+        enforceSSL: true,
+        autoDeleteObjects: true,
+        removalPolicy: RemovalPolicy.DESTROY,
+        encryption: BucketEncryption.KMS,
+        encryptionKey: props.defaultWebsiteBucketEncryptionKey,
+        serverAccessLogsPrefix: "access-logs",
+      });
 
     // Web ACL
-    const webAcl = new CloudfrontWebAcl(this, "WebsiteAcl", {
-      managedRules: [{ vendor: "AWS", name: "AWSManagedRulesCommonRuleSet" }],
-    });
+    const { distributionProps } = props;
+    const webAclArn =
+      distributionProps?.webAclId ??
+      new CloudfrontWebAcl(this, "WebsiteAcl", {
+        managedRules: [{ vendor: "AWS", name: "AWSManagedRulesCommonRuleSet" }],
+      }).webAclArn;
 
     // Cloudfront Distribution
+    const defaultRootObject =
+      distributionProps?.defaultRootObject ?? "index.html";
     this.cloudFrontDistribution = new Distribution(
       this,
       "CloudfrontDistribution",
       {
-        webAclId: webAcl.webAclArn,
+        ...distributionProps,
+        webAclId: webAclArn,
         defaultBehavior: {
-          ...props.originBehaviourOptions,
+          ...distributionProps?.defaultBehavior,
           origin: new S3Origin(this.websiteBucket),
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },
         defaultRootObject,
-        certificate: props.domainOptions?.certificate,
-        domainNames: props.domainOptions?.domainNames,
-        errorResponses: [
+        errorResponses: distributionProps?.errorResponses ?? [
           {
             httpStatus: 404, // We need to redirect "key not found errors" to index.html for single page apps
             responseHttpStatus: 200,
             responsePagePath: `/${defaultRootObject}`,
           },
         ],
-        enableLogging: props.loggingOptions?.enableLogging,
-        logBucket: props.loggingOptions?.logBucket,
-        logIncludesCookies: props.loggingOptions?.logIncludesCookies,
-        logFilePrefix: props.loggingOptions?.logFilePrefix,
       }
     );
 
@@ -244,12 +175,12 @@ export class StaticWebsite extends Construct {
       destinationBucket: this.websiteBucket,
       // Files in the distribution's edge caches will be invalidated after files are uploaded to the destination bucket.
       distribution: this.cloudFrontDistribution,
-      serverSideEncryption: ServerSideEncryption.AES_256,
     });
   }
 
   private validateProps = (props: StaticWebsiteProps) => {
     props.runtimeOptions && this.validateRuntimeConfig(props.runtimeOptions);
+    props.websiteBucket && this.validateBucketConfig(props.websiteBucket);
   };
 
   private validateRuntimeConfig = (config: RuntimeOptions) => {
@@ -263,4 +194,26 @@ export class StaticWebsite extends Construct {
       throw new Error(`RuntimeOptions.jsonFileName must be a json file.`);
     }
   };
+
+  private validateBucketConfig = (bucket: IBucket) => {
+    if (!bucket.encryptionKey) {
+      throw new Error("Website buckets must have encryption enabled!");
+    }
+
+    if (bucket.isWebsite) {
+      throw new Error(
+        "Website buckets cannot be configured as websites as this will break Cloudfront hosting!"
+      );
+    }
+  };
+}
+
+/**
+ * If passing in distributionProps, the default behaviour.origin is a required parameter. An instance of this class can be passed in
+ * to make the compiler happy.
+ */
+export class StaticWebsiteOrigin implements IOrigin {
+  bind(_scope: Construct, _options: OriginBindOptions): OriginBindConfig {
+    throw new Error("This should never be called");
+  }
 }
