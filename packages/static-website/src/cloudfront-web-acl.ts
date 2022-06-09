@@ -16,8 +16,7 @@
 import * as path from "path";
 import { CustomResource, Duration } from "aws-cdk-lib";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
-import { Runtime } from "aws-cdk-lib/aws-lambda";
-import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { Provider } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
 
@@ -94,21 +93,17 @@ export class CloudfrontWebAcl extends Construct {
   constructor(scope: Construct, id: string, props?: CloudFrontWebAclProps) {
     super(scope, id);
 
-    const onEventHandler = new NodejsFunction(
+    const onEventHandler = new Function(
       this,
       "CloudfrontWebAclOnEventHandler",
       {
-        entry: path.join(
-          __dirname,
-          "../custom_resources/webacl_event_handler/index.ts"
+        code: Code.fromAsset(
+          path.join(__dirname, "../lib/webacl_event_handler")
         ),
         functionName: "CloudfrontWebAclCustomResource",
-        handler: "onEvent",
+        handler: "index.onEvent",
         runtime: Runtime.NODEJS_16_X,
         timeout: Duration.seconds(300),
-        bundling: {
-          externalModules: ["aws-sdk"],
-        },
       }
     );
 
