@@ -27,7 +27,7 @@ import { Key } from "aws-cdk-lib/aws-kms";
 import { Bucket, BucketEncryption, IBucket } from "aws-cdk-lib/aws-s3";
 import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import { Construct } from "constructs";
-import { CloudfrontWebAcl } from "./cloudfront-web-acl";
+import { CloudfrontWebAcl, CloudFrontWebAclProps } from "./cloudfront-web-acl";
 
 const DEFAULT_RUNTIME_CONFIG_FILENAME = "runtime-config.json";
 
@@ -59,6 +59,7 @@ export interface RuntimeOptions {
    */
   readonly jsonPayload: any;
 }
+
 /**
  * Properties for configuring the StaticWebsite.
  */
@@ -92,6 +93,13 @@ export interface StaticWebsiteProps {
    * You will need to pass in an instance of StaticWebsiteOrigin (NoOp) to keep the compiler happy.
    */
   readonly distributionProps?: DistributionProps;
+
+  /**
+   * Limited configuration settings for the generated webAcl. For more advanced settings, create your own ACL and pass in the webAclId as a param to distributionProps.
+   *
+   * Note: If pass in your own ACL, make sure the SCOPE is CLOUDFRONT and it is created in us-east-1.
+   */
+  readonly webAclProps?: CloudFrontWebAclProps;
 }
 
 /**

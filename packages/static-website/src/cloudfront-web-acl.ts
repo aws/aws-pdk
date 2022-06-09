@@ -13,18 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import { Names, Stack } from "aws-cdk-lib";
-import {
-  AwsCustomResource,
-  AwsCustomResourcePolicy,
-  PhysicalResourceId,
-  PhysicalResourceIdReference,
-} from "aws-cdk-lib/custom-resources";
-import { WAFV2 } from "aws-sdk"; // eslint-disable-line
+import * as path from "path";
+import { CustomResource, Duration } from "aws-cdk-lib";
+import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { Runtime } from "aws-cdk-lib/aws-lambda";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { Provider } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
-
-const ACL_REGION = "us-east-1";
-const SCOPE = "CLOUDFRONT";
 
 /**
  * Represents a WAF V2 managed rule.
@@ -42,13 +37,50 @@ export interface ManagedRule {
 }
 
 /**
+ * Type of Cidr.
+ */
+export type CidrType = "IPV4" | "IPV6";
+
+/**
+ * Representation of a CIDR range.
+ */
+export interface CidrAllowList {
+  /**
+   * Type of CIDR range.
+   */
+  readonly type: CidrType;
+
+  /**
+   * Specify an IPv4 address by using CIDR notation. For example:
+   * To configure AWS WAF to allow, block, or count requests that originated from the IP address 192.0.2.44, specify 192.0.2.44/32 .
+   * To configure AWS WAF to allow, block, or count requests that originated from IP addresses from 192.0.2.0 to 192.0.2.255, specify 192.0.2.0/24 .
+   *
+   * For more information about CIDR notation, see the Wikipedia entry Classless Inter-Domain Routing .
+   *
+   * Specify an IPv6 address by using CIDR notation. For example:
+   * To configure AWS WAF to allow, block, or count requests that originated from the IP address 1111:0000:0000:0000:0000:0000:0000:0111, specify 1111:0000:0000:0000:0000:0000:0000:0111/128 .
+   * To configure AWS WAF to allow, block, or count requests that originated from IP addresses 1111:0000:0000:0000:0000:0000:0000:0000 to 1111:0000:0000:0000:ffff:ffff:ffff:ffff, specify 1111:0000:0000:0000:0000:0000:0000:0000/64 .
+   */
+  readonly cidrRanges: string[];
+}
+
+/**
  * Properties to configure the web acl.
  */
 export interface CloudFrontWebAclProps {
   /**
    * List of managed rules to apply to the web acl.
+   *
+   * @default - [{ vendor: "AWS", name: "AWSManagedRulesCommonRuleSet" }]
    */
-  readonly managedRules: ManagedRule[];
+  readonly managedRules?: ManagedRule[];
+
+  /**
+   * List of cidr ranges to allow.
+   *
+   * @default - undefined
+   */
+  readonly cidrAllowList?: CidrAllowList;
 }
 
 /**
@@ -58,87 +90,58 @@ export interface CloudFrontWebAclProps {
 export class CloudfrontWebAcl extends Construct {
   public readonly webAclId: string;
   public readonly webAclArn: string;
-  public readonly name: string;
-  public readonly region: string = ACL_REGION;
 
-  constructor(scope: Construct, id: string, props: CloudFrontWebAclProps) {
+  constructor(scope: Construct, id: string, props?: CloudFrontWebAclProps) {
     super(scope, id);
 
-    this.name = `${id.substring(0, 40)}_${Names.uniqueId(this)}`;
-
-    // The parameters for creating the Web ACL
-    const createWebACLRequest: WAFV2.Types.CreateWebACLRequest = {
-      Name: this.name,
-      DefaultAction: { Allow: {} },
-      Scope: SCOPE,
-      VisibilityConfig: {
-        CloudWatchMetricsEnabled: true,
-        MetricName: id,
-        SampledRequestsEnabled: true,
-      },
-      Rules: props.managedRules
-        .map((r) => ({ VendorName: r.vendor, Name: r.name }))
-        .map((rule, Priority) => ({
-          Name: `${rule.VendorName}-${rule.Name}`,
-          Priority,
-          Statement: { ManagedRuleGroupStatement: rule },
-          OverrideAction: { None: {} },
-          VisibilityConfig: {
-            MetricName: `${rule.VendorName}-${rule.Name}`,
-            CloudWatchMetricsEnabled: true,
-            SampledRequestsEnabled: true,
-          },
-        })),
-    };
-
-    // Create the Web ACL
-    const createCustomResource = new AwsCustomResource(this, `Create`, {
-      policy: AwsCustomResourcePolicy.fromSdkCalls({
-        resources: AwsCustomResourcePolicy.ANY_RESOURCE,
-      }),
-      onCreate: {
-        service: "WAFV2",
-        action: "createWebACL",
-        parameters: createWebACLRequest,
-        region: this.region,
-        physicalResourceId: PhysicalResourceId.fromResponse("Summary.Id"),
-      },
-    });
-    this.webAclId = createCustomResource.getResponseField("Summary.Id");
-
-    const getWebACLRequest: WAFV2.Types.GetWebACLRequest = {
-      Name: this.name,
-      Scope: SCOPE,
-      Id: this.webAclId,
-    };
-
-    // A second custom resource is used for managing the deletion of this construct, since both an Id and LockToken
-    // are required for Web ACL Deletion
-    new AwsCustomResource(this, `Delete`, {
-      policy: AwsCustomResourcePolicy.fromSdkCalls({
-        resources: AwsCustomResourcePolicy.ANY_RESOURCE,
-      }),
-      onCreate: {
-        service: "WAFV2",
-        action: "getWebACL",
-        parameters: getWebACLRequest,
-        region: this.region,
-        physicalResourceId: PhysicalResourceId.fromResponse("LockToken"),
-      },
-      onDelete: {
-        service: "WAFV2",
-        action: "deleteWebACL",
-        parameters: {
-          Name: this.name,
-          Scope: SCOPE,
-          Id: this.webAclId,
-          LockToken: new PhysicalResourceIdReference(),
+    const onEventHandler = new NodejsFunction(
+      this,
+      "CloudfrontWebAclOnEventHandler",
+      {
+        entry: path.join(__dirname, "webacl-event-handler/index.ts"),
+        functionName: "CloudfrontWebAclCustomResource",
+        handler: "onEvent",
+        runtime: Runtime.NODEJS_16_X,
+        timeout: Duration.seconds(300),
+        bundling: {
+          externalModules: ["aws-sdk"],
         },
-        region: this.region,
+      }
+    );
+
+    onEventHandler.role!.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: [
+          "wafv2:CreateWebACL",
+          "wafv2:DeleteWebACL",
+          "wafv2:UpdateWebACL",
+          "wafv2:GetWebACL",
+          "wafv2:CreateIPSet",
+          "wafv2:DeleteIPSet",
+          "wafv2:UpdateIPSet",
+          "wafv2:GetIPSet",
+        ],
+        resources: ["*"],
+      })
+    );
+
+    const provider = new Provider(this, "CloudfrontWebAclProvider", {
+      onEventHandler,
+    });
+
+    const customResource = new CustomResource(this, "CFWebAclCustomResource", {
+      serviceToken: provider.serviceToken,
+      properties: {
+        ID: id,
+        MANAGED_RULES: props?.managedRules ?? [
+          { vendor: "AWS", name: "AWSManagedRulesCommonRuleSet" },
+        ],
+        CIDR_ALLOW_LIST: props?.cidrAllowList,
       },
     });
-    this.webAclArn = `arn:aws:wafv2:${this.region}:${
-      Stack.of(this).account
-    }:global/webacl/${this.name}/${this.webAclId}`;
+
+    this.webAclId = customResource.getAttString("WebAclId");
+    this.webAclArn = customResource.getAttString("WebAclArn");
   }
 }
