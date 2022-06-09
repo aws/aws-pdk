@@ -100,20 +100,31 @@ export class AwsPrototypingSdkProject extends PDKProject {
   synth() {
     const monorepo = this.root as NxMonorepoProject;
     const stableProjects = monorepo.subProjects
-      .filter((s: any) => (s.package?.manifest?.stability === Stability.STABLE))
-      .reduce((p, c) => {
-        return {
-          ...p,
-          [`./${path.basename(c.outdir)}`]: `./lib/${path.basename(c.outdir)}/index.js`
-        };
-      }, {});
+      .filter((s: Project) => s.name !== 'aws-prototyping-sdk')
+      .filter((s: any) => (s.package?.manifest?.stability === Stability.STABLE));
 
     this.package.addField('exports', {
       '.': './lib/index.js',
       './package.json': './package.json',
       './.jsii': './.jsii',
       './.warnings.jsii.js': './.warnings.jsii.js',
-      ...stableProjects
+      ...stableProjects.reduce((p, c) => {
+        return {
+          ...p,
+          [`./${path.basename(c.outdir)}`]: `./lib/${path.basename(c.outdir)}/lib/index.js`
+        };
+      }, {})
+    });
+
+    this.package.addField('typesVersions', {
+      '*': {
+        ...stableProjects.reduce((p, c) => {
+          return {
+            ...p,
+            [`${path.basename(c.outdir).replace(/-/g, '_')}`]: [`lib/${path.basename(c.outdir)}/lib/index.d.ts`]
+          };
+        }, {})
+      }
     });
     super.synth();
   }

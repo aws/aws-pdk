@@ -143,7 +143,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       const relativeDir = `${subProject.outdir.split(subProject.root.outdir)[1]}`;
       this.overrideProjectTargets(subProject, {
         build: {
-          outputs: [`${relativeDir}/dist`, `${relativeDir}/lib`, `${relativeDir}/target`],
+          outputs: [`${relativeDir}/dist`, `${relativeDir}/lib`, `${relativeDir}/target`, `${relativeDir}/.jsii`],
           dependsOn: [
             {
               target: 'build',
