@@ -16,6 +16,8 @@
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { PDKProject } from "../private/pdk-project";
+import { NxMonorepoProject } from "../packages/nx-monorepo/src";
+import * as path from "path";
 
 /**
  * File patterns to keep in the .gitignore. Also used to determine which files to keep when cleaning.
@@ -65,13 +67,6 @@ export class AwsPrototypingSdkProject extends PDKProject {
       stability: Stability.STABLE,
       sampleCode: false,
       excludeTypescript: ["**/samples/**"],
-      outdir: ".",
-      tsconfigDev: {
-        compilerOptions: {
-          outDir: ".",
-          rootDir: ".",
-        },
-      },
       publishToPypiConfig: {
         distName: `aws_prototyping_sdk`,
         module: `aws_prototyping_sdk`,
@@ -98,9 +93,28 @@ export class AwsPrototypingSdkProject extends PDKProject {
     this.package.addField("bundle", {
       exclude: true,
     });
-    this.package.addField("main", "./index.js");
-    this.package.addField("types", "./index.d.ts");
-    this.package.manifest.jsii.tsc.rootDir = ".";
-    this.package.manifest.jsii.tsc.outDir = ".";
+    this.package.manifest.jsii.tsc.rootDir = "./lib";
+    this.package.manifest.jsii.tsc.outDir = "./lib";
+  }
+  
+  synth() {
+    const monorepo = this.root as NxMonorepoProject;
+    const stableProjects = monorepo.subProjects
+      .filter((s: any) => (s.package?.manifest?.stability === Stability.STABLE))
+      .reduce((p, c) => {
+        return {
+          ...p,
+          [`./${path.basename(c.outdir)}`]: `./lib/${path.basename(c.outdir)}/index.js`
+        };
+      }, {});
+
+    this.package.addField('exports', {
+      '.': './lib/index.js',
+      './package.json': './package.json',
+      './.jsii': './.jsii',
+      './.warnings.jsii.js': './.warnings.jsii.js',
+      ...stableProjects
+    });
+    super.synth();
   }
 }

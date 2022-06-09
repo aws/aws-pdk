@@ -209,7 +209,7 @@ async function prepareSourceFiles(libraries: readonly LibraryReference[], packag
 
   const indexStatements = new Array<string>();
   for (const library of libraries) {
-    const libDir = path.join(libRoot, library.shortName);
+    const libDir = path.join(libRoot, 'lib', library.shortName);
     const copied = await transformPackage(library, packageJson, libDir, libraries);
 
     if (!copied) {
@@ -219,7 +219,7 @@ async function prepareSourceFiles(libraries: readonly LibraryReference[], packag
     indexStatements.push(`export * as ${library.shortName.replace(/-/g, '_')} from './${library.shortName}';`);
   }
 
-  await fs.writeFile(path.join(libRoot, 'index.ts'), indexStatements.join('\n'), { encoding: 'utf8' });
+  await fs.writeFile(path.join(libRoot, 'lib', 'index.ts'), indexStatements.join('\n'), { encoding: 'utf8' });
 
   console.log('\t🍺 Success!');
 }

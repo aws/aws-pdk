@@ -274,7 +274,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   // Remove this hack once subProjects is made public in Projen
-  protected get subProjects(): Project[] {
+  public get subProjects(): Project[] {
     // @ts-ignore
     const subProjects: Project[] = this.subprojects || [];
     return subProjects.sort((a, b) => a.name.localeCompare(b.name));

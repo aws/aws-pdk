@@ -14,7 +14,7 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import { Stack, StackProps } from 'aws-cdk-lib';
-import { PDKPipeline } from 'aws-prototyping-sdk/pipeline';
+import { PDKPipeline } from 'aws-prototyping-sdk/lib/pipeline';
 import { Construct } from 'constructs';
 
 export class PipelineStack extends Stack {
