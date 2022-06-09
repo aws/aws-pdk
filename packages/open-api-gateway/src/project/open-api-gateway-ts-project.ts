@@ -163,6 +163,14 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
       this.addDeps(
         `${this.generatedTypescriptClient.package.packageName}@file:./${typescriptCodeGenDir}`
       );
+
+      // Linting runs post synthesize before the typescript client has been built
+      this.eslint?.addRules({
+        "import/no-unresolved": [
+          2,
+          { ignore: [this.generatedTypescriptClient.package.packageName] },
+        ],
+      });
     }
 
     // Additional languages to generate other than typescript which is mandatory
