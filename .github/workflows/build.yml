@@ -11,17 +11,25 @@ jobs:
       self_mutation_happened: ${{ steps.self_mutation.outputs.self_mutation_happened }}
     env:
       CI: "true"
+      NX_CLOUD_DISTRIBUTED_EXECUTION: true
+      NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v2
       - name: Install dependencies
         run: yarn install --check-files
-      - name: build
-        run: npx nx run-many --target=build --all
-      - name: synth
+      - name: Start NX CI Run
+        run: npx nx-cloud start-ci-run    
+      - name: Build
+        run: npx nx affected --target=build --parallel --max-parallel=4
+      - name: Stop NX Agents
+        run: npx nx-cloud stop-all-agents
+      - name: Synth
         run: npx projen
       - id: self_mutation
         name: Find mutations
@@ -74,3 +82,18 @@ jobs:
             git add .
             git commit -s -m "chore: self mutation"
             git push origin HEAD:${{ github.event.pull_request.head.ref }}
+  agents:
+    runs-on: ubuntu-latest
+    name: Agent 1
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        agent: [ 1, 2, 3 ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with: 
+          node-version: '14'
+      - run: yarn install --check-files --frozen-lockfile
+      - name: Start Nx Agent ${{ matrix.agent }}
+        run: npx nx-cloud start-agent 

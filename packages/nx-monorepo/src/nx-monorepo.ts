@@ -96,6 +96,11 @@ export interface NXConfig {
    * @link https://nx.dev/configuration/packagejson#nxignore
    */
   readonly nxIgnore?: string[];
+
+  /**
+   * Read only access token if enabling nx cloud.
+   */
+  readonly nxCloudReadOnlyAccessToken?: string;
 }
 
 /**
@@ -167,6 +172,9 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     this.addDevDeps("@nrwl/cli", "@nrwl/workspace");
 
+    options.nxConfig?.nxCloudReadOnlyAccessToken &&
+      this.addDevDeps("@nrwl/nx-cloud");
+
     new IgnoreFile(this, ".nxignore").exclude(
       "test-reports",
       "target",
@@ -187,10 +195,13 @@ export class NxMonorepoProject extends TypeScriptProject {
         npmScope: "monorepo",
         tasksRunnerOptions: {
           default: {
-            runner: "@nrwl/workspace/tasks-runners/default",
+            runner: options.nxConfig?.nxCloudReadOnlyAccessToken
+              ? "@nrwl/nx-cloud"
+              : "@nrwl/workspace/tasks-runners/default",
             options: {
               useDaemonProcess: false,
               cacheableOperations: ["build", "test"],
+              accessToken: options.nxConfig?.nxCloudReadOnlyAccessToken,
             },
           },
         },

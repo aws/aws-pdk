@@ -13,21 +13,29 @@ jobs:
       latest_commit: ${{ steps.git_remote.outputs.latest_commit }}
     env:
       CI: "true"
+      NX_CLOUD_DISTRIBUTED_EXECUTION: true
+      NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v2
       - name: Set git identity
         run: |-
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
-      - name: build
-        run: npx nx run-many --target=build --all
-      - name: release:mainline
-        run: npx nx run-many --target=release:mainline --all
+      - name: Start NX CI Run
+        run: npx nx-cloud start-ci-run    
+      - name: Build
+        run: npx nx affected --target=build --parallel --max-parallel=4
+      - name: Release
+        run: npx nx run-many --target=release:mainline --all --parallel --max-parallel=4
+      - name: Stop NX Agents
+        run: npx nx-cloud stop-all-agents
       - name: synth
         run: npx projen
       - name: Check for mutations
@@ -179,3 +187,18 @@ jobs:
           git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')
       - name: Push
         run: git push origin gh-pages:gh-pages
+  agents:
+    runs-on: ubuntu-latest
+    name: Agent 1
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        agent: [ 1, 2, 3 ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with: 
+          node-version: '14'
+      - run: yarn install --check-files --frozen-lockfile
+      - name: Start Nx Agent ${{ matrix.agent }}
+        run: npx nx-cloud start-agent  
