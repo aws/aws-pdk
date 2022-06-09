@@ -40,14 +40,14 @@ jobs:
         if: always()
         run: npx nx-cloud stop-all-agents
       - name: Release
-        run: NX_CLOUD_DISTRIBUTED_EXECUTION=false npx nx run-many --target=release:mainline --all --parallel --max-parallel=4
+        run: NX_CLOUD_DISTRIBUTED_EXECUTION=false npx nx run-many --target=release:mainline --all --parallel=4
       - name: Check for mutations
         run: git diff --ignore-space-at-eol --exit-code
       - name: Check for new commits
         id: git_remote
         run: echo ::set-output name=latest_commit::"$(git ls-remote origin -h ${{ github.ref }} | cut -f1)"
       - name: Extract Dists
-        run: rsync -a . ./dist --include="*/" --include="/docs/dist/**" --include="/packages/*/dist/**" --exclude="*" --prune-empty-dirs
+        run: rsync -a . ./dist --include="*/" --include="/packages/*/dist/**" --exclude="*" --prune-empty-dirs
       - name: Upload artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
         uses: actions/upload-artifact@v2.1.1
@@ -177,13 +177,13 @@ jobs:
           git config user.name "AWS PDK Automation"
           git config user.email "aws-pdk+automation@amazon.com"
       - name: Upload docs to Github
-        run: zip -r docs.zip dist/docs/dist/docs/* && gh release upload $(cat dist/packages/aws-prototyping-sdk/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
+        run: zip -r docs.zip dist/packages/docs/dist/docs/* && gh release upload $(cat dist/packages/aws-prototyping-sdk/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
       - name: Prepare Commit
         run: |-
-          mv dist/docs/dist ${{ runner.temp }}/dist
+          mv dist/packages/docs/dist ${{ runner.temp }}/dist
           rsync --delete --exclude=.git --recursive ${{ runner.temp }}/dist/docs/ .
           touch .nojekyll
           git add .
