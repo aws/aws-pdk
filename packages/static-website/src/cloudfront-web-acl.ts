@@ -98,7 +98,10 @@ export class CloudfrontWebAcl extends Construct {
       this,
       "CloudfrontWebAclOnEventHandler",
       {
-        entry: path.join(__dirname, "webacl-event-handler/index.ts"),
+        entry: path.join(
+          __dirname,
+          "../custom_resources/webacl_event_handler/index.ts"
+        ),
         functionName: "CloudfrontWebAclCustomResource",
         handler: "onEvent",
         runtime: Runtime.NODEJS_16_X,
