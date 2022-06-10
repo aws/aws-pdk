@@ -8,7 +8,7 @@ Please read through this document before submitting any issues or pull requests 
 
 The structure of this project is as follows:
 
-### **public**
+### **public/docs**
 
 This is where the documentation site is defined and built.
 
