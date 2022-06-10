@@ -14,31 +14,32 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import { Project } from "projen";
-import { Stability } from "projen/lib/cdk";
-import { PDKProject } from "../private/pdk-project";
+import { TypeScriptProject } from "projen/lib/typescript";
 
 /**
- * Contains configuration for the NXMonorepoProject.
+ * Contains configuration for the public (docs) package.
  */
-export class NXMonorepoProject extends PDKProject {
+export class PublicProject extends TypeScriptProject {
   constructor(parent: Project) {
     super({
       parent,
-      author: "AWS APJ COPE",
-      authorAddress: "apj-cope@amazon.com",
+      outdir: "public", // nx has issues with root directories being called 'docs'
       defaultReleaseBranch: "mainline",
-      name: "nx-monorepo",
-      keywords: ["aws", "pdk", "jsii", "projen"],
-      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: ["projen"],
-      deps: ["projen"],
-      peerDeps: ["projen"],
-      bundledDeps: ["@nrwl/devkit"],
-      stability: Stability.STABLE,
+      sampleCode: false,
+      jest: false,
+      name: "public",
+      devDeps: [
+        "@types/fs-extra",
+        "exponential-backoff",
+        "jsii-docgen",
+        "aws-prototyping-sdk@0.0.0",
+      ],
+      deps: ["fs-extra"],
     });
 
-    this.compileTask.exec(
-      'rsync -a ./src/** ./lib --include="*/" --include="**/*.js" --exclude="*" --prune-empty-dirs'
-    );
+    this.package.addField("private", true);
+    this.compileTask.reset();
+    this.testTask.reset();
+    this.packageTask.reset("./scripts/build-docs");
   }
 }

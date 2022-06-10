@@ -15,8 +15,8 @@
  ******************************************************************************************************************** */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { PDKProject } from "../private/pdk-project";
-import { NxMonorepoProject } from "../packages/nx-monorepo/src";
+import { PDKProject } from "../pdk-project";
+import { NxMonorepoProject } from "../../packages/nx-monorepo/src";
 import * as path from "path";
 
 /**
@@ -111,7 +111,7 @@ export class AwsPrototypingSdkProject extends PDKProject {
       ...stableProjects.reduce((p, c) => {
         return {
           ...p,
-          [`./${path.basename(c.outdir)}`]: `./lib/${path.basename(c.outdir)}/lib/index.js`
+          [`./${getSubmodule(c.outdir)}`]: `./lib/${path.basename(c.outdir)}/lib/index.js`
         };
       }, {})
     });
@@ -121,7 +121,7 @@ export class AwsPrototypingSdkProject extends PDKProject {
         ...stableProjects.reduce((p, c) => {
           return {
             ...p,
-            [`${path.basename(c.outdir).replace(/-/g, '_')}`]: [`lib/${path.basename(c.outdir)}/lib/index.d.ts`]
+            [`${getSubmodule(c.outdir)}`]: [`lib/${path.basename(c.outdir)}/lib/index.d.ts`]
           };
         }, {})
       }
@@ -129,3 +129,11 @@ export class AwsPrototypingSdkProject extends PDKProject {
     super.synth();
   }
 }
+
+/**
+ * A underscored submodule name.
+ * 
+ * @param pkgPath path the the packages outDir.
+ * @returns a underscored submodule name.
+ */
+const getSubmodule = (pkgPath: string) => path.basename(pkgPath).replace(/-/g, '_');
