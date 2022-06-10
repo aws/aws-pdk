@@ -1,6 +1,6 @@
 import { Project } from "projen";
 import { Stability } from 'projen/lib/cdk';
-import {PDKProject} from "../private/pdk-project";
+import { PDKProject } from "../pdk-project";
 
 /**
  * Contains configuration for the OpenApiGateway project.

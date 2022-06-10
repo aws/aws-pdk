@@ -8,15 +8,17 @@ Please read through this document before submitting any issues or pull requests 
 
 The structure of this project is as follows:
 
-### **docs**
+### **public**
 
 This is where the documentation site is defined and built.
+
+Note: Unfortunately nx has an issue with root projects being called 'docs', hence the name 'public' was chosen.
 
 ### **private**
 
 Contains classes which are to be used locally by the root package.
 
-### **projects**
+### **private/projects**
 
 Contains configurations for each project within this monorepo.
 

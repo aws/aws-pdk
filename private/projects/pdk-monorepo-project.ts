@@ -18,7 +18,7 @@ import { NodeProject } from "projen/lib/javascript";
 import {
   NxMonorepoProject,
   TargetDependencyProject,
-} from "../packages/nx-monorepo/src";
+} from "../../packages/nx-monorepo/src";
 
 /**
  * Contains configuration for the PDK monorepo (root package).
@@ -143,12 +143,12 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       // Resolve any problematic dependencies
       resolveDependencies(subProject);
 
-      this.addHeader(subProject);
+      this.configureEsLint(subProject);
 
       const relativeDir = `${subProject.outdir.split(subProject.root.outdir)[1]}`;
       this.overrideProjectTargets(subProject, {
         build: {
-          outputs: [`${relativeDir}/dist`, `${relativeDir}/lib`, `${relativeDir}/target`, `${relativeDir}/.jsii`],
+          outputs: [`${relativeDir}/dist`, `${relativeDir}/build`, `${relativeDir}/lib`, `${relativeDir}/target`, `${relativeDir}/.jsii`],
           dependsOn: [
             {
               target: 'build',
@@ -162,12 +162,13 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     super.synth();
   }
 
-  addHeader(project: any) {
+  configureEsLint(project: any) {
     if (project.eslint) {
       project.addDevDeps("eslint-plugin-header");
       project.eslint.addPlugins("header");
       const rootHops = (project as Project).outdir.split(this.outdir)[1].split('/').splice(1);
       project.eslint.addRules({ "header/header": [2, `${rootHops.map(() => '..').join('/')}/header.js`] });
+      project.eslint?.addRules({ "import/no-unresolved": [ "off" ] });
     }
   }
 }

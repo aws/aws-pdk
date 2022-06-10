@@ -20,7 +20,7 @@ import { Stability } from "projen/lib/cdk";
 import { JavaProject } from "projen/lib/java";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { PDKProject } from "../private/pdk-project";
+import { PDKProject } from "../pdk-project";
 
 /**
  * Contains configuration for the PipelineProject.
