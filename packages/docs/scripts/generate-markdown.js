@@ -48,7 +48,7 @@ function getArtifact(language, jsiiManifest) {
 
 async function main() {
   const cwd = process.cwd();
-  const RELATIVE_PKG_ROOT = `${cwd}/../packages`;
+  const RELATIVE_PKG_ROOT = `${cwd}/..`;
   const bundleJsii = JSON.parse(fs.readFileSync(`${RELATIVE_PKG_ROOT}/aws-prototyping-sdk/.jsii`).toString());
 
   fs.existsSync(`${cwd}/build`) && fs.rmdirSync(`${cwd}/build`, { recursive: true });
@@ -81,7 +81,7 @@ async function main() {
         if (stability === 'stable') {
           const docs = await docgen.Documentation.forProject(`${RELATIVE_PKG_ROOT}/aws-prototyping-sdk`);
           const submodule = Object.entries(bundleJsii.submodules)
-            .find(([, v]) => v.symbolId.split('/')[0] === pkg)[0]
+            .find(([, v]) => v.symbolId.split('/')[1] === pkg)[0]
             .split('aws-prototyping-sdk.')[1];
           markdown = await backOff.backOff(async () =>
             docs.toMarkdown({

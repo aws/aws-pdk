@@ -46,6 +46,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       ],
       deps: ["fast-xml-parser", "projen"],
       nxConfig: {
+        // This is OK to be stored given its read only and the repository is public
+        nxCloudReadOnlyAccessToken: 'ZTRkOWVkNWEtYjYwNy00OTM2LWI0MTgtODA5YWMwODRmM2RlfHJlYWQ=',
         targetDependencies: {
           upgrade: [
             {
@@ -120,6 +122,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       ".DS_Store",
       "build",
       ".env",
+      ".venv",
       "tsconfig.tsbuildinfo"
     );
 
@@ -135,15 +138,28 @@ export class PDKMonorepoProject extends NxMonorepoProject {
   /**
    * @inheritDoc
    */
-  preSynthesize() {
-    super.preSynthesize();
-
+  synth() {
     this.subProjects.forEach((subProject) => {
       // Resolve any problematic dependencies
       resolveDependencies(subProject);
 
       this.addHeader(subProject);
+
+      const relativeDir = `${subProject.outdir.split(subProject.root.outdir)[1]}`;
+      this.overrideProjectTargets(subProject, {
+        build: {
+          outputs: [`${relativeDir}/dist`, `${relativeDir}/lib`, `${relativeDir}/target`, `${relativeDir}/.jsii`],
+          dependsOn: [
+            {
+              target: 'build',
+              projects: TargetDependencyProject.DEPENDENCIES
+            }
+          ]
+        }
+      });
     });
+
+    super.synth();
   }
 
   addHeader(project: any) {

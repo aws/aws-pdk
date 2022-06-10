@@ -16,6 +16,8 @@
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { PDKProject } from "../private/pdk-project";
+import { NxMonorepoProject } from "../packages/nx-monorepo/src";
+import * as path from "path";
 
 /**
  * File patterns to keep in the .gitignore. Also used to determine which files to keep when cleaning.
@@ -30,6 +32,8 @@ const filesGlobsToKeep = [
   ".projen",
   "LICENSE",
   "README.md",
+  ".prettierignore",
+  ".prettierrc.json",
   "tsconfig.dev.json",
   "tsconfig.json",
   "package.json",
@@ -63,13 +67,6 @@ export class AwsPrototypingSdkProject extends PDKProject {
       stability: Stability.STABLE,
       sampleCode: false,
       excludeTypescript: ["**/samples/**"],
-      outdir: ".",
-      tsconfigDev: {
-        compilerOptions: {
-          outDir: ".",
-          rootDir: ".",
-        },
-      },
       publishToPypiConfig: {
         distName: `aws_prototyping_sdk`,
         module: `aws_prototyping_sdk`,
@@ -96,9 +93,39 @@ export class AwsPrototypingSdkProject extends PDKProject {
     this.package.addField("bundle", {
       exclude: true,
     });
-    this.package.addField("main", "./index.js");
-    this.package.addField("types", "./index.d.ts");
-    this.package.manifest.jsii.tsc.rootDir = ".";
-    this.package.manifest.jsii.tsc.outDir = ".";
+    this.package.manifest.jsii.tsc.rootDir = "./lib";
+    this.package.manifest.jsii.tsc.outDir = "./lib";
+  }
+  
+  synth() {
+    const monorepo = this.root as NxMonorepoProject;
+    const stableProjects = monorepo.subProjects
+      .filter((s: Project) => s.name !== 'aws-prototyping-sdk')
+      .filter((s: any) => (s.package?.manifest?.stability === Stability.STABLE));
+
+    this.package.addField('exports', {
+      '.': './lib/index.js',
+      './package.json': './package.json',
+      './.jsii': './.jsii',
+      './.warnings.jsii.js': './.warnings.jsii.js',
+      ...stableProjects.reduce((p, c) => {
+        return {
+          ...p,
+          [`./${path.basename(c.outdir)}`]: `./lib/${path.basename(c.outdir)}/lib/index.js`
+        };
+      }, {})
+    });
+
+    this.package.addField('typesVersions', {
+      '*': {
+        ...stableProjects.reduce((p, c) => {
+          return {
+            ...p,
+            [`${path.basename(c.outdir).replace(/-/g, '_')}`]: [`lib/${path.basename(c.outdir)}/lib/index.d.ts`]
+          };
+        }, {})
+      }
+    });
+    super.synth();
   }
 }

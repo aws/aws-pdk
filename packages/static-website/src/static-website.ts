@@ -137,9 +137,7 @@ export class StaticWebsite extends Construct {
     const { distributionProps } = props;
     const webAclArn =
       distributionProps?.webAclId ??
-      new CloudfrontWebAcl(this, "WebsiteAcl", {
-        managedRules: [{ vendor: "AWS", name: "AWSManagedRulesCommonRuleSet" }],
-      }).webAclArn;
+      new CloudfrontWebAcl(this, "WebsiteAcl", props.webAclProps).webAclArn;
 
     // Cloudfront Distribution
     const defaultRootObject =

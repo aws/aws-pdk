@@ -37,6 +37,5 @@ export class StaticWebsiteProject extends PDKProject {
     });
 
     this.addPackageIgnore("**/node_modules");
-    this.addPackageIgnore("!/custom_resources/")
   }
 }

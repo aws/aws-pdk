@@ -31,6 +31,28 @@ const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 export type TargetDependencies = { [target: string]: TargetDependency[] };
 
 /**
+ * Configuration for project specific targets.
+ */
+export type ProjectTargets = { [target: string]: ProjectTarget };
+
+/**
+ * Project Target.
+ */
+export interface ProjectTarget {
+  /**
+   * List of outputs to cache, relative to the root of the monorepo.
+   *
+   * note: must start with leading /
+   */
+  readonly outputs?: string[];
+
+  /**
+   * List of Target Dependencies.
+   */
+  readonly dependsOn: TargetDependency[];
+}
+
+/**
  * Implicit Dependencies map.
  */
 export type ImplicitDependencies = { [pkg: string]: string[] };
@@ -96,6 +118,11 @@ export interface NXConfig {
    * @link https://nx.dev/configuration/packagejson#nxignore
    */
   readonly nxIgnore?: string[];
+
+  /**
+   * Read only access token if enabling nx cloud.
+   */
+  readonly nxCloudReadOnlyAccessToken?: string;
 }
 
 /**
@@ -136,6 +163,7 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
 export class NxMonorepoProject extends TypeScriptProject {
   // mutable data structures
   private readonly implicitDependencies: ImplicitDependencies;
+  private readonly targetOverrides: { [pkg: string]: ProjectTargets } = {};
 
   // immutable data structures
   private readonly nxConfig?: NXConfig;
@@ -167,6 +195,9 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     this.addDevDeps("@nrwl/cli", "@nrwl/workspace");
 
+    options.nxConfig?.nxCloudReadOnlyAccessToken &&
+      this.addDevDeps("@nrwl/nx-cloud");
+
     new IgnoreFile(this, ".nxignore").exclude(
       "test-reports",
       "target",
@@ -187,10 +218,13 @@ export class NxMonorepoProject extends TypeScriptProject {
         npmScope: "monorepo",
         tasksRunnerOptions: {
           default: {
-            runner: "@nrwl/workspace/tasks-runners/default",
+            runner: options.nxConfig?.nxCloudReadOnlyAccessToken
+              ? "@nrwl/nx-cloud"
+              : "@nrwl/workspace/tasks-runners/default",
             options: {
               useDaemonProcess: false,
               cacheableOperations: ["build", "test"],
+              accessToken: options.nxConfig?.nxCloudReadOnlyAccessToken,
             },
           },
         },
@@ -227,8 +261,20 @@ export class NxMonorepoProject extends TypeScriptProject {
     }
   }
 
+  /**
+   * Allow project specific target overrides.
+   */
+  public overrideProjectTargets(project: Project, targets: ProjectTargets) {
+    const _package = project.tryFindObjectFile("package.json");
+    _package?.addOverride("nx", {
+      targets: targets,
+    });
+
+    !_package && (this.targetOverrides[project.outdir] = targets);
+  }
+
   // Remove this hack once subProjects is made public in Projen
-  protected get subProjects(): Project[] {
+  public get subProjects(): Project[] {
     // @ts-ignore
     const subProjects: Project[] = this.subprojects || [];
     return subProjects.sort((a, b) => a.name.localeCompare(b.name));
@@ -272,7 +318,10 @@ export class NxMonorepoProject extends TypeScriptProject {
       .forEach((subProject: Project) => {
         // generate a package.json if not found
         const manifest: any = {};
-        manifest.name = subProject.name;
+        (manifest.nx = this.targetOverrides[subProject.outdir]
+          ? { targets: this.targetOverrides[subProject.outdir] }
+          : undefined),
+          (manifest.name = subProject.name);
         manifest.private = true;
         manifest.__pdk__ = true;
         manifest.scripts = subProject.tasks.all.reduce(

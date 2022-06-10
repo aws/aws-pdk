@@ -4,6 +4,10 @@ on:
     branches:
       - mainline
   workflow_dispatch: {}
+env:
+  NX_CLOUD_DISTRIBUTED_EXECUTION: true
+  NX_CLOUD_DISTRIBUTED_EXECUTION_STOP_AGENTS_ON_FAILURE: true
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -18,25 +22,32 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v2
+        with:
+          main-branch-name: 'mainline'
       - name: Set git identity
         run: |-
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
-      - name: build
-        run: npx nx run-many --target=build --all
-      - name: release:mainline
-        run: npx nx run-many --target=release:mainline --all
-      - name: synth
-        run: npx projen
+      - name: Start NX CI Run
+        run: npx nx-cloud start-ci-run    
+      - name: Build
+        run: npx nx run-many --target=build --all --parallel=4
+      - name: Stop NX Agents
+        if: always()
+        run: npx nx-cloud stop-all-agents
+      - name: Release
+        run: NX_CLOUD_DISTRIBUTED_EXECUTION=false npx nx run-many --target=release:mainline --all --parallel=4
       - name: Check for mutations
         run: git diff --ignore-space-at-eol --exit-code
       - name: Check for new commits
         id: git_remote
         run: echo ::set-output name=latest_commit::"$(git ls-remote origin -h ${{ github.ref }} | cut -f1)"
       - name: Extract Dists
-        run: rsync -a . ./dist --include="*/" --include="/docs/dist/**" --include="/packages/*/dist/**" --exclude="*" --prune-empty-dirs
+        run: rsync -a . ./dist --include="*/" --include="/packages/*/dist/**" --exclude="*" --prune-empty-dirs
       - name: Upload artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
         uses: actions/upload-artifact@v2.1.1
@@ -166,16 +177,31 @@ jobs:
           git config user.name "AWS PDK Automation"
           git config user.email "aws-pdk+automation@amazon.com"
       - name: Upload docs to Github
-        run: zip -r docs.zip dist/docs/dist/docs/* && gh release upload $(cat dist/packages/aws-prototyping-sdk/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
+        run: zip -r docs.zip dist/packages/docs/dist/docs/* && gh release upload $(cat dist/packages/aws-prototyping-sdk/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
       - name: Prepare Commit
         run: |-
-          mv dist/docs/dist ${{ runner.temp }}/dist
+          mv dist/packages/docs/dist ${{ runner.temp }}/dist
           rsync --delete --exclude=.git --recursive ${{ runner.temp }}/dist/docs/ .
           touch .nojekyll
           git add .
           git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')
       - name: Push
         run: git push origin gh-pages:gh-pages
+  agents:
+    runs-on: ubuntu-latest
+    name: Agent 1
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        agent: [ 1, 2, 3 ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with: 
+          node-version: '14'
+      - run: yarn install --check-files --frozen-lockfile
+      - name: Start Nx Agent ${{ matrix.agent }}
+        run: npx nx-cloud start-agent  

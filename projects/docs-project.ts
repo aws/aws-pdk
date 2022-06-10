@@ -23,7 +23,7 @@ export class DocsProject extends TypeScriptProject {
   constructor(parent: Project) {
     super({
       parent,
-      outdir: "docs",
+      outdir: "packages/docs",
       defaultReleaseBranch: "mainline",
       sampleCode: false,
       jest: false,
