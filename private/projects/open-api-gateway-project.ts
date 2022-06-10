@@ -42,7 +42,7 @@ export class OpenApiGatewayProject extends PDKProject {
 
     // Run integration tests after packaging, since they depend on the packaged artifact
     const integrationTestTask = this.addTask('test:integration', {
-      exec: 'jest test-integration --testMatch "**/*.test.ts"',
+      exec: 'jest test-integration --testMatch "**/*.test.ts" --runInBand',
     });
 
     this.packageTask.spawn(integrationTestTask);
