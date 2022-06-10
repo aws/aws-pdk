@@ -14,7 +14,7 @@ export const startLocalRegistry: () => Promise<ChildProcess> = () => new Promise
   const childFork = fork(
     pathVerdaccioModule,
     ['-c', configPath],
-    { silent: false, detached: true },
+    { silent: false },
   );
 
   childFork.on('message', (msg: string[]) => {
