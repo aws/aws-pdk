@@ -19,20 +19,19 @@ import { TypeScriptProject } from "projen/lib/typescript";
 /**
  * Contains configuration for the public (docs) package.
  */
-export class PublicProject extends TypeScriptProject {
+export class DocsProject extends TypeScriptProject {
   constructor(parent: Project) {
     super({
       parent,
-      outdir: "public", // nx has issues with root directories being called 'docs'
+      outdir: "public/docs", // nx has issues with root directories being called 'docs'
       defaultReleaseBranch: "mainline",
       sampleCode: false,
       jest: false,
-      name: "public",
+      name: "docs",
       devDeps: [
         "@types/fs-extra",
         "exponential-backoff",
         "jsii-docgen",
-        "aws-prototyping-sdk@0.0.0",
       ],
       deps: ["fs-extra"],
     });
