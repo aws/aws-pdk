@@ -14,19 +14,20 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import { AwsPrototypingSdkProject } from "./private/projects/aws-prototyping-sdk-project";
-import { PublicProject } from "./private/projects/public-project";
+import { DocsProject } from "./private/projects/docs-project";
 import { IdentityProject } from "./private/projects/identity-project";
 import { NXMonorepoProject } from "./private/projects/nx-monorepo-project";
 import { PDKMonorepoProject } from "./private/projects/pdk-monorepo-project";
 import { PipelineProject } from "./private/projects/pipeline-project";
 import { StaticWebsiteProject } from "./private/projects/static-website-project";
 import { OpenApiGatewayProject } from "./private/projects/open-api-gateway-project";
+import { PDKProject } from "./private/pdk-project";
 
 // root/parent project
 const monorepoProject = new PDKMonorepoProject();
 
 // docs
-new PublicProject(monorepoProject);
+const docsProject = new DocsProject(monorepoProject);
 
 // public packages
 new NXMonorepoProject(monorepoProject);
@@ -40,5 +41,10 @@ new OpenApiGatewayProject(monorepoProject);
 pipelineProject.samples.forEach((sample) =>
   monorepoProject.addImplicitDependency(sample, awsPrototypingSdkProject)
 );
+
+// Docs should have a dependency on all publishable packages
+monorepoProject.subProjects
+  .filter((s: any) => s instanceof PDKProject && s.pdkRelease)
+  .forEach(s => monorepoProject.addImplicitDependency(docsProject, s));
 
 monorepoProject.synth();

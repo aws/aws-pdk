@@ -49,6 +49,8 @@ export interface PDKProjectOptions extends JsiiProjectOptions {
  * This project handles correct naming for the PDK, along with validation and auto publishing of artifacts to the various package managers.
  */
 export class PDKProject extends JsiiProject {
+  public readonly pdkRelease: PDKRelease;
+
   constructor(options: PDKProjectOptions) {
     const nameWithUnderscore = options.name.replace(/-/g, "_");
     const condensedName = options.name.replace(/-/g, "");
@@ -126,7 +128,7 @@ export class PDKProject extends JsiiProject {
       });
     }
 
-    new PDKRelease(this);
+    this.pdkRelease = new PDKRelease(this);
   }
 }
 
