@@ -98,7 +98,7 @@ project.synth();
       });
 
       // Build the parent
-      execSync('npx projen build');
+      exec('npx projen build');
     });
   });
 
