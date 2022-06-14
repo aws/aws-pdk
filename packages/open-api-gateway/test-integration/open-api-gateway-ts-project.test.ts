@@ -19,7 +19,7 @@ describe('OpenAPI Gateway Ts Project Integration Tests', () => {
   });
 
   afterAll(async () => {
-    fs.rmSync('./.npmrc');
+    fs.rmSync('./.npmrc', { force: true });
     // @ts-ignore
     globalThis.__REGISTRY_PROCESS__ && globalThis.__REGISTRY_PROCESS__.kill();
   });
@@ -27,7 +27,7 @@ describe('OpenAPI Gateway Ts Project Integration Tests', () => {
   it('Within Monorepo', () => {
     executeInTempFolderSync('open-api-gateway-monorepo', (tempFolder) => {
       // Create a monorepo project
-      execSync('npx --yes projen new --from aws-prototyping-sdk nx-monorepo --no-git --name open-api-gateway-monorepo-ts-test', {
+      execSync('yes | npx projen new --from aws-prototyping-sdk nx-monorepo --no-git --name open-api-gateway-monorepo-ts-test', {
         cwd: tempFolder,
         env: process.env,
         stdio: 'inherit',
@@ -91,7 +91,7 @@ project.synth();
 
   it('Standalone', () => {
     executeInTempFolderSync('open-api-gateway', (tempFolder) => {
-      execSync('npx --yes projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts --no-git --name open-api-gateway-ts-test', {
+      execSync('yes | npx projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts --no-git --name open-api-gateway-ts-test', {
         cwd: tempFolder,
         env: process.env, // This is important to make sure we use the local registry!
         stdio: 'inherit',
