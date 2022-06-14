@@ -35,6 +35,19 @@ export type OpenApiIntegrations = {
 };
 
 /**
+ * An http method
+ */
+export type Method =
+  | "get"
+  | "put"
+  | "post"
+  | "delete"
+  | "options"
+  | "head"
+  | "patch"
+  | "trace";
+
+/**
  * Structure to contain an API operation's method and path
  */
 export interface MethodAndPath {
@@ -45,7 +58,7 @@ export interface MethodAndPath {
   /**
    * The http method of this operation
    */
-  readonly method: string;
+  readonly method: Method;
 }
 
 /**
@@ -57,7 +70,6 @@ export type OperationLookup = {
 
 /**
  * Auth types supported by the construct
- * TODO: Support cognito auth!
  */
 export type SupportedAuthTypes = AuthorizationType.IAM | AuthorizationType.NONE;
 

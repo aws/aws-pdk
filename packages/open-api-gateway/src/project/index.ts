@@ -16,3 +16,4 @@
 
 export * from "./open-api-gateway-ts-project";
 export * from "./languages";
+export { OpenApiSpecConfig } from "./spec/open-api-spec-project";

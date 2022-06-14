@@ -19,21 +19,50 @@ import { Project, SampleFile, ProjectOptions } from "projen";
 import { ParsedSpec } from "./components/parsed-spec";
 
 /**
+ * Configuration for the OpenAPI specification files
+ */
+export interface OpenApiSpecConfig {
+  /**
+   * The name of the OpenAPI specification file.
+   * @default spec.yaml
+   */
+  readonly specFileName?: string;
+  /**
+   * The name of the output parsed OpenAPI specification file. Must end with .json.
+   * @default parsed-spec.json
+   */
+  readonly parsedSpecFileName?: string;
+}
+
+/**
+ * Configuration for the OpenAPI spec project
+ */
+export interface OpenApiSpecProjectOptions
+  extends OpenApiSpecConfig,
+    ProjectOptions {}
+
+/**
  * Project containing the OpenAPI spec, and a parsed spec for use by the CDK construct
  */
 export class OpenApiSpecProject extends Project {
   public readonly specPath: string;
   public readonly parsedSpecPath: string;
 
-  public readonly specDir: string = "spec";
-  public readonly specFileName: string = "spec.yaml";
-  public readonly parsedSpecFileName: string = "parsed-spec.json";
+  public readonly specFileName: string;
+  public readonly parsedSpecFileName: string;
 
   // Store whether we've synthesized the project
   private synthed: boolean = false;
 
-  constructor(options: ProjectOptions) {
+  constructor(options: OpenApiSpecProjectOptions) {
     super(options);
+    this.specFileName = options.specFileName ?? "spec.yaml";
+    this.parsedSpecFileName = options.parsedSpecFileName ?? "parsed-spec.json";
+
+    if (!this.parsedSpecFileName.endsWith(".json")) {
+      throw new Error("Parsed spec file must end with .json");
+    }
+
     this.specPath = path.join(this.outdir, this.specFileName);
     this.parsedSpecPath = path.join(this.outdir, this.parsedSpecFileName);
 
@@ -45,7 +74,7 @@ export class OpenApiSpecProject extends Project {
         "..",
         "..",
         "samples",
-        this.specFileName
+        "spec.yaml"
       ),
     });
 
@@ -56,6 +85,9 @@ export class OpenApiSpecProject extends Project {
     });
   }
 
+  /**
+   * @inheritDoc
+   */
   synth() {
     // Save some time by only synthesizing once. We synthesize this project early so that it's available for the parent
     // project's install phase (pre-synth). Projen will call this method again at the usual time to synthesize this,

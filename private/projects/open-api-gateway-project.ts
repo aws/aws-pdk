@@ -38,11 +38,18 @@ export class OpenApiGatewayProject extends PDKProject {
         "constructs"
       ],
       stability: Stability.EXPERIMENTAL,
+      eslintOptions: {
+        dirs: ["src", "scripts"],
+        devdirs: ["test", "test-integration"],
+      }
     });
 
+    this.tsconfigEslint!.addInclude('scripts');
+    this.tsconfigEslint!.addInclude('test-integration');
+
     // Run integration tests after packaging, since they depend on the packaged artifact
-    const integrationTestTask = this.addTask('test:integration', {
-      exec: 'jest test-integration --testMatch "**/*.test.ts"',
+    const integrationTestTask = this.addTask("test-integration", {
+      exec: 'jest test-integration --testMatch "**/*.test.ts" --runInBand',
     });
 
     this.packageTask.spawn(integrationTestTask);

@@ -1,21 +1,43 @@
-// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: Apache-2.0
+/*********************************************************************************************************************
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License").
+ You may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ ******************************************************************************************************************** */
 
 import SwaggerParser from "@apidevtools/swagger-parser";
-import { parse } from 'ts-command-line-args';
-import {writeFile} from "projen/lib/util";
+import { writeFile } from "projen/lib/util";
+import { parse } from "ts-command-line-args";
 
+/**
+ * Arguments for parsing an OpenAPI spec file
+ */
 interface Arguments {
+  /**
+   * Path to the input OpenAPI specification file (spec.yaml). Must be the root spec if using references to other specs.
+   */
   readonly specPath: string;
+  /**
+   * Path to write the output json specification file to
+   */
   readonly outputPath: string;
 }
 
-(async () => {
+void (async () => {
   const args = parse<Arguments>({
-    specPath: { type: String, alias: 's' },
-    outputPath: { type: String, alias: 'o' },
+    specPath: { type: String, alias: "s" },
+    outputPath: { type: String, alias: "o" },
   });
-  console.log('Parsing spec', args.specPath);
+  console.log("Parsing spec", args.specPath);
 
   const parsedSpec = await SwaggerParser.bundle(args.specPath);
 
@@ -23,5 +45,5 @@ interface Arguments {
     readonly: true,
   });
 
-  console.log('Written parsed spec to', args.outputPath);
+  console.log("Written parsed spec to", args.outputPath);
 })();

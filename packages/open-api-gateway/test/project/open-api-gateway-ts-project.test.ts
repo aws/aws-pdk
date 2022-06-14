@@ -63,6 +63,34 @@ describe("OpenAPI Gateway Ts Unit Tests", () => {
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
 
+  it("With Custom Directories And File Names", () => {
+    const project = new OpenApiGatewayTsProject({
+      defaultReleaseBranch: "mainline",
+      name: "@test/my-api",
+      clientLanguages: [ClientLanguage.TYPESCRIPT],
+      sampleCode: false,
+      specDir: "specification",
+      specFileName: "openapi.yaml",
+      parsedSpecFileName: "parsed-openapi.json",
+      generatedCodeDir: "gen",
+      srcdir: "source",
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("Throws With Non JSON Parsed Spec File Name", () => {
+    expect(
+      () =>
+        new OpenApiGatewayTsProject({
+          defaultReleaseBranch: "mainline",
+          name: "@test/my-api",
+          clientLanguages: [ClientLanguage.TYPESCRIPT],
+          sampleCode: false,
+          parsedSpecFileName: "parsed-openapi.yaml",
+        })
+    ).toThrow("Parsed spec file must end with .json");
+  });
+
   it.each([
     NodePackageManager.YARN,
     NodePackageManager.NPM,

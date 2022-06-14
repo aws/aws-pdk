@@ -25,6 +25,7 @@ import {
 import { Construct } from "constructs";
 import { OpenAPIV3 } from "openapi-types";
 import {
+  Method,
   MethodAndPath,
   OpenApiIntegrations,
   OpenApiOptions,
@@ -39,7 +40,7 @@ const concatMethodAndPath = ({ method, path }: MethodAndPath) =>
 const applyMethodIntegration = (
   scope: Construct,
   path: string,
-  method: string,
+  method: Method,
   { integrations, authType, corsOptions }: OpenApiOptions,
   operation: OpenAPIV3.OperationObject,
   getOperationName: (methodAndPath: MethodAndPath) => string

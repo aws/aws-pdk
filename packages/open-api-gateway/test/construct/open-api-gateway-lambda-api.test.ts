@@ -19,7 +19,7 @@ import { Template } from "aws-cdk-lib/assertions";
 import { AuthorizationType, Cors } from "aws-cdk-lib/aws-apigateway";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { OpenAPIV3 } from "openapi-types";
-import { OpenApiGatewayLambdaApi } from "../../lib/construct";
+import { MethodAndPath, OpenApiGatewayLambdaApi } from "../../lib/construct";
 
 const sampleSpec: OpenAPIV3.Document = {
   openapi: "3.0.3",
@@ -54,7 +54,7 @@ const sampleSpec: OpenAPIV3.Document = {
 };
 
 const operationLookup = {
-  testOperation: {
+  testOperation: <MethodAndPath>{
     method: "get",
     path: "/test",
   },

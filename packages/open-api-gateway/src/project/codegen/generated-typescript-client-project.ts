@@ -90,6 +90,9 @@ export class GeneratedTypescriptClientProject extends TypeScriptProject {
     });
   }
 
+  /**
+   * @inheritDoc
+   */
   synth() {
     // Save some time by only synthesizing once. We synthesize this project early so that it's available for the parent
     // project's install phase (pre-synth). Projen will call this method again at the usual time to synthesize this,

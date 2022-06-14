@@ -29,7 +29,10 @@ import {
   getTypescriptSampleTests,
   TypescriptSampleCodeOptions,
 } from "./samples/typescript";
-import { OpenApiSpecProject } from "./spec/open-api-spec-project";
+import {
+  OpenApiSpecConfig,
+  OpenApiSpecProject,
+} from "./spec/open-api-spec-project";
 
 const OPENAPI_GATEWAY_PDK_PACKAGE_NAME =
   "@aws-prototyping-sdk/open-api-gateway";
@@ -38,11 +41,24 @@ const OPENAPI_GATEWAY_PDK_PACKAGE_NAME =
  * Configuration for the OpenApiGatewayTsProject
  */
 export interface OpenApiGatewayTsProjectOptions
-  extends TypeScriptProjectOptions {
+  extends TypeScriptProjectOptions,
+    OpenApiSpecConfig {
   /**
    * The list of languages for which clients will be generated. A typescript client will always be generated.
    */
   readonly clientLanguages: ClientLanguage[];
+
+  /**
+   * The directory in which the OpenAPI spec should be generated, relative to the outdir of this project
+   * @default spec
+   */
+  readonly specDir?: string;
+
+  /**
+   * The directory in which generated client code will be generated, relative to the outdir of this project
+   * @default generated
+   */
+  readonly generatedCodeDir?: string;
 }
 
 /**
@@ -57,21 +73,41 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
    */
   public readonly generatedTypescriptClient: TypeScriptProject;
 
+  /**
+   * The directory in which the OpenAPI spec file(s) reside, relative to the project outdir
+   */
+  public readonly specDir: string;
+
+  /**
+   * The directory in which generated client code will be generated, relative to the outdir of this project
+   */
+  public readonly generatedCodeDir: string;
+
+  /**
+   * Reference to the PNPM workspace yaml file which adds the dependency between this project and the generated
+   * typescript client when this project is used in a monorepo.
+   */
+  public readonly pnpmWorkspace?: YamlFile;
+
   private readonly hasParent: boolean;
-  private readonly specDir: string = "spec";
 
   constructor(options: OpenApiGatewayTsProjectOptions) {
     super({
       ...options,
       sampleCode: false,
+      // Default src dir to 'api' to allow for more readable imports, eg `import { SampleApi } from 'my-generated-api/api'`.
+      srcdir: options.srcdir || "api",
       tsconfig: {
         compilerOptions: {
-          // Root dir needs to include src and spec
+          // Root dir needs to include srcdir and spec
           rootDir: ".",
           lib: ["dom", "es2019"],
         },
       },
     });
+
+    this.specDir = options.specDir ?? "spec";
+    this.generatedCodeDir = options.generatedCodeDir ?? "generated";
 
     // Allow spec to be imported, using both the source and spec directories as project roots.
     this.tsconfig?.addInclude(`${this.specDir}/**/*.json`);
@@ -95,12 +131,12 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
       name: `${this.name}-spec`,
       parent: this,
       outdir: this.specDir,
+      specFileName: options.specFileName,
+      parsedSpecFileName: options.parsedSpecFileName,
     });
     spec.synth();
 
-    const codegenDir = "generated";
-
-    new TextFile(this, path.join(codegenDir, "README.md"), {
+    new TextFile(this, path.join(this.generatedCodeDir, "README.md"), {
       lines: [
         "## Generated Clients",
         "",
@@ -112,17 +148,21 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     });
 
     // Parent the generated code with this project's parent for better integration with monorepos
-    this.hasParent = !!(options.parent && options.outdir);
-    const codegenDirRelativeToParent = this.hasParent
-      ? path.join(options.outdir!, codegenDir)
-      : codegenDir;
+    this.hasParent = !!options.parent;
+    const generatedCodeDirRelativeToParent = this.hasParent
+      ? path.join(options.outdir!, this.generatedCodeDir)
+      : this.generatedCodeDir;
 
-    // We generate the typescript client since this project will take a dependency on it
+    // We generate the typescript client since this project will take a dependency on it in order to produce the
+    // type-safe cdk construct wrapper.
     this.generatedTypescriptClient = new GeneratedTypescriptClientProject({
       parent: this.hasParent ? options.parent : this,
       defaultReleaseBranch: options.defaultReleaseBranch,
       name: `${this.package.packageName}-typescript`,
-      outdir: path.join(codegenDirRelativeToParent, ClientLanguage.TYPESCRIPT),
+      outdir: path.join(
+        generatedCodeDirRelativeToParent,
+        ClientLanguage.TYPESCRIPT
+      ),
       // Use the parsed spec such that refs are resolved to support multi-file specs
       specPath: spec.parsedSpecPath,
       packageManager: options.packageManager,
@@ -142,7 +182,7 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
       // client won't be visible for the first install in this project's post synthesize step, so we use a local
       // workspace as a workaround.
       if (this.package.packageManager === NodePackageManager.PNPM) {
-        new YamlFile(this, "pnpm-workspace.yaml", {
+        this.pnpmWorkspace = new YamlFile(this, "pnpm-workspace.yaml", {
           readonly: true,
           obj: {
             packages: [typescriptCodeGenDir],
@@ -157,7 +197,7 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
       this.addDeps(this.generatedTypescriptClient.package.packageName);
       // Since the generated typescript client project is parented by this project's parent rather than this project,
       // projen will clean up the generated client when synthesizing this project unless we add an explicit exclude.
-      this.addExcludeFromCleanup(`${codegenDir}/**/*`);
+      this.addExcludeFromCleanup(`${this.generatedCodeDir}/**/*`);
     } else {
       // Add a file dependency on the generated typescript client
       this.addDeps(
@@ -184,6 +224,7 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
       typescriptClientPackageName:
         this.generatedTypescriptClient.package.packageName,
       sampleCode: options.sampleCode,
+      srcdir: this.srcdir,
     };
     new SampleDir(this, this.srcdir, {
       files: getTypescriptSampleSource(sampleOptions),
@@ -193,13 +234,14 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     });
   }
 
+  /**
+   * @inheritDoc
+   */
   postSynthesize() {
-    if (!this.hasParent) {
-      // When no parent is passed, link the generated client as a prebuild step to ensure the latest built generated
-      // client is reflected in this package's node modules.
-      // Note that it's up to the user to manage building the generated client first.
-      this.executeLinkNativeClientCommands();
-    }
+    // When no parent is passed, link the generated client as a prebuild step to ensure the latest built generated
+    // client is reflected in this package's node modules.
+    // Note that it's up to the user to manage building the generated client first.
+    !this.hasParent && this.executeLinkNativeClientCommands();
 
     super.postSynthesize();
   }

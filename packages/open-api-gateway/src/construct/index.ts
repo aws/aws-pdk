@@ -14,5 +14,5 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-export * from "./open-api-gateway-lamda-api";
+export * from "./open-api-gateway-lambda-api";
 export * from "./utils";

@@ -41,12 +41,123 @@ In the output directory (`outdir`), you'll find a few files to get you started.
     |_ say-hello.handler.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
                               generated lambda handler wrappers for marshalling and type safety.
 |_ generated/
-    |_ typescript/ - A generated typescript API client, including with generated lambda handler wrappers
+    |_ typescript/ - A generated typescript API client, including generated lambda handler wrappers
 ```
 
-If you would not like the sample code to be generated, you can pass `sampleCode: false` to `OpenApiGatewayTsProject`.
+If you would prefer to not generate the sample code, you can pass `sampleCode: false` to `OpenApiGatewayTsProject`.
 
-To make changes to your api, simply update `spec.yaml` and run `npx projen` to regenerate all the generated code!
+To make changes to your api, simply update `spec.yaml` and run `npx projen` to synthesize all the typesafe client/server code!
+
+### OpenAPI Specification
+
+Your `spec.yaml` file defines your api using [OpenAPI Version 3.0.3](https://swagger.io/specification/). An example spec might look like:
+
+```yaml
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Example API
+paths:
+  /hello:
+    get:
+      operationId: sayHello
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/HelloResponse'
+components:
+  schemas:
+    HelloResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+```
+
+You can divide your specification into multiple files using `$ref`.
+
+For example, you might choose to structure your spec as follows:
+
+```
+|_ spec/
+    |_ spec.yaml
+    |_ paths/
+        |_ index.yaml
+        |_ sayHello.yaml
+    |_ schemas/
+        |_ index.yaml
+        |_ helloResponse.yaml
+```
+
+Where `spec.yaml` looks as follows:
+
+```yaml
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Example API
+paths:
+  $ref: './paths/index.yaml'
+components:
+  schemas:
+    $ref: './schemas/index.yaml'
+```
+
+`paths/index.yaml`:
+
+```yaml
+/hello:
+  get:
+    $ref: './sayHello.yaml''\
+```
+
+`paths/sayHello.yaml`:
+
+```yaml
+operationId: sayHello
+parameters:
+ - in: query
+   name: name
+   schema:
+     type: string
+   required: true
+responses:
+  '200':
+    description: Successful response
+    content:
+      'application/json':
+        schema:
+          $ref: '../schemas/helloResponse.yaml'
+```
+
+`schemas/index.yaml`:
+
+```yaml
+HelloResponse:
+  $ref: './helloResponse.yaml'
+```
+
+`schemas/helloResponse.yaml`:
+
+```yaml
+type: object
+properties:
+  message:
+    type: string
+required:
+  - message
+```
 
 ### Construct
 

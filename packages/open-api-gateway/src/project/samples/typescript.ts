@@ -30,6 +30,10 @@ export interface TypescriptSampleCodeOptions {
    * Whether or not to generate sample code
    */
   readonly sampleCode?: boolean;
+  /**
+   * Source code directory
+   */
+  readonly srcdir: string;
 }
 
 /**
@@ -62,7 +66,7 @@ export class Api extends OpenApiGatewayLambdaApi {
       ...props,
       integrations: props.integrations as any,
       spec,
-      operationLookup: OperationLookup,
+      operationLookup: OperationLookup as any,
     });
   }
 }
@@ -124,7 +128,7 @@ export const getTypescriptSampleTests = (
 import { Template } from "aws-cdk-lib/assertions";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { OperationLookup } from "${options.typescriptClientPackageName}";
-import { Api } from "../src";
+import { Api } from "../${options.srcdir}";
 
 /**
  * A simple test to ensure the api construct synthesizes correctly
