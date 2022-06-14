@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { execSync, ExecSyncOptions } from "child_process";
 import {executeInTempFolderSync} from "./utils/fs-utils";
 import * as fs from "fs";
 import {publishToLocalRegistry} from "./utils/publish-to-local-registry";
@@ -24,21 +24,26 @@ describe('OpenAPI Gateway Ts Project Integration Tests', () => {
     globalThis.__REGISTRY_PROCESS__ && globalThis.__REGISTRY_PROCESS__.kill();
   });
 
+  // Create an exec method with default options
+  const executor = (tempFolder: string) => (cmd: string, options?: ExecSyncOptions) => execSync(cmd, {
+    cwd: tempFolder,
+    env: {
+      ...process.env, // This is important to make sure we use the local registry!
+      npm_config_yes: 'true', // Disable any prompts for new packages
+    },
+    stdio: 'inherit',
+    ...options,
+  });
+
   it('Within Monorepo', () => {
     executeInTempFolderSync('open-api-gateway-monorepo', (tempFolder) => {
+      const exec = executor(tempFolder);
+
       // Create a monorepo project
-      execSync('yes | npx projen new --from aws-prototyping-sdk nx-monorepo --no-git --name open-api-gateway-monorepo-ts-test', {
-        cwd: tempFolder,
-        env: process.env,
-        stdio: 'inherit',
-      });
+      exec('npx projen new --from aws-prototyping-sdk nx-monorepo --no-git --name open-api-gateway-monorepo-ts-test');
 
       // Add a dependency on the open-api-gateway package
-      execSync('yarn add --dev -W @aws-prototyping-sdk/open-api-gateway', {
-        cwd: tempFolder,
-        env: process.env,
-        stdio: 'inherit',
-      });
+      exec('yarn add --dev -W @aws-prototyping-sdk/open-api-gateway');
 
       // Write a projenrc.ts which adds an OpenApiGatewayTsProject to the monorepo
       fs.writeFileSync(path.join(tempFolder, ".projenrc.ts"), `import { nx_monorepo } from "aws-prototyping-sdk";
@@ -74,42 +79,26 @@ project.synth();
 `);
 
       // Run projen to generate the new files
-      execSync('npx projen', {
-        cwd: tempFolder,
-        env: process.env,
-        stdio: "inherit",
-      });
+      exec('npx projen');
 
       // Verify it builds successfully
-      execSync('npx nx run-many --target=build --all', {
-        cwd: tempFolder,
-        env: process.env,
-        stdio: 'inherit',
-      });
+      exec('npx nx run-many --target=build --all');
     });
   });
 
   it('Standalone', () => {
     executeInTempFolderSync('open-api-gateway', (tempFolder) => {
-      execSync('yes | npx projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts --no-git --name open-api-gateway-ts-test', {
-        cwd: tempFolder,
-        env: process.env, // This is important to make sure we use the local registry!
-        stdio: 'inherit',
-      });
+      const exec = executor(tempFolder);
+
+      exec('npx projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts --no-git --name open-api-gateway-ts-test');
 
       // Install and build the generated typescript client
-      execSync('yarn && npx projen build', {
+      exec('yarn && npx projen build', {
         cwd: path.join(tempFolder, "generated", "typescript"),
-        env: process.env,
-        stdio: "inherit",
       });
 
       // Build the parent
-      execSync('npx projen build', {
-        cwd: tempFolder,
-        env: process.env,
-        stdio: 'inherit',
-      });
+      execSync('npx projen build');
     });
   });
 
