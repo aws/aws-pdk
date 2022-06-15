@@ -1,0 +1,43 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Example API
+paths:
+  /hello:
+    get:
+      operationId: sayHello
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/HelloResponse'
+        '400':
+          description: Error response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ApiError'
+components:
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+      required:
+        - errorMessage
+    HelloResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message

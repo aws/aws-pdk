@@ -1,0 +1,158 @@
+// Import models
+{{#imports.0}}
+import {
+    {{#imports}}
+    {{className}},
+    {{^withoutRuntimeChecks}}
+    {{className}}FromJSON,
+    {{className}}ToJSON,
+    {{/withoutRuntimeChecks}}
+    {{/imports}}
+} from '../../models';
+{{/imports.0}}
+// Import request parameter interfaces
+import {
+    {{#operations}}
+    {{#operation}}
+    {{#allParams.0}}{{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request,{{/allParams.0}}
+    {{/operation}}
+    {{/operations}}
+} from '..';
+
+// Generic type for object keyed by operation names
+export interface OperationConfig<T> {
+    {{#operations}}
+    {{#operation}}
+    {{nickname}}: T;
+    {{/operation}}
+    {{/operations}}
+}
+
+// Look up path and http method for a given operation name
+export const OperationLookup = {
+    {{#operations}}
+    {{#operation}}
+    {{nickname}}: {
+        path: '{{path}}',
+        method: '{{httpMethod}}',
+    },
+    {{/operation}}
+    {{/operations}}
+};
+
+// Standard apigateway request parameters (query parameters or path parameters, multi or single value)
+type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
+
+/**
+ * URI decode for a string or array of strings
+ */
+const uriDecode = (value: string | string[]): string | string[] =>
+    typeof value === 'string' ? decodeURIComponent(value) : value.map((v) => decodeURIComponent(v));
+
+/**
+ * URI decodes apigateway request parameters (query or path parameters)
+ */
+const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGatewayRequestParameters => {
+    const decodedParameters = {};
+    Object.keys(parameters || {}).forEach((key) => {
+        decodedParameters[key] = parameters[key] ? uriDecode(parameters[key]) : parameters[key];
+    });
+    return decodedParameters;
+};
+
+/**
+ * Parse the body if the content type is json, otherwise leave as a raw string
+ */
+const parseBody = (body: string, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? JSON.parse(body || '{}') : body;
+
+// Api gateway lambda handler type
+type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
+
+// Type of the response to be returned by an operation lambda handler
+export interface OperationResponse<T, ApiError> {
+    statusCode: number;
+    headers?: { [key: string]: string };
+    body?: T | ApiError;
+}
+
+// Input for a lambda handler for an operation
+export type LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody> = {
+    requestParameters: RequestParameters,
+    requestArrayParameters: RequestArrayParameters,
+    body: RequestBody,
+};
+
+// Type for a lambda handler function to be wrapped
+export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> = (
+    input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
+    event: any,
+    context: any,
+) => Promise<OperationResponse<RequestOutput, ApiError>>;
+
+{{#operations}}
+{{#operation}}
+// Type alias for the request
+type {{operationIdCamelCase}}RequestInput = {{#allParams.0}}{{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request{{/allParams.0}}{{^allParams.0}}{}{{/allParams.0}};
+
+/**
+ * Single-value path/query parameters for {{operationIdCamelCase}}
+ */
+export interface {{operationIdCamelCase}}RequestParameters {
+{{#allParams}}
+{{^isBodyParam}}
+{{^isArray}}
+    readonly {{baseName}}{{^required}}?{{/required}}: string;
+{{/isArray}}
+{{/isBodyParam}}
+{{/allParams}}
+}
+
+/**
+ * Multi-value query parameters for {{operationIdCamelCase}}
+ */
+export interface {{operationIdCamelCase}}RequestArrayParameters {
+{{#allParams}}
+{{^isBodyParam}}
+{{#isArray}}
+    readonly {{baseName}}{{^required}}?{{/required}}: string[];
+{{/isArray}}
+{{/isBodyParam}}
+{{/allParams}}
+}
+
+/**
+ * Request body parameter for {{operationIdCamelCase}}
+ */
+export type {{operationIdCamelCase}}RequestBody = {{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}never{{/bodyParam}};
+
+// Type that the handler function provided to the wrapper must conform to
+type {{operationIdCamelCase}}HandlerFunction<ApiError> = LambdaHandlerFunction<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody, {{returnType}}, ApiError>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of {{nickname}}
+ */
+export const {{nickname}}Handler = <ApiError>(handler: {{operationIdCamelCase}}HandlerFunction<ApiError>): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+    const requestParameters = decodeRequestParameters({
+        ...(event.pathParameters || {}),
+        ...(event.queryStringParameters || {}),
+    }) as unknown as {{operationIdCamelCase}}RequestParameters;
+
+    const requestArrayParameters = decodeRequestParameters({
+        ...(event.multiValueQueryStringParameters || {}),
+    }) as unknown as {{operationIdCamelCase}}RequestArrayParameters;
+
+    const body = parseBody(event.body, [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}]) as {{operationIdCamelCase}}RequestBody;
+
+    const response = await handler({
+        requestParameters,
+        requestArrayParameters,
+        body,
+    }, event, context);
+
+    return {
+        ...response,
+        body: response.body ? JSON.stringify(response.body) : '',
+    };
+};
+{{/operation}}
+{{/operations}}
