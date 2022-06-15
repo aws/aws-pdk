@@ -85,7 +85,7 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
 
   /**
    * Reference to the PNPM workspace yaml file which adds the dependency between this project and the generated
-   * typescript client when this project is used in a monorepo.
+   * typescript client when this project is used in a monorepo, and the package manager is PNPM.
    */
   public readonly pnpmWorkspace?: YamlFile;
 
