@@ -2671,7 +2671,7 @@ export class TextApiResponse {
   "source/api.ts": "import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from \\"@aws-prototyping-sdk/open-api-gateway\\";
 import { Construct } from \\"constructs\\";
 import { OperationLookup, OperationConfig } from \\"@test/my-api-typescript\\";
-import spec from \\"../spec/parsed-spec.json\\";
+import spec from \\"../specification/parsed-openapi.json\\";
 
 export type ApiIntegrations = OperationConfig<OpenApiIntegration>;
 
@@ -4218,31 +4218,7 @@ export class Api extends OpenApiGatewayLambdaApi {
 ",
   "api/index.ts": "export * from './api';
 export * from './sample-api';",
-  "api/sample-api.ts": "import { Construct } from \\"constructs\\";
-import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
-import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
-import * as path from \\"path\\";
-import { Api } from \\"./api\\";
-
-/**
- * An example of how to wire lambda handler functions to the API
- */
-export class SampleApi extends Api {
-  constructor(scope: Construct, id: string) {
-    super(scope, id, {
-      authType: AuthorizationType.IAM,
-      integrations: {
-        sayHello: {
-          function: new NodejsFunction(scope, \\"SayHelloHandler\\", {
-            entry: path.join(__dirname, \\"say-hello.handler.ts\\"),
-          }),
-        },
-      },
-    });
-  }
-}
-",
-  "api/say-hello.handler.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
+  "api/sample-api.say-hello.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
 
 /**
  * An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs.
@@ -4255,6 +4231,27 @@ export const handler = sayHelloHandler<ApiError>(async (input) => {
     },
   };
 });
+",
+  "api/sample-api.ts": "import { Construct } from \\"constructs\\";
+import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
+import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
+import { Api } from \\"./api\\";
+
+/**
+ * An example of how to wire lambda handler functions to the API
+ */
+export class SampleApi extends Api {
+  constructor(scope: Construct, id: string) {
+    super(scope, id, {
+      authType: AuthorizationType.IAM,
+      integrations: {
+        sayHello: {
+          function: new NodejsFunction(scope, \\"say-hello\\"),
+        },
+      },
+    });
+  }
+}
 ",
   "generated/README.md": "## Generated Clients
 
@@ -7263,31 +7260,7 @@ export class Api extends OpenApiGatewayLambdaApi {
 ",
   "api/index.ts": "export * from './api';
 export * from './sample-api';",
-  "api/sample-api.ts": "import { Construct } from \\"constructs\\";
-import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
-import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
-import * as path from \\"path\\";
-import { Api } from \\"./api\\";
-
-/**
- * An example of how to wire lambda handler functions to the API
- */
-export class SampleApi extends Api {
-  constructor(scope: Construct, id: string) {
-    super(scope, id, {
-      authType: AuthorizationType.IAM,
-      integrations: {
-        sayHello: {
-          function: new NodejsFunction(scope, \\"SayHelloHandler\\", {
-            entry: path.join(__dirname, \\"say-hello.handler.ts\\"),
-          }),
-        },
-      },
-    });
-  }
-}
-",
-  "api/say-hello.handler.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
+  "api/sample-api.say-hello.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
 
 /**
  * An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs.
@@ -7300,6 +7273,27 @@ export const handler = sayHelloHandler<ApiError>(async (input) => {
     },
   };
 });
+",
+  "api/sample-api.ts": "import { Construct } from \\"constructs\\";
+import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
+import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
+import { Api } from \\"./api\\";
+
+/**
+ * An example of how to wire lambda handler functions to the API
+ */
+export class SampleApi extends Api {
+  constructor(scope: Construct, id: string) {
+    super(scope, id, {
+      authType: AuthorizationType.IAM,
+      integrations: {
+        sayHello: {
+          function: new NodejsFunction(scope, \\"say-hello\\"),
+        },
+      },
+    });
+  }
+}
 ",
   "generated/README.md": "## Generated Clients
 
@@ -10300,31 +10294,7 @@ export class Api extends OpenApiGatewayLambdaApi {
 ",
   "api/index.ts": "export * from './api';
 export * from './sample-api';",
-  "api/sample-api.ts": "import { Construct } from \\"constructs\\";
-import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
-import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
-import * as path from \\"path\\";
-import { Api } from \\"./api\\";
-
-/**
- * An example of how to wire lambda handler functions to the API
- */
-export class SampleApi extends Api {
-  constructor(scope: Construct, id: string) {
-    super(scope, id, {
-      authType: AuthorizationType.IAM,
-      integrations: {
-        sayHello: {
-          function: new NodejsFunction(scope, \\"SayHelloHandler\\", {
-            entry: path.join(__dirname, \\"say-hello.handler.ts\\"),
-          }),
-        },
-      },
-    });
-  }
-}
-",
-  "api/say-hello.handler.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
+  "api/sample-api.say-hello.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
 
 /**
  * An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs.
@@ -10337,6 +10307,27 @@ export const handler = sayHelloHandler<ApiError>(async (input) => {
     },
   };
 });
+",
+  "api/sample-api.ts": "import { Construct } from \\"constructs\\";
+import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
+import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
+import { Api } from \\"./api\\";
+
+/**
+ * An example of how to wire lambda handler functions to the API
+ */
+export class SampleApi extends Api {
+  constructor(scope: Construct, id: string) {
+    super(scope, id, {
+      authType: AuthorizationType.IAM,
+      integrations: {
+        sayHello: {
+          function: new NodejsFunction(scope, \\"say-hello\\"),
+        },
+      },
+    });
+  }
+}
 ",
   "generated/README.md": "## Generated Clients
 
@@ -13772,31 +13763,7 @@ export class Api extends OpenApiGatewayLambdaApi {
 ",
   "packages/api/api/index.ts": "export * from './api';
 export * from './sample-api';",
-  "packages/api/api/sample-api.ts": "import { Construct } from \\"constructs\\";
-import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
-import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
-import * as path from \\"path\\";
-import { Api } from \\"./api\\";
-
-/**
- * An example of how to wire lambda handler functions to the API
- */
-export class SampleApi extends Api {
-  constructor(scope: Construct, id: string) {
-    super(scope, id, {
-      authType: AuthorizationType.IAM,
-      integrations: {
-        sayHello: {
-          function: new NodejsFunction(scope, \\"SayHelloHandler\\", {
-            entry: path.join(__dirname, \\"say-hello.handler.ts\\"),
-          }),
-        },
-      },
-    });
-  }
-}
-",
-  "packages/api/api/say-hello.handler.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
+  "packages/api/api/sample-api.say-hello.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
 
 /**
  * An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs.
@@ -13809,6 +13776,27 @@ export const handler = sayHelloHandler<ApiError>(async (input) => {
     },
   };
 });
+",
+  "packages/api/api/sample-api.ts": "import { Construct } from \\"constructs\\";
+import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
+import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
+import { Api } from \\"./api\\";
+
+/**
+ * An example of how to wire lambda handler functions to the API
+ */
+export class SampleApi extends Api {
+  constructor(scope: Construct, id: string) {
+    super(scope, id, {
+      authType: AuthorizationType.IAM,
+      integrations: {
+        sayHello: {
+          function: new NodejsFunction(scope, \\"say-hello\\"),
+        },
+      },
+    });
+  }
+}
 ",
   "packages/api/generated/README.md": "## Generated Clients
 
@@ -17317,31 +17305,7 @@ export class Api extends OpenApiGatewayLambdaApi {
 ",
   "packages/api/api/index.ts": "export * from './api';
 export * from './sample-api';",
-  "packages/api/api/sample-api.ts": "import { Construct } from \\"constructs\\";
-import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
-import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
-import * as path from \\"path\\";
-import { Api } from \\"./api\\";
-
-/**
- * An example of how to wire lambda handler functions to the API
- */
-export class SampleApi extends Api {
-  constructor(scope: Construct, id: string) {
-    super(scope, id, {
-      authType: AuthorizationType.IAM,
-      integrations: {
-        sayHello: {
-          function: new NodejsFunction(scope, \\"SayHelloHandler\\", {
-            entry: path.join(__dirname, \\"say-hello.handler.ts\\"),
-          }),
-        },
-      },
-    });
-  }
-}
-",
-  "packages/api/api/say-hello.handler.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
+  "packages/api/api/sample-api.say-hello.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
 
 /**
  * An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs.
@@ -17354,6 +17318,27 @@ export const handler = sayHelloHandler<ApiError>(async (input) => {
     },
   };
 });
+",
+  "packages/api/api/sample-api.ts": "import { Construct } from \\"constructs\\";
+import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
+import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
+import { Api } from \\"./api\\";
+
+/**
+ * An example of how to wire lambda handler functions to the API
+ */
+export class SampleApi extends Api {
+  constructor(scope: Construct, id: string) {
+    super(scope, id, {
+      authType: AuthorizationType.IAM,
+      integrations: {
+        sayHello: {
+          function: new NodejsFunction(scope, \\"say-hello\\"),
+        },
+      },
+    });
+  }
+}
 ",
   "packages/api/generated/README.md": "## Generated Clients
 
@@ -20873,31 +20858,7 @@ export class Api extends OpenApiGatewayLambdaApi {
 ",
   "packages/api/api/index.ts": "export * from './api';
 export * from './sample-api';",
-  "packages/api/api/sample-api.ts": "import { Construct } from \\"constructs\\";
-import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
-import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
-import * as path from \\"path\\";
-import { Api } from \\"./api\\";
-
-/**
- * An example of how to wire lambda handler functions to the API
- */
-export class SampleApi extends Api {
-  constructor(scope: Construct, id: string) {
-    super(scope, id, {
-      authType: AuthorizationType.IAM,
-      integrations: {
-        sayHello: {
-          function: new NodejsFunction(scope, \\"SayHelloHandler\\", {
-            entry: path.join(__dirname, \\"say-hello.handler.ts\\"),
-          }),
-        },
-      },
-    });
-  }
-}
-",
-  "packages/api/api/say-hello.handler.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
+  "packages/api/api/sample-api.say-hello.ts": "import { sayHelloHandler, ApiError } from \\"@test/my-api-typescript\\";
 
 /**
  * An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs.
@@ -20910,6 +20871,27 @@ export const handler = sayHelloHandler<ApiError>(async (input) => {
     },
   };
 });
+",
+  "packages/api/api/sample-api.ts": "import { Construct } from \\"constructs\\";
+import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
+import { AuthorizationType } from \\"aws-cdk-lib/aws-apigateway\\";
+import { Api } from \\"./api\\";
+
+/**
+ * An example of how to wire lambda handler functions to the API
+ */
+export class SampleApi extends Api {
+  constructor(scope: Construct, id: string) {
+    super(scope, id, {
+      authType: AuthorizationType.IAM,
+      integrations: {
+        sayHello: {
+          function: new NodejsFunction(scope, \\"say-hello\\"),
+        },
+      },
+    });
+  }
+}
 ",
   "packages/api/generated/README.md": "## Generated Clients
 

@@ -34,6 +34,14 @@ export interface TypescriptSampleCodeOptions {
    * Source code directory
    */
   readonly srcdir: string;
+  /**
+   * Directory where the parsed spec is output
+   */
+  readonly specDir: string;
+  /**
+   * Name of the parsed spec file
+   */
+  readonly parsedSpecFileName: string;
 }
 
 /**
@@ -49,7 +57,7 @@ export const getTypescriptSampleSource = (
   "api.ts": `import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from "${options.openApiGatewayPackageName}";
 import { Construct } from "constructs";
 import { OperationLookup, OperationConfig } from "${options.typescriptClientPackageName}";
-import spec from "../spec/parsed-spec.json";
+import spec from "../${options.specDir}/${options.parsedSpecFileName}";
 
 export type ApiIntegrations = OperationConfig<OpenApiIntegration>;
 
@@ -78,7 +86,6 @@ export class Api extends OpenApiGatewayLambdaApi {
         "sample-api.ts": `import { Construct } from "constructs";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { AuthorizationType } from "aws-cdk-lib/aws-apigateway";
-import * as path from "path";
 import { Api } from "./api";
 
 /**
@@ -90,9 +97,7 @@ export class SampleApi extends Api {
       authType: AuthorizationType.IAM,
       integrations: {
         sayHello: {
-          function: new NodejsFunction(scope, "SayHelloHandler", {
-            entry: path.join(__dirname, "say-hello.handler.ts"),
-          }),
+          function: new NodejsFunction(scope, "say-hello"),
         },
       },
     });
@@ -100,7 +105,7 @@ export class SampleApi extends Api {
 }
 `,
         // Generate an example lambda handler
-        "say-hello.handler.ts": `import { sayHelloHandler, ApiError } from "${options.typescriptClientPackageName}";
+        "sample-api.say-hello.ts": `import { sayHelloHandler, ApiError } from "${options.typescriptClientPackageName}";
 
 /**
  * An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs.
