@@ -16,6 +16,7 @@
 
 import { execSync } from "child_process";
 import * as fs from "fs";
+import path from "path";
 
 /**
  * Registry configuration is specified via env params.
@@ -49,8 +50,13 @@ export const publishToLocalRegistry = (...pdkPackageNames: string[]) => {
     );
   }
 
+  const versionFile = path.join(__dirname, "../../dist/version.txt");
+  const packageVersion = fs.existsSync(versionFile)
+    ? fs.readFileSync(versionFile).toString()
+    : "0.0.0";
+
   pdkPackageNames.forEach((pdkPackageName) => {
-    const packagePath = `../../packages/${pdkPackageName}/dist/js/${pdkPackageName}@0.0.0.jsii.tgz`;
+    const packagePath = `../../packages/${pdkPackageName}/dist/js/${pdkPackageName}@${packageVersion}.jsii.tgz`;
     execSync(`npm publish ${packagePath} --no-workspaces`, {
       env: process.env, // Ensures this is targeting the local registry
       stdio: "inherit",
