@@ -37,7 +37,12 @@ export class OpenApiGatewayProject extends PDKProject {
       stability: Stability.EXPERIMENTAL,
       eslintOptions: {
         dirs: ["src", "scripts"],
-      }
+      },
+      jestOptions: {
+        jestConfig: {
+          globalSetup: '<rootDir>/jest.setup.ts',
+        },
+      },
     });
 
     this.eslint?.addRules({ "import/no-unresolved": [ "off" ] });
