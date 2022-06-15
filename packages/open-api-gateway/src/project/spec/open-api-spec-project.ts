@@ -24,12 +24,12 @@ import { ParsedSpec } from "./components/parsed-spec";
 export interface OpenApiSpecConfig {
   /**
    * The name of the OpenAPI specification file.
-   * @default spec.yaml
+   * @default "spec.yaml"
    */
   readonly specFileName?: string;
   /**
    * The name of the output parsed OpenAPI specification file. Must end with .json.
-   * @default parsed-spec.json
+   * @default "parsed-spec.json"
    */
   readonly parsedSpecFileName?: string;
 }

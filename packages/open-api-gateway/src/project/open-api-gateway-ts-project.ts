@@ -50,13 +50,13 @@ export interface OpenApiGatewayTsProjectOptions
 
   /**
    * The directory in which the OpenAPI spec should be generated, relative to the outdir of this project
-   * @default spec
+   * @default "spec"
    */
   readonly specDir?: string;
 
   /**
    * The directory in which generated client code will be generated, relative to the outdir of this project
-   * @default generated
+   * @default "generated"
    */
   readonly generatedCodeDir?: string;
 }
