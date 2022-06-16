@@ -21,8 +21,14 @@ while [[ "$#" -gt 0 ]]; do case $1 in
   --package-name) package_name="$2"; shift;;
 esac; shift; done
 
+# Prefer pnpm if available, otherwise fall back to npm so as not to require it as a system-wide dependency
+pkg_manager=pnpm
+if ! command -v pnpm &> /dev/null; then
+  pkg_manager=npm
+fi
+
 # Install dependencies
-npm install --save-dev @openapitools/openapi-generator-cli@2.5.1
+$pkg_manager install --silent --save-dev @openapitools/openapi-generator-cli@2.5.1
 
 # Run the generator
 npx openapi-generator-cli generate \

@@ -225,6 +225,8 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
         this.generatedTypescriptClient.package.packageName,
       sampleCode: options.sampleCode,
       srcdir: this.srcdir,
+      specDir: this.specDir,
+      parsedSpecFileName: spec.parsedSpecFileName,
     };
     new SampleDir(this, this.srcdir, {
       files: getTypescriptSampleSource(sampleOptions),
