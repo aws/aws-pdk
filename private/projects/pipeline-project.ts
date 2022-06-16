@@ -68,11 +68,8 @@ export class PipelineTypescriptSampleProject extends TypeScriptProject {
       defaultReleaseBranch: "mainline",
       name: "pipeline-sample-ts",
       sampleCode: false,
-      devDeps: ["jest-node-exports-resolver"],
       deps: ["aws-cdk-lib", "constructs", "aws-prototyping-sdk@0.0.0"],
     });
-
-    this.jest!.config.resolver = 'jest-node-exports-resolver'; // need this for exports
 
     this.package.addField("private", true);
     this.eslint?.addRules({

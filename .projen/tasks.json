@@ -86,7 +86,7 @@
       "description": "Runs eslint against the codebase",
       "steps": [
         {
-          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern projects private test build-tools .projenrc.ts"
+          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern projects private test build-tools projenrc .projenrc.ts"
         }
       ]
     },
@@ -174,7 +174,13 @@
       "name": "upgrade-deps",
       "steps": [
         {
+          "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u"
+        },
+        {
           "exec": "npx syncpack fix-mismatches"
+        },
+        {
+          "exec": "yarn install --check-files"
         },
         {
           "exec": "npx projen"

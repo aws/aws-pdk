@@ -18,9 +18,6 @@ export class OpenApiGatewayProject extends PDKProject {
       devDeps: [
         "@aws-prototyping-sdk/nx-monorepo@0.0.0",
         "projen",
-        "verdaccio",
-        "verdaccio-auth-memory",
-        "verdaccio-memory",
       ],
       deps: [
         "projen",
@@ -40,19 +37,11 @@ export class OpenApiGatewayProject extends PDKProject {
       stability: Stability.EXPERIMENTAL,
       eslintOptions: {
         dirs: ["src", "scripts"],
-        devdirs: ["test", "test-integration"],
       }
     });
 
+    this.eslint?.addRules({ "import/no-unresolved": [ "off" ] });
     this.tsconfigEslint!.addInclude('scripts');
-    this.tsconfigEslint!.addInclude('test-integration');
-
-    // Run integration tests after packaging, since they depend on the packaged artifact
-    const integrationTestTask = this.addTask("test:integration", {
-      exec: 'jest test-integration --testMatch "**/*.test.ts" --runInBand',
-    });
-
-    this.packageTask.spawn(integrationTestTask);
 
     this.addPackageIgnore("**/node_modules");
   }
