@@ -14,8 +14,9 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { AuthorizationType, CorsOptions } from "aws-cdk-lib/aws-apigateway";
+import { CorsOptions } from "aws-cdk-lib/aws-apigateway";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
+import { Authorizer } from "../authorizers";
 
 /**
  * Defines an integration for an individual API operation
@@ -25,6 +26,10 @@ export interface OpenApiIntegration {
    * The lambda function to service the api operation
    */
   readonly function: IFunction;
+  /**
+   * The authorizer to use for this api operation (overrides the default)
+   */
+  readonly authorizer?: Authorizer;
 }
 
 /**
@@ -69,11 +74,6 @@ export type OperationLookup = {
 };
 
 /**
- * Auth types supported by the construct
- */
-export type SupportedAuthTypes = AuthorizationType.IAM | AuthorizationType.NONE;
-
-/**
  * Options required alongside an Open API specification to create API Gateway resources
  */
 export interface OpenApiOptions {
@@ -86,9 +86,10 @@ export interface OpenApiOptions {
    */
   readonly operationLookup: OperationLookup;
   /**
-   * The authorization type to use for the API
+   * The default authorizer to use for your api. When omitted, no authorizer is used.
+   * Authorizers specified at the integration level will override this for that operation.
    */
-  readonly authType?: SupportedAuthTypes;
+  readonly defaultAuthorizer?: Authorizer;
   /**
    * Cross Origin Resource Sharing options for the API
    */

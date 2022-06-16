@@ -22,8 +22,11 @@ import {
 } from "aws-cdk-lib/aws-apigateway";
 import { CfnPermission } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
-import { OpenApiIntegration, OpenApiOptions } from "./utils";
-import { prepareApiSpec } from "./utils/api-gateway-integrations";
+import { OpenApiOptions } from "./spec";
+import {
+  getLabelledFunctions,
+  prepareApiSpec,
+} from "./spec/api-gateway-integrations";
 
 /**
  * Configuration for the OpenApiGatewayLambdaApi construct
@@ -57,20 +60,18 @@ export class OpenApiGatewayLambdaApi extends SpecRestApi {
       ...options,
     });
 
-    // Grant API Gateway permission to invoke each lambda which implements the integration
-    Object.entries<OpenApiIntegration>(integrations).forEach(
-      ([operationName, integration]) => {
-        new CfnPermission(this, `LambdaPermission-${operationName}`, {
-          action: "lambda:InvokeFunction",
-          principal: "apigateway.amazonaws.com",
-          functionName: integration.function.functionName,
-          sourceArn: Stack.of(this).formatArn({
-            service: "execute-api",
-            resource: this.restApiId,
-            resourceName: "*/*",
-          }),
-        });
-      }
-    );
+    // Grant API Gateway permission to invoke each lambda which implements an integration or custom authorizer
+    getLabelledFunctions(props).forEach(({ label, function: lambda }) => {
+      new CfnPermission(this, `LambdaPermission-${label}`, {
+        action: "lambda:InvokeFunction",
+        principal: "apigateway.amazonaws.com",
+        functionName: lambda.functionArn,
+        sourceArn: Stack.of(this).formatArn({
+          service: "execute-api",
+          resource: this.restApiId,
+          resourceName: "*/*",
+        }),
+      });
+    });
   }
 }

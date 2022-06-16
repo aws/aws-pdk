@@ -83,9 +83,9 @@ export class Api extends OpenApiGatewayLambdaApi {
     ? {
         // Generate an example which instantiates the Api construct
         // TODO: Consider generating this sample from the parsed spec
-        "sample-api.ts": `import { Construct } from "constructs";
+        "sample-api.ts": `import { Authorizers } from "${options.openApiGatewayPackageName}";
+import { Construct } from "constructs";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { AuthorizationType } from "aws-cdk-lib/aws-apigateway";
 import { Api } from "./api";
 
 /**
@@ -94,7 +94,7 @@ import { Api } from "./api";
 export class SampleApi extends Api {
   constructor(scope: Construct, id: string) {
     super(scope, id, {
-      authType: AuthorizationType.IAM,
+      defaultAuthorizer: Authorizers.iam(),
       integrations: {
         sayHello: {
           function: new NodejsFunction(scope, "say-hello"),
