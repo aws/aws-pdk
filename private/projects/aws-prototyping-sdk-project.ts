@@ -13,122 +13,121 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import { Project } from "projen";
-import { Stability } from "projen/lib/cdk";
-import { PDKProject } from "../pdk-project";
-import { NxMonorepoProject } from "../../packages/nx-monorepo/src";
+ import { Project } from "projen";
+ import { Stability } from "projen/lib/cdk";
+ import { PDKProject } from "../pdk-project";
+ import { NxMonorepoProject } from "../../packages/nx-monorepo/src";
 import * as path from "path";
+ 
+ /**
+  * File patterns to keep in the .gitignore. Also used to determine which files to keep when cleaning.
+  */
+ const filesGlobsToKeep = [
+   "node_modules",
+   ".eslintrc.json",
+   ".git*",
+   ".npm*",
+   "scripts",
+   "scripts/*.ts",
+   ".projen",
+   "LICENSE",
+   "README.md",
+   ".prettierignore",
+   ".prettierrc.json",
+   "tsconfig.dev.json",
+   "tsconfig.json",
+   "package.json",
+ ];
+ 
+ /**
+  * Contains configuration for the aws-prototyping-sdk package.
+  */
+ export class AwsPrototypingSdkProject extends PDKProject {
+   constructor(parent: Project) {
+     super({
+       parent,
+       author: "AWS APJ COPE",
+       authorAddress: "apj-cope@amazon.com",
+       defaultReleaseBranch: "mainline",
+       name: "aws-prototyping-sdk",
+       keywords: ["aws", "pdk", "jsii", "projen"],
+       eslint: false,
+       prettier: false,
+       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+       devDeps: [
+         "@aws-prototyping-sdk/nx-monorepo@0.0.0",
+         "@aws-prototyping-sdk/pipeline@0.0.0",
+         "projen",
+         "ts-node",
+         "fs-extra",
+       ],
+       peerDeps: ["projen", "constructs", "aws-cdk-lib"],
+       deps: ["projen", "constructs", "aws-cdk-lib"],
+       bundledDeps: ["@nrwl/devkit"],
+       stability: Stability.STABLE,
+       sampleCode: false,
+       excludeTypescript: ["**/samples/**"],
+       outdir: ".",
+       tsconfigDev: {
+         compilerOptions: {
+           outDir: ".",
+           rootDir: "."
+         }
+       },
+       publishToPypiConfig: {
+         distName: `aws_prototyping_sdk`,
+         module: `aws_prototyping_sdk`,
+       },
+       publishToMavenConfig: {
+         mavenEndpoint: "https://aws.oss.sonatype.org",
+         mavenGroupId: "software.aws.awsprototypingsdk",
+         mavenArtifactId: `aws-prototyping-sdk`,
+         javaPackage: `software.aws.awsprototypingsdk`,
+       },
+       gitignore: ["*", ...filesGlobsToKeep.map((f) => `!${f}`)],
+     });
+ 
+     this.npmignore?.addPatterns("/scripts/");
+ 
+     const cleanTask = this.addTask("clean", {
+       exec: `find . -maxdepth 1 ${[".", "..", "dist", ...filesGlobsToKeep]
+         .map((f) => `! -name "${f}"`)
+         .join(" ")} -exec rm -rf {} \\;`,
+     });
+ 
+     this.preCompileTask.spawn(cleanTask);
+     this.preCompileTask.exec("./scripts/bundle.ts");
+     this.package.addField("bundle", {
+       exclude: true,
+     });
+     this.package.addField("main", "./index.js");
+     this.package.addField("types", "./index.d.ts");
+     this.package.manifest.jsii.tsc.rootDir = ".";
+     this.package.manifest.jsii.tsc.outDir = ".";
+   }
 
-/**
- * File patterns to keep in the .gitignore. Also used to determine which files to keep when cleaning.
- */
-const filesGlobsToKeep = [
-  "node_modules",
-  ".eslintrc.json",
-  ".git*",
-  ".npm*",
-  "scripts",
-  "scripts/*.ts",
-  ".projen",
-  "LICENSE",
-  "README.md",
-  ".prettierignore",
-  ".prettierrc.json",
-  "tsconfig.dev.json",
-  "tsconfig.json",
-  "package.json",
-];
-
-/**
- * Contains configuration for the aws-prototyping-sdk package.
- */
-export class AwsPrototypingSdkProject extends PDKProject {
-  constructor(parent: Project) {
-    super({
-      parent,
-      author: "AWS APJ COPE",
-      authorAddress: "apj-cope@amazon.com",
-      defaultReleaseBranch: "mainline",
-      name: "aws-prototyping-sdk",
-      keywords: ["aws", "pdk", "jsii", "projen"],
-      eslint: false,
-      prettier: false,
-      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: [
-        "@aws-prototyping-sdk/nx-monorepo@0.0.0",
-        "@aws-prototyping-sdk/pipeline@0.0.0",
-        "projen",
-        "ts-node",
-        "fs-extra",
-      ],
-      peerDeps: ["projen", "constructs", "aws-cdk-lib"],
-      deps: ["projen", "constructs", "aws-cdk-lib"],
-      bundledDeps: ["@nrwl/devkit"],
-      stability: Stability.STABLE,
-      sampleCode: false,
-      excludeTypescript: ["**/samples/**"],
-      publishToPypiConfig: {
-        distName: `aws_prototyping_sdk`,
-        module: `aws_prototyping_sdk`,
-      },
-      publishToMavenConfig: {
-        mavenEndpoint: "https://aws.oss.sonatype.org",
-        mavenGroupId: "software.aws.awsprototypingsdk",
-        mavenArtifactId: `aws-prototyping-sdk`,
-        javaPackage: `software.aws.awsprototypingsdk`,
-      },
-      gitignore: ["*", ...filesGlobsToKeep.map((f) => `!${f}`)],
-    });
-
-    this.npmignore?.addPatterns("/scripts/");
-
-    const cleanTask = this.addTask("clean", {
-      exec: `find . -maxdepth 1 ${[".", "..", "dist", ...filesGlobsToKeep]
-        .map((f) => `! -name "${f}"`)
-        .join(" ")} -exec rm -rf {} \\;`,
-    });
-
-    this.preCompileTask.spawn(cleanTask);
-    this.preCompileTask.exec("./scripts/bundle.ts");
-    this.package.addField("bundle", {
-      exclude: true,
-    });
-    this.package.manifest.jsii.tsc.rootDir = "./lib";
-    this.package.manifest.jsii.tsc.outDir = "./lib";
-  }
-  
-  synth() {
+   synth() {
     const monorepo = this.root as NxMonorepoProject;
     const stableProjects = monorepo.subProjects
       .filter((s: Project) => s.name !== 'aws-prototyping-sdk')
       .filter((s: any) => (s.package?.manifest?.stability === Stability.STABLE));
 
     this.package.addField('exports', {
-      '.': './lib/index.js',
+      '.': './index.js',
       './package.json': './package.json',
       './.jsii': './.jsii',
       './.warnings.jsii.js': './.warnings.jsii.js',
       ...stableProjects.reduce((p, c) => {
         return {
           ...p,
-          [`./${getSubmodule(c.outdir)}`]: `./lib/${path.basename(c.outdir)}/lib/index.js`
+          [`./${getSubmodule(c.outdir)}`]: `./${path.basename(c.outdir)}/index.js`
         };
       }, {})
     });
 
-    this.package.addField('typesVersions', {
-      '*': {
-        ...stableProjects.reduce((p, c) => {
-          return {
-            ...p,
-            [`${getSubmodule(c.outdir)}`]: [`lib/${path.basename(c.outdir)}/lib/index.d.ts`]
-          };
-        }, {})
-      }
-    });
     super.synth();
   }
-}
+ }
 
 /**
  * A underscored submodule name.

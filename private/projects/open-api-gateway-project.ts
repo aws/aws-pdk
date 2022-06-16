@@ -44,6 +44,7 @@ export class OpenApiGatewayProject extends PDKProject {
       }
     });
 
+    this.eslint?.addRules({ "import/no-unresolved": [ "off" ] });
     this.tsconfigEslint!.addInclude('scripts');
     this.tsconfigEslint!.addInclude('test-integration');
 

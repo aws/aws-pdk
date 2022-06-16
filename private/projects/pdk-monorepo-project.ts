@@ -131,7 +131,9 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     this.testTask.spawn(gitSecretsScanTask);
 
     const upgradeDepsTask = this.addTask("upgrade-deps");
+    upgradeDepsTask.exec("npx npm-check-updates --deep --rejectVersion 0.0.0 -u");
     upgradeDepsTask.exec("npx syncpack fix-mismatches");
+    upgradeDepsTask.exec("yarn install --check-files");
     upgradeDepsTask.exec("npx projen");
   }
 
@@ -168,7 +170,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       project.eslint.addPlugins("header");
       const rootHops = (project as Project).outdir.split(this.outdir)[1].split('/').splice(1);
       project.eslint.addRules({ "header/header": [2, `${rootHops.map(() => '..').join('/')}/header.js`] });
-      project.eslint?.addRules({ "import/no-unresolved": [ "off" ] });
     }
   }
 }
@@ -181,17 +182,16 @@ export class PDKMonorepoProject extends NxMonorepoProject {
 const resolveDependencies = (project: any): void => {
   // resolutions
   if (project instanceof NodeProject || project.package) {
-    project.addFields({
-      resolutions: {
-        "@types/prettier": "2.6.0",
-        "ansi-regex": "^5.0.1",
-        underscore: "^1.12.1",
-        "deep-extend": "^0.5.1",
-        debug: "^2.6.9",
-        minimist: "^1.2.6",
-        ejs: "^3.1.7",
-        async: "^2.6.4",
-      },
-    });
+    project.package.addPackageResolutions(
+      "@types/prettier@2.6.0",
+      "ansi-regex@^5.0.1",
+      "underscore@^1.12.1",
+      "deep-extend@^0.5.1",
+      "argparse@^1.0.10",
+      "debug@^2.6.9",
+      "minimist@^1.2.6",
+      "ejs@^3.1.7",
+      "async@^2.6.4"
+      );
   }
 };
