@@ -120,7 +120,7 @@ export class AwsPrototypingSdkProject extends PDKProject {
       ...stableProjects.reduce((p, c) => {
         return {
           ...p,
-          [`./${getSubmodule(c.outdir)}`]: `./${path.basename(
+          [`./${path.basename(c.outdir)}`]: `./${path.basename(
             c.outdir
           )}/index.js`,
         };
@@ -130,12 +130,3 @@ export class AwsPrototypingSdkProject extends PDKProject {
     super.synth();
   }
 }
-
-/**
- * A underscored submodule name.
- *
- * @param pkgPath path the the packages outDir.
- * @returns a underscored submodule name.
- */
-const getSubmodule = (pkgPath: string) =>
-  path.basename(pkgPath).replace(/-/g, "_");
