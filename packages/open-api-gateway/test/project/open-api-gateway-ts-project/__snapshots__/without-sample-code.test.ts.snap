@@ -561,7 +561,7 @@ junit.xml
 !/test/
 !/tsconfig.json
 !/tsconfig.dev.json
-!/api/
+!/src/
 /lib
 /dist/
 !/.eslintrc.json
@@ -601,7 +601,7 @@ junit.xml
 /.mergify.yml
 /test/
 /tsconfig.dev.json
-/api/
+/src/
 !/lib/
 !/lib/**/*.js
 !/lib/**/*.d.ts
@@ -845,7 +845,7 @@ tsconfig.tsbuildinfo
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern api test build-tools .projenrc.js",
+            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js",
           },
         ],
       },
@@ -1197,33 +1197,6 @@ tsconfig.tsbuildinfo
    limitations under the License.
 ",
   "README.md": "# replace this",
-  "api/api.ts": "import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from \\"@aws-prototyping-sdk/open-api-gateway\\";
-import { Construct } from \\"constructs\\";
-import { OperationLookup, OperationConfig } from \\"@test/my-api-typescript\\";
-import spec from \\"../spec/parsed-spec.json\\";
-
-export type ApiIntegrations = OperationConfig<OpenApiIntegration>;
-
-export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, \\"spec\\" | \\"operationLookup\\" | \\"integrations\\"> {
-  readonly integrations: ApiIntegrations;
-}
-
-/**
- * Construct for the API Gateway resources defined by the spec
- */
-export class Api extends OpenApiGatewayLambdaApi {
-  constructor(scope: Construct, id: string, props: ApiProps) {
-    super(scope, id, {
-      ...props,
-      integrations: props.integrations as any,
-      spec,
-      operationLookup: OperationLookup as any,
-    });
-  }
-}
-",
-  "api/index.ts": "export * from './api';
-export * from './sample-api';",
   "generated/README.md": "## Generated Clients
 
 This directory contains generated client code based on your OpenAPI Specification file (spec.yaml).
@@ -2657,8 +2630,8 @@ export class TextApiResponse {
         ],
       ],
       "testMatch": Array [
-        "<rootDir>/api/**/__tests__/**/*.ts?(x)",
-        "<rootDir>/(test|api)/**/?(*.)+(spec|test).ts?(x)",
+        "<rootDir>/src/**/__tests__/**/*.ts?(x)",
+        "<rootDir>/(test|src)/**/?(*.)+(spec|test).ts?(x)",
       ],
       "testPathIgnorePatterns": Array [
         "/node_modules/",
@@ -2668,7 +2641,7 @@ export class TextApiResponse {
       ],
     },
     "license": "Apache-2.0",
-    "main": "lib/api/index.js",
+    "main": "lib/index.js",
     "name": "@test/my-api",
     "private": true,
     "scripts": Object {
@@ -2692,10 +2665,39 @@ export class TextApiResponse {
       "upgrade": "npx projen upgrade",
       "watch": "npx projen watch",
     },
-    "types": "lib/api/index.d.ts",
+    "types": "lib/index.d.ts",
     "version": "0.0.0",
   },
-  "spec/parsed-spec.json": Object {
+  "src/api/api.ts": "import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from \\"@aws-prototyping-sdk/open-api-gateway\\";
+import { Construct } from \\"constructs\\";
+import { OperationLookup, OperationConfig } from \\"@test/my-api-typescript\\";
+import spec from \\"../spec/.parsed-spec.json\\";
+
+export type ApiIntegrations = OperationConfig<OpenApiIntegration>;
+
+export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, \\"spec\\" | \\"operationLookup\\" | \\"integrations\\"> {
+  readonly integrations: ApiIntegrations;
+}
+
+/**
+ * Type-safe construct for the API Gateway resources defined by the spec.
+ * You will likely not need to modify this file, and can instead extend it and define your integrations.
+ */
+export class Api extends OpenApiGatewayLambdaApi {
+  constructor(scope: Construct, id: string, props: ApiProps) {
+    super(scope, id, {
+      ...props,
+      integrations: props.integrations as any,
+      spec,
+      operationLookup: OperationLookup as any,
+    });
+  }
+}
+",
+  "src/api/index.ts": "export * from './api';
+export * from './sample-api';",
+  "src/index.ts": "export * from \\"./api\\";",
+  "src/spec/.parsed-spec.json": Object {
     "components": Object {
       "schemas": Object {
         "ApiError": Object {
@@ -2767,7 +2769,7 @@ export class TextApiResponse {
       },
     },
   },
-  "spec/spec.yaml": "openapi: 3.0.3
+  "src/spec/spec.yaml": "openapi: 3.0.3
 info:
   version: 1.0.0
   title: Example API
@@ -2815,7 +2817,7 @@ components:
 import { Template } from \\"aws-cdk-lib/assertions\\";
 import { Code, Function, Runtime } from \\"aws-cdk-lib/aws-lambda\\";
 import { OperationLookup } from \\"@test/my-api-typescript\\";
-import { Api } from \\"../api\\";
+import { Api } from \\"../src/api\\";
 
 /**
  * A simple test to ensure the api construct synthesizes correctly
@@ -2860,7 +2862,6 @@ describe(\\"Api\\", () => {
       "noUnusedLocals": true,
       "noUnusedParameters": true,
       "resolveJsonModule": true,
-      "rootDir": ".",
       "strict": true,
       "strictNullChecks": true,
       "strictPropertyInitialization": true,
@@ -2872,7 +2873,7 @@ describe(\\"Api\\", () => {
     ],
     "include": Array [
       ".projenrc.js",
-      "api/**/*.ts",
+      "src/**/*.ts",
       "test/**/*.ts",
     ],
   },
@@ -2899,7 +2900,7 @@ describe(\\"Api\\", () => {
       "noUnusedParameters": true,
       "outDir": "lib",
       "resolveJsonModule": true,
-      "rootDir": ".",
+      "rootDir": "src",
       "strict": true,
       "strictNullChecks": true,
       "strictPropertyInitialization": true,
@@ -2908,8 +2909,8 @@ describe(\\"Api\\", () => {
     },
     "exclude": Array [],
     "include": Array [
-      "api/**/*.ts",
-      "spec/**/*.json",
+      "src/**/*.ts",
+      "src/**/*.json",
     ],
   },
 }

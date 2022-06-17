@@ -19,9 +19,9 @@ import { Project, SampleFile, ProjectOptions } from "projen";
 import { ParsedSpec } from "./components/parsed-spec";
 
 /**
- * Configuration for the OpenAPI specification files
+ * Configuration for the OpenAPI spec project
  */
-export interface OpenApiSpecConfig {
+export interface OpenApiSpecProjectOptions extends ProjectOptions {
   /**
    * The name of the OpenAPI specification file.
    * @default "spec.yaml"
@@ -29,17 +29,10 @@ export interface OpenApiSpecConfig {
   readonly specFileName?: string;
   /**
    * The name of the output parsed OpenAPI specification file. Must end with .json.
-   * @default "parsed-spec.json"
+   * @default ".parsed-spec.json"
    */
   readonly parsedSpecFileName?: string;
 }
-
-/**
- * Configuration for the OpenAPI spec project
- */
-export interface OpenApiSpecProjectOptions
-  extends OpenApiSpecConfig,
-    ProjectOptions {}
 
 /**
  * Project containing the OpenAPI spec, and a parsed spec for use by the CDK construct
@@ -62,7 +55,7 @@ export class OpenApiSpecProject extends Project {
     this._components = [];
 
     this.specFileName = options.specFileName ?? "spec.yaml";
-    this.parsedSpecFileName = options.parsedSpecFileName ?? "parsed-spec.json";
+    this.parsedSpecFileName = options.parsedSpecFileName ?? ".parsed-spec.json";
 
     if (!this.parsedSpecFileName.endsWith(".json")) {
       throw new Error("Parsed spec file must end with .json");

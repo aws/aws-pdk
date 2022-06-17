@@ -2641,7 +2641,7 @@ export class TextApiResponse {
       ],
     },
     "license": "Apache-2.0",
-    "main": "lib/source/index.js",
+    "main": "lib/index.js",
     "name": "@test/my-api",
     "private": true,
     "scripts": Object {
@@ -2665,10 +2665,10 @@ export class TextApiResponse {
       "upgrade": "npx projen upgrade",
       "watch": "npx projen watch",
     },
-    "types": "lib/source/index.d.ts",
+    "types": "lib/index.d.ts",
     "version": "0.0.0",
   },
-  "source/api.ts": "import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from \\"@aws-prototyping-sdk/open-api-gateway\\";
+  "source/api/api.ts": "import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from \\"@aws-prototyping-sdk/open-api-gateway\\";
 import { Construct } from \\"constructs\\";
 import { OperationLookup, OperationConfig } from \\"@test/my-api-typescript\\";
 import spec from \\"../specification/parsed-openapi.json\\";
@@ -2680,7 +2680,8 @@ export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, \\"spec\\" 
 }
 
 /**
- * Construct for the API Gateway resources defined by the spec
+ * Type-safe construct for the API Gateway resources defined by the spec.
+ * You will likely not need to modify this file, and can instead extend it and define your integrations.
  */
 export class Api extends OpenApiGatewayLambdaApi {
   constructor(scope: Construct, id: string, props: ApiProps) {
@@ -2693,9 +2694,10 @@ export class Api extends OpenApiGatewayLambdaApi {
   }
 }
 ",
-  "source/index.ts": "export * from './api';
+  "source/api/index.ts": "export * from './api';
 export * from './sample-api';",
-  "specification/openapi.yaml": "openapi: 3.0.3
+  "source/index.ts": "export * from \\"./api\\";",
+  "source/specification/openapi.yaml": "openapi: 3.0.3
 info:
   version: 1.0.0
   title: Example API
@@ -2739,7 +2741,7 @@ components:
       required:
         - message
 ",
-  "specification/parsed-openapi.json": Object {
+  "source/specification/parsed-openapi.json": Object {
     "components": Object {
       "schemas": Object {
         "ApiError": Object {
@@ -2815,7 +2817,7 @@ components:
 import { Template } from \\"aws-cdk-lib/assertions\\";
 import { Code, Function, Runtime } from \\"aws-cdk-lib/aws-lambda\\";
 import { OperationLookup } from \\"@test/my-api-typescript\\";
-import { Api } from \\"../source\\";
+import { Api } from \\"../source/api\\";
 
 /**
  * A simple test to ensure the api construct synthesizes correctly
@@ -2860,7 +2862,6 @@ describe(\\"Api\\", () => {
       "noUnusedLocals": true,
       "noUnusedParameters": true,
       "resolveJsonModule": true,
-      "rootDir": ".",
       "strict": true,
       "strictNullChecks": true,
       "strictPropertyInitialization": true,
@@ -2899,7 +2900,7 @@ describe(\\"Api\\", () => {
       "noUnusedParameters": true,
       "outDir": "lib",
       "resolveJsonModule": true,
-      "rootDir": ".",
+      "rootDir": "source",
       "strict": true,
       "strictNullChecks": true,
       "strictPropertyInitialization": true,
@@ -2909,7 +2910,7 @@ describe(\\"Api\\", () => {
     "exclude": Array [],
     "include": Array [
       "source/**/*.ts",
-      "specification/**/*.json",
+      "source/**/*.json",
     ],
   },
 }
