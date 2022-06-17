@@ -31,15 +31,17 @@ new OpenApiGatewayTsProject({
 In the output directory (`outdir`), you'll find a few files to get you started.
 
 ```
-|_ spec/
-    |_ spec.yaml - The OpenAPI specification - edit this to define your API
 |_ src/
-    |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API. 
-    |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
-    |           to your API. You shouldn't need to modify this, instead just extend it as in sample-api.ts.
-    |_ sample-api.ts - Example usage of the construct defined in api.ts.
-    |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
-                                 generated lambda handler wrappers for marshalling and type safety.
+    |_ spec/
+        |_ spec.yaml - The OpenAPI specification - edit this to define your API
+        |_ .parsed-spec.json - A json spec generated from your spec.yaml.
+    |_ api/
+        |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API. 
+        |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+        |           to your API. You shouldn't need to modify this, instead just extend it as in sample-api.ts.
+        |_ sample-api.ts - Example usage of the construct defined in api.ts.
+        |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
+                                     generated lambda handler wrappers for marshalling and type safety.
 |_ generated/
     |_ typescript/ - A generated typescript API client, including generated lambda handler wrappers
 ```
