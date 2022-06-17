@@ -56,6 +56,11 @@ export class OpenApiSpecProject extends Project {
 
   constructor(options: OpenApiSpecProjectOptions) {
     super(options);
+    // HACK: remove all components but the ones we are registering - removes .gitignore, tasks, etc since these are
+    // unused and a distraction for end-users!
+    // @ts-ignore
+    this._components = [];
+
     this.specFileName = options.specFileName ?? "spec.yaml";
     this.parsedSpecFileName = options.parsedSpecFileName ?? "parsed-spec.json";
 
@@ -96,6 +101,7 @@ export class OpenApiSpecProject extends Project {
       return;
     }
     super.synth();
+
     this.synthed = true;
   }
 }
