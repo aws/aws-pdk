@@ -63,7 +63,7 @@ export interface CognitoAuthorizerProps {
    */
   readonly userPools: IUserPool[];
   /**
-   * A list of authorization scopes configured on the method. When used as the default authorizer these scopes will be
+   * A list of authorization scopes configured on the method. When used as the default authorizer, these scopes will be
    * applied to all methods without an authorizer at the integration level.
    * @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes
    * @default []
@@ -80,7 +80,7 @@ export class CognitoAuthorizer extends Authorizer {
    */
   public readonly userPools: IUserPool[];
   /**
-   * A list of authorization scopes configured on the method. When used as the default authorizer these scopes will be
+   * A list of authorization scopes configured on the method. When used as the default authorizer, these scopes will be
    * applied to all methods without an authorizer at the integration level.
    * @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes
    */
@@ -156,6 +156,9 @@ export interface CustomAuthorizerProps {
   readonly authorizerResultTtlInSeconds?: number;
 }
 
+// The default time to cache the custom authorizer result
+const DEFAULT_CUSTOM_AUTHORIZER_RESULT_TTL_SECONDS = 300;
+
 /**
  * An authorizer that uses a lambda function to authorize requests
  */
@@ -189,7 +192,8 @@ export class CustomAuthorizer extends Authorizer {
     this.identitySource =
       props.identitySource ?? "method.request.header.Authorization";
     this.authorizerResultTtlInSeconds =
-      props.authorizerResultTtlInSeconds ?? 300;
+      props.authorizerResultTtlInSeconds ??
+      DEFAULT_CUSTOM_AUTHORIZER_RESULT_TTL_SECONDS;
   }
 }
 
