@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import * as os from "os";
+
 import path from "path";
 import { Project } from "projen";
 import { NodeProject } from "projen/lib/javascript";
@@ -201,7 +201,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
  * @param project project to update.
  */
 const updateJavaPackageTask = (project: Project): void => {
-  const defaultM2 = path.join(os.homedir(), ".m2/repository");
+  const defaultM2 = "~/.m2/repository";
   const localM2Root = path.relative(
     project.outdir,
     path.join(process.cwd(), "node_modules/.cache/.m2")
@@ -211,7 +211,7 @@ const updateJavaPackageTask = (project: Project): void => {
 
   javaTask?.reset();
   javaTask?.exec(
-    `[ -d "${defaultM2}" ] && [ ! -d "${localM2Repository}" ] && mkdir -p ${localM2Root} && ln -s ${defaultM2} ${localM2Repository} || true`
+    `[ -d ${defaultM2} ] && [ ! -d "${localM2Repository}" ] && mkdir -p ${localM2Root} && ln -s ${defaultM2} ${localM2Repository} || true`
   );
   javaTask?.exec(
     `jsii-pacmak -v --target java --maven-local-repository=${localM2Repository}`
