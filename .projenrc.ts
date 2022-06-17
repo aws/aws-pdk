@@ -13,15 +13,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import { PDKProject } from "./private/pdk-project";
 import { AwsPrototypingSdkProject } from "./private/projects/aws-prototyping-sdk-project";
 import { DocsProject } from "./private/projects/docs-project";
 import { IdentityProject } from "./private/projects/identity-project";
 import { NXMonorepoProject } from "./private/projects/nx-monorepo-project";
+import { OpenApiGatewayProject } from "./private/projects/open-api-gateway-project";
 import { PDKMonorepoProject } from "./private/projects/pdk-monorepo-project";
 import { PipelineProject } from "./private/projects/pipeline-project";
 import { StaticWebsiteProject } from "./private/projects/static-website-project";
-import { OpenApiGatewayProject } from "./private/projects/open-api-gateway-project";
-import { PDKProject } from "./private/pdk-project";
 
 // root/parent project
 const monorepoProject = new PDKMonorepoProject();
@@ -45,6 +45,6 @@ pipelineProject.samples.forEach((sample) =>
 // Docs should have a dependency on all publishable packages
 monorepoProject.subProjects
   .filter((s: any) => s instanceof PDKProject && s.pdkRelease)
-  .forEach(s => monorepoProject.addImplicitDependency(docsProject, s));
+  .forEach((s) => monorepoProject.addImplicitDependency(docsProject, s));
 
 monorepoProject.synth();
