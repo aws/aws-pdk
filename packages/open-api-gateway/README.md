@@ -38,8 +38,8 @@ In the output directory (`outdir`), you'll find a few files to get you started.
     |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
     |           to your API. You shouldn't need to modify this, instead just extend it as in sample-api.ts.
     |_ sample-api.ts - Example usage of the construct defined in api.ts.
-    |_ say-hello.handler.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
-                              generated lambda handler wrappers for marshalling and type safety.
+    |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
+                                 generated lambda handler wrappers for marshalling and type safety.
 |_ generated/
     |_ typescript/ - A generated typescript API client, including generated lambda handler wrappers
 ```
@@ -165,7 +165,7 @@ A sample construct is generated which provides a type-safe interface for creatin
 
 ```ts
 import * as path from 'path';
-import { AuthorizationType } from 'aws-cdk-lib/aws-apigateway';
+import { Authorizers } from '@aws-prototyping-sdk/open-api-gateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import { Api } from './api';
@@ -176,13 +176,11 @@ import { Api } from './api';
 export class SampleApi extends Api {
   constructor(scope: Construct, id: string) {
     super(scope, id, {
-      authType: AuthorizationType.IAM,
+      defaultAuthorizer: Authorizers.iam(),
       integrations: {
         // Every operation defined in your API must have an integration defined!
         sayHello: {
-          function: new NodejsFunction(scope, 'SayHelloHandler', {
-            entry: path.join(__dirname, 'say-hello.handler.ts'),
-          }),
+          function: new NodejsFunction(scope, 'say-hello'),
         },
       },
     });
@@ -190,9 +188,74 @@ export class SampleApi extends Api {
 }
 ```
 
+#### Authorizers
+
+The `Api` construct allows you to define one or more authorizers for securing your API. An integration will use the `defaultAuthorizer` unless an `authorizer` is specified at the integration level. The following authorizers are supported:
+
+* `Authorizers.none` - No auth
+* `Authorizers.iam` - AWS IAM (Signature Version 4)
+* `Authorizers.cognito` - Cognito user pool
+* `Authorizers.custom` - A custom authorizer
+
+##### Cognito Authorizer
+
+To use the Cognito authorizer, one or more user pools must be provided. You can optionally specify the scopes to check if using an access token. You can use the `withScopes` method to use the same authorizer but verify different scopes for individual integrations, for example:
+
+```ts
+export class SampleApi extends Api {
+  constructor(scope: Construct, id: string) {
+    const cognitoAuthorizer = Authorizers.cognito({
+      authorizerId: 'myCognitoAuthorizer',
+      userPools: [new UserPool(scope, 'UserPool')],
+    });
+
+    super(scope, id, {
+      defaultAuthorizer: cognitoAuthorizer,
+      integrations: {
+        // Everyone in the user pool can call this operation:
+        sayHello: {
+          function: new NodejsFunction(scope, 'say-hello'),
+        },
+        // Only users with the given scopes can call this operation
+        myRestrictedOperation: {
+          function: new NodejsFunction(scope, 'my-restricted-operation'),
+          authorizer: cognitoAuthorizer.withScopes('my-resource-server/my-scope'),
+        },
+      },
+    });
+  }
+}
+```
+
+For more information about scopes or identity and access tokens, please see the [API Gateway documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-integrate-with-cognito.html).
+
+##### Custom Authorizer
+
+Custom authorizers use lambda functions to handle authorizing requests. These can either be simple token-based authorizers, or more complex request-based authorizers. See the [API Gateway documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html) for more details.
+
+An example token-based authorizer (default):
+
+```ts
+Authorizers.custom({
+  authorizerId: 'myTokenAuthorizer',
+  function: new NodejsFunction(scope, 'authorizer'),
+});
+```
+
+An example request-based handler. By default the identitySource will be `method.request.header.Authorization`, however you can customise this as per [the API Gateway documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource).
+
+```ts
+Authorizers.custom({
+  authorizerId: 'myRequestAuthorizer',
+  type: CustomAuthorizerType.REQUEST,
+  identitySource: 'method.request.header.MyCustomHeader, method.request.querystring.myQueryString',
+  function: new NodejsFunction(scope, 'authorizer'),
+});
+```
+
 ### Generated Client
 
-The [typescript-fetch](https://openapi-generator.tech/docs/generators/typescript-fetch/) OpenAPI generator is used to generate OpenAPI clients for typescript.
+The [typescript-fetch](https://openapi-generator.tech/docs/generators/typescript-fetch/) OpenAPI generator is used to generate OpenAPI clients for typescript. This requires an implementation of `fetch` to be passed to the client. In the browser one can pass the built in fetch, or in NodeJS you can use an implementation such as [node-fetch](https://www.npmjs.com/package/node-fetch).
 
 Example usage of the client in a website:
 
