@@ -1179,6 +1179,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#authorizerprops" class="md-nav__link">
+    AuthorizerProps 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cognitoauthorizerprops" class="md-nav__link">
+    CognitoAuthorizerProps 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customauthorizerprops" class="md-nav__link">
+    CustomAuthorizerProps 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#methodandpath" class="md-nav__link">
     MethodAndPath 
   </a>
@@ -1234,6 +1255,48 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#authorizer" class="md-nav__link">
+    Authorizer 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authorizers_1" class="md-nav__link">
+    Authorizers 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cognitoauthorizer" class="md-nav__link">
+    CognitoAuthorizer 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customauthorizer" class="md-nav__link">
+    CustomAuthorizer 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iamauthorizer" class="md-nav__link">
+    IamAuthorizer 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#noneauthorizer" class="md-nav__link">
+    NoneAuthorizer 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#openapigatewaytsproject" class="md-nav__link">
     OpenApiGatewayTsProject 
   </a>
@@ -1256,6 +1319,13 @@
           <li class="md-nav__item">
   <a href="#clientlanguage" class="md-nav__link">
     ClientLanguage 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customauthorizertype" class="md-nav__link">
+    CustomAuthorizerType 
   </a>
   
 </li>
@@ -1330,8 +1400,8 @@ aws-prototyping-sdk library.</p>
     |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
     |           to your API. You shouldn&#39;t need to modify this, instead just extend it as in sample-api.ts.
     |_ sample-api.ts - Example usage of the construct defined in api.ts.
-    |_ say-hello.handler.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
-                              generated lambda handler wrappers for marshalling and type safety.
+    |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
+                                 generated lambda handler wrappers for marshalling and type safety.
 |_ generated/
     |_ typescript/ - A generated typescript API client, including generated lambda handler wrappers
 </code></pre></div>
@@ -1429,7 +1499,7 @@ aws-prototyping-sdk library.</p>
 <p>A sample construct is generated which provides a type-safe interface for creating an API Gateway API based on your OpenAPI specification. You'll get a type error if you forget to define an integration for an operation defined in your api.</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">path.*</span><span class="p">;</span><span class="w"></span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">software.amazon.awscdk.services.apigateway.AuthorizationType</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">aws.prototyping.sdk.open.api.gateway.Authorizers</span><span class="p">;</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">software.amazon.awscdk.services.lambda.nodejs.NodejsFunction</span><span class="p">;</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">software.constructs.Construct</span><span class="p">;</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">api.Api</span><span class="p">;</span><span class="w"></span>
@@ -1440,18 +1510,63 @@ aws-prototyping-sdk library.</p>
 <span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SampleApi</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">Api</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">SampleApi</span><span class="p">(</span><span class="n">Construct</span><span class="w"> </span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">        </span><span class="kd">super</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
-<span class="w">                </span><span class="s">&quot;authType&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">AuthorizationType</span><span class="p">.</span><span class="na">IAM</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="s">&quot;defaultAuthorizer&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Authorizers</span><span class="p">.</span><span class="na">iam</span><span class="p">(),</span><span class="w"></span>
 <span class="w">                </span><span class="s">&quot;integrations&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
 <span class="w">                        </span><span class="c1">// Every operation defined in your API must have an integration defined!</span><span class="w"></span>
 <span class="w">                        </span><span class="s">&quot;sayHello&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
-<span class="w">                                </span><span class="s">&quot;function&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SayHelloHandler&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">                                        </span><span class="p">.</span><span class="na">entry</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">__dirname</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;say-hello.handler.ts&quot;</span><span class="p">))</span><span class="w"></span>
-<span class="w">                                        </span><span class="p">.</span><span class="na">build</span><span class="p">()))));</span><span class="w"></span>
+<span class="w">                                </span><span class="s">&quot;function&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;say-hello&quot;</span><span class="p">)))));</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
+<h4 id="authorizers">Authorizers</h4>
+<p>The <code>Api</code> construct allows you to define one or more authorizers for securing your API. An integration will use the <code>defaultAuthorizer</code> unless an <code>authorizer</code> is specified at the integration level. The following authorizers are supported:</p>
+<ul>
+<li><code>Authorizers.none</code> - No auth</li>
+<li><code>Authorizers.iam</code> - AWS IAM (Signature Version 4)</li>
+<li><code>Authorizers.cognito</code> - Cognito user pool</li>
+<li><code>Authorizers.custom</code> - A custom authorizer</li>
+</ul>
+<h5 id="cognito-authorizer">Cognito Authorizer</h5>
+<p>To use the Cognito authorizer, one or more user pools must be provided. You can optionally specify the scopes to check if using an access token. You can use the <code>withScopes</code> method to use the same authorizer but verify different scopes for individual integrations, for example:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span><span class="w"></span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SampleApi</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">Api</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">SampleApi</span><span class="p">(</span><span class="n">Construct</span><span class="w"> </span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">Object</span><span class="w"> </span><span class="n">cognitoAuthorizer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Authorizers</span><span class="p">.</span><span class="na">cognito</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
+<span class="w">                </span><span class="s">&quot;authorizerId&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;myCognitoAuthorizer&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="s">&quot;userPools&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">UserPool</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;UserPool&quot;</span><span class="p">))));</span><span class="w"></span>
+
+<span class="w">        </span><span class="kd">super</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
+<span class="w">                </span><span class="s">&quot;defaultAuthorizer&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cognitoAuthorizer</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="s">&quot;integrations&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
+<span class="w">                        </span><span class="c1">// Everyone in the user pool can call this operation:</span><span class="w"></span>
+<span class="w">                        </span><span class="s">&quot;sayHello&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                </span><span class="s">&quot;function&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;say-hello&quot;</span><span class="p">)),</span><span class="w"></span>
+<span class="w">                        </span><span class="c1">// Only users with the given scopes can call this operation</span><span class="w"></span>
+<span class="w">                        </span><span class="s">&quot;myRestrictedOperation&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                </span><span class="s">&quot;function&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;my-restricted-operation&quot;</span><span class="p">),</span><span class="w"></span>
+<span class="w">                                </span><span class="s">&quot;authorizer&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cognitoAuthorizer</span><span class="p">.</span><span class="na">withScopes</span><span class="p">(</span><span class="s">&quot;my-resource-server/my-scope&quot;</span><span class="p">)))));</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<p>For more information about scopes or identity and access tokens, please see the <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-integrate-with-cognito.html">API Gateway documentation</a>.</p>
+<h5 id="custom-authorizer">Custom Authorizer</h5>
+<p>Custom authorizers use lambda functions to handle authorizing requests. These can either be simple token-based authorizers, or more complex request-based authorizers. See the <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html">API Gateway documentation</a> for more details.</p>
+<p>An example token-based authorizer (default):</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span><span class="w"></span>
+<span class="n">Authorizers</span><span class="p">.</span><span class="na">custom</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;authorizerId&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;myTokenAuthorizer&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;function&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;authorizer&quot;</span><span class="p">)));</span><span class="w"></span>
+</code></pre></div>
+<p>An example request-based handler. By default the identitySource will be <code>method.request.header.Authorization</code>, however you can customise this as per <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource">the API Gateway documentation</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span><span class="w"></span>
+<span class="n">Authorizers</span><span class="p">.</span><span class="na">custom</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;authorizerId&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;myRequestAuthorizer&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;type&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">CustomAuthorizerType</span><span class="p">.</span><span class="na">getREQUEST</span><span class="p">(),</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;identitySource&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;method.request.header.MyCustomHeader, method.request.querystring.myQueryString&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;function&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;authorizer&quot;</span><span class="p">)));</span><span class="w"></span>
+</code></pre></div>
 <h3 id="generated-client">Generated Client</h3>
-<p>The <a href="https://openapi-generator.tech/docs/generators/typescript-fetch/">typescript-fetch</a> OpenAPI generator is used to generate OpenAPI clients for typescript.</p>
+<p>The <a href="https://openapi-generator.tech/docs/generators/typescript-fetch/">typescript-fetch</a> OpenAPI generator is used to generate OpenAPI clients for typescript. This requires an implementation of <code>fetch</code> to be passed to the client. In the browser one can pass the built in fetch, or in NodeJS you can use an implementation such as <a href="https://www.npmjs.com/package/node-fetch">node-fetch</a>.</p>
 <p>Example usage of the client in a website:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.Configuration</span><span class="p">;</span><span class="w"></span>
@@ -1506,8 +1621,8 @@ aws-prototyping-sdk library.</p>
 <span class="c1">//  .retainDeployments(java.lang.Boolean)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">integrations</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">,</span><span class="w"> </span><span class="n">OpenApiIntegration</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">operationLookup</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">,</span><span class="w"> </span><span class="n">MethodAndPath</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
-<span class="c1">//  .authType(AuthorizationType)</span><span class="w"></span>
 <span class="c1">//  .corsOptions(CorsOptions)</span><span class="w"></span>
+<span class="c1">//  .defaultAuthorizer(Authorizer)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">spec</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
@@ -1601,14 +1716,14 @@ aws-prototyping-sdk library.</p>
 <td>Details about each operation.</td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.authType">authType</a></code></td>
-<td><code>software.amazon.awscdk.services.apigateway.AuthorizationType</code></td>
-<td>The authorization type to use for the API.</td>
-</tr>
-<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.corsOptions">corsOptions</a></code></td>
 <td><code>software.amazon.awscdk.services.apigateway.CorsOptions</code></td>
 <td>Cross Origin Resource Sharing options for the API.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.defaultAuthorizer">defaultAuthorizer</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></code></td>
+<td>The default authorizer to use for your api.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.spec">spec</a></code></td>
@@ -1751,17 +1866,19 @@ Console.</p>
 </ul>
 <p>Details about each operation.</p>
 <hr />
-<h5 id="authtypeoptional"><code>authType</code><sup>Optional</sup> <a name="authType" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.authType"></a></h5>
-<ul>
-<li><em>Type:</em> software.amazon.awscdk.services.apigateway.AuthorizationType</li>
-</ul>
-<p>The authorization type to use for the API.</p>
-<hr />
 <h5 id="corsoptionsoptional"><code>corsOptions</code><sup>Optional</sup> <a name="corsOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.corsOptions"></a></h5>
 <ul>
 <li><em>Type:</em> software.amazon.awscdk.services.apigateway.CorsOptions</li>
 </ul>
 <p>Cross Origin Resource Sharing options for the API.</p>
+<hr />
+<h5 id="defaultauthorizeroptional"><code>defaultAuthorizer</code><sup>Optional</sup> <a name="defaultAuthorizer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.defaultAuthorizer"></a></h5>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></li>
+</ul>
+<p>The default authorizer to use for your api.</p>
+<p>When omitted, no authorizer is used.
+Authorizers specified at the integration level will override this for that operation.</p>
 <hr />
 <h5 id="specrequired"><code>spec</code><sup>Required</sup> <a name="spec" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.spec"></a></h5>
 <ul>
@@ -2261,9 +2378,227 @@ This will be undefined if <code>deploy</code> is false.</p>
 set up integrations.</p>
 <hr />
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
+<h3 id="authorizerprops">AuthorizerProps <a name="AuthorizerProps" id="@aws-prototyping-sdk/open-api-gateway.AuthorizerProps"></a></h3>
+<p>Properties for an authorizer.</p>
+<h4 id="initializer">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.AuthorizerProps.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.AuthorizerProps</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">AuthorizerProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">authorizationType</span><span class="p">(</span><span class="n">AuthorizationType</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">authorizerId</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<h4 id="properties_1">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.AuthorizerProps.property.authorizationType">authorizationType</a></code></td>
+<td><code>software.amazon.awscdk.services.apigateway.AuthorizationType</code></td>
+<td>The type of the authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.AuthorizerProps.property.authorizerId">authorizerId</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The unique identifier for the authorizer.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="authorizationtyperequired"><code>authorizationType</code><sup>Required</sup> <a name="authorizationType" id="@aws-prototyping-sdk/open-api-gateway.AuthorizerProps.property.authorizationType"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">AuthorizationType</span><span class="w"> </span><span class="nf">getAuthorizationType</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.apigateway.AuthorizationType</li>
+</ul>
+<p>The type of the authorizer.</p>
+<hr />
+<h5 id="authorizeridrequired"><code>authorizerId</code><sup>Required</sup> <a name="authorizerId" id="@aws-prototyping-sdk/open-api-gateway.AuthorizerProps.property.authorizerId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAuthorizerId</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The unique identifier for the authorizer.</p>
+<hr />
+<h3 id="cognitoauthorizerprops">CognitoAuthorizerProps <a name="CognitoAuthorizerProps" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps"></a></h3>
+<p>Properties used to configure a cognito authorizer.</p>
+<h4 id="initializer_1">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.CognitoAuthorizerProps</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">CognitoAuthorizerProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">authorizerId</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">userPools</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">IUserPool</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
+<span class="c1">//  .authorizationScopes(java.util.List&lt;java.lang.String&gt;)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps.property.authorizerId">authorizerId</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>Unique identifier for this authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps.property.userPools">userPools</a></code></td>
+<td><code>java.util.List<software.amazon.awscdk.services.cognito.IUserPool></code></td>
+<td>The Cognito user pools associated with this authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps.property.authorizationScopes">authorizationScopes</a></code></td>
+<td><code>java.util.List<java.lang.String></code></td>
+<td>A list of authorization scopes configured on the method.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="authorizeridrequired_1"><code>authorizerId</code><sup>Required</sup> <a name="authorizerId" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps.property.authorizerId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAuthorizerId</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>Unique identifier for this authorizer.</p>
+<hr />
+<h5 id="userpoolsrequired"><code>userPools</code><sup>Required</sup> <a name="userPools" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps.property.userPools"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">IUserPool</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getUserPools</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.util.List<software.amazon.awscdk.services.cognito.IUserPool></li>
+</ul>
+<p>The Cognito user pools associated with this authorizer.</p>
+<hr />
+<h5 id="authorizationscopesoptional"><code>authorizationScopes</code><sup>Optional</sup> <a name="authorizationScopes" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps.property.authorizationScopes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getAuthorizationScopes</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.util.List<java.lang.String></li>
+<li><em>Default:</em> []</li>
+</ul>
+<p>A list of authorization scopes configured on the method.</p>
+<p>When used as the default authorizer, these scopes will be
+applied to all methods without an authorizer at the integration level.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes</a></p>
+</blockquote>
+<hr />
+<h3 id="customauthorizerprops">CustomAuthorizerProps <a name="CustomAuthorizerProps" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps"></a></h3>
+<p>Properties used to configure a custom authorizer.</p>
+<h4 id="initializer_2">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.CustomAuthorizerProps</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">CustomAuthorizerProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">authorizerId</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">function</span><span class="p">(</span><span class="n">IFunction</span><span class="p">)</span><span class="w"></span>
+<span class="c1">//  .authorizerResultTtlInSeconds(java.lang.Number)</span><span class="w"></span>
+<span class="c1">//  .identitySource(java.lang.String)</span><span class="w"></span>
+<span class="c1">//  .type(CustomAuthorizerType)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.authorizerId">authorizerId</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>Unique identifier for this authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.function">function</a></code></td>
+<td><code>software.amazon.awscdk.services.lambda.IFunction</code></td>
+<td>The lambda function used to authorize requests.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.authorizerResultTtlInSeconds">authorizerResultTtlInSeconds</a></code></td>
+<td><code>java.lang.Number</code></td>
+<td>The number of seconds during which the authorizer result is cached.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.identitySource">identitySource</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The source of the identity in an incoming request.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.type">type</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType">CustomAuthorizerType</a></code></td>
+<td>The type of custom authorizer.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="authorizeridrequired_2"><code>authorizerId</code><sup>Required</sup> <a name="authorizerId" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.authorizerId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAuthorizerId</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>Unique identifier for this authorizer.</p>
+<hr />
+<h5 id="functionrequired"><code>function</code><sup>Required</sup> <a name="function" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.function"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">IFunction</span><span class="w"> </span><span class="nf">getFunction</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.lambda.IFunction</li>
+</ul>
+<p>The lambda function used to authorize requests.</p>
+<hr />
+<h5 id="authorizerresultttlinsecondsoptional"><code>authorizerResultTtlInSeconds</code><sup>Optional</sup> <a name="authorizerResultTtlInSeconds" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.authorizerResultTtlInSeconds"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Number</span><span class="w"> </span><span class="nf">getAuthorizerResultTtlInSeconds</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.Number</li>
+<li><em>Default:</em> 300</li>
+</ul>
+<p>The number of seconds during which the authorizer result is cached.</p>
+<hr />
+<h5 id="identitysourceoptional"><code>identitySource</code><sup>Optional</sup> <a name="identitySource" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.identitySource"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getIdentitySource</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+<li><em>Default:</em> "method.request.header.Authorization"</li>
+</ul>
+<p>The source of the identity in an incoming request.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource</a></p>
+</blockquote>
+<hr />
+<h5 id="typeoptional"><code>type</code><sup>Optional</sup> <a name="type" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.type"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">CustomAuthorizerType</span><span class="w"> </span><span class="nf">getType</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType">CustomAuthorizerType</a></li>
+<li><em>Default:</em> CustomAuthorizerType.TOKEN</li>
+</ul>
+<p>The type of custom authorizer.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type</a></p>
+</blockquote>
+<hr />
 <h3 id="methodandpath">MethodAndPath <a name="MethodAndPath" id="@aws-prototyping-sdk/open-api-gateway.MethodAndPath"></a></h3>
 <p>Structure to contain an API operation's method and path.</p>
-<h4 id="initializer">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.MethodAndPath.Initializer"></a></h4>
+<h4 id="initializer_3">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.MethodAndPath.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.MethodAndPath</span><span class="p">;</span><span class="w"></span>
 
 <span class="n">MethodAndPath</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
@@ -2271,7 +2606,7 @@ set up integrations.</p>
 <span class="w">    </span><span class="p">.</span><span class="na">path</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_1">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -2312,7 +2647,7 @@ set up integrations.</p>
 <hr />
 <h3 id="openapigatewaylambdaapiprops">OpenApiGatewayLambdaApiProps <a name="OpenApiGatewayLambdaApiProps" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps"></a></h3>
 <p>Configuration for the OpenApiGatewayLambdaApi construct.</p>
-<h4 id="initializer_1">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.Initializer"></a></h4>
+<h4 id="initializer_4">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.OpenApiGatewayLambdaApiProps</span><span class="p">;</span><span class="w"></span>
 
 <span class="n">OpenApiGatewayLambdaApiProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
@@ -2330,12 +2665,12 @@ set up integrations.</p>
 <span class="c1">//  .retainDeployments(java.lang.Boolean)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">integrations</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">,</span><span class="w"> </span><span class="n">OpenApiIntegration</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">operationLookup</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">,</span><span class="w"> </span><span class="n">MethodAndPath</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
-<span class="c1">//  .authType(AuthorizationType)</span><span class="w"></span>
 <span class="c1">//  .corsOptions(CorsOptions)</span><span class="w"></span>
+<span class="c1">//  .defaultAuthorizer(Authorizer)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">spec</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -2416,14 +2751,14 @@ set up integrations.</p>
 <td>Details about each operation.</td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.authType">authType</a></code></td>
-<td><code>software.amazon.awscdk.services.apigateway.AuthorizationType</code></td>
-<td>The authorization type to use for the API.</td>
-</tr>
-<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.corsOptions">corsOptions</a></code></td>
 <td><code>software.amazon.awscdk.services.apigateway.CorsOptions</code></td>
 <td>Cross Origin Resource Sharing options for the API.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.defaultAuthorizer">defaultAuthorizer</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></code></td>
+<td>The default authorizer to use for your api.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.spec">spec</a></code></td>
@@ -2584,14 +2919,6 @@ Console.</p>
 </ul>
 <p>Details about each operation.</p>
 <hr />
-<h5 id="authtypeoptional_1"><code>authType</code><sup>Optional</sup> <a name="authType" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.authType"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">AuthorizationType</span><span class="w"> </span><span class="nf">getAuthType</span><span class="p">();</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> software.amazon.awscdk.services.apigateway.AuthorizationType</li>
-</ul>
-<p>The authorization type to use for the API.</p>
-<hr />
 <h5 id="corsoptionsoptional_1"><code>corsOptions</code><sup>Optional</sup> <a name="corsOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.corsOptions"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">CorsOptions</span><span class="w"> </span><span class="nf">getCorsOptions</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
@@ -2599,6 +2926,16 @@ Console.</p>
 <li><em>Type:</em> software.amazon.awscdk.services.apigateway.CorsOptions</li>
 </ul>
 <p>Cross Origin Resource Sharing options for the API.</p>
+<hr />
+<h5 id="defaultauthorizeroptional_1"><code>defaultAuthorizer</code><sup>Optional</sup> <a name="defaultAuthorizer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.defaultAuthorizer"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Authorizer</span><span class="w"> </span><span class="nf">getDefaultAuthorizer</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></li>
+</ul>
+<p>The default authorizer to use for your api.</p>
+<p>When omitted, no authorizer is used.
+Authorizers specified at the integration level will override this for that operation.</p>
 <hr />
 <h5 id="specrequired_1"><code>spec</code><sup>Required</sup> <a name="spec" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.spec"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="w"> </span><span class="nf">getSpec</span><span class="p">();</span><span class="w"></span>
@@ -2610,7 +2947,7 @@ Console.</p>
 <hr />
 <h3 id="openapigatewaytsprojectoptions">OpenApiGatewayTsProjectOptions <a name="OpenApiGatewayTsProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions"></a></h3>
 <p>Configuration for the OpenApiGatewayTsProject.</p>
-<h4 id="initializer_2">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_5">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.OpenApiGatewayTsProjectOptions</span><span class="p">;</span><span class="w"></span>
 
 <span class="n">OpenApiGatewayTsProjectOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
@@ -2751,7 +3088,7 @@ Console.</p>
 <span class="c1">//  .specDir(java.lang.String)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4768,14 +5105,15 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="openapiintegration">OpenApiIntegration <a name="OpenApiIntegration" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration"></a></h3>
 <p>Defines an integration for an individual API operation.</p>
-<h4 id="initializer_3">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.Initializer"></a></h4>
+<h4 id="initializer_6">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.OpenApiIntegration</span><span class="p">;</span><span class="w"></span>
 
 <span class="n">OpenApiIntegration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">function</span><span class="p">(</span><span class="n">IFunction</span><span class="p">)</span><span class="w"></span>
+<span class="c1">//  .authorizer(Authorizer)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4790,10 +5128,15 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td><code>software.amazon.awscdk.services.lambda.IFunction</code></td>
 <td>The lambda function to service the api operation.</td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.property.authorizer">authorizer</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></code></td>
+<td>The authorizer to use for this api operation (overrides the default).</td>
+</tr>
 </tbody>
 </table>
 <hr />
-<h5 id="functionrequired"><code>function</code><sup>Required</sup> <a name="function" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.property.function"></a></h5>
+<h5 id="functionrequired_1"><code>function</code><sup>Required</sup> <a name="function" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.property.function"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">IFunction</span><span class="w"> </span><span class="nf">getFunction</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
 <ul>
@@ -4801,19 +5144,27 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>The lambda function to service the api operation.</p>
 <hr />
+<h5 id="authorizeroptional"><code>authorizer</code><sup>Optional</sup> <a name="authorizer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.property.authorizer"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Authorizer</span><span class="w"> </span><span class="nf">getAuthorizer</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></li>
+</ul>
+<p>The authorizer to use for this api operation (overrides the default).</p>
+<hr />
 <h3 id="openapioptions">OpenApiOptions <a name="OpenApiOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions"></a></h3>
 <p>Options required alongside an Open API specification to create API Gateway resources.</p>
-<h4 id="initializer_4">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.Initializer"></a></h4>
+<h4 id="initializer_7">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.OpenApiOptions</span><span class="p">;</span><span class="w"></span>
 
 <span class="n">OpenApiOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">integrations</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">,</span><span class="w"> </span><span class="n">OpenApiIntegration</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">operationLookup</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">,</span><span class="w"> </span><span class="n">MethodAndPath</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
-<span class="c1">//  .authType(AuthorizationType)</span><span class="w"></span>
 <span class="c1">//  .corsOptions(CorsOptions)</span><span class="w"></span>
+<span class="c1">//  .defaultAuthorizer(Authorizer)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_8">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4834,14 +5185,14 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td>Details about each operation.</td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.property.authType">authType</a></code></td>
-<td><code>software.amazon.awscdk.services.apigateway.AuthorizationType</code></td>
-<td>The authorization type to use for the API.</td>
-</tr>
-<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.property.corsOptions">corsOptions</a></code></td>
 <td><code>software.amazon.awscdk.services.apigateway.CorsOptions</code></td>
 <td>Cross Origin Resource Sharing options for the API.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.property.defaultAuthorizer">defaultAuthorizer</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></code></td>
+<td>The default authorizer to use for your api.</td>
 </tr>
 </tbody>
 </table>
@@ -4862,14 +5213,6 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>Details about each operation.</p>
 <hr />
-<h5 id="authtypeoptional_2"><code>authType</code><sup>Optional</sup> <a name="authType" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.property.authType"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">AuthorizationType</span><span class="w"> </span><span class="nf">getAuthType</span><span class="p">();</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> software.amazon.awscdk.services.apigateway.AuthorizationType</li>
-</ul>
-<p>The authorization type to use for the API.</p>
-<hr />
 <h5 id="corsoptionsoptional_2"><code>corsOptions</code><sup>Optional</sup> <a name="corsOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.property.corsOptions"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">CorsOptions</span><span class="w"> </span><span class="nf">getCorsOptions</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
@@ -4878,9 +5221,19 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>Cross Origin Resource Sharing options for the API.</p>
 <hr />
+<h5 id="defaultauthorizeroptional_2"><code>defaultAuthorizer</code><sup>Optional</sup> <a name="defaultAuthorizer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.property.defaultAuthorizer"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Authorizer</span><span class="w"> </span><span class="nf">getDefaultAuthorizer</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></li>
+</ul>
+<p>The default authorizer to use for your api.</p>
+<p>When omitted, no authorizer is used.
+Authorizers specified at the integration level will override this for that operation.</p>
+<hr />
 <h3 id="openapispecconfig">OpenApiSpecConfig <a name="OpenApiSpecConfig" id="@aws-prototyping-sdk/open-api-gateway.OpenApiSpecConfig"></a></h3>
 <p>Configuration for the OpenAPI specification files.</p>
-<h4 id="initializer_5">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiSpecConfig.Initializer"></a></h4>
+<h4 id="initializer_8">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiSpecConfig.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.OpenApiSpecConfig</span><span class="p">;</span><span class="w"></span>
 
 <span class="n">OpenApiSpecConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
@@ -4888,7 +5241,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <span class="c1">//  .specFileName(java.lang.String)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_9">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4931,9 +5284,651 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <p>The name of the OpenAPI specification file.</p>
 <hr />
 <h2 id="classes">Classes <a name="Classes" id="Classes"></a></h2>
+<h3 id="authorizer">Authorizer <a name="Authorizer" id="@aws-prototyping-sdk/open-api-gateway.Authorizer"></a></h3>
+<p>An authorizer for authorizing API requests.</p>
+<h4 id="initializers_1">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.Authorizer.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.Authorizer</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">Authorizer</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">authorizationType</span><span class="p">(</span><span class="n">AuthorizationType</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">authorizerId</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer.Initializer.parameter.authorizationType">authorizationType</a></code></td>
+<td><code>software.amazon.awscdk.services.apigateway.AuthorizationType</code></td>
+<td>The type of the authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer.Initializer.parameter.authorizerId">authorizerId</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The unique identifier for the authorizer.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="authorizationtyperequired_1"><code>authorizationType</code><sup>Required</sup> <a name="authorizationType" id="@aws-prototyping-sdk/open-api-gateway.Authorizer.Initializer.parameter.authorizationType"></a></h5>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.apigateway.AuthorizationType</li>
+</ul>
+<p>The type of the authorizer.</p>
+<hr />
+<h5 id="authorizeridrequired_3"><code>authorizerId</code><sup>Required</sup> <a name="authorizerId" id="@aws-prototyping-sdk/open-api-gateway.Authorizer.Initializer.parameter.authorizerId"></a></h5>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The unique identifier for the authorizer.</p>
+<hr />
+<h4 id="properties_10">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer.property.authorizationType">authorizationType</a></code></td>
+<td><code>software.amazon.awscdk.services.apigateway.AuthorizationType</code></td>
+<td>The type of the authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer.property.authorizerId">authorizerId</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The unique identifier for the authorizer.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="authorizationtyperequired_2"><code>authorizationType</code><sup>Required</sup> <a name="authorizationType" id="@aws-prototyping-sdk/open-api-gateway.Authorizer.property.authorizationType"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">AuthorizationType</span><span class="w"> </span><span class="nf">getAuthorizationType</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.apigateway.AuthorizationType</li>
+</ul>
+<p>The type of the authorizer.</p>
+<hr />
+<h5 id="authorizeridrequired_4"><code>authorizerId</code><sup>Required</sup> <a name="authorizerId" id="@aws-prototyping-sdk/open-api-gateway.Authorizer.property.authorizerId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAuthorizerId</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The unique identifier for the authorizer.</p>
+<hr />
+<h3 id="authorizers_1">Authorizers <a name="Authorizers" id="@aws-prototyping-sdk/open-api-gateway.Authorizers"></a></h3>
+<p>Class used to construct authorizers for use in the OpenApiGatewayLambdaApi construct.</p>
+<h4 id="initializers_2">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.Authorizers.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.Authorizers</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">new</span><span class="w"> </span><span class="n">Authorizers</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="static-functions_1">Static Functions <a name="Static Functions" id="Static Functions"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizers.cognito">cognito</a></code></td>
+<td>A Cognito User Pools authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizers.custom">custom</a></code></td>
+<td>A custom authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizers.iam">iam</a></code></td>
+<td>An IAM authorizer which uses AWS signature version 4 to authorize requests.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizers.none">none</a></code></td>
+<td>No authorizer.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="cognito"><code>cognito</code> <a name="cognito" id="@aws-prototyping-sdk/open-api-gateway.Authorizers.cognito"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.Authorizers</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">Authorizers</span><span class="p">.</span><span class="na">cognito</span><span class="p">(</span><span class="n">CognitoAuthorizerProps</span><span class="w"> </span><span class="n">props</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<p>A Cognito User Pools authorizer.</p>
+<h6 id="propsrequired"><code>props</code><sup>Required</sup> <a name="props" id="@aws-prototyping-sdk/open-api-gateway.Authorizers.cognito.parameter.props"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps">CognitoAuthorizerProps</a></li>
+</ul>
+<hr />
+<h5 id="custom"><code>custom</code> <a name="custom" id="@aws-prototyping-sdk/open-api-gateway.Authorizers.custom"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.Authorizers</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">Authorizers</span><span class="p">.</span><span class="na">custom</span><span class="p">(</span><span class="n">CustomAuthorizerProps</span><span class="w"> </span><span class="n">props</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<p>A custom authorizer.</p>
+<h6 id="propsrequired_1"><code>props</code><sup>Required</sup> <a name="props" id="@aws-prototyping-sdk/open-api-gateway.Authorizers.custom.parameter.props"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps">CustomAuthorizerProps</a></li>
+</ul>
+<hr />
+<h5 id="iam"><code>iam</code> <a name="iam" id="@aws-prototyping-sdk/open-api-gateway.Authorizers.iam"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.Authorizers</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">Authorizers</span><span class="p">.</span><span class="na">iam</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+<p>An IAM authorizer which uses AWS signature version 4 to authorize requests.</p>
+<h5 id="none"><code>none</code> <a name="none" id="@aws-prototyping-sdk/open-api-gateway.Authorizers.none"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.Authorizers</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">Authorizers</span><span class="p">.</span><span class="na">none</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+<p>No authorizer.</p>
+<h3 id="cognitoauthorizer">CognitoAuthorizer <a name="CognitoAuthorizer" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer"></a></h3>
+<p>An authorizer that uses Cognito identity or access tokens.</p>
+<h4 id="initializers_3">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.CognitoAuthorizer</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">CognitoAuthorizer</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">authorizerId</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">userPools</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">IUserPool</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
+<span class="c1">//  .authorizationScopes(java.util.List&lt;java.lang.String&gt;)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.Initializer.parameter.authorizerId">authorizerId</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>Unique identifier for this authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.Initializer.parameter.userPools">userPools</a></code></td>
+<td><code>java.util.List<software.amazon.awscdk.services.cognito.IUserPool></code></td>
+<td>The Cognito user pools associated with this authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.Initializer.parameter.authorizationScopes">authorizationScopes</a></code></td>
+<td><code>java.util.List<java.lang.String></code></td>
+<td>A list of authorization scopes configured on the method.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="authorizeridrequired_5"><code>authorizerId</code><sup>Required</sup> <a name="authorizerId" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.Initializer.parameter.authorizerId"></a></h5>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>Unique identifier for this authorizer.</p>
+<hr />
+<h5 id="userpoolsrequired_1"><code>userPools</code><sup>Required</sup> <a name="userPools" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.Initializer.parameter.userPools"></a></h5>
+<ul>
+<li><em>Type:</em> java.util.List<software.amazon.awscdk.services.cognito.IUserPool></li>
+</ul>
+<p>The Cognito user pools associated with this authorizer.</p>
+<hr />
+<h5 id="authorizationscopesoptional_1"><code>authorizationScopes</code><sup>Optional</sup> <a name="authorizationScopes" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.Initializer.parameter.authorizationScopes"></a></h5>
+<ul>
+<li><em>Type:</em> java.util.List<java.lang.String></li>
+<li><em>Default:</em> []</li>
+</ul>
+<p>A list of authorization scopes configured on the method.</p>
+<p>When used as the default authorizer, these scopes will be
+applied to all methods without an authorizer at the integration level.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes</a></p>
+</blockquote>
+<hr />
+<h4 id="methods_1">Methods <a name="Methods" id="Methods"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.withScopes">withScopes</a></code></td>
+<td>Returns this authorizer with scopes applied, intended for usage in individual operations where scopes may differ on a per-operation basis.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="withscopes"><code>withScopes</code> <a name="withScopes" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.withScopes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">CognitoAuthorizer</span><span class="w"> </span><span class="nf">withScopes</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="n">authorizationScopes</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<p>Returns this authorizer with scopes applied, intended for usage in individual operations where scopes may differ on a per-operation basis.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes</a></p>
+</blockquote>
+<h6 id="authorizationscopesrequired"><code>authorizationScopes</code><sup>Required</sup> <a name="authorizationScopes" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.withScopes.parameter.authorizationScopes"></a></h6>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>the scopes to apply.</p>
+<hr />
+<h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.authorizationType">authorizationType</a></code></td>
+<td><code>software.amazon.awscdk.services.apigateway.AuthorizationType</code></td>
+<td>The type of the authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.authorizerId">authorizerId</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The unique identifier for the authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.authorizationScopes">authorizationScopes</a></code></td>
+<td><code>java.util.List<java.lang.String></code></td>
+<td>A list of authorization scopes configured on the method.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.userPools">userPools</a></code></td>
+<td><code>java.util.List<software.amazon.awscdk.services.cognito.IUserPool></code></td>
+<td>The Cognito user pools associated with this authorizer.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="authorizationtyperequired_3"><code>authorizationType</code><sup>Required</sup> <a name="authorizationType" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.authorizationType"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">AuthorizationType</span><span class="w"> </span><span class="nf">getAuthorizationType</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.apigateway.AuthorizationType</li>
+</ul>
+<p>The type of the authorizer.</p>
+<hr />
+<h5 id="authorizeridrequired_6"><code>authorizerId</code><sup>Required</sup> <a name="authorizerId" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.authorizerId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAuthorizerId</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The unique identifier for the authorizer.</p>
+<hr />
+<h5 id="authorizationscopesrequired_1"><code>authorizationScopes</code><sup>Required</sup> <a name="authorizationScopes" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.authorizationScopes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getAuthorizationScopes</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.util.List<java.lang.String></li>
+</ul>
+<p>A list of authorization scopes configured on the method.</p>
+<p>When used as the default authorizer, these scopes will be
+applied to all methods without an authorizer at the integration level.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes</a></p>
+</blockquote>
+<hr />
+<h5 id="userpoolsrequired_2"><code>userPools</code><sup>Required</sup> <a name="userPools" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.userPools"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">IUserPool</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getUserPools</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.util.List<software.amazon.awscdk.services.cognito.IUserPool></li>
+</ul>
+<p>The Cognito user pools associated with this authorizer.</p>
+<hr />
+<h3 id="customauthorizer">CustomAuthorizer <a name="CustomAuthorizer" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer"></a></h3>
+<p>An authorizer that uses a lambda function to authorize requests.</p>
+<h4 id="initializers_4">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.CustomAuthorizer</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">CustomAuthorizer</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">authorizerId</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">function</span><span class="p">(</span><span class="n">IFunction</span><span class="p">)</span><span class="w"></span>
+<span class="c1">//  .authorizerResultTtlInSeconds(java.lang.Number)</span><span class="w"></span>
+<span class="c1">//  .identitySource(java.lang.String)</span><span class="w"></span>
+<span class="c1">//  .type(CustomAuthorizerType)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.Initializer.parameter.authorizerId">authorizerId</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>Unique identifier for this authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.Initializer.parameter.function">function</a></code></td>
+<td><code>software.amazon.awscdk.services.lambda.IFunction</code></td>
+<td>The lambda function used to authorize requests.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.Initializer.parameter.authorizerResultTtlInSeconds">authorizerResultTtlInSeconds</a></code></td>
+<td><code>java.lang.Number</code></td>
+<td>The number of seconds during which the authorizer result is cached.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.Initializer.parameter.identitySource">identitySource</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The source of the identity in an incoming request.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.Initializer.parameter.type">type</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType">CustomAuthorizerType</a></code></td>
+<td>The type of custom authorizer.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="authorizeridrequired_7"><code>authorizerId</code><sup>Required</sup> <a name="authorizerId" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.Initializer.parameter.authorizerId"></a></h5>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>Unique identifier for this authorizer.</p>
+<hr />
+<h5 id="functionrequired_2"><code>function</code><sup>Required</sup> <a name="function" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.Initializer.parameter.function"></a></h5>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.lambda.IFunction</li>
+</ul>
+<p>The lambda function used to authorize requests.</p>
+<hr />
+<h5 id="authorizerresultttlinsecondsoptional_1"><code>authorizerResultTtlInSeconds</code><sup>Optional</sup> <a name="authorizerResultTtlInSeconds" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.Initializer.parameter.authorizerResultTtlInSeconds"></a></h5>
+<ul>
+<li><em>Type:</em> java.lang.Number</li>
+<li><em>Default:</em> 300</li>
+</ul>
+<p>The number of seconds during which the authorizer result is cached.</p>
+<hr />
+<h5 id="identitysourceoptional_1"><code>identitySource</code><sup>Optional</sup> <a name="identitySource" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.Initializer.parameter.identitySource"></a></h5>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+<li><em>Default:</em> "method.request.header.Authorization"</li>
+</ul>
+<p>The source of the identity in an incoming request.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource</a></p>
+</blockquote>
+<hr />
+<h5 id="typeoptional_1"><code>type</code><sup>Optional</sup> <a name="type" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.Initializer.parameter.type"></a></h5>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType">CustomAuthorizerType</a></li>
+<li><em>Default:</em> CustomAuthorizerType.TOKEN</li>
+</ul>
+<p>The type of custom authorizer.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type</a></p>
+</blockquote>
+<hr />
+<h4 id="properties_12">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.authorizationType">authorizationType</a></code></td>
+<td><code>software.amazon.awscdk.services.apigateway.AuthorizationType</code></td>
+<td>The type of the authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.authorizerId">authorizerId</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The unique identifier for the authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.authorizerResultTtlInSeconds">authorizerResultTtlInSeconds</a></code></td>
+<td><code>java.lang.Number</code></td>
+<td>The number of seconds during which the authorizer result is cached.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.function">function</a></code></td>
+<td><code>software.amazon.awscdk.services.lambda.IFunction</code></td>
+<td>The lambda function used to authorize requests.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.identitySource">identitySource</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The source of the identity in an incoming request.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.type">type</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType">CustomAuthorizerType</a></code></td>
+<td>The type of custom authorizer.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="authorizationtyperequired_4"><code>authorizationType</code><sup>Required</sup> <a name="authorizationType" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.authorizationType"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">AuthorizationType</span><span class="w"> </span><span class="nf">getAuthorizationType</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.apigateway.AuthorizationType</li>
+</ul>
+<p>The type of the authorizer.</p>
+<hr />
+<h5 id="authorizeridrequired_8"><code>authorizerId</code><sup>Required</sup> <a name="authorizerId" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.authorizerId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAuthorizerId</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The unique identifier for the authorizer.</p>
+<hr />
+<h5 id="authorizerresultttlinsecondsrequired"><code>authorizerResultTtlInSeconds</code><sup>Required</sup> <a name="authorizerResultTtlInSeconds" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.authorizerResultTtlInSeconds"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Number</span><span class="w"> </span><span class="nf">getAuthorizerResultTtlInSeconds</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.Number</li>
+</ul>
+<p>The number of seconds during which the authorizer result is cached.</p>
+<hr />
+<h5 id="functionrequired_3"><code>function</code><sup>Required</sup> <a name="function" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.function"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">IFunction</span><span class="w"> </span><span class="nf">getFunction</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.lambda.IFunction</li>
+</ul>
+<p>The lambda function used to authorize requests.</p>
+<hr />
+<h5 id="identitysourcerequired"><code>identitySource</code><sup>Required</sup> <a name="identitySource" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.identitySource"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getIdentitySource</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The source of the identity in an incoming request.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource</a></p>
+</blockquote>
+<hr />
+<h5 id="typerequired"><code>type</code><sup>Required</sup> <a name="type" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.type"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">CustomAuthorizerType</span><span class="w"> </span><span class="nf">getType</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType">CustomAuthorizerType</a></li>
+</ul>
+<p>The type of custom authorizer.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type</a></p>
+</blockquote>
+<hr />
+<h3 id="iamauthorizer">IamAuthorizer <a name="IamAuthorizer" id="@aws-prototyping-sdk/open-api-gateway.IamAuthorizer"></a></h3>
+<p>An IAM authorizer.</p>
+<h4 id="initializers_5">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.IamAuthorizer.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.IamAuthorizer</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">new</span><span class="w"> </span><span class="n">IamAuthorizer</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="properties_13">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IamAuthorizer.property.authorizationType">authorizationType</a></code></td>
+<td><code>software.amazon.awscdk.services.apigateway.AuthorizationType</code></td>
+<td>The type of the authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IamAuthorizer.property.authorizerId">authorizerId</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The unique identifier for the authorizer.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="authorizationtyperequired_5"><code>authorizationType</code><sup>Required</sup> <a name="authorizationType" id="@aws-prototyping-sdk/open-api-gateway.IamAuthorizer.property.authorizationType"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">AuthorizationType</span><span class="w"> </span><span class="nf">getAuthorizationType</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.apigateway.AuthorizationType</li>
+</ul>
+<p>The type of the authorizer.</p>
+<hr />
+<h5 id="authorizeridrequired_9"><code>authorizerId</code><sup>Required</sup> <a name="authorizerId" id="@aws-prototyping-sdk/open-api-gateway.IamAuthorizer.property.authorizerId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAuthorizerId</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The unique identifier for the authorizer.</p>
+<hr />
+<h3 id="noneauthorizer">NoneAuthorizer <a name="NoneAuthorizer" id="@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer"></a></h3>
+<p>No authorizer.</p>
+<h4 id="initializers_6">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.NoneAuthorizer</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">new</span><span class="w"> </span><span class="n">NoneAuthorizer</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="properties_14">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer.property.authorizationType">authorizationType</a></code></td>
+<td><code>software.amazon.awscdk.services.apigateway.AuthorizationType</code></td>
+<td>The type of the authorizer.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer.property.authorizerId">authorizerId</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The unique identifier for the authorizer.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="authorizationtyperequired_6"><code>authorizationType</code><sup>Required</sup> <a name="authorizationType" id="@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer.property.authorizationType"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">AuthorizationType</span><span class="w"> </span><span class="nf">getAuthorizationType</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> software.amazon.awscdk.services.apigateway.AuthorizationType</li>
+</ul>
+<p>The type of the authorizer.</p>
+<hr />
+<h5 id="authorizeridrequired_10"><code>authorizerId</code><sup>Required</sup> <a name="authorizerId" id="@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer.property.authorizerId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAuthorizerId</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The unique identifier for the authorizer.</p>
+<hr />
 <h3 id="openapigatewaytsproject">OpenApiGatewayTsProject <a name="OpenApiGatewayTsProject" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject"></a></h3>
 <p>Synthesizes a Typescript Project with an OpenAPI spec, generated clients, a CDK construct for deploying the API with API Gateway, and generated lambda handler wrappers for type-safe handling of requests.</p>
-<h4 id="initializers_1">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer"></a></h4>
+<h4 id="initializers_7">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.OpenApiGatewayTsProject</span><span class="p">;</span><span class="w"></span>
 
 <span class="n">OpenApiGatewayTsProject</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span><span class="w"></span>
@@ -6836,7 +7831,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>The directory in which the OpenAPI spec should be generated, relative to the outdir of this project.</p>
 <hr />
-<h4 id="methods_1">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_2">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7283,7 +8278,7 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 </ul>
 <p>The command to execute.</p>
 <hr />
-<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_15">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8164,6 +9159,37 @@ this task should synthesize the project files.</p>
 </table>
 <hr />
 <h5 id="typescript"><code>TYPESCRIPT</code> <a name="TYPESCRIPT" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.TYPESCRIPT"></a></h5>
+<hr />
+<h3 id="customauthorizertype">CustomAuthorizerType <a name="CustomAuthorizerType" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType"></a></h3>
+<p>The type of custom authorizer.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type</a></p>
+</blockquote>
+<h4 id="members_1">Members <a name="Members" id="Members"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType.TOKEN">TOKEN</a></code></td>
+<td>A custom authorizer that uses a Lambda function.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType.REQUEST">REQUEST</a></code></td>
+<td>An authorizer that uses a Lambda function using incoming request parameters.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="token"><code>TOKEN</code> <a name="TOKEN" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType.TOKEN"></a></h5>
+<p>A custom authorizer that uses a Lambda function.</p>
+<hr />
+<h5 id="request"><code>REQUEST</code> <a name="REQUEST" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType.REQUEST"></a></h5>
+<p>An authorizer that uses a Lambda function using incoming request parameters.</p>
 <hr />
 
   <hr>
