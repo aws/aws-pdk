@@ -168,6 +168,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
           outputs: [
             `${relativeDir}/dist`,
             `${relativeDir}/build`,
+            `${relativeDir}/coverage`,
             `${relativeDir}/lib`,
             `${relativeDir}/target`,
             `${relativeDir}/.jsii`,
