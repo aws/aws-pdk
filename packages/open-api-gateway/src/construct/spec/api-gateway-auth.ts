@@ -29,27 +29,70 @@ import {
 import { OpenApiOptions } from "./api-gateway-integrations-types";
 import { functionInvocationUri } from "./utils";
 
+/**
+ * Snippet of OpenAPI API Gateway extension for a cognito x-amazon-apigateway-authorizer
+ * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-enable-cognito-user-pool.html
+ */
 export interface CognitoApiGatewayAuthorizer {
-  readonly type: AuthorizationType;
+  /**
+   * The type of authorizer (always cognito_user_pools)
+   */
+  readonly type: AuthorizationType.COGNITO;
+  /**
+   * The arns of the user pools used to authorize the request
+   */
   readonly providerARNs: string[];
 }
 
-export interface CognitoSecurityScheme extends OpenAPIV3.ApiKeySecurityScheme {
-  readonly "x-amazon-apigateway-authtype": string;
-  readonly "x-amazon-apigateway-authorizer": CognitoApiGatewayAuthorizer;
-}
-
+/**
+ * Snippet of OpenAPI API Gateway extension for a custom x-amazon-apigateway-authorizer
+ * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-authorizer.html
+ */
 export interface CustomApiGatewayAuthorizer {
+  /**
+   * Type of custom authorizer
+   */
   readonly type: CustomAuthorizerType;
+  /**
+   * The part of the request that denotes the identity of the caller
+   */
   readonly identitySource?: string;
+  /**
+   * The lambda invocation uri for the custom authorizer
+   */
   readonly authorizerUri: string;
+  /**
+   * The time in seconds that the authorizer result is cached given the same identity source
+   */
   readonly authorizerResultTtlInSeconds: number;
 }
 
-export interface CustomSecurityScheme extends OpenAPIV3.ApiKeySecurityScheme {
+/**
+ * Open API definition for an api gateway security scheme
+ */
+export interface ApiGatewaySecurityScheme<AuthorizerType>
+  extends OpenAPIV3.ApiKeySecurityScheme {
+  /**
+   * The type of api gateway authorizer
+   */
   readonly "x-amazon-apigateway-authtype": string;
-  readonly "x-amazon-apigateway-authorizer": CustomApiGatewayAuthorizer;
+  /**
+   * Details about the authorizer
+   */
+  readonly "x-amazon-apigateway-authorizer": AuthorizerType;
 }
+
+/**
+ * The security scheme for a cognito authorizer
+ */
+export type CognitoSecurityScheme =
+  ApiGatewaySecurityScheme<CognitoApiGatewayAuthorizer>;
+
+/**
+ * The security scheme for a custom authorizer
+ */
+export type CustomSecurityScheme =
+  ApiGatewaySecurityScheme<CustomApiGatewayAuthorizer>;
 
 // Regex to match against a single header identity source
 const SINGLE_HEADER_IDENTITY_SOURCE_REGEX =
@@ -91,7 +134,7 @@ const cognitoSecurityScheme = (
   in: "header",
   "x-amazon-apigateway-authtype": authorizer.authorizationType,
   "x-amazon-apigateway-authorizer": {
-    type: authorizer.authorizationType,
+    type: AuthorizationType.COGNITO,
     providerARNs: authorizer.userPools.map((pool) => pool.userPoolArn),
   },
 });
