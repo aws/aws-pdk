@@ -31,9 +31,9 @@ export interface TypescriptSampleCodeOptions {
    */
   readonly sampleCode?: boolean;
   /**
-   * Source code directory
+   * Api source code directory, relative to the project root
    */
-  readonly srcdir: string;
+  readonly apiSrcDir: string;
   /**
    * Directory where the parsed spec is output
    */
@@ -66,7 +66,8 @@ export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, "spec" | "o
 }
 
 /**
- * Construct for the API Gateway resources defined by the spec
+ * Type-safe construct for the API Gateway resources defined by the spec.
+ * You will likely not need to modify this file, and can instead extend it and define your integrations.
  */
 export class Api extends OpenApiGatewayLambdaApi {
   constructor(scope: Construct, id: string, props: ApiProps) {
@@ -133,7 +134,7 @@ export const getTypescriptSampleTests = (
 import { Template } from "aws-cdk-lib/assertions";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { OperationLookup } from "${options.typescriptClientPackageName}";
-import { Api } from "../${options.srcdir}";
+import { Api } from "../${options.apiSrcDir}";
 
 /**
  * A simple test to ensure the api construct synthesizes correctly

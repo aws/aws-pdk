@@ -15,7 +15,7 @@
  ******************************************************************************************************************** */
 
 import * as path from "path";
-import { SampleDir, TextFile, YamlFile } from "projen";
+import { SampleDir, SampleFile, TextFile, YamlFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import {
   TypeScriptProject,
@@ -29,10 +29,7 @@ import {
   getTypescriptSampleTests,
   TypescriptSampleCodeOptions,
 } from "./samples/typescript";
-import {
-  OpenApiSpecConfig,
-  OpenApiSpecProject,
-} from "./spec/open-api-spec-project";
+import { OpenApiSpecProject } from "./spec/open-api-spec-project";
 
 const OPENAPI_GATEWAY_PDK_PACKAGE_NAME =
   "@aws-prototyping-sdk/open-api-gateway";
@@ -41,24 +38,30 @@ const OPENAPI_GATEWAY_PDK_PACKAGE_NAME =
  * Configuration for the OpenApiGatewayTsProject
  */
 export interface OpenApiGatewayTsProjectOptions
-  extends TypeScriptProjectOptions,
-    OpenApiSpecConfig {
+  extends TypeScriptProjectOptions {
   /**
    * The list of languages for which clients will be generated. A typescript client will always be generated.
    */
   readonly clientLanguages: ClientLanguage[];
-
-  /**
-   * The directory in which the OpenAPI spec should be generated, relative to the outdir of this project
-   * @default "spec"
-   */
-  readonly specDir?: string;
-
   /**
    * The directory in which generated client code will be generated, relative to the outdir of this project
    * @default "generated"
    */
   readonly generatedCodeDir?: string;
+  /**
+   * The path to the OpenAPI specification file, relative to the project source directory (srcdir).
+   * @default "spec/spec.yaml"
+   */
+  readonly specFile?: string;
+  /**
+   * The directory in which the api generated code will reside, relative to the project srcdir
+   */
+  readonly apiSrcDir?: string;
+  /**
+   * The name of the output parsed OpenAPI specification file. Must end with .json.
+   * @default ".parsed-spec.json"
+   */
+  readonly parsedSpecFileName?: string;
 }
 
 /**
@@ -74,9 +77,19 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
   public readonly generatedTypescriptClient: TypeScriptProject;
 
   /**
-   * The directory in which the OpenAPI spec file(s) reside, relative to the project outdir
+   * The directory in which the OpenAPI spec file(s) reside, relative to the project srcdir
    */
   public readonly specDir: string;
+
+  /**
+   * The directory in which the api generated code will reside, relative to the project srcdir
+   */
+  public readonly apiSrcDir: string;
+
+  /**
+   * The name of the spec file
+   */
+  public readonly specFileName: string;
 
   /**
    * The directory in which generated client code will be generated, relative to the outdir of this project
@@ -95,30 +108,25 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     super({
       ...options,
       sampleCode: false,
-      // Default src dir to 'api' to allow for more readable imports, eg `import { SampleApi } from 'my-generated-api/api'`.
-      srcdir: options.srcdir || "api",
       tsconfig: {
         compilerOptions: {
-          // Root dir needs to include srcdir and spec
-          rootDir: ".",
           lib: ["dom", "es2019"],
         },
       },
     });
 
-    this.specDir = options.specDir ?? "spec";
+    if (options.specFile) {
+      this.specDir = path.dirname(options.specFile);
+      this.specFileName = path.basename(options.specFile);
+    } else {
+      this.specDir = "spec";
+      this.specFileName = "spec.yaml";
+    }
     this.generatedCodeDir = options.generatedCodeDir ?? "generated";
+    this.apiSrcDir = options.apiSrcDir ?? "api";
 
-    // Allow spec to be imported, using both the source and spec directories as project roots.
-    this.tsconfig?.addInclude(`${this.specDir}/**/*.json`);
-    this.package.addField(
-      "main",
-      path.join(this.libdir, this.srcdir, "index.js")
-    );
-    this.package.addField(
-      "types",
-      path.join(this.libdir, this.srcdir, "index.d.ts")
-    );
+    // Allow json files to be imported (for importing the parsed spec)
+    this.tsconfig?.addInclude(`${this.srcdir}/**/*.json`);
 
     // Set to private since this either uses workspaces or has file dependencies
     this.package.addField("private", true);
@@ -130,8 +138,8 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     const spec = new OpenApiSpecProject({
       name: `${this.name}-spec`,
       parent: this,
-      outdir: this.specDir,
-      specFileName: options.specFileName,
+      outdir: path.join(this.srcdir, this.specDir),
+      specFileName: this.specFileName,
       parsedSpecFileName: options.parsedSpecFileName,
     });
     spec.synth();
@@ -224,11 +232,14 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
       typescriptClientPackageName:
         this.generatedTypescriptClient.package.packageName,
       sampleCode: options.sampleCode,
-      srcdir: this.srcdir,
+      apiSrcDir: path.join(this.srcdir, this.apiSrcDir),
       specDir: this.specDir,
       parsedSpecFileName: spec.parsedSpecFileName,
     };
-    new SampleDir(this, this.srcdir, {
+    new SampleFile(this, path.join(this.srcdir, "index.ts"), {
+      contents: `export * from "./${this.apiSrcDir}";`,
+    });
+    new SampleDir(this, path.join(this.srcdir, this.apiSrcDir), {
       files: getTypescriptSampleSource(sampleOptions),
     });
     new SampleDir(this, this.testdir, {
