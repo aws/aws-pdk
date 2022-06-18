@@ -1234,13 +1234,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#openapispecconfig" class="md-nav__link">
-    OpenApiSpecConfig 
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1393,15 +1386,17 @@ aws-prototyping-sdk library.</p>
 <span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
 <p>In the output directory (<code>outdir</code>), you'll find a few files to get you started.</p>
-<div class="highlight"><pre><span></span><code>|_ spec/
-    |_ spec.yaml - The OpenAPI specification - edit this to define your API
-|_ src/
-    |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API.
-    |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
-    |           to your API. You shouldn&#39;t need to modify this, instead just extend it as in sample-api.ts.
-    |_ sample-api.ts - Example usage of the construct defined in api.ts.
-    |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
-                                 generated lambda handler wrappers for marshalling and type safety.
+<div class="highlight"><pre><span></span><code>|_ src/
+    |_ spec/
+        |_ spec.yaml - The OpenAPI specification - edit this to define your API
+        |_ .parsed-spec.json - A json spec generated from your spec.yaml.
+    |_ api/
+        |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API.
+        |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+        |           to your API. You shouldn&#39;t need to modify this, instead just extend it as in sample-api.ts.
+        |_ sample-api.ts - Example usage of the construct defined in api.ts.
+        |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
+                                     generated lambda handler wrappers for marshalling and type safety.
 |_ generated/
     |_ typescript/ - A generated typescript API client, including generated lambda handler wrappers
 </code></pre></div>
@@ -3081,11 +3076,11 @@ Authorizers specified at the integration level will override this for that opera
 <span class="c1">//  .tsconfigDev(TypescriptConfigOptions)</span><span class="w"></span>
 <span class="c1">//  .tsconfigDevFile(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .typescriptVersion(java.lang.String)</span><span class="w"></span>
-<span class="c1">//  .parsedSpecFileName(java.lang.String)</span><span class="w"></span>
-<span class="c1">//  .specFileName(java.lang.String)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">clientLanguages</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">ClientLanguage</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
+<span class="c1">//  .apiSrcDir(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .generatedCodeDir(java.lang.String)</span><span class="w"></span>
-<span class="c1">//  .specDir(java.lang.String)</span><span class="w"></span>
+<span class="c1">//  .parsedSpecFileName(java.lang.String)</span><span class="w"></span>
+<span class="c1">//  .specFile(java.lang.String)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
 <h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
@@ -3749,19 +3744,14 @@ Authorizers specified at the integration level will override this for that opera
 <td>TypeScript version to use.</td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.parsedSpecFileName">parsedSpecFileName</a></code></td>
-<td><code>java.lang.String</code></td>
-<td>The name of the output parsed OpenAPI specification file.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.specFileName">specFileName</a></code></td>
-<td><code>java.lang.String</code></td>
-<td>The name of the OpenAPI specification file.</td>
-</tr>
-<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.clientLanguages">clientLanguages</a></code></td>
 <td><code>java.util.List&lt;<a href="#@aws-prototyping-sdk/open-api-gateway.ClientLanguage">ClientLanguage</a>&gt;</code></td>
 <td>The list of languages for which clients will be generated.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.apiSrcDir">apiSrcDir</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The directory in which the api generated code will reside, relative to the project srcdir.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.generatedCodeDir">generatedCodeDir</a></code></td>
@@ -3769,9 +3759,14 @@ Authorizers specified at the integration level will override this for that opera
 <td>The directory in which generated client code will be generated, relative to the outdir of this project.</td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.specDir">specDir</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.parsedSpecFileName">parsedSpecFileName</a></code></td>
 <td><code>java.lang.String</code></td>
-<td>The directory in which the OpenAPI spec should be generated, relative to the outdir of this project.</td>
+<td>The name of the output parsed OpenAPI specification file.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.specFile">specFile</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</td>
 </tr>
 </tbody>
 </table>
@@ -5057,25 +5052,6 @@ compile the code in-memory.</p>
 <p>NOTE: Typescript is not semantically versioned and should remain on the
 same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3</code>).</p>
 <hr />
-<h5 id="parsedspecfilenameoptional"><code>parsedSpecFileName</code><sup>Optional</sup> <a name="parsedSpecFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.parsedSpecFileName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getParsedSpecFileName</span><span class="p">();</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> java.lang.String</li>
-<li><em>Default:</em> "parsed-spec.json"</li>
-</ul>
-<p>The name of the output parsed OpenAPI specification file.</p>
-<p>Must end with .json.</p>
-<hr />
-<h5 id="specfilenameoptional"><code>specFileName</code><sup>Optional</sup> <a name="specFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.specFileName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getSpecFileName</span><span class="p">();</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> java.lang.String</li>
-<li><em>Default:</em> "spec.yaml"</li>
-</ul>
-<p>The name of the OpenAPI specification file.</p>
-<hr />
 <h5 id="clientlanguagesrequired"><code>clientLanguages</code><sup>Required</sup> <a name="clientLanguages" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.clientLanguages"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">ClientLanguage</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getClientLanguages</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
@@ -5084,6 +5060,14 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>The list of languages for which clients will be generated.</p>
 <p>A typescript client will always be generated.</p>
+<hr />
+<h5 id="apisrcdiroptional"><code>apiSrcDir</code><sup>Optional</sup> <a name="apiSrcDir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.apiSrcDir"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getApiSrcDir</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The directory in which the api generated code will reside, relative to the project srcdir.</p>
 <hr />
 <h5 id="generatedcodediroptional"><code>generatedCodeDir</code><sup>Optional</sup> <a name="generatedCodeDir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.generatedCodeDir"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getGeneratedCodeDir</span><span class="p">();</span><span class="w"></span>
@@ -5094,14 +5078,24 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>The directory in which generated client code will be generated, relative to the outdir of this project.</p>
 <hr />
-<h5 id="specdiroptional"><code>specDir</code><sup>Optional</sup> <a name="specDir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.specDir"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getSpecDir</span><span class="p">();</span><span class="w"></span>
+<h5 id="parsedspecfilenameoptional"><code>parsedSpecFileName</code><sup>Optional</sup> <a name="parsedSpecFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.parsedSpecFileName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getParsedSpecFileName</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
-<li><em>Default:</em> "spec"</li>
+<li><em>Default:</em> ".parsed-spec.json"</li>
 </ul>
-<p>The directory in which the OpenAPI spec should be generated, relative to the outdir of this project.</p>
+<p>The name of the output parsed OpenAPI specification file.</p>
+<p>Must end with .json.</p>
+<hr />
+<h5 id="specfileoptional"><code>specFile</code><sup>Optional</sup> <a name="specFile" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.specFile"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getSpecFile</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+<li><em>Default:</em> "spec/spec.yaml"</li>
+</ul>
+<p>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</p>
 <hr />
 <h3 id="openapiintegration">OpenApiIntegration <a name="OpenApiIntegration" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration"></a></h3>
 <p>Defines an integration for an individual API operation.</p>
@@ -5231,58 +5225,6 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <p>When omitted, no authorizer is used.
 Authorizers specified at the integration level will override this for that operation.</p>
 <hr />
-<h3 id="openapispecconfig">OpenApiSpecConfig <a name="OpenApiSpecConfig" id="@aws-prototyping-sdk/open-api-gateway.OpenApiSpecConfig"></a></h3>
-<p>Configuration for the OpenAPI specification files.</p>
-<h4 id="initializer_8">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiSpecConfig.Initializer"></a></h4>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.OpenApiSpecConfig</span><span class="p">;</span><span class="w"></span>
-
-<span class="n">OpenApiSpecConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
-<span class="c1">//  .parsedSpecFileName(java.lang.String)</span><span class="w"></span>
-<span class="c1">//  .specFileName(java.lang.String)</span><span class="w"></span>
-<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
-</code></pre></div>
-<h4 id="properties_9">Properties <a name="Properties" id="Properties"></a></h4>
-<table>
-<thead>
-<tr>
-<th><strong>Name</strong></th>
-<th><strong>Type</strong></th>
-<th><strong>Description</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiSpecConfig.property.parsedSpecFileName">parsedSpecFileName</a></code></td>
-<td><code>java.lang.String</code></td>
-<td>The name of the output parsed OpenAPI specification file.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiSpecConfig.property.specFileName">specFileName</a></code></td>
-<td><code>java.lang.String</code></td>
-<td>The name of the OpenAPI specification file.</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h5 id="parsedspecfilenameoptional_1"><code>parsedSpecFileName</code><sup>Optional</sup> <a name="parsedSpecFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiSpecConfig.property.parsedSpecFileName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getParsedSpecFileName</span><span class="p">();</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> java.lang.String</li>
-<li><em>Default:</em> "parsed-spec.json"</li>
-</ul>
-<p>The name of the output parsed OpenAPI specification file.</p>
-<p>Must end with .json.</p>
-<hr />
-<h5 id="specfilenameoptional_1"><code>specFileName</code><sup>Optional</sup> <a name="specFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiSpecConfig.property.specFileName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getSpecFileName</span><span class="p">();</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> java.lang.String</li>
-<li><em>Default:</em> "spec.yaml"</li>
-</ul>
-<p>The name of the OpenAPI specification file.</p>
-<hr />
 <h2 id="classes">Classes <a name="Classes" id="Classes"></a></h2>
 <h3 id="authorizer">Authorizer <a name="Authorizer" id="@aws-prototyping-sdk/open-api-gateway.Authorizer"></a></h3>
 <p>An authorizer for authorizing API requests.</p>
@@ -5328,7 +5270,7 @@ Authorizers specified at the integration level will override this for that opera
 </ul>
 <p>The unique identifier for the authorizer.</p>
 <hr />
-<h4 id="properties_10">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_9">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5544,7 +5486,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>the scopes to apply.</p>
 <hr />
-<h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_10">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5703,7 +5645,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type</a></p>
 </blockquote>
 <hr />
-<h4 id="properties_12">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5824,7 +5766,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </tbody>
 </table>
 <hr />
-<h4 id="properties_13">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_12">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5887,7 +5829,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </tbody>
 </table>
 <hr />
-<h4 id="properties_14">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_13">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6062,11 +6004,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <span class="c1">//  .tsconfigDev(TypescriptConfigOptions)</span><span class="w"></span>
 <span class="c1">//  .tsconfigDevFile(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .typescriptVersion(java.lang.String)</span><span class="w"></span>
-<span class="c1">//  .parsedSpecFileName(java.lang.String)</span><span class="w"></span>
-<span class="c1">//  .specFileName(java.lang.String)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">clientLanguages</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">ClientLanguage</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
+<span class="c1">//  .apiSrcDir(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .generatedCodeDir(java.lang.String)</span><span class="w"></span>
-<span class="c1">//  .specDir(java.lang.String)</span><span class="w"></span>
+<span class="c1">//  .parsedSpecFileName(java.lang.String)</span><span class="w"></span>
+<span class="c1">//  .specFile(java.lang.String)</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
 <table>
@@ -6729,19 +6671,14 @@ applied to all methods without an authorizer at the integration level.</p>
 <td>TypeScript version to use.</td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.parsedSpecFileName">parsedSpecFileName</a></code></td>
-<td><code>java.lang.String</code></td>
-<td>The name of the output parsed OpenAPI specification file.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.specFileName">specFileName</a></code></td>
-<td><code>java.lang.String</code></td>
-<td>The name of the OpenAPI specification file.</td>
-</tr>
-<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.clientLanguages">clientLanguages</a></code></td>
 <td><code>java.util.List&lt;<a href="#@aws-prototyping-sdk/open-api-gateway.ClientLanguage">ClientLanguage</a>&gt;</code></td>
 <td>The list of languages for which clients will be generated.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.apiSrcDir">apiSrcDir</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The directory in which the api generated code will reside, relative to the project srcdir.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.generatedCodeDir">generatedCodeDir</a></code></td>
@@ -6749,9 +6686,14 @@ applied to all methods without an authorizer at the integration level.</p>
 <td>The directory in which generated client code will be generated, relative to the outdir of this project.</td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.specDir">specDir</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.parsedSpecFileName">parsedSpecFileName</a></code></td>
 <td><code>java.lang.String</code></td>
-<td>The directory in which the OpenAPI spec should be generated, relative to the outdir of this project.</td>
+<td>The name of the output parsed OpenAPI specification file.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.specFile">specFile</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</td>
 </tr>
 </tbody>
 </table>
@@ -7795,27 +7737,18 @@ compile the code in-memory.</p>
 <p>NOTE: Typescript is not semantically versioned and should remain on the
 same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3</code>).</p>
 <hr />
-<h5 id="parsedspecfilenameoptional_2"><code>parsedSpecFileName</code><sup>Optional</sup> <a name="parsedSpecFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.parsedSpecFileName"></a></h5>
-<ul>
-<li><em>Type:</em> java.lang.String</li>
-<li><em>Default:</em> "parsed-spec.json"</li>
-</ul>
-<p>The name of the output parsed OpenAPI specification file.</p>
-<p>Must end with .json.</p>
-<hr />
-<h5 id="specfilenameoptional_2"><code>specFileName</code><sup>Optional</sup> <a name="specFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.specFileName"></a></h5>
-<ul>
-<li><em>Type:</em> java.lang.String</li>
-<li><em>Default:</em> "spec.yaml"</li>
-</ul>
-<p>The name of the OpenAPI specification file.</p>
-<hr />
 <h5 id="clientlanguagesrequired_1"><code>clientLanguages</code><sup>Required</sup> <a name="clientLanguages" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.clientLanguages"></a></h5>
 <ul>
 <li><em>Type:</em> java.util.List&lt;<a href="#@aws-prototyping-sdk/open-api-gateway.ClientLanguage">ClientLanguage</a>&gt;</li>
 </ul>
 <p>The list of languages for which clients will be generated.</p>
 <p>A typescript client will always be generated.</p>
+<hr />
+<h5 id="apisrcdiroptional_1"><code>apiSrcDir</code><sup>Optional</sup> <a name="apiSrcDir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.apiSrcDir"></a></h5>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The directory in which the api generated code will reside, relative to the project srcdir.</p>
 <hr />
 <h5 id="generatedcodediroptional_1"><code>generatedCodeDir</code><sup>Optional</sup> <a name="generatedCodeDir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.generatedCodeDir"></a></h5>
 <ul>
@@ -7824,12 +7757,20 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>The directory in which generated client code will be generated, relative to the outdir of this project.</p>
 <hr />
-<h5 id="specdiroptional_1"><code>specDir</code><sup>Optional</sup> <a name="specDir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.specDir"></a></h5>
+<h5 id="parsedspecfilenameoptional_1"><code>parsedSpecFileName</code><sup>Optional</sup> <a name="parsedSpecFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.parsedSpecFileName"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
-<li><em>Default:</em> "spec"</li>
+<li><em>Default:</em> ".parsed-spec.json"</li>
 </ul>
-<p>The directory in which the OpenAPI spec should be generated, relative to the outdir of this project.</p>
+<p>The name of the output parsed OpenAPI specification file.</p>
+<p>Must end with .json.</p>
+<hr />
+<h5 id="specfileoptional_1"><code>specFile</code><sup>Optional</sup> <a name="specFile" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.specFile"></a></h5>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+<li><em>Default:</em> "spec/spec.yaml"</li>
+</ul>
+<p>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</p>
 <hr />
 <h4 id="methods_2">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
@@ -8278,7 +8219,7 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 </ul>
 <p>The command to execute.</p>
 <hr />
-<h4 id="properties_15">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_14">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8579,6 +8520,11 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <td><em>No description.</em></td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.apiSrcDir">apiSrcDir</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The directory in which the api generated code will reside, relative to the project srcdir.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.generatedCodeDir">generatedCodeDir</a></code></td>
 <td><code>java.lang.String</code></td>
 <td>The directory in which generated client code will be generated, relative to the outdir of this project.</td>
@@ -8591,7 +8537,12 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.specDir">specDir</a></code></td>
 <td><code>java.lang.String</code></td>
-<td>The directory in which the OpenAPI spec file(s) reside, relative to the project outdir.</td>
+<td>The directory in which the OpenAPI spec file(s) reside, relative to the project srcdir.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.specFileName">specFileName</a></code></td>
+<td><code>java.lang.String</code></td>
+<td>The name of the spec file.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.pnpmWorkspace">pnpmWorkspace</a></code></td>
@@ -9079,6 +9030,14 @@ release workflow.</p>
 <li><em>Type:</em> io.github.cdklabs.projen.javascript.TypescriptConfig</li>
 </ul>
 <hr />
+<h5 id="apisrcdirrequired"><code>apiSrcDir</code><sup>Required</sup> <a name="apiSrcDir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.apiSrcDir"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getApiSrcDir</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The directory in which the api generated code will reside, relative to the project srcdir.</p>
+<hr />
 <h5 id="generatedcodedirrequired"><code>generatedCodeDir</code><sup>Required</sup> <a name="generatedCodeDir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.generatedCodeDir"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getGeneratedCodeDir</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
@@ -9101,7 +9060,15 @@ release workflow.</p>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
 </ul>
-<p>The directory in which the OpenAPI spec file(s) reside, relative to the project outdir.</p>
+<p>The directory in which the OpenAPI spec file(s) reside, relative to the project srcdir.</p>
+<hr />
+<h5 id="specfilenamerequired"><code>specFileName</code><sup>Required</sup> <a name="specFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.specFileName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getSpecFileName</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.String</li>
+</ul>
+<p>The name of the spec file.</p>
 <hr />
 <h5 id="pnpmworkspaceoptional"><code>pnpmWorkspace</code><sup>Optional</sup> <a name="pnpmWorkspace" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.pnpmWorkspace"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">YamlFile</span><span class="w"> </span><span class="nf">getPnpmWorkspace</span><span class="p">();</span><span class="w"></span>
@@ -9197,7 +9164,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2022-06-17
+      2022-06-18
     
   </small>
 </div>
