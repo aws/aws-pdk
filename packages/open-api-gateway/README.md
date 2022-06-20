@@ -325,3 +325,50 @@ export const handler = sayHelloHandler<ApiError>(async (input) => {
 During initial project synthesis, the dependency between `OpenApiGatewayTsProject` and the generated client is established via workspace configuration local to `OpenApiGatewayTsProject`, since the parent monorepo will not have updated to include the new packages in time for the initial "install".
 
 When the package manager is PNPM, this initial workspace is configured by creating a local `pnpm-workspace.yaml` file, and thus if you specify your own for an instance of `OpenApiGatewayTsProject`, synthesis will fail. It is most likely that you will not need to define this file locally in `OpenApiGatewayTsProject` since the monorepo copy should be used to manage all packages within the repo, however if managing this file at the `OpenApiGatewayTsProject` level is required, please use the `pnpmWorkspace` property of `OpenApiGatewayTsProject`.
+
+#### Customising Generated Client Projects
+
+By default, the generated clients are configured automatically, including project names. You can customise the generated client code using the `<language>ProjectOptions` properties when constructing your projen project.
+
+##### Python Shared Virtual Environment
+
+For adding dependencies between python projects within a monorepo you can use a single shared virtual environment, and install your python projects into that environment with `pip install --editable .` in the dependee. The generated python client will automatically do this if it detects it is within a monorepo.
+
+The following example shows how to configure the generated client to use a shared virtual environment:
+
+```ts
+const api = new OpenApiGatewayTsProject({
+  parent: monorepo,
+  name: 'api',
+  outdir: 'packages/api',
+  defaultReleaseBranch: 'main',
+  clientLanguages: [ClientLanguage.PYTHON],
+  pythonClientOptions: {
+    moduleName: 'my_api_python',
+    name: 'my_api_python',
+    authorName: 'jack',
+    authorEmail: 'me@example.com',
+    version: '1.0.0',
+    venvOptions: {
+      // Directory relative to the generated python client (in this case packages/api/generated/python)
+      envdir: '../../../../.env',
+    },
+  },
+});
+
+new PythonProject({
+  parent: monorepo,
+  outdir: 'packages/my-python-lib',
+  moduleName: 'my_python_lib',
+  name: 'my_python_lib',
+  authorName: 'jack',
+  authorEmail: 'me@example.com',
+  version: '1.0.0',
+  venvOptions: {
+    // Directory relative to the python lib (in this case packages/my-python-lib)
+    envdir: '../../.env',
+  },
+  // Generated client can be safely cast to a PythonProject
+  deps: [(api.generatedClients[ClientLanguage.PYTHON] as PythonProject).moduleName],
+});
+```

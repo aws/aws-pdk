@@ -17,10 +17,25 @@ import * as path from "path";
 import { exec } from "projen/lib/util";
 import { ClientLanguage } from "../../languages";
 
+/**
+ * Options for generating the client code
+ */
 export interface GenerateClientCodeOptions {
+  /**
+   * The language to generate the client in
+   */
   readonly language: ClientLanguage;
+  /**
+   * The path of the OpenAPI spec to generate the client for
+   */
   readonly specPath: string;
+  /**
+   * The directory in which the generated code should be output
+   */
   readonly outputPath: string;
+  /**
+   * Name for the generated code package
+   */
   readonly packageName: string;
 }
 
