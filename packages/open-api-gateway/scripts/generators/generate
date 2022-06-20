@@ -5,13 +5,15 @@ set -e
 # Parse arguments
 spec_path=''
 output_path=''
-package_name=''
+generator=''
 language=''
+additional_properties=''
 while [[ "$#" -gt 0 ]]; do case $1 in
   --spec-path) spec_path="$2"; shift;;
   --output-path) output_path="$2"; shift;;
-  --package-name) package_name="$2"; shift;;
+  --generator) generator="$2"; shift;;
   --language) language="$2"; shift;;
+  --additional-properties) additional_properties="$2"; shift;;
 esac; shift; done
 
 echo Generating $language OpenAPI client...
@@ -21,7 +23,7 @@ working_dir=$(pwd)
 script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
 
 # Create a temporary directory
-tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-client.XXXXXXXXX")
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-client-$language.XXXXXXXXX")
 cd $tmp_dir
 
 # Copy the language directory into the temp directory
@@ -36,8 +38,18 @@ fi
 # Install dependencies
 $pkg_manager install --silent --save-dev @openapitools/openapi-generator-cli@2.5.1
 
-# Call the generate script for the given language
-package_name=$package_name spec_path=$spec_path output_path=$output_path ./generate
+# Generate the client
+npx openapi-generator-cli generate \
+  --log-to-stderr \
+  --generator-name $generator \
+  --skip-operation-example \
+  --generate-alias-as-model \
+  --minimal-update \
+  --template-dir templates \
+  --config config.yaml \
+  --additional-properties=$additional_properties \
+  --input-spec $spec_path \
+  --output $output_path
 
 echo $language OpenAPI client generation done!
 

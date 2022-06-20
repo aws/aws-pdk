@@ -43,15 +43,21 @@ export class GeneratedPythonClientSourceCode extends Component {
     this.options = options;
   }
 
+  /**
+   * @inheritDoc
+   */
   synthesize() {
     super.synthesize();
 
     // Generate the python client
     generateClientCode({
+      generator: "python-experimental",
       specPath: this.options.specPath,
       outputPath: this.project.outdir,
-      packageName: (this.project as PythonProject).moduleName,
       language: ClientLanguage.PYTHON,
+      additionalProperties: {
+        packageName: (this.project as PythonProject).moduleName,
+      },
     });
   }
 }

@@ -13,24 +13,26 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import { TypeScriptProject } from "projen/lib/typescript";
+import { JavaProject } from "projen/lib/java";
 import { SynthOutput } from "projen/lib/util/synth";
-import { GeneratedTypescriptClientSourceCode } from "../../../../src/project/codegen/components/generated-typescript-client-source-code";
+import { GeneratedJavaClientSourceCode } from "../../../../lib/project/codegen/components/generated-java-client-source-code";
 import { synthGeneratedCodeProject } from "./utils";
 
 const synthGeneratedCode = (specFileName: string): SynthOutput => {
-  const project = new TypeScriptProject({
+  const project = new JavaProject({
     name: "test",
-    defaultReleaseBranch: "main",
+    artifactId: "com.aws.pdk.test",
+    groupId: "test",
+    version: "1.0.0",
   });
   return synthGeneratedCodeProject(specFileName, project, (specPath) => {
-    new GeneratedTypescriptClientSourceCode(project, {
+    new GeneratedJavaClientSourceCode(project, {
       specPath,
     });
   });
 };
 
-describe("Generated Typescript Client Code Unit Tests", () => {
+describe("Generated Java Client Code Unit Tests", () => {
   it("Single", () => {
     expect(synthGeneratedCode("single.yaml")).toMatchSnapshot();
   });
