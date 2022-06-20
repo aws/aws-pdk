@@ -16,3 +16,4 @@
 
 export * from "./open-api-gateway-ts-project";
 export * from "./languages";
+export * from "./types";

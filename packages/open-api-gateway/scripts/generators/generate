@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -e
+
+# Parse arguments
+spec_path=''
+output_path=''
+package_name=''
+language=''
+while [[ "$#" -gt 0 ]]; do case $1 in
+  --spec-path) spec_path="$2"; shift;;
+  --output-path) output_path="$2"; shift;;
+  --package-name) package_name="$2"; shift;;
+  --language) language="$2"; shift;;
+esac; shift; done
+
+echo Generating $language OpenAPI client...
+working_dir=$(pwd)
+
+# Get the directory this script is executing in (scripts/generators)
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
+
+# Create a temporary directory
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-client.XXXXXXXXX")
+cd $tmp_dir
+
+# Copy the language directory into the temp directory
+cp -r $script_dir/$language/* .
+
+# Prefer pnpm if available, otherwise fall back to npm so as not to require it as a system-wide dependency
+pkg_manager=pnpm
+if ! command -v pnpm &> /dev/null; then
+  pkg_manager=npm
+fi
+
+# Install dependencies
+$pkg_manager install --silent --save-dev @openapitools/openapi-generator-cli@2.5.1
+
+# Call the generate script for the given language
+package_name=$package_name spec_path=$spec_path output_path=$output_path ./generate
+
+echo $language OpenAPI client generation done!
+
+# Clean up
+cd $working_dir
+rm -rf $tmp_dir

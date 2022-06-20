@@ -13,22 +13,33 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import { NodePackageManager } from "projen/lib/javascript";
-import { synthSnapshot } from "projen/lib/util/synth";
-import { ClientLanguage, OpenApiGatewayTsProject } from "../../../src";
+import * as path from "path";
+import { exec } from "projen/lib/util";
+import { ClientLanguage } from "../../languages";
 
-describe("OpenAPI Gateway Ts Standalone Unit Tests", () => {
-  it.each([
-    NodePackageManager.YARN,
-    NodePackageManager.NPM,
-    NodePackageManager.PNPM,
-  ])("With Package Manager %s", (packageManager) => {
-    const project = new OpenApiGatewayTsProject({
-      defaultReleaseBranch: "mainline",
-      name: "@test/my-api",
-      clientLanguages: [ClientLanguage.TYPESCRIPT, ClientLanguage.PYTHON],
-      packageManager,
-    });
-    expect(synthSnapshot(project)).toMatchSnapshot();
-  });
-});
+export interface GenerateClientCodeOptions {
+  readonly language: ClientLanguage;
+  readonly specPath: string;
+  readonly outputPath: string;
+  readonly packageName: string;
+}
+
+/**
+ * Generate client code by invoking the root generate script
+ */
+export const generateClientCode = (options: GenerateClientCodeOptions) => {
+  exec(
+    `./generate --spec-path ${options.specPath} --output-path ${options.outputPath} --package-name ${options.packageName} --language ${options.language}`,
+    {
+      cwd: path.resolve(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "..",
+        "scripts",
+        "generators"
+      ),
+    }
+  );
+};
