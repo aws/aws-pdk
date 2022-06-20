@@ -139,7 +139,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       "npx npm-check-updates --deep --rejectVersion 0.0.0 -u"
     );
     upgradeDepsTask.exec("npx syncpack fix-mismatches");
-    upgradeDepsTask.exec("yarn install --check-files");
+    upgradeDepsTask.exec("yarn install");
     upgradeDepsTask.exec("npx projen");
   }
 
