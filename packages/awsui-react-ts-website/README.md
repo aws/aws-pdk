@@ -54,4 +54,9 @@ new StaticWebsite(this, 'StaticWebsite', {
 });
 ```
 
-For local development, you will need to copy the generated runtime-config.json file into your /public directory.
+For local development, you will need to copy the generated runtime-config.json file into your /public directory. An example
+on how to do this is as follows:
+
+```
+curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-config.json
+```

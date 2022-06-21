@@ -24,11 +24,11 @@ import { Authenticator, ThemeProvider, Theme, useTheme } from "@aws-amplify/ui-r
 export const RuntimeConfigContext = createContext<any>({});
 
 /**
-   * Sets up the runtimeContext and Cognito auth.
-   * 
-   * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
-   * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
-   */
+ * Sets up the runtimeContext and Cognito auth.
+ * 
+ * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
+ * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
+ */
 const Auth: React.FC<any> = ({children}) => {
   const [runtimeContext, setRuntimeContext] = useState<any>({});
   const [runtimeContextLoaded, setRuntimeContextLoaded] = useState(false);

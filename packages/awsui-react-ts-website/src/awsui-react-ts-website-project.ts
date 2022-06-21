@@ -77,20 +77,18 @@ export class AwsUiReactTsWebsiteProject extends ReactTypeScriptProject {
     const srcDir = path.resolve(__dirname, "../sample/src");
     new SampleDir(this, this.srcdir, {
       files: {
-        ...fs
-          .readdirSync(srcDir)
-          .filter((f) => f !== "config.json") // Don't copy config.json as we are generating our own
-          .reduce(
-            (prev, curr) => ({
-              ...prev,
-              [curr]: fs.readFileSync(`${srcDir}/${curr}`).toString(),
-            }),
-            {
-              "config.json": JSON.stringify({
-                applicationName: this.applicationName,
-              }),
-            }
-          ),
+        ...Object.fromEntries(
+          fs
+            .readdirSync(srcDir)
+            .filter((f) => f !== "config.json")
+            .map((name) => [
+              name,
+              fs.readFileSync(`${srcDir}/${name}`).toString(),
+            ])
+        ),
+        "config.json": JSON.stringify({
+          applicationName: this.applicationName,
+        }),
       },
     });
 
