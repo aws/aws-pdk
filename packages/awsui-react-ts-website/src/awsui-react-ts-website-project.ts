@@ -86,9 +86,13 @@ export class AwsUiReactTsWebsiteProject extends ReactTypeScriptProject {
               fs.readFileSync(`${srcDir}/${name}`).toString(),
             ])
         ),
-        "config.json": JSON.stringify({
-          applicationName: this.applicationName,
-        }),
+        "config.json": JSON.stringify(
+          {
+            applicationName: this.applicationName,
+          },
+          undefined,
+          2
+        ),
       },
     });
 

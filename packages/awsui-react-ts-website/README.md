@@ -5,7 +5,7 @@ To create a new [AWS UI](https://github.com/aws/awsui-documentation) React Types
 ### Via Projen CLI
 
 ```
-npx projen --from @aws-prototyping-sdk/awsui-react-ts-website awsui-react-ts-website [--application-name <your-app>]
+npx projen new --from @aws-prototyping-sdk/awsui-react-ts-website awsui-react-ts-website [--application-name <your-app>]
 ```
 
 ### Programmatically
