@@ -1214,6 +1214,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#openapigatewayprojectoptions" class="md-nav__link">
+    OpenApiGatewayProjectOptions 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#openapigatewaytsprojectoptions" class="md-nav__link">
     OpenApiGatewayTsProjectOptions 
   </a>
@@ -1368,7 +1375,6 @@ aws-prototyping-sdk library.</p>
 <p>Define your APIs using <a href="https://swagger.io/specification/">OpenAPI v3</a>, and leverage the power of generated clients, automatic input validation, and type safe client and server code!</p>
 <p>This package vends a projen project type which allows you to define an API using <a href="https://swagger.io/specification/">OpenAPI v3</a>, and a construct which manages deploying this API in API Gateway, given a lambda integration for every operation.</p>
 <p>The project will generate models and clients from your OpenAPI spec in your desired languages, and can be utilised both client side or server side in lambda handlers. The project type also generates a wrapper construct which adds type safety to ensure a lambda integration is provided for every API integration.</p>
-<p><em>Currently only Typescript is supported, but more languages are coming soon!</em></p>
 <h3 id="project">Project</h3>
 <p>It's recommended that this project is used as part of an <code>nx_monorepo</code> project. You can still use this as a standalone project if you like (eg <code>npx projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts</code>), however you will need to manage build order (ie building the generated client first, followed by the project).</p>
 <p>For usage in a monorepo:</p>
@@ -1381,7 +1387,7 @@ aws-prototyping-sdk library.</p>
     <span class="n">default_release_branch</span><span class="o">=</span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-api&quot;</span><span class="p">,</span>
     <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
-    <span class="n">client_languages</span><span class="o">=</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="o">.</span><span class="n">TYPESCRIPT</span><span class="p">]</span>
+    <span class="n">client_languages</span><span class="o">=</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="o">.</span><span class="n">TYPESCRIPT</span><span class="p">,</span> <span class="n">ClientLanguage</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">]</span>
 <span class="p">)</span>
 </code></pre></div>
 <p>In the output directory (<code>outdir</code>), you'll find a few files to get you started.</p>
@@ -1398,6 +1404,7 @@ aws-prototyping-sdk library.</p>
                                      generated lambda handler wrappers for marshalling and type safety.
 |_ generated/
     |_ typescript/ - A generated typescript API client, including generated lambda handler wrappers
+    |_ python/ - A generated python API client.
 </code></pre></div>
 <p>If you would prefer to not generate the sample code, you can pass <code>sampleCode: false</code> to <code>OpenApiGatewayTsProject</code>.</p>
 <p>To make changes to your api, simply update <code>spec.yaml</code> and run <code>npx projen</code> to synthesize all the typesafe client/server code!</p>
@@ -1566,6 +1573,7 @@ aws-prototyping-sdk library.</p>
 <span class="p">)</span>
 </code></pre></div>
 <h3 id="generated-client">Generated Client</h3>
+<h4 id="typescript">Typescript</h4>
 <p>The <a href="https://openapi-generator.tech/docs/generators/typescript-fetch/">typescript-fetch</a> OpenAPI generator is used to generate OpenAPI clients for typescript. This requires an implementation of <code>fetch</code> to be passed to the client. In the browser one can pass the built in fetch, or in NodeJS you can use an implementation such as <a href="https://www.npmjs.com/package/node-fetch">node-fetch</a>.</p>
 <p>Example usage of the client in a website:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
@@ -1578,6 +1586,26 @@ aws-prototyping-sdk library.</p>
 
 <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">sayHello</span><span class="p">({</span> <span class="n">name</span><span class="p">:</span> <span class="s2">&quot;Jack&quot;</span> <span class="p">})</span>
 </code></pre></div>
+<h4 id="python">Python</h4>
+<p>The <a href="https://openapi-generator.tech/docs/generators/python-experimental">python-experimental</a> OpenAPI generator is used to generate OpenAPI clients for python.</p>
+<p>Example usage:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">my_api_python</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">Configuration</span>
+<span class="kn">from</span> <span class="nn">my_api_python.api.default_api</span> <span class="kn">import</span> <span class="n">DefaultApi</span>
+
+<span class="n">configuration</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">(</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;https://xxxxxxxxxx.execute-api.ap-southeast-2.amazonaws.com&quot;</span>
+<span class="p">)</span>
+
+<span class="k">with</span> <span class="n">ApiClient</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span> <span class="k">as</span> <span class="n">api_client</span><span class="p">:</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">DefaultApi</span><span class="p">(</span><span class="n">api_client</span><span class="p">)</span>
+
+    <span class="n">client</span><span class="o">.</span><span class="n">say_hello</span><span class="p">(</span>
+        <span class="n">query_params</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s2">&quot;name_example&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>You'll find details about how to use the python client in the README.md alongside your generated client.</p>
 <h3 id="lambda-handler-wrappers">Lambda Handler Wrappers</h3>
 <p>Lambda handler wrappers are also importable from the generated client. These provide input/output type safety, as well as allowing you to define a custom type for API error responses.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
@@ -1597,6 +1625,47 @@ aws-prototyping-sdk library.</p>
 <p><code>OpenApiGatewayTsProject</code> can be used as part of a monorepo using YARN/NPM/PNPM workspaces. When used in a monorepo, a dependency is established between <code>OpenApiGatewayTsProject</code> and the generated typescript client, which is expected to be managed by the parent monorepo (ie both <code>OpenApiGatewayTsProject</code> and the generated typescript client are parented by the monorepo).</p>
 <p>During initial project synthesis, the dependency between <code>OpenApiGatewayTsProject</code> and the generated client is established via workspace configuration local to <code>OpenApiGatewayTsProject</code>, since the parent monorepo will not have updated to include the new packages in time for the initial "install".</p>
 <p>When the package manager is PNPM, this initial workspace is configured by creating a local <code>pnpm-workspace.yaml</code> file, and thus if you specify your own for an instance of <code>OpenApiGatewayTsProject</code>, synthesis will fail. It is most likely that you will not need to define this file locally in <code>OpenApiGatewayTsProject</code> since the monorepo copy should be used to manage all packages within the repo, however if managing this file at the <code>OpenApiGatewayTsProject</code> level is required, please use the <code>pnpmWorkspace</code> property of <code>OpenApiGatewayTsProject</code>.</p>
+<h4 id="customising-generated-client-projects">Customising Generated Client Projects</h4>
+<p>By default, the generated clients are configured automatically, including project names. You can customise the generated client code using the <code>&lt;language&gt;ProjectOptions</code> properties when constructing your projen project.</p>
+<h5 id="python-shared-virtual-environment">Python Shared Virtual Environment</h5>
+<p>For adding dependencies between python projects within a monorepo you can use a single shared virtual environment, and install your python projects into that environment with <code>pip install --editable .</code> in the dependee. The generated python client will automatically do this if it detects it is within a monorepo.</p>
+<p>The following example shows how to configure the generated client to use a shared virtual environment:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">OpenApiGatewayTsProject</span><span class="p">(</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">monorepo</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;api&quot;</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
+    <span class="n">default_release_branch</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+    <span class="n">client_languages</span><span class="o">=</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">],</span>
+    <span class="n">python_client_options</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;module_name&quot;</span><span class="p">:</span> <span class="s2">&quot;my_api_python&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;my_api_python&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;author_name&quot;</span><span class="p">:</span> <span class="s2">&quot;jack&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;author_email&quot;</span><span class="p">:</span> <span class="s2">&quot;me@example.com&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;venv_options&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="c1"># Directory relative to the generated python client (in this case packages/api/generated/python)</span>
+            <span class="s2">&quot;envdir&quot;</span><span class="p">:</span> <span class="s2">&quot;../../../../.env&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">PythonProject</span><span class="p">(</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">monorepo</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/my-python-lib&quot;</span><span class="p">,</span>
+    <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;my_python_lib&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_python_lib&quot;</span><span class="p">,</span>
+    <span class="n">author_name</span><span class="o">=</span><span class="s2">&quot;jack&quot;</span><span class="p">,</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s2">&quot;me@example.com&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+    <span class="n">venv_options</span><span class="o">=</span><span class="p">{</span>
+        <span class="c1"># Directory relative to the python lib (in this case packages/my-python-lib)</span>
+        <span class="s2">&quot;envdir&quot;</span><span class="p">:</span> <span class="s2">&quot;../../.env&quot;</span>
+    <span class="p">},</span>
+    <span class="c1"># Generated client can be safely cast to a PythonProject</span>
+    <span class="n">deps</span><span class="o">=</span><span class="p">[(</span><span class="n">api</span><span class="o">.</span><span class="n">generated_clients</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">])</span><span class="o">.</span><span class="n">module_name</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="constructs">Constructs <a name="Constructs" id="Constructs"></a></h2>
 <h3 id="openapigatewaylambdaapi">OpenApiGatewayLambdaApi <a name="OpenApiGatewayLambdaApi" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi"></a></h3>
@@ -3773,9 +3842,135 @@ Authorizers specified at the integration level will override this for that opera
 </ul>
 <p>The parsed OpenAPI specification.</p>
 <hr />
+<h3 id="openapigatewayprojectoptions">OpenApiGatewayProjectOptions <a name="OpenApiGatewayProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions"></a></h3>
+<p>Options common to all open api gateway projects.</p>
+<h4 id="initializer_5">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.open_api_gateway</span>
+
+<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">OpenApiGatewayProjectOptions</span><span class="p">(</span>
+  <span class="n">client_languages</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="p">],</span>
+  <span class="n">api_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">parsed_spec_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">python_client_options</span><span class="p">:</span> <span class="n">PythonProjectOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">spec_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">typescript_client_options</span><span class="p">:</span> <span class="n">TypeScriptProjectOptions</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.clientLanguages">client_languages</a></code></td>
+<td><code>typing.List[<a href="#@aws-prototyping-sdk/open-api-gateway.ClientLanguage">ClientLanguage</a>]</code></td>
+<td>The list of languages for which clients will be generated.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.apiSrcDir">api_src_dir</a></code></td>
+<td><code>str</code></td>
+<td>The directory in which the api generated code will reside, relative to the project srcdir.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.generatedCodeDir">generated_code_dir</a></code></td>
+<td><code>str</code></td>
+<td>The directory in which generated client code will be generated, relative to the outdir of this project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.parsedSpecFileName">parsed_spec_file_name</a></code></td>
+<td><code>str</code></td>
+<td>The name of the output parsed OpenAPI specification file.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.pythonClientOptions">python_client_options</a></code></td>
+<td><code>projen.python.PythonProjectOptions</code></td>
+<td>Options for the generated python client (if specified in clientLanguages).</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.specFile">spec_file</a></code></td>
+<td><code>str</code></td>
+<td>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.typescriptClientOptions">typescript_client_options</a></code></td>
+<td><code>projen.typescript.TypeScriptProjectOptions</code></td>
+<td>Options for the generated typescript client.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="client_languagesrequired"><code>client_languages</code><sup>Required</sup> <a name="client_languages" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.clientLanguages"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">client_languages</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[<a href="#@aws-prototyping-sdk/open-api-gateway.ClientLanguage">ClientLanguage</a>]</li>
+</ul>
+<p>The list of languages for which clients will be generated.</p>
+<p>A typescript client will always be generated.</p>
+<hr />
+<h5 id="api_src_diroptional"><code>api_src_dir</code><sup>Optional</sup> <a name="api_src_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.apiSrcDir"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">api_src_dir</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The directory in which the api generated code will reside, relative to the project srcdir.</p>
+<hr />
+<h5 id="generated_code_diroptional"><code>generated_code_dir</code><sup>Optional</sup> <a name="generated_code_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.generatedCodeDir"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> "generated"</li>
+</ul>
+<p>The directory in which generated client code will be generated, relative to the outdir of this project.</p>
+<hr />
+<h5 id="parsed_spec_file_nameoptional"><code>parsed_spec_file_name</code><sup>Optional</sup> <a name="parsed_spec_file_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.parsedSpecFileName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">parsed_spec_file_name</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> ".parsed-spec.json"</li>
+</ul>
+<p>The name of the output parsed OpenAPI specification file.</p>
+<p>Must end with .json.</p>
+<hr />
+<h5 id="python_client_optionsoptional"><code>python_client_options</code><sup>Optional</sup> <a name="python_client_options" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.pythonClientOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">python_client_options</span><span class="p">:</span> <span class="n">PythonProjectOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.python.PythonProjectOptions</li>
+</ul>
+<p>Options for the generated python client (if specified in clientLanguages).</p>
+<p>These override the default inferred options.</p>
+<hr />
+<h5 id="spec_fileoptional"><code>spec_file</code><sup>Optional</sup> <a name="spec_file" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.specFile"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">spec_file</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> "spec/spec.yaml"</li>
+</ul>
+<p>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</p>
+<hr />
+<h5 id="typescript_client_optionsoptional"><code>typescript_client_options</code><sup>Optional</sup> <a name="typescript_client_options" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.typescriptClientOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">typescript_client_options</span><span class="p">:</span> <span class="n">TypeScriptProjectOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.typescript.TypeScriptProjectOptions</li>
+</ul>
+<p>Options for the generated typescript client.</p>
+<p>These override the default inferred options.</p>
+<hr />
 <h3 id="openapigatewaytsprojectoptions">OpenApiGatewayTsProjectOptions <a name="OpenApiGatewayTsProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions"></a></h3>
 <p>Configuration for the OpenApiGatewayTsProject.</p>
-<h4 id="initializer_5">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_6">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.open_api_gateway</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">OpenApiGatewayTsProjectOptions</span><span class="p">(</span>
@@ -3913,10 +4108,12 @@ Authorizers specified at the integration level will override this for that opera
   <span class="n">api_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parsed_spec_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">spec_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="n">python_client_options</span><span class="p">:</span> <span class="n">PythonProjectOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">spec_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">typescript_client_options</span><span class="p">:</span> <span class="n">TypeScriptProjectOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4597,9 +4794,19 @@ Authorizers specified at the integration level will override this for that opera
 <td>The name of the output parsed OpenAPI specification file.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.pythonClientOptions">python_client_options</a></code></td>
+<td><code>projen.python.PythonProjectOptions</code></td>
+<td>Options for the generated python client (if specified in clientLanguages).</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.specFile">spec_file</a></code></td>
 <td><code>str</code></td>
 <td>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.typescriptClientOptions">typescript_client_options</a></code></td>
+<td><code>projen.typescript.TypeScriptProjectOptions</code></td>
+<td>Options for the generated typescript client.</td>
 </tr>
 </tbody>
 </table>
@@ -5885,7 +6092,7 @@ compile the code in-memory.</p>
 <p>NOTE: Typescript is not semantically versioned and should remain on the
 same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3</code>).</p>
 <hr />
-<h5 id="client_languagesrequired"><code>client_languages</code><sup>Required</sup> <a name="client_languages" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.clientLanguages"></a></h5>
+<h5 id="client_languagesrequired_1"><code>client_languages</code><sup>Required</sup> <a name="client_languages" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.clientLanguages"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">client_languages</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="p">]</span>
 </code></pre></div>
 <ul>
@@ -5894,7 +6101,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <p>The list of languages for which clients will be generated.</p>
 <p>A typescript client will always be generated.</p>
 <hr />
-<h5 id="api_src_diroptional"><code>api_src_dir</code><sup>Optional</sup> <a name="api_src_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.apiSrcDir"></a></h5>
+<h5 id="api_src_diroptional_1"><code>api_src_dir</code><sup>Optional</sup> <a name="api_src_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.apiSrcDir"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">api_src_dir</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5902,7 +6109,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>The directory in which the api generated code will reside, relative to the project srcdir.</p>
 <hr />
-<h5 id="generated_code_diroptional"><code>generated_code_dir</code><sup>Optional</sup> <a name="generated_code_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.generatedCodeDir"></a></h5>
+<h5 id="generated_code_diroptional_1"><code>generated_code_dir</code><sup>Optional</sup> <a name="generated_code_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.generatedCodeDir"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5911,7 +6118,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>The directory in which generated client code will be generated, relative to the outdir of this project.</p>
 <hr />
-<h5 id="parsed_spec_file_nameoptional"><code>parsed_spec_file_name</code><sup>Optional</sup> <a name="parsed_spec_file_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.parsedSpecFileName"></a></h5>
+<h5 id="parsed_spec_file_nameoptional_1"><code>parsed_spec_file_name</code><sup>Optional</sup> <a name="parsed_spec_file_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.parsedSpecFileName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">parsed_spec_file_name</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5921,7 +6128,16 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <p>The name of the output parsed OpenAPI specification file.</p>
 <p>Must end with .json.</p>
 <hr />
-<h5 id="spec_fileoptional"><code>spec_file</code><sup>Optional</sup> <a name="spec_file" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.specFile"></a></h5>
+<h5 id="python_client_optionsoptional_1"><code>python_client_options</code><sup>Optional</sup> <a name="python_client_options" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.pythonClientOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">python_client_options</span><span class="p">:</span> <span class="n">PythonProjectOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.python.PythonProjectOptions</li>
+</ul>
+<p>Options for the generated python client (if specified in clientLanguages).</p>
+<p>These override the default inferred options.</p>
+<hr />
+<h5 id="spec_fileoptional_1"><code>spec_file</code><sup>Optional</sup> <a name="spec_file" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.specFile"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">spec_file</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -5930,9 +6146,18 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</p>
 <hr />
+<h5 id="typescript_client_optionsoptional_1"><code>typescript_client_options</code><sup>Optional</sup> <a name="typescript_client_options" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.typescriptClientOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">typescript_client_options</span><span class="p">:</span> <span class="n">TypeScriptProjectOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.typescript.TypeScriptProjectOptions</li>
+</ul>
+<p>Options for the generated typescript client.</p>
+<p>These override the default inferred options.</p>
+<hr />
 <h3 id="openapiintegration">OpenApiIntegration <a name="OpenApiIntegration" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration"></a></h3>
 <p>Defines an integration for an individual API operation.</p>
-<h4 id="initializer_6">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.Initializer"></a></h4>
+<h4 id="initializer_7">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.open_api_gateway</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">OpenApiIntegration</span><span class="p">(</span>
@@ -5940,7 +6165,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_8">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5981,7 +6206,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="openapioptions">OpenApiOptions <a name="OpenApiOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions"></a></h3>
 <p>Options required alongside an Open API specification to create API Gateway resources.</p>
-<h4 id="initializer_7">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.Initializer"></a></h4>
+<h4 id="initializer_8">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.open_api_gateway</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">OpenApiOptions</span><span class="p">(</span>
@@ -5991,7 +6216,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">default_authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_8">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_9">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6103,7 +6328,7 @@ Authorizers specified at the integration level will override this for that opera
 </ul>
 <p>The unique identifier for the authorizer.</p>
 <hr />
-<h4 id="properties_9">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_10">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6384,7 +6609,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>the scopes to apply.</p>
 <hr />
-<h4 id="properties_10">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6543,7 +6768,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type</a></p>
 </blockquote>
 <hr />
-<h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_12">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6664,7 +6889,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </tbody>
 </table>
 <hr />
-<h4 id="properties_12">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_13">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6727,7 +6952,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </tbody>
 </table>
 <hr />
-<h4 id="properties_13">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_14">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6906,7 +7131,9 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">api_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parsed_spec_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">spec_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="n">python_client_options</span><span class="p">:</span> <span class="n">PythonProjectOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">spec_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">typescript_client_options</span><span class="p">:</span> <span class="n">TypeScriptProjectOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
 <table>
@@ -7589,9 +7816,19 @@ applied to all methods without an authorizer at the integration level.</p>
 <td>The name of the output parsed OpenAPI specification file.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.pythonClientOptions">python_client_options</a></code></td>
+<td><code>projen.python.PythonProjectOptions</code></td>
+<td>Options for the generated python client (if specified in clientLanguages).</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.specFile">spec_file</a></code></td>
 <td><code>str</code></td>
 <td>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.typescriptClientOptions">typescript_client_options</a></code></td>
+<td><code>projen.typescript.TypeScriptProjectOptions</code></td>
+<td>Options for the generated typescript client.</td>
 </tr>
 </tbody>
 </table>
@@ -8635,27 +8872,27 @@ compile the code in-memory.</p>
 <p>NOTE: Typescript is not semantically versioned and should remain on the
 same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3</code>).</p>
 <hr />
-<h5 id="client_languagesrequired_1"><code>client_languages</code><sup>Required</sup> <a name="client_languages" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.clientLanguages"></a></h5>
+<h5 id="client_languagesrequired_2"><code>client_languages</code><sup>Required</sup> <a name="client_languages" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.clientLanguages"></a></h5>
 <ul>
 <li><em>Type:</em> typing.List[<a href="#@aws-prototyping-sdk/open-api-gateway.ClientLanguage">ClientLanguage</a>]</li>
 </ul>
 <p>The list of languages for which clients will be generated.</p>
 <p>A typescript client will always be generated.</p>
 <hr />
-<h5 id="api_src_diroptional_1"><code>api_src_dir</code><sup>Optional</sup> <a name="api_src_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.apiSrcDir"></a></h5>
+<h5 id="api_src_diroptional_2"><code>api_src_dir</code><sup>Optional</sup> <a name="api_src_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.apiSrcDir"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The directory in which the api generated code will reside, relative to the project srcdir.</p>
 <hr />
-<h5 id="generated_code_diroptional_1"><code>generated_code_dir</code><sup>Optional</sup> <a name="generated_code_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.generatedCodeDir"></a></h5>
+<h5 id="generated_code_diroptional_2"><code>generated_code_dir</code><sup>Optional</sup> <a name="generated_code_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.generatedCodeDir"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 <li><em>Default:</em> "generated"</li>
 </ul>
 <p>The directory in which generated client code will be generated, relative to the outdir of this project.</p>
 <hr />
-<h5 id="parsed_spec_file_nameoptional_1"><code>parsed_spec_file_name</code><sup>Optional</sup> <a name="parsed_spec_file_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.parsedSpecFileName"></a></h5>
+<h5 id="parsed_spec_file_nameoptional_2"><code>parsed_spec_file_name</code><sup>Optional</sup> <a name="parsed_spec_file_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.parsedSpecFileName"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 <li><em>Default:</em> ".parsed-spec.json"</li>
@@ -8663,12 +8900,26 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <p>The name of the output parsed OpenAPI specification file.</p>
 <p>Must end with .json.</p>
 <hr />
-<h5 id="spec_fileoptional_1"><code>spec_file</code><sup>Optional</sup> <a name="spec_file" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.specFile"></a></h5>
+<h5 id="python_client_optionsoptional_2"><code>python_client_options</code><sup>Optional</sup> <a name="python_client_options" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.pythonClientOptions"></a></h5>
+<ul>
+<li><em>Type:</em> projen.python.PythonProjectOptions</li>
+</ul>
+<p>Options for the generated python client (if specified in clientLanguages).</p>
+<p>These override the default inferred options.</p>
+<hr />
+<h5 id="spec_fileoptional_2"><code>spec_file</code><sup>Optional</sup> <a name="spec_file" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.specFile"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 <li><em>Default:</em> "spec/spec.yaml"</li>
 </ul>
 <p>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</p>
+<hr />
+<h5 id="typescript_client_optionsoptional_2"><code>typescript_client_options</code><sup>Optional</sup> <a name="typescript_client_options" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.typescriptClientOptions"></a></h5>
+<ul>
+<li><em>Type:</em> projen.typescript.TypeScriptProjectOptions</li>
+</ul>
+<p>Options for the generated typescript client.</p>
+<p>These override the default inferred options.</p>
 <hr />
 <h4 id="methods_2">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
@@ -9219,7 +9470,7 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 </ul>
 <p>The command to execute.</p>
 <hr />
-<h4 id="properties_14">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_15">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -9523,6 +9774,11 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.apiSrcDir">api_src_dir</a></code></td>
 <td><code>str</code></td>
 <td>The directory in which the api generated code will reside, relative to the project srcdir.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.generatedClients">generated_clients</a></code></td>
+<td><code>typing.Mapping[projen.Project]</code></td>
+<td>References to the client projects that were generated, keyed by language.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.generatedCodeDir">generated_code_dir</a></code></td>
@@ -10038,6 +10294,14 @@ release workflow.</p>
 </ul>
 <p>The directory in which the api generated code will reside, relative to the project srcdir.</p>
 <hr />
+<h5 id="generated_clientsrequired"><code>generated_clients</code><sup>Required</sup> <a name="generated_clients" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.generatedClients"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">generated_clients</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">Project</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.Mapping[projen.Project]</li>
+</ul>
+<p>References to the client projects that were generated, keyed by language.</p>
+<hr />
 <h5 id="generated_code_dirrequired"><code>generated_code_dir</code><sup>Required</sup> <a name="generated_code_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.generatedCodeDir"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
@@ -10122,10 +10386,16 @@ this task should synthesize the project files.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ClientLanguage.TYPESCRIPT">TYPESCRIPT</a></code></td>
 <td><em>No description.</em></td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ClientLanguage.PYTHON">PYTHON</a></code></td>
+<td><em>No description.</em></td>
+</tr>
 </tbody>
 </table>
 <hr />
-<h5 id="typescript"><code>TYPESCRIPT</code> <a name="TYPESCRIPT" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.TYPESCRIPT"></a></h5>
+<h5 id="typescript_1"><code>TYPESCRIPT</code> <a name="TYPESCRIPT" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.TYPESCRIPT"></a></h5>
+<hr />
+<h5 id="python_1"><code>PYTHON</code> <a name="PYTHON" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.PYTHON"></a></h5>
 <hr />
 <h3 id="customauthorizertype">CustomAuthorizerType <a name="CustomAuthorizerType" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType"></a></h3>
 <p>The type of custom authorizer.</p>
@@ -10164,7 +10434,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2022-06-18
+      2022-06-21
     
   </small>
 </div>
