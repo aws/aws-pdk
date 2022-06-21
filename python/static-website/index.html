@@ -1429,6 +1429,7 @@ and commonly occurring vulnerabilities described in OWASP publications such as O
   <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span><span class="p">,</span>
   <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">website_content_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">default_website_bucket_encryption</span><span class="p">:</span> <span class="n">BucketEncryption</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_website_bucket_encryption_key</span><span class="p">:</span> <span class="n">Key</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">distribution_props</span><span class="p">:</span> <span class="n">DistributionProps</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">runtime_options</span><span class="p">:</span> <span class="n">RuntimeOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1459,6 +1460,11 @@ and commonly occurring vulnerabilities described in OWASP publications such as O
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.websiteContentPath">website_content_path</a></code></td>
 <td><code>str</code></td>
 <td>Path to the directory containing the static website files and assets.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.defaultWebsiteBucketEncryption">default_website_bucket_encryption</a></code></td>
+<td><code>aws_cdk.aws_s3.BucketEncryption</code></td>
+<td>Bucket encryption to use for the default bucket.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.defaultWebsiteBucketEncryptionKey">default_website_bucket_encryption_key</a></code></td>
@@ -1504,6 +1510,15 @@ and commonly occurring vulnerabilities described in OWASP publications such as O
 </ul>
 <p>Path to the directory containing the static website files and assets.</p>
 <p>This directory must contain an index.html file.</p>
+<hr />
+<h5 id="default_website_bucket_encryptionoptional"><code>default_website_bucket_encryption</code><sup>Optional</sup> <a name="default_website_bucket_encryption" id="@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.defaultWebsiteBucketEncryption"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_s3.BucketEncryption</li>
+<li><em>Default:</em> "S3MANAGED"</li>
+</ul>
+<p>Bucket encryption to use for the default bucket.</p>
+<p>Supported options are KMS or S3MANAGED.</p>
+<p>Note: If planning to use KMS, ensure you associate a Lambda Edge function to sign requests to S3 as OAI does not currently support KMS encryption. Refer to {<a class="magiclink magiclink-github magiclink-mention" href="https://github.com/link" title="GitHub User: link">@link</a> <a href="https://aws.amazon.com/blogs/networking-and-content-delivery/serving-sse-kms-encrypted-content-from-s3-using-cloudfront/">https://aws.amazon.com/blogs/networking-and-content-delivery/serving-sse-kms-encrypted-content-from-s3-using-cloudfront/</a>}</p>
 <hr />
 <h5 id="default_website_bucket_encryption_keyoptional"><code>default_website_bucket_encryption_key</code><sup>Optional</sup> <a name="default_website_bucket_encryption_key" id="@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.defaultWebsiteBucketEncryptionKey"></a></h5>
 <ul>
@@ -1894,6 +1909,7 @@ are only known at deploy time.</p>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">static_website</span><span class="o">.</span><span class="n">StaticWebsiteProps</span><span class="p">(</span>
   <span class="n">website_content_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">default_website_bucket_encryption</span><span class="p">:</span> <span class="n">BucketEncryption</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_website_bucket_encryption_key</span><span class="p">:</span> <span class="n">Key</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">distribution_props</span><span class="p">:</span> <span class="n">DistributionProps</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">runtime_options</span><span class="p">:</span> <span class="n">RuntimeOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1915,6 +1931,11 @@ are only known at deploy time.</p>
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.websiteContentPath">website_content_path</a></code></td>
 <td><code>str</code></td>
 <td>Path to the directory containing the static website files and assets.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.defaultWebsiteBucketEncryption">default_website_bucket_encryption</a></code></td>
+<td><code>aws_cdk.aws_s3.BucketEncryption</code></td>
+<td>Bucket encryption to use for the default bucket.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.defaultWebsiteBucketEncryptionKey">default_website_bucket_encryption_key</a></code></td>
@@ -1952,6 +1973,17 @@ are only known at deploy time.</p>
 </ul>
 <p>Path to the directory containing the static website files and assets.</p>
 <p>This directory must contain an index.html file.</p>
+<hr />
+<h5 id="default_website_bucket_encryptionoptional_1"><code>default_website_bucket_encryption</code><sup>Optional</sup> <a name="default_website_bucket_encryption" id="@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.defaultWebsiteBucketEncryption"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">default_website_bucket_encryption</span><span class="p">:</span> <span class="n">BucketEncryption</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_s3.BucketEncryption</li>
+<li><em>Default:</em> "S3MANAGED"</li>
+</ul>
+<p>Bucket encryption to use for the default bucket.</p>
+<p>Supported options are KMS or S3MANAGED.</p>
+<p>Note: If planning to use KMS, ensure you associate a Lambda Edge function to sign requests to S3 as OAI does not currently support KMS encryption. Refer to {<a class="magiclink magiclink-github magiclink-mention" href="https://github.com/link" title="GitHub User: link">@link</a> <a href="https://aws.amazon.com/blogs/networking-and-content-delivery/serving-sse-kms-encrypted-content-from-s3-using-cloudfront/">https://aws.amazon.com/blogs/networking-and-content-delivery/serving-sse-kms-encrypted-content-from-s3-using-cloudfront/</a>}</p>
 <hr />
 <h5 id="default_website_bucket_encryption_keyoptional_1"><code>default_website_bucket_encryption_key</code><sup>Optional</sup> <a name="default_website_bucket_encryption_key" id="@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.defaultWebsiteBucketEncryptionKey"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">default_website_bucket_encryption_key</span><span class="p">:</span> <span class="n">Key</span>
