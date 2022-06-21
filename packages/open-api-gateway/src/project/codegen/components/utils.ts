@@ -22,6 +22,10 @@ import { ClientLanguage } from "../../languages";
  */
 export interface GenerateClientCodeOptions {
   /**
+   * The OpenAPI generator to use to generate the code
+   */
+  readonly generator: string;
+  /**
    * The language to generate the client in
    */
   readonly language: ClientLanguage;
@@ -34,17 +38,29 @@ export interface GenerateClientCodeOptions {
    */
   readonly outputPath: string;
   /**
-   * Name for the generated code package
+   * Additional properties to pass to the generate cli
    */
-  readonly packageName: string;
+  readonly additionalProperties?: {
+    [key: string]: string;
+  };
 }
+
+const serializeProperties = (properties: { [key: string]: string }) =>
+  Object.entries(properties)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(",");
 
 /**
  * Generate client code by invoking the root generate script
  */
 export const generateClientCode = (options: GenerateClientCodeOptions) => {
+  const additionalProperties = options.additionalProperties
+    ? ` --additional-properties ${serializeProperties(
+        options.additionalProperties
+      )}`
+    : "";
   exec(
-    `./generate --spec-path ${options.specPath} --output-path ${options.outputPath} --package-name ${options.packageName} --language ${options.language}`,
+    `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --language ${options.language}${additionalProperties}`,
     {
       cwd: path.resolve(
         __dirname,

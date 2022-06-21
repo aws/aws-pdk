@@ -34,7 +34,11 @@ describe("OpenAPI Gateway Ts Monorepo Unit Tests", () => {
       parent: monorepo,
       defaultReleaseBranch: "mainline",
       name: "@test/my-api",
-      clientLanguages: [ClientLanguage.TYPESCRIPT, ClientLanguage.PYTHON],
+      clientLanguages: [
+        ClientLanguage.TYPESCRIPT,
+        ClientLanguage.PYTHON,
+        ClientLanguage.JAVA,
+      ],
       outdir: "packages/api",
       packageManager,
     });

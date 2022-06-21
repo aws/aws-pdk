@@ -14,17 +14,15 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import * as path from "path";
-import * as fs from "fs-extra";
 import { Component } from "projen";
-import { TypeScriptProject } from "projen/lib/typescript";
+import { JavaProject } from "projen/lib/java";
 import { ClientLanguage } from "../../languages";
 import { generateClientCode } from "./utils";
 
 /**
- * Configuration for the GeneratedTypescriptClient component
+ * Configuration for the GeneratedJavaClient component
  */
-export interface GeneratedTypescriptClientSourceCodeOptions {
+export interface GeneratedJavaClientSourceCodeOptions {
   /**
    * Absolute path to the OpenAPI specification (spec.yaml)
    */
@@ -32,14 +30,14 @@ export interface GeneratedTypescriptClientSourceCodeOptions {
 }
 
 /**
- * Generates the typescript client using OpenAPI Generator
+ * Generates the java client using OpenAPI Generator
  */
-export class GeneratedTypescriptClientSourceCode extends Component {
-  private options: GeneratedTypescriptClientSourceCodeOptions;
+export class GeneratedJavaClientSourceCode extends Component {
+  private options: GeneratedJavaClientSourceCodeOptions;
 
   constructor(
-    project: TypeScriptProject,
-    options: GeneratedTypescriptClientSourceCodeOptions
+    project: JavaProject,
+    options: GeneratedJavaClientSourceCodeOptions
   ) {
     super(project);
     this.options = options;
@@ -51,32 +49,29 @@ export class GeneratedTypescriptClientSourceCode extends Component {
   synthesize() {
     super.synthesize();
 
-    // Generate the typescript client
+    const javaProject = this.project as JavaProject;
+    const invokerPackage = `${javaProject.pom.groupId}.${javaProject.name}.client`;
+
+    // Generate the java client
     generateClientCode({
-      generator: "typescript-fetch",
+      generator: "java",
       specPath: this.options.specPath,
       outputPath: this.project.outdir,
-      language: ClientLanguage.TYPESCRIPT,
+      language: ClientLanguage.JAVA,
       additionalProperties: {
-        npmName: (this.project as TypeScriptProject).package.packageName,
-        typescriptThreePlus: "true",
-        useSingleParameter: "true",
-        supportsES6: "true",
+        // TODO: Upgrade to openapi-generator 6.0.1 when released so that useSingleRequestParameter is honoured
+        // https://github.com/OpenAPITools/openapi-generator/milestone/42
+        // https://github.com/OpenAPITools/openapi-generator/pull/12580
+        // This will be required for generating java lambda handler wrappers
+        useSingleRequestParameter: "true",
+        groupId: javaProject.pom.groupId,
+        artifactId: javaProject.pom.artifactId,
+        artifactVersion: javaProject.pom.version,
+        invokerPackage,
+        apiPackage: `${invokerPackage}.api`,
+        modelPackage: `${invokerPackage}.model`,
+        hideGenerationTimestamp: "true",
       },
     });
-
-    // Write an index.ts which exposes the additional generated file OperationConfig.ts, which contains handler wrappers
-    // and other generated code used by the construct.
-    fs.writeFileSync(
-      path.join(this.project.outdir, "src", "index.ts"),
-      [
-        "/* tslint:disable */",
-        "/* eslint-disable */",
-        "export * from './runtime';",
-        "export * from './apis';",
-        "export * from './models';",
-        "export * from './apis/DefaultApi/OperationConfig';",
-      ].join("\n")
-    );
   }
 }

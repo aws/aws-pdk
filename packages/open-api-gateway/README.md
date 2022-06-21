@@ -22,7 +22,7 @@ new OpenApiGatewayTsProject({
   defaultReleaseBranch: "mainline",
   name: "my-api",
   outdir: "packages/api",
-  clientLanguages: [ClientLanguage.TYPESCRIPT, ClientLanguage.PYTHON],
+  clientLanguages: [ClientLanguage.TYPESCRIPT, ClientLanguage.PYTHON, ClientLanguage.JAVA],
 });
 ```
 
@@ -43,6 +43,7 @@ In the output directory (`outdir`), you'll find a few files to get you started.
 |_ generated/
     |_ typescript/ - A generated typescript API client, including generated lambda handler wrappers
     |_ python/ - A generated python API client.
+    |_ java/ - A generated java API client.
 ```
 
 If you would prefer to not generate the sample code, you can pass `sampleCode: false` to `OpenApiGatewayTsProject`.

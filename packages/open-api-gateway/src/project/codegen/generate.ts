@@ -17,16 +17,26 @@ import * as path from "path";
 import { Project } from "projen";
 import { ClientLanguage } from "../languages";
 import {
+  GeneratedJavaClientProject,
+  GeneratedJavaClientProjectOptions,
+} from "./generated-java-client-project";
+import {
   GeneratedPythonClientProject,
   GeneratedPythonClientProjectOptions,
-} from "./generated-python-client";
+} from "./generated-python-client-project";
 import {
   GeneratedTypescriptClientProject,
   GeneratedTypescriptClientProjectOptions,
 } from "./generated-typescript-client-project";
 
 // Some options that we'll infer automatically for each client project, unless overridden
-type CommonProjectOptions = "specPath" | "name" | "outdir" | "moduleName";
+type CommonProjectOptions =
+  | "specPath"
+  | "name"
+  | "outdir"
+  | "moduleName"
+  | "artifactId"
+  | "groupId";
 
 /**
  * Options for generating clients
@@ -69,6 +79,14 @@ export interface GenerateClientProjectsOptions {
     GeneratedPythonClientProjectOptions,
     CommonProjectOptions
   >;
+  /**
+   * Options for the java client project
+   * These will override any inferred properties (such as the package name).
+   */
+  readonly javaOptions: Omit<
+    GeneratedJavaClientProjectOptions,
+    CommonProjectOptions
+  >;
 }
 
 /**
@@ -93,17 +111,36 @@ const generateClientProject = (
       });
     case ClientLanguage.PYTHON:
       // Ensure snake_case for python
-      const name = `${options.parentPackageName}_${ClientLanguage.PYTHON}`
+      const pythonName = `${options.parentPackageName}_${ClientLanguage.PYTHON}`
         .replace(/@/g, "")
         .replace(/[\-/]/g, "_");
       return new GeneratedPythonClientProject({
         parent: options.parent,
         rootProjectHasParent: options.rootProjectHasParent,
-        name,
-        moduleName: name,
+        name: pythonName,
+        moduleName: pythonName,
         outdir: path.join(options.generatedCodeDir, ClientLanguage.PYTHON),
         specPath: options.parsedSpecPath,
         ...options.pythonOptions,
+      });
+    case ClientLanguage.JAVA:
+      // Ensure no dashes/underscores since name is used in package name
+      const javaName = `${options.parentPackageName}-${ClientLanguage.JAVA}`
+        .replace(/@/g, "")
+        .replace(/[\-/_]/g, "");
+
+      const artifactId = `${options.parentPackageName}-${ClientLanguage.JAVA}`
+        .replace(/@/g, "")
+        .replace(/[/_]/g, "-");
+
+      return new GeneratedJavaClientProject({
+        parent: options.parent,
+        name: javaName,
+        artifactId,
+        groupId: "com.generated.api",
+        outdir: path.join(options.generatedCodeDir, ClientLanguage.JAVA),
+        specPath: options.parsedSpecPath,
+        ...options.javaOptions,
       });
     default:
       throw new Error(`Unknown client language ${language}`);

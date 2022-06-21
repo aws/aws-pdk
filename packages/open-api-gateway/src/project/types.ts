@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import { JavaProjectOptions } from "projen/lib/java";
 import { PythonProjectOptions } from "projen/lib/python";
 import { TypeScriptProjectOptions } from "projen/lib/typescript";
 import { ClientLanguage } from "./languages";
@@ -53,4 +54,9 @@ export interface OpenApiGatewayProjectOptions {
    * These override the default inferred options.
    */
   readonly pythonClientOptions?: PythonProjectOptions;
+  /**
+   * Options for the generated java client (if specified in clientLanguages).
+   * These override the default inferred options.
+   */
+  readonly javaClientOptions?: JavaProjectOptions;
 }

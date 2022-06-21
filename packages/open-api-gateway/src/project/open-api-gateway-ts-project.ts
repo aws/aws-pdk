@@ -167,6 +167,10 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
         version: "0.0.0",
         ...options.pythonClientOptions,
       },
+      javaOptions: {
+        version: "0.0.0",
+        ...options.javaClientOptions,
+      },
     });
 
     this.generatedTypescriptClient = this.generatedClients[
