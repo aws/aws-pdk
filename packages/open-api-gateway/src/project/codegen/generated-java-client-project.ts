@@ -15,6 +15,7 @@
  ******************************************************************************************************************** */
 import { JavaProject, JavaProjectOptions } from "projen/lib/java";
 import { GeneratedJavaClientSourceCode } from "./components/generated-java-client-source-code";
+import { OpenApiGeneratorIgnoreFile } from "./components/open-api-generator-ignore-file";
 
 /**
  * Configuration for the generated java client project
@@ -39,6 +40,8 @@ export class GeneratedJavaClientProject extends JavaProject {
       junit: false,
       ...options,
     });
+
+    new OpenApiGeneratorIgnoreFile(this);
 
     new GeneratedJavaClientSourceCode(this, {
       specPath: options.specPath,
