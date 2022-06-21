@@ -6,8 +6,6 @@ This package vends a projen project type which allows you to define an API using
 
 The project will generate models and clients from your OpenAPI spec in your desired languages, and can be utilised both client side or server side in lambda handlers. The project type also generates a wrapper construct which adds type safety to ensure a lambda integration is provided for every API integration.
 
-_Currently only Typescript is supported, but more languages are coming soon!_
-
 ### Project
 
 It's recommended that this project is used as part of an `nx_monorepo` project. You can still use this as a standalone project if you like (eg `npx projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts`), however you will need to manage build order (ie building the generated client first, followed by the project).
@@ -24,7 +22,7 @@ new OpenApiGatewayTsProject({
   defaultReleaseBranch: "mainline",
   name: "my-api",
   outdir: "packages/api",
-  clientLanguages: [ClientLanguage.TYPESCRIPT],
+  clientLanguages: [ClientLanguage.TYPESCRIPT, ClientLanguage.PYTHON],
 });
 ```
 
@@ -44,6 +42,7 @@ In the output directory (`outdir`), you'll find a few files to get you started.
                                      generated lambda handler wrappers for marshalling and type safety.
 |_ generated/
     |_ typescript/ - A generated typescript API client, including generated lambda handler wrappers
+    |_ python/ - A generated python API client.
 ```
 
 If you would prefer to not generate the sample code, you can pass `sampleCode: false` to `OpenApiGatewayTsProject`.
@@ -257,6 +256,8 @@ Authorizers.custom({
 
 ### Generated Client
 
+#### Typescript
+
 The [typescript-fetch](https://openapi-generator.tech/docs/generators/typescript-fetch/) OpenAPI generator is used to generate OpenAPI clients for typescript. This requires an implementation of `fetch` to be passed to the client. In the browser one can pass the built in fetch, or in NodeJS you can use an implementation such as [node-fetch](https://www.npmjs.com/package/node-fetch).
 
 Example usage of the client in a website:
@@ -271,6 +272,32 @@ const client = new DefaultApi(new Configuration({
 
 await client.sayHello({ name: "Jack" });
 ```
+
+#### Python
+
+The [python-experimental](https://openapi-generator.tech/docs/generators/python-experimental) OpenAPI generator is used to generate OpenAPI clients for python.
+
+Example usage:
+
+```python
+from my_api_python import ApiClient, Configuration
+from my_api_python.api.default_api import DefaultApi
+
+configuration = Configuration(
+    host = "https://xxxxxxxxxx.execute-api.ap-southeast-2.amazonaws.com"
+)
+
+with ApiClient(configuration) as api_client:
+    client = DefaultApi(api_client)
+
+    client.say_hello(
+        query_params={
+            'name': "name_example",
+        },
+    )
+```
+
+You'll find details about how to use the python client in the README.md alongside your generated client.
 
 ### Lambda Handler Wrappers
 
@@ -298,3 +325,50 @@ export const handler = sayHelloHandler<ApiError>(async (input) => {
 During initial project synthesis, the dependency between `OpenApiGatewayTsProject` and the generated client is established via workspace configuration local to `OpenApiGatewayTsProject`, since the parent monorepo will not have updated to include the new packages in time for the initial "install".
 
 When the package manager is PNPM, this initial workspace is configured by creating a local `pnpm-workspace.yaml` file, and thus if you specify your own for an instance of `OpenApiGatewayTsProject`, synthesis will fail. It is most likely that you will not need to define this file locally in `OpenApiGatewayTsProject` since the monorepo copy should be used to manage all packages within the repo, however if managing this file at the `OpenApiGatewayTsProject` level is required, please use the `pnpmWorkspace` property of `OpenApiGatewayTsProject`.
+
+#### Customising Generated Client Projects
+
+By default, the generated clients are configured automatically, including project names. You can customise the generated client code using the `<language>ProjectOptions` properties when constructing your projen project.
+
+##### Python Shared Virtual Environment
+
+For adding dependencies between python projects within a monorepo you can use a single shared virtual environment, and install your python projects into that environment with `pip install --editable .` in the dependee. The generated python client will automatically do this if it detects it is within a monorepo.
+
+The following example shows how to configure the generated client to use a shared virtual environment:
+
+```ts
+const api = new OpenApiGatewayTsProject({
+  parent: monorepo,
+  name: 'api',
+  outdir: 'packages/api',
+  defaultReleaseBranch: 'main',
+  clientLanguages: [ClientLanguage.PYTHON],
+  pythonClientOptions: {
+    moduleName: 'my_api_python',
+    name: 'my_api_python',
+    authorName: 'jack',
+    authorEmail: 'me@example.com',
+    version: '1.0.0',
+    venvOptions: {
+      // Directory relative to the generated python client (in this case packages/api/generated/python)
+      envdir: '../../../../.env',
+    },
+  },
+});
+
+new PythonProject({
+  parent: monorepo,
+  outdir: 'packages/my-python-lib',
+  moduleName: 'my_python_lib',
+  name: 'my_python_lib',
+  authorName: 'jack',
+  authorEmail: 'me@example.com',
+  version: '1.0.0',
+  venvOptions: {
+    // Directory relative to the python lib (in this case packages/my-python-lib)
+    envdir: '../../.env',
+  },
+  // Generated client can be safely cast to a PythonProject
+  deps: [(api.generatedClients[ClientLanguage.PYTHON] as PythonProject).moduleName],
+});
+```

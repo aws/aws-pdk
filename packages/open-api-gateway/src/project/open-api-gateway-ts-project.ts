@@ -15,13 +15,14 @@
  ******************************************************************************************************************** */
 
 import * as path from "path";
-import { SampleDir, SampleFile, TextFile, YamlFile } from "projen";
+import { Project, SampleDir, SampleFile, TextFile, YamlFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import {
   TypeScriptProject,
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
 import { exec } from "projen/lib/util";
+import { generateClientProjects } from "./codegen/generate";
 import { GeneratedTypescriptClientProject } from "./codegen/generated-typescript-client-project";
 import { ClientLanguage } from "./languages";
 import {
@@ -30,6 +31,7 @@ import {
   TypescriptSampleCodeOptions,
 } from "./samples/typescript";
 import { OpenApiSpecProject } from "./spec/open-api-spec-project";
+import { OpenApiGatewayProjectOptions } from "./types";
 
 const OPENAPI_GATEWAY_PDK_PACKAGE_NAME =
   "@aws-prototyping-sdk/open-api-gateway";
@@ -38,31 +40,8 @@ const OPENAPI_GATEWAY_PDK_PACKAGE_NAME =
  * Configuration for the OpenApiGatewayTsProject
  */
 export interface OpenApiGatewayTsProjectOptions
-  extends TypeScriptProjectOptions {
-  /**
-   * The list of languages for which clients will be generated. A typescript client will always be generated.
-   */
-  readonly clientLanguages: ClientLanguage[];
-  /**
-   * The directory in which generated client code will be generated, relative to the outdir of this project
-   * @default "generated"
-   */
-  readonly generatedCodeDir?: string;
-  /**
-   * The path to the OpenAPI specification file, relative to the project source directory (srcdir).
-   * @default "spec/spec.yaml"
-   */
-  readonly specFile?: string;
-  /**
-   * The directory in which the api generated code will reside, relative to the project srcdir
-   */
-  readonly apiSrcDir?: string;
-  /**
-   * The name of the output parsed OpenAPI specification file. Must end with .json.
-   * @default ".parsed-spec.json"
-   */
-  readonly parsedSpecFileName?: string;
-}
+  extends TypeScriptProjectOptions,
+    OpenApiGatewayProjectOptions {}
 
 /**
  * Synthesizes a Typescript Project with an OpenAPI spec, generated clients, a CDK construct for deploying the API
@@ -75,6 +54,11 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
    * A reference to the generated typescript client
    */
   public readonly generatedTypescriptClient: TypeScriptProject;
+
+  /**
+   * References to the client projects that were generated, keyed by language
+   */
+  public readonly generatedClients: { [language: string]: Project };
 
   /**
    * The directory in which the OpenAPI spec file(s) reside, relative to the project srcdir
@@ -161,20 +145,33 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
       ? path.join(options.outdir!, this.generatedCodeDir)
       : this.generatedCodeDir;
 
-    // We generate the typescript client since this project will take a dependency on it in order to produce the
+    // Always generate the typescript client since this project will take a dependency on it in order to produce the
     // type-safe cdk construct wrapper.
-    this.generatedTypescriptClient = new GeneratedTypescriptClientProject({
+    const clientLanguages = new Set(options.clientLanguages);
+    clientLanguages.add(ClientLanguage.TYPESCRIPT);
+
+    this.generatedClients = generateClientProjects(clientLanguages, {
       parent: this.hasParent ? options.parent : this,
-      defaultReleaseBranch: options.defaultReleaseBranch,
-      name: `${this.package.packageName}-typescript`,
-      outdir: path.join(
-        generatedCodeDirRelativeToParent,
-        ClientLanguage.TYPESCRIPT
-      ),
-      // Use the parsed spec such that refs are resolved to support multi-file specs
-      specPath: spec.parsedSpecPath,
-      packageManager: options.packageManager,
+      rootProjectHasParent: this.hasParent,
+      parentPackageName: this.package.packageName,
+      generatedCodeDir: generatedCodeDirRelativeToParent,
+      parsedSpecPath: spec.parsedSpecPath,
+      typescriptOptions: {
+        defaultReleaseBranch: options.defaultReleaseBranch,
+        packageManager: options.packageManager,
+        ...options.typescriptClientOptions,
+      },
+      pythonOptions: {
+        authorName: options.authorName ?? "APJ Cope",
+        authorEmail: options.authorEmail ?? "apj-cope@amazon.com",
+        version: "0.0.0",
+        ...options.pythonClientOptions,
+      },
     });
+
+    this.generatedTypescriptClient = this.generatedClients[
+      ClientLanguage.TYPESCRIPT
+    ] as GeneratedTypescriptClientProject;
 
     // Synth early so that the generated code is available prior to this project's install phase
     this.generatedTypescriptClient.synth();
@@ -220,11 +217,6 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
         ],
       });
     }
-
-    // Additional languages to generate other than typescript which is mandatory
-    const extraLanguages = new Set(options.clientLanguages);
-    extraLanguages.delete(ClientLanguage.TYPESCRIPT);
-    // TODO: generate clients in other given languages
 
     // Generate the sample source and test code
     const sampleOptions: TypescriptSampleCodeOptions = {

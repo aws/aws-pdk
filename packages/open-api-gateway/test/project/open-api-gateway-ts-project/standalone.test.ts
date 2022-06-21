@@ -26,7 +26,7 @@ describe("OpenAPI Gateway Ts Standalone Unit Tests", () => {
     const project = new OpenApiGatewayTsProject({
       defaultReleaseBranch: "mainline",
       name: "@test/my-api",
-      clientLanguages: [ClientLanguage.TYPESCRIPT],
+      clientLanguages: [ClientLanguage.TYPESCRIPT, ClientLanguage.PYTHON],
       packageManager,
     });
     expect(synthSnapshot(project)).toMatchSnapshot();

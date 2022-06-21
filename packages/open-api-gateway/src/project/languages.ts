@@ -19,4 +19,5 @@
  */
 export enum ClientLanguage {
   TYPESCRIPT = "typescript",
+  PYTHON = "python",
 }

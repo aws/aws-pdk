@@ -14,16 +14,15 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import * as path from "path";
-import * as fs from "fs-extra";
-import { Component, Project } from "projen";
+import { Component } from "projen";
+import { PythonProject } from "projen/lib/python";
 import { ClientLanguage } from "../../languages";
 import { generateClientCode } from "./utils";
 
 /**
- * Configuration for the GeneratedTypescriptClient component
+ * Configuration for the GeneratedPythonClient component
  */
-export interface GeneratedTypescriptClientSourceCodeOptions {
+export interface GeneratedPythonClientSourceCodeOptions {
   /**
    * Absolute path to the OpenAPI specification (spec.yaml)
    */
@@ -31,14 +30,14 @@ export interface GeneratedTypescriptClientSourceCodeOptions {
 }
 
 /**
- * Generates the typescript client using OpenAPI Generator
+ * Generates the python client using OpenAPI Generator
  */
-export class GeneratedTypescriptClientSourceCode extends Component {
-  private options: GeneratedTypescriptClientSourceCodeOptions;
+export class GeneratedPythonClientSourceCode extends Component {
+  private options: GeneratedPythonClientSourceCodeOptions;
 
   constructor(
-    project: Project,
-    options: GeneratedTypescriptClientSourceCodeOptions
+    project: PythonProject,
+    options: GeneratedPythonClientSourceCodeOptions
   ) {
     super(project);
     this.options = options;
@@ -47,26 +46,12 @@ export class GeneratedTypescriptClientSourceCode extends Component {
   synthesize() {
     super.synthesize();
 
-    // Generate the typescript client
+    // Generate the python client
     generateClientCode({
       specPath: this.options.specPath,
       outputPath: this.project.outdir,
-      packageName: this.project.name,
-      language: ClientLanguage.TYPESCRIPT,
+      packageName: (this.project as PythonProject).moduleName,
+      language: ClientLanguage.PYTHON,
     });
-
-    // Write an index.ts which exposes the additional generated file OperationConfig.ts, which contains handler wrappers
-    // and other generated code used by the construct.
-    fs.writeFileSync(
-      path.join(this.project.outdir, "src", "index.ts"),
-      [
-        "/* tslint:disable */",
-        "/* eslint-disable */",
-        "export * from './runtime';",
-        "export * from './apis';",
-        "export * from './models';",
-        "export * from './apis/DefaultApi/OperationConfig';",
-      ].join("\n")
-    );
   }
 }
