@@ -711,39 +711,10 @@
   
   
   
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_4" type="checkbox" id="__nav_2_4" >
-      
-      
-      
-        
-          
-            
-          
-        
-      
-      
-        
-        
-        <div class="md-nav__link md-nav__link--index ">
-          <a href="../../python/pipeline/index.html">pipeline</a>
-          
-        </div>
-      
-      <nav class="md-nav" aria-label="pipeline" data-md-level="2">
-        <label class="md-nav__title" for="__nav_2_4">
-          <span class="md-nav__icon md-icon"></span>
-          pipeline
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-          
-        </ul>
-      </nav>
+    <li class="md-nav__item">
+      <a href="../../pipeline" class="md-nav__link">
+        pipeline
+      </a>
     </li>
   
 
@@ -1388,7 +1359,7 @@ aws-prototyping-sdk library.</p>
 <span class="w">        </span><span class="p">.</span><span class="na">defaultReleaseBranch</span><span class="p">(</span><span class="s">&quot;mainline&quot;</span><span class="p">)</span><span class="w"></span>
 <span class="w">        </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;my-api&quot;</span><span class="p">)</span><span class="w"></span>
 <span class="w">        </span><span class="p">.</span><span class="na">outdir</span><span class="p">(</span><span class="s">&quot;packages/api&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="p">.</span><span class="na">clientLanguages</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">ClientLanguage</span><span class="p">.</span><span class="na">getTYPESCRIPT</span><span class="p">(),</span><span class="w"> </span><span class="n">ClientLanguage</span><span class="p">.</span><span class="na">getPYTHON</span><span class="p">()))</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="na">clientLanguages</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">ClientLanguage</span><span class="p">.</span><span class="na">getTYPESCRIPT</span><span class="p">(),</span><span class="w"> </span><span class="n">ClientLanguage</span><span class="p">.</span><span class="na">getPYTHON</span><span class="p">(),</span><span class="w"> </span><span class="n">ClientLanguage</span><span class="p">.</span><span class="na">getJAVA</span><span class="p">()))</span><span class="w"></span>
 <span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
 <p>In the output directory (<code>outdir</code>), you'll find a few files to get you started.</p>
@@ -1406,6 +1377,7 @@ aws-prototyping-sdk library.</p>
 |_ generated/
     |_ typescript/ - A generated typescript API client, including generated lambda handler wrappers
     |_ python/ - A generated python API client.
+    |_ java/ - A generated java API client.
 </code></pre></div>
 <p>If you would prefer to not generate the sample code, you can pass <code>sampleCode: false</code> to <code>OpenApiGatewayTsProject</code>.</p>
 <p>To make changes to your api, simply update <code>spec.yaml</code> and run <code>npx projen</code> to synthesize all the typesafe client/server code!</p>
@@ -3015,6 +2987,7 @@ Authorizers specified at the integration level will override this for that opera
 <span class="w">    </span><span class="p">.</span><span class="na">clientLanguages</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">ClientLanguage</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
 <span class="c1">//  .apiSrcDir(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .generatedCodeDir(java.lang.String)</span><span class="w"></span>
+<span class="c1">//  .javaClientOptions(JavaProjectOptions)</span><span class="w"></span>
 <span class="c1">//  .parsedSpecFileName(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .pythonClientOptions(PythonProjectOptions)</span><span class="w"></span>
 <span class="c1">//  .specFile(java.lang.String)</span><span class="w"></span>
@@ -3045,6 +3018,11 @@ Authorizers specified at the integration level will override this for that opera
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.generatedCodeDir">generatedCodeDir</a></code></td>
 <td><code>java.lang.String</code></td>
 <td>The directory in which generated client code will be generated, relative to the outdir of this project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.javaClientOptions">javaClientOptions</a></code></td>
+<td><code>io.github.cdklabs.projen.java.JavaProjectOptions</code></td>
+<td>Options for the generated java client (if specified in clientLanguages).</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.parsedSpecFileName">parsedSpecFileName</a></code></td>
@@ -3094,6 +3072,15 @@ Authorizers specified at the integration level will override this for that opera
 <li><em>Default:</em> "generated"</li>
 </ul>
 <p>The directory in which generated client code will be generated, relative to the outdir of this project.</p>
+<hr />
+<h5 id="javaclientoptionsoptional"><code>javaClientOptions</code><sup>Optional</sup> <a name="javaClientOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.javaClientOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">JavaProjectOptions</span><span class="w"> </span><span class="nf">getJavaClientOptions</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> io.github.cdklabs.projen.java.JavaProjectOptions</li>
+</ul>
+<p>Options for the generated java client (if specified in clientLanguages).</p>
+<p>These override the default inferred options.</p>
 <hr />
 <h5 id="parsedspecfilenameoptional"><code>parsedSpecFileName</code><sup>Optional</sup> <a name="parsedSpecFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.parsedSpecFileName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getParsedSpecFileName</span><span class="p">();</span><span class="w"></span>
@@ -3271,6 +3258,7 @@ Authorizers specified at the integration level will override this for that opera
 <span class="w">    </span><span class="p">.</span><span class="na">clientLanguages</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">ClientLanguage</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
 <span class="c1">//  .apiSrcDir(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .generatedCodeDir(java.lang.String)</span><span class="w"></span>
+<span class="c1">//  .javaClientOptions(JavaProjectOptions)</span><span class="w"></span>
 <span class="c1">//  .parsedSpecFileName(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .pythonClientOptions(PythonProjectOptions)</span><span class="w"></span>
 <span class="c1">//  .specFile(java.lang.String)</span><span class="w"></span>
@@ -3951,6 +3939,11 @@ Authorizers specified at the integration level will override this for that opera
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.generatedCodeDir">generatedCodeDir</a></code></td>
 <td><code>java.lang.String</code></td>
 <td>The directory in which generated client code will be generated, relative to the outdir of this project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.javaClientOptions">javaClientOptions</a></code></td>
+<td><code>io.github.cdklabs.projen.java.JavaProjectOptions</code></td>
+<td>Options for the generated java client (if specified in clientLanguages).</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.parsedSpecFileName">parsedSpecFileName</a></code></td>
@@ -5282,6 +5275,15 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>The directory in which generated client code will be generated, relative to the outdir of this project.</p>
 <hr />
+<h5 id="javaclientoptionsoptional_1"><code>javaClientOptions</code><sup>Optional</sup> <a name="javaClientOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.javaClientOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">JavaProjectOptions</span><span class="w"> </span><span class="nf">getJavaClientOptions</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> io.github.cdklabs.projen.java.JavaProjectOptions</li>
+</ul>
+<p>Options for the generated java client (if specified in clientLanguages).</p>
+<p>These override the default inferred options.</p>
+<hr />
 <h5 id="parsedspecfilenameoptional_1"><code>parsedSpecFileName</code><sup>Optional</sup> <a name="parsedSpecFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.parsedSpecFileName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getParsedSpecFileName</span><span class="p">();</span><span class="w"></span>
 </code></pre></div>
@@ -6229,6 +6231,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <span class="w">    </span><span class="p">.</span><span class="na">clientLanguages</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">ClientLanguage</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
 <span class="c1">//  .apiSrcDir(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .generatedCodeDir(java.lang.String)</span><span class="w"></span>
+<span class="c1">//  .javaClientOptions(JavaProjectOptions)</span><span class="w"></span>
 <span class="c1">//  .parsedSpecFileName(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .pythonClientOptions(PythonProjectOptions)</span><span class="w"></span>
 <span class="c1">//  .specFile(java.lang.String)</span><span class="w"></span>
@@ -6908,6 +6911,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.generatedCodeDir">generatedCodeDir</a></code></td>
 <td><code>java.lang.String</code></td>
 <td>The directory in which generated client code will be generated, relative to the outdir of this project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.javaClientOptions">javaClientOptions</a></code></td>
+<td><code>io.github.cdklabs.projen.java.JavaProjectOptions</code></td>
+<td>Options for the generated java client (if specified in clientLanguages).</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.parsedSpecFileName">parsedSpecFileName</a></code></td>
@@ -7990,6 +7998,13 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <li><em>Default:</em> "generated"</li>
 </ul>
 <p>The directory in which generated client code will be generated, relative to the outdir of this project.</p>
+<hr />
+<h5 id="javaclientoptionsoptional_2"><code>javaClientOptions</code><sup>Optional</sup> <a name="javaClientOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.javaClientOptions"></a></h5>
+<ul>
+<li><em>Type:</em> io.github.cdklabs.projen.java.JavaProjectOptions</li>
+</ul>
+<p>Options for the generated java client (if specified in clientLanguages).</p>
+<p>These override the default inferred options.</p>
 <hr />
 <h5 id="parsedspecfilenameoptional_2"><code>parsedSpecFileName</code><sup>Optional</sup> <a name="parsedSpecFileName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.parsedSpecFileName"></a></h5>
 <ul>
@@ -9387,12 +9402,18 @@ this task should synthesize the project files.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ClientLanguage.PYTHON">PYTHON</a></code></td>
 <td><em>No description.</em></td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ClientLanguage.JAVA">JAVA</a></code></td>
+<td><em>No description.</em></td>
+</tr>
 </tbody>
 </table>
 <hr />
 <h5 id="typescript_1"><code>TYPESCRIPT</code> <a name="TYPESCRIPT" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.TYPESCRIPT"></a></h5>
 <hr />
 <h5 id="python_1"><code>PYTHON</code> <a name="PYTHON" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.PYTHON"></a></h5>
+<hr />
+<h5 id="java"><code>JAVA</code> <a name="JAVA" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.JAVA"></a></h5>
 <hr />
 <h3 id="customauthorizertype">CustomAuthorizerType <a name="CustomAuthorizerType" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerType"></a></h3>
 <p>The type of custom authorizer.</p>

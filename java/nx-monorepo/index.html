@@ -61,7 +61,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#api-reference" class="md-skip">
+        <a href="#homogenous-dependencies" class="md-skip">
           Skip to content
         </a>
       
@@ -711,39 +711,10 @@
   
   
   
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_4" type="checkbox" id="__nav_2_4" >
-      
-      
-      
-        
-          
-            
-          
-        
-      
-      
-        
-        
-        <div class="md-nav__link md-nav__link--index ">
-          <a href="../../python/pipeline/index.html">pipeline</a>
-          
-        </div>
-      
-      <nav class="md-nav" aria-label="pipeline" data-md-level="2">
-        <label class="md-nav__title" for="__nav_2_4">
-          <span class="md-nav__icon md-icon"></span>
-          pipeline
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-          
-        </ul>
-      </nav>
+    <li class="md-nav__item">
+      <a href="../../pipeline" class="md-nav__link">
+        pipeline
+      </a>
     </li>
   
 
@@ -1080,8 +1051,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1090,6 +1059,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#homogenous-dependencies" class="md-nav__link">
+    Homogenous Dependencies
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    API Reference 
+  </a>
+  
+    <nav class="md-nav" aria-label="API Reference ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#structs" class="md-nav__link">
     Structs 
   </a>
@@ -1136,8 +1120,8 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#classes" class="md-nav__link">
     Classes 
   </a>
@@ -1156,8 +1140,8 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#enums" class="md-nav__link">
     Enums 
   </a>
@@ -1169,6 +1153,11 @@
   <a href="#targetdependencyproject" class="md-nav__link">
     TargetDependencyProject 
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1270,6 +1259,82 @@
 <p>Now lets test building our project, from the root directory run <code>npx nx run-many --target=build --all</code>. As you can see, the pythonlib was built first followed by the cicd package.</p>
 <p>The NxMonorepoProject also manages your yarn/pnpm workspaces for you and synthesizes these into your package.json pnpm-workspace.yml respectively.</p>
 <p>For more information on NX commands, refer to this <a href="https://nx.dev/using-nx/nx-cli">documentation</a>.</p>
+<h3 id="homogenous-dependencies">Homogenous Dependencies</h3>
+<p>As well as adding implicit dependencies, you can add dependencies between projects of the same language in order to have one project consume another project's code.</p>
+<h4 id="typescript">Typescript</h4>
+<p>Since the <code>NxMonorepoProject</code> manages a yarn/npm/pnpm workspace, configuring dependencies between Typescript projects is as straightforward as referencing them in <code>deps</code>.</p>
+<p>Note that dependencies cannot be added in the same project synthesis (<code>npx projen</code>) as when projects are created. This means a two-pass approach is recommended, first to create your new projects, and then to add the dependencies.</p>
+<p>For example:</p>
+<p>First add your new projects:</p>
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/a&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-a&quot;</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/b&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-b&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+</code></pre></div>
+<p>Synthesise, then you can set up your dependency:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/a&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-a&quot;</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/b&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-b&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// B depends on A</span><span class="w"></span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">a</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">],</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+</code></pre></div>
+<h4 id="python">Python</h4>
+<p>The recommended way to configure dependencies between python projects within your monorepo is to use a single shared virtual environment. You can then install packages you wish to depend on into that environment using pip's <a href="https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs">Editable Installs</a>.</p>
+<p>You will also need to add an implicit dependency to tell the monorepo the correct build order for your packages.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">sharedEnv</span><span class="o">:</span><span class="w"> </span><span class="kt">VenvOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">envdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;../../.env&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/a&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;jack&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;me@example.com&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">venvOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">sharedEnv</span><span class="p">,</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="c1">// Install A into the virtual env since it is consumed by B</span><span class="w"></span>
+<span class="nx">a</span><span class="p">.</span><span class="nx">tasks</span><span class="p">.</span><span class="nx">tryFind</span><span class="p">(</span><span class="s1">&#39;install&#39;</span><span class="p">)</span><span class="o">!</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s1">&#39;pip install --editable .&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/b&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;jack&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;me@example.com&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">venvOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">sharedEnv</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// B depends on A</span><span class="w"></span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">a</span><span class="p">.</span><span class="kr">module</span><span class="nx">Name</span><span class="p">],</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="c1">// Add the implicit dependency so that the monorepo will build A before B</span><span class="w"></span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
 <h3 id="nxconfig">NXConfig <a name="NXConfig" id="aws-prototyping-sdk.nx_monorepo.NXConfig"></a></h3>
