@@ -89,6 +89,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
           "@aws-prototyping-sdk/open-api-gateway/openapi-types/*",
           "@aws-prototyping-sdk/open-api-gateway/fs-extra",
           "@aws-prototyping-sdk/open-api-gateway/fs-extra/*",
+          "@aws-prototyping-sdk/awsui-react-ts-sample-website",
+          "@aws-prototyping-sdk/awsui-react-ts-sample-website/**"
         ],
       },
     });
@@ -246,7 +248,8 @@ const resolveDependencies = (project: any): void => {
       "debug@^2.6.9",
       "minimist@^1.2.6",
       "ejs@^3.1.7",
-      "async@^2.6.4"
+      "async@^2.6.4",
+      "@types/jest@^28.1.1"
     );
   }
 };
