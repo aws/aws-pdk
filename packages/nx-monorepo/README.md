@@ -94,5 +94,96 @@ The NxMonorepoProject also manages your yarn/pnpm workspaces for you and synthes
 
 For more information on NX commands, refer to this [documentation](https://nx.dev/using-nx/nx-cli).
 
+### Homogenous Dependencies
 
+As well as adding implicit dependencies, you can add dependencies between projects of the same language in order to have one project consume another project's code.
 
+#### Typescript
+
+Since the `NxMonorepoProject` manages a yarn/npm/pnpm workspace, configuring dependencies between Typescript projects is as straightforward as referencing them in `deps`.
+
+Note that dependencies cannot be added in the same project synthesis (`npx projen`) as when projects are created. This means a two-pass approach is recommended, first to create your new projects, and then to add the dependencies.
+
+For example:
+
+First add your new projects:
+
+```ts
+new TypeScriptProject({
+  parent: monorepo,
+  outdir: "packages/a",
+  defaultReleaseBranch: "main",
+  name: "project-a"
+});
+
+new TypeScriptProject({
+  parent: monorepo,
+  outdir: "packages/b",
+  defaultReleaseBranch: "main",
+  name: "project-b",
+});
+```
+
+Synthesise, then you can set up your dependency:
+
+```ts
+const a = new TypeScriptProject({
+  parent: monorepo,
+  outdir: "packages/a",
+  defaultReleaseBranch: "main",
+  name: "project-a"
+});
+
+new TypeScriptProject({
+  parent: monorepo,
+  outdir: "packages/b",
+  defaultReleaseBranch: "main",
+  name: "project-b",
+  // B depends on A
+  deps: [a.package.packageName],
+});
+```
+
+#### Python
+
+The recommended way to configure dependencies between python projects within your monorepo is to use a single shared virtual environment. You can then install packages you wish to depend on into that environment using pip's [Editable Installs](https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs).
+
+You will also need to add an implicit dependency to tell the monorepo the correct build order for your packages.
+
+For example:
+
+```ts
+const sharedEnv: VenvOptions = {
+  envdir: '../../.env',
+};
+
+const a = new PythonProject({
+  parent: monorepo,
+  outdir: 'packages/a',
+  moduleName: 'a',
+  name: 'a',
+  authorName: 'jack',
+  authorEmail: 'me@example.com',
+  version: '1.0.0',
+  venvOptions: sharedEnv,
+});
+
+// Install A into the virtual env since it is consumed by B
+a.tasks.tryFind('install')!.exec('pip install --editable .');
+
+const b = new PythonProject({
+  parent: monorepo,
+  outdir: 'packages/b',
+  moduleName: 'b',
+  name: 'b',
+  authorName: 'jack',
+  authorEmail: 'me@example.com',
+  version: '1.0.0',
+  venvOptions: sharedEnv,
+  // B depends on A
+  deps: [a.moduleName],
+});
+
+// Add the implicit dependency so that the monorepo will build A before B
+monorepo.addImplicitDependency(b, a);
+```
