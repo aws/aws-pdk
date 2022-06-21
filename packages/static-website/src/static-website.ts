@@ -75,6 +75,17 @@ export interface StaticWebsiteProps {
   readonly runtimeOptions?: RuntimeOptions;
 
   /**
+   * Bucket encryption to use for the default bucket.
+   *
+   * Supported options are KMS or S3MANAGED.
+   *
+   * Note: If planning to use KMS, ensure you associate a Lambda Edge function to sign requests to S3 as OAI does not currently support KMS encryption. Refer to {@link https://aws.amazon.com/blogs/networking-and-content-delivery/serving-sse-kms-encrypted-content-from-s3-using-cloudfront/}
+   *
+   * @default - "S3MANAGED"
+   */
+  readonly defaultWebsiteBucketEncryption?: BucketEncryption;
+
+  /**
    * A predefined KMS customer encryption key to use for the default bucket that gets created.
    *
    * Note: This is only used if the websiteBucket is left undefined, otherwise all settings from the provided websiteBucket will be used.
@@ -128,7 +139,8 @@ export class StaticWebsite extends Construct {
         enforceSSL: true,
         autoDeleteObjects: true,
         removalPolicy: RemovalPolicy.DESTROY,
-        encryption: BucketEncryption.KMS,
+        encryption:
+          props.defaultWebsiteBucketEncryption ?? BucketEncryption.S3_MANAGED,
         encryptionKey: props.defaultWebsiteBucketEncryptionKey,
         serverAccessLogsPrefix: "access-logs",
       });
@@ -185,6 +197,7 @@ export class StaticWebsite extends Construct {
   }
 
   private validateProps = (props: StaticWebsiteProps) => {
+    this.validateEncryptionSettings(props);
     props.runtimeOptions && this.validateRuntimeConfig(props.runtimeOptions);
     props.websiteBucket && this.validateBucketConfig(props.websiteBucket);
   };
@@ -202,13 +215,33 @@ export class StaticWebsite extends Construct {
   };
 
   private validateBucketConfig = (bucket: IBucket) => {
-    if (!bucket.encryptionKey) {
-      throw new Error("Website buckets must have encryption enabled!");
-    }
-
     if (bucket.isWebsite) {
       throw new Error(
         "Website buckets cannot be configured as websites as this will break Cloudfront hosting!"
+      );
+    }
+  };
+
+  private validateEncryptionSettings = ({
+    defaultWebsiteBucketEncryption,
+    defaultWebsiteBucketEncryptionKey,
+  }: StaticWebsiteProps) => {
+    if (
+      defaultWebsiteBucketEncryptionKey &&
+      defaultWebsiteBucketEncryption !== BucketEncryption.KMS
+    ) {
+      throw new Error(
+        "Bucket encryption should be set to KMS if providing a defaultWebsiteBucketEncryptionKey."
+      );
+    }
+
+    if (
+      defaultWebsiteBucketEncryption &&
+      defaultWebsiteBucketEncryption !== BucketEncryption.KMS &&
+      defaultWebsiteBucketEncryption !== BucketEncryption.S3_MANAGED
+    ) {
+      throw new Error(
+        "Only KMS and S3_MANAGED encryption are supported on the default bucket."
       );
     }
   };
