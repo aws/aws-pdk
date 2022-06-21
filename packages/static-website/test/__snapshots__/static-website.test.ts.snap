@@ -154,22 +154,6 @@ Object {
             },
             Object {
               "Action": Array [
-                "kms:Decrypt",
-                "kms:DescribeKey",
-                "kms:Encrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-              ],
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::GetAtt": Array [
-                  "DefaultsWebsiteBucketKeyAD72391B",
-                  "Arn",
-                ],
-              },
-            },
-            Object {
-              "Action": Array [
                 "cloudfront:GetInvalidation",
                 "cloudfront:CreateInvalidation",
               ],
@@ -529,13 +513,7 @@ Object {
           "ServerSideEncryptionConfiguration": Array [
             Object {
               "ServerSideEncryptionByDefault": Object {
-                "KMSMasterKeyID": Object {
-                  "Fn::GetAtt": Array [
-                    "DefaultsWebsiteBucketKeyAD72391B",
-                    "Arn",
-                  ],
-                },
-                "SSEAlgorithm": "aws:kms",
+                "SSEAlgorithm": "AES256",
               },
             },
           ],
@@ -578,48 +556,6 @@ Object {
       },
       "Type": "Custom::S3AutoDeleteObjects",
       "UpdateReplacePolicy": "Delete",
-    },
-    "DefaultsWebsiteBucketKeyAD72391B": Object {
-      "DeletionPolicy": "Retain",
-      "Properties": Object {
-        "Description": "Created by Default/Defaults/WebsiteBucket",
-        "KeyPolicy": Object {
-          "Statement": Array [
-            Object {
-              "Action": "kms:*",
-              "Effect": "Allow",
-              "Principal": Object {
-                "AWS": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "arn:",
-                      Object {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":iam::",
-                      Object {
-                        "Ref": "AWS::AccountId",
-                      },
-                      ":root",
-                    ],
-                  ],
-                },
-              },
-              "Resource": "*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "aws-cdk:cr-owned:fb67e0d5",
-            "Value": "true",
-          },
-        ],
-      },
-      "Type": "AWS::KMS::Key",
-      "UpdateReplacePolicy": "Retain",
     },
     "DefaultsWebsiteBucketPolicy594E6643": Object {
       "Properties": Object {
