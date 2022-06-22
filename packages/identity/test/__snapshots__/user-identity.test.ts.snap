@@ -285,3 +285,186 @@ Object {
   },
 }
 `;
+
+exports[`User Identity Unit Tests User provided UserPool 1`] = `
+Object {
+  "Parameters": Object {
+    "BootstrapVersion": Object {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": Object {
+    "DefaultsIdentityPoolAuthenticatedRole69EA113E": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": Object {
+                "ForAnyValue:StringLike": Object {
+                  "cognito-identity.amazonaws.com:amr": "authenticated",
+                },
+                "StringEquals": Object {
+                  "cognito-identity.amazonaws.com:aud": Object {
+                    "Ref": "DefaultsIdentityPoolBA85B5EA",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Federated": "cognito-identity.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Default Authenticated Role for Identity Pool ",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsIdentityPoolBA85B5EA",
+                  "Name",
+                ],
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsIdentityPoolBA85B5EA": Object {
+      "Properties": Object {
+        "AllowUnauthenticatedIdentities": false,
+        "CognitoIdentityProviders": Array [],
+      },
+      "Type": "AWS::Cognito::IdentityPool",
+    },
+    "DefaultsIdentityPoolDefaultRoleAttachment961DF578": Object {
+      "Properties": Object {
+        "IdentityPoolId": Object {
+          "Ref": "DefaultsIdentityPoolBA85B5EA",
+        },
+        "Roles": Object {
+          "authenticated": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsIdentityPoolAuthenticatedRole69EA113E",
+              "Arn",
+            ],
+          },
+          "unauthenticated": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsIdentityPoolUnauthenticatedRole863CFE8C",
+              "Arn",
+            ],
+          },
+        },
+      },
+      "Type": "AWS::Cognito::IdentityPoolRoleAttachment",
+    },
+    "DefaultsIdentityPoolUnauthenticatedRole863CFE8C": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": Object {
+                "ForAnyValue:StringLike": Object {
+                  "cognito-identity.amazonaws.com:amr": "unauthenticated",
+                },
+                "StringEquals": Object {
+                  "cognito-identity.amazonaws.com:aud": Object {
+                    "Ref": "DefaultsIdentityPoolBA85B5EA",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Federated": "cognito-identity.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Default Unauthenticated Role for Identity Pool ",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsIdentityPoolBA85B5EA",
+                  "Name",
+                ],
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "UserPool6BA7E5F2": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "AccountRecoverySetting": Object {
+          "RecoveryMechanisms": Array [
+            Object {
+              "Name": "verified_phone_number",
+              "Priority": 1,
+            },
+            Object {
+              "Name": "verified_email",
+              "Priority": 2,
+            },
+          ],
+        },
+        "AdminCreateUserConfig": Object {
+          "AllowAdminCreateUserOnly": true,
+        },
+        "EmailVerificationMessage": "The verification code to your new account is {####}",
+        "EmailVerificationSubject": "Verify your new account",
+        "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "VerificationMessageTemplate": Object {
+          "DefaultEmailOption": "CONFIRM_WITH_CODE",
+          "EmailMessage": "The verification code to your new account is {####}",
+          "EmailSubject": "Verify your new account",
+          "SmsMessage": "The verification code to your new account is {####}",
+        },
+      },
+      "Type": "AWS::Cognito::UserPool",
+      "UpdateReplacePolicy": "Retain",
+    },
+  },
+  "Rules": Object {
+    "CheckBootstrapVersion": Object {
+      "Assertions": Array [
+        Object {
+          "Assert": Object {
+            "Fn::Not": Array [
+              Object {
+                "Fn::Contains": Array [
+                  Array [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  Object {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

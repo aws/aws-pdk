@@ -13,7 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import { RemovalPolicy } from "aws-cdk-lib";
+import { UserIdentity } from "@aws-prototyping-sdk/identity"; // eslint-disable-line import/no-extraneous-dependencies
+import { CfnResource, RemovalPolicy, Stack } from "aws-cdk-lib";
 import {
   Distribution,
   DistributionProps,
@@ -23,6 +24,7 @@ import {
   OriginBindOptions,
 } from "aws-cdk-lib/aws-cloudfront";
 import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
+import { CfnUserPoolClient } from "aws-cdk-lib/aws-cognito";
 import { Key } from "aws-cdk-lib/aws-kms";
 import { Bucket, BucketEncryption, IBucket } from "aws-cdk-lib/aws-s3";
 import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
@@ -58,6 +60,51 @@ export interface RuntimeOptions {
    * @example { userPoolId: some.userPool.userPoolId, someResourceArn: some.resource.Arn }
    */
   readonly jsonPayload: any;
+}
+
+/**
+ * Helper functions for generating runtime config payloads.
+ */
+export class RuntimeOptions {
+  /**
+   * Generates a runtime config payload based on the UserIdentity.
+   *
+   * If the UserIdentity did not create the UserPool, this function will attempt to locate the first
+   * userPoolClient attached to the UserPool. If a UserPoolClient cannot be found, an Error is thrown.
+   *
+   * @param scope CDK scope.
+   * @param props UserIdentity instance.
+   * @returns A runtime-config payload.
+   */
+  public static fromUserIdentity(
+    scope: Construct,
+    { userPool, userPoolClient, identityPool }: UserIdentity
+  ) {
+    let region = Stack.of(scope).region;
+    let identityPoolId = identityPool.identityPoolId;
+    let userPoolId = userPool.userPoolId;
+    let userPoolWebClientId = userPoolClient?.userPoolClientId;
+
+    if (!userPoolWebClientId) {
+      const cfnUserPoolClient = userPool.node.children.find(
+        (c) =>
+          (c.node.defaultChild as CfnResource)?.cfnResourceType ===
+          "AWS::Cognito::UserPoolClient"
+      )?.node.defaultChild;
+      userPoolWebClientId = cfnUserPoolClient
+        ? (cfnUserPoolClient as CfnUserPoolClient).ref
+        : (() => {
+            throw Error("Cannot determine the userPoolWebClientId.");
+          })();
+    }
+
+    return {
+      region,
+      userPoolId,
+      userPoolWebClientId,
+      identityPoolId,
+    };
+  }
 }
 
 /**

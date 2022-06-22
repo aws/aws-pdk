@@ -15,6 +15,7 @@
  ******************************************************************************************************************** */
 import { App, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
+import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { UserIdentity } from "../src";
 
 describe("User Identity Unit Tests", () => {
@@ -23,6 +24,17 @@ describe("User Identity Unit Tests", () => {
     const stack = new Stack(app);
     new UserIdentity(stack, "Defaults");
 
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("User provided UserPool", () => {
+    const app = new App();
+    const stack = new Stack(app);
+    const userPool = new UserPool(stack, "UserPool");
+    const userIdentity = new UserIdentity(stack, "Defaults", {
+      userPool,
+    });
+    expect(userPool.userPoolId).toEqual(userIdentity.userPool.userPoolId);
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
 });

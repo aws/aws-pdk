@@ -26,4 +26,14 @@ describe("AwsUiReactTsWebsiteProject Unit Tests", () => {
     });
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
+
+  it("Custom Options", () => {
+    const project = new AwsUiReactTsWebsiteProject({
+      defaultReleaseBranch: "mainline",
+      name: "CustomOptions",
+      applicationName: "CustomOptions",
+      deps: ["aws-prototoyping-sdk"],
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
 });

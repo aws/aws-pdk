@@ -14,9 +14,11 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import path from "path";
+import { UserIdentity } from "@aws-prototyping-sdk/identity";
 import { App, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
-import { StaticWebsite } from "../src";
+import { UserPool } from "aws-cdk-lib/aws-cognito";
+import { RuntimeOptions, StaticWebsite } from "../src";
 
 describe("Static Website Unit Tests", () => {
   it("Defaults", () => {
@@ -27,5 +29,53 @@ describe("Static Website Unit Tests", () => {
     });
 
     expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("RuntimeConfig - Defaults", () => {
+    const app = new App();
+    const stack = new Stack(app);
+    const userIdentity = new UserIdentity(stack, "UserIdentity");
+    const runtimeOptions = RuntimeOptions.fromUserIdentity(stack, userIdentity);
+
+    expect(runtimeOptions).toMatchObject({
+      region: stack.region,
+      userPoolWebClientId: userIdentity.userPoolClient?.userPoolClientId,
+      userPoolId: userIdentity.userPool.userPoolId,
+      identityPoolId: userIdentity.identityPool.identityPoolId,
+    });
+  });
+
+  it("RuntimeConfig - Custom UserPool", () => {
+    const app = new App();
+    const stack = new Stack(app);
+    const providedUserIdentity = new UserIdentity(
+      stack,
+      "ProvidedUserIdentity"
+    );
+    const userIdentity = new UserIdentity(stack, "UserIdentity", {
+      userPool: providedUserIdentity.userPool,
+    });
+    const runtimeOptions = RuntimeOptions.fromUserIdentity(stack, userIdentity);
+
+    expect(runtimeOptions).toMatchObject({
+      region: stack.region,
+      userPoolWebClientId:
+        providedUserIdentity.userPoolClient?.userPoolClientId,
+      userPoolId: providedUserIdentity.userPool.userPoolId,
+      identityPoolId: userIdentity.identityPool.identityPoolId,
+    });
+  });
+
+  it("RuntimeConfig - Unknown UserPoolClient", () => {
+    const app = new App();
+    const stack = new Stack(app);
+    const userPool = new UserPool(stack, "UserPool");
+    const userIdentity = new UserIdentity(stack, "UserIdentity", {
+      userPool,
+    });
+
+    expect(() =>
+      RuntimeOptions.fromUserIdentity(stack, userIdentity)
+    ).toThrowErrorMatchingSnapshot();
   });
 });

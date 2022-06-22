@@ -42,9 +42,9 @@ export interface UserIdentityProps {
  * Creates an Identity Pool with sane defaults configured.
  */
 export class UserIdentity extends Construct {
-  public readonly userPool?: UserPool;
-  public readonly userPoolClient?: UserPoolClient;
   public readonly identityPool: IdentityPool;
+  public readonly userPool: UserPool;
+  public readonly userPoolClient?: UserPoolClient;
 
   constructor(scope: Construct, id: string, props?: UserIdentityProps) {
     super(scope, id);
@@ -58,6 +58,8 @@ export class UserIdentity extends Construct {
           userSrp: true,
         },
       });
+    } else {
+      this.userPool = props.userPool;
     }
 
     this.identityPool = new IdentityPool(this, "IdentityPool", {
@@ -67,7 +69,7 @@ export class UserIdentity extends Construct {
         userPools: [
           ...(props?.identityPoolOptions?.authenticationProviders?.userPools ||
             []),
-          ...(this.userPool
+          ...(!props?.userPool
             ? [new UserPoolAuthenticationProvider({ userPool: this.userPool })]
             : []),
         ],
