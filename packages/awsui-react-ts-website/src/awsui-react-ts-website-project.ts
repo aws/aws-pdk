@@ -52,18 +52,10 @@ export class AwsUiReactTsWebsiteProject extends ReactTypeScriptProject {
 
   constructor(options: AwsUiReactTsWebsiteProjectOptions) {
     super({
+      ...options,
       defaultReleaseBranch: options.defaultReleaseBranch,
       name: options.name,
       sampleCode: false,
-      devDeps: ["@babel/plugin-proposal-private-property-in-object"],
-      deps: [
-        "@awsui/global-styles",
-        "@awsui/components-react",
-        "@awsui/collection-hooks",
-        "react-router-dom",
-        "aws-amplify",
-        "@aws-amplify/ui-react",
-      ],
       readme: {
         contents: fs
           .readFileSync(path.resolve(__dirname, "../README.md"))
@@ -71,6 +63,16 @@ export class AwsUiReactTsWebsiteProject extends ReactTypeScriptProject {
       },
       gitignore: ["runtime-config.json"],
     });
+
+    this.addDevDeps("@babel/plugin-proposal-private-property-in-object");
+    this.addDeps(
+      "@awsui/global-styles",
+      "@awsui/components-react",
+      "@awsui/collection-hooks",
+      "react-router-dom",
+      "aws-amplify",
+      "@aws-amplify/ui-react"
+    );
 
     this.applicationName = options.applicationName ?? "Sample App";
     this.publicDir = options.publicDir ?? "public";
