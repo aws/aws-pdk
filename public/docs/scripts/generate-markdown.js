@@ -62,14 +62,15 @@ async function main() {
       .map((language) => `  - ${language.name}`)
       .join('\n')}`);
 
-  SUPPORTED_LANGUAGES.map((l) => l.name).forEach((language) => {
+  const languages = SUPPORTED_LANGUAGES.map((l) => l.name);
+  for (const language of languages) {
     fs.mkdirSync(`${cwd}/build/docs/content/${language}`, { recursive: true });
 
     const pkgs = fs.readdirSync(RELATIVE_PKG_ROOT)
       .filter(p => "aws-prototyping-sdk" !== p)
       .filter(p => fs.existsSync(`${RELATIVE_PKG_ROOT}/${p}/.jsii`));
 
-    pkgs.map(async (pkg) => {
+    for (const pkg of pkgs) {
         const pkgJsii = JSON.parse(fs.readFileSync(`${RELATIVE_PKG_ROOT}/${pkg}/.jsii`).toString());
         const stability = pkgJsii.docs.stability;
 
@@ -85,7 +86,7 @@ async function main() {
             .find(([, v]) => v.symbolId.split('/')[0] === pkg)[0]
             .split('aws-prototyping-sdk.')[1];
           markdown = await backOff.backOff(async () =>
-            docs.toMarkdown({
+            await docs.toMarkdown({
               language: docgen.Language.fromString(language),
               submodule,
               readme: true,
@@ -94,7 +95,7 @@ async function main() {
         } else {
           const docs = await docgen.Documentation.forProject(`${RELATIVE_PKG_ROOT}/${pkg}`);
           markdown = await backOff.backOff(async () =>
-            docs.toMarkdown({
+            await docs.toMarkdown({
               language: docgen.Language.fromString(language),
               allSubmodules: true,
               readme: true,
@@ -107,7 +108,7 @@ async function main() {
           `${cwd}/build/docs/content/${language}/${pkg}/index.md`,
           includeBanner(getArtifact(language, pkgJsii), markdown.render(), stability),
         );
-      });
+      }
 
       fs.writeFileSync(
         `${cwd}/build/docs/content/${language}/.pages.yml`,
@@ -129,12 +130,12 @@ async function main() {
           .join('\n')}`,
       );
 
-  });
+  }
 }
 
 exports.main = main;
 
-(async () => main())().catch((e) => {
+(async () => await main())().catch((e) => {
   console.error(e);
   process.exit(1);
 });
