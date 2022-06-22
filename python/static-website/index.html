@@ -1290,7 +1290,12 @@ aws-prototyping-sdk library.</p>
 <span class="n">StaticWebsite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;StaticWebsite&quot;</span><span class="p">,</span>
     <span class="n">website_content_path</span><span class="o">=</span><span class="s2">&quot;&lt;relative&gt;/&lt;path&gt;/&lt;to&gt;/&lt;built&gt;/&lt;website&gt;&quot;</span><span class="p">,</span>
     <span class="n">runtime_options</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;json_payload&quot;</span><span class="p">:</span> <span class="n">RuntimeOptions</span><span class="o">.</span><span class="n">from_user_identity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_identity</span><span class="p">)</span>
+        <span class="s2">&quot;json_payload&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">Stack</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+            <span class="s2">&quot;identity_pool_id&quot;</span><span class="p">:</span> <span class="n">user_identity</span><span class="o">.</span><span class="n">identity_pool</span><span class="o">.</span><span class="n">identity_pool_id</span><span class="p">,</span>
+            <span class="s2">&quot;user_pool_id&quot;</span><span class="p">:</span> <span class="n">user_identity</span><span class="o">.</span><span class="n">user_pool</span><span class="o">.</span><span class="n">user_pool_id</span><span class="p">,</span>
+            <span class="s2">&quot;user_pool_web_client_id&quot;</span><span class="p">:</span> <span class="n">user_identity</span><span class="o">.</span><span class="n">user_pool_client</span><span class="o">.</span><span class="n">user_pool_client_id</span>
+        <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1899,7 +1904,6 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
 <hr />
 <h3 id="runtimeoptions">RuntimeOptions <a name="RuntimeOptions" id="@aws-prototyping-sdk/static-website.RuntimeOptions"></a></h3>
 <p>Dynamic configuration which gets resolved only during deployment.</p>
-<p>Helper functions for generating runtime config payloads.</p>
 <p><em>Example</em></p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
 <span class="c1"># Will store a JSON file called runtime-config.json in the root of the StaticWebsite S3 bucket containing any</span>
