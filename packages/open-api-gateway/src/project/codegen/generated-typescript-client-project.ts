@@ -13,13 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import { IgnoreFile } from "projen";
 import { NodePackageManager, NpmConfig } from "projen/lib/javascript";
 import {
   TypeScriptProject,
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
 import { GeneratedTypescriptClientSourceCode } from "./components/generated-typescript-client-source-code";
+import { OpenApiGeneratorIgnoreFile } from "./components/open-api-generator-ignore-file";
 
 /**
  * Configuration for the generated typescript client project
@@ -74,10 +74,7 @@ export class GeneratedTypescriptClientProject extends TypeScriptProject {
     }
 
     // Tell OpenAPI Generator CLI not to generate files that we will generate via this project, or don't need.
-    const openapiGeneratorIgnore = new IgnoreFile(
-      this,
-      ".openapi-generator-ignore"
-    );
+    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
     openapiGeneratorIgnore.addPatterns(
       "package.json",
       "tsconfig.json",

@@ -15,6 +15,7 @@
  ******************************************************************************************************************** */
 import { PythonProject, PythonProjectOptions } from "projen/lib/python";
 import { GeneratedPythonClientSourceCode } from "./components/generated-python-client-source-code";
+import { OpenApiGeneratorIgnoreFile } from "./components/open-api-generator-ignore-file";
 
 /**
  * Configuration for the generated python client project
@@ -49,6 +50,8 @@ export class GeneratedPythonClientProject extends PythonProject {
     new GeneratedPythonClientSourceCode(this, {
       specPath: options.specPath,
     });
+
+    new OpenApiGeneratorIgnoreFile(this);
 
     // When in a monorepo, with pip and venv (default), it's useful to install our package into the shared venv to make
     // it easier for other packages in the monorepo to take dependencies on this package.
