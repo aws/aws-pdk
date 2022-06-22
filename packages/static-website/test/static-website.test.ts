@@ -36,7 +36,13 @@ describe("Static Website Unit Tests", () => {
     const stack = new Stack(app);
     const userIdentity = new UserIdentity(stack, "UserIdentity");
     const runtimeOptions = RuntimeOptions.fromUserIdentity(stack, userIdentity);
-    expect(runtimeOptions).toMatchSnapshot();
+
+    expect(runtimeOptions).toMatchObject({
+      region: stack.region,
+      userPoolWebClientId: userIdentity.userPoolClient?.userPoolClientId,
+      userPoolId: userIdentity.userPool.userPoolId,
+      identityPoolId: userIdentity.identityPool.identityPoolId,
+    });
   });
 
   it("RuntimeConfig - Custom UserPool", () => {
@@ -50,13 +56,14 @@ describe("Static Website Unit Tests", () => {
       userPool: providedUserIdentity.userPool,
     });
     const runtimeOptions = RuntimeOptions.fromUserIdentity(stack, userIdentity);
-    expect(runtimeOptions.userPoolId).toEqual(
-      providedUserIdentity.userPool.userPoolId
-    );
-    expect(runtimeOptions.userPoolWebClientId).toEqual(
-      providedUserIdentity.userPoolClient?.userPoolClientId
-    );
-    expect(runtimeOptions).toMatchSnapshot();
+
+    expect(runtimeOptions).toMatchObject({
+      region: stack.region,
+      userPoolWebClientId:
+        providedUserIdentity.userPoolClient?.userPoolClientId,
+      userPoolId: providedUserIdentity.userPool.userPoolId,
+      identityPoolId: userIdentity.identityPool.identityPoolId,
+    });
   });
 
   it("RuntimeConfig - Unknown UserPoolClient", () => {
