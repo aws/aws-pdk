@@ -15,11 +15,7 @@ const userIdentity = new UserIdentity(this, 'UserIdentity');
 new StaticWebsite(this, 'StaticWebsite', {
     websiteContentPath: '<relative>/<path>/<to>/<built>/<website>',
     runtimeOptions: {
-        jsonPayload: {
-            identityPoolId: userIdentity.identityPool.identityPoolId,
-            userPoolId: userIdentity.userPool?.userPoolId,
-            userPoolClientId: userIdentity.userPoolClient?.userPoolClientId,
-        },
+        jsonPayload: RuntimeOptions.fromUserIdentity(this, userIdentity)
     },
 });
 ```
