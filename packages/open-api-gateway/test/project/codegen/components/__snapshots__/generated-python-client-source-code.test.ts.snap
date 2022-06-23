@@ -1037,7 +1037,138 @@ class SomeTestOperation(api_client.Api):
 
         return api_response
 ",
-  "test/api/default_api_operation_config.py": "# TODO: implement python handler wrappers",
+  "test/api/default_api_operation_config.py": "import urllib.parse
+import json
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional
+from functools import wraps
+from dataclasses import dataclass
+
+from test.model.api_error import ApiError
+from test.model.test_request import TestRequest
+from test.model.test_response import TestResponse
+
+from test.schemas import (
+    date,
+    datetime,
+    file_type,
+    none_type,
+)
+
+T = TypeVar('T')
+
+# Generic type for object keyed by operation names
+@dataclass
+class OperationConfig(Generic[T]):
+    some_test_operation: T
+    ...
+
+# Look up path and http method for a given operation name
+OperationLookup = {
+    \\"some_test_operation\\": {
+        \\"path\\": \\"/operation/{pathParam}\\",
+        \\"method\\": \\"POST\\",
+    },
+}
+
+def uri_decode(value):
+    \\"\\"\\"
+    URI decode a value or list of values
+    \\"\\"\\"
+    if isinstance(value, list):
+        return [urllib.parse.unquote(v) for v in value]
+    return urllib.parse.unquote(value)
+
+def decode_request_parameters(parameters):
+    \\"\\"\\"
+    URI decode api request parameters (path, query or multi-value query)
+    \\"\\"\\"
+    return { key: uri_decode(parameters[key]) if parameters[key] is not None else parameters[key] for key in parameters.keys() }
+
+def parse_body(body, content_types, model):
+    \\"\\"\\"
+    Parse the body of an api request into the given model if present
+    \\"\\"\\"
+    if len([c for c in content_types if c != 'application/json']) == 0:
+        body = json.loads(body or '{}')
+        if model != Any:
+            body = model(**body)
+    return body
+
+
+RequestParameters = TypeVar('RequestParameters')
+RequestArrayParameters = TypeVar('RequestArrayParameters')
+RequestBody = TypeVar('RequestBody')
+
+
+@dataclass
+class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+    request_parameters: RequestParameters
+    request_array_parameters: RequestArrayParameters
+    body: RequestBody
+    event: Any
+    context: Any
+
+
+ResponseBody = TypeVar('ResponseBody')
+ApiError = TypeVar('ApiError')
+
+
+@dataclass
+class ApiResponse(Generic[ResponseBody, ApiError]):
+    status_code: int
+    headers: Dict[str, str]
+    body: Union[ResponseBody, ApiError]
+
+
+
+# Request parameters are single value query params or path params
+class SomeTestOperationRequestParameters(TypedDict):
+    pathParam: str
+    ...
+
+# Request array parameters are multi-value query params
+class SomeTestOperationRequestArrayParameters(TypedDict):
+    ...
+
+# Request body type (default to Any when no body parameters exist)
+SomeTestOperationRequestBody = TestRequest
+
+# Request type for some_test_operation
+SomeTestOperationRequest = ApiRequest[SomeTestOperationRequestParameters, SomeTestOperationRequestArrayParameters, SomeTestOperationRequestBody]
+
+class SomeTestOperationHandlerFunction(Protocol):
+    def __call__(self, input: SomeTestOperationRequest, **kwargs) -> ApiResponse[TestResponse, ApiError]:
+        ...
+
+def some_test_operation_handler(handler: SomeTestOperationHandlerFunction):
+    \\"\\"\\"
+    Decorator for an api handler for the some_test_operation operation, providing a typed interface for inputs and outputs
+    \\"\\"\\"
+    @wraps(handler)
+    def wrapper(event, context, **kwargs):
+        request_parameters = decode_request_parameters({
+            **(event['pathParameters'] or {}),
+            **(event['queryStringParameters'] or {}),
+        })
+        request_array_parameters = decode_request_parameters({
+            **(event['multiValueQueryStringParameters'] or {}),
+        })
+        body = parse_body(event['body'], ['application/json',], SomeTestOperationRequestBody)
+        response = handler(ApiRequest(
+            request_parameters,
+            request_array_parameters,
+            body,
+            event,
+            context,
+        ), **kwargs)
+        return {
+            'statusCode': response.status_code,
+            'headers': response.headers,
+            'body': json.dumps(response.body) if response.body is not None else '',
+        }
+    return wrapper
+
+",
   "test/api_client.py": "# coding: utf-8
 \\"\\"\\"
     Example API
@@ -7387,7 +7518,193 @@ class WithoutOperationIdDelete(api_client.Api):
 
         return api_response
 ",
-  "test/api/default_api_operation_config.py": "# TODO: implement python handler wrappers",
+  "test/api/default_api_operation_config.py": "import urllib.parse
+import json
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional
+from functools import wraps
+from dataclasses import dataclass
+
+from test.model.api_error import ApiError
+from test.model.test_request import TestRequest
+from test.model.test_response import TestResponse
+
+from test.schemas import (
+    date,
+    datetime,
+    file_type,
+    none_type,
+)
+
+T = TypeVar('T')
+
+# Generic type for object keyed by operation names
+@dataclass
+class OperationConfig(Generic[T]):
+    operation_one: T
+    without_operation_id_delete: T
+    ...
+
+# Look up path and http method for a given operation name
+OperationLookup = {
+    \\"operation_one\\": {
+        \\"path\\": \\"/path/{pathParam}\\",
+        \\"method\\": \\"POST\\",
+    },
+    \\"without_operation_id_delete\\": {
+        \\"path\\": \\"/without-operation-id\\",
+        \\"method\\": \\"DELETE\\",
+    },
+}
+
+def uri_decode(value):
+    \\"\\"\\"
+    URI decode a value or list of values
+    \\"\\"\\"
+    if isinstance(value, list):
+        return [urllib.parse.unquote(v) for v in value]
+    return urllib.parse.unquote(value)
+
+def decode_request_parameters(parameters):
+    \\"\\"\\"
+    URI decode api request parameters (path, query or multi-value query)
+    \\"\\"\\"
+    return { key: uri_decode(parameters[key]) if parameters[key] is not None else parameters[key] for key in parameters.keys() }
+
+def parse_body(body, content_types, model):
+    \\"\\"\\"
+    Parse the body of an api request into the given model if present
+    \\"\\"\\"
+    if len([c for c in content_types if c != 'application/json']) == 0:
+        body = json.loads(body or '{}')
+        if model != Any:
+            body = model(**body)
+    return body
+
+
+RequestParameters = TypeVar('RequestParameters')
+RequestArrayParameters = TypeVar('RequestArrayParameters')
+RequestBody = TypeVar('RequestBody')
+
+
+@dataclass
+class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+    request_parameters: RequestParameters
+    request_array_parameters: RequestArrayParameters
+    body: RequestBody
+    event: Any
+    context: Any
+
+
+ResponseBody = TypeVar('ResponseBody')
+ApiError = TypeVar('ApiError')
+
+
+@dataclass
+class ApiResponse(Generic[ResponseBody, ApiError]):
+    status_code: int
+    headers: Dict[str, str]
+    body: Union[ResponseBody, ApiError]
+
+
+
+# Request parameters are single value query params or path params
+class OperationOneRequestParameters(TypedDict):
+    param1: str
+    param3: str
+    pathParam: str
+    ...
+
+# Request array parameters are multi-value query params
+class OperationOneRequestArrayParameters(TypedDict):
+    param2: List[str]
+    ...
+
+# Request body type (default to Any when no body parameters exist)
+OperationOneRequestBody = TestRequest
+
+# Request type for operation_one
+OperationOneRequest = ApiRequest[OperationOneRequestParameters, OperationOneRequestArrayParameters, OperationOneRequestBody]
+
+class OperationOneHandlerFunction(Protocol):
+    def __call__(self, input: OperationOneRequest, **kwargs) -> ApiResponse[TestResponse, ApiError]:
+        ...
+
+def operation_one_handler(handler: OperationOneHandlerFunction):
+    \\"\\"\\"
+    Decorator for an api handler for the operation_one operation, providing a typed interface for inputs and outputs
+    \\"\\"\\"
+    @wraps(handler)
+    def wrapper(event, context, **kwargs):
+        request_parameters = decode_request_parameters({
+            **(event['pathParameters'] or {}),
+            **(event['queryStringParameters'] or {}),
+        })
+        request_array_parameters = decode_request_parameters({
+            **(event['multiValueQueryStringParameters'] or {}),
+        })
+        body = parse_body(event['body'], ['application/json',], OperationOneRequestBody)
+        response = handler(ApiRequest(
+            request_parameters,
+            request_array_parameters,
+            body,
+            event,
+            context,
+        ), **kwargs)
+        return {
+            'statusCode': response.status_code,
+            'headers': response.headers,
+            'body': json.dumps(response.body) if response.body is not None else '',
+        }
+    return wrapper
+
+
+# Request parameters are single value query params or path params
+class WithoutOperationIdDeleteRequestParameters(TypedDict):
+    ...
+
+# Request array parameters are multi-value query params
+class WithoutOperationIdDeleteRequestArrayParameters(TypedDict):
+    ...
+
+# Request body type (default to Any when no body parameters exist)
+WithoutOperationIdDeleteRequestBody = Any
+
+# Request type for without_operation_id_delete
+WithoutOperationIdDeleteRequest = ApiRequest[WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestArrayParameters, WithoutOperationIdDeleteRequestBody]
+
+class WithoutOperationIdDeleteHandlerFunction(Protocol):
+    def __call__(self, input: WithoutOperationIdDeleteRequest, **kwargs) -> ApiResponse[TestResponse, ApiError]:
+        ...
+
+def without_operation_id_delete_handler(handler: WithoutOperationIdDeleteHandlerFunction):
+    \\"\\"\\"
+    Decorator for an api handler for the without_operation_id_delete operation, providing a typed interface for inputs and outputs
+    \\"\\"\\"
+    @wraps(handler)
+    def wrapper(event, context, **kwargs):
+        request_parameters = decode_request_parameters({
+            **(event['pathParameters'] or {}),
+            **(event['queryStringParameters'] or {}),
+        })
+        request_array_parameters = decode_request_parameters({
+            **(event['multiValueQueryStringParameters'] or {}),
+        })
+        body = parse_body(event['body'], [], WithoutOperationIdDeleteRequestBody)
+        response = handler(ApiRequest(
+            request_parameters,
+            request_array_parameters,
+            body,
+            event,
+            context,
+        ), **kwargs)
+        return {
+            'statusCode': response.status_code,
+            'headers': response.headers,
+            'body': json.dumps(response.body) if response.body is not None else '',
+        }
+    return wrapper
+
+",
   "test/api_client.py": "# coding: utf-8
 \\"\\"\\"
     Example API

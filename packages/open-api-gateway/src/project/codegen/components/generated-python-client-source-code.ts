@@ -57,6 +57,7 @@ export class GeneratedPythonClientSourceCode extends Component {
       language: ClientLanguage.PYTHON,
       additionalProperties: {
         packageName: (this.project as PythonProject).moduleName,
+        projectName: this.project.name,
       },
     });
   }

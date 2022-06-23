@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import * as path from "path";
 import { PythonProject, PythonProjectOptions } from "projen/lib/python";
 import { GeneratedPythonClientSourceCode } from "./components/generated-python-client-source-code";
 import { OpenApiGeneratorIgnoreFile } from "./components/open-api-generator-ignore-file";
@@ -26,17 +27,21 @@ export interface GeneratedPythonClientProjectOptions
    * The absolute path to the OpenAPI specification (spec.yaml) from which to generate code
    */
   readonly specPath: string;
-
   /**
-   * Whether or not the root api project has a parent (ie we are in a monorepo)
+   * Whether or not to generate a lambda layer for this package
    */
-  readonly rootProjectHasParent?: boolean;
+  readonly generateLayer?: boolean;
 }
 
 /**
  * Python project containing a python client (and lambda handler wrappers) generated using OpenAPI Generator CLI
  */
 export class GeneratedPythonClientProject extends PythonProject {
+  /**
+   * The directory in which the built layer is output
+   */
+  public layerDistDir: string = "dist/layer";
+
   // Store whether we've synthesized the project
   private synthed: boolean = false;
 
@@ -53,14 +58,20 @@ export class GeneratedPythonClientProject extends PythonProject {
 
     new OpenApiGeneratorIgnoreFile(this);
 
-    // When in a monorepo, with pip and venv (default), it's useful to install our package into the shared venv to make
+    // With pip and venv (default), it's useful to install our package into the shared venv to make
     // it easier for other packages in the monorepo to take dependencies on this package.
-    if (
-      options.rootProjectHasParent &&
-      (options.venv ?? true) &&
-      (options.pip ?? true)
-    ) {
+    if ((options.venv ?? true) && (options.pip ?? true)) {
       this.depsManager.installTask.exec("pip install --editable .");
+    }
+
+    // Package into a directory that can be used as a lambda layer. This is done as part of install since the end user
+    // must control build order in the monorepo via explicit dependencies, and adding here means we can run as part of
+    // initial project synthesis which ensures this is created regardless of whether the user has remembered to
+    // configure build order
+    if (options.generateLayer) {
+      this.depsManager.installTask.exec(
+        `pip install . --target ${path.join(".", this.layerDistDir, "python")}`
+      );
     }
   }
 

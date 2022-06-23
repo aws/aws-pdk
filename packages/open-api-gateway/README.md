@@ -6,7 +6,11 @@ This package vends a projen project type which allows you to define an API using
 
 The project will generate models and clients from your OpenAPI spec in your desired languages, and can be utilised both client side or server side in lambda handlers. The project type also generates a wrapper construct which adds type safety to ensure a lambda integration is provided for every API integration.
 
+When you change your API specification, just run `npx projen` again to regenerate all of this!
+
 ### Project
+
+#### Typescript
 
 It's recommended that this project is used as part of an `nx_monorepo` project. You can still use this as a standalone project if you like (eg `npx projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts`), however you will need to manage build order (ie building the generated client first, followed by the project).
 
@@ -49,6 +53,100 @@ In the output directory (`outdir`), you'll find a few files to get you started.
 If you would prefer to not generate the sample code, you can pass `sampleCode: false` to `OpenApiGatewayTsProject`.
 
 To make changes to your api, simply update `spec.yaml` and run `npx projen` to synthesize all the typesafe client/server code!
+
+The `SampleApi` construct uses `NodejsFunction` to declare the example lambda, but you are free to change this!
+
+#### Python
+
+As well as typescript, you can choose to generate the cdk construct and sample handler in python.
+
+```ts
+new OpenApiGatewayPythonProject({
+  parent: myNxMonorepo,
+  outdir: 'packages/myapi',
+  name: 'myapi',
+  moduleName: 'myapi',
+  version: '1.0.0',
+  authorName: 'jack',
+  authorEmail: 'me@example.com',
+  clientLanguages: [ClientLanguage.TYPESCRIPT, ClientLanguage.PYTHON, ClientLanguage.JAVA],
+});
+```
+
+You will need to set up a shared virtual environment and configure dependencies via the monorepo (see README.md for the nx-monorepo package). An example of a full `.projenrc.ts` might be:
+
+```ts
+import { nx_monorepo } from "aws-prototyping-sdk";
+import { ClientLanguage, OpenApiGatewayPythonProject } from "@aws-prototyping-sdk/open-api-gateway";
+import { AwsCdkPythonApp } from "projen/lib/awscdk";
+
+const monorepo = new nx_monorepo.NxMonorepoProject({
+  defaultReleaseBranch: "main",
+  devDeps: ["aws-prototyping-sdk", "@aws-prototyping-sdk/open-api-gateway"],
+  name: "open-api-test",
+});
+
+const api = new OpenApiGatewayPythonProject({
+  parent: monorepo,
+  outdir: 'packages/myapi',
+  name: 'myapi',
+  moduleName: 'myapi',
+  version: '1.0.0',
+  authorName: 'jack',
+  authorEmail: 'me@example.com',
+  clientLanguages: [ClientLanguage.TYPESCRIPT],
+  venvOptions: {
+    // Use a shared virtual env dir.
+    // The generated python client will also use this virtual env dir
+    envdir: '../../.env',
+  },
+});
+
+// Install into virtual env so it's available for the cdk app
+api.tasks.tryFind('install')!.exec('pip install --editable .');
+
+const app = new AwsCdkPythonApp({
+  authorName: "jack",
+  authorEmail: "me@example.com",
+  cdkVersion: "2.1.0",
+  moduleName: "myapp",
+  name: "myapp",
+  version: "1.0.0",
+  parent: monorepo,
+  outdir: "packages/myapp",
+  deps: [api.moduleName],
+  venvOptions: {
+    envdir: '../../.env',
+  },
+});
+
+monorepo.addImplicitDependency(app, api);
+
+monorepo.synth();
+```
+
+You'll find the following directory structure in `packages/myapi`:
+
+```
+|_ myapi/
+    |_ spec/
+        |_ spec.yaml - The OpenAPI specification - edit this to define your API
+        |_ .parsed-spec.json - A json spec generated from your spec.yaml.
+    |_ api/
+        |_ api.py - A CDK construct which defines the API Gateway resources to deploy your API. 
+        |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+        |           to your API. You shouldn't need to modify this, instead just extend it as in sample_api.py.
+        |_ sample_api.py - Example usage of the construct defined in api.py.
+        |_ handlers/
+             |_ say_hello_handler_sample.py - An example lambda handler for the operation defined in spec.yaml, making use of the
+                                              generated lambda handler wrappers for marshalling and type safety.
+|_ generated/
+    |_ typescript/ - A generated typescript API client.
+    |_ python/ - A generated python API client, including generated lambda handler wrappers.
+    |_ java/ - A generated java API client.
+```
+
+For simplicity, the generated code deploys a lambda layer for the generated code and its dependencies. You may choose to define an entirely separate projen `PythonProject` for your lambda handlers should you wish to add more dependencies than just the generated code.
 
 ### OpenAPI Specification
 
@@ -304,6 +402,8 @@ You'll find details about how to use the python client in the README.md alongsid
 
 Lambda handler wrappers are also importable from the generated client. These provide input/output type safety, as well as allowing you to define a custom type for API error responses.
 
+#### Typescript
+
 ```ts
 import { sayHelloHandler, ApiError } from "my-api-typescript-client";
 
@@ -315,6 +415,22 @@ export const handler = sayHelloHandler<ApiError>(async (input) => {
     },
   };
 });
+```
+
+#### Python
+
+```python
+from myapi_python.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse
+from myapi_python.model.api_error import ApiError
+from myapi_python.model.hello_response import HelloResponse
+
+@say_hello_handler
+def handler(input: SayHelloRequest, **kwargs) -> ApiResponse[HelloResponse, ApiError]:
+    return ApiResponse(
+        status_code=200,
+        body=HelloResponse(message="Hello {}!".format(input.request_parameters["name"])),
+        headers={}
+    )
 ```
 
 ### Other Details
@@ -373,3 +489,4 @@ new PythonProject({
   deps: [(api.generatedClients[ClientLanguage.PYTHON] as PythonProject).moduleName],
 });
 ```
+

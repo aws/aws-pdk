@@ -14,7 +14,7 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import * as path from "path";
-import { Project } from "projen";
+import { Project, TextFile } from "projen";
 import { ClientLanguage } from "../languages";
 import {
   GeneratedJavaClientProject,
@@ -45,11 +45,7 @@ export interface GenerateClientProjectsOptions {
   /**
    * The parent project for the generated clients
    */
-  readonly parent?: Project;
-  /**
-   * Whether or not the root api project has a parent (ie whether or not we are in a monorepo)
-   */
-  readonly rootProjectHasParent: boolean;
+  readonly parent: Project;
   /**
    * The name of the api package, used to infer client names unless overrides are specified
    */
@@ -111,23 +107,25 @@ const generateClientProject = (
       });
     case ClientLanguage.PYTHON:
       // Ensure snake_case for python
-      const pythonName = `${options.parentPackageName}_${ClientLanguage.PYTHON}`
+      const moduleName = `${options.parentPackageName}_${ClientLanguage.PYTHON}`
         .replace(/@/g, "")
         .replace(/[\-/]/g, "_");
       return new GeneratedPythonClientProject({
         parent: options.parent,
-        rootProjectHasParent: options.rootProjectHasParent,
-        name: pythonName,
-        moduleName: pythonName,
+        // Use dashes in project name since distributable's PKG-INFO always converts _ to -
+        // https://stackoverflow.com/questions/36300788/python-package-wheel-pkg-info-name
+        name: moduleName.replace(/_/g, "-"),
+        moduleName,
         outdir: path.join(options.generatedCodeDir, ClientLanguage.PYTHON),
         specPath: options.parsedSpecPath,
         ...options.pythonOptions,
       });
     case ClientLanguage.JAVA:
       // Ensure no dashes/underscores since name is used in package name
-      const javaName = `${options.parentPackageName}-${ClientLanguage.JAVA}`
-        .replace(/@/g, "")
-        .replace(/[\-/_]/g, "");
+      const javaProjectName =
+        `${options.parentPackageName}-${ClientLanguage.JAVA}`
+          .replace(/@/g, "")
+          .replace(/[\-/_]/g, "");
 
       const artifactId = `${options.parentPackageName}-${ClientLanguage.JAVA}`
         .replace(/@/g, "")
@@ -135,7 +133,7 @@ const generateClientProject = (
 
       return new GeneratedJavaClientProject({
         parent: options.parent,
-        name: javaName,
+        name: javaProjectName,
         artifactId,
         groupId: "com.generated.api",
         outdir: path.join(options.generatedCodeDir, ClientLanguage.JAVA),
@@ -155,10 +153,26 @@ const generateClientProject = (
 export const generateClientProjects = (
   languages: Set<ClientLanguage>,
   options: GenerateClientProjectsOptions
-): { [language: string]: Project } =>
-  Object.fromEntries(
+): { [language: string]: Project } => {
+  new TextFile(
+    options.parent,
+    path.join(options.generatedCodeDir, "README.md"),
+    {
+      lines: [
+        "## Generated Clients",
+        "",
+        "This directory contains generated client code based on your OpenAPI Specification file (spec.yaml).",
+        "",
+        "Like other `projen` managed files, this directory should be checked in to source control, but should not be edited manually.",
+      ],
+      readonly: true,
+    }
+  );
+
+  return Object.fromEntries(
     [...languages].map((language) => [
       language,
       generateClientProject(language, options),
     ])
   );
+};
