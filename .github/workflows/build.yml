@@ -25,6 +25,8 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Install dependencies
         run: yarn install --check-files
+      - name: Synth Project
+        run: npx projen
       - name: Start NX CI Run
         run: npx nx-cloud start-ci-run    
       - name: Build
@@ -32,57 +34,8 @@ jobs:
       - name: Stop NX Agents
         if: always()
         run: npx nx-cloud stop-all-agents
-      - id: self_mutation
-        name: Find mutations
-        run: |-
-          git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo "::set-output name=self_mutation_happened::true"
-      - if: steps.self_mutation.outputs.self_mutation_happened
-        name: Upload patch
-        uses: actions/upload-artifact@v2
-        with:
-          name: .repo.patch
-          path: .repo.patch
-      - name: Fail build on mutation
-        if: steps.self_mutation.outputs.self_mutation_happened
-        run: |-
-          echo "::error::Files were changed during build (see build log). If this was triggered from a fork, you will need to update your branch."
-          cat .repo.patch
-          exit 1
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2.1.1
-        with:
-          name: build-artifact
-          path: packages/aws-prototyping-sdk/dist
-  self-mutation:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    if: always() && needs.build.outputs.self_mutation_happened && !(github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.PROJEN_GITHUB_TOKEN }}
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-      - name: Download patch
-        uses: actions/download-artifact@v2
-        with:
-          name: .repo.patch
-          path: ${{ runner.temp }}
-      - name: Apply patch
-        run: '[ -s ${{ runner.temp }}/.repo.patch ] && git apply ${{ runner.temp }}/.repo.patch || echo "Empty patch. Skipping."'
-      - name: Set git identity
-        run: |-
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-      - name: Push changes
-        run: |2-
-            git add .
-            git commit -s -m "chore: self mutation"
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+      - name: Check for mutations
+        run: git diff --ignore-space-at-eol --exit-code
   agents:
     runs-on: ubuntu-latest
     name: Agent 1
