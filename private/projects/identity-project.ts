@@ -30,8 +30,7 @@ export class IdentityProject extends PDKProject {
       name: "identity",
       keywords: ["aws", "pdk", "jsii", "projen"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: ["projen"],
-      deps: [
+      devDeps: [
         "projen",
         "aws-cdk-lib",
         "constructs",

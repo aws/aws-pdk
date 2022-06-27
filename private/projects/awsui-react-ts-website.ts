@@ -34,7 +34,6 @@ export class AwsUiReactTsWebsiteProject extends PDKProject {
       keywords: ["aws", "pdk", "jsii", "projen"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: ["projen"],
-      deps: ["projen"],
       peerDeps: ["projen"],
       stability: Stability.EXPERIMENTAL,
     });
