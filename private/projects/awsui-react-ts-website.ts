@@ -15,8 +15,8 @@
  ******************************************************************************************************************** */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { PDKProject } from "../pdk-project";
 import { ReactTypeScriptProject } from "projen/lib/web";
+import { PDKProject } from "../pdk-project";
 
 /**
  * Contains configuration for the AwsUiReactTsWebsiteProject.
@@ -56,13 +56,21 @@ class AwsUiReactTsSampleWebsiteProject extends ReactTypeScriptProject {
       name: "@aws-prototyping-sdk/awsui-react-ts-sample-website",
       sampleCode: false,
       devDeps: ["@babel/plugin-proposal-private-property-in-object"],
-      deps: ["@awsui/global-styles", "@awsui/components-react", "@awsui/collection-hooks", "react-router-dom", "aws-amplify", "@aws-amplify/ui-react"],
+      deps: [
+        "@awsui/global-styles",
+        "@awsui/components-react",
+        "@awsui/collection-hooks",
+        "react-router-dom",
+        "aws-amplify",
+        "@aws-amplify/ui-react",
+      ],
       gitignore: ["runtime-config.json"],
     });
 
     this.npmignore?.include("src", "public");
     this.package.addField("private", true);
-    this.testTask.reset("react-scripts test --watchAll=false --passWithNoTests");
+    this.testTask.reset(
+      "react-scripts test --watchAll=false --passWithNoTests"
+    );
   }
 }
-

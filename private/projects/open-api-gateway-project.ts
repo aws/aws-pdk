@@ -30,7 +30,12 @@ export class OpenApiGatewayProject extends PDKProject {
       name: "open-api-gateway",
       keywords: ["aws", "pdk", "projen"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: ["@aws-prototyping-sdk/nx-monorepo@0.0.0", "projen", "aws-cdk-lib", "constructs"],
+      devDeps: [
+        "@aws-prototyping-sdk/nx-monorepo@0.0.0",
+        "projen",
+        "aws-cdk-lib",
+        "constructs",
+      ],
       deps: ["fs-extra"],
       bundledDeps: ["openapi-types", "fs-extra"],
       peerDeps: ["projen", "aws-cdk-lib", "constructs"],
