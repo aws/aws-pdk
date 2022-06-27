@@ -13,8 +13,23 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import { synthSnapshot } from "projen/lib/util/synth";
+import { ClientLanguage, OpenApiGatewayPythonProject } from "../../../src";
 
-export * from "./open-api-gateway-ts-project";
-export * from "./open-api-gateway-python-project";
-export * from "./languages";
-export * from "./types";
+describe("OpenAPI Gateway Python Standalone Unit Tests", () => {
+  it("Standalone", () => {
+    const project = new OpenApiGatewayPythonProject({
+      moduleName: "my_api",
+      name: "my_api",
+      authorName: "test",
+      authorEmail: "test@example.com",
+      version: "1.0.0",
+      clientLanguages: [
+        ClientLanguage.TYPESCRIPT,
+        ClientLanguage.PYTHON,
+        ClientLanguage.JAVA,
+      ],
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+});

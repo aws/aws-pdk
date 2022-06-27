@@ -7430,6 +7430,9 @@ tox.ini
           Object {
             "exec": "pip install -r requirements-dev.txt",
           },
+          Object {
+            "exec": "pip install --editable .",
+          },
         ],
       },
       "package": Object {
@@ -8211,7 +8214,137 @@ class SayHello(api_client.Api):
 
         return api_response
 ",
-  "generated/python/test_my_api_python/api/default_api_operation_config.py": "# TODO: implement python handler wrappers",
+  "generated/python/test_my_api_python/api/default_api_operation_config.py": "import urllib.parse
+import json
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional
+from functools import wraps
+from dataclasses import dataclass
+
+from test_my_api_python.model.api_error import ApiError
+from test_my_api_python.model.hello_response import HelloResponse
+
+from test_my_api_python.schemas import (
+    date,
+    datetime,
+    file_type,
+    none_type,
+)
+
+T = TypeVar('T')
+
+# Generic type for object keyed by operation names
+@dataclass
+class OperationConfig(Generic[T]):
+    say_hello: T
+    ...
+
+# Look up path and http method for a given operation name
+OperationLookup = {
+    \\"say_hello\\": {
+        \\"path\\": \\"/hello\\",
+        \\"method\\": \\"GET\\",
+    },
+}
+
+def uri_decode(value):
+    \\"\\"\\"
+    URI decode a value or list of values
+    \\"\\"\\"
+    if isinstance(value, list):
+        return [urllib.parse.unquote(v) for v in value]
+    return urllib.parse.unquote(value)
+
+def decode_request_parameters(parameters):
+    \\"\\"\\"
+    URI decode api request parameters (path, query or multi-value query)
+    \\"\\"\\"
+    return { key: uri_decode(parameters[key]) if parameters[key] is not None else parameters[key] for key in parameters.keys() }
+
+def parse_body(body, content_types, model):
+    \\"\\"\\"
+    Parse the body of an api request into the given model if present
+    \\"\\"\\"
+    if len([c for c in content_types if c != 'application/json']) == 0:
+        body = json.loads(body or '{}')
+        if model != Any:
+            body = model(**body)
+    return body
+
+
+RequestParameters = TypeVar('RequestParameters')
+RequestArrayParameters = TypeVar('RequestArrayParameters')
+RequestBody = TypeVar('RequestBody')
+
+
+@dataclass
+class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+    request_parameters: RequestParameters
+    request_array_parameters: RequestArrayParameters
+    body: RequestBody
+    event: Any
+    context: Any
+
+
+ResponseBody = TypeVar('ResponseBody')
+ApiError = TypeVar('ApiError')
+
+
+@dataclass
+class ApiResponse(Generic[ResponseBody, ApiError]):
+    status_code: int
+    headers: Dict[str, str]
+    body: Union[ResponseBody, ApiError]
+
+
+
+# Request parameters are single value query params or path params
+class SayHelloRequestParameters(TypedDict):
+    name: str
+    ...
+
+# Request array parameters are multi-value query params
+class SayHelloRequestArrayParameters(TypedDict):
+    ...
+
+# Request body type (default to Any when no body parameters exist)
+SayHelloRequestBody = Any
+
+# Request type for say_hello
+SayHelloRequest = ApiRequest[SayHelloRequestParameters, SayHelloRequestArrayParameters, SayHelloRequestBody]
+
+class SayHelloHandlerFunction(Protocol):
+    def __call__(self, input: SayHelloRequest, **kwargs) -> ApiResponse[HelloResponse, ApiError]:
+        ...
+
+def say_hello_handler(handler: SayHelloHandlerFunction):
+    \\"\\"\\"
+    Decorator for an api handler for the say_hello operation, providing a typed interface for inputs and outputs
+    \\"\\"\\"
+    @wraps(handler)
+    def wrapper(event, context, **kwargs):
+        request_parameters = decode_request_parameters({
+            **(event['pathParameters'] or {}),
+            **(event['queryStringParameters'] or {}),
+        })
+        request_array_parameters = decode_request_parameters({
+            **(event['multiValueQueryStringParameters'] or {}),
+        })
+        body = parse_body(event['body'], [], SayHelloRequestBody)
+        response = handler(ApiRequest(
+            request_parameters,
+            request_array_parameters,
+            body,
+            event,
+            context,
+        ), **kwargs)
+        return {
+            'statusCode': response.status_code,
+            'headers': response.headers,
+            'body': json.dumps(response.body) if response.body is not None else '',
+        }
+    return wrapper
+
+",
   "generated/python/test_my_api_python/api_client.py": "# coding: utf-8
 \\"\\"\\"
     Example API
@@ -22141,6 +22274,9 @@ tox.ini
           Object {
             "exec": "pip install -r requirements-dev.txt",
           },
+          Object {
+            "exec": "pip install --editable .",
+          },
         ],
       },
       "package": Object {
@@ -22922,7 +23058,137 @@ class SayHello(api_client.Api):
 
         return api_response
 ",
-  "generated/python/test_my_api_python/api/default_api_operation_config.py": "# TODO: implement python handler wrappers",
+  "generated/python/test_my_api_python/api/default_api_operation_config.py": "import urllib.parse
+import json
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional
+from functools import wraps
+from dataclasses import dataclass
+
+from test_my_api_python.model.api_error import ApiError
+from test_my_api_python.model.hello_response import HelloResponse
+
+from test_my_api_python.schemas import (
+    date,
+    datetime,
+    file_type,
+    none_type,
+)
+
+T = TypeVar('T')
+
+# Generic type for object keyed by operation names
+@dataclass
+class OperationConfig(Generic[T]):
+    say_hello: T
+    ...
+
+# Look up path and http method for a given operation name
+OperationLookup = {
+    \\"say_hello\\": {
+        \\"path\\": \\"/hello\\",
+        \\"method\\": \\"GET\\",
+    },
+}
+
+def uri_decode(value):
+    \\"\\"\\"
+    URI decode a value or list of values
+    \\"\\"\\"
+    if isinstance(value, list):
+        return [urllib.parse.unquote(v) for v in value]
+    return urllib.parse.unquote(value)
+
+def decode_request_parameters(parameters):
+    \\"\\"\\"
+    URI decode api request parameters (path, query or multi-value query)
+    \\"\\"\\"
+    return { key: uri_decode(parameters[key]) if parameters[key] is not None else parameters[key] for key in parameters.keys() }
+
+def parse_body(body, content_types, model):
+    \\"\\"\\"
+    Parse the body of an api request into the given model if present
+    \\"\\"\\"
+    if len([c for c in content_types if c != 'application/json']) == 0:
+        body = json.loads(body or '{}')
+        if model != Any:
+            body = model(**body)
+    return body
+
+
+RequestParameters = TypeVar('RequestParameters')
+RequestArrayParameters = TypeVar('RequestArrayParameters')
+RequestBody = TypeVar('RequestBody')
+
+
+@dataclass
+class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+    request_parameters: RequestParameters
+    request_array_parameters: RequestArrayParameters
+    body: RequestBody
+    event: Any
+    context: Any
+
+
+ResponseBody = TypeVar('ResponseBody')
+ApiError = TypeVar('ApiError')
+
+
+@dataclass
+class ApiResponse(Generic[ResponseBody, ApiError]):
+    status_code: int
+    headers: Dict[str, str]
+    body: Union[ResponseBody, ApiError]
+
+
+
+# Request parameters are single value query params or path params
+class SayHelloRequestParameters(TypedDict):
+    name: str
+    ...
+
+# Request array parameters are multi-value query params
+class SayHelloRequestArrayParameters(TypedDict):
+    ...
+
+# Request body type (default to Any when no body parameters exist)
+SayHelloRequestBody = Any
+
+# Request type for say_hello
+SayHelloRequest = ApiRequest[SayHelloRequestParameters, SayHelloRequestArrayParameters, SayHelloRequestBody]
+
+class SayHelloHandlerFunction(Protocol):
+    def __call__(self, input: SayHelloRequest, **kwargs) -> ApiResponse[HelloResponse, ApiError]:
+        ...
+
+def say_hello_handler(handler: SayHelloHandlerFunction):
+    \\"\\"\\"
+    Decorator for an api handler for the say_hello operation, providing a typed interface for inputs and outputs
+    \\"\\"\\"
+    @wraps(handler)
+    def wrapper(event, context, **kwargs):
+        request_parameters = decode_request_parameters({
+            **(event['pathParameters'] or {}),
+            **(event['queryStringParameters'] or {}),
+        })
+        request_array_parameters = decode_request_parameters({
+            **(event['multiValueQueryStringParameters'] or {}),
+        })
+        body = parse_body(event['body'], [], SayHelloRequestBody)
+        response = handler(ApiRequest(
+            request_parameters,
+            request_array_parameters,
+            body,
+            event,
+            context,
+        ), **kwargs)
+        return {
+            'statusCode': response.status_code,
+            'headers': response.headers,
+            'body': json.dumps(response.body) if response.body is not None else '',
+        }
+    return wrapper
+
+",
   "generated/python/test_my_api_python/api_client.py": "# coding: utf-8
 \\"\\"\\"
     Example API
@@ -36845,6 +37111,9 @@ tox.ini
           Object {
             "exec": "pip install -r requirements-dev.txt",
           },
+          Object {
+            "exec": "pip install --editable .",
+          },
         ],
       },
       "package": Object {
@@ -37626,7 +37895,137 @@ class SayHello(api_client.Api):
 
         return api_response
 ",
-  "generated/python/test_my_api_python/api/default_api_operation_config.py": "# TODO: implement python handler wrappers",
+  "generated/python/test_my_api_python/api/default_api_operation_config.py": "import urllib.parse
+import json
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional
+from functools import wraps
+from dataclasses import dataclass
+
+from test_my_api_python.model.api_error import ApiError
+from test_my_api_python.model.hello_response import HelloResponse
+
+from test_my_api_python.schemas import (
+    date,
+    datetime,
+    file_type,
+    none_type,
+)
+
+T = TypeVar('T')
+
+# Generic type for object keyed by operation names
+@dataclass
+class OperationConfig(Generic[T]):
+    say_hello: T
+    ...
+
+# Look up path and http method for a given operation name
+OperationLookup = {
+    \\"say_hello\\": {
+        \\"path\\": \\"/hello\\",
+        \\"method\\": \\"GET\\",
+    },
+}
+
+def uri_decode(value):
+    \\"\\"\\"
+    URI decode a value or list of values
+    \\"\\"\\"
+    if isinstance(value, list):
+        return [urllib.parse.unquote(v) for v in value]
+    return urllib.parse.unquote(value)
+
+def decode_request_parameters(parameters):
+    \\"\\"\\"
+    URI decode api request parameters (path, query or multi-value query)
+    \\"\\"\\"
+    return { key: uri_decode(parameters[key]) if parameters[key] is not None else parameters[key] for key in parameters.keys() }
+
+def parse_body(body, content_types, model):
+    \\"\\"\\"
+    Parse the body of an api request into the given model if present
+    \\"\\"\\"
+    if len([c for c in content_types if c != 'application/json']) == 0:
+        body = json.loads(body or '{}')
+        if model != Any:
+            body = model(**body)
+    return body
+
+
+RequestParameters = TypeVar('RequestParameters')
+RequestArrayParameters = TypeVar('RequestArrayParameters')
+RequestBody = TypeVar('RequestBody')
+
+
+@dataclass
+class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+    request_parameters: RequestParameters
+    request_array_parameters: RequestArrayParameters
+    body: RequestBody
+    event: Any
+    context: Any
+
+
+ResponseBody = TypeVar('ResponseBody')
+ApiError = TypeVar('ApiError')
+
+
+@dataclass
+class ApiResponse(Generic[ResponseBody, ApiError]):
+    status_code: int
+    headers: Dict[str, str]
+    body: Union[ResponseBody, ApiError]
+
+
+
+# Request parameters are single value query params or path params
+class SayHelloRequestParameters(TypedDict):
+    name: str
+    ...
+
+# Request array parameters are multi-value query params
+class SayHelloRequestArrayParameters(TypedDict):
+    ...
+
+# Request body type (default to Any when no body parameters exist)
+SayHelloRequestBody = Any
+
+# Request type for say_hello
+SayHelloRequest = ApiRequest[SayHelloRequestParameters, SayHelloRequestArrayParameters, SayHelloRequestBody]
+
+class SayHelloHandlerFunction(Protocol):
+    def __call__(self, input: SayHelloRequest, **kwargs) -> ApiResponse[HelloResponse, ApiError]:
+        ...
+
+def say_hello_handler(handler: SayHelloHandlerFunction):
+    \\"\\"\\"
+    Decorator for an api handler for the say_hello operation, providing a typed interface for inputs and outputs
+    \\"\\"\\"
+    @wraps(handler)
+    def wrapper(event, context, **kwargs):
+        request_parameters = decode_request_parameters({
+            **(event['pathParameters'] or {}),
+            **(event['queryStringParameters'] or {}),
+        })
+        request_array_parameters = decode_request_parameters({
+            **(event['multiValueQueryStringParameters'] or {}),
+        })
+        body = parse_body(event['body'], [], SayHelloRequestBody)
+        response = handler(ApiRequest(
+            request_parameters,
+            request_array_parameters,
+            body,
+            event,
+            context,
+        ), **kwargs)
+        return {
+            'statusCode': response.status_code,
+            'headers': response.headers,
+            'body': json.dumps(response.body) if response.body is not None else '',
+        }
+    return wrapper
+
+",
   "generated/python/test_my_api_python/api_client.py": "# coding: utf-8
 \\"\\"\\"
     Example API

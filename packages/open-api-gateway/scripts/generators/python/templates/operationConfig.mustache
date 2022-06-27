@@ -1,1 +1,156 @@
-# TODO: implement python handler wrappers
+import urllib.parse
+import json
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional
+from functools import wraps
+from dataclasses import dataclass
+
+{{#imports}}
+{{{import}}}
+{{/imports}}
+
+from {{packageName}}.schemas import (
+    date,
+    datetime,
+    file_type,
+    none_type,
+)
+
+T = TypeVar('T')
+
+# Generic type for object keyed by operation names
+@dataclass
+class OperationConfig(Generic[T]):
+{{#operations}}
+{{#operation}}
+    {{operationId}}: T
+{{/operation}}
+{{/operations}}
+    ...
+
+# Look up path and http method for a given operation name
+OperationLookup = {
+{{#operations}}
+{{#operation}}
+    "{{operationId}}": {
+        "path": "{{path}}",
+        "method": "{{httpMethod}}",
+    },
+{{/operation}}
+{{/operations}}
+}
+
+def uri_decode(value):
+    """
+    URI decode a value or list of values
+    """
+    if isinstance(value, list):
+        return [urllib.parse.unquote(v) for v in value]
+    return urllib.parse.unquote(value)
+
+def decode_request_parameters(parameters):
+    """
+    URI decode api request parameters (path, query or multi-value query)
+    """
+    return { key: uri_decode(parameters[key]) if parameters[key] is not None else parameters[key] for key in parameters.keys() }
+
+def parse_body(body, content_types, model):
+    """
+    Parse the body of an api request into the given model if present
+    """
+    if len([c for c in content_types if c != 'application/json']) == 0:
+        body = json.loads(body or '{}')
+        if model != Any:
+            body = model(**body)
+    return body
+
+
+RequestParameters = TypeVar('RequestParameters')
+RequestArrayParameters = TypeVar('RequestArrayParameters')
+RequestBody = TypeVar('RequestBody')
+
+
+@dataclass
+class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+    request_parameters: RequestParameters
+    request_array_parameters: RequestArrayParameters
+    body: RequestBody
+    event: Any
+    context: Any
+
+
+ResponseBody = TypeVar('ResponseBody')
+ApiError = TypeVar('ApiError')
+
+
+@dataclass
+class ApiResponse(Generic[ResponseBody, ApiError]):
+    status_code: int
+    headers: Dict[str, str]
+    body: Union[ResponseBody, ApiError]
+
+
+{{#operations}}
+{{#operation}}
+
+# Request parameters are single value query params or path params
+class {{operationIdCamelCase}}RequestParameters(TypedDict):
+{{#allParams}}
+{{^isBodyParam}}
+{{^isArray}}
+    {{baseName}}: str
+{{/isArray}}
+{{/isBodyParam}}
+{{/allParams}}
+    ...
+
+# Request array parameters are multi-value query params
+class {{operationIdCamelCase}}RequestArrayParameters(TypedDict):
+{{#allParams}}
+{{^isBodyParam}}
+{{#isArray}}
+    {{baseName}}: List[str]
+{{/isArray}}
+{{/isBodyParam}}
+{{/allParams}}
+    ...
+
+# Request body type (default to Any when no body parameters exist)
+{{operationIdCamelCase}}RequestBody = {{^bodyParams.isEmpty}}{{#bodyParams.0}}{{dataType}}{{/bodyParams.0}}{{/bodyParams.isEmpty}}{{#bodyParams.isEmpty}}Any{{/bodyParams.isEmpty}}
+
+# Request type for {{operationId}}
+{{operationIdCamelCase}}Request = ApiRequest[{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody]
+
+class {{operationIdCamelCase}}HandlerFunction(Protocol):
+    def __call__(self, input: {{operationIdCamelCase}}Request, **kwargs) -> ApiResponse[{{returnType}}, ApiError]:
+        ...
+
+def {{operationId}}_handler(handler: {{operationIdCamelCase}}HandlerFunction):
+    """
+    Decorator for an api handler for the {{operationId}} operation, providing a typed interface for inputs and outputs
+    """
+    @wraps(handler)
+    def wrapper(event, context, **kwargs):
+        request_parameters = decode_request_parameters({
+            **(event['pathParameters'] or {}),
+            **(event['queryStringParameters'] or {}),
+        })
+        request_array_parameters = decode_request_parameters({
+            **(event['multiValueQueryStringParameters'] or {}),
+        })
+        body = parse_body(event['body'], [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}], {{operationIdCamelCase}}RequestBody)
+        response = handler(ApiRequest(
+            request_parameters,
+            request_array_parameters,
+            body,
+            event,
+            context,
+        ), **kwargs)
+        return {
+            'statusCode': response.status_code,
+            'headers': response.headers,
+            'body': json.dumps(response.body) if response.body is not None else '',
+        }
+    return wrapper
+
+{{/operation}}
+{{/operations}}

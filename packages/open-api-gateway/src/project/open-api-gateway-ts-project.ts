@@ -15,7 +15,7 @@
  ******************************************************************************************************************** */
 
 import * as path from "path";
-import { Project, SampleDir, SampleFile, TextFile, YamlFile } from "projen";
+import { Project, SampleDir, SampleFile, YamlFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import {
   TypeScriptProject,
@@ -128,17 +128,6 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     });
     spec.synth();
 
-    new TextFile(this, path.join(this.generatedCodeDir, "README.md"), {
-      lines: [
-        "## Generated Clients",
-        "",
-        "This directory contains generated client code based on your OpenAPI Specification file (spec.yaml).",
-        "",
-        "Like other `projen` managed files, this directory should be checked in to source control, but should not be edited manually.",
-      ],
-      readonly: true,
-    });
-
     // Parent the generated code with this project's parent for better integration with monorepos
     this.hasParent = !!options.parent;
     const generatedCodeDirRelativeToParent = this.hasParent
@@ -151,8 +140,7 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     clientLanguages.add(ClientLanguage.TYPESCRIPT);
 
     this.generatedClients = generateClientProjects(clientLanguages, {
-      parent: this.hasParent ? options.parent : this,
-      rootProjectHasParent: this.hasParent,
+      parent: this.hasParent ? options.parent! : this,
       parentPackageName: this.package.packageName,
       generatedCodeDir: generatedCodeDirRelativeToParent,
       parsedSpecPath: spec.parsedSpecPath,
