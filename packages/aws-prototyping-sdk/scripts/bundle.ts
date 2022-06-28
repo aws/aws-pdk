@@ -11,6 +11,7 @@ import { Stability } from 'projen/lib/cdk';
 const MONOPACKAGE_ROOT = process.cwd();
 
 const ROOT_PATH = findWorkspacePath();
+const LIBRARIES_ROOT = path.resolve(ROOT_PATH, 'packages');
 const UBER_PACKAGE_JSON_PATH = path.join(MONOPACKAGE_ROOT, 'package.json');
 
 const EXCLUDED_PACKAGES: string[] = [];
@@ -111,10 +112,9 @@ async function findLibrariesToPackage(uberPackageJson: PackageJson): Promise<rea
 
   const deprecatedPackages = uberPackageJson.bundle?.deprecatedPackages;
   const result = new Array<LibraryReference>();
-  const librariesRoot = path.resolve(ROOT_PATH, 'packages');
 
-  for (const dir of await fs.readdir(librariesRoot)) {
-    const packageJsonPath = path.resolve(librariesRoot, dir, 'package.json');
+  for (const dir of await fs.readdir(LIBRARIES_ROOT)) {
+    const packageJsonPath = path.resolve(LIBRARIES_ROOT, dir, 'package.json');
     if (!fs.pathExistsSync(packageJsonPath)) {
       continue;
     }
@@ -139,7 +139,7 @@ async function findLibrariesToPackage(uberPackageJson: PackageJson): Promise<rea
     }
     result.push({
       packageJson,
-      root: path.join(librariesRoot, dir),
+      root: path.join(LIBRARIES_ROOT, dir),
       shortName: packageJson.name === 'aws-prototyping-sdk' ? packageJson.name : packageJson.name.slice('@aws-prototyping-sdk/'.length),
     });
   }
@@ -235,7 +235,7 @@ async function transformPackage(
 
   await fs.writeFile(
     path.join(destination, 'index.ts'),
-    `export * from './${library.packageJson.types.replace(/(\/index)?(\.d)?\.ts$/, '')}';\n`,
+    `export * from './src';\n`,
     { encoding: 'utf8' },
   );
 
@@ -318,7 +318,13 @@ async function copyOrTransformFiles(from: string, to: string, libraries: readonl
       return copyOrTransformFiles(source, destination, libraries, uberPackageJson);
     }
 
-    return fs.copyFile(source, destination);
+    if (name.endsWith(".ts")) {
+      const sourceCode = fs.readFileSync(source).toString()
+          .replace(/(import .* from ["'])@aws-prototyping-sdk(\/.*['"];)/g, `$1${path.relative(path.dirname(destination), path.join(LIBRARIES_ROOT, "aws-prototyping-sdk"))}$2`);
+      return fs.writeFile(destination, sourceCode);
+    } else {
+      return fs.copyFile(source, destination);
+    }
   });
 
   await Promise.all(promises);
@@ -332,6 +338,7 @@ const IGNORED_FILE_NAMES = new Set([
   '.env',
   'target',
   'dist',
+  'lib',
   '.npmignore',
   'node_modules',
   'package.json',
