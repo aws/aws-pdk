@@ -47,6 +47,12 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "husky",
         "syncpack",
       ],
+      tsconfig: {
+        compilerOptions: {
+          rootDir: ".",
+        },
+        include: ["**/*.ts"],
+      },
       deps: ["fast-xml-parser", "projen"],
       nxConfig: {
         // This is OK to be stored given its read only and the repository is public
@@ -90,7 +96,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
           "@aws-prototyping-sdk/open-api-gateway/fs-extra",
           "@aws-prototyping-sdk/open-api-gateway/fs-extra/*",
           "@aws-prototyping-sdk/awsui-react-ts-sample-website",
-          "@aws-prototyping-sdk/awsui-react-ts-sample-website/**"
+          "@aws-prototyping-sdk/awsui-react-ts-sample-website/**",
         ],
       },
     });
@@ -160,10 +166,15 @@ export class PDKMonorepoProject extends NxMonorepoProject {
 
       // aws-prototyping-sdk needs the stable folders as cached outputs
       // TODO: this should live as part of the AwsPrototypingSdk project
-      const additionalOutputs = subProject.name === "aws-prototyping-sdk" ? this.subProjects
-      .filter((s: Project) => s.name !== "aws-prototyping-sdk")
-      .filter((s: any) => s.package?.manifest?.stability === Stability.STABLE)
-      .map((s) => path.join(relativeDir, path.basename(s.outdir))) : [];
+      const additionalOutputs =
+        subProject.name === "aws-prototyping-sdk"
+          ? this.subProjects
+              .filter((s: Project) => s.name !== "aws-prototyping-sdk")
+              .filter(
+                (s: any) => s.package?.manifest?.stability === Stability.STABLE
+              )
+              .map((s) => path.join(relativeDir, path.basename(s.outdir)))
+          : [];
 
       this.overrideProjectTargets(subProject, {
         build: {
@@ -174,7 +185,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
             `${relativeDir}/lib`,
             `${relativeDir}/target`,
             `${relativeDir}/.jsii`,
-            ...additionalOutputs
+            ...additionalOutputs,
           ],
           dependsOn: [
             {
