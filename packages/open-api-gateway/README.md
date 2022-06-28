@@ -219,7 +219,7 @@ components:
 ```yaml
 /hello:
   get:
-    $ref: './sayHello.yaml''\
+    $ref: './sayHello.yaml'
 ```
 
 `paths/sayHello.yaml`:
