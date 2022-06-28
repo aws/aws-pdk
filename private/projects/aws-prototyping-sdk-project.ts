@@ -14,7 +14,7 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import * as path from "path";
-import { Project } from "projen";
+import { Dependency, DependencyType, Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { NxMonorepoProject } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
@@ -57,14 +57,9 @@ export class AwsPrototypingSdkProject extends PDKProject {
       devDeps: [
         "@aws-prototyping-sdk/nx-monorepo@0.0.0",
         "@aws-prototyping-sdk/pipeline@0.0.0",
-        "constructs",
-        "aws-cdk-lib",
-        "projen",
         "ts-node",
         "fs-extra",
       ],
-      peerDeps: ["projen", "constructs", "aws-cdk-lib"],
-      bundledDeps: ["@nrwl/devkit"],
       stability: Stability.STABLE,
       sampleCode: false,
       excludeTypescript: ["**/samples/**"],
@@ -88,7 +83,13 @@ export class AwsPrototypingSdkProject extends PDKProject {
       gitignore: ["*", ...filesGlobsToKeep.map((f) => `!${f}`)],
     });
 
-    this.npmignore?.addPatterns("/scripts/");
+    this.npmignore?.addPatterns(
+      "/scripts/",
+      "**/*.ts",
+      "!**/*.d.ts",
+      "!**/samples/**/*.ts",
+      "!samples"
+    );
 
     const cleanTask = this.addTask("clean", {
       exec: `find . -maxdepth 1 ${[".", "..", "dist", ...filesGlobsToKeep]
@@ -107,11 +108,44 @@ export class AwsPrototypingSdkProject extends PDKProject {
     this.package.manifest.jsii.tsc.outDir = ".";
   }
 
+  /**
+   * Returns a list of filtered dependencies which are not apart of the @aws-prototyping-sdk scope.
+   *
+   * @param deps list of all deps
+   * @param type DependencyType to filter by
+   */
+  private getNonPDKDependenciesByType(
+    deps: Dependency[],
+    type: DependencyType
+  ) {
+    return deps
+      .filter(
+        (d) => d.type === type && !d.name.startsWith("@aws-prototyping-sdk")
+      )
+      .map((d) => d.name);
+  }
+
+  /**
+   * @inheritDoc
+   */
   synth() {
     const monorepo = this.root as NxMonorepoProject;
     const stableProjects = monorepo.subProjects
       .filter((s: Project) => s.name !== "aws-prototyping-sdk")
       .filter((s: any) => s.package?.manifest?.stability === Stability.STABLE);
+
+    const stableDeps: Dependency[] = stableProjects
+      .map((p) => p.deps.all)
+      .reduce((prev, curr) => [...prev, ...curr], []);
+    this.addDeps(
+      ...this.getNonPDKDependenciesByType(stableDeps, DependencyType.RUNTIME)
+    );
+    this.addPeerDeps(
+      ...this.getNonPDKDependenciesByType(stableDeps, DependencyType.PEER)
+    );
+    this.addBundledDeps(
+      ...this.getNonPDKDependenciesByType(stableDeps, DependencyType.BUNDLED)
+    );
 
     this.package.addField("exports", {
       ".": "./index.js",
