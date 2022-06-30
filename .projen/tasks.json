@@ -106,10 +106,6 @@
       "name": "post-compile",
       "description": "Runs after successful compilation"
     },
-    "post-upgrade": {
-      "name": "post-upgrade",
-      "description": "Runs after upgrading dependencies"
-    },
     "pre-compile": {
       "name": "pre-compile",
       "description": "Prepare the project for compilation"
@@ -128,45 +124,6 @@
       "steps": [
         {
           "spawn": "git-secrets-scan"
-        }
-      ]
-    },
-    "upgrade": {
-      "name": "upgrade",
-      "description": "upgrade dependencies",
-      "env": {
-        "CI": "0"
-      },
-      "steps": [
-        {
-          "exec": "yarn upgrade npm-check-updates"
-        },
-        {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pipeline'"
-        },
-        {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pipeline'"
-        },
-        {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pipeline'"
-        },
-        {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pipeline'"
-        },
-        {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@aws-prototyping-sdk/nx-monorepo,@aws-prototyping-sdk/pipeline'"
-        },
-        {
-          "exec": "yarn install --check-files"
-        },
-        {
-          "exec": "yarn upgrade"
-        },
-        {
-          "exec": "npx projen"
-        },
-        {
-          "spawn": "post-upgrade"
         }
       ]
     },
