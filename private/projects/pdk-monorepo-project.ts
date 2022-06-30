@@ -50,6 +50,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "husky",
         "npm-check-updates",
         "syncpack",
+        "got@^11.8.5",
       ],
       tsconfig: {
         compilerOptions: {
@@ -264,7 +265,8 @@ const resolveDependencies = (project: any): void => {
       "minimist@^1.2.6",
       "ejs@^3.1.7",
       "async@^2.6.4",
-      "nth-check@^2.0.1"
+      "nth-check@^2.0.1",
+      "got@^11.8.5"
     );
   }
 };
