@@ -23,6 +23,8 @@ import {
   TargetDependencyProject,
 } from "../../packages/nx-monorepo/src";
 
+export const JEST_VERSION = "^27"; // This is needed due to: https://github.com/aws/jsii/issues/3619
+
 /**
  * Contains configuration for the PDK monorepo (root package).
  */
@@ -34,6 +36,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       eslintOptions: {
         dirs: ["projects", "private"],
       },
+      depsUpgrade: false,
       name: "aws-prototyping-sdk-monorepo",
       devDeps: [
         "nx",
@@ -45,6 +48,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "cz-conventional-changelog",
         "eslint-plugin-header",
         "husky",
+        "npm-check-updates",
         "syncpack",
       ],
       tsconfig: {
@@ -260,7 +264,7 @@ const resolveDependencies = (project: any): void => {
       "minimist@^1.2.6",
       "ejs@^3.1.7",
       "async@^2.6.4",
-      "@types/jest@^28.1.1"
+      "nth-check@^2.0.1"
     );
   }
 };

@@ -180,10 +180,6 @@
       "name": "post-compile",
       "description": "Runs after successful compilation"
     },
-    "post-upgrade": {
-      "name": "post-upgrade",
-      "description": "Runs after upgrading dependencies"
-    },
     "pre-compile": {
       "name": "pre-compile",
       "description": "Prepare the project for compilation"
@@ -252,45 +248,6 @@
       "steps": [
         {
           "builtin": "release/reset-version"
-        }
-      ]
-    },
-    "upgrade": {
-      "name": "upgrade",
-      "description": "upgrade dependencies",
-      "env": {
-        "CI": "0"
-      },
-      "steps": [
-        {
-          "exec": "yarn upgrade npm-check-updates"
-        },
-        {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor"
-        },
-        {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor"
-        },
-        {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor"
-        },
-        {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor"
-        },
-        {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor"
-        },
-        {
-          "exec": "yarn install --check-files"
-        },
-        {
-          "exec": "yarn upgrade"
-        },
-        {
-          "exec": "npx projen"
-        },
-        {
-          "spawn": "post-upgrade"
         }
       ]
     },

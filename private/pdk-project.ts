@@ -23,6 +23,7 @@ import {
   Stability,
 } from "projen/lib/cdk";
 import { Release } from "projen/lib/release";
+import { JEST_VERSION } from "./projects/pdk-monorepo-project";
 
 /**
  * Configuration options for the PDK Project.
@@ -63,9 +64,14 @@ export class PDKProject extends JsiiProject {
       ...options,
       stability: options.stability || Stability.EXPERIMENTAL,
       github: false,
+      depsUpgrade: false,
       sampleCode: false,
       docgen: false,
       prettier: true,
+      jestOptions: {
+        ...options.jestOptions,
+        jestVersion: JEST_VERSION,
+      },
       projenDevDependency: false,
       eslint: true,
       srcdir: "src",

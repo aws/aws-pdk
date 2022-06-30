@@ -28,6 +28,7 @@ export class DocsProject extends TypeScriptProject {
       sampleCode: false,
       jest: false,
       name: "docs",
+      depsUpgrade: false,
       devDeps: ["@types/fs-extra", "exponential-backoff", "jsii-docgen"],
       deps: ["fs-extra"],
     });

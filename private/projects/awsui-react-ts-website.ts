@@ -17,6 +17,7 @@ import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { ReactTypeScriptProject } from "projen/lib/web";
 import { PDKProject } from "../pdk-project";
+import { JEST_VERSION } from "./pdk-monorepo-project";
 
 /**
  * Contains configuration for the AwsUiReactTsWebsiteProject.
@@ -51,10 +52,14 @@ class AwsUiReactTsSampleWebsiteProject extends ReactTypeScriptProject {
   constructor(parent: Project) {
     super({
       parent,
-      outdir: "packages/awsui-react-ts-website/sample",
+      outdir: "packages/awsui-react-ts-website/samples",
       defaultReleaseBranch: "mainline",
+      depsUpgrade: false,
       name: "@aws-prototyping-sdk/awsui-react-ts-sample-website",
       sampleCode: false,
+      jestOptions: {
+        jestVersion: JEST_VERSION,
+      },
       devDeps: ["@babel/plugin-proposal-private-property-in-object"],
       deps: [
         "@awsui/global-styles",

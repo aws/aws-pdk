@@ -76,7 +76,7 @@ export class AwsUiReactTsWebsiteProject extends ReactTypeScriptProject {
 
     this.applicationName = options.applicationName ?? "Sample App";
     this.publicDir = options.publicDir ?? "public";
-    const srcDir = path.resolve(__dirname, "../sample/src");
+    const srcDir = path.resolve(__dirname, "../samples/src");
     new SampleDir(this, this.srcdir, {
       files: {
         ...Object.fromEntries(
@@ -98,7 +98,7 @@ export class AwsUiReactTsWebsiteProject extends ReactTypeScriptProject {
       },
     });
 
-    const publicDir = path.resolve(__dirname, "../sample/public");
+    const publicDir = path.resolve(__dirname, "../samples/public");
     new SampleDir(this, this.publicDir, {
       sourceDir: publicDir,
       files: {

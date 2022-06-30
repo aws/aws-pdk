@@ -21,6 +21,7 @@ import { JavaProject } from "projen/lib/java";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { PDKProject } from "../pdk-project";
+import { JEST_VERSION } from "./pdk-monorepo-project";
 
 /**
  * Contains configuration for the PipelineProject.
@@ -67,6 +68,10 @@ export class PipelineTypescriptSampleProject extends TypeScriptProject {
       defaultReleaseBranch: "mainline",
       name: "pipeline-sample-ts",
       sampleCode: false,
+      depsUpgrade: false,
+      jestOptions: {
+        jestVersion: JEST_VERSION,
+      },
       deps: ["aws-cdk-lib", "constructs", "aws-prototyping-sdk@0.0.0"],
     });
 

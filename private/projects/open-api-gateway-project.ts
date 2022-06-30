@@ -16,6 +16,7 @@
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { PDKProject } from "../pdk-project";
+import { JEST_VERSION } from "./pdk-monorepo-project";
 
 /**
  * Contains configuration for the OpenApiGateway project.
@@ -44,6 +45,7 @@ export class OpenApiGatewayProject extends PDKProject {
         dirs: ["src", "scripts"],
       },
       jestOptions: {
+        jestVersion: JEST_VERSION,
         jestConfig: {
           globalSetup: "<rootDir>/jest.setup.ts",
         },
