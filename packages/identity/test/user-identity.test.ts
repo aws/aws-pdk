@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { App, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
@@ -20,10 +21,8 @@ import { UserIdentity } from "../src";
 
 describe("User Identity Unit Tests", () => {
   it("Defaults", () => {
-    const app = new App();
-    const stack = new Stack(app);
+    const stack = new Stack(PDKNag.app({ failOnError: false })); // TODO: fix nag errors
     new UserIdentity(stack, "Defaults");
-
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
 

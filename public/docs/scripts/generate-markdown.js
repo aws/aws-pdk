@@ -48,7 +48,8 @@ function getArtifact(language, jsiiManifest) {
 
 async function main() {
   const cwd = process.cwd();
-  const RELATIVE_PKG_ROOT = `${cwd}/../../packages`;
+  const MONOREPO_ROOT = `${cwd}/../..`;
+  const RELATIVE_PKG_ROOT = `${MONOREPO_ROOT}/packages`;
   const bundleJsii = JSON.parse(fs.readFileSync(`${RELATIVE_PKG_ROOT}/aws-prototyping-sdk/.jsii`).toString());
 
   fs.existsSync(`${cwd}/build`) && fs.rmdirSync(`${cwd}/build`, { recursive: true });
@@ -77,10 +78,10 @@ async function main() {
         fs.mkdirSync(`${cwd}/build/docs/content/${language}/${pkg}`, {
           recursive: true,
         });
-  
+
         let markdown;
         if (stability === 'stable') {
-          const docs = await docgen.Documentation.forProject(`${RELATIVE_PKG_ROOT}/aws-prototyping-sdk`);
+          const docs = await docgen.Documentation.forProject(`${RELATIVE_PKG_ROOT}/aws-prototyping-sdk`, {assembliesDir: MONOREPO_ROOT});
           // @ts-ignore
           const submodule = Object.entries(bundleJsii.submodules)
             .find(([, v]) => v.symbolId.split('/')[0] === pkg)[0]
@@ -93,7 +94,7 @@ async function main() {
             }),
           );
         } else {
-          const docs = await docgen.Documentation.forProject(`${RELATIVE_PKG_ROOT}/${pkg}`);
+          const docs = await docgen.Documentation.forProject(`${RELATIVE_PKG_ROOT}/${pkg}`, {assembliesDir: MONOREPO_ROOT});
           markdown = await backOff.backOff(async () =>
             await docs.toMarkdown({
               language: docgen.Language.fromString(language),
@@ -102,8 +103,7 @@ async function main() {
             }),
           );
         }
-        
-  
+
         fs.writeFileSync(
           `${cwd}/build/docs/content/${language}/${pkg}/index.md`,
           includeBanner(getArtifact(language, pkgJsii), markdown.render(), stability),

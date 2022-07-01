@@ -137,7 +137,7 @@ const createWaf = async (
       Name: ipSetName,
       Scope: SCOPE,
       Addresses: cidrAllowList?.cidrRanges ?? [],
-      IPAddressVersion: cidrAllowList?.type ?? "IPV4",
+      IPAddressVersion: cidrAllowList?.cidrType ?? "IPV4",
     })
     .promise();
 
