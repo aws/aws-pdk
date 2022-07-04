@@ -49,6 +49,7 @@ export class GeneratedTypescriptClientProject extends TypeScriptProject {
       ...options,
       sampleCode: false,
       tsconfig: {
+        ...options.tsconfig,
         compilerOptions: {
           lib: ["dom", "es2019"],
           // Generated code isn't very strict!
@@ -61,6 +62,7 @@ export class GeneratedTypescriptClientProject extends TypeScriptProject {
           noUnusedParameters: false,
           strictNullChecks: false,
           strictPropertyInitialization: false,
+          ...options?.tsconfig?.compilerOptions,
         },
       },
       eslint: false,
