@@ -223,3 +223,13 @@ Types have separate declarations of a private property '_patterns'.
 ```
 
 This means there are two conflicting versions of a package in the monorepo. To resolve this, from the root directory run: `npx projen upgrade-deps`. This will bump all dependencies to be the same/latest versions and update the `yarn.lock` file accordingly.
+
+### Build hangs due to NPX waiting for user input
+
+If the build seems to hang forever, it might be due to `npx` prompting you to install a package. For `npx` version 7+ the default is to prompt to install any new packages (See [here](https://github.com/npm/cli/issues/2226)).
+
+To work around this, add the following line to your `~/.npmrc`:
+
+```
+yes=true
+```

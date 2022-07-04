@@ -187,3 +187,40 @@ const b = new PythonProject({
 // Add the implicit dependency so that the monorepo will build A before B
 monorepo.addImplicitDependency(b, a);
 ```
+
+#### Java
+
+The recommended way to configure dependencies between java projects within your monorepo is to use shared maven repositories. The default java project build will already create a distributable in the correct format for a maven repository in its `dist/java` folder, so you can use this as a repository.
+
+For example:
+
+```ts
+const a = new JavaProject({
+  parent: monorepo,
+  outdir: 'packages/a',
+  groupId: 'com.mycompany',
+  artifactId: 'a',
+  name: 'a',
+  version: '1.0.0',
+});
+
+const b = new JavaProject({
+  parent: monorepo,
+  outdir: 'packages/b',
+  groupId: 'com.mycompany',
+  artifactId: 'b',
+  name: 'b',
+  version: '1.0.0',
+  // Declare the dependency on A
+  deps: [`${a.pom.groupId}/${a.pom.artifactId}@${a.pom.version}`],
+});
+
+// Add the repository
+b.pom.addRepository({
+  url: 'file://../a/dist/java',
+  id: 'dependency-on-a',
+});
+
+// Add the implicit dependency to control build order
+monorepo.addImplicitDependency(b, a);
+```
