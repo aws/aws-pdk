@@ -50,9 +50,10 @@ export interface TypescriptSampleCodeOptions {
 export const getTypescriptSampleSource = (
   options: TypescriptSampleCodeOptions
 ): { [fileName: string]: string } => ({
-  "index.ts": ["export * from './api';", "export * from './sample-api';"].join(
-    "\n"
-  ),
+  "index.ts": [
+    "export * from './api';",
+    ...(options.sampleCode !== false ? ["export * from './sample-api';"] : []),
+  ].join("\n"),
   // This file provides a type-safe interface to the exported OpenApiGatewayLambdaApi construct
   "api.ts": `import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from "${options.openApiGatewayPackageName}";
 import { Construct } from "constructs";
