@@ -19,6 +19,7 @@ import { AwsSolutionsChecks } from 'cdk-nag';
 import { IConstruct } from 'constructs';
 
 const CDK_NAG_MESSAGE_TYPES = { ERROR: 'aws:cdk:error', WARNING: 'aws:cdk:warning' };
+const CDK_NAG_MESSAGE_TYPES_SET = new Set(Object.values(CDK_NAG_MESSAGE_TYPES));
 
 /**
  * Message instance.
@@ -60,6 +61,13 @@ export interface PDKNagAppProps extends AppProps {
    * @default true
    */
   readonly failOnError?: boolean;
+
+  /**
+   * Determines whether any warnings encountered should trigger a test failure.
+   *
+   * @default false
+   */
+  readonly failOnWarning?: boolean;
 }
 
 /**
@@ -68,16 +76,22 @@ export interface PDKNagAppProps extends AppProps {
 export class PDKNagApp extends App {
   private readonly nagResults: NagResult[] = [];
   private readonly failOnError: boolean;
+  private readonly failOnWarning: boolean;
 
   constructor(props?: PDKNagAppProps) {
     super(props);
     this.failOnError = props?.failOnError ?? true;
+    this.failOnWarning = props?.failOnWarning ?? false;
   }
 
   synth(options?: StageSynthesisOptions): CloudAssembly {
     const assembly = super.synth(options);
 
-    if (this.failOnError && this.nagResults.find(r => r.messages.find(m => m.messageType === CDK_NAG_MESSAGE_TYPES.ERROR))) {
+    const typesToFail = new Set([
+      this.failOnError && CDK_NAG_MESSAGE_TYPES.ERROR,
+      this.failOnWarning && CDK_NAG_MESSAGE_TYPES.WARNING,
+    ].filter(t => t));
+    if (this.nagResults.find(r => r.messages.find(m => typesToFail.has(m.messageType)))) {
       throw new Error(JSON.stringify(this.nagResults, undefined, 2));
     }
 
@@ -113,7 +127,7 @@ class PDKNagAspect extends AwsSolutionsChecks {
   visit(node: IConstruct): void {
     super.visit(node);
 
-    const results = node.node.metadata.filter(m => Object.values(CDK_NAG_MESSAGE_TYPES).find(v => v === m.type));
+    const results = node.node.metadata.filter(m => CDK_NAG_MESSAGE_TYPES_SET.has(m.type));
     results.length > 0 && this.app.addNagResult({
       resource: node.node.path,
       messages: results.map(m => ({
