@@ -93,8 +93,10 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
       ...options,
       sampleCode: false,
       tsconfig: {
+        ...options.tsconfig,
         compilerOptions: {
           lib: ["dom", "es2019"],
+          ...options.tsconfig?.compilerOptions,
         },
       },
     });
