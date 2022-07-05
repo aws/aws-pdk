@@ -21,6 +21,7 @@ import { IdentityProject } from "./private/projects/identity-project";
 import { NXMonorepoProject } from "./private/projects/nx-monorepo-project";
 import { OpenApiGatewayProject } from "./private/projects/open-api-gateway-project";
 import { PDKMonorepoProject } from "./private/projects/pdk-monorepo-project";
+import { PDKNagProject } from "./private/projects/pdk-nag-project";
 import { PipelineProject } from "./private/projects/pipeline-project";
 import { StaticWebsiteProject } from "./private/projects/static-website-project";
 
@@ -29,6 +30,8 @@ const monorepoProject = new PDKMonorepoProject();
 
 // docs
 const docsProject = new DocsProject(monorepoProject);
+
+new PDKNagProject(monorepoProject);
 
 // public packages
 new NXMonorepoProject(monorepoProject);

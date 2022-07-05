@@ -47,7 +47,7 @@ export interface CidrAllowList {
   /**
    * Type of CIDR range.
    */
-  readonly type: CidrType;
+  readonly cidrType: CidrType;
 
   /**
    * Specify an IPv4 address by using CIDR notation. For example:

@@ -14,38 +14,25 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import { Project } from "projen";
-import { Stability } from "projen/lib/cdk";
-import { PDKProject } from "../pdk-project";
+import { TypeScriptProject } from "projen/lib/typescript";
 
 /**
- * Contains configuration for the IdentityProject.
+ * Contains utils for testing CDK based constructs.
  */
-export class IdentityProject extends PDKProject {
+export class PDKNagProject extends TypeScriptProject {
   constructor(parent: Project) {
     super({
       parent,
-      author: "AWS APJ COPE",
-      authorAddress: "apj-cope@amazon.com",
+      outdir: "tools/pdk-nag",
       defaultReleaseBranch: "mainline",
-      name: "identity",
-      keywords: ["aws", "pdk", "jsii", "projen"],
-      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: [
-        "projen",
-        "aws-cdk-lib",
-        "constructs",
-        "@aws-prototyping-sdk/pdk-nag@0.0.0",
-        "@aws-cdk/aws-cognito-identitypool-alpha",
-      ],
-      peerDeps: [
-        "projen",
-        "aws-cdk-lib",
-        "constructs",
-        "@aws-cdk/aws-cognito-identitypool-alpha",
-      ],
-      stability: Stability.EXPERIMENTAL,
+      sampleCode: false,
+      jest: false,
+      name: "@aws-prototyping-sdk/pdk-nag",
+      depsUpgrade: false,
+      peerDeps: ["aws-cdk-lib", "constructs"],
+      deps: ["cdk-nag"],
     });
 
-    this.addPackageIgnore("**/node_modules");
+    this.package.addField("private", true);
   }
 }
