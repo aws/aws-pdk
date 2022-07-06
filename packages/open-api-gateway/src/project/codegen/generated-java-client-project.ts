@@ -27,6 +27,29 @@ export interface GeneratedJavaClientProjectOptions extends JavaProjectOptions {
   readonly specPath: string;
 }
 
+const DEPENDENCIES: string[] = [
+  // Required for open api generated client
+  "io.swagger/swagger-annotations@1.6.5",
+  "com.google.code.findbugs/jsr305@3.0.2",
+  "com.squareup.okhttp3/okhttp@4.9.3",
+  "com.squareup.okhttp3/logging-interceptor@4.9.3",
+  "com.google.code.gson/gson@2.9.0",
+  "io.gsonfire/gson-fire@1.8.5",
+  "org.apache.commons/commons-lang3@3.12.0",
+  "jakarta.annotation/jakarta.annotation-api@1.3.5",
+  "org.openapitools/jackson-databind-nullable@0.2.2",
+  "javax.ws.rs/jsr311-api@1.1.1",
+  "javax.ws.rs/javax.ws.rs-api@2.1.1",
+  // For handler wrappers
+  "com.amazonaws/aws-lambda-java-core@1.2.1",
+  "com.amazonaws/aws-lambda-java-events@3.11.0",
+];
+
+const TEST_DEPENDENCIES: string[] = [
+  "org.junit.jupiter/junit-jupiter-api@5.8.2",
+  "org.mockito/mockito-core@3.12.4",
+];
+
 /**
  * Java project containing a java client (and lambda handler wrappers) generated using OpenAPI Generator CLI
  */
@@ -41,7 +64,13 @@ export class GeneratedJavaClientProject extends JavaProject {
       ...options,
     });
 
-    new OpenApiGeneratorIgnoreFile(this);
+    // Ignore files that we will control via projen
+    const ignoreFile = new OpenApiGeneratorIgnoreFile(this);
+    ignoreFile.addPatterns("pom.xml");
+
+    // Add dependencies
+    DEPENDENCIES.forEach((dep) => this.addDependency(dep));
+    TEST_DEPENDENCIES.forEach((dep) => this.addTestDependency(dep));
 
     new GeneratedJavaClientSourceCode(this, {
       specPath: options.specPath,
