@@ -13,21 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import { synthSnapshot } from "projen/lib/util/synth";
+import { DocumentationFormat, OpenApiGatewayTsProject } from "../../../src";
 
-/**
- * Supported languages for client generation
- */
-export enum ClientLanguage {
-  TYPESCRIPT = "typescript",
-  PYTHON = "python",
-  JAVA = "java",
-}
-
-/**
- * Formats for documentation generation
- */
-export enum DocumentationFormat {
-  HTML2 = "html2",
-  MARKDOWN = "markdown",
-  PLANTUML = "plantuml",
-}
+describe("OpenAPI Gateway Ts With Docs Unit Tests", () => {
+  it("With Docs", () => {
+    const project = new OpenApiGatewayTsProject({
+      defaultReleaseBranch: "mainline",
+      name: "@test/my-api",
+      clientLanguages: [],
+      documentationFormats: [
+        DocumentationFormat.HTML2,
+        DocumentationFormat.MARKDOWN,
+        DocumentationFormat.PLANTUML,
+      ],
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+});

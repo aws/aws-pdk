@@ -22,6 +22,7 @@ import {
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
 import { exec } from "projen/lib/util";
+import { DocsProject } from "./codegen/docs-project";
 import { generateClientProjects } from "./codegen/generate";
 import { GeneratedTypescriptClientProject } from "./codegen/generated-typescript-client-project";
 import { ClientLanguage } from "./languages";
@@ -231,6 +232,17 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     new SampleDir(this, this.testdir, {
       files: getTypescriptSampleTests(sampleOptions),
     });
+
+    // Generate documentation if requested
+    if ((options.documentationFormats ?? []).length > 0) {
+      new DocsProject({
+        parent: this,
+        outdir: path.join(this.generatedCodeDir, "documentation"),
+        name: "docs",
+        formats: [...new Set(options.documentationFormats)],
+        specPath: spec.parsedSpecPath,
+      });
+    }
   }
 
   /**

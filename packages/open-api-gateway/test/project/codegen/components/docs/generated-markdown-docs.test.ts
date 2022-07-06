@@ -13,21 +13,27 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import { Project } from "projen";
+import { GeneratedMarkdownDocs } from "../../../../../src/project/codegen/components/docs/generated-markdown-docs";
+import { synthGeneratedCodeProject } from "../utils";
 
-/**
- * Supported languages for client generation
- */
-export enum ClientLanguage {
-  TYPESCRIPT = "typescript",
-  PYTHON = "python",
-  JAVA = "java",
-}
+const synthDocs = (specFileName: string) => {
+  const project = new Project({
+    name: "parent",
+  });
+  return synthGeneratedCodeProject(specFileName, project, (specPath) => {
+    new GeneratedMarkdownDocs(project, {
+      specPath,
+    });
+  });
+};
 
-/**
- * Formats for documentation generation
- */
-export enum DocumentationFormat {
-  HTML2 = "html2",
-  MARKDOWN = "markdown",
-  PLANTUML = "plantuml",
-}
+describe("GeneratedMarkdownDocs Unit Tests", () => {
+  it("Single", () => {
+    expect(synthDocs("single.yaml")).toMatchSnapshot();
+  });
+
+  it("Multi", () => {
+    expect(synthDocs("multi.yaml")).toMatchSnapshot();
+  });
+});
