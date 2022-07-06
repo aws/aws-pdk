@@ -1499,6 +1499,38 @@
 <span class="c1">// Add the implicit dependency so that the monorepo will build A before B</span><span class="w"></span>
 <span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span><span class="w"></span>
 </code></pre></div>
+<h4 id="java">Java</h4>
+<p>The recommended way to configure dependencies between java projects within your monorepo is to use shared maven repositories. The default java project build will already create a distributable in the correct format for a maven repository in its <code>dist/java</code> folder, so you can use this as a repository.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">JavaProject</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/a&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">groupId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;com.mycompany&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">artifactId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">JavaProject</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/b&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">groupId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;com.mycompany&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">artifactId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// Declare the dependency on A</span><span class="w"></span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="sb">`</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">groupId</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">artifactId</span><span class="si">}</span><span class="sb">@</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">version</span><span class="si">}</span><span class="sb">`</span><span class="p">],</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="c1">// Add the repository</span><span class="w"></span>
+<span class="nx">b</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">addRepository</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;file://../a/dist/java&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;dependency-on-a&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="c1">// Add the implicit dependency to control build order</span><span class="w"></span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
 <h3 id="nxconfig">NXConfig <a name="NXConfig" id="aws-prototyping-sdk.nx_monorepo.NXConfig"></a></h3>
@@ -5070,7 +5102,7 @@ dependant projects first.</p>
   <small>
     
       Last update:
-      2022-07-05
+      2022-07-06
     
   </small>
 </div>
