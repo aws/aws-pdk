@@ -6,28 +6,28 @@ set -e
 spec_path=''
 output_path=''
 generator=''
-language=''
+generator_dir=''
 additional_properties=''
 while [[ "$#" -gt 0 ]]; do case $1 in
   --spec-path) spec_path="$2"; shift;;
   --output-path) output_path="$2"; shift;;
   --generator) generator="$2"; shift;;
-  --language) language="$2"; shift;;
+  --generator-dir) generator_dir="$2"; shift;;
   --additional-properties) additional_properties="$2"; shift;;
 esac; shift; done
 
-echo Generating $language OpenAPI client...
+echo "Generating OpenAPI $generator_dir ($generator)..."
 working_dir=$(pwd)
 
 # Get the directory this script is executing in (scripts/generators)
 script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
 
 # Create a temporary directory
-tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-client-$language.XXXXXXXXX")
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-client-$generator_dir.XXXXXXXXX")
 cd $tmp_dir
 
-# Copy the language directory into the temp directory
-cp -r $script_dir/$language/* .
+# Copy the specific generator directory into the temp directory
+cp -r $script_dir/$generator_dir/* .
 
 # Prefer pnpm if available, otherwise fall back to npm so as not to require it as a system-wide dependency
 pkg_manager=pnpm
@@ -51,7 +51,7 @@ npx openapi-generator-cli generate \
   --input-spec $spec_path \
   --output $output_path
 
-echo $language OpenAPI client generation done!
+echo "$generator_dir ($generator) OpenAPI generation done!"
 
 # Clean up
 cd $working_dir

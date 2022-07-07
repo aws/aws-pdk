@@ -14,15 +14,14 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { Component } from "projen";
-import { PythonProject } from "projen/lib/python";
-import { ClientLanguage } from "../../languages";
-import { invokeOpenApiGenerator } from "./utils";
+import * as path from "path";
+import { Component, Project } from "projen";
+import { invokeOpenApiGenerator, NonClientGeneratorDirectory } from "../utils";
 
 /**
- * Configuration for the GeneratedPythonClient component
+ * Configuration for the GeneratedPlantUmlDocs component
  */
-export interface GeneratedPythonClientSourceCodeOptions {
+export interface GeneratedPlantUmlDocsOptions {
   /**
    * Absolute path to the OpenAPI specification (spec.yaml)
    */
@@ -30,15 +29,12 @@ export interface GeneratedPythonClientSourceCodeOptions {
 }
 
 /**
- * Generates the python client using OpenAPI Generator
+ * Generates the plantuml documentation using OpenAPI Generator
  */
-export class GeneratedPythonClientSourceCode extends Component {
-  private options: GeneratedPythonClientSourceCodeOptions;
+export class GeneratedPlantUmlDocs extends Component {
+  private options: GeneratedPlantUmlDocsOptions;
 
-  constructor(
-    project: PythonProject,
-    options: GeneratedPythonClientSourceCodeOptions
-  ) {
+  constructor(project: Project, options: GeneratedPlantUmlDocsOptions) {
     super(project);
     this.options = options;
   }
@@ -49,16 +45,12 @@ export class GeneratedPythonClientSourceCode extends Component {
   synthesize() {
     super.synthesize();
 
-    // Generate the python client
+    // Generate the plantuml docs
     invokeOpenApiGenerator({
-      generator: "python-experimental",
+      generator: "plantuml",
       specPath: this.options.specPath,
-      outputPath: this.project.outdir,
-      generatorDirectory: ClientLanguage.PYTHON,
-      additionalProperties: {
-        packageName: (this.project as PythonProject).moduleName,
-        projectName: this.project.name,
-      },
+      outputPath: path.join(this.project.outdir, "plantuml"),
+      generatorDirectory: NonClientGeneratorDirectory.DOCS,
     });
   }
 }

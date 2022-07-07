@@ -17,6 +17,7 @@
 import * as path from "path";
 import { Project, SampleDir, SampleFile, TextFile } from "projen";
 import { PythonProject, PythonProjectOptions } from "projen/lib/python";
+import { DocsProject } from "./codegen/docs-project";
 import { generateClientProjects } from "./codegen/generate";
 import { GeneratedPythonClientProject } from "./codegen/generated-python-client-project";
 import { ClientLanguage } from "./languages";
@@ -226,5 +227,16 @@ def get_generated_client_layer_directory():
     const pytestVersion = options.pytestOptions?.version || "6.2.1";
     this.addDevDependency(`pytest@${pytestVersion}`);
     this.testTask.exec("pytest");
+
+    // Generate documentation if requested
+    if ((options.documentationFormats ?? []).length > 0) {
+      new DocsProject({
+        parent: this,
+        outdir: path.join(this.generatedCodeDir, "documentation"),
+        name: "docs",
+        formats: [...new Set(options.documentationFormats)],
+        specPath: spec.parsedSpecPath,
+      });
+    }
   }
 }

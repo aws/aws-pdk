@@ -14,15 +14,14 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { Component } from "projen";
-import { PythonProject } from "projen/lib/python";
-import { ClientLanguage } from "../../languages";
-import { invokeOpenApiGenerator } from "./utils";
+import * as path from "path";
+import { Component, Project } from "projen";
+import { invokeOpenApiGenerator, NonClientGeneratorDirectory } from "../utils";
 
 /**
- * Configuration for the GeneratedPythonClient component
+ * Configuration for the GeneratedHtml2Docs component
  */
-export interface GeneratedPythonClientSourceCodeOptions {
+export interface GeneratedHtml2DocsOptions {
   /**
    * Absolute path to the OpenAPI specification (spec.yaml)
    */
@@ -30,15 +29,12 @@ export interface GeneratedPythonClientSourceCodeOptions {
 }
 
 /**
- * Generates the python client using OpenAPI Generator
+ * Generates the html2 documentation using OpenAPI Generator
  */
-export class GeneratedPythonClientSourceCode extends Component {
-  private options: GeneratedPythonClientSourceCodeOptions;
+export class GeneratedHtml2Docs extends Component {
+  private options: GeneratedHtml2DocsOptions;
 
-  constructor(
-    project: PythonProject,
-    options: GeneratedPythonClientSourceCodeOptions
-  ) {
+  constructor(project: Project, options: GeneratedHtml2DocsOptions) {
     super(project);
     this.options = options;
   }
@@ -49,16 +45,12 @@ export class GeneratedPythonClientSourceCode extends Component {
   synthesize() {
     super.synthesize();
 
-    // Generate the python client
+    // Generate the html2 docs
     invokeOpenApiGenerator({
-      generator: "python-experimental",
+      generator: "html2",
       specPath: this.options.specPath,
-      outputPath: this.project.outdir,
-      generatorDirectory: ClientLanguage.PYTHON,
-      additionalProperties: {
-        packageName: (this.project as PythonProject).moduleName,
-        projectName: this.project.name,
-      },
+      outputPath: path.join(this.project.outdir, "html2"),
+      generatorDirectory: NonClientGeneratorDirectory.DOCS,
     });
   }
 }

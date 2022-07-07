@@ -19,7 +19,7 @@ import * as fs from "fs-extra";
 import { Component } from "projen";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { ClientLanguage } from "../../languages";
-import { generateClientCode } from "./utils";
+import { invokeOpenApiGenerator } from "./utils";
 
 /**
  * Configuration for the GeneratedTypescriptClient component
@@ -52,11 +52,11 @@ export class GeneratedTypescriptClientSourceCode extends Component {
     super.synthesize();
 
     // Generate the typescript client
-    generateClientCode({
+    invokeOpenApiGenerator({
       generator: "typescript-fetch",
       specPath: this.options.specPath,
       outputPath: this.project.outdir,
-      language: ClientLanguage.TYPESCRIPT,
+      generatorDirectory: ClientLanguage.TYPESCRIPT,
       additionalProperties: {
         npmName: (this.project as TypeScriptProject).package.packageName,
         typescriptThreePlus: "true",
