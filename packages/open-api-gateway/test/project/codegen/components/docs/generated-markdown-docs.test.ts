@@ -14,32 +14,26 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import { Project } from "projen";
-import { TypeScriptProject } from "projen/lib/typescript";
+import { GeneratedMarkdownDocs } from "../../../../../src/project/codegen/components/docs/generated-markdown-docs";
+import { synthGeneratedCodeProject } from "../utils";
 
-/**
- * Contains configuration for the public (docs) package.
- */
-export class DocsProject extends TypeScriptProject {
-  constructor(parent: Project) {
-    super({
-      parent,
-      outdir: "public/docs", // nx has issues with root directories being called 'docs'
-      defaultReleaseBranch: "mainline",
-      sampleCode: false,
-      jest: false,
-      name: "docs",
-      depsUpgrade: false,
-      devDeps: ["@types/fs-extra", "exponential-backoff", "jsii-docgen"],
-      deps: ["fs-extra"],
+const synthDocs = (specFileName: string) => {
+  const project = new Project({
+    name: "parent",
+  });
+  return synthGeneratedCodeProject(specFileName, project, (specPath) => {
+    new GeneratedMarkdownDocs(project, {
+      specPath,
     });
+  });
+};
 
-    this.package.addField("private", true);
+describe("GeneratedMarkdownDocs Unit Tests", () => {
+  it("Single", () => {
+    expect(synthDocs("single.yaml")).toMatchSnapshot();
+  });
 
-    // TODO: HACK! Remove when https://github.com/cdklabs/jsii-docgen/pull/644 is merged
-    this.preCompileTask.exec("npx ts-node ./scripts/perf-boost-hack.ts");
-
-    this.compileTask.reset();
-    this.testTask.reset();
-    this.packageTask.reset("./scripts/build-docs");
-  }
-}
+  it("Multi", () => {
+    expect(synthDocs("multi.yaml")).toMatchSnapshot();
+  });
+});

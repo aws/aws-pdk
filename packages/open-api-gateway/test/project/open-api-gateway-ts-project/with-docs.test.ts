@@ -13,33 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import { Project } from "projen";
-import { TypeScriptProject } from "projen/lib/typescript";
+import { synthSnapshot } from "projen/lib/util/synth";
+import { DocumentationFormat, OpenApiGatewayTsProject } from "../../../src";
 
-/**
- * Contains configuration for the public (docs) package.
- */
-export class DocsProject extends TypeScriptProject {
-  constructor(parent: Project) {
-    super({
-      parent,
-      outdir: "public/docs", // nx has issues with root directories being called 'docs'
+describe("OpenAPI Gateway Ts With Docs Unit Tests", () => {
+  it("With Docs", () => {
+    const project = new OpenApiGatewayTsProject({
       defaultReleaseBranch: "mainline",
-      sampleCode: false,
-      jest: false,
-      name: "docs",
-      depsUpgrade: false,
-      devDeps: ["@types/fs-extra", "exponential-backoff", "jsii-docgen"],
-      deps: ["fs-extra"],
+      name: "@test/my-api",
+      clientLanguages: [],
+      documentationFormats: [
+        DocumentationFormat.HTML2,
+        DocumentationFormat.MARKDOWN,
+        DocumentationFormat.PLANTUML,
+      ],
     });
-
-    this.package.addField("private", true);
-
-    // TODO: HACK! Remove when https://github.com/cdklabs/jsii-docgen/pull/644 is merged
-    this.preCompileTask.exec("npx ts-node ./scripts/perf-boost-hack.ts");
-
-    this.compileTask.reset();
-    this.testTask.reset();
-    this.packageTask.reset("./scripts/build-docs");
-  }
-}
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+});

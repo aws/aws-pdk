@@ -18,17 +18,29 @@ import { exec } from "projen/lib/util";
 import { ClientLanguage } from "../../languages";
 
 /**
- * Options for generating the client code
+ * Enum for generator directories for non-client generators
  */
-export interface GenerateClientCodeOptions {
+export enum NonClientGeneratorDirectory {
+  DOCS = "docs",
+}
+
+/**
+ * Generator directory for openapi generation containing templates, config etc.
+ */
+export type GeneratorDirectory = ClientLanguage | NonClientGeneratorDirectory;
+
+/**
+ * Options for generating client code or docs using OpenAPI Generator CLI
+ */
+export interface GenerationOptions {
   /**
-   * The OpenAPI generator to use to generate the code
+   * The OpenAPI generator to use to generate the code/docs
    */
   readonly generator: string;
   /**
-   * The language to generate the client in
+   * The directory to use for OpenAPI generation
    */
-  readonly language: ClientLanguage;
+  readonly generatorDirectory: GeneratorDirectory;
   /**
    * The path of the OpenAPI spec to generate the client for
    */
@@ -51,16 +63,16 @@ const serializeProperties = (properties: { [key: string]: string }) =>
     .join(",");
 
 /**
- * Generate client code by invoking the root generate script
+ * Generate client code or docs by invoking the root generate script
  */
-export const generateClientCode = (options: GenerateClientCodeOptions) => {
+export const invokeOpenApiGenerator = (options: GenerationOptions) => {
   const additionalProperties = options.additionalProperties
     ? ` --additional-properties ${serializeProperties(
         options.additionalProperties
       )}`
     : "";
   exec(
-    `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --language ${options.language}${additionalProperties}`,
+    `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --generator-dir ${options.generatorDirectory}${additionalProperties}`,
     {
       cwd: path.resolve(
         __dirname,

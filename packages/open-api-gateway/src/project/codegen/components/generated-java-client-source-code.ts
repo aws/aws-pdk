@@ -17,7 +17,7 @@
 import { Component } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { ClientLanguage } from "../../languages";
-import { generateClientCode } from "./utils";
+import { invokeOpenApiGenerator } from "./utils";
 
 /**
  * Configuration for the GeneratedJavaClient component
@@ -53,11 +53,11 @@ export class GeneratedJavaClientSourceCode extends Component {
     const invokerPackage = `${javaProject.pom.groupId}.${javaProject.name}.client`;
 
     // Generate the java client
-    generateClientCode({
+    invokeOpenApiGenerator({
       generator: "java",
       specPath: this.options.specPath,
       outputPath: this.project.outdir,
-      language: ClientLanguage.JAVA,
+      generatorDirectory: ClientLanguage.JAVA,
       additionalProperties: {
         // TODO: Upgrade to openapi-generator 6.0.1 when released so that useSingleRequestParameter is honoured
         // https://github.com/OpenAPITools/openapi-generator/milestone/42

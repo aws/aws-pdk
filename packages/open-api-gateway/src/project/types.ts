@@ -16,7 +16,7 @@
 import { JavaProjectOptions } from "projen/lib/java";
 import { PythonProjectOptions } from "projen/lib/python";
 import { TypeScriptProjectOptions } from "projen/lib/typescript";
-import { ClientLanguage } from "./languages";
+import { ClientLanguage, DocumentationFormat } from "./languages";
 
 /**
  * Options common to all open api gateway projects
@@ -26,6 +26,10 @@ export interface OpenApiGatewayProjectOptions {
    * The list of languages for which clients will be generated. A typescript client will always be generated.
    */
   readonly clientLanguages: ClientLanguage[];
+  /**
+   * Formats to generate documentation in
+   */
+  readonly documentationFormats?: DocumentationFormat[];
   /**
    * The directory in which generated client code will be generated, relative to the outdir of this project
    * @default "generated"
