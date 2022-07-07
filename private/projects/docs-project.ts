@@ -34,6 +34,10 @@ export class DocsProject extends TypeScriptProject {
     });
 
     this.package.addField("private", true);
+
+    // TODO: HACK! Remove when https://github.com/cdklabs/jsii-docgen/pull/644 is merged
+    this.preCompileTask.exec("npx ts-node ./scripts/perf-boost-hack.ts");
+
     this.compileTask.reset();
     this.testTask.reset();
     this.packageTask.reset("./scripts/build-docs");
