@@ -18,7 +18,15 @@ import {
   IdentityPoolProps,
   UserPoolAuthenticationProvider,
 } from "@aws-cdk/aws-cognito-identitypool-alpha";
-import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
+import { Stack } from "aws-cdk-lib";
+import {
+  AccountRecovery,
+  CfnUserPool,
+  Mfa,
+  UserPool,
+  UserPoolClient,
+} from "aws-cdk-lib/aws-cognito";
+import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
 
 /**
@@ -51,7 +59,38 @@ export class UserIdentity extends Construct {
 
     // Unless explicitly stated, created a default Cognito User Pool and Web Client.
     if (!props?.userPool) {
-      this.userPool = new UserPool(this, "UserPool");
+      this.userPool = new UserPool(this, "UserPool", {
+        passwordPolicy: {
+          minLength: 8,
+          requireLowercase: true,
+          requireUppercase: true,
+          requireDigits: true,
+          requireSymbols: true,
+        },
+        mfa: Mfa.REQUIRED,
+        accountRecovery: AccountRecovery.EMAIL_ONLY,
+        autoVerify: {
+          email: true,
+        },
+      });
+
+      (this.userPool.node.defaultChild as CfnUserPool).userPoolAddOns = {
+        advancedSecurityMode: "ENFORCED",
+      };
+
+      NagSuppressions.addResourceSuppressionsByPath(
+        Stack.of(this),
+        `${Stack.of(this).stackName}/${id}/UserPool/smsRole/Resource`,
+        [
+          {
+            id: "AwsSolutions-IAM5",
+            reason:
+              "MFA requires sending a text to a users phone number which cannot be known at deployment time.",
+            appliesTo: ["Resource::*"],
+          },
+        ]
+      );
+
       this.userPoolClient = this.userPool.addClient("WebClient", {
         authFlows: {
           userPassword: true,

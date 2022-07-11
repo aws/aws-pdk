@@ -13,6 +13,7 @@ Object {
     "DefaultsIdentityPoolAuthenticatedRole69EA113E": Object {
       "DependsOn": Array [
         "DefaultsUserPool8771AC2E",
+        "DefaultsUserPoolsmsRoleE0CA6B10",
         "DefaultsUserPoolUserPoolAuthenticationProviderClientF50E7234",
         "DefaultsUserPoolWebClient89951652",
       ],
@@ -59,6 +60,7 @@ Object {
     "DefaultsIdentityPoolBA85B5EA": Object {
       "DependsOn": Array [
         "DefaultsUserPool8771AC2E",
+        "DefaultsUserPoolsmsRoleE0CA6B10",
         "DefaultsUserPoolUserPoolAuthenticationProviderClientF50E7234",
         "DefaultsUserPoolWebClient89951652",
       ],
@@ -97,6 +99,7 @@ Object {
     "DefaultsIdentityPoolDefaultRoleAttachment961DF578": Object {
       "DependsOn": Array [
         "DefaultsUserPool8771AC2E",
+        "DefaultsUserPoolsmsRoleE0CA6B10",
         "DefaultsUserPoolUserPoolAuthenticationProviderClientF50E7234",
         "DefaultsUserPoolWebClient89951652",
       ],
@@ -124,6 +127,7 @@ Object {
     "DefaultsIdentityPoolUnauthenticatedRole863CFE8C": Object {
       "DependsOn": Array [
         "DefaultsUserPool8771AC2E",
+        "DefaultsUserPoolsmsRoleE0CA6B10",
         "DefaultsUserPoolUserPoolAuthenticationProviderClientF50E7234",
         "DefaultsUserPoolWebClient89951652",
       ],
@@ -173,21 +177,45 @@ Object {
         "AccountRecoverySetting": Object {
           "RecoveryMechanisms": Array [
             Object {
-              "Name": "verified_phone_number",
-              "Priority": 1,
-            },
-            Object {
               "Name": "verified_email",
-              "Priority": 2,
+              "Priority": 1,
             },
           ],
         },
         "AdminCreateUserConfig": Object {
           "AllowAdminCreateUserOnly": true,
         },
+        "AutoVerifiedAttributes": Array [
+          "email",
+        ],
         "EmailVerificationMessage": "The verification code to your new account is {####}",
         "EmailVerificationSubject": "Verify your new account",
+        "EnabledMfas": Array [
+          "SMS_MFA",
+        ],
+        "MfaConfiguration": "ON",
+        "Policies": Object {
+          "PasswordPolicy": Object {
+            "MinimumLength": 8,
+            "RequireLowercase": true,
+            "RequireNumbers": true,
+            "RequireSymbols": true,
+            "RequireUppercase": true,
+          },
+        },
+        "SmsConfiguration": Object {
+          "ExternalId": "DefaultsUserPool4C3A90C6",
+          "SnsCallerArn": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsUserPoolsmsRoleE0CA6B10",
+              "Arn",
+            ],
+          },
+        },
         "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "UserPoolAddOns": Object {
+          "AdvancedSecurityMode": "ENFORCED",
+        },
         "VerificationMessageTemplate": Object {
           "DefaultEmailOption": "CONFIRM_WITH_CODE",
           "EmailMessage": "The verification code to your new account is {####}",
@@ -254,6 +282,56 @@ Object {
         },
       },
       "Type": "AWS::Cognito::UserPoolClient",
+    },
+    "DefaultsUserPoolsmsRoleE0CA6B10": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Resource::*",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "MFA requires sending a text to a users phone number which cannot be known at deployment time.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Condition": Object {
+                "StringEquals": Object {
+                  "sts:ExternalId": "DefaultsUserPool4C3A90C6",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "cognito-idp.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": Array [
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Array [
+                Object {
+                  "Action": "sns:Publish",
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "sns-publish",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
     },
   },
   "Rules": Object {

@@ -21,7 +21,7 @@ import { UserIdentity } from "../src";
 
 describe("User Identity Unit Tests", () => {
   it("Defaults", () => {
-    const stack = new Stack(PDKNag.app({ failOnError: false })); // TODO: fix nag errors
+    const stack = new Stack(PDKNag.app());
     new UserIdentity(stack, "Defaults");
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
