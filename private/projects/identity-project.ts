@@ -35,7 +35,6 @@ export class IdentityProject extends PDKProject {
         "aws-cdk-lib",
         "constructs",
         "cdk-nag",
-        "@aws-prototyping-sdk/pdk-nag@0.0.0",
         "@aws-cdk/aws-cognito-identitypool-alpha",
       ],
       peerDeps: [
@@ -45,6 +44,7 @@ export class IdentityProject extends PDKProject {
         "cdk-nag",
         "@aws-cdk/aws-cognito-identitypool-alpha",
       ],
+      deps: ["@aws-prototyping-sdk/pdk-nag"],
       stability: Stability.EXPERIMENTAL,
     });
 

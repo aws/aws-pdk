@@ -14,24 +14,24 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import AppLayout, { AppLayoutProps } from "@awsui/components-react/app-layout";
-import { createContext, useCallback, useMemo, useState } from "react";
-import { BreadcrumbGroup, BreadcrumbGroupProps, SideNavigation, SideNavigationProps, TopNavigation } from "@awsui/components-react";
+import { BreadcrumbGroup, BreadcrumbGroupProps, SideNavigation, SideNavigationProps, TopNavigation } from '@awsui/components-react';
+import AppLayout, { AppLayoutProps } from '@awsui/components-react/app-layout';
+import { CancelableEventHandler } from '@awsui/components-react/internal/events';
+import { createContext, useCallback, useMemo, useState } from 'react';
 import {
   Route,
   Routes,
-  useNavigate
-} from "react-router-dom";
-import { CancelableEventHandler } from "@awsui/components-react/internal/events";
-import Home from "./Home";
-import Auth from "./Auth";
-import Config from "./config.json";
+  useNavigate,
+} from 'react-router-dom';
+import Auth from './Auth';
+import Config from './config.json';
+import Home from './Home';
 
 /**
  * Define your nav items here.
  */
 const NAVIGATION_ITEMS: SideNavigationProps.Item[] = [
-  {text: "home", type: "link", href:"/"}
+  { text: 'home', type: 'link', href: '/' },
 ];
 
 /**
@@ -39,12 +39,12 @@ const NAVIGATION_ITEMS: SideNavigationProps.Item[] = [
  */
 export const AppLayoutContext = createContext({
   appLayoutProps: {},
-  setAppLayoutProps: (_: AppLayoutProps) => {}
+  setAppLayoutProps: (_: AppLayoutProps) => {},
 });
 
 /**
  * Finfs a Nav Item matching the provided href.
- * 
+ *
  * @param href href to search for
  * @param root root nav items to begin search
  * @returns a nav item matching href or undefined.
@@ -57,8 +57,8 @@ const findNavItem = (href: string, root?: SideNavigationProps.Item[]): SideNavig
  */
 const App: React.FC = () => {
   const navigate = useNavigate();
-  const [activeHref, setActiveHref] = useState("/");
-  const [activeBreadcrumbs, setActiveBreadcrumbs] = useState<BreadcrumbGroupProps.Item[]>([{text: "/", href: "/"}]);
+  const [activeHref, setActiveHref] = useState('/');
+  const [activeBreadcrumbs, setActiveBreadcrumbs] = useState<BreadcrumbGroupProps.Item[]>([{ text: '/', href: '/' }]);
   const [appLayoutProps, setAppLayoutProps] = useState<AppLayoutProps>({});
 
   const setAppLayoutPropsSafe = useCallback((props: AppLayoutProps) => {
@@ -70,7 +70,7 @@ const App: React.FC = () => {
     setAppLayoutProps({});
     setActiveHref(e.detail.href);
 
-    const segments = ['/', ...e.detail.href.split("/").filter(segment => segment !== '')];
+    const segments = ['/', ...e.detail.href.split('/').filter(segment => segment !== '')];
     setActiveBreadcrumbs(segments
       .map((segment, i) => {
         const href = segments.slice(0, i+1).join('/').replace('//', '/');
@@ -79,17 +79,17 @@ const App: React.FC = () => {
           text: segment,
         };
       })
-      .filter((item: any) => findNavItem(item?.href, NAVIGATION_ITEMS))
+      .filter((item: any) => findNavItem(item?.href, NAVIGATION_ITEMS)),
     );
-    navigate(e.detail.href);     
+    navigate(e.detail.href);
   }, [navigate, setAppLayoutProps, setActiveBreadcrumbs]);
 
   return (
     <Auth>
       <TopNavigation
-        key={"header"}
-        i18nStrings={{overflowMenuTitleText: "Header", overflowMenuTriggerText: "Header"}}
-        identity={{title: Config.applicationName, href:"", logo: { src: "logo512.png" }}}/>
+        key={'header'}
+        i18nStrings={{ overflowMenuTitleText: 'Header', overflowMenuTriggerText: 'Header' }}
+        identity={{ title: Config.applicationName, href: '', logo: { src: 'logo512.png' } }}/>
       <AppLayout
         headerSelector="header"
         breadcrumbs={<BreadcrumbGroup
@@ -98,7 +98,7 @@ const App: React.FC = () => {
         toolsHide
         navigation={
           <SideNavigation
-            header={{text: Config.applicationName, href: "/"}}
+            header={{ text: Config.applicationName, href: '/' }}
             activeHref={activeHref}
             onFollow={onNavigate}
             items={NAVIGATION_ITEMS}

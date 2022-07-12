@@ -14,25 +14,28 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import { Project } from "projen";
-import { TypeScriptProject } from "projen/lib/typescript";
+import { Stability } from "projen/lib/cdk";
+import { PDKProject } from "../pdk-project";
 
 /**
  * Contains utils for testing CDK based constructs.
  */
-export class PDKNagProject extends TypeScriptProject {
+export class PDKNagProject extends PDKProject {
   constructor(parent: Project) {
     super({
       parent,
-      outdir: "tools/pdk-nag",
+      outdir: "packages/pdk-nag",
       defaultReleaseBranch: "mainline",
       sampleCode: false,
       jest: false,
-      name: "@aws-prototyping-sdk/pdk-nag",
+      name: "pdk-nag",
       depsUpgrade: false,
-      peerDeps: ["aws-cdk-lib", "constructs"],
-      deps: ["cdk-nag"],
+      peerDeps: ["aws-cdk-lib", "constructs", "cdk-nag"],
+      devDeps: ["cdk-nag"],
+      author: "AWS APJ COPE",
+      authorAddress: "apj-cope@amazon.com",
+      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+      stability: Stability.STABLE,
     });
-
-    this.package.addField("private", true);
   }
 }

@@ -13,12 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import { App, AppProps, Aspects, StageSynthesisOptions } from 'aws-cdk-lib';
-import { CloudAssembly } from 'aws-cdk-lib/cx-api';
-import { AwsSolutionsChecks } from 'cdk-nag';
-import { IConstruct } from 'constructs';
+import {
+  App,
+  AppProps,
+  Aspects,
+  Stack,
+  StageSynthesisOptions,
+} from "aws-cdk-lib";
+import { CloudAssembly } from "aws-cdk-lib/cx-api";
+import { AwsSolutionsChecks } from "cdk-nag";
+import { IConstruct } from "constructs";
 
-const CDK_NAG_MESSAGE_TYPES = { ERROR: 'aws:cdk:error', WARNING: 'aws:cdk:warning' };
+const CDK_NAG_MESSAGE_TYPES = {
+  ERROR: "aws:cdk:error",
+  WARNING: "aws:cdk:warning",
+};
 const CDK_NAG_MESSAGE_TYPES_SET = new Set(Object.values(CDK_NAG_MESSAGE_TYPES));
 
 /**
@@ -28,7 +37,7 @@ export interface Message {
   /**
    * Message description.
    */
-  readonly message: string;
+  readonly messageDescription: string;
 
   /**
    * Message type as returned from cdk-nag.
@@ -74,7 +83,7 @@ export interface PDKNagAppProps extends AppProps {
  * @inheritDoc
  */
 export class PDKNagApp extends App {
-  private readonly nagResults: NagResult[] = [];
+  private readonly _nagResults: NagResult[] = [];
   private readonly failOnError: boolean;
   private readonly failOnWarning: boolean;
 
@@ -87,29 +96,34 @@ export class PDKNagApp extends App {
   synth(options?: StageSynthesisOptions): CloudAssembly {
     const assembly = super.synth(options);
 
-    const typesToFail = new Set([
-      this.failOnError && CDK_NAG_MESSAGE_TYPES.ERROR,
-      this.failOnWarning && CDK_NAG_MESSAGE_TYPES.WARNING,
-    ].filter(t => t));
-    if (this.nagResults.find(r => r.messages.find(m => typesToFail.has(m.messageType)))) {
-      throw new Error(JSON.stringify(this.nagResults, undefined, 2));
+    const typesToFail = new Set(
+      [
+        this.failOnError && CDK_NAG_MESSAGE_TYPES.ERROR,
+        this.failOnWarning && CDK_NAG_MESSAGE_TYPES.WARNING,
+      ].filter((t) => t)
+    );
+    if (
+      this._nagResults.find((r) =>
+        r.messages.find((m) => typesToFail.has(m.messageType))
+      )
+    ) {
+      throw new Error(JSON.stringify(this._nagResults, undefined, 2));
     }
 
     return assembly;
   }
 
   addNagResult(result: NagResult) {
-    this.nagResults.push(result);
+    this._nagResults.push(result);
   }
-
 
   /**
    * Returns a list of NagResult.
    *
    * Note: app.synth() must be called before this to retrieve results.
    */
-  public getNagResults(): NagResult[] {
-    return this.nagResults;
+  public nagResults(): NagResult[] {
+    return this._nagResults;
   }
 }
 
@@ -127,14 +141,17 @@ class PDKNagAspect extends AwsSolutionsChecks {
   visit(node: IConstruct): void {
     super.visit(node);
 
-    const results = node.node.metadata.filter(m => CDK_NAG_MESSAGE_TYPES_SET.has(m.type));
-    results.length > 0 && this.app.addNagResult({
-      resource: node.node.path,
-      messages: results.map(m => ({
-        message: m.data,
-        messageType: m.type,
-      })),
-    });
+    const results = node.node.metadata.filter((m) =>
+      CDK_NAG_MESSAGE_TYPES_SET.has(m.type)
+    );
+    results.length > 0 &&
+      this.app.addNagResult({
+        resource: node.node.path,
+        messages: results.map((m) => ({
+          messageDescription: m.data,
+          messageType: m.type,
+        })),
+      });
   }
 }
 
@@ -152,5 +169,22 @@ export class PDKNag {
     Aspects.of(app).add(new PDKNagAspect(app));
 
     return app;
+  }
+
+  /**
+   * Returns a prefix comprising of a delimited set of Stack Ids.
+   *
+   * For example: StackA/NestedStackB/
+   *
+   * @param stack stack instance.
+   */
+  public static getStackPrefix(stack: Stack): string {
+    if (stack.nested) {
+      return `${PDKNag.getStackPrefix(stack.nestedStackParent!)}${
+        stack.node.id
+      }/`;
+    } else {
+      return `${stack.stackName}/`;
+    }
   }
 }
