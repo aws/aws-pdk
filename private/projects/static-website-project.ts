@@ -30,8 +30,15 @@ export class StaticWebsiteProject extends PDKProject {
       name: "static-website",
       keywords: ["aws", "pdk", "jsii", "projen"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: ["projen", "aws-sdk", "aws-cdk-lib", "constructs"],
-      peerDeps: ["projen", "aws-cdk-lib", "constructs"],
+      devDeps: [
+        "projen",
+        "aws-sdk",
+        "aws-cdk-lib",
+        "constructs",
+        "cdk-nag",
+        "@aws-prototyping-sdk/pdk-nag@0.0.0",
+      ],
+      peerDeps: ["projen", "aws-cdk-lib", "constructs", "cdk-nag"],
       stability: Stability.EXPERIMENTAL,
     });
 

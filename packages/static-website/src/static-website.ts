@@ -13,19 +13,25 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import { RemovalPolicy } from "aws-cdk-lib";
+import { RemovalPolicy, Stack } from "aws-cdk-lib";
 import {
   Distribution,
   DistributionProps,
-  ViewerProtocolPolicy,
   IOrigin,
   OriginBindConfig,
   OriginBindOptions,
+  ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
 import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { Key } from "aws-cdk-lib/aws-kms";
-import { Bucket, BucketEncryption, IBucket } from "aws-cdk-lib/aws-s3";
+import {
+  BlockPublicAccess,
+  Bucket,
+  BucketEncryption,
+  IBucket,
+} from "aws-cdk-lib/aws-s3";
 import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
+import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
 import { CloudfrontWebAcl, CloudFrontWebAclProps } from "./cloudfront-web-acl";
 
@@ -142,6 +148,8 @@ export class StaticWebsite extends Construct {
         encryption:
           props.defaultWebsiteBucketEncryption ?? BucketEncryption.S3_MANAGED,
         encryptionKey: props.defaultWebsiteBucketEncryptionKey,
+        publicReadAccess: false,
+        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
         serverAccessLogsPrefix: "access-logs",
       });
 
@@ -152,14 +160,29 @@ export class StaticWebsite extends Construct {
       new CloudfrontWebAcl(this, "WebsiteAcl", props.webAclProps).webAclArn;
 
     // Cloudfront Distribution
+    const logBucket =
+      props.distributionProps?.logBucket ||
+      new Bucket(this, "DistributionLogBucket", {
+        enforceSSL: true,
+        autoDeleteObjects: true,
+        removalPolicy: RemovalPolicy.DESTROY,
+        encryption:
+          props.defaultWebsiteBucketEncryption ?? BucketEncryption.S3_MANAGED,
+        encryptionKey: props.defaultWebsiteBucketEncryptionKey,
+        publicReadAccess: false,
+        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+        serverAccessLogsPrefix: "access-logs",
+      });
+
     const defaultRootObject =
       distributionProps?.defaultRootObject ?? "index.html";
     this.cloudFrontDistribution = new Distribution(
       this,
       "CloudfrontDistribution",
       {
-        ...distributionProps,
         webAclId: webAclArn,
+        enableLogging: true,
+        logBucket: logBucket,
         defaultBehavior: {
           ...distributionProps?.defaultBehavior,
           origin: new S3Origin(this.websiteBucket),
@@ -178,6 +201,7 @@ export class StaticWebsite extends Construct {
             responsePagePath: `/${defaultRootObject}`,
           },
         ],
+        ...distributionProps,
       }
     );
 
@@ -199,6 +223,8 @@ export class StaticWebsite extends Construct {
       // Files in the distribution's edge caches will be invalidated after files are uploaded to the destination bucket.
       distribution: this.cloudFrontDistribution,
     });
+
+    this.suppressCDKNagViolations(props);
   }
 
   private validateProps = (props: StaticWebsiteProps) => {
@@ -210,12 +236,12 @@ export class StaticWebsite extends Construct {
   private validateRuntimeConfig = (config: RuntimeOptions) => {
     if (!config) {
       throw new Error(
-        `validateRuntimeConfig only accepts non-null RuntimeOptions.`
+        "validateRuntimeConfig only accepts non-null RuntimeOptions."
       );
     }
 
     if (config.jsonFileName && !config.jsonFileName.endsWith(".json")) {
-      throw new Error(`RuntimeOptions.jsonFileName must be a json file.`);
+      throw new Error("RuntimeOptions.jsonFileName must be a json file.");
     }
   };
 
@@ -249,6 +275,57 @@ export class StaticWebsite extends Construct {
         "Only KMS and S3_MANAGED encryption are supported on the default bucket."
       );
     }
+  };
+
+  private suppressCDKNagViolations = (props: StaticWebsiteProps) => {
+    const stack = Stack.of(this);
+    !props.distributionProps?.certificate &&
+      NagSuppressions.addResourceSuppressions(this.cloudFrontDistribution, [
+        {
+          id: "AwsSolutions-CFR4",
+          reason:
+            "Certificate is not mandatory therefore the Cloudfront certificate will be used.",
+        },
+      ]);
+    NagSuppressions.addResourceSuppressionsByPath(
+      stack,
+      `${stack.stackName}/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource`,
+      [
+        {
+          id: "AwsSolutions-L1",
+          reason:
+            "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+        },
+      ],
+      false
+    );
+    NagSuppressions.addResourceSuppressionsByPath(
+      stack,
+      `${stack.stackName}/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource`,
+      [
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+        },
+      ],
+      false
+    );
+    NagSuppressions.addResourceSuppressionsByPath(
+      stack,
+      `${stack.stackName}/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource`,
+      [
+        {
+          id: "AwsSolutions-IAM4",
+          reason:
+            "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+          appliesTo: [
+            "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          ],
+        },
+      ],
+      false
+    );
   };
 }
 

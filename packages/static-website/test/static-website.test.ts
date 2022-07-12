@@ -14,14 +14,14 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import path from "path";
-import { App, Stack } from "aws-cdk-lib";
+import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
+import { Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { StaticWebsite } from "../src";
 
 describe("Static Website Unit Tests", () => {
   it("Defaults", () => {
-    const app = new App();
-    const stack = new Stack(app);
+    const stack = new Stack(PDKNag.app());
     new StaticWebsite(stack, "Defaults", {
       websiteContentPath: path.join(__dirname, "./sample-website"),
     });
