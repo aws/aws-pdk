@@ -38,7 +38,32 @@ Object {
     },
   },
   "Resources": Object {
+    "AccessLogs8B620ECA": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
     "ApiTest0B514494": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Body": Object {
           "components": Object {
@@ -129,6 +154,23 @@ Object {
       "DependsOn": Array [
         "ApiTest0B514494",
       ],
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "CloudWatchRoleArn": Object {
           "Fn::GetAtt": Array [
@@ -140,6 +182,23 @@ Object {
       "Type": "AWS::ApiGateway::Account",
     },
     "ApiTestCloudWatchRole49F4F360": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -170,7 +229,24 @@ Object {
       },
       "Type": "AWS::IAM::Role",
     },
-    "ApiTestDeployment59A5FA03f7f5915dc2cd4b0c7d95c3a8ddc265c6": Object {
+    "ApiTestDeployment59A5FA033b69bb37ea13c87d7b1c564e1d5f5687": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": Object {
@@ -180,10 +256,44 @@ Object {
       "Type": "AWS::ApiGateway::Deployment",
     },
     "ApiTestDeploymentStageprod77F35FA8": Object {
-      "Properties": Object {
-        "DeploymentId": Object {
-          "Ref": "ApiTestDeployment59A5FA03f7f5915dc2cd4b0c7d95c3a8ddc265c6",
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
         },
+      },
+      "Properties": Object {
+        "AccessLogSetting": Object {
+          "DestinationArn": Object {
+            "Fn::GetAtt": Array [
+              "AccessLogs8B620ECA",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] \\"$context.httpMethod $context.resourcePath $context.protocol\\" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA033b69bb37ea13c87d7b1c564e1d5f5687",
+        },
+        "MethodSettings": Array [
+          Object {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
         "RestApiId": Object {
           "Ref": "ApiTest0B514494",
         },
@@ -192,6 +302,23 @@ Object {
       "Type": "AWS::ApiGateway::Stage",
     },
     "ApiTestLambdaPermissiontestOperationECAC1A2D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -232,6 +359,16 @@ Object {
       "DependsOn": Array [
         "LambdaServiceRoleA8ED4D3B",
       ],
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-IAM4",
+              "reason": "This is a test construct.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Code": Object {
           "ZipFile": "code",
@@ -248,6 +385,16 @@ Object {
       "Type": "AWS::Lambda::Function",
     },
     "LambdaServiceRoleA8ED4D3B": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-IAM4",
+              "reason": "This is a test construct.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -347,7 +494,32 @@ Object {
     },
   },
   "Resources": Object {
+    "AccessLogs8B620ECA": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
     "ApiTest0B514494": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Body": Object {
           "components": Object {
@@ -458,6 +630,23 @@ Object {
       "DependsOn": Array [
         "ApiTest0B514494",
       ],
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "CloudWatchRoleArn": Object {
           "Fn::GetAtt": Array [
@@ -469,6 +658,23 @@ Object {
       "Type": "AWS::ApiGateway::Account",
     },
     "ApiTestCloudWatchRole49F4F360": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -499,7 +705,24 @@ Object {
       },
       "Type": "AWS::IAM::Role",
     },
-    "ApiTestDeployment59A5FA03ac95339e646863af27b3305d012ba89a": Object {
+    "ApiTestDeployment59A5FA03f652d8ddd2cdc27f2f5d74c2aa2f90c5": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": Object {
@@ -509,10 +732,44 @@ Object {
       "Type": "AWS::ApiGateway::Deployment",
     },
     "ApiTestDeploymentStageprod77F35FA8": Object {
-      "Properties": Object {
-        "DeploymentId": Object {
-          "Ref": "ApiTestDeployment59A5FA03ac95339e646863af27b3305d012ba89a",
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
         },
+      },
+      "Properties": Object {
+        "AccessLogSetting": Object {
+          "DestinationArn": Object {
+            "Fn::GetAtt": Array [
+              "AccessLogs8B620ECA",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] \\"$context.httpMethod $context.resourcePath $context.protocol\\" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA03f652d8ddd2cdc27f2f5d74c2aa2f90c5",
+        },
+        "MethodSettings": Array [
+          Object {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
         "RestApiId": Object {
           "Ref": "ApiTest0B514494",
         },
@@ -521,6 +778,23 @@ Object {
       "Type": "AWS::ApiGateway::Stage",
     },
     "ApiTestLambdaPermissiontestOperationECAC1A2D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -707,7 +981,32 @@ Object {
     },
   },
   "Resources": Object {
+    "AccessLogs8B620ECA": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
     "ApiTest0B514494": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Body": Object {
           "components": Object {
@@ -835,6 +1134,23 @@ Object {
       "DependsOn": Array [
         "ApiTest0B514494",
       ],
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "CloudWatchRoleArn": Object {
           "Fn::GetAtt": Array [
@@ -846,6 +1162,23 @@ Object {
       "Type": "AWS::ApiGateway::Account",
     },
     "ApiTestCloudWatchRole49F4F360": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -876,7 +1209,24 @@ Object {
       },
       "Type": "AWS::IAM::Role",
     },
-    "ApiTestDeployment59A5FA03ded27202b212780ef7c4b9eb4b08b1e6": Object {
+    "ApiTestDeployment59A5FA034e5e8ba2e7580ec9b380fd96608926e3": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": Object {
@@ -886,10 +1236,44 @@ Object {
       "Type": "AWS::ApiGateway::Deployment",
     },
     "ApiTestDeploymentStageprod77F35FA8": Object {
-      "Properties": Object {
-        "DeploymentId": Object {
-          "Ref": "ApiTestDeployment59A5FA03ded27202b212780ef7c4b9eb4b08b1e6",
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
         },
+      },
+      "Properties": Object {
+        "AccessLogSetting": Object {
+          "DestinationArn": Object {
+            "Fn::GetAtt": Array [
+              "AccessLogs8B620ECA",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] \\"$context.httpMethod $context.resourcePath $context.protocol\\" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA034e5e8ba2e7580ec9b380fd96608926e3",
+        },
+        "MethodSettings": Array [
+          Object {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
         "RestApiId": Object {
           "Ref": "ApiTest0B514494",
         },
@@ -898,6 +1282,23 @@ Object {
       "Type": "AWS::ApiGateway::Stage",
     },
     "ApiTestLambdaPermissionmyCustomAuthorizer2D3D850D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -935,6 +1336,23 @@ Object {
       "Type": "AWS::Lambda::Permission",
     },
     "ApiTestLambdaPermissiontestOperationECAC1A2D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -1140,7 +1558,32 @@ Object {
     },
   },
   "Resources": Object {
+    "AccessLogs8B620ECA": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
     "ApiTest0B514494": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Body": Object {
           "components": Object {
@@ -1298,6 +1741,23 @@ Object {
       "DependsOn": Array [
         "ApiTest0B514494",
       ],
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "CloudWatchRoleArn": Object {
           "Fn::GetAtt": Array [
@@ -1309,6 +1769,23 @@ Object {
       "Type": "AWS::ApiGateway::Account",
     },
     "ApiTestCloudWatchRole49F4F360": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -1339,7 +1816,24 @@ Object {
       },
       "Type": "AWS::IAM::Role",
     },
-    "ApiTestDeployment59A5FA034a40be2fb188aa60e2044804988f4bb3": Object {
+    "ApiTestDeployment59A5FA035c70b9cd1bc0a164afe24eca0e86792e": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": Object {
@@ -1349,10 +1843,44 @@ Object {
       "Type": "AWS::ApiGateway::Deployment",
     },
     "ApiTestDeploymentStageprod77F35FA8": Object {
-      "Properties": Object {
-        "DeploymentId": Object {
-          "Ref": "ApiTestDeployment59A5FA034a40be2fb188aa60e2044804988f4bb3",
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
         },
+      },
+      "Properties": Object {
+        "AccessLogSetting": Object {
+          "DestinationArn": Object {
+            "Fn::GetAtt": Array [
+              "AccessLogs8B620ECA",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] \\"$context.httpMethod $context.resourcePath $context.protocol\\" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA035c70b9cd1bc0a164afe24eca0e86792e",
+        },
+        "MethodSettings": Array [
+          Object {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
         "RestApiId": Object {
           "Ref": "ApiTest0B514494",
         },
@@ -1361,6 +1889,23 @@ Object {
       "Type": "AWS::ApiGateway::Stage",
     },
     "ApiTestLambdaPermissiontestOperationECAC1A2D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -1516,7 +2061,32 @@ Object {
     },
   },
   "Resources": Object {
+    "AccessLogs8B620ECA": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
     "ApiTest0B514494": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Body": Object {
           "components": Object {
@@ -1825,6 +2395,23 @@ Object {
       "DependsOn": Array [
         "ApiTest0B514494",
       ],
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "CloudWatchRoleArn": Object {
           "Fn::GetAtt": Array [
@@ -1836,6 +2423,23 @@ Object {
       "Type": "AWS::ApiGateway::Account",
     },
     "ApiTestCloudWatchRole49F4F360": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -1866,7 +2470,24 @@ Object {
       },
       "Type": "AWS::IAM::Role",
     },
-    "ApiTestDeployment59A5FA03090657f00483089fb1f90799c5e8ca8c": Object {
+    "ApiTestDeployment59A5FA030aa2f590eb77bd1ed42b0881f1119f31": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": Object {
@@ -1876,10 +2497,44 @@ Object {
       "Type": "AWS::ApiGateway::Deployment",
     },
     "ApiTestDeploymentStageprod77F35FA8": Object {
-      "Properties": Object {
-        "DeploymentId": Object {
-          "Ref": "ApiTestDeployment59A5FA03090657f00483089fb1f90799c5e8ca8c",
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
         },
+      },
+      "Properties": Object {
+        "AccessLogSetting": Object {
+          "DestinationArn": Object {
+            "Fn::GetAtt": Array [
+              "AccessLogs8B620ECA",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] \\"$context.httpMethod $context.resourcePath $context.protocol\\" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA030aa2f590eb77bd1ed42b0881f1119f31",
+        },
+        "MethodSettings": Array [
+          Object {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
         "RestApiId": Object {
           "Ref": "ApiTest0B514494",
         },
@@ -1888,6 +2543,23 @@ Object {
       "Type": "AWS::ApiGateway::Stage",
     },
     "ApiTestLambdaPermissiondeleteOperationCF8B1751": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -1925,6 +2597,23 @@ Object {
       "Type": "AWS::Lambda::Permission",
     },
     "ApiTestLambdaPermissiongetOperationE32C7896": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -1962,6 +2651,23 @@ Object {
       "Type": "AWS::Lambda::Permission",
     },
     "ApiTestLambdaPermissionmyCustomAuthorizer2D3D850D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -1999,6 +2705,23 @@ Object {
       "Type": "AWS::Lambda::Permission",
     },
     "ApiTestLambdaPermissionpostOperation5287C28F": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -2036,6 +2759,23 @@ Object {
       "Type": "AWS::Lambda::Permission",
     },
     "ApiTestLambdaPermissionputOperation80355FB2": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {

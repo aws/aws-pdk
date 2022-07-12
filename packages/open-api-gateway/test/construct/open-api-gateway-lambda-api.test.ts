@@ -14,13 +14,15 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
+import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { Cors } from "aws-cdk-lib/aws-apigateway";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
+import { NagSuppressions } from "cdk-nag";
 import { OpenAPIV3 } from "openapi-types";
-import { MethodAndPath, OpenApiGatewayLambdaApi } from "../../lib/construct";
+import { MethodAndPath, OpenApiGatewayLambdaApi } from "../../src/construct";
 import { Authorizers } from "../../src/construct/authorizers";
 import { CustomAuthorizerType } from "../../src/construct/authorizers/authorizers";
 
@@ -110,20 +112,31 @@ const multiOperationLookup = Object.fromEntries(
 
 describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
   it("Synth", () => {
-    const stack = new Stack();
+    const stack = new Stack(PDKNag.app());
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
     new OpenApiGatewayLambdaApi(stack, "ApiTest", {
       spec: sampleSpec,
       operationLookup,
       integrations: {
         testOperation: {
-          function: new Function(stack, "Lambda", {
-            code: Code.fromInline("code"),
-            handler: "handler",
-            runtime: Runtime.NODEJS_16_X,
-          }),
+          function: func,
         },
       },
     });
+    NagSuppressions.addResourceSuppressions(
+      func,
+      [
+        {
+          id: "AwsSolutions-IAM4",
+          reason: "This is a test construct.",
+        },
+      ],
+      true
+    );
     expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
   });
 
