@@ -16,11 +16,16 @@
 
 import { Stack } from "aws-cdk-lib";
 import {
+  AccessLogFormat,
   ApiDefinition,
+  LogGroupLogDestination,
+  MethodLoggingLevel,
   RestApiBaseProps,
   SpecRestApi,
 } from "aws-cdk-lib/aws-apigateway";
 import { CfnPermission } from "aws-cdk-lib/aws-lambda";
+import { LogGroup } from "aws-cdk-lib/aws-logs";
+import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
 import { OpenApiOptions } from "./spec";
 import {
@@ -57,6 +62,14 @@ export class OpenApiGatewayLambdaApi extends SpecRestApi {
       apiDefinition: ApiDefinition.fromInline(
         prepareApiSpec(scope, spec, props)
       ),
+      cloudWatchRole: false,
+      deployOptions: {
+        accessLogDestination: new LogGroupLogDestination(
+          new LogGroup(scope, `AccessLogs`)
+        ),
+        accessLogFormat: AccessLogFormat.clf(),
+        loggingLevel: MethodLoggingLevel.INFO,
+      },
       ...options,
     });
 
@@ -73,5 +86,17 @@ export class OpenApiGatewayLambdaApi extends SpecRestApi {
         }),
       });
     });
+
+    NagSuppressions.addResourceSuppressions(
+      this,
+      [
+        {
+          id: "AwsSolutions-APIG2",
+          reason:
+            "This construct implements fine grained validation via OpenApi.",
+        },
+      ],
+      true
+    );
   }
 }

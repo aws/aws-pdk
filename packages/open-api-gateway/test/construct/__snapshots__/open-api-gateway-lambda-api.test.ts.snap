@@ -38,7 +38,25 @@ Object {
     },
   },
   "Resources": Object {
+    "AccessLogs8B620ECA": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
     "ApiTest0B514494": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Body": Object {
           "components": Object {
@@ -125,52 +143,17 @@ Object {
       },
       "Type": "AWS::ApiGateway::RestApi",
     },
-    "ApiTestAccount2AC853EB": Object {
-      "DependsOn": Array [
-        "ApiTest0B514494",
-      ],
-      "Properties": Object {
-        "CloudWatchRoleArn": Object {
-          "Fn::GetAtt": Array [
-            "ApiTestCloudWatchRole49F4F360",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "AWS::ApiGateway::Account",
-    },
-    "ApiTestCloudWatchRole49F4F360": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
+    "ApiTestDeployment59A5FA035e4d0429daf818a8f1f242387168d181": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
             Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "apigateway.amazonaws.com",
-              },
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
             },
           ],
-          "Version": "2012-10-17",
         },
-        "ManagedPolicyArns": Array [
-          Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "arn:",
-                Object {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
-              ],
-            ],
-          },
-        ],
       },
-      "Type": "AWS::IAM::Role",
-    },
-    "ApiTestDeployment59A5FA03f7f5915dc2cd4b0c7d95c3a8ddc265c6": Object {
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": Object {
@@ -180,10 +163,37 @@ Object {
       "Type": "AWS::ApiGateway::Deployment",
     },
     "ApiTestDeploymentStageprod77F35FA8": Object {
-      "Properties": Object {
-        "DeploymentId": Object {
-          "Ref": "ApiTestDeployment59A5FA03f7f5915dc2cd4b0c7d95c3a8ddc265c6",
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
         },
+      },
+      "Properties": Object {
+        "AccessLogSetting": Object {
+          "DestinationArn": Object {
+            "Fn::GetAtt": Array [
+              "AccessLogs8B620ECA",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] \\"$context.httpMethod $context.resourcePath $context.protocol\\" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA035e4d0429daf818a8f1f242387168d181",
+        },
+        "MethodSettings": Array [
+          Object {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
         "RestApiId": Object {
           "Ref": "ApiTest0B514494",
         },
@@ -192,6 +202,16 @@ Object {
       "Type": "AWS::ApiGateway::Stage",
     },
     "ApiTestLambdaPermissiontestOperationECAC1A2D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -232,6 +252,16 @@ Object {
       "DependsOn": Array [
         "LambdaServiceRoleA8ED4D3B",
       ],
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-IAM4",
+              "reason": "This is a test construct.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Code": Object {
           "ZipFile": "code",
@@ -248,6 +278,16 @@ Object {
       "Type": "AWS::Lambda::Function",
     },
     "LambdaServiceRoleA8ED4D3B": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-IAM4",
+              "reason": "This is a test construct.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -347,7 +387,25 @@ Object {
     },
   },
   "Resources": Object {
+    "AccessLogs8B620ECA": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
     "ApiTest0B514494": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Body": Object {
           "components": Object {
@@ -454,52 +512,17 @@ Object {
       },
       "Type": "AWS::ApiGateway::RestApi",
     },
-    "ApiTestAccount2AC853EB": Object {
-      "DependsOn": Array [
-        "ApiTest0B514494",
-      ],
-      "Properties": Object {
-        "CloudWatchRoleArn": Object {
-          "Fn::GetAtt": Array [
-            "ApiTestCloudWatchRole49F4F360",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "AWS::ApiGateway::Account",
-    },
-    "ApiTestCloudWatchRole49F4F360": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
+    "ApiTestDeployment59A5FA03cbbb66398383b93bd8d3d8b71f417300": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
             Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "apigateway.amazonaws.com",
-              },
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
             },
           ],
-          "Version": "2012-10-17",
         },
-        "ManagedPolicyArns": Array [
-          Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "arn:",
-                Object {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
-              ],
-            ],
-          },
-        ],
       },
-      "Type": "AWS::IAM::Role",
-    },
-    "ApiTestDeployment59A5FA03ac95339e646863af27b3305d012ba89a": Object {
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": Object {
@@ -509,10 +532,37 @@ Object {
       "Type": "AWS::ApiGateway::Deployment",
     },
     "ApiTestDeploymentStageprod77F35FA8": Object {
-      "Properties": Object {
-        "DeploymentId": Object {
-          "Ref": "ApiTestDeployment59A5FA03ac95339e646863af27b3305d012ba89a",
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
         },
+      },
+      "Properties": Object {
+        "AccessLogSetting": Object {
+          "DestinationArn": Object {
+            "Fn::GetAtt": Array [
+              "AccessLogs8B620ECA",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] \\"$context.httpMethod $context.resourcePath $context.protocol\\" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA03cbbb66398383b93bd8d3d8b71f417300",
+        },
+        "MethodSettings": Array [
+          Object {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
         "RestApiId": Object {
           "Ref": "ApiTest0B514494",
         },
@@ -521,6 +571,16 @@ Object {
       "Type": "AWS::ApiGateway::Stage",
     },
     "ApiTestLambdaPermissiontestOperationECAC1A2D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -707,7 +767,25 @@ Object {
     },
   },
   "Resources": Object {
+    "AccessLogs8B620ECA": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
     "ApiTest0B514494": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Body": Object {
           "components": Object {
@@ -831,52 +909,17 @@ Object {
       },
       "Type": "AWS::ApiGateway::RestApi",
     },
-    "ApiTestAccount2AC853EB": Object {
-      "DependsOn": Array [
-        "ApiTest0B514494",
-      ],
-      "Properties": Object {
-        "CloudWatchRoleArn": Object {
-          "Fn::GetAtt": Array [
-            "ApiTestCloudWatchRole49F4F360",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "AWS::ApiGateway::Account",
-    },
-    "ApiTestCloudWatchRole49F4F360": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
+    "ApiTestDeployment59A5FA038b545fcb89075e1733a017f76f730033": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
             Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "apigateway.amazonaws.com",
-              },
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
             },
           ],
-          "Version": "2012-10-17",
         },
-        "ManagedPolicyArns": Array [
-          Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "arn:",
-                Object {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
-              ],
-            ],
-          },
-        ],
       },
-      "Type": "AWS::IAM::Role",
-    },
-    "ApiTestDeployment59A5FA03ded27202b212780ef7c4b9eb4b08b1e6": Object {
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": Object {
@@ -886,10 +929,37 @@ Object {
       "Type": "AWS::ApiGateway::Deployment",
     },
     "ApiTestDeploymentStageprod77F35FA8": Object {
-      "Properties": Object {
-        "DeploymentId": Object {
-          "Ref": "ApiTestDeployment59A5FA03ded27202b212780ef7c4b9eb4b08b1e6",
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
         },
+      },
+      "Properties": Object {
+        "AccessLogSetting": Object {
+          "DestinationArn": Object {
+            "Fn::GetAtt": Array [
+              "AccessLogs8B620ECA",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] \\"$context.httpMethod $context.resourcePath $context.protocol\\" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA038b545fcb89075e1733a017f76f730033",
+        },
+        "MethodSettings": Array [
+          Object {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
         "RestApiId": Object {
           "Ref": "ApiTest0B514494",
         },
@@ -898,6 +968,16 @@ Object {
       "Type": "AWS::ApiGateway::Stage",
     },
     "ApiTestLambdaPermissionmyCustomAuthorizer2D3D850D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -935,6 +1015,16 @@ Object {
       "Type": "AWS::Lambda::Permission",
     },
     "ApiTestLambdaPermissiontestOperationECAC1A2D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -1140,7 +1230,25 @@ Object {
     },
   },
   "Resources": Object {
+    "AccessLogs8B620ECA": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
     "ApiTest0B514494": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Body": Object {
           "components": Object {
@@ -1294,52 +1402,17 @@ Object {
       },
       "Type": "AWS::ApiGateway::RestApi",
     },
-    "ApiTestAccount2AC853EB": Object {
-      "DependsOn": Array [
-        "ApiTest0B514494",
-      ],
-      "Properties": Object {
-        "CloudWatchRoleArn": Object {
-          "Fn::GetAtt": Array [
-            "ApiTestCloudWatchRole49F4F360",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "AWS::ApiGateway::Account",
-    },
-    "ApiTestCloudWatchRole49F4F360": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
+    "ApiTestDeployment59A5FA03575dd9289b43f637d78ff5bb0a2d1e0a": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
             Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "apigateway.amazonaws.com",
-              },
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
             },
           ],
-          "Version": "2012-10-17",
         },
-        "ManagedPolicyArns": Array [
-          Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "arn:",
-                Object {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
-              ],
-            ],
-          },
-        ],
       },
-      "Type": "AWS::IAM::Role",
-    },
-    "ApiTestDeployment59A5FA034a40be2fb188aa60e2044804988f4bb3": Object {
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": Object {
@@ -1349,10 +1422,37 @@ Object {
       "Type": "AWS::ApiGateway::Deployment",
     },
     "ApiTestDeploymentStageprod77F35FA8": Object {
-      "Properties": Object {
-        "DeploymentId": Object {
-          "Ref": "ApiTestDeployment59A5FA034a40be2fb188aa60e2044804988f4bb3",
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
         },
+      },
+      "Properties": Object {
+        "AccessLogSetting": Object {
+          "DestinationArn": Object {
+            "Fn::GetAtt": Array [
+              "AccessLogs8B620ECA",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] \\"$context.httpMethod $context.resourcePath $context.protocol\\" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA03575dd9289b43f637d78ff5bb0a2d1e0a",
+        },
+        "MethodSettings": Array [
+          Object {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
         "RestApiId": Object {
           "Ref": "ApiTest0B514494",
         },
@@ -1361,6 +1461,16 @@ Object {
       "Type": "AWS::ApiGateway::Stage",
     },
     "ApiTestLambdaPermissiontestOperationECAC1A2D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -1516,7 +1626,25 @@ Object {
     },
   },
   "Resources": Object {
+    "AccessLogs8B620ECA": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
     "ApiTest0B514494": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Body": Object {
           "components": Object {
@@ -1821,52 +1949,17 @@ Object {
       },
       "Type": "AWS::ApiGateway::RestApi",
     },
-    "ApiTestAccount2AC853EB": Object {
-      "DependsOn": Array [
-        "ApiTest0B514494",
-      ],
-      "Properties": Object {
-        "CloudWatchRoleArn": Object {
-          "Fn::GetAtt": Array [
-            "ApiTestCloudWatchRole49F4F360",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "AWS::ApiGateway::Account",
-    },
-    "ApiTestCloudWatchRole49F4F360": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
+    "ApiTestDeployment59A5FA0398c4a71b3e221b42acf36e22c1cac09b": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
             Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "apigateway.amazonaws.com",
-              },
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
             },
           ],
-          "Version": "2012-10-17",
         },
-        "ManagedPolicyArns": Array [
-          Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "arn:",
-                Object {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
-              ],
-            ],
-          },
-        ],
       },
-      "Type": "AWS::IAM::Role",
-    },
-    "ApiTestDeployment59A5FA03090657f00483089fb1f90799c5e8ca8c": Object {
       "Properties": Object {
         "Description": "Automatically created by the RestApi construct",
         "RestApiId": Object {
@@ -1876,10 +1969,37 @@ Object {
       "Type": "AWS::ApiGateway::Deployment",
     },
     "ApiTestDeploymentStageprod77F35FA8": Object {
-      "Properties": Object {
-        "DeploymentId": Object {
-          "Ref": "ApiTestDeployment59A5FA03090657f00483089fb1f90799c5e8ca8c",
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
         },
+      },
+      "Properties": Object {
+        "AccessLogSetting": Object {
+          "DestinationArn": Object {
+            "Fn::GetAtt": Array [
+              "AccessLogs8B620ECA",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] \\"$context.httpMethod $context.resourcePath $context.protocol\\" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": Object {
+          "Ref": "ApiTestDeployment59A5FA0398c4a71b3e221b42acf36e22c1cac09b",
+        },
+        "MethodSettings": Array [
+          Object {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
         "RestApiId": Object {
           "Ref": "ApiTest0B514494",
         },
@@ -1888,6 +2008,16 @@ Object {
       "Type": "AWS::ApiGateway::Stage",
     },
     "ApiTestLambdaPermissiondeleteOperationCF8B1751": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -1925,6 +2055,16 @@ Object {
       "Type": "AWS::Lambda::Permission",
     },
     "ApiTestLambdaPermissiongetOperationE32C7896": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -1962,6 +2102,16 @@ Object {
       "Type": "AWS::Lambda::Permission",
     },
     "ApiTestLambdaPermissionmyCustomAuthorizer2D3D850D": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -1999,6 +2149,16 @@ Object {
       "Type": "AWS::Lambda::Permission",
     },
     "ApiTestLambdaPermissionpostOperation5287C28F": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
@@ -2036,6 +2196,16 @@ Object {
       "Type": "AWS::Lambda::Permission",
     },
     "ApiTestLambdaPermissionputOperation80355FB2": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": Object {
         "Action": "lambda:InvokeFunction",
         "FunctionName": Object {
