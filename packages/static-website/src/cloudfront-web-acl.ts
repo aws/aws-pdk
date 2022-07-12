@@ -125,7 +125,7 @@ export class CloudfrontWebAcl extends Construct {
   private createOnEventHandler(stack: Stack, aclName: string): Function {
     const onEventHandlerName = `${getStackPrefix(stack)
       .split("/")
-      .join("-")}-OnEventHandler`;
+      .join("-")}OnEventHandler`;
     const onEventHandlerRole = new Role(this, "OnEventHandlerRole", {
       assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
       inlinePolicies: {
