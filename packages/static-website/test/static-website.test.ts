@@ -15,7 +15,7 @@
  ******************************************************************************************************************** */
 import path from "path";
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
-import { Stack } from "aws-cdk-lib";
+import { NestedStack, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { StaticWebsite } from "../src";
 
@@ -27,5 +27,15 @@ describe("Static Website Unit Tests", () => {
     });
 
     expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("Defaults - Nested", () => {
+    const stack = new Stack(PDKNag.app());
+    const nestedStack = new NestedStack(stack, "Nested-Stack");
+    new StaticWebsite(nestedStack, "Defaults", {
+      websiteContentPath: path.join(__dirname, "./sample-website"),
+    });
+
+    expect(Template.fromStack(nestedStack)).toMatchSnapshot();
   });
 });

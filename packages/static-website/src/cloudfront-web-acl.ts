@@ -26,6 +26,7 @@ import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { Provider } from "aws-cdk-lib/custom-resources";
 import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
+import { getStackPrefix } from "./nag-helper";
 
 /**
  * Represents a WAF V2 managed rule.
@@ -122,7 +123,9 @@ export class CloudfrontWebAcl extends Construct {
    * @private
    */
   private createOnEventHandler(stack: Stack, aclName: string): Function {
-    const onEventHandlerName = `${stack.stackName}-OnEventHandler`;
+    const onEventHandlerName = `${getStackPrefix(stack)
+      .split("/")
+      .join("-")}-OnEventHandler`;
     const onEventHandlerRole = new Role(this, "OnEventHandlerRole", {
       assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
       inlinePolicies: {

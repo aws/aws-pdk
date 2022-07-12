@@ -14,7 +14,7 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
-import { App, Stack } from "aws-cdk-lib";
+import { App, NestedStack, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { UserIdentity } from "../src";
@@ -24,6 +24,13 @@ describe("User Identity Unit Tests", () => {
     const stack = new Stack(PDKNag.app());
     new UserIdentity(stack, "Defaults");
     expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("Defaults - Nested", () => {
+    const stack = new Stack(PDKNag.app());
+    const nestedStack = new NestedStack(stack, "Nested-Stack");
+    new UserIdentity(nestedStack, "Defaults-Nested");
+    expect(Template.fromStack(nestedStack)).toMatchSnapshot();
   });
 
   it("User provided UserPool", () => {

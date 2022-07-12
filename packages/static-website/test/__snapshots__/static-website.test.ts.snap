@@ -1,5 +1,1107 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Static Website Unit Tests Defaults - Nested 1`] = `
+Object {
+  "Resources": Object {
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536": Object {
+      "DependsOn": Array [
+        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+      ],
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "f98b78092dcdd31f5e6d47489beb5f804d4835ef86a8085d0a2053cb9ae711da.zip",
+        },
+        "Handler": "index.handler",
+        "Layers": Array [
+          Object {
+            "Ref": "DefaultsWebsiteDeploymentAwsCliLayerD5AA12CC",
+          },
+        ],
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+            "Arn",
+          ],
+        },
+        "Runtime": "python3.7",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      Object {
+                        "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsWebsiteBucket3263D025",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DefaultsWebsiteBucket3263D025",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "cloudfront:GetInvalidation",
+                "cloudfront:CreateInvalidation",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+        "Roles": Array [
+          Object {
+            "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": Object {
+      "DependsOn": Array [
+        "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "990410bab4a39b07c4495c3b8fae2f3f8847daabc9e3fc1debf3fa050c25e302.zip",
+        },
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Lambda function for auto-deleting objects in ",
+              Object {
+                "Ref": "DefaultsWebsiteBucket3263D025",
+              },
+              " S3 bucket.",
+            ],
+          ],
+        },
+        "Handler": "__entrypoint__.handler",
+        "MemorySize": 128,
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs14.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsCloudfrontDistributionF4EA1054": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-CFR4",
+              "reason": "Certificate is not mandatory therefore the Cloudfront certificate will be used.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "DistributionConfig": Object {
+          "CustomErrorResponses": Array [
+            Object {
+              "ErrorCode": 404,
+              "ResponseCode": 200,
+              "ResponsePagePath": "/index.html",
+            },
+            Object {
+              "ErrorCode": 403,
+              "ResponseCode": 200,
+              "ResponsePagePath": "/index.html",
+            },
+          ],
+          "DefaultCacheBehavior": Object {
+            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+            "Compress": true,
+            "TargetOriginId": "NestedStackDefaultsCloudfrontDistributionOrigin1D3B56211",
+            "ViewerProtocolPolicy": "redirect-to-https",
+          },
+          "DefaultRootObject": "index.html",
+          "Enabled": true,
+          "HttpVersion": "http2",
+          "IPV6Enabled": true,
+          "Logging": Object {
+            "Bucket": Object {
+              "Fn::GetAtt": Array [
+                "DefaultsDistributionLogBucket7EA741E2",
+                "RegionalDomainName",
+              ],
+            },
+          },
+          "Origins": Array [
+            Object {
+              "DomainName": Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsWebsiteBucket3263D025",
+                  "RegionalDomainName",
+                ],
+              },
+              "Id": "NestedStackDefaultsCloudfrontDistributionOrigin1D3B56211",
+              "S3OriginConfig": Object {
+                "OriginAccessIdentity": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "origin-access-identity/cloudfront/",
+                      Object {
+                        "Ref": "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E",
+                      },
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "WebACLId": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C",
+              "WebAclArn",
+            ],
+          },
+        },
+      },
+      "Type": "AWS::CloudFront::Distribution",
+    },
+    "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E": Object {
+      "Properties": Object {
+        "CloudFrontOriginAccessIdentityConfig": Object {
+          "Comment": "Identity for NestedStackDefaultsCloudfrontDistributionOrigin1D3B56211",
+        },
+      },
+      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
+    },
+    "DefaultsDistributionLogBucket7EA741E2": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "BucketEncryption": Object {
+          "ServerSideEncryptionConfiguration": Array [
+            Object {
+              "ServerSideEncryptionByDefault": Object {
+                "SSEAlgorithm": "AES256",
+              },
+            },
+          ],
+        },
+        "LoggingConfiguration": Object {
+          "LogFilePrefix": "access-logs",
+        },
+        "PublicAccessBlockConfiguration": Object {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": Array [
+          Object {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsDistributionLogBucketAutoDeleteObjectsCustomResource7370C612": Object {
+      "DeletionPolicy": "Delete",
+      "DependsOn": Array [
+        "DefaultsDistributionLogBucketPolicyC6D11E8F",
+      ],
+      "Properties": Object {
+        "BucketName": Object {
+          "Ref": "DefaultsDistributionLogBucket7EA741E2",
+        },
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsDistributionLogBucketPolicyC6D11E8F": Object {
+      "Properties": Object {
+        "Bucket": Object {
+          "Ref": "DefaultsDistributionLogBucket7EA741E2",
+        },
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:*",
+              "Condition": Object {
+                "Bool": Object {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": Object {
+                "AWS": "*",
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsDistributionLogBucket7EA741E2",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DefaultsDistributionLogBucket7EA741E2",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::GetAtt": Array [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsDistributionLogBucket7EA741E2",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DefaultsDistributionLogBucket7EA741E2",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "ID": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              Object {
+                "Ref": "AWS::StackName",
+              },
+              "-WebsiteAcl",
+            ],
+          ],
+        },
+        "MANAGED_RULES": Array [
+          Object {
+            "name": "AWSManagedRulesCommonRuleSet",
+            "vendor": "AWS",
+          },
+        ],
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0": Object {
+      "DependsOn": Array [
+        "DefaultsWebsiteAclOnEventHandlerRole83BC6E99",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "f9a4e3a2d1dd90ac1bfaec793acad708d019b35402700253f45a40ada6d2786a.zip",
+        },
+        "FunctionName": "Default-Nested-Stack--OnEventHandler",
+        "Handler": "index.onEvent",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "DefaultsWebsiteAclOnEventHandlerRole83BC6E99",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs16.x",
+        "Timeout": 300,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": Array [
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Array [
+                Object {
+                  "Action": Array [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": Array [
+                    Object {
+                      "Fn::Join": Array [
+                        "",
+                        Array [
+                          "arn:aws:logs:",
+                          Object {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          Object {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/",
+                          Object {
+                            "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                          },
+                          "-Provider",
+                        ],
+                      ],
+                    },
+                    Object {
+                      "Fn::Join": Array [
+                        "",
+                        Array [
+                          "arn:aws:logs:",
+                          Object {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          Object {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/",
+                          Object {
+                            "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                          },
+                          "-Provider:*",
+                        ],
+                      ],
+                    },
+                  ],
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
+        "Roles": Array [
+          Object {
+            "Ref": "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB": Object {
+      "DependsOn": Array [
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+      ],
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "eaeb69bc290b516fe3b049f89d6118b22249df682fbabf56af300cf345198574.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/Nested-Stack/Defaults/WebsiteAcl/CloudfrontWebAclProvider)",
+        "Environment": Object {
+          "Variables": Object {
+            "USER_ON_EVENT_FUNCTION_ARN": Object {
+              "Fn::GetAtt": Array [
+                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "FunctionName": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              Object {
+                "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+              },
+              "-Provider",
+            ],
+          ],
+        },
+        "Handler": "framework.onEvent",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs14.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "DefaultsWebsiteAclOnEventHandlerRole83BC6E99": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::arn:aws:wafv2:us-east-1:<AWS::AccountId>:global/(.*)$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "WafV2 resources have been scoped down to the ACL/IPSet level, however * is still needed as resource id's are created just in time.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-Nested-Stack--OnEventHandler:*/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": Array [
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Array [
+                Object {
+                  "Action": Array [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": Array [
+                    Object {
+                      "Fn::Join": Array [
+                        "",
+                        Array [
+                          "arn:aws:logs:",
+                          Object {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          Object {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-Nested-Stack--OnEventHandler",
+                        ],
+                      ],
+                    },
+                    Object {
+                      "Fn::Join": Array [
+                        "",
+                        Array [
+                          "arn:aws:logs:",
+                          Object {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          Object {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-Nested-Stack--OnEventHandler:*",
+                        ],
+                      ],
+                    },
+                  ],
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Array [
+                Object {
+                  "Action": Array [
+                    "wafv2:CreateWebACL",
+                    "wafv2:DeleteWebACL",
+                    "wafv2:UpdateWebACL",
+                    "wafv2:GetWebACL",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": Array [
+                    Object {
+                      "Fn::Join": Array [
+                        "",
+                        Array [
+                          "arn:aws:wafv2:us-east-1:",
+                          Object {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":global/webacl/",
+                          Object {
+                            "Ref": "AWS::StackName",
+                          },
+                          "-WebsiteAcl/*",
+                        ],
+                      ],
+                    },
+                    Object {
+                      "Fn::Join": Array [
+                        "",
+                        Array [
+                          "arn:aws:wafv2:us-east-1:",
+                          Object {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":global/managedruleset/*/*",
+                        ],
+                      ],
+                    },
+                  ],
+                },
+                Object {
+                  "Action": Array [
+                    "wafv2:CreateIPSet",
+                    "wafv2:DeleteIPSet",
+                    "wafv2:UpdateIPSet",
+                    "wafv2:GetIPSet",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:aws:wafv2:us-east-1:",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":global/ipset/",
+                        Object {
+                          "Ref": "AWS::StackName",
+                        },
+                        "-WebsiteAcl-IPSet/*",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "wafv2",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsWebsiteBucket3263D025": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "BucketEncryption": Object {
+          "ServerSideEncryptionConfiguration": Array [
+            Object {
+              "ServerSideEncryptionByDefault": Object {
+                "SSEAlgorithm": "AES256",
+              },
+            },
+          ],
+        },
+        "LoggingConfiguration": Object {
+          "LogFilePrefix": "access-logs",
+        },
+        "PublicAccessBlockConfiguration": Object {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": Array [
+          Object {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+          Object {
+            "Key": "aws-cdk:cr-owned:df4f5c8e",
+            "Value": "true",
+          },
+        ],
+        "VersioningConfiguration": Object {
+          "Status": "Enabled",
+        },
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteBucketAutoDeleteObjectsCustomResourceD840F8F2": Object {
+      "DeletionPolicy": "Delete",
+      "DependsOn": Array [
+        "DefaultsWebsiteBucketPolicy594E6643",
+      ],
+      "Properties": Object {
+        "BucketName": Object {
+          "Ref": "DefaultsWebsiteBucket3263D025",
+        },
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteBucketPolicy594E6643": Object {
+      "Properties": Object {
+        "Bucket": Object {
+          "Ref": "DefaultsWebsiteBucket3263D025",
+        },
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:*",
+              "Condition": Object {
+                "Bool": Object {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": Object {
+                "AWS": "*",
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsWebsiteBucket3263D025",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DefaultsWebsiteBucket3263D025",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::GetAtt": Array [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsWebsiteBucket3263D025",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DefaultsWebsiteBucket3263D025",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Principal": Object {
+                "CanonicalUser": Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E",
+                    "S3CanonicalUserId",
+                  ],
+                },
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsWebsiteBucket3263D025",
+                        "Arn",
+                      ],
+                    },
+                    "/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "DefaultsWebsiteDeploymentAwsCliLayerD5AA12CC": Object {
+      "Properties": Object {
+        "Content": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "b7f327b4415410f319943b754edb274645a9d6850369ae4da9ba209858099210.zip",
+        },
+        "Description": "/opt/awscli/aws",
+      },
+      "Type": "AWS::Lambda::LayerVersion",
+    },
+    "DefaultsWebsiteDeploymentCustomResource326CD6C1": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "DestinationBucketName": Object {
+          "Ref": "DefaultsWebsiteBucket3263D025",
+        },
+        "DistributionId": Object {
+          "Ref": "DefaultsCloudfrontDistributionF4EA1054",
+        },
+        "Prune": true,
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536",
+            "Arn",
+          ],
+        },
+        "SourceBucketNames": Array [
+          Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+        ],
+        "SourceObjectKeys": Array [
+          "a79f62b4071246acc1e8e834ba67dc3bbf15a3662e39d31667fa59315ef86f56.zip",
+        ],
+      },
+      "Type": "Custom::CDKBucketDeployment",
+      "UpdateReplacePolicy": "Delete",
+    },
+  },
+}
+`;
+
 exports[`Static Website Unit Tests Defaults 1`] = `
 Object {
   "Parameters": Object {
@@ -514,7 +1616,7 @@ Object {
           },
           "S3Key": "f9a4e3a2d1dd90ac1bfaec793acad708d019b35402700253f45a40ada6d2786a.zip",
         },
-        "FunctionName": "Default-OnEventHandler",
+        "FunctionName": "Default--OnEventHandler",
         "Handler": "index.onEvent",
         "Role": Object {
           "Fn::GetAtt": Array [
@@ -738,7 +1840,7 @@ Object {
             Object {
               "applies_to": Array [
                 Object {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default--OnEventHandler:*/g",
                 },
               ],
               "id": "AwsSolutions-IAM5",
@@ -784,7 +1886,7 @@ Object {
                           Object {
                             "Ref": "AWS::AccountId",
                           },
-                          ":log-group:/aws/lambda/Default-OnEventHandler",
+                          ":log-group:/aws/lambda/Default--OnEventHandler",
                         ],
                       ],
                     },
@@ -800,7 +1902,7 @@ Object {
                           Object {
                             "Ref": "AWS::AccountId",
                           },
-                          ":log-group:/aws/lambda/Default-OnEventHandler:*",
+                          ":log-group:/aws/lambda/Default--OnEventHandler:*",
                         ],
                       ],
                     },
