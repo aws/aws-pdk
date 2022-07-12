@@ -1,5 +1,335 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`User Identity Unit Tests Defaults - Nested 1`] = `
+Object {
+  "Resources": Object {
+    "DefaultsNestedIdentityPool73A8A64B": Object {
+      "DependsOn": Array [
+        "DefaultsNestedUserPool567C619B",
+        "DefaultsNestedUserPoolsmsRole9E53925E",
+        "DefaultsNestedUserPoolUserPoolAuthenticationProviderClient51B6337E",
+        "DefaultsNestedUserPoolWebClient15C5E297",
+      ],
+      "Properties": Object {
+        "AllowUnauthenticatedIdentities": false,
+        "CognitoIdentityProviders": Array [
+          Object {
+            "ClientId": Object {
+              "Ref": "DefaultsNestedUserPoolUserPoolAuthenticationProviderClient51B6337E",
+            },
+            "ProviderName": Object {
+              "Fn::Join": Array [
+                "",
+                Array [
+                  "cognito-idp.",
+                  Object {
+                    "Ref": "AWS::Region",
+                  },
+                  ".",
+                  Object {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/",
+                  Object {
+                    "Ref": "DefaultsNestedUserPool567C619B",
+                  },
+                ],
+              ],
+            },
+            "ServerSideTokenCheck": true,
+          },
+        ],
+      },
+      "Type": "AWS::Cognito::IdentityPool",
+    },
+    "DefaultsNestedIdentityPoolAuthenticatedRoleA6E986E9": Object {
+      "DependsOn": Array [
+        "DefaultsNestedUserPool567C619B",
+        "DefaultsNestedUserPoolsmsRole9E53925E",
+        "DefaultsNestedUserPoolUserPoolAuthenticationProviderClient51B6337E",
+        "DefaultsNestedUserPoolWebClient15C5E297",
+      ],
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": Object {
+                "ForAnyValue:StringLike": Object {
+                  "cognito-identity.amazonaws.com:amr": "authenticated",
+                },
+                "StringEquals": Object {
+                  "cognito-identity.amazonaws.com:aud": Object {
+                    "Ref": "DefaultsNestedIdentityPool73A8A64B",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Federated": "cognito-identity.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Default Authenticated Role for Identity Pool ",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsNestedIdentityPool73A8A64B",
+                  "Name",
+                ],
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsNestedIdentityPoolDefaultRoleAttachment5574AB70": Object {
+      "DependsOn": Array [
+        "DefaultsNestedUserPool567C619B",
+        "DefaultsNestedUserPoolsmsRole9E53925E",
+        "DefaultsNestedUserPoolUserPoolAuthenticationProviderClient51B6337E",
+        "DefaultsNestedUserPoolWebClient15C5E297",
+      ],
+      "Properties": Object {
+        "IdentityPoolId": Object {
+          "Ref": "DefaultsNestedIdentityPool73A8A64B",
+        },
+        "Roles": Object {
+          "authenticated": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsNestedIdentityPoolAuthenticatedRoleA6E986E9",
+              "Arn",
+            ],
+          },
+          "unauthenticated": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsNestedIdentityPoolUnauthenticatedRole28BCB3F0",
+              "Arn",
+            ],
+          },
+        },
+      },
+      "Type": "AWS::Cognito::IdentityPoolRoleAttachment",
+    },
+    "DefaultsNestedIdentityPoolUnauthenticatedRole28BCB3F0": Object {
+      "DependsOn": Array [
+        "DefaultsNestedUserPool567C619B",
+        "DefaultsNestedUserPoolsmsRole9E53925E",
+        "DefaultsNestedUserPoolUserPoolAuthenticationProviderClient51B6337E",
+        "DefaultsNestedUserPoolWebClient15C5E297",
+      ],
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": Object {
+                "ForAnyValue:StringLike": Object {
+                  "cognito-identity.amazonaws.com:amr": "unauthenticated",
+                },
+                "StringEquals": Object {
+                  "cognito-identity.amazonaws.com:aud": Object {
+                    "Ref": "DefaultsNestedIdentityPool73A8A64B",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Federated": "cognito-identity.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Default Unauthenticated Role for Identity Pool ",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsNestedIdentityPool73A8A64B",
+                  "Name",
+                ],
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsNestedUserPool567C619B": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "AccountRecoverySetting": Object {
+          "RecoveryMechanisms": Array [
+            Object {
+              "Name": "verified_email",
+              "Priority": 1,
+            },
+          ],
+        },
+        "AdminCreateUserConfig": Object {
+          "AllowAdminCreateUserOnly": true,
+        },
+        "AutoVerifiedAttributes": Array [
+          "email",
+        ],
+        "EmailVerificationMessage": "The verification code to your new account is {####}",
+        "EmailVerificationSubject": "Verify your new account",
+        "EnabledMfas": Array [
+          "SMS_MFA",
+        ],
+        "MfaConfiguration": "ON",
+        "Policies": Object {
+          "PasswordPolicy": Object {
+            "MinimumLength": 8,
+            "RequireLowercase": true,
+            "RequireNumbers": true,
+            "RequireSymbols": true,
+            "RequireUppercase": true,
+          },
+        },
+        "SmsConfiguration": Object {
+          "ExternalId": "NestedStackDefaultsNestedUserPoolF08F152B",
+          "SnsCallerArn": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsNestedUserPoolsmsRole9E53925E",
+              "Arn",
+            ],
+          },
+        },
+        "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "UserPoolAddOns": Object {
+          "AdvancedSecurityMode": "ENFORCED",
+        },
+        "VerificationMessageTemplate": Object {
+          "DefaultEmailOption": "CONFIRM_WITH_CODE",
+          "EmailMessage": "The verification code to your new account is {####}",
+          "EmailSubject": "Verify your new account",
+          "SmsMessage": "The verification code to your new account is {####}",
+        },
+      },
+      "Type": "AWS::Cognito::UserPool",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "DefaultsNestedUserPoolUserPoolAuthenticationProviderClient51B6337E": Object {
+      "Properties": Object {
+        "AllowedOAuthFlows": Array [
+          "implicit",
+          "code",
+        ],
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthScopes": Array [
+          "profile",
+          "phone",
+          "email",
+          "openid",
+          "aws.cognito.signin.user.admin",
+        ],
+        "CallbackURLs": Array [
+          "https://example.com",
+        ],
+        "SupportedIdentityProviders": Array [
+          "COGNITO",
+        ],
+        "UserPoolId": Object {
+          "Ref": "DefaultsNestedUserPool567C619B",
+        },
+      },
+      "Type": "AWS::Cognito::UserPoolClient",
+    },
+    "DefaultsNestedUserPoolWebClient15C5E297": Object {
+      "Properties": Object {
+        "AllowedOAuthFlows": Array [
+          "implicit",
+          "code",
+        ],
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthScopes": Array [
+          "profile",
+          "phone",
+          "email",
+          "openid",
+          "aws.cognito.signin.user.admin",
+        ],
+        "CallbackURLs": Array [
+          "https://example.com",
+        ],
+        "ExplicitAuthFlows": Array [
+          "ALLOW_USER_PASSWORD_AUTH",
+          "ALLOW_USER_SRP_AUTH",
+          "ALLOW_REFRESH_TOKEN_AUTH",
+        ],
+        "SupportedIdentityProviders": Array [
+          "COGNITO",
+        ],
+        "UserPoolId": Object {
+          "Ref": "DefaultsNestedUserPool567C619B",
+        },
+      },
+      "Type": "AWS::Cognito::UserPoolClient",
+    },
+    "DefaultsNestedUserPoolsmsRole9E53925E": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                "Resource::*",
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "MFA requires sending a text to a users phone number which cannot be known at deployment time.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Condition": Object {
+                "StringEquals": Object {
+                  "sts:ExternalId": "NestedStackDefaultsNestedUserPoolF08F152B",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "cognito-idp.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": Array [
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Array [
+                Object {
+                  "Action": "sns:Publish",
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "sns-publish",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+  },
+}
+`;
+
 exports[`User Identity Unit Tests Defaults 1`] = `
 Object {
   "Parameters": Object {

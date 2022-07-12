@@ -28,6 +28,7 @@ import {
 } from "aws-cdk-lib/aws-cognito";
 import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
+import { getStackPrefix } from "./nag-helper";
 
 /**
  * Properties which configures the Identity Pool.
@@ -78,9 +79,10 @@ export class UserIdentity extends Construct {
         advancedSecurityMode: "ENFORCED",
       };
 
+      const stack = Stack.of(this);
       NagSuppressions.addResourceSuppressionsByPath(
-        Stack.of(this),
-        `${Stack.of(this).stackName}/${id}/UserPool/smsRole/Resource`,
+        stack,
+        `${getStackPrefix(stack)}${id}/UserPool/smsRole/Resource`,
         [
           {
             id: "AwsSolutions-IAM5",
