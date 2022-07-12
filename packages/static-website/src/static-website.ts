@@ -34,6 +34,7 @@ import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
 import { CloudfrontWebAcl, CloudFrontWebAclProps } from "./cloudfront-web-acl";
+import { getStackPrefix } from "./nag-helper";
 
 const DEFAULT_RUNTIME_CONFIG_FILENAME = "runtime-config.json";
 
@@ -289,7 +290,9 @@ export class StaticWebsite extends Construct {
       ]);
     NagSuppressions.addResourceSuppressionsByPath(
       stack,
-      `${stack.stackName}/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource`,
+      `${getStackPrefix(
+        stack
+      )}Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource`,
       [
         {
           id: "AwsSolutions-L1",
@@ -301,7 +304,9 @@ export class StaticWebsite extends Construct {
     );
     NagSuppressions.addResourceSuppressionsByPath(
       stack,
-      `${stack.stackName}/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource`,
+      `${getStackPrefix(
+        stack
+      )}Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource`,
       [
         {
           id: "AwsSolutions-IAM5",
@@ -313,7 +318,9 @@ export class StaticWebsite extends Construct {
     );
     NagSuppressions.addResourceSuppressionsByPath(
       stack,
-      `${stack.stackName}/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource`,
+      `${getStackPrefix(
+        stack
+      )}Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource`,
       [
         {
           id: "AwsSolutions-IAM4",
