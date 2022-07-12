@@ -131,6 +131,9 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     });
     spec.synth();
 
+    // Delete the lib directory prior to compilation to ensure latest parsed spec json file is copied
+    this.preCompileTask.exec(`rm -rf ${this.libdir}`);
+
     // Parent the generated code with this project's parent for better integration with monorepos
     this.hasParent = !!options.parent;
     const generatedCodeDirRelativeToParent = this.hasParent
