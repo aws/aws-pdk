@@ -62,7 +62,6 @@ export class OpenApiGatewayLambdaApi extends SpecRestApi {
       apiDefinition: ApiDefinition.fromInline(
         prepareApiSpec(scope, spec, props)
       ),
-      cloudWatchRole: false,
       deployOptions: {
         accessLogDestination: new LogGroupLogDestination(
           new LogGroup(scope, `AccessLogs`)
@@ -86,6 +85,21 @@ export class OpenApiGatewayLambdaApi extends SpecRestApi {
         }),
       });
     });
+
+    NagSuppressions.addResourceSuppressions(
+      this,
+      [
+        {
+          id: "AwsSolutions-IAM4",
+          reason:
+            "Cloudwatch Role requires access to create/read groups at the root level.",
+          appliesTo: [
+            "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+          ],
+        },
+      ],
+      true
+    );
 
     NagSuppressions.addResourceSuppressions(
       this,
