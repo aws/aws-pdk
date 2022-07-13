@@ -64,6 +64,12 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         nxCloudReadOnlyAccessToken:
           "OWJmZDJmZmEtNzk5MC00OGJkLTg3YjUtNmNkZDk1MmYxZDZkfHJlYWQ=",
         targetDependencies: {
+          "release:mainline": [
+            {
+              target: "release:mainline",
+              projects: TargetDependencyProject.DEPENDENCIES,
+            },
+          ],
           upgrade: [
             {
               target: "upgrade",

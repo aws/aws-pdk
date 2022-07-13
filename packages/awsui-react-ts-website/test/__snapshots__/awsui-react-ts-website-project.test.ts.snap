@@ -1294,24 +1294,24 @@ Disallow:
  limitations under the License.
  ******************************************************************************************************************** */
 
-import AppLayout, { AppLayoutProps } from \\"@awsui/components-react/app-layout\\";
-import { createContext, useCallback, useMemo, useState } from \\"react\\";
-import { BreadcrumbGroup, BreadcrumbGroupProps, SideNavigation, SideNavigationProps, TopNavigation } from \\"@awsui/components-react\\";
+import { BreadcrumbGroup, BreadcrumbGroupProps, SideNavigation, SideNavigationProps, TopNavigation } from '@awsui/components-react';
+import AppLayout, { AppLayoutProps } from '@awsui/components-react/app-layout';
+import { CancelableEventHandler } from '@awsui/components-react/internal/events';
+import { createContext, useCallback, useMemo, useState } from 'react';
 import {
   Route,
   Routes,
-  useNavigate
-} from \\"react-router-dom\\";
-import { CancelableEventHandler } from \\"@awsui/components-react/internal/events\\";
-import Home from \\"./Home\\";
-import Auth from \\"./Auth\\";
-import Config from \\"./config.json\\";
+  useNavigate,
+} from 'react-router-dom';
+import Auth from './Auth';
+import Config from './config.json';
+import Home from './Home';
 
 /**
  * Define your nav items here.
  */
 const NAVIGATION_ITEMS: SideNavigationProps.Item[] = [
-  {text: \\"home\\", type: \\"link\\", href:\\"/\\"}
+  { text: 'home', type: 'link', href: '/' },
 ];
 
 /**
@@ -1319,12 +1319,12 @@ const NAVIGATION_ITEMS: SideNavigationProps.Item[] = [
  */
 export const AppLayoutContext = createContext({
   appLayoutProps: {},
-  setAppLayoutProps: (_: AppLayoutProps) => {}
+  setAppLayoutProps: (_: AppLayoutProps) => {},
 });
 
 /**
  * Finfs a Nav Item matching the provided href.
- * 
+ *
  * @param href href to search for
  * @param root root nav items to begin search
  * @returns a nav item matching href or undefined.
@@ -1337,8 +1337,8 @@ const findNavItem = (href: string, root?: SideNavigationProps.Item[]): SideNavig
  */
 const App: React.FC = () => {
   const navigate = useNavigate();
-  const [activeHref, setActiveHref] = useState(\\"/\\");
-  const [activeBreadcrumbs, setActiveBreadcrumbs] = useState<BreadcrumbGroupProps.Item[]>([{text: \\"/\\", href: \\"/\\"}]);
+  const [activeHref, setActiveHref] = useState('/');
+  const [activeBreadcrumbs, setActiveBreadcrumbs] = useState<BreadcrumbGroupProps.Item[]>([{ text: '/', href: '/' }]);
   const [appLayoutProps, setAppLayoutProps] = useState<AppLayoutProps>({});
 
   const setAppLayoutPropsSafe = useCallback((props: AppLayoutProps) => {
@@ -1350,7 +1350,7 @@ const App: React.FC = () => {
     setAppLayoutProps({});
     setActiveHref(e.detail.href);
 
-    const segments = ['/', ...e.detail.href.split(\\"/\\").filter(segment => segment !== '')];
+    const segments = ['/', ...e.detail.href.split('/').filter(segment => segment !== '')];
     setActiveBreadcrumbs(segments
       .map((segment, i) => {
         const href = segments.slice(0, i+1).join('/').replace('//', '/');
@@ -1359,17 +1359,17 @@ const App: React.FC = () => {
           text: segment,
         };
       })
-      .filter((item: any) => findNavItem(item?.href, NAVIGATION_ITEMS))
+      .filter((item: any) => findNavItem(item?.href, NAVIGATION_ITEMS)),
     );
-    navigate(e.detail.href);     
+    navigate(e.detail.href);
   }, [navigate, setAppLayoutProps, setActiveBreadcrumbs]);
 
   return (
     <Auth>
       <TopNavigation
-        key={\\"header\\"}
-        i18nStrings={{overflowMenuTitleText: \\"Header\\", overflowMenuTriggerText: \\"Header\\"}}
-        identity={{title: Config.applicationName, href:\\"\\", logo: { src: \\"logo512.png\\" }}}/>
+        key={'header'}
+        i18nStrings={{ overflowMenuTitleText: 'Header', overflowMenuTriggerText: 'Header' }}
+        identity={{ title: Config.applicationName, href: '', logo: { src: 'logo512.png' } }}/>
       <AppLayout
         headerSelector=\\"header\\"
         breadcrumbs={<BreadcrumbGroup
@@ -1378,7 +1378,7 @@ const App: React.FC = () => {
         toolsHide
         navigation={
           <SideNavigation
-            header={{text: Config.applicationName, href: \\"/\\"}}
+            header={{ text: Config.applicationName, href: '/' }}
             activeHref={activeHref}
             onFollow={onNavigate}
             items={NAVIGATION_ITEMS}
@@ -1414,9 +1414,9 @@ export default App;",
  limitations under the License.
  ******************************************************************************************************************** */
 
-import React, { createContext, useCallback, useEffect, useState, useMemo } from \\"react\\";
-import { Amplify } from \\"aws-amplify\\";
-import { Authenticator, ThemeProvider, Theme, useTheme } from \\"@aws-amplify/ui-react\\";
+import { Authenticator, ThemeProvider, Theme, useTheme } from '@aws-amplify/ui-react';
+import { Amplify } from 'aws-amplify';
+import React, { createContext, useCallback, useEffect, useState, useMemo } from 'react';
 
 /**
  * Context for storing the runtimeContext.
@@ -1425,32 +1425,32 @@ export const RuntimeConfigContext = createContext<any>({});
 
 /**
  * Sets up the runtimeContext and Cognito auth.
- * 
+ *
  * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
  * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
  */
-const Auth: React.FC<any> = ({children}) => {
+const Auth: React.FC<any> = ({ children }) => {
   const [runtimeContext, setRuntimeContext] = useState<any>({});
   const [runtimeContextLoaded, setRuntimeContextLoaded] = useState(false);
   const { tokens } = useTheme();
-  
+
   // Customize your login theme
   const theme: Theme = useMemo(() => ({
-    name: \\"AuthTheme\\",
+    name: 'AuthTheme',
     tokens: {
       components: {
         passwordfield: {
           button: {
             _hover: {
               backgroundColor: {
-                value: \\"white\\"
+                value: 'white',
               },
               borderColor: {
-                value: tokens.colors.blue['40'].value
-              }
-            }
-          }
-        }
+                value: tokens.colors.blue['40'].value,
+              },
+            },
+          },
+        },
       },
       colors: {
         background: {
@@ -1463,50 +1463,50 @@ const Auth: React.FC<any> = ({children}) => {
         },
         brand: {
           primary: {
-            '10': tokens.colors.blue['20'],
-            '80': tokens.colors.blue['40'],
-            '90': tokens.colors.blue['40'],
-            '100': tokens.colors.blue['40'],
+            10: tokens.colors.blue['20'],
+            80: tokens.colors.blue['40'],
+            90: tokens.colors.blue['40'],
+            100: tokens.colors.blue['40'],
           },
         },
       },
-    }
+    },
   }), [tokens]);
 
   useEffect(() => {
-    fetch(\\"/runtime-config.json\\")
+    fetch('/runtime-config.json')
       .then(response => response.json())
-      .then(runtimeContext => {
+      .then(runtimeCtx => {
         setRuntimeContext(runtimeContext);
 
-        runtimeContext.region &&
-        runtimeContext.userPoolId &&
-        runtimeContext.userPoolWebClientId &&
-        runtimeContext.identityPoolId &&
+        runtimeCtx.region &&
+        runtimeCtx.userPoolId &&
+        runtimeCtx.userPoolWebClientId &&
+        runtimeCtx.identityPoolId &&
         Amplify.configure({
           Auth: {
-            region: runtimeContext.region,
-            userPoolId: runtimeContext.userPoolId,
-            userPoolWebClientId: runtimeContext.userPoolWebClientId,
-            identityPoolId: runtimeContext.identityPoolId,
-          }
+            region: runtimeCtx.region,
+            userPoolId: runtimeCtx.userPoolId,
+            userPoolWebClientId: runtimeCtx.userPoolWebClientId,
+            identityPoolId: runtimeCtx.identityPoolId,
+          },
         });
       })
       .catch((e) => console.log(e))
       .finally(() => setRuntimeContextLoaded(true));
   }, [setRuntimeContext, setRuntimeContextLoaded]);
 
-  const AuthWrapper: React.FC<any> = useCallback(({children}) => runtimeContext.userPoolId ?
+  const AuthWrapper: React.FC<any> = useCallback(({ _children }) => runtimeContext.userPoolId ?
     <ThemeProvider theme={theme}>
       <Authenticator variation=\\"modal\\" hideSignUp>
-        {children}
+        {_children}
       </Authenticator>
     </ThemeProvider> :
     <>
-    {
-      runtimeContextLoaded ?
-      children : <></> // Don't render anything if the context has not finalized
-    }
+      {
+        runtimeContextLoaded ?
+          _children : <></> // Don't render anything if the context has not finalized
+      }
     </>, [runtimeContext.userPoolId, runtimeContextLoaded, theme]);
 
   return (
@@ -1535,10 +1535,10 @@ export default Auth;",
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { Container } from \\"@awsui/components-react\\";
-import { useContext, useEffect } from \\"react\\";
-import { AppLayoutContext } from \\"./App\\";
-import { RuntimeConfigContext } from \\"./Auth\\";
+import { Container } from '@awsui/components-react';
+import { useContext, useEffect } from 'react';
+import { AppLayoutContext } from './App';
+import { RuntimeConfigContext } from './Auth';
 
 /**
  * Component to render the home \\"/\\" route.
@@ -1553,14 +1553,14 @@ const Home: React.FC = () => {
   }, [setAppLayoutProps]);
 
   return (
-    <Container header={\\"Runtime Config\\"}>
+    <Container header={'Runtime Config'}>
       <RuntimeConfigContext.Consumer>
         { /* Reference runtimeConfig like so */ }
-        {({runtimeContext}) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
+        {({ runtimeContext }) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
       </RuntimeConfigContext.Consumer>
     </Container>
   );
-}
+};
 
 export default Home;",
   "src/config.json": Object {
@@ -1584,13 +1584,13 @@ export default Home;",
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import {
+  BrowserRouter,
+} from 'react-router-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import \\"@awsui/global-styles/index.css\\";
+import '@awsui/global-styles/index.css';
 import '@aws-amplify/ui-react/styles.css';
-import {
-  BrowserRouter
-} from \\"react-router-dom\\";
 
 createRoot(document.getElementById('root')!)
   .render(
@@ -1598,7 +1598,7 @@ createRoot(document.getElementById('root')!)
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 
 // If you want to start measuring performance in your app, pass a function
@@ -1635,7 +1635,7 @@ const reportWebVitals = (onPerfEntry?: ReportHandler) => {
         getLCP(onPerfEntry);
         getTTFB(onPerfEntry);
       },
-      () => {}
+      () => {},
     );
   }
 };
@@ -3047,24 +3047,24 @@ Disallow:
  limitations under the License.
  ******************************************************************************************************************** */
 
-import AppLayout, { AppLayoutProps } from \\"@awsui/components-react/app-layout\\";
-import { createContext, useCallback, useMemo, useState } from \\"react\\";
-import { BreadcrumbGroup, BreadcrumbGroupProps, SideNavigation, SideNavigationProps, TopNavigation } from \\"@awsui/components-react\\";
+import { BreadcrumbGroup, BreadcrumbGroupProps, SideNavigation, SideNavigationProps, TopNavigation } from '@awsui/components-react';
+import AppLayout, { AppLayoutProps } from '@awsui/components-react/app-layout';
+import { CancelableEventHandler } from '@awsui/components-react/internal/events';
+import { createContext, useCallback, useMemo, useState } from 'react';
 import {
   Route,
   Routes,
-  useNavigate
-} from \\"react-router-dom\\";
-import { CancelableEventHandler } from \\"@awsui/components-react/internal/events\\";
-import Home from \\"./Home\\";
-import Auth from \\"./Auth\\";
-import Config from \\"./config.json\\";
+  useNavigate,
+} from 'react-router-dom';
+import Auth from './Auth';
+import Config from './config.json';
+import Home from './Home';
 
 /**
  * Define your nav items here.
  */
 const NAVIGATION_ITEMS: SideNavigationProps.Item[] = [
-  {text: \\"home\\", type: \\"link\\", href:\\"/\\"}
+  { text: 'home', type: 'link', href: '/' },
 ];
 
 /**
@@ -3072,12 +3072,12 @@ const NAVIGATION_ITEMS: SideNavigationProps.Item[] = [
  */
 export const AppLayoutContext = createContext({
   appLayoutProps: {},
-  setAppLayoutProps: (_: AppLayoutProps) => {}
+  setAppLayoutProps: (_: AppLayoutProps) => {},
 });
 
 /**
  * Finfs a Nav Item matching the provided href.
- * 
+ *
  * @param href href to search for
  * @param root root nav items to begin search
  * @returns a nav item matching href or undefined.
@@ -3090,8 +3090,8 @@ const findNavItem = (href: string, root?: SideNavigationProps.Item[]): SideNavig
  */
 const App: React.FC = () => {
   const navigate = useNavigate();
-  const [activeHref, setActiveHref] = useState(\\"/\\");
-  const [activeBreadcrumbs, setActiveBreadcrumbs] = useState<BreadcrumbGroupProps.Item[]>([{text: \\"/\\", href: \\"/\\"}]);
+  const [activeHref, setActiveHref] = useState('/');
+  const [activeBreadcrumbs, setActiveBreadcrumbs] = useState<BreadcrumbGroupProps.Item[]>([{ text: '/', href: '/' }]);
   const [appLayoutProps, setAppLayoutProps] = useState<AppLayoutProps>({});
 
   const setAppLayoutPropsSafe = useCallback((props: AppLayoutProps) => {
@@ -3103,7 +3103,7 @@ const App: React.FC = () => {
     setAppLayoutProps({});
     setActiveHref(e.detail.href);
 
-    const segments = ['/', ...e.detail.href.split(\\"/\\").filter(segment => segment !== '')];
+    const segments = ['/', ...e.detail.href.split('/').filter(segment => segment !== '')];
     setActiveBreadcrumbs(segments
       .map((segment, i) => {
         const href = segments.slice(0, i+1).join('/').replace('//', '/');
@@ -3112,17 +3112,17 @@ const App: React.FC = () => {
           text: segment,
         };
       })
-      .filter((item: any) => findNavItem(item?.href, NAVIGATION_ITEMS))
+      .filter((item: any) => findNavItem(item?.href, NAVIGATION_ITEMS)),
     );
-    navigate(e.detail.href);     
+    navigate(e.detail.href);
   }, [navigate, setAppLayoutProps, setActiveBreadcrumbs]);
 
   return (
     <Auth>
       <TopNavigation
-        key={\\"header\\"}
-        i18nStrings={{overflowMenuTitleText: \\"Header\\", overflowMenuTriggerText: \\"Header\\"}}
-        identity={{title: Config.applicationName, href:\\"\\", logo: { src: \\"logo512.png\\" }}}/>
+        key={'header'}
+        i18nStrings={{ overflowMenuTitleText: 'Header', overflowMenuTriggerText: 'Header' }}
+        identity={{ title: Config.applicationName, href: '', logo: { src: 'logo512.png' } }}/>
       <AppLayout
         headerSelector=\\"header\\"
         breadcrumbs={<BreadcrumbGroup
@@ -3131,7 +3131,7 @@ const App: React.FC = () => {
         toolsHide
         navigation={
           <SideNavigation
-            header={{text: Config.applicationName, href: \\"/\\"}}
+            header={{ text: Config.applicationName, href: '/' }}
             activeHref={activeHref}
             onFollow={onNavigate}
             items={NAVIGATION_ITEMS}
@@ -3167,9 +3167,9 @@ export default App;",
  limitations under the License.
  ******************************************************************************************************************** */
 
-import React, { createContext, useCallback, useEffect, useState, useMemo } from \\"react\\";
-import { Amplify } from \\"aws-amplify\\";
-import { Authenticator, ThemeProvider, Theme, useTheme } from \\"@aws-amplify/ui-react\\";
+import { Authenticator, ThemeProvider, Theme, useTheme } from '@aws-amplify/ui-react';
+import { Amplify } from 'aws-amplify';
+import React, { createContext, useCallback, useEffect, useState, useMemo } from 'react';
 
 /**
  * Context for storing the runtimeContext.
@@ -3178,32 +3178,32 @@ export const RuntimeConfigContext = createContext<any>({});
 
 /**
  * Sets up the runtimeContext and Cognito auth.
- * 
+ *
  * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
  * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
  */
-const Auth: React.FC<any> = ({children}) => {
+const Auth: React.FC<any> = ({ children }) => {
   const [runtimeContext, setRuntimeContext] = useState<any>({});
   const [runtimeContextLoaded, setRuntimeContextLoaded] = useState(false);
   const { tokens } = useTheme();
-  
+
   // Customize your login theme
   const theme: Theme = useMemo(() => ({
-    name: \\"AuthTheme\\",
+    name: 'AuthTheme',
     tokens: {
       components: {
         passwordfield: {
           button: {
             _hover: {
               backgroundColor: {
-                value: \\"white\\"
+                value: 'white',
               },
               borderColor: {
-                value: tokens.colors.blue['40'].value
-              }
-            }
-          }
-        }
+                value: tokens.colors.blue['40'].value,
+              },
+            },
+          },
+        },
       },
       colors: {
         background: {
@@ -3216,50 +3216,50 @@ const Auth: React.FC<any> = ({children}) => {
         },
         brand: {
           primary: {
-            '10': tokens.colors.blue['20'],
-            '80': tokens.colors.blue['40'],
-            '90': tokens.colors.blue['40'],
-            '100': tokens.colors.blue['40'],
+            10: tokens.colors.blue['20'],
+            80: tokens.colors.blue['40'],
+            90: tokens.colors.blue['40'],
+            100: tokens.colors.blue['40'],
           },
         },
       },
-    }
+    },
   }), [tokens]);
 
   useEffect(() => {
-    fetch(\\"/runtime-config.json\\")
+    fetch('/runtime-config.json')
       .then(response => response.json())
-      .then(runtimeContext => {
+      .then(runtimeCtx => {
         setRuntimeContext(runtimeContext);
 
-        runtimeContext.region &&
-        runtimeContext.userPoolId &&
-        runtimeContext.userPoolWebClientId &&
-        runtimeContext.identityPoolId &&
+        runtimeCtx.region &&
+        runtimeCtx.userPoolId &&
+        runtimeCtx.userPoolWebClientId &&
+        runtimeCtx.identityPoolId &&
         Amplify.configure({
           Auth: {
-            region: runtimeContext.region,
-            userPoolId: runtimeContext.userPoolId,
-            userPoolWebClientId: runtimeContext.userPoolWebClientId,
-            identityPoolId: runtimeContext.identityPoolId,
-          }
+            region: runtimeCtx.region,
+            userPoolId: runtimeCtx.userPoolId,
+            userPoolWebClientId: runtimeCtx.userPoolWebClientId,
+            identityPoolId: runtimeCtx.identityPoolId,
+          },
         });
       })
       .catch((e) => console.log(e))
       .finally(() => setRuntimeContextLoaded(true));
   }, [setRuntimeContext, setRuntimeContextLoaded]);
 
-  const AuthWrapper: React.FC<any> = useCallback(({children}) => runtimeContext.userPoolId ?
+  const AuthWrapper: React.FC<any> = useCallback(({ _children }) => runtimeContext.userPoolId ?
     <ThemeProvider theme={theme}>
       <Authenticator variation=\\"modal\\" hideSignUp>
-        {children}
+        {_children}
       </Authenticator>
     </ThemeProvider> :
     <>
-    {
-      runtimeContextLoaded ?
-      children : <></> // Don't render anything if the context has not finalized
-    }
+      {
+        runtimeContextLoaded ?
+          _children : <></> // Don't render anything if the context has not finalized
+      }
     </>, [runtimeContext.userPoolId, runtimeContextLoaded, theme]);
 
   return (
@@ -3288,10 +3288,10 @@ export default Auth;",
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { Container } from \\"@awsui/components-react\\";
-import { useContext, useEffect } from \\"react\\";
-import { AppLayoutContext } from \\"./App\\";
-import { RuntimeConfigContext } from \\"./Auth\\";
+import { Container } from '@awsui/components-react';
+import { useContext, useEffect } from 'react';
+import { AppLayoutContext } from './App';
+import { RuntimeConfigContext } from './Auth';
 
 /**
  * Component to render the home \\"/\\" route.
@@ -3306,14 +3306,14 @@ const Home: React.FC = () => {
   }, [setAppLayoutProps]);
 
   return (
-    <Container header={\\"Runtime Config\\"}>
+    <Container header={'Runtime Config'}>
       <RuntimeConfigContext.Consumer>
         { /* Reference runtimeConfig like so */ }
-        {({runtimeContext}) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
+        {({ runtimeContext }) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
       </RuntimeConfigContext.Consumer>
     </Container>
   );
-}
+};
 
 export default Home;",
   "src/config.json": Object {
@@ -3337,13 +3337,13 @@ export default Home;",
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import {
+  BrowserRouter,
+} from 'react-router-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import \\"@awsui/global-styles/index.css\\";
+import '@awsui/global-styles/index.css';
 import '@aws-amplify/ui-react/styles.css';
-import {
-  BrowserRouter
-} from \\"react-router-dom\\";
 
 createRoot(document.getElementById('root')!)
   .render(
@@ -3351,7 +3351,7 @@ createRoot(document.getElementById('root')!)
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 
 // If you want to start measuring performance in your app, pass a function
@@ -3388,7 +3388,7 @@ const reportWebVitals = (onPerfEntry?: ReportHandler) => {
         getLCP(onPerfEntry);
         getTTFB(onPerfEntry);
       },
-      () => {}
+      () => {},
     );
   }
 };
