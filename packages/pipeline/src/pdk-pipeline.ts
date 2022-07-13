@@ -14,6 +14,7 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
+import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { CfnOutput, RemovalPolicy, Stack } from "aws-cdk-lib";
 import { Repository } from "aws-cdk-lib/aws-codecommit";
 import { Pipeline } from "aws-cdk-lib/aws-codepipeline";
@@ -31,7 +32,6 @@ import {
 } from "aws-cdk-lib/pipelines";
 import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
-import { PDKNag } from "../../pdk-nag";
 import {
   SonarCodeScanner,
   SonarCodeScannerConfig,
@@ -173,8 +173,6 @@ export class PDKPipeline extends CodePipeline {
       exportName: "CodeRepositoryGRCUrl",
       value: this.codeRepository.repositoryCloneUrlGrc,
     });
-
-    this.buildPipeline();
   }
 
   buildPipeline() {
@@ -195,7 +193,7 @@ export class PDKPipeline extends CodePipeline {
   suppressCDKViolations() {
     const stack = Stack.of(this);
 
-    NagSuppressions.addResourceSuppressionsByPath(
+    PDKNag.addResourceSuppressionsByPathNoThrow(
       stack,
       `${PDKNag.getStackPrefix(stack)}CodePipeline/Role/DefaultPolicy/Resource`,
       [
@@ -222,7 +220,7 @@ export class PDKPipeline extends CodePipeline {
       ]
     );
 
-    NagSuppressions.addResourceSuppressionsByPath(
+    PDKNag.addResourceSuppressionsByPathNoThrow(
       stack,
       `${PDKNag.getStackPrefix(
         stack
@@ -251,7 +249,7 @@ export class PDKPipeline extends CodePipeline {
       ]
     );
 
-    NagSuppressions.addResourceSuppressionsByPath(
+    PDKNag.addResourceSuppressionsByPathNoThrow(
       stack,
       `${PDKNag.getStackPrefix(
         stack
@@ -283,8 +281,13 @@ export class PDKPipeline extends CodePipeline {
             "CodePipeline requires access to manage logs and streams whose names are dynamically determined.",
           appliesTo: [
             {
-              regex:
-                "/^Resource::arn:<AWS::Partition>:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/codebuild/<CodePipelineBuildSynthCdkBuildProject.*>:\\*$/g",
+              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                stack
+              )}:logs:${PDKNag.getStackRegionRegex(
+                stack
+              )}:${PDKNag.getStackAccountRegex(
+                stack
+              )}:log-group:/aws/codebuild/<CodePipelineBuildSynthCdkBuildProject.*>:\\*$/g`,
             },
           ],
         },
@@ -294,15 +297,20 @@ export class PDKPipeline extends CodePipeline {
             "CodePipeline requires access to create report groups that are dynamically determined.",
           appliesTo: [
             {
-              regex:
-                "/^Resource::arn:<AWS::Partition>:codebuild:<AWS::Region>:<AWS::AccountId>:report-group/<CodePipelineBuildSynthCdkBuildProject.*>-\\*$/g",
+              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                stack
+              )}:codebuild:${PDKNag.getStackRegionRegex(
+                stack
+              )}:${PDKNag.getStackAccountRegex(
+                stack
+              )}:report-group/<CodePipelineBuildSynthCdkBuildProject.*>-\\*$/g`,
             },
           ],
         },
       ]
     );
 
-    NagSuppressions.addResourceSuppressionsByPath(
+    PDKNag.addResourceSuppressionsByPathNoThrow(
       stack,
       `${PDKNag.getStackPrefix(stack)}${
         this.id
@@ -311,20 +319,18 @@ export class PDKPipeline extends CodePipeline {
         {
           id: "AwsSolutions-IAM5",
           reason:
-            "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
-          appliesTo: [
-            {
-              regex: "/^Action::s3:.*$/g",
-            },
-          ],
-        },
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
             "CodePipeline requires access to manage logs and streams whose names are dynamically determined.",
           appliesTo: [
             {
-              regex: `/^Resource::arn:<AWS::Partition>:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/codebuild/<${this.id}UpdatePipelineSelfMutation.*>:\\*$/g`,
+              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                stack
+              )}:logs:${PDKNag.getStackRegionRegex(
+                stack
+              )}:${PDKNag.getStackAccountRegex(
+                stack
+              )}:log-group:/aws/codebuild/<${
+                this.id
+              }UpdatePipelineSelfMutation.*>:\\*$/g`,
             },
           ],
         },
@@ -334,7 +340,13 @@ export class PDKPipeline extends CodePipeline {
             "CodePipeline requires access to create report groups that are dynamically determined.",
           appliesTo: [
             {
-              regex: `/^Resource::arn:<AWS::Partition>:codebuild:<AWS::Region>:<AWS::AccountId>:report-group/<${this.id}UpdatePipelineSelfMutation.*>-\\*$/g`,
+              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                stack
+              )}:codebuild:${PDKNag.getStackRegionRegex(
+                stack
+              )}:${PDKNag.getStackAccountRegex(stack)}:report-group/<${
+                this.id
+              }UpdatePipelineSelfMutation.*>-\\*$/g`,
             },
           ],
         },
@@ -344,7 +356,9 @@ export class PDKPipeline extends CodePipeline {
             "CodePipeline requires access to assume a role from within the current account in order to deploy.",
           appliesTo: [
             {
-              regex: "/^Resource::arn:\\*:iam::<AWS::AccountId>:role/\\*$/g",
+              regex: `/^Resource::arn:\\*:iam::${PDKNag.getStackAccountRegex(
+                stack
+              )}:role/\\*$/g`,
             },
           ],
         },
@@ -371,30 +385,107 @@ export class PDKPipeline extends CodePipeline {
       ]
     );
 
-    NagSuppressions.addResourceSuppressionsByPath(
+    PDKNag.addResourceSuppressionsByPathNoThrow(
       stack,
-      `${PDKNag.getStackPrefix(
-        stack
-      )}CodePipeline/Build/Synth/CdkBuildProject/Resource`,
+      `${PDKNag.getStackPrefix(stack)}${
+        this.id
+      }/UpdatePipeline/SelfMutation/Role/DefaultPolicy/Resource`,
       [
         {
-          id: "AwsSolutions-CB4",
-          reason: "Encryption of Codebuild is not required.",
+          id: "AwsSolutions-IAM5",
+          reason:
+            "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
+          appliesTo: [
+            {
+              regex: "/^Action::s3:.*$/g",
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to manage logs and streams whose names are dynamically determined.",
+          appliesTo: [
+            {
+              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                stack
+              )}:logs:${PDKNag.getStackRegionRegex(stack)}:(<AWS::AccountId>|${
+                stack.account
+              }):log-group:/aws/codebuild/<${
+                this.id
+              }UpdatePipelineSelfMutation.*>:\\*$/g`,
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to create report groups that are dynamically determined.",
+          appliesTo: [
+            {
+              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                stack
+              )}:codebuild:${PDKNag.getStackRegionRegex(
+                stack
+              )}:${PDKNag.getStackAccountRegex(stack)}:report-group/<${
+                this.id
+              }UpdatePipelineSelfMutation.*>-\\*$/g`,
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to assume a role from within the current account in order to deploy.",
+          appliesTo: [
+            {
+              regex: `/^Resource::arn:\\*:iam::${PDKNag.getStackAccountRegex(
+                stack
+              )}:role/\\*$/g`,
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+          appliesTo: [
+            {
+              regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*$/g",
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to list all buckets and stacks.",
+          appliesTo: [
+            {
+              regex: "/^Resource::\\*$/g",
+            },
+          ],
         },
       ]
     );
 
-    NagSuppressions.addResourceSuppressionsByPath(
+    PDKNag.addResourceSuppressionsByPathNoThrow(
       stack,
       `${PDKNag.getStackPrefix(stack)}${
         this.id
-      }/UpdatePipeline/SelfMutation/Resource`,
+      }/Assets/FileRole/DefaultPolicy/Resource`,
       [
         {
-          id: "AwsSolutions-CB4",
-          reason: "Encryption of Codebuild is not required.",
+          id: "AwsSolutions-IAM5",
+          reason: "Asset role requires access to the Artifacts Bucket",
         },
       ]
     );
+
+    NagSuppressions.addStackSuppressions(stack, [
+      {
+        id: "AwsSolutions-CB4",
+        reason: "Encryption of Codebuild is not required.",
+      },
+    ]);
   }
 }

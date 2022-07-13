@@ -21,7 +21,11 @@ import {
   StageSynthesisOptions,
 } from "aws-cdk-lib";
 import { CloudAssembly } from "aws-cdk-lib/cx-api";
-import { AwsSolutionsChecks } from "cdk-nag";
+import {
+  AwsSolutionsChecks,
+  NagPackSuppression,
+  NagSuppressions,
+} from "cdk-nag";
 import { IConstruct } from "constructs";
 
 const CDK_NAG_MESSAGE_TYPES = {
@@ -172,6 +176,32 @@ export class PDKNag {
   }
 
   /**
+   * Wrapper around NagSuppressions which does not throw.
+   *
+   * @param stack stack instance
+   * @param path resource path
+   * @param suppressions list of suppressions to apply.
+   * @param applyToChildren whether to apply to children.
+   */
+  public static addResourceSuppressionsByPathNoThrow(
+    stack: Stack,
+    path: string,
+    suppressions: NagPackSuppression[],
+    applyToChildren: boolean = false
+  ): void {
+    try {
+      NagSuppressions.addResourceSuppressionsByPath(
+        stack,
+        path,
+        suppressions,
+        applyToChildren
+      );
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+  /**
    * Returns a prefix comprising of a delimited set of Stack Ids.
    *
    * For example: StackA/NestedStackB/
@@ -185,6 +215,51 @@ export class PDKNag {
       }/`;
     } else {
       return `${stack.stackName}/`;
+    }
+  }
+
+  /**
+   * Returns a stack partition regex.
+   *
+   * @param stack stack instance.
+   */
+  public static getStackPartitionRegex(stack: Stack): string {
+    if (stack.nested) {
+      return PDKNag.getStackPartitionRegex(stack.nestedStackParent!);
+    } else {
+      return stack.partition.startsWith("${Token")
+        ? "<AWS::Partition>"
+        : `(<AWS::Partition>|${stack.partition})`;
+    }
+  }
+
+  /**
+   * Returns a stack region regex.
+   *
+   * @param stack stack instance.
+   */
+  public static getStackRegionRegex(stack: Stack): string {
+    if (stack.nested) {
+      return PDKNag.getStackRegionRegex(stack.nestedStackParent!);
+    } else {
+      return stack.region.startsWith("${Token")
+        ? "<AWS::Region>"
+        : `(<AWS::Region>|${stack.region})`;
+    }
+  }
+
+  /**
+   * Returns a stack account regex.
+   *
+   * @param stack stack instance.
+   */
+  public static getStackAccountRegex(stack: Stack): string {
+    if (stack.nested) {
+      return PDKNag.getStackAccountRegex(stack.nestedStackParent!);
+    } else {
+      return stack.account.startsWith("${Token")
+        ? "<AWS::AccountId>"
+        : `(<AWS::AccountId>|${stack.account})`;
     }
   }
 }

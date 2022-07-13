@@ -201,8 +201,9 @@ export class CloudfrontWebAcl extends Construct {
             "WafV2 resources have been scoped down to the ACL/IPSet level, however * is still needed as resource id's are created just in time.",
           appliesTo: [
             {
-              regex:
-                "/^Resource::arn:aws:wafv2:us-east-1:<AWS::AccountId>:global/(.*)$/g",
+              regex: `/^Resource::arn:aws:wafv2:us-east-1:${PDKNag.getStackAccountRegex(
+                stack
+              )}:global/(.*)$/g`,
             },
           ],
         },
@@ -212,7 +213,11 @@ export class CloudfrontWebAcl extends Construct {
             "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
           appliesTo: [
             {
-              regex: `/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/${onEventHandlerName}:\*/g`,
+              regex: `/^Resource::arn:aws:logs:${PDKNag.getStackRegionRegex(
+                stack
+              )}:${PDKNag.getStackAccountRegex(
+                stack
+              )}:log-group:/aws/lambda/${onEventHandlerName}:\*/g`,
             },
           ],
         },

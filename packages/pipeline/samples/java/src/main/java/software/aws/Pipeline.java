@@ -1,13 +1,14 @@
 package software.aws;
 
-import software.amazon.awscdk.App;
+import software.aws.awsprototypingsdk.pdknag.PDKNagApp;
+import software.aws.awsprototypingsdk.pdknag.PDKNag;
 import software.amazon.awscdk.Environment;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.StageProps;
 
 public class Pipeline {
     public static void main(String[] args) {
-        App app = new App();
+        PDKNagApp app = PDKNag.app();
         PipelineStack pipelineStack = new PipelineStack(app, "PipelineStack", StackProps.builder()
                 .env(Environment.builder()
                         .account(System.getenv("CDK_DEFAULT_ACCOUNT"))
@@ -26,6 +27,7 @@ public class Pipeline {
 
         // Add additional stages here i.e. Prod
 
+        pipelineStack.getPipeline().buildPipeline(); // Needed for CDK Nag
         app.synth();
     }
 }

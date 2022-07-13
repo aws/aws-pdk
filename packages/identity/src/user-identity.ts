@@ -27,7 +27,6 @@ import {
   UserPool,
   UserPoolClient,
 } from "aws-cdk-lib/aws-cognito";
-import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
 
 /**
@@ -80,7 +79,7 @@ export class UserIdentity extends Construct {
       };
 
       const stack = Stack.of(this);
-      NagSuppressions.addResourceSuppressionsByPath(
+      PDKNag.addResourceSuppressionsByPathNoThrow(
         stack,
         `${PDKNag.getStackPrefix(stack)}${id}/UserPool/smsRole/Resource`,
         [

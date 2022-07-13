@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { RemovalPolicy, Stack } from "aws-cdk-lib";
 import {
@@ -288,51 +289,42 @@ export class StaticWebsite extends Construct {
             "Certificate is not mandatory therefore the Cloudfront certificate will be used.",
         },
       ]);
-    NagSuppressions.addResourceSuppressionsByPath(
-      stack,
-      `${PDKNag.getStackPrefix(
-        stack
-      )}Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource`,
-      [
-        {
-          id: "AwsSolutions-L1",
-          reason:
-            "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-        },
-      ],
-      false
-    );
-    NagSuppressions.addResourceSuppressionsByPath(
-      stack,
-      `${PDKNag.getStackPrefix(
-        stack
-      )}Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource`,
-      [
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
-            "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-        },
-      ],
-      false
-    );
-    NagSuppressions.addResourceSuppressionsByPath(
-      stack,
-      `${PDKNag.getStackPrefix(
-        stack
-      )}Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource`,
-      [
-        {
-          id: "AwsSolutions-IAM4",
-          reason:
-            "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-          appliesTo: [
-            "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-          ],
-        },
-      ],
-      false
-    );
+    NagSuppressions.addStackSuppressions(stack, [
+      {
+        id: "AwsSolutions-L1",
+        reason:
+          "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+      },
+    ]);
+    NagSuppressions.addStackSuppressions(stack, [
+      {
+        id: "AwsSolutions-IAM5",
+        reason:
+          "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+        appliesTo: [
+          {
+            regex: "/^Action::s3:.*$/g",
+          },
+          {
+            regex: `/^Resource::.*$/g`,
+          },
+        ],
+      },
+    ]);
+    NagSuppressions.addStackSuppressions(stack, [
+      {
+        id: "AwsSolutions-IAM4",
+        reason:
+          "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+        appliesTo: [
+          {
+            regex: `/^Policy::arn:${PDKNag.getStackPartitionRegex(
+              stack
+            )}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g`,
+          },
+        ],
+      },
+    ]);
   };
 }
 
