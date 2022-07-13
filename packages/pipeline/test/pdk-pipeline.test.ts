@@ -35,7 +35,7 @@ describe("PDK Pipeline Unit Tests", () => {
     const stage = new Stage(app, "Stage");
     const appStack = new Stack(stage, "AppStack");
     new Asset(appStack, "Asset", {
-      path: path.join(__dirname, "__snapshots__"),
+      path: path.join(__dirname, "pdk-pipeline.test.ts"),
     });
 
     pipeline.addStage(stage);
