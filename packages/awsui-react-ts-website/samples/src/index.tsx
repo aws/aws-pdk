@@ -16,13 +16,13 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import {
+  BrowserRouter,
+} from 'react-router-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import "@awsui/global-styles/index.css";
+import '@awsui/global-styles/index.css';
 import '@aws-amplify/ui-react/styles.css';
-import {
-  BrowserRouter
-} from "react-router-dom";
 
 createRoot(document.getElementById('root')!)
   .render(
@@ -30,7 +30,7 @@ createRoot(document.getElementById('root')!)
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 
 // If you want to start measuring performance in your app, pass a function

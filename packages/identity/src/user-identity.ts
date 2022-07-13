@@ -18,6 +18,7 @@ import {
   IdentityPoolProps,
   UserPoolAuthenticationProvider,
 } from "@aws-cdk/aws-cognito-identitypool-alpha";
+import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { Stack } from "aws-cdk-lib";
 import {
   AccountRecovery,
@@ -28,7 +29,6 @@ import {
 } from "aws-cdk-lib/aws-cognito";
 import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
-import { getStackPrefix } from "./nag-helper";
 
 /**
  * Properties which configures the Identity Pool.
@@ -82,7 +82,7 @@ export class UserIdentity extends Construct {
       const stack = Stack.of(this);
       NagSuppressions.addResourceSuppressionsByPath(
         stack,
-        `${getStackPrefix(stack)}${id}/UserPool/smsRole/Resource`,
+        `${PDKNag.getStackPrefix(stack)}${id}/UserPool/smsRole/Resource`,
         [
           {
             id: "AwsSolutions-IAM5",

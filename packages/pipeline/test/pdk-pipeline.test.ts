@@ -13,21 +13,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import { Stack } from "aws-cdk-lib";
 
-/**
- * Returns a prefix comprising of a delimited set of Stack Ids.
- *
- * For example: StackA/NestedStackB/
- *
- * TODO: Move this into a shared helper library.
- *
- * @param stack stack instance.
- */
-export const getStackPrefix = (stack: Stack): string => {
-  if (stack.nested) {
-    return `${getStackPrefix(stack.nestedStackParent!)}${stack.node.id}/`;
-  } else {
-    return `${stack.stackName}/`;
-  }
-};
+import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
+import { Stack } from "aws-cdk-lib";
+import { Template } from "aws-cdk-lib/assertions";
+import { PDKPipeline } from "../src";
+
+describe("PDK Pipeline Unit Tests", () => {
+  it("Defaults", () => {
+    const stack = new Stack(PDKNag.app());
+
+    new PDKPipeline(stack, "Defaults", {
+      primarySynthDirectory: "cdk.out",
+      repositoryName: "Defaults",
+      synth: {},
+    });
+
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+});

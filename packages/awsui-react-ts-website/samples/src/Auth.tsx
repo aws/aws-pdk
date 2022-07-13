@@ -14,9 +14,9 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import React, { createContext, useCallback, useEffect, useState, useMemo } from "react";
-import { Amplify } from "aws-amplify";
-import { Authenticator, ThemeProvider, Theme, useTheme } from "@aws-amplify/ui-react";
+import { Authenticator, ThemeProvider, Theme, useTheme } from '@aws-amplify/ui-react';
+import { Amplify } from 'aws-amplify';
+import React, { createContext, useCallback, useEffect, useState, useMemo } from 'react';
 
 /**
  * Context for storing the runtimeContext.
@@ -25,32 +25,32 @@ export const RuntimeConfigContext = createContext<any>({});
 
 /**
  * Sets up the runtimeContext and Cognito auth.
- * 
+ *
  * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
  * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
  */
-const Auth: React.FC<any> = ({children}) => {
+const Auth: React.FC<any> = ({ children }) => {
   const [runtimeContext, setRuntimeContext] = useState<any>({});
   const [runtimeContextLoaded, setRuntimeContextLoaded] = useState(false);
   const { tokens } = useTheme();
-  
+
   // Customize your login theme
   const theme: Theme = useMemo(() => ({
-    name: "AuthTheme",
+    name: 'AuthTheme',
     tokens: {
       components: {
         passwordfield: {
           button: {
             _hover: {
               backgroundColor: {
-                value: "white"
+                value: 'white',
               },
               borderColor: {
-                value: tokens.colors.blue['40'].value
-              }
-            }
-          }
-        }
+                value: tokens.colors.blue['40'].value,
+              },
+            },
+          },
+        },
       },
       colors: {
         background: {
@@ -63,50 +63,50 @@ const Auth: React.FC<any> = ({children}) => {
         },
         brand: {
           primary: {
-            '10': tokens.colors.blue['20'],
-            '80': tokens.colors.blue['40'],
-            '90': tokens.colors.blue['40'],
-            '100': tokens.colors.blue['40'],
+            10: tokens.colors.blue['20'],
+            80: tokens.colors.blue['40'],
+            90: tokens.colors.blue['40'],
+            100: tokens.colors.blue['40'],
           },
         },
       },
-    }
+    },
   }), [tokens]);
 
   useEffect(() => {
-    fetch("/runtime-config.json")
+    fetch('/runtime-config.json')
       .then(response => response.json())
-      .then(runtimeContext => {
+      .then(runtimeCtx => {
         setRuntimeContext(runtimeContext);
 
-        runtimeContext.region &&
-        runtimeContext.userPoolId &&
-        runtimeContext.userPoolWebClientId &&
-        runtimeContext.identityPoolId &&
+        runtimeCtx.region &&
+        runtimeCtx.userPoolId &&
+        runtimeCtx.userPoolWebClientId &&
+        runtimeCtx.identityPoolId &&
         Amplify.configure({
           Auth: {
-            region: runtimeContext.region,
-            userPoolId: runtimeContext.userPoolId,
-            userPoolWebClientId: runtimeContext.userPoolWebClientId,
-            identityPoolId: runtimeContext.identityPoolId,
-          }
+            region: runtimeCtx.region,
+            userPoolId: runtimeCtx.userPoolId,
+            userPoolWebClientId: runtimeCtx.userPoolWebClientId,
+            identityPoolId: runtimeCtx.identityPoolId,
+          },
         });
       })
       .catch((e) => console.log(e))
       .finally(() => setRuntimeContextLoaded(true));
   }, [setRuntimeContext, setRuntimeContextLoaded]);
 
-  const AuthWrapper: React.FC<any> = useCallback(({children}) => runtimeContext.userPoolId ?
+  const AuthWrapper: React.FC<any> = useCallback(({ _children }) => runtimeContext.userPoolId ?
     <ThemeProvider theme={theme}>
       <Authenticator variation="modal" hideSignUp>
-        {children}
+        {_children}
       </Authenticator>
     </ThemeProvider> :
     <>
-    {
-      runtimeContextLoaded ?
-      children : <></> // Don't render anything if the context has not finalized
-    }
+      {
+        runtimeContextLoaded ?
+          _children : <></> // Don't render anything if the context has not finalized
+      }
     </>, [runtimeContext.userPoolId, runtimeContextLoaded, theme]);
 
   return (

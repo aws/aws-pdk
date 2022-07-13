@@ -14,10 +14,10 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { Container } from "@awsui/components-react";
-import { useContext, useEffect } from "react";
-import { AppLayoutContext } from "./App";
-import { RuntimeConfigContext } from "./Auth";
+import { Container } from '@awsui/components-react';
+import { useContext, useEffect } from 'react';
+import { AppLayoutContext } from './App';
+import { RuntimeConfigContext } from './Auth';
 
 /**
  * Component to render the home "/" route.
@@ -32,13 +32,13 @@ const Home: React.FC = () => {
   }, [setAppLayoutProps]);
 
   return (
-    <Container header={"Runtime Config"}>
+    <Container header={'Runtime Config'}>
       <RuntimeConfigContext.Consumer>
         { /* Reference runtimeConfig like so */ }
-        {({runtimeContext}) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
+        {({ runtimeContext }) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
       </RuntimeConfigContext.Consumer>
     </Container>
   );
-}
+};
 
 export default Home;

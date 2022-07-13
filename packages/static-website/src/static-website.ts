@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { RemovalPolicy, Stack } from "aws-cdk-lib";
 import {
   Distribution,
@@ -34,7 +35,6 @@ import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
 import { CloudfrontWebAcl, CloudFrontWebAclProps } from "./cloudfront-web-acl";
-import { getStackPrefix } from "./nag-helper";
 
 const DEFAULT_RUNTIME_CONFIG_FILENAME = "runtime-config.json";
 
@@ -290,7 +290,7 @@ export class StaticWebsite extends Construct {
       ]);
     NagSuppressions.addResourceSuppressionsByPath(
       stack,
-      `${getStackPrefix(
+      `${PDKNag.getStackPrefix(
         stack
       )}Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource`,
       [
@@ -304,7 +304,7 @@ export class StaticWebsite extends Construct {
     );
     NagSuppressions.addResourceSuppressionsByPath(
       stack,
-      `${getStackPrefix(
+      `${PDKNag.getStackPrefix(
         stack
       )}Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource`,
       [
@@ -318,7 +318,7 @@ export class StaticWebsite extends Construct {
     );
     NagSuppressions.addResourceSuppressionsByPath(
       stack,
-      `${getStackPrefix(
+      `${PDKNag.getStackPrefix(
         stack
       )}Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource`,
       [

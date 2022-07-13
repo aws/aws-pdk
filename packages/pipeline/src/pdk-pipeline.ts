@@ -14,8 +14,14 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { CfnOutput, RemovalPolicy } from "aws-cdk-lib";
+import { CfnOutput, RemovalPolicy, Stack } from "aws-cdk-lib";
 import { Repository } from "aws-cdk-lib/aws-codecommit";
+import { Pipeline } from "aws-cdk-lib/aws-codepipeline";
+import {
+  BlockPublicAccess,
+  Bucket,
+  BucketEncryption,
+} from "aws-cdk-lib/aws-s3";
 import {
   CodePipeline,
   CodePipelineProps,
@@ -23,7 +29,9 @@ import {
   ShellStep,
   ShellStepProps,
 } from "aws-cdk-lib/pipelines";
+import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
+import { PDKNag } from "../../pdk-nag";
 import {
   SonarCodeScanner,
   SonarCodeScannerConfig,
@@ -92,6 +100,7 @@ export interface PDKPipelineProps extends CodePipelineProps {
 export class PDKPipeline extends CodePipeline {
   readonly codeRepository: Repository;
   private readonly sonarCodeScannerConfig?: SonarCodeScannerConfig;
+  private readonly id: string;
 
   public constructor(scope: Construct, id: string, props: PDKPipelineProps) {
     const codeRepository = new Repository(scope, "CodeRepository", {
@@ -100,6 +109,23 @@ export class PDKPipeline extends CodePipeline {
     codeRepository.applyRemovalPolicy(
       props.codeCommitRemovalPolicy ?? RemovalPolicy.RETAIN
     );
+
+    const artifactBucket = new Bucket(scope, "ArtifactsBucket", {
+      enforceSSL: true,
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      encryption: BucketEncryption.S3_MANAGED,
+      publicReadAccess: false,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      serverAccessLogsPrefix: "access-logs",
+    });
+
+    const codePipeline = new Pipeline(scope, "CodePipeline", {
+      enableKeyRotation: true,
+      restartExecutionOnUpdate: true,
+      crossAccountKeys: props.crossAccountKeys,
+      artifactBucket,
+    });
 
     // ignore input and primaryOutputDirectory
     const {
@@ -126,12 +152,15 @@ export class PDKPipeline extends CodePipeline {
     synthShellStep.addOutputDirectory(".");
 
     const codePipelineProps: CodePipelineProps = {
+      codePipeline,
       ...props,
+      crossAccountKeys: undefined,
       synth: synthShellStep,
     };
 
     super(scope, id, codePipelineProps);
 
+    this.id = id;
     this.codeRepository = codeRepository;
     this.sonarCodeScannerConfig = props.sonarCodeScannerConfig
       ? {
@@ -144,6 +173,8 @@ export class PDKPipeline extends CodePipeline {
       exportName: "CodeRepositoryGRCUrl",
       value: this.codeRepository.repositoryCloneUrlGrc,
     });
+
+    this.buildPipeline();
   }
 
   buildPipeline() {
@@ -157,5 +188,213 @@ export class PDKPipeline extends CodePipeline {
         synthBuildArn: this.synthProject.projectArn,
         ...this.sonarCodeScannerConfig,
       });
+
+    this.suppressCDKViolations();
+  }
+
+  suppressCDKViolations() {
+    const stack = Stack.of(this);
+
+    NagSuppressions.addResourceSuppressionsByPath(
+      stack,
+      `${PDKNag.getStackPrefix(stack)}CodePipeline/Role/DefaultPolicy/Resource`,
+      [
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
+          appliesTo: [
+            {
+              regex: "/^Action::s3:.*$/g",
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+          appliesTo: [
+            {
+              regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*$/g",
+            },
+          ],
+        },
+      ]
+    );
+
+    NagSuppressions.addResourceSuppressionsByPath(
+      stack,
+      `${PDKNag.getStackPrefix(
+        stack
+      )}CodePipeline/Source/CodeCommit/CodePipelineActionRole/DefaultPolicy/Resource`,
+      [
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
+          appliesTo: [
+            {
+              regex: "/^Action::s3:.*$/g",
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+          appliesTo: [
+            {
+              regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*$/g",
+            },
+          ],
+        },
+      ]
+    );
+
+    NagSuppressions.addResourceSuppressionsByPath(
+      stack,
+      `${PDKNag.getStackPrefix(
+        stack
+      )}CodePipeline/Build/Synth/CdkBuildProject/Role/DefaultPolicy/Resource`,
+      [
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
+          appliesTo: [
+            {
+              regex: "/^Action::s3:.*$/g",
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+          appliesTo: [
+            {
+              regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*$/g",
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to manage logs and streams whose names are dynamically determined.",
+          appliesTo: [
+            {
+              regex:
+                "/^Resource::arn:<AWS::Partition>:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/codebuild/<CodePipelineBuildSynthCdkBuildProject.*>:\\*$/g",
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to create report groups that are dynamically determined.",
+          appliesTo: [
+            {
+              regex:
+                "/^Resource::arn:<AWS::Partition>:codebuild:<AWS::Region>:<AWS::AccountId>:report-group/<CodePipelineBuildSynthCdkBuildProject.*>-\\*$/g",
+            },
+          ],
+        },
+      ]
+    );
+
+    NagSuppressions.addResourceSuppressionsByPath(
+      stack,
+      `${PDKNag.getStackPrefix(stack)}${
+        this.id
+      }/UpdatePipeline/SelfMutation/Role/DefaultPolicy/Resource`,
+      [
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
+          appliesTo: [
+            {
+              regex: "/^Action::s3:.*$/g",
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to manage logs and streams whose names are dynamically determined.",
+          appliesTo: [
+            {
+              regex: `/^Resource::arn:<AWS::Partition>:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/codebuild/<${this.id}UpdatePipelineSelfMutation.*>:\\*$/g`,
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to create report groups that are dynamically determined.",
+          appliesTo: [
+            {
+              regex: `/^Resource::arn:<AWS::Partition>:codebuild:<AWS::Region>:<AWS::AccountId>:report-group/<${this.id}UpdatePipelineSelfMutation.*>-\\*$/g`,
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to assume a role from within the current account in order to deploy.",
+          appliesTo: [
+            {
+              regex: "/^Resource::arn:\\*:iam::<AWS::AccountId>:role/\\*$/g",
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+          appliesTo: [
+            {
+              regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*$/g",
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to list all buckets and stacks.",
+          appliesTo: [
+            {
+              regex: "/^Resource::\\*$/g",
+            },
+          ],
+        },
+      ]
+    );
+
+    NagSuppressions.addResourceSuppressionsByPath(
+      stack,
+      `${PDKNag.getStackPrefix(
+        stack
+      )}CodePipeline/Build/Synth/CdkBuildProject/Resource`,
+      [
+        {
+          id: "AwsSolutions-CB4",
+          reason: "Encryption of Codebuild is not required.",
+        },
+      ]
+    );
+
+    NagSuppressions.addResourceSuppressionsByPath(
+      stack,
+      `${PDKNag.getStackPrefix(stack)}${
+        this.id
+      }/UpdatePipeline/SelfMutation/Resource`,
+      [
+        {
+          id: "AwsSolutions-CB4",
+          reason: "Encryption of Codebuild is not required.",
+        },
+      ]
+    );
   }
 }
