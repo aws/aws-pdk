@@ -39,3 +39,7 @@ npx projen new --from aws-prototyping-sdk pdk-pipeline-py
 # Java
 npx projen new --from aws-prototyping-sdk pdk-pipeline-java
 ```
+
+### CDK Nag
+
+In order to keep CDK Nag happy, make sure you build the pipeline before synth as per https://github.com/aws/aws-cdk/issues/18440.

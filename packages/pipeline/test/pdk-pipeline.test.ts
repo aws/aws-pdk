@@ -14,20 +14,32 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
+import * as path from "path";
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
-import { Stack } from "aws-cdk-lib";
+import { Stack, Stage } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
+import { Asset } from "aws-cdk-lib/aws-s3-assets";
 import { PDKPipeline } from "../src";
 
 describe("PDK Pipeline Unit Tests", () => {
   it("Defaults", () => {
-    const stack = new Stack(PDKNag.app());
+    const app = PDKNag.app();
+    const stack = new Stack(app);
 
-    new PDKPipeline(stack, "Defaults", {
+    const pipeline = new PDKPipeline(stack, "Defaults", {
       primarySynthDirectory: "cdk.out",
       repositoryName: "Defaults",
       synth: {},
     });
+
+    const stage = new Stage(app, "Stage");
+    const appStack = new Stack(stage, "AppStack");
+    new Asset(appStack, "Asset", {
+      path: path.join(__dirname, "__snapshots__"),
+    });
+
+    pipeline.addStage(stage);
+    pipeline.buildPipeline();
 
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });

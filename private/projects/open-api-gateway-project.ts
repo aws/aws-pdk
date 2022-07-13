@@ -39,7 +39,7 @@ export class OpenApiGatewayProject extends PDKProject {
         "cdk-nag",
         "@aws-prototyping-sdk/pdk-nag@0.0.0",
       ],
-      deps: ["fs-extra"],
+      deps: ["fs-extra", "@aws-prototyping-sdk/pdk-nag@^0.0.0"],
       bundledDeps: ["openapi-types", "fs-extra"],
       peerDeps: ["projen", "aws-cdk-lib", "constructs", "cdk-nag"],
       stability: Stability.EXPERIMENTAL,

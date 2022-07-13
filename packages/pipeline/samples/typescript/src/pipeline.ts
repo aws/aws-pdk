@@ -14,11 +14,11 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { App } from 'aws-cdk-lib';
+import { PDKNag } from 'aws-prototyping-sdk/pdk-nag';
 import { ApplicationStage } from './application-stage';
 import { PipelineStack } from './pipeline-stack';
 
-const app = new App();
+const app = PDKNag.app();
 
 const pipelineStack = new PipelineStack(app, 'PipelineStack', {
   env: {
@@ -38,4 +38,5 @@ pipelineStack.pipeline.addStage(devStage);
 
 // Add additional stages here i.e. Prod
 
+pipelineStack.pipeline.buildPipeline(); // Needed for CDK Nag
 app.synth();

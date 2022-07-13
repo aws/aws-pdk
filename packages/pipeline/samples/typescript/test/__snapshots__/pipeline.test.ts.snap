@@ -2,6 +2,16 @@
 
 exports[`Snapshot 1`] = `
 Object {
+  "Metadata": Object {
+    "cdk_nag": Object {
+      "rules_to_suppress": Array [
+        Object {
+          "id": "AwsSolutions-CB4",
+          "reason": "Encryption of Codebuild is not required.",
+        },
+      ],
+    },
+  },
   "Outputs": Object {
     "CodeRepositoryGRCUrl": Object {
       "Export": Object {
@@ -117,16 +127,6 @@ Object {
       "Type": "AWS::IAM::Policy",
     },
     "ApplicationPipelineUpdatePipelineSelfMutation36D37AA8": Object {
-      "Metadata": Object {
-        "cdk_nag": Object {
-          "rules_to_suppress": Array [
-            Object {
-              "id": "AwsSolutions-CB4",
-              "reason": "Encryption of Codebuild is not required.",
-            },
-          ],
-        },
-      },
       "Properties": Object {
         "Artifacts": Object {
           "Type": "CODEPIPELINE",
@@ -194,15 +194,6 @@ Object {
             Object {
               "applies_to": Array [
                 Object {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
-            },
-            Object {
-              "applies_to": Array [
-                Object {
                   "regex": "/^Resource::arn:<AWS::Partition>:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/codebuild/<ApplicationPipelineUpdatePipelineSelfMutation.*>:\\\\*$/g",
                 },
               ],
@@ -244,6 +235,35 @@ Object {
               ],
               "id": "AwsSolutions-IAM5",
               "reason": "CodePipeline requires access to list all buckets and stacks.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "/^Resource::arn:<AWS::Partition>:logs:<AWS::Region>:(<AWS::AccountId>|",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "):log-group:/aws/codebuild/<ApplicationPipelineUpdatePipelineSelfMutation.*>:\\\\*$/g",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "CodePipeline requires access to manage logs and streams whose names are dynamically determined.",
             },
           ],
         },
@@ -692,16 +712,6 @@ Object {
       "Type": "AWS::CodePipeline::Pipeline",
     },
     "CodePipelineBuildSynthCdkBuildProjectEDF0E7B6": Object {
-      "Metadata": Object {
-        "cdk_nag": Object {
-          "rules_to_suppress": Array [
-            Object {
-              "id": "AwsSolutions-CB4",
-              "reason": "Encryption of Codebuild is not required.",
-            },
-          ],
-        },
-      },
       "Properties": Object {
         "Artifacts": Object {
           "Type": "CODEPIPELINE",

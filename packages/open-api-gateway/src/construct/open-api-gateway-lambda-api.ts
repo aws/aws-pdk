@@ -14,6 +14,7 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
+import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { Stack } from "aws-cdk-lib";
 import {
   AccessLogFormat,
@@ -73,12 +74,13 @@ export class OpenApiGatewayLambdaApi extends SpecRestApi {
     });
 
     // Grant API Gateway permission to invoke each lambda which implements an integration or custom authorizer
+    const stack = Stack.of(this);
     getLabelledFunctions(props).forEach(({ label, function: lambda }) => {
       new CfnPermission(this, `LambdaPermission-${label}`, {
         action: "lambda:InvokeFunction",
         principal: "apigateway.amazonaws.com",
         functionName: lambda.functionArn,
-        sourceArn: Stack.of(this).formatArn({
+        sourceArn: stack.formatArn({
           service: "execute-api",
           resource: this.restApiId,
           resourceName: "*/*",
@@ -94,7 +96,11 @@ export class OpenApiGatewayLambdaApi extends SpecRestApi {
           reason:
             "Cloudwatch Role requires access to create/read groups at the root level.",
           appliesTo: [
-            "Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+            {
+              regex: `/^Policy::arn:${PDKNag.getStackPartitionRegex(
+                stack
+              )}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g`,
+            },
           ],
         },
       ],
