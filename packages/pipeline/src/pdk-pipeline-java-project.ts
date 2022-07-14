@@ -41,6 +41,7 @@ export class PDKPipelineJavaProject extends AwsCdkJavaApp {
     });
 
     this.addDependency("software.aws.awsprototypingsdk/aws-prototyping-sdk@^0");
+    this.addDependency("io.github.cdklabs/cdknag@^2");
 
     this.testTask.exec("mvn test");
     this.addTestDependency("org.junit.jupiter/junit-jupiter-api@5.7.0");
