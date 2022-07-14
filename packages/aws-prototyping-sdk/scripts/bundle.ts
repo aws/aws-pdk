@@ -163,10 +163,6 @@ async function verifyDependencies(packageJson: any, libraries: readonly LibraryR
       }
       toBundle[depName] = requiredVersion;
     }
-
-    if (!(library.packageJson.name in packageJson.devDependencies)) {
-      throw new Error(`\t⚠️ Missing dev dependency: ${library.packageJson.name}`);
-    }
   }
 
   const workspacePath = path.resolve(ROOT_PATH, 'package.json');

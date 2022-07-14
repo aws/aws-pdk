@@ -31,10 +31,10 @@ const monorepoProject = new PDKMonorepoProject();
 // docs
 const docsProject = new DocsProject(monorepoProject);
 
-new PDKNagProject(monorepoProject);
+const pdkNagProject = new PDKNagProject(monorepoProject);
 
 // public packages
-new NXMonorepoProject(monorepoProject);
+const nxMonorepoProject = new NXMonorepoProject(monorepoProject);
 const pipelineProject = new PipelineProject(monorepoProject);
 const awsPrototypingSdkProject = new AwsPrototypingSdkProject(monorepoProject);
 new StaticWebsiteProject(monorepoProject);
@@ -51,5 +51,15 @@ pipelineProject.samples.forEach((sample) =>
 monorepoProject.subProjects
   .filter((s: any) => s instanceof PDKProject && s.pdkRelease)
   .forEach((s) => monorepoProject.addImplicitDependency(docsProject, s));
+
+monorepoProject.addImplicitDependency(awsPrototypingSdkProject, pdkNagProject);
+monorepoProject.addImplicitDependency(
+  awsPrototypingSdkProject,
+  pipelineProject
+);
+monorepoProject.addImplicitDependency(
+  awsPrototypingSdkProject,
+  nxMonorepoProject
+);
 
 monorepoProject.synth();
