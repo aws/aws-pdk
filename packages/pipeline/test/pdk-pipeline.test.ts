@@ -30,6 +30,12 @@ describe("PDK Pipeline Unit Tests", () => {
       primarySynthDirectory: "cdk.out",
       repositoryName: "Defaults",
       synth: {},
+      sonarCodeScannerConfig: {
+        sonarqubeAuthorizedGroup: "dev",
+        sonarqubeDefaultProfileOrGateName: "dev",
+        sonarqubeEndpoint: "https://sonar.dev",
+        sonarqubeProjectName: "Default",
+      },
     });
 
     const stage = new Stage(app, "Stage");
