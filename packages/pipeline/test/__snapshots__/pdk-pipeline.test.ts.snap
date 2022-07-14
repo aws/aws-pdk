@@ -36,6 +36,14 @@ Object {
         ],
       },
     },
+    "DefaultsSonarCodeScannerSonarqubeSecretArn61BE693F": Object {
+      "Export": Object {
+        "Name": "SonarqubeSecretArn",
+      },
+      "Value": Object {
+        "Ref": "DefaultsSonarCodeScannerSonarQubeTokenD1898305",
+      },
+    },
   },
   "Parameters": Object {
     "BootstrapVersion": Object {
@@ -1264,7 +1272,7 @@ Object {
     },
     \\"build\\": {
       \\"commands\\": [
-        \\"cdk-assets --path \\\\\\"assembly-Stage/StageAppStack7618C9EF.assets.json\\\\\\" --verbose publish \\\\\\"779b4e7763276fe5c810687579aa900aa5fa81adf9186e78166c4120b38815a1:current_account-current_region\\\\\\"\\"
+        \\"cdk-assets --path \\\\\\"assembly-Stage/StageAppStack7618C9EF.assets.json\\\\\\" --verbose publish \\\\\\"ceacd5038123a988476c038703763f6784171a66b69d3ae26e5afc1240045a30:current_account-current_region\\\\\\"\\"
       ]
     }
   }
@@ -1535,6 +1543,436 @@ Object {
         "Roles": Array [
           Object {
             "Ref": "DefaultsCodeBuildActionRole4BF10433",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DefaultsSonarCodeScannerSonarQubeTokenD1898305": Object {
+      "DeletionPolicy": "Delete",
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "id": "AwsSolutions-SMG4",
+              "reason": "Key rotation is not possible as a user token needs to be generated from Sonarqube",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "GenerateSecretString": Object {},
+      },
+      "Type": "AWS::SecretsManager::Secret",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsSonarCodeScannerSynthBuildProjectOnSynthSuccessE7E65027": Object {
+      "Properties": Object {
+        "EventPattern": Object {
+          "detail": Object {
+            "build-status": Array [
+              "SUCCEEDED",
+            ],
+            "project-name": Array [
+              Object {
+                "Fn::Select": Array [
+                  1,
+                  Object {
+                    "Fn::Split": Array [
+                      "/",
+                      Object {
+                        "Fn::Select": Array [
+                          5,
+                          Object {
+                            "Fn::Split": Array [
+                              ":",
+                              Object {
+                                "Fn::GetAtt": Array [
+                                  "CodePipelineBuildSynthCdkBuildProjectEDF0E7B6",
+                                  "Arn",
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          "detail-type": Array [
+            "CodeBuild Build State Change",
+          ],
+          "source": Array [
+            "aws.codebuild",
+          ],
+        },
+        "State": "ENABLED",
+        "Targets": Array [
+          Object {
+            "Arn": Object {
+              "Fn::GetAtt": Array [
+                "DefaultsSonarCodeScannerValidationProjectFAE7BAD0",
+                "Arn",
+              ],
+            },
+            "Id": "Target0",
+            "InputTransformer": Object {
+              "InputPathsMap": Object {
+                "detail-build-id": "$.detail.build-id",
+              },
+              "InputTemplate": "{\\"environmentVariablesOverride\\":[{\\"name\\":\\"SYNTH_BUILD_ID\\",\\"type\\":\\"PLAINTEXT\\",\\"value\\":<detail-build-id>}]}",
+            },
+            "RoleArn": Object {
+              "Fn::GetAtt": Array [
+                "DefaultsSonarCodeScannerValidationProjectEventsRole18DD9D4A",
+                "Arn",
+              ],
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
+    "DefaultsSonarCodeScannerValidationProjectEventsRole18DD9D4A": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "events.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsSonarCodeScannerValidationProjectEventsRoleDefaultPolicy6C4FE447": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "codebuild:StartBuild",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsSonarCodeScannerValidationProjectFAE7BAD0",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DefaultsSonarCodeScannerValidationProjectEventsRoleDefaultPolicy6C4FE447",
+        "Roles": Array [
+          Object {
+            "Ref": "DefaultsSonarCodeScannerValidationProjectEventsRole18DD9D4A",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DefaultsSonarCodeScannerValidationProjectFAE7BAD0": Object {
+      "Properties": Object {
+        "Artifacts": Object {
+          "Type": "NO_ARTIFACTS",
+        },
+        "Cache": Object {
+          "Type": "NO_CACHE",
+        },
+        "EncryptionKey": "alias/aws/s3",
+        "Environment": Object {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "EnvironmentVariables": Array [
+            Object {
+              "Name": "SONARQUBE_TOKEN",
+              "Type": "SECRETS_MANAGER",
+              "Value": Object {
+                "Ref": "DefaultsSonarCodeScannerSonarQubeTokenD1898305",
+              },
+            },
+            Object {
+              "Name": "SONARQUBE_ENDPOINT",
+              "Type": "PLAINTEXT",
+              "Value": "https://sonar.dev",
+            },
+            Object {
+              "Name": "PROJECT_NAME",
+              "Type": "PLAINTEXT",
+              "Value": "Default",
+            },
+          ],
+          "Image": "aws/codebuild/standard:5.0",
+          "ImagePullCredentialsType": "CODEBUILD",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "ServiceRole": Object {
+          "Fn::GetAtt": Array [
+            "DefaultsSonarCodeScannerValidationProjectRole6AF1A9E5",
+            "Arn",
+          ],
+        },
+        "Source": Object {
+          "BuildSpec": "{
+  \\"version\\": \\"0.2\\",
+  \\"env\\": {
+    \\"shell\\": \\"bash\\"
+  },
+  \\"phases\\": {
+    \\"install\\": {
+      \\"commands\\": [
+        \\"npm install -g aws-cdk\\",
+        \\"gem install cfn-nag\\"
+      ]
+    },
+    \\"build\\": {
+      \\"commands\\": [
+        \\"export RESOLVED_SOURCE_VERSION=\`aws codebuild batch-get-builds --ids $SYNTH_BUILD_ID | jq -r '.builds[0].resolvedSourceVersion'\`\\",
+        \\"export BUILT_ARTIFACT_URI=\`aws codebuild batch-get-builds --ids $SYNTH_BUILD_ID | jq -r '.builds[0].secondaryArtifacts[] | select(.artifactIdentifier == \\\\\\"Synth__\\\\\\") | .location' | awk '{sub(\\\\\\"arn:aws:s3:::\\\\\\",\\\\\\"s3://\\\\\\")}1' $1\`\\",
+        \\"export SYNTH_SOURCE_URI=\`aws codebuild batch-get-builds --ids $SYNTH_BUILD_ID | jq -r '.builds[0].sourceVersion' | awk '{sub(\\\\\\"arn:aws:s3:::\\\\\\",\\\\\\"s3://\\\\\\")}1' $1\`\\",
+        \\"aws s3 cp $SYNTH_SOURCE_URI source.zip\\",
+        \\"aws s3 cp $BUILT_ARTIFACT_URI built.zip\\",
+        \\"unzip source.zip -d src\\",
+        \\"unzip built.zip -d built\\",
+        \\"rm source.zip built.zip\\",
+        \\"rsync -a built/* src --include=\\\\\\"*/\\\\\\"  --include=\\\\\\"**/coverage/**\\\\\\" --include=\\\\\\"**/cdk.out/**\\\\\\" --exclude=\\\\\\"**/node_modules/**/*\\\\\\" --exclude=\\\\\\"**/.env/**\\\\\\" --exclude=\\\\\\"*\\\\\\" --prune-empty-dirs\\",
+        \\"CREATE_PROJECT_OUTPUT=\`curl -X POST -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/projects/create?name=$PROJECT_NAME&project=$PROJECT_NAME&visibility=private\\\\\\" \`\\",
+        \\"if [[ \\\\\\"$(echo $CREATE_PROJECT_OUTPUT | jq .errors)\\\\\\" == \\\\\\"null\\\\\\" ]]; then curl -X POST -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/permissions/add_group?projectKey=$PROJECT_NAME&groupName=dev&permission=admin\\\\\\" ;curl -X POST -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/permissions/add_group?projectKey=$PROJECT_NAME&groupName=dev&permission=codeviewer\\\\\\" ;curl -X POST -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/permissions/add_group?projectKey=$PROJECT_NAME&groupName=dev&permission=issueadmin\\\\\\" ;curl -X POST -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/permissions/add_group?projectKey=$PROJECT_NAME&groupName=dev&permission=securityhotspotadmin\\\\\\" ;curl -X POST -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/permissions/add_group?projectKey=$PROJECT_NAME&groupName=dev&permission=scan\\\\\\" ;curl -X POST -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/permissions/add_group?projectKey=$PROJECT_NAME&groupName=dev&permission=user\\\\\\" ;curl -X POST -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/project_branches/rename?project=$PROJECT_NAME&name=mainline\\\\\\" ;curl -X POST -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/project_tags/set?project=$PROJECT_NAME&tags=dev\\\\\\" ;export DEFAULT_PROFILE=\`curl -X GET -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/qualityprofiles/search?qualityProfile=dev\\\\\\"  | jq .profiles\`;export SPECIFIC_PROFILE=\`curl -X GET -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/qualityprofiles/search?qualityProfile=undefined\\\\\\"  | jq .profiles\`;export MERGED_PROFILES=\`jq --argjson arr1 \\\\\\"$DEFAULT_PROFILE\\\\\\" --argjson arr2 \\\\\\"$SPECIFIC_PROFILE\\\\\\" -n '$arr1 + $arr2 | group_by(.language) | map(.[-1])'\`;echo $MERGED_PROFILES | jq -c '.[]' | while read i; do curl -X POST -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/qualityprofiles/add_project?project=$PROJECT_NAME&language=\`echo $i | jq -r .language\`&qualityProfile=\`echo $i | jq -r .name\`\\\\\\" ; done;export DEFAULT_GATE=\`curl -X GET -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/qualitygates/search?gateName=dev\\\\\\" \`;export SPECIFIC_GATE=\`curl -X GET -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/qualitygates/search?gateName=undefined\\\\\\" \`;if [[ \\\\\\"$(echo $SPECIFIC_GATE | jq .errors)\\\\\\" == \\\\\\"null\\\\\\" && \\\\\\"$(echo $SPECIFIC_GATE | jq '.results | length')\\\\\\" -gt 0 ]]; then export GATE_NAME=undefined; else export GATE_NAME=dev; fi;curl -X POST -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/qualitygates/select?projectKey=$PROJECT_NAME&gateName=$GATE_NAME\\\\\\" ; fi;\\",
+        \\"mkdir -p src/reports\\",
+        \\"npx owasp-dependency-check --format HTML --out src/reports --exclude '**/.git/**/*' --scan src --enableExperimental --bin /tmp/dep-check --disableRetireJS\\",
+        \\"cfn_nag  built/cdk.out/**/*.template.json --output-format=json > src/reports/cfn-nag-report.json\\",
+        \\"cd src\\",
+        \\"npx sonarqube-scanner -Dsonar.login=$SONARQUBE_TOKEN -Dsonar.projectKey=$PROJECT_NAME -Dsonar.projectName=$PROJECT_NAME -Dsonar.projectVersion=\`echo $RESOLVED_SOURCE_VERSION | cut -c1-7\` -Dsonar.branch.name=mainline -Dsonar.host.url=$SONARQUBE_ENDPOINT -Dsonar.cfn.nag.reportFiles=reports/cfn-nag-report.json -Dsonar.dependencyCheck.htmlReportPath=reports/dependency-check-report.html -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info -Dsonar.clover.reportPath=**/coverage/clover.xml -Dsonar.exclusions=\\\\\\"**/reports/**,**/coverage/**\\\\\\" -Dsonar.sources=.\\",
+        \\"curl -X GET -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/bitegarden/report/pdf_issues_breakdown?resource=$PROJECT_NAME&branch=mainline\\\\\\" --output reports/prototype-issues-report.pdf\\",
+        \\"curl -X GET -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/bitegarden/report/pdf?resource=$PROJECT_NAME&branch=mainline\\\\\\" --output reports/prototype-executive-report.pdf\\",
+        \\"curl -X GET -u $SONARQUBE_TOKEN: \\\\\\"$SONARQUBE_ENDPOINT/api/security_reports/download?project=$PROJECT_NAME\\\\\\" --output reports/prototype-security-report.pdf\\"
+      ]
+    }
+  }
+}",
+          "Type": "NO_SOURCE",
+        },
+      },
+      "Type": "AWS::CodeBuild::Project",
+    },
+    "DefaultsSonarCodeScannerValidationProjectRole6AF1A9E5": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::arn:<AWS::Partition>:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/codebuild/<.*SonarCodeScannerValidationProject.*>:\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Resource::arn:<AWS::Partition>:codebuild:<AWS::Region>:<AWS::AccountId>:report-group/<.*SonarCodeScannerValidationProject.*>-\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Action::s3:GetObject\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Resource::<ArtifactsBucket.*.Arn>/\\\\*\\\\*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "Validation CodeBuild project requires access to the ArtifactsBucket and ability to create logs.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "codebuild.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsSonarCodeScannerValidationProjectRoleDefaultPolicyF147A45E": Object {
+      "Metadata": Object {
+        "cdk_nag": Object {
+          "rules_to_suppress": Array [
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::arn:<AWS::Partition>:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/codebuild/<.*SonarCodeScannerValidationProject.*>:\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Resource::arn:<AWS::Partition>:codebuild:<AWS::Region>:<AWS::AccountId>:report-group/<.*SonarCodeScannerValidationProject.*>-\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Action::s3:GetObject\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Resource::<ArtifactsBucket.*.Arn>/\\\\*\\\\*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "Validation CodeBuild project requires access to the ArtifactsBucket and ability to create logs.",
+            },
+          ],
+        },
+      },
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "secretsmanager:GetSecretValue",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Ref": "DefaultsSonarCodeScannerSonarQubeTokenD1898305",
+              },
+            },
+            Object {
+              "Action": Array [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "DefaultsSonarCodeScannerValidationProjectFAE7BAD0",
+                      },
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "arn:",
+                      Object {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ":",
+                      Object {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":log-group:/aws/codebuild/",
+                      Object {
+                        "Ref": "DefaultsSonarCodeScannerValidationProjectFAE7BAD0",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "codebuild:CreateReportGroup",
+                "codebuild:CreateReport",
+                "codebuild:UpdateReport",
+                "codebuild:BatchPutTestCases",
+                "codebuild:BatchPutCodeCoverages",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:",
+                    Object {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":codebuild:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":report-group/",
+                    Object {
+                      "Ref": "DefaultsSonarCodeScannerValidationProjectFAE7BAD0",
+                    },
+                    "-*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": "codebuild:BatchGetBuilds",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "CodePipelineBuildSynthCdkBuildProjectEDF0E7B6",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": "s3:GetObject*",
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "ArtifactsBucket2AAC5544",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "ArtifactsBucket2AAC5544",
+                          "Arn",
+                        ],
+                      },
+                      "/**",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DefaultsSonarCodeScannerValidationProjectRoleDefaultPolicyF147A45E",
+        "Roles": Array [
+          Object {
+            "Ref": "DefaultsSonarCodeScannerValidationProjectRole6AF1A9E5",
           },
         ],
       },

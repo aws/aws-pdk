@@ -80,6 +80,7 @@ async function main() {
         });
 
         let markdown;
+        console.log(`Generating ${language} docs for ${pkg}`);
         if (stability === 'stable') {
           const docs = await docgen.Documentation.forProject(`${RELATIVE_PKG_ROOT}/aws-prototyping-sdk`, {assembliesDir: MONOREPO_ROOT});
           // @ts-ignore
@@ -103,6 +104,7 @@ async function main() {
             }),
           );
         }
+        console.log(`Generated ${language} docs for ${pkg}`);
 
         fs.writeFileSync(
           `${cwd}/build/docs/content/${language}/${pkg}/index.md`,

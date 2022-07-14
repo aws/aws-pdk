@@ -13,7 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import { CfnOutput } from "aws-cdk-lib";
+
+import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
+import { CfnOutput, Stack } from "aws-cdk-lib";
 import {
   BuildEnvironmentVariableType,
   BuildSpec,
@@ -24,6 +26,7 @@ import { EventField, RuleTargetInput } from "aws-cdk-lib/aws-events";
 import { CodeBuildProject } from "aws-cdk-lib/aws-events-targets";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
+import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
 import {
   createSonarqubeProject,
@@ -239,5 +242,52 @@ export class SonarCodeScanner extends Construct {
       exportName: "SonarqubeSecretArn",
       value: sonarQubeToken.secretArn,
     });
+
+    NagSuppressions.addResourceSuppressions(sonarQubeToken, [
+      {
+        id: "AwsSolutions-SMG4",
+        reason:
+          "Key rotation is not possible as a user token needs to be generated from Sonarqube",
+      },
+    ]);
+
+    const stack = Stack.of(this);
+    NagSuppressions.addResourceSuppressions(
+      validationProject.role!,
+      [
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "Validation CodeBuild project requires access to the ArtifactsBucket and ability to create logs.",
+          appliesTo: [
+            {
+              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                stack
+              )}:logs:${PDKNag.getStackRegionRegex(
+                stack
+              )}:${PDKNag.getStackAccountRegex(
+                stack
+              )}:log-group:/aws/codebuild/<.*SonarCodeScannerValidationProject.*>:\\*$/g`,
+            },
+            {
+              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                stack
+              )}:codebuild:${PDKNag.getStackRegionRegex(
+                stack
+              )}:${PDKNag.getStackAccountRegex(
+                stack
+              )}:report-group/<.*SonarCodeScannerValidationProject.*>-\\*$/g`,
+            },
+            {
+              regex: `/^Action::s3:GetObject\\*$/g`,
+            },
+            {
+              regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*\\*$/g",
+            },
+          ],
+        },
+      ],
+      true
+    );
   }
 }
