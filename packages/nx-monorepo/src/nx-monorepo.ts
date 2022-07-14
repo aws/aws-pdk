@@ -194,6 +194,7 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.testTask.reset();
 
     this.addDevDeps("@nrwl/cli", "@nrwl/workspace");
+    this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in aws-prototyping-sdk
 
     options.nxConfig?.nxCloudReadOnlyAccessToken &&
       this.addDevDeps("@nrwl/nx-cloud");

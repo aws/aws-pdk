@@ -45,7 +45,7 @@ export class PDKPipelineTsProject extends AwsCdkTypeScriptApp {
       appEntrypoint: options.appEntrypoint || "pipeline.ts",
     });
 
-    this.addDeps("aws-prototyping-sdk");
+    this.addDeps("aws-prototyping-sdk", "cdk-nag");
 
     new SampleDir(this, this.srcdir, {
       sourceDir: path.join(__dirname, "..", "samples", "typescript", "src"),

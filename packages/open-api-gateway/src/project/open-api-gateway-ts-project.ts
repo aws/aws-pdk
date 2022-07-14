@@ -119,7 +119,12 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     this.package.addField("private", true);
 
     // Generated project should have a dependency on this project, in order to run the generation scripts
-    this.addDeps(OPENAPI_GATEWAY_PDK_PACKAGE_NAME, "constructs", "aws-cdk-lib");
+    this.addDeps(
+      OPENAPI_GATEWAY_PDK_PACKAGE_NAME,
+      "constructs",
+      "aws-cdk-lib",
+      "cdk-nag"
+    );
 
     // Synthesize the openapi spec early since it's used by the generated typescript client, which is also synth'd early
     const spec = new OpenApiSpecProject({

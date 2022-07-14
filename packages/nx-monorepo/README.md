@@ -5,7 +5,7 @@ The PDK itself uses the nx-monorepo project itself and is a good reference for s
 To get started simply run the following command in an empty directory:
 
 ```bash
-npx projen new --from aws-prototyping-sdk nx-monorepo --deps aws-cdk-lib --deps constructs
+npx projen new --from aws-prototyping-sdk nx-monorepo
 ```
 
 This will boostrap a new Projen monorepo and contain the following in the .projenrc.ts:
@@ -15,7 +15,7 @@ import { nx_monorepo } from "aws-prototyping-sdk";
 
 const project = new nx_monorepo.NxMonorepoProject({
   defaultReleaseBranch: "main",
-  deps: ["aws-cdk-lib", "constructs"],
+  deps: ["aws-cdk-lib", "constructs", "cdk-nag"],
   devDeps: ["aws-prototyping-sdk"],
   name: "my-package",
 });
@@ -30,7 +30,7 @@ import { nx_monorepo } from "aws-prototyping-sdk";
 
 const project = new nx_monorepo.NxMonorepoProject({
   defaultReleaseBranch: "main",
-  deps: ["aws-cdk-lib", "constructs"],
+  deps: ["aws-cdk-lib", "constructs", "cdk-nag"],
   devDeps: ["aws-prototyping-sdk"],
   name: "my-package",
 });
@@ -57,6 +57,7 @@ import { PythonProject } from "projen/lib/python";
 
 const project = new nx_monorepo.NxMonorepoProject({
   defaultReleaseBranch: "main",
+  deps: ["aws-cdk-lib", "constructs", "cdk-nag"],
   devDeps: ["aws-prototyping-sdk"],
   name: "test",
 });
