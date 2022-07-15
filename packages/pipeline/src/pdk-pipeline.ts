@@ -15,7 +15,7 @@
  ******************************************************************************************************************** */
 
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
-import { CfnOutput, RemovalPolicy, Stack } from "aws-cdk-lib";
+import { Aspects, CfnOutput, RemovalPolicy, Stack, Stage } from "aws-cdk-lib";
 import { Repository } from "aws-cdk-lib/aws-codecommit";
 import { Pipeline } from "aws-cdk-lib/aws-codepipeline";
 import {
@@ -24,11 +24,13 @@ import {
   BucketEncryption,
 } from "aws-cdk-lib/aws-s3";
 import {
+  AddStageOpts,
   CodePipeline,
   CodePipelineProps,
   CodePipelineSource,
   ShellStep,
   ShellStepProps,
+  StageDeployment,
 } from "aws-cdk-lib/pipelines";
 import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
@@ -173,6 +175,17 @@ export class PDKPipeline extends CodePipeline {
       exportName: "CodeRepositoryGRCUrl",
       value: this.codeRepository.repositoryCloneUrlGrc,
     });
+  }
+
+  /**
+   * @inheritDoc
+   */
+  addStage(stage: Stage, options?: AddStageOpts): StageDeployment {
+    // Add any root Aspects to the stage level as currently this doesn't happen automatically
+    Aspects.of(stage.node.root).all.forEach((aspect) =>
+      Aspects.of(stage).add(aspect)
+    );
+    return super.addStage(stage, options);
   }
 
   buildPipeline() {
