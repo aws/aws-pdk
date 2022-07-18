@@ -48,8 +48,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "cz-conventional-changelog",
         "eslint-plugin-header",
         "husky",
-        "npm-check-updates",
-        "syncpack",
         "got@^11.8.5",
       ],
       tsconfig: {
@@ -140,14 +138,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     resolveDependencies(this);
 
     this.testTask.spawn(gitSecretsScanTask);
-
-    const upgradeDepsTask = this.addTask("upgrade-deps");
-    upgradeDepsTask.exec(
-      "npx npm-check-updates --deep --rejectVersion 0.0.0 -u"
-    );
-    upgradeDepsTask.exec("npx syncpack fix-mismatches");
-    upgradeDepsTask.exec("yarn install");
-    upgradeDepsTask.exec("npx projen");
   }
 
   /**
