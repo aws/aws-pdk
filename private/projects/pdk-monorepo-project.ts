@@ -21,6 +21,7 @@ import { NodeProject } from "projen/lib/javascript";
 import {
   NxMonorepoProject,
   TargetDependencyProject,
+  DEFAULT_CONFIG,
 } from "../../packages/nx-monorepo/src";
 
 export const JEST_VERSION = "^27"; // This is needed due to: https://github.com/aws/jsii/issues/3619
@@ -50,6 +51,9 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "husky",
         "got@^11.8.5",
       ],
+      monorepoUpgradeDepsOptions: {
+        syncpackConfig: { ...DEFAULT_CONFIG, workspace: false },
+      },
       tsconfig: {
         compilerOptions: {
           rootDir: ".",
