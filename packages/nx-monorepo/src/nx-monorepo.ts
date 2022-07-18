@@ -22,6 +22,7 @@ import {
   TypeScriptProject,
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
+import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
 
 const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 
@@ -140,6 +141,27 @@ export interface WorkspaceConfig {
 }
 
 /**
+ * Configuration for Monorepo Upgrade Deps task.
+ */
+export interface MonorepoUpgradeDepsOptions {
+  /**
+   * Name of the task to create.
+   *
+   * @default upgrade-deps
+   */
+  readonly taskName?: string;
+
+  /**
+   * Syncpack configuration.
+   *
+   * No merging is performed and as such a complete syncpackConfig is required if supplied.
+   *
+   * @default SyncpackConfig.DEFAULT_CONFIG
+   */
+  readonly syncpackConfig?: SyncpackConfig;
+}
+
+/**
  * Configuration options for the NxMonorepoProject.
  */
 export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
@@ -152,6 +174,22 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
    * Configuration for workspace.
    */
   readonly workspaceConfig?: WorkspaceConfig;
+
+  /**
+   * Whether to include an upgrade-deps task at the root of the monorepo which will upgrade all dependencies.
+   *
+   * @default true
+   */
+  readonly monorepoUpgradeDeps?: boolean;
+
+  /**
+   * Monorepo Upgrade Deps options.
+   *
+   * This is only used if monorepoUpgradeDeps is true.
+   *
+   * @default undefined
+   */
+  readonly monorepoUpgradeDepsOptions?: MonorepoUpgradeDepsOptions;
 }
 
 /**
@@ -195,6 +233,26 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     this.addDevDeps("@nrwl/cli", "@nrwl/workspace");
     this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in aws-prototyping-sdk
+
+    if (options.monorepoUpgradeDeps !== false) {
+      this.addDevDeps("npm-check-updates", "syncpack");
+
+      const upgradeDepsTask = this.addTask(
+        options.monorepoUpgradeDepsOptions?.taskName || "upgrade-deps"
+      );
+      upgradeDepsTask.exec(
+        "npx npm-check-updates --deep --rejectVersion 0.0.0 -u"
+      );
+      upgradeDepsTask.exec("npx syncpack fix-mismatches");
+      upgradeDepsTask.exec(`${this.package.packageManager} install`);
+      upgradeDepsTask.exec("npx projen");
+
+      new JsonFile(this, ".syncpackrc.json", {
+        obj:
+          options.monorepoUpgradeDepsOptions?.syncpackConfig || DEFAULT_CONFIG,
+        readonly: true,
+      });
+    }
 
     options.nxConfig?.nxCloudReadOnlyAccessToken &&
       this.addDevDeps("@nrwl/nx-cloud");
