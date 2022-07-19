@@ -617,15 +617,15 @@ tsconfig.tsbuildinfo
         "type": "runtime",
       },
       Object {
-        "name": "@awsui/collection-hooks",
+        "name": "@cloudscape-design/collection-hooks",
         "type": "runtime",
       },
       Object {
-        "name": "@awsui/components-react",
+        "name": "@cloudscape-design/components",
         "type": "runtime",
       },
       Object {
-        "name": "@awsui/global-styles",
+        "name": "@cloudscape-design/global-styles",
         "type": "runtime",
       },
       Object {
@@ -1072,18 +1072,18 @@ tsconfig.tsbuildinfo
 ",
   "README.md": "## Getting started
 
-To create a new [AWS UI](https://github.com/aws/awsui-documentation) React Typescript Project, there are a couple of options:
+To create a new [Cloudscape](https://cloudscape.design/) React Typescript Project, there are a couple of options:
 
 ### Via Projen CLI
 
 \`\`\`
-npx projen new --from @aws-prototyping-sdk/awsui-react-ts-website awsui-react-ts-website [--application-name <your-app>]
+npx projen new --from @aws-prototyping-sdk/cloudscape-react-ts-website cloudscape-react-ts-website [--application-name <your-app>]
 \`\`\`
 
 ### Programmatically
 
 \`\`\`ts
-new AwsUiReactTsWebsiteProject({
+new CloudscapeReactTsWebsiteProject({
     defaultReleaseBranch: \\"mainline\\",
     name: \\"<name-of-package>\\",
     applicationName: \\"<name-of-app>\\",
@@ -1147,9 +1147,9 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
     },
     "dependencies": Object {
       "@aws-amplify/ui-react": "*",
-      "@awsui/collection-hooks": "*",
-      "@awsui/components-react": "*",
-      "@awsui/global-styles": "*",
+      "@cloudscape-design/collection-hooks": "*",
+      "@cloudscape-design/components": "*",
+      "@cloudscape-design/global-styles": "*",
       "aws-amplify": "*",
       "aws-prototoyping-sdk": "*",
       "react": "*",
@@ -1294,15 +1294,18 @@ Disallow:
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { BreadcrumbGroup, BreadcrumbGroupProps, SideNavigation, SideNavigationProps, TopNavigation } from '@awsui/components-react';
-import AppLayout, { AppLayoutProps } from '@awsui/components-react/app-layout';
-import { CancelableEventHandler } from '@awsui/components-react/internal/events';
-import { createContext, useCallback, useMemo, useState } from 'react';
 import {
-  Route,
-  Routes,
-  useNavigate,
-} from 'react-router-dom';
+  BreadcrumbGroup,
+  BreadcrumbGroupProps,
+  SideNavigation,
+  SideNavigationProps,
+  TopNavigation,
+} from '@cloudscape-design/components';
+import AppLayout, { AppLayoutProps } from '@cloudscape-design/components/app-layout';
+import { CancelableEventHandler } from '@cloudscape-design/components/internal/events';
+import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
+import { createContext, useCallback, useMemo, useState } from 'react';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import Auth from './Auth';
 import Config from './config.json';
 import Home from './Home';
@@ -1323,7 +1326,7 @@ export const AppLayoutContext = createContext({
 });
 
 /**
- * Finfs a Nav Item matching the provided href.
+ * Finds a Nav Item matching the provided href.
  *
  * @param href href to search for
  * @param root root nav items to begin search
@@ -1337,6 +1340,8 @@ const findNavItem = (href: string, root?: SideNavigationProps.Item[]): SideNavig
  */
 const App: React.FC = () => {
   const navigate = useNavigate();
+  const [theme, setTheme] = useState('theme.light');
+  const [density, setDensity] = useState('density.comfortable');
   const [activeHref, setActiveHref] = useState('/');
   const [activeBreadcrumbs, setActiveBreadcrumbs] = useState<BreadcrumbGroupProps.Item[]>([{ text: '/', href: '/' }]);
   const [appLayoutProps, setAppLayoutProps] = useState<AppLayoutProps>({});
@@ -1368,6 +1373,69 @@ const App: React.FC = () => {
     <Auth>
       <TopNavigation
         key={'header'}
+        utilities={[{
+          type: 'menu-dropdown',
+          iconName: 'settings',
+          ariaLabel: 'Settings',
+          title: 'Settings',
+          items: [{
+            id: 'theme',
+            text: 'Theme',
+            items: [
+              {
+                id: 'theme.light',
+                text: 'Light',
+                disabled: theme === 'theme.light',
+                disabledReason: 'currently selected',
+              },
+              {
+                id: 'theme.dark',
+                text: 'Dark',
+                disabled: theme === 'theme.dark',
+                disabledReason: 'currently selected',
+              },
+            ],
+          }, {
+            id: 'density',
+            text: 'Density',
+            items: [
+              {
+                id: 'density.comfortable',
+                text: 'Comfortable',
+                disabled: density === 'density.comfortable',
+                disabledReason: 'currently selected',
+              },
+              {
+                id: 'density.compact',
+                text: 'Compact',
+                disabled: density === 'density.compact',
+                disabledReason: 'currently selected',
+              },
+            ],
+          }],
+          onItemClick: (e) => {
+            switch (e.detail.id) {
+              case 'theme.light':
+                applyMode(Mode.Light);
+                setTheme('theme.light');
+                break;
+              case 'theme.dark':
+                applyMode(Mode.Dark);
+                setTheme('theme.dark');
+                break;
+              case 'density.comfortable':
+                applyDensity(Density.Comfortable);
+                setDensity('density.comfortable');
+                break;
+              case 'density.compact':
+                applyDensity(Density.Compact);
+                setDensity('density.compact');
+                break;
+              default:
+                break;
+            }
+          },
+        }]}
         i18nStrings={{ overflowMenuTitleText: 'Header', overflowMenuTriggerText: 'Header' }}
         identity={{ title: Config.applicationName, href: '', logo: { src: 'logo512.png' } }}/>
       <AppLayout
@@ -1475,7 +1543,9 @@ const Auth: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     fetch('/runtime-config.json')
-      .then(response => response.json())
+      .then(response => {
+        return response.json();
+      })
       .then(runtimeCtx => {
         setRuntimeContext(runtimeContext);
 
@@ -1492,11 +1562,11 @@ const Auth: React.FC<any> = ({ children }) => {
           },
         });
       })
-      .catch((e) => console.log(e))
+      .catch(() => console.log('No runtime-config.json detected'))
       .finally(() => setRuntimeContextLoaded(true));
   }, [setRuntimeContext, setRuntimeContextLoaded]);
 
-  const AuthWrapper: React.FC<any> = useCallback(({ _children }) => runtimeContext.userPoolId ?
+  const AuthWrapper: React.FC<any> = useCallback(({ children: _children }) => runtimeContext.userPoolId ?
     <ThemeProvider theme={theme}>
       <Authenticator variation=\\"modal\\" hideSignUp>
         {_children}
@@ -1535,7 +1605,7 @@ export default Auth;",
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { Container } from '@awsui/components-react';
+import { Container, Header, SpaceBetween } from '@cloudscape-design/components';
 import { useContext, useEffect } from 'react';
 import { AppLayoutContext } from './App';
 import { RuntimeConfigContext } from './Auth';
@@ -1548,17 +1618,19 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     setAppLayoutProps({
-      // customize AppLayoutProps here
+      contentHeader: <Header>Home</Header>,
     });
   }, [setAppLayoutProps]);
 
   return (
-    <Container header={'Runtime Config'}>
-      <RuntimeConfigContext.Consumer>
-        { /* Reference runtimeConfig like so */ }
-        {({ runtimeContext }) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
-      </RuntimeConfigContext.Consumer>
-    </Container>
+    <SpaceBetween size=\\"l\\">
+      <Container header={<Header variant={'h3'}>Runtime Config</Header>}>
+        <RuntimeConfigContext.Consumer>
+          { /* Reference runtimeConfig like so */ }
+          {({ runtimeContext }) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
+        </RuntimeConfigContext.Consumer>
+      </Container>
+    </SpaceBetween>
   );
 };
 
@@ -1589,7 +1661,7 @@ import {
 } from 'react-router-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import '@awsui/global-styles/index.css';
+import '@cloudscape-design/global-styles/index.css';
 import '@aws-amplify/ui-react/styles.css';
 
 createRoot(document.getElementById('root')!)
@@ -2375,15 +2447,15 @@ tsconfig.tsbuildinfo
         "type": "runtime",
       },
       Object {
-        "name": "@awsui/collection-hooks",
+        "name": "@cloudscape-design/collection-hooks",
         "type": "runtime",
       },
       Object {
-        "name": "@awsui/components-react",
+        "name": "@cloudscape-design/components",
         "type": "runtime",
       },
       Object {
-        "name": "@awsui/global-styles",
+        "name": "@cloudscape-design/global-styles",
         "type": "runtime",
       },
       Object {
@@ -2826,18 +2898,18 @@ tsconfig.tsbuildinfo
 ",
   "README.md": "## Getting started
 
-To create a new [AWS UI](https://github.com/aws/awsui-documentation) React Typescript Project, there are a couple of options:
+To create a new [Cloudscape](https://cloudscape.design/) React Typescript Project, there are a couple of options:
 
 ### Via Projen CLI
 
 \`\`\`
-npx projen new --from @aws-prototyping-sdk/awsui-react-ts-website awsui-react-ts-website [--application-name <your-app>]
+npx projen new --from @aws-prototyping-sdk/cloudscape-react-ts-website cloudscape-react-ts-website [--application-name <your-app>]
 \`\`\`
 
 ### Programmatically
 
 \`\`\`ts
-new AwsUiReactTsWebsiteProject({
+new CloudscapeReactTsWebsiteProject({
     defaultReleaseBranch: \\"mainline\\",
     name: \\"<name-of-package>\\",
     applicationName: \\"<name-of-app>\\",
@@ -2901,9 +2973,9 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
     },
     "dependencies": Object {
       "@aws-amplify/ui-react": "*",
-      "@awsui/collection-hooks": "*",
-      "@awsui/components-react": "*",
-      "@awsui/global-styles": "*",
+      "@cloudscape-design/collection-hooks": "*",
+      "@cloudscape-design/components": "*",
+      "@cloudscape-design/global-styles": "*",
       "aws-amplify": "*",
       "react": "*",
       "react-dom": "*",
@@ -3047,15 +3119,18 @@ Disallow:
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { BreadcrumbGroup, BreadcrumbGroupProps, SideNavigation, SideNavigationProps, TopNavigation } from '@awsui/components-react';
-import AppLayout, { AppLayoutProps } from '@awsui/components-react/app-layout';
-import { CancelableEventHandler } from '@awsui/components-react/internal/events';
-import { createContext, useCallback, useMemo, useState } from 'react';
 import {
-  Route,
-  Routes,
-  useNavigate,
-} from 'react-router-dom';
+  BreadcrumbGroup,
+  BreadcrumbGroupProps,
+  SideNavigation,
+  SideNavigationProps,
+  TopNavigation,
+} from '@cloudscape-design/components';
+import AppLayout, { AppLayoutProps } from '@cloudscape-design/components/app-layout';
+import { CancelableEventHandler } from '@cloudscape-design/components/internal/events';
+import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
+import { createContext, useCallback, useMemo, useState } from 'react';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import Auth from './Auth';
 import Config from './config.json';
 import Home from './Home';
@@ -3076,7 +3151,7 @@ export const AppLayoutContext = createContext({
 });
 
 /**
- * Finfs a Nav Item matching the provided href.
+ * Finds a Nav Item matching the provided href.
  *
  * @param href href to search for
  * @param root root nav items to begin search
@@ -3090,6 +3165,8 @@ const findNavItem = (href: string, root?: SideNavigationProps.Item[]): SideNavig
  */
 const App: React.FC = () => {
   const navigate = useNavigate();
+  const [theme, setTheme] = useState('theme.light');
+  const [density, setDensity] = useState('density.comfortable');
   const [activeHref, setActiveHref] = useState('/');
   const [activeBreadcrumbs, setActiveBreadcrumbs] = useState<BreadcrumbGroupProps.Item[]>([{ text: '/', href: '/' }]);
   const [appLayoutProps, setAppLayoutProps] = useState<AppLayoutProps>({});
@@ -3121,6 +3198,69 @@ const App: React.FC = () => {
     <Auth>
       <TopNavigation
         key={'header'}
+        utilities={[{
+          type: 'menu-dropdown',
+          iconName: 'settings',
+          ariaLabel: 'Settings',
+          title: 'Settings',
+          items: [{
+            id: 'theme',
+            text: 'Theme',
+            items: [
+              {
+                id: 'theme.light',
+                text: 'Light',
+                disabled: theme === 'theme.light',
+                disabledReason: 'currently selected',
+              },
+              {
+                id: 'theme.dark',
+                text: 'Dark',
+                disabled: theme === 'theme.dark',
+                disabledReason: 'currently selected',
+              },
+            ],
+          }, {
+            id: 'density',
+            text: 'Density',
+            items: [
+              {
+                id: 'density.comfortable',
+                text: 'Comfortable',
+                disabled: density === 'density.comfortable',
+                disabledReason: 'currently selected',
+              },
+              {
+                id: 'density.compact',
+                text: 'Compact',
+                disabled: density === 'density.compact',
+                disabledReason: 'currently selected',
+              },
+            ],
+          }],
+          onItemClick: (e) => {
+            switch (e.detail.id) {
+              case 'theme.light':
+                applyMode(Mode.Light);
+                setTheme('theme.light');
+                break;
+              case 'theme.dark':
+                applyMode(Mode.Dark);
+                setTheme('theme.dark');
+                break;
+              case 'density.comfortable':
+                applyDensity(Density.Comfortable);
+                setDensity('density.comfortable');
+                break;
+              case 'density.compact':
+                applyDensity(Density.Compact);
+                setDensity('density.compact');
+                break;
+              default:
+                break;
+            }
+          },
+        }]}
         i18nStrings={{ overflowMenuTitleText: 'Header', overflowMenuTriggerText: 'Header' }}
         identity={{ title: Config.applicationName, href: '', logo: { src: 'logo512.png' } }}/>
       <AppLayout
@@ -3228,7 +3368,9 @@ const Auth: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     fetch('/runtime-config.json')
-      .then(response => response.json())
+      .then(response => {
+        return response.json();
+      })
       .then(runtimeCtx => {
         setRuntimeContext(runtimeContext);
 
@@ -3245,11 +3387,11 @@ const Auth: React.FC<any> = ({ children }) => {
           },
         });
       })
-      .catch((e) => console.log(e))
+      .catch(() => console.log('No runtime-config.json detected'))
       .finally(() => setRuntimeContextLoaded(true));
   }, [setRuntimeContext, setRuntimeContextLoaded]);
 
-  const AuthWrapper: React.FC<any> = useCallback(({ _children }) => runtimeContext.userPoolId ?
+  const AuthWrapper: React.FC<any> = useCallback(({ children: _children }) => runtimeContext.userPoolId ?
     <ThemeProvider theme={theme}>
       <Authenticator variation=\\"modal\\" hideSignUp>
         {_children}
@@ -3288,7 +3430,7 @@ export default Auth;",
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { Container } from '@awsui/components-react';
+import { Container, Header, SpaceBetween } from '@cloudscape-design/components';
 import { useContext, useEffect } from 'react';
 import { AppLayoutContext } from './App';
 import { RuntimeConfigContext } from './Auth';
@@ -3301,17 +3443,19 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     setAppLayoutProps({
-      // customize AppLayoutProps here
+      contentHeader: <Header>Home</Header>,
     });
   }, [setAppLayoutProps]);
 
   return (
-    <Container header={'Runtime Config'}>
-      <RuntimeConfigContext.Consumer>
-        { /* Reference runtimeConfig like so */ }
-        {({ runtimeContext }) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
-      </RuntimeConfigContext.Consumer>
-    </Container>
+    <SpaceBetween size=\\"l\\">
+      <Container header={<Header variant={'h3'}>Runtime Config</Header>}>
+        <RuntimeConfigContext.Consumer>
+          { /* Reference runtimeConfig like so */ }
+          {({ runtimeContext }) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
+        </RuntimeConfigContext.Consumer>
+      </Container>
+    </SpaceBetween>
   );
 };
 
@@ -3342,7 +3486,7 @@ import {
 } from 'react-router-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import '@awsui/global-styles/index.css';
+import '@cloudscape-design/global-styles/index.css';
 import '@aws-amplify/ui-react/styles.css';
 
 createRoot(document.getElementById('root')!)

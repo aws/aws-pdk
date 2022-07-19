@@ -13,4 +13,27 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-export * from "./awsui-react-ts-website-project";
+
+import { synthSnapshot } from "projen/lib/util/synth";
+import { CloudscapeReactTsWebsiteProject } from "../src";
+
+describe("AwsUiReactTsWebsiteProject Unit Tests", () => {
+  it("Defaults", () => {
+    const project = new CloudscapeReactTsWebsiteProject({
+      defaultReleaseBranch: "mainline",
+      name: "Defaults",
+      applicationName: "Defaults",
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("Custom Options", () => {
+    const project = new CloudscapeReactTsWebsiteProject({
+      defaultReleaseBranch: "mainline",
+      name: "CustomOptions",
+      applicationName: "CustomOptions",
+      deps: ["aws-prototoyping-sdk"],
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+});

@@ -13,32 +13,4 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-
-import { Container } from '@awsui/components-react';
-import { useContext, useEffect } from 'react';
-import { AppLayoutContext } from './App';
-import { RuntimeConfigContext } from './Auth';
-
-/**
- * Component to render the home "/" route.
- */
-const Home: React.FC = () => {
-  const { setAppLayoutProps } = useContext(AppLayoutContext);
-
-  useEffect(() => {
-    setAppLayoutProps({
-      // customize AppLayoutProps here
-    });
-  }, [setAppLayoutProps]);
-
-  return (
-    <Container header={'Runtime Config'}>
-      <RuntimeConfigContext.Consumer>
-        { /* Reference runtimeConfig like so */ }
-        {({ runtimeContext }) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
-      </RuntimeConfigContext.Consumer>
-    </Container>
-  );
-};
-
-export default Home;
+export * from "./cloudscape-react-ts-website-project";
