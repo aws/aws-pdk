@@ -75,7 +75,9 @@ const Auth: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     fetch('/runtime-config.json')
-      .then(response => response.json())
+      .then(response => {
+        return response.json();
+      })
       .then(runtimeCtx => {
         setRuntimeContext(runtimeContext);
 
@@ -92,11 +94,11 @@ const Auth: React.FC<any> = ({ children }) => {
           },
         });
       })
-      .catch((e) => console.log(e))
+      .catch(() => console.log('No runtime-config.json detected'))
       .finally(() => setRuntimeContextLoaded(true));
   }, [setRuntimeContext, setRuntimeContextLoaded]);
 
-  const AuthWrapper: React.FC<any> = useCallback(({ _children }) => runtimeContext.userPoolId ?
+  const AuthWrapper: React.FC<any> = useCallback(({ children: _children }) => runtimeContext.userPoolId ?
     <ThemeProvider theme={theme}>
       <Authenticator variation="modal" hideSignUp>
         {_children}

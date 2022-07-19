@@ -23,9 +23,9 @@ import {
 } from "projen/lib/web";
 
 /**
- * Configuration options for the AwsUiReactTsWebsiteProject.
+ * Configuration options for the CloudscapeReactTsWebsiteProject.
  */
-export interface AwsUiReactTsWebsiteProjectOptions
+export interface CloudscapeReactTsWebsiteProjectOptions
   extends ReactTypeScriptProjectOptions {
   /**
    * Name of the application name.
@@ -42,15 +42,15 @@ export interface AwsUiReactTsWebsiteProjectOptions
 }
 
 /**
- * Synthesizes a AWS UI React Typescript Website Project.
+ * Synthesizes a Cloudscape React Typescript Website Project.
  *
- * @pjid awsui-react-ts-website
+ * @pjid Cloudscape-react-ts-website
  */
-export class AwsUiReactTsWebsiteProject extends ReactTypeScriptProject {
+export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
   public readonly applicationName: string;
   public readonly publicDir: string;
 
-  constructor(options: AwsUiReactTsWebsiteProjectOptions) {
+  constructor(options: CloudscapeReactTsWebsiteProjectOptions) {
     super({
       ...options,
       defaultReleaseBranch: options.defaultReleaseBranch,
@@ -66,9 +66,9 @@ export class AwsUiReactTsWebsiteProject extends ReactTypeScriptProject {
 
     this.addDevDeps("@babel/plugin-proposal-private-property-in-object");
     this.addDeps(
-      "@awsui/global-styles",
-      "@awsui/components-react",
-      "@awsui/collection-hooks",
+      "@cloudscape-design/global-styles",
+      "@cloudscape-design/components",
+      "@cloudscape-design/collection-hooks",
       "react-router-dom",
       "aws-amplify",
       "@aws-amplify/ui-react"

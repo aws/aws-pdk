@@ -20,9 +20,9 @@ import { PDKProject } from "../pdk-project";
 import { JEST_VERSION } from "./pdk-monorepo-project";
 
 /**
- * Contains configuration for the AwsUiReactTsWebsiteProject.
+ * Contains configuration for the CloudscapeReactTsWebsiteProject.
  */
-export class AwsUiReactTsWebsiteProject extends PDKProject {
+export class CloudscapeReactTsWebsiteProject extends PDKProject {
   public sampleProject: Project;
 
   constructor(parent: Project) {
@@ -31,7 +31,7 @@ export class AwsUiReactTsWebsiteProject extends PDKProject {
       author: "AWS APJ COPE",
       authorAddress: "apj-cope@amazon.com",
       defaultReleaseBranch: "mainline",
-      name: "awsui-react-ts-website",
+      name: "cloudscape-react-ts-website",
       keywords: ["aws", "pdk", "jsii", "projen"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: ["projen"],
@@ -41,30 +41,30 @@ export class AwsUiReactTsWebsiteProject extends PDKProject {
 
     this.addPackageIgnore("**/node_modules");
 
-    this.sampleProject = new AwsUiReactTsSampleWebsiteProject(parent);
+    this.sampleProject = new CloudscapeReactTsSampleWebsiteProject(parent);
   }
 }
 
 /**
- * Nested AwsUiReactTsSampleWebsiteProject configuration.
+ * Nested CloudscapeReactTsSampleWebsiteProject configuration.
  */
-class AwsUiReactTsSampleWebsiteProject extends ReactTypeScriptProject {
+class CloudscapeReactTsSampleWebsiteProject extends ReactTypeScriptProject {
   constructor(parent: Project) {
     super({
       parent,
-      outdir: "packages/awsui-react-ts-website/samples",
+      outdir: "packages/cloudscape-react-ts-website/samples",
       defaultReleaseBranch: "mainline",
       depsUpgrade: false,
-      name: "@aws-prototyping-sdk/awsui-react-ts-sample-website",
+      name: "@aws-prototyping-sdk/cloudscape-react-ts-sample-website",
       sampleCode: false,
       jestOptions: {
         jestVersion: JEST_VERSION,
       },
       devDeps: ["@babel/plugin-proposal-private-property-in-object"],
       deps: [
-        "@awsui/global-styles",
-        "@awsui/components-react",
-        "@awsui/collection-hooks",
+        "@cloudscape-design/global-styles",
+        "@cloudscape-design/components",
+        "@cloudscape-design/collection-hooks",
         "react-router-dom",
         "aws-amplify",
         "@aws-amplify/ui-react",

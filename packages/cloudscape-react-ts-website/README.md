@@ -1,17 +1,17 @@
 ## Getting started
 
-To create a new [AWS UI](https://github.com/aws/awsui-documentation) React Typescript Project, there are a couple of options:
+To create a new [Cloudscape](https://cloudscape.design/) React Typescript Project, there are a couple of options:
 
 ### Via Projen CLI
 
 ```
-npx projen new --from @aws-prototyping-sdk/awsui-react-ts-website awsui-react-ts-website [--application-name <your-app>]
+npx projen new --from @aws-prototyping-sdk/cloudscape-react-ts-website cloudscape-react-ts-website [--application-name <your-app>]
 ```
 
 ### Programmatically
 
 ```ts
-new AwsUiReactTsWebsiteProject({
+new CloudscapeReactTsWebsiteProject({
     defaultReleaseBranch: "mainline",
     name: "<name-of-package>",
     applicationName: "<name-of-app>",

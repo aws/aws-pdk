@@ -96,8 +96,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
           "@aws-prototyping-sdk/open-api-gateway/openapi-types/*",
           "@aws-prototyping-sdk/open-api-gateway/fs-extra",
           "@aws-prototyping-sdk/open-api-gateway/fs-extra/*",
-          "@aws-prototyping-sdk/awsui-react-ts-sample-website",
-          "@aws-prototyping-sdk/awsui-react-ts-sample-website/**",
+          "@aws-prototyping-sdk/cloudscape-react-ts-sample-website",
+          "@aws-prototyping-sdk/cloudscape-react-ts-sample-website/**",
         ],
       },
     });

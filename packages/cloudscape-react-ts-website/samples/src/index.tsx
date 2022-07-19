@@ -21,7 +21,7 @@ import {
 } from 'react-router-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import '@awsui/global-styles/index.css';
+import '@cloudscape-design/global-styles/index.css';
 import '@aws-amplify/ui-react/styles.css';
 
 createRoot(document.getElementById('root')!)

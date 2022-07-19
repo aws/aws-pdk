@@ -15,7 +15,7 @@
  ******************************************************************************************************************** */
 import { PDKProject } from "./private/pdk-project";
 import { AwsPrototypingSdkProject } from "./private/projects/aws-prototyping-sdk-project";
-import { AwsUiReactTsWebsiteProject } from "./private/projects/awsui-react-ts-website";
+import { CloudscapeReactTsWebsiteProject } from "./private/projects/cloudscape-react-ts-website";
 import { DocsProject } from "./private/projects/docs-project";
 import { IdentityProject } from "./private/projects/identity-project";
 import { NXMonorepoProject } from "./private/projects/nx-monorepo-project";
@@ -40,7 +40,7 @@ const awsPrototypingSdkProject = new AwsPrototypingSdkProject(monorepoProject);
 new StaticWebsiteProject(monorepoProject);
 new IdentityProject(monorepoProject);
 new OpenApiGatewayProject(monorepoProject);
-new AwsUiReactTsWebsiteProject(monorepoProject);
+new CloudscapeReactTsWebsiteProject(monorepoProject);
 
 // implicit dependencies
 pipelineProject.samples.forEach((sample) =>
