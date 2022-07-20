@@ -44,7 +44,7 @@ export interface CloudscapeReactTsWebsiteProjectOptions
 /**
  * Synthesizes a Cloudscape React Typescript Website Project.
  *
- * @pjid Cloudscape-react-ts-website
+ * @pjid cloudscape-react-ts-website
  */
 export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
   public readonly applicationName: string;
