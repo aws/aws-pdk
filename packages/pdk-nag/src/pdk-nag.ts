@@ -71,7 +71,7 @@ export interface PDKNagAppProps extends AppProps {
   /**
    * Determines whether any errors encountered should trigger a test failure.
    *
-   * @default true
+   * @default false
    */
   readonly failOnError?: boolean;
 
@@ -93,7 +93,7 @@ export class PDKNagApp extends App {
 
   constructor(props?: PDKNagAppProps) {
     super(props);
-    this.failOnError = props?.failOnError ?? true;
+    this.failOnError = props?.failOnError ?? false;
     this.failOnWarning = props?.failOnWarning ?? false;
   }
 
