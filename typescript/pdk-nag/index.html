@@ -1474,13 +1474,12 @@
 <span class="kd">const</span><span class="w"> </span><span class="nx">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Stack</span><span class="p">(</span><span class="nx">app</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MyStack&#39;</span><span class="p">);</span><span class="w"></span>
 <span class="p">...</span><span class="w"></span>
 </code></pre></div>
-<p>As shown above, this will configure your application to have CDKNag run on synthesis and by default will cause the build to fail if errors are encountered.</p>
-<p>Additional configuration can be passed in to relax these errors if needed as follows:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">PDKNag</span><span class="p">.</span><span class="nx">app</span><span class="p">({</span><span class="w"> </span><span class="nx">failOnError</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="w"> </span><span class="p">});</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Stack</span><span class="p">(</span><span class="nx">app</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MyStack&#39;</span><span class="p">);</span><span class="w"></span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">nagResults</span><span class="o">:</span><span class="w"> </span><span class="kt">NagResult</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">app</span><span class="p">.</span><span class="nx">nagResults</span><span class="p">();</span><span class="w"> </span><span class="c1">// Do something with the results if needed</span><span class="w"></span>
-<span class="p">...</span><span class="w"></span>
+<p>As shown above, this will configure your application to have CDKNag run on synthesis.</p>
+<p>By default, CDK will trigger a failure on <code>synth</code> if any errors are encountered. To relax these, run the following:</p>
+<div class="highlight"><pre><span></span><code>cdk synth --ignore-errors
+</code></pre></div>
+<p>Conversely, CDK will not fail on synth if warnings are detected. To enforce that all warnings are resolved, run the following command:</p>
+<div class="highlight"><pre><span></span><code>cdk synth --strict
 </code></pre></div>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="constructs">Constructs <a name="Constructs" id="Constructs"></a></h2>
@@ -1997,7 +1996,7 @@ directory the CLI will fail to pick up the generated Cloud Assembly.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> false</li>
 </ul>
 <p>Determines whether any errors encountered should trigger a test failure.</p>
 <hr />
@@ -2168,7 +2167,7 @@ directory the CLI will fail to pick up the generated Cloud Assembly.</p>
   <small>
     
       Last update:
-      2022-07-20
+      2022-07-21
     
   </small>
 </div>
