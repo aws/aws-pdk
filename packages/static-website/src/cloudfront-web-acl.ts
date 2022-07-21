@@ -156,6 +156,7 @@ export class CloudfrontWebAcl extends Construct {
                 "wafv2:GetWebACL",
               ],
               resources: [
+                `arn:aws:wafv2:us-east-1:${stack.account}:global/ipset/${aclName}-IPSet/*`,
                 `arn:aws:wafv2:us-east-1:${stack.account}:global/webacl/${aclName}/*`,
                 `arn:aws:wafv2:us-east-1:${stack.account}:global/managedruleset/*/*`,
               ],
