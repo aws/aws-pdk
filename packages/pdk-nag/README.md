@@ -8,15 +8,16 @@ const stack = new Stack(app, 'MyStack');
 ...
 ```
 
-As shown above, this will configure your application to have CDKNag run on synthesis and by default will cause the build to fail if errors are encountered.
+As shown above, this will configure your application to have CDKNag run on synthesis.
 
-Additional configuration can be passed in to relax these errors if needed as follows:
+By default, CDK will trigger a failure on `synth` if any errors are encountered. To relax these, run the following:
 
-```ts
-const app = PDKNag.app({ failOnError: false });
-const stack = new Stack(app, 'MyStack');
-
-const nagResults: NagResult[] = app.nagResults(); // Do something with the results if needed
-...
+```shell
+cdk synth --ignore-errors
 ```
 
+Conversely, CDK will not fail on synth if warnings are detected. To enforce that all warnings are resolved, run the following command:
+
+```shell
+cdk synth --strict
+```
