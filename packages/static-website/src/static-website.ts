@@ -197,11 +197,6 @@ export class StaticWebsite extends Construct {
             responseHttpStatus: 200,
             responsePagePath: `/${defaultRootObject}`,
           },
-          {
-            httpStatus: 403, // We need to redirect "access denied" to index.html for single page apps
-            responseHttpStatus: 200,
-            responsePagePath: `/${defaultRootObject}`,
-          },
         ],
         ...distributionProps,
       }
