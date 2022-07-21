@@ -19,16 +19,15 @@ import {
   BreadcrumbGroupProps,
   SideNavigation,
   SideNavigationProps,
-  TopNavigation,
 } from '@cloudscape-design/components';
 import AppLayout, { AppLayoutProps } from '@cloudscape-design/components/app-layout';
 import { CancelableEventHandler } from '@cloudscape-design/components/internal/events';
-import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
 import { createContext, useCallback, useMemo, useState } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Auth from './Auth';
 import Config from './config.json';
 import Home from './Home';
+import NavHeader from './NavHeader';
 
 /**
  * Define your nav items here.
@@ -60,8 +59,6 @@ const findNavItem = (href: string, root?: SideNavigationProps.Item[]): SideNavig
  */
 const App: React.FC = () => {
   const navigate = useNavigate();
-  const [theme, setTheme] = useState('theme.light');
-  const [density, setDensity] = useState('density.comfortable');
   const [activeHref, setActiveHref] = useState('/');
   const [activeBreadcrumbs, setActiveBreadcrumbs] = useState<BreadcrumbGroupProps.Item[]>([{ text: '/', href: '/' }]);
   const [appLayoutProps, setAppLayoutProps] = useState<AppLayoutProps>({});
@@ -91,73 +88,7 @@ const App: React.FC = () => {
 
   return (
     <Auth>
-      <TopNavigation
-        key={'header'}
-        utilities={[{
-          type: 'menu-dropdown',
-          iconName: 'settings',
-          ariaLabel: 'Settings',
-          title: 'Settings',
-          items: [{
-            id: 'theme',
-            text: 'Theme',
-            items: [
-              {
-                id: 'theme.light',
-                text: 'Light',
-                disabled: theme === 'theme.light',
-                disabledReason: 'currently selected',
-              },
-              {
-                id: 'theme.dark',
-                text: 'Dark',
-                disabled: theme === 'theme.dark',
-                disabledReason: 'currently selected',
-              },
-            ],
-          }, {
-            id: 'density',
-            text: 'Density',
-            items: [
-              {
-                id: 'density.comfortable',
-                text: 'Comfortable',
-                disabled: density === 'density.comfortable',
-                disabledReason: 'currently selected',
-              },
-              {
-                id: 'density.compact',
-                text: 'Compact',
-                disabled: density === 'density.compact',
-                disabledReason: 'currently selected',
-              },
-            ],
-          }],
-          onItemClick: (e) => {
-            switch (e.detail.id) {
-              case 'theme.light':
-                applyMode(Mode.Light);
-                setTheme('theme.light');
-                break;
-              case 'theme.dark':
-                applyMode(Mode.Dark);
-                setTheme('theme.dark');
-                break;
-              case 'density.comfortable':
-                applyDensity(Density.Comfortable);
-                setDensity('density.comfortable');
-                break;
-              case 'density.compact':
-                applyDensity(Density.Compact);
-                setDensity('density.compact');
-                break;
-              default:
-                break;
-            }
-          },
-        }]}
-        i18nStrings={{ overflowMenuTitleText: 'Header', overflowMenuTriggerText: 'Header' }}
-        identity={{ title: Config.applicationName, href: '', logo: { src: 'logo512.png' } }}/>
+      <NavHeader/>
       <AppLayout
         headerSelector="header"
         breadcrumbs={<BreadcrumbGroup

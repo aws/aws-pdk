@@ -15,7 +15,7 @@
  ******************************************************************************************************************** */
 
 import { Authenticator, ThemeProvider, Theme, useTheme } from '@aws-amplify/ui-react';
-import { Amplify } from 'aws-amplify';
+import { Amplify, Auth as AmplifyAuth, Hub } from 'aws-amplify';
 import React, { createContext, useCallback, useEffect, useState, useMemo } from 'react';
 
 /**
@@ -79,24 +79,43 @@ const Auth: React.FC<any> = ({ children }) => {
         return response.json();
       })
       .then(runtimeCtx => {
-        setRuntimeContext(runtimeContext);
-
-        runtimeCtx.region &&
-        runtimeCtx.userPoolId &&
-        runtimeCtx.userPoolWebClientId &&
-        runtimeCtx.identityPoolId &&
-        Amplify.configure({
-          Auth: {
-            region: runtimeCtx.region,
-            userPoolId: runtimeCtx.userPoolId,
-            userPoolWebClientId: runtimeCtx.userPoolWebClientId,
-            identityPoolId: runtimeCtx.identityPoolId,
-          },
-        });
+        if (runtimeCtx.region &&
+            runtimeCtx.userPoolId &&
+            runtimeCtx.userPoolWebClientId &&
+            runtimeCtx.identityPoolId) {
+          Amplify.configure({
+            Auth: {
+              region: runtimeCtx.region,
+              userPoolId: runtimeCtx.userPoolId,
+              userPoolWebClientId: runtimeCtx.userPoolWebClientId,
+              identityPoolId: runtimeCtx.identityPoolId,
+            },
+          });
+          AmplifyAuth.currentUserInfo()
+            .then(user => setRuntimeContext({ ...runtimeCtx, user }))
+            .catch(e => console.error(e));
+        } else {
+          console.warn('runtime-config.json should have region, userPoolId, userPoolWebClientId & identityPoolId.');
+        }
       })
       .catch(() => console.log('No runtime-config.json detected'))
       .finally(() => setRuntimeContextLoaded(true));
   }, [setRuntimeContext, setRuntimeContextLoaded]);
+
+  useEffect(() => {
+    Hub.listen('auth', (data) => {
+      switch (data.payload.event) {
+        case 'signIn':
+          AmplifyAuth.currentUserInfo()
+            .then(user => setRuntimeContext({ ...runtimeContext, user }))
+            .catch(e => console.error(e));
+          break;
+        case 'signOut':
+          window.location.reload();
+          break;
+      }
+    });
+  }, [runtimeContext]);
 
   const AuthWrapper: React.FC<any> = useCallback(({ children: _children }) => runtimeContext.userPoolId ?
     <ThemeProvider theme={theme}>

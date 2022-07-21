@@ -1299,16 +1299,15 @@ import {
   BreadcrumbGroupProps,
   SideNavigation,
   SideNavigationProps,
-  TopNavigation,
 } from '@cloudscape-design/components';
 import AppLayout, { AppLayoutProps } from '@cloudscape-design/components/app-layout';
 import { CancelableEventHandler } from '@cloudscape-design/components/internal/events';
-import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
 import { createContext, useCallback, useMemo, useState } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Auth from './Auth';
 import Config from './config.json';
 import Home from './Home';
+import NavHeader from './NavHeader';
 
 /**
  * Define your nav items here.
@@ -1340,8 +1339,6 @@ const findNavItem = (href: string, root?: SideNavigationProps.Item[]): SideNavig
  */
 const App: React.FC = () => {
   const navigate = useNavigate();
-  const [theme, setTheme] = useState('theme.light');
-  const [density, setDensity] = useState('density.comfortable');
   const [activeHref, setActiveHref] = useState('/');
   const [activeBreadcrumbs, setActiveBreadcrumbs] = useState<BreadcrumbGroupProps.Item[]>([{ text: '/', href: '/' }]);
   const [appLayoutProps, setAppLayoutProps] = useState<AppLayoutProps>({});
@@ -1371,73 +1368,7 @@ const App: React.FC = () => {
 
   return (
     <Auth>
-      <TopNavigation
-        key={'header'}
-        utilities={[{
-          type: 'menu-dropdown',
-          iconName: 'settings',
-          ariaLabel: 'Settings',
-          title: 'Settings',
-          items: [{
-            id: 'theme',
-            text: 'Theme',
-            items: [
-              {
-                id: 'theme.light',
-                text: 'Light',
-                disabled: theme === 'theme.light',
-                disabledReason: 'currently selected',
-              },
-              {
-                id: 'theme.dark',
-                text: 'Dark',
-                disabled: theme === 'theme.dark',
-                disabledReason: 'currently selected',
-              },
-            ],
-          }, {
-            id: 'density',
-            text: 'Density',
-            items: [
-              {
-                id: 'density.comfortable',
-                text: 'Comfortable',
-                disabled: density === 'density.comfortable',
-                disabledReason: 'currently selected',
-              },
-              {
-                id: 'density.compact',
-                text: 'Compact',
-                disabled: density === 'density.compact',
-                disabledReason: 'currently selected',
-              },
-            ],
-          }],
-          onItemClick: (e) => {
-            switch (e.detail.id) {
-              case 'theme.light':
-                applyMode(Mode.Light);
-                setTheme('theme.light');
-                break;
-              case 'theme.dark':
-                applyMode(Mode.Dark);
-                setTheme('theme.dark');
-                break;
-              case 'density.comfortable':
-                applyDensity(Density.Comfortable);
-                setDensity('density.comfortable');
-                break;
-              case 'density.compact':
-                applyDensity(Density.Compact);
-                setDensity('density.compact');
-                break;
-              default:
-                break;
-            }
-          },
-        }]}
-        i18nStrings={{ overflowMenuTitleText: 'Header', overflowMenuTriggerText: 'Header' }}
-        identity={{ title: Config.applicationName, href: '', logo: { src: 'logo512.png' } }}/>
+      <NavHeader/>
       <AppLayout
         headerSelector=\\"header\\"
         breadcrumbs={<BreadcrumbGroup
@@ -1483,7 +1414,7 @@ export default App;",
  ******************************************************************************************************************** */
 
 import { Authenticator, ThemeProvider, Theme, useTheme } from '@aws-amplify/ui-react';
-import { Amplify } from 'aws-amplify';
+import { Amplify, Auth as AmplifyAuth, Hub } from 'aws-amplify';
 import React, { createContext, useCallback, useEffect, useState, useMemo } from 'react';
 
 /**
@@ -1547,24 +1478,43 @@ const Auth: React.FC<any> = ({ children }) => {
         return response.json();
       })
       .then(runtimeCtx => {
-        setRuntimeContext(runtimeContext);
-
-        runtimeCtx.region &&
-        runtimeCtx.userPoolId &&
-        runtimeCtx.userPoolWebClientId &&
-        runtimeCtx.identityPoolId &&
-        Amplify.configure({
-          Auth: {
-            region: runtimeCtx.region,
-            userPoolId: runtimeCtx.userPoolId,
-            userPoolWebClientId: runtimeCtx.userPoolWebClientId,
-            identityPoolId: runtimeCtx.identityPoolId,
-          },
-        });
+        if (runtimeCtx.region &&
+            runtimeCtx.userPoolId &&
+            runtimeCtx.userPoolWebClientId &&
+            runtimeCtx.identityPoolId) {
+          Amplify.configure({
+            Auth: {
+              region: runtimeCtx.region,
+              userPoolId: runtimeCtx.userPoolId,
+              userPoolWebClientId: runtimeCtx.userPoolWebClientId,
+              identityPoolId: runtimeCtx.identityPoolId,
+            },
+          });
+          AmplifyAuth.currentUserInfo()
+            .then(user => setRuntimeContext({ ...runtimeCtx, user }))
+            .catch(e => console.error(e));
+        } else {
+          console.warn('runtime-config.json should have region, userPoolId, userPoolWebClientId & identityPoolId.');
+        }
       })
       .catch(() => console.log('No runtime-config.json detected'))
       .finally(() => setRuntimeContextLoaded(true));
   }, [setRuntimeContext, setRuntimeContextLoaded]);
+
+  useEffect(() => {
+    Hub.listen('auth', (data) => {
+      switch (data.payload.event) {
+        case 'signIn':
+          AmplifyAuth.currentUserInfo()
+            .then(user => setRuntimeContext({ ...runtimeContext, user }))
+            .catch(e => console.error(e));
+          break;
+        case 'signOut':
+          window.location.reload();
+          break;
+      }
+    });
+  }, [runtimeContext]);
 
   const AuthWrapper: React.FC<any> = useCallback(({ children: _children }) => runtimeContext.userPoolId ?
     <ThemeProvider theme={theme}>
@@ -1635,6 +1585,125 @@ const Home: React.FC = () => {
 };
 
 export default Home;",
+  "src/NavHeader.tsx": "/*********************************************************************************************************************
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the \\"License\\").
+ You may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an \\"AS IS\\" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ ******************************************************************************************************************** */
+
+import { TopNavigation } from '@cloudscape-design/components';
+import { TopNavigationProps } from '@cloudscape-design/components/top-navigation/1.0-beta';
+import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
+import { Auth as AmplifyAuth } from 'aws-amplify';
+import React, { useContext, useState } from 'react';
+import { RuntimeConfigContext } from './Auth';
+import Config from './config.json';
+
+/**
+ * Defines the Navigation Header
+ */
+const NavHeader: React.FC = () => {
+  const [theme, setTheme] = useState('theme.light');
+  const [density, setDensity] = useState('density.comfortable');
+  const { runtimeContext } = useContext(RuntimeConfigContext);
+
+  const utilities: TopNavigationProps.Utility[] = [{
+    type: 'menu-dropdown',
+    iconName: 'settings',
+    ariaLabel: 'Settings',
+    title: 'Settings',
+    items: [{
+      id: 'theme',
+      text: 'Theme',
+      items: [
+        {
+          id: 'theme.light',
+          text: 'Light',
+          disabled: theme === 'theme.light',
+          disabledReason: 'currently selected',
+        },
+        {
+          id: 'theme.dark',
+          text: 'Dark',
+          disabled: theme === 'theme.dark',
+          disabledReason: 'currently selected',
+        },
+      ],
+    }, {
+      id: 'density',
+      text: 'Density',
+      items: [
+        {
+          id: 'density.comfortable',
+          text: 'Comfortable',
+          disabled: density === 'density.comfortable',
+          disabledReason: 'currently selected',
+        },
+        {
+          id: 'density.compact',
+          text: 'Compact',
+          disabled: density === 'density.compact',
+          disabledReason: 'currently selected',
+        },
+      ],
+    }],
+    onItemClick: (e) => {
+      switch (e.detail.id) {
+        case 'theme.light':
+          applyMode(Mode.Light);
+          setTheme('theme.light');
+          break;
+        case 'theme.dark':
+          applyMode(Mode.Dark);
+          setTheme('theme.dark');
+          break;
+        case 'density.comfortable':
+          applyDensity(Density.Comfortable);
+          setDensity('density.comfortable');
+          break;
+        case 'density.compact':
+          applyDensity(Density.Compact);
+          setDensity('density.compact');
+          break;
+        default:
+          break;
+      }
+    },
+  }];
+
+  runtimeContext.user && utilities.push({
+    type: 'menu-dropdown',
+    text: runtimeContext?.user?.username,
+    description: runtimeContext?.user?.attributes?.email,
+    iconName: 'user-profile',
+    items: [
+      { id: 'signout', text: 'Sign out' },
+    ],
+    onItemClick: async () => {
+      await AmplifyAuth.signOut();
+    },
+  });
+
+  return (
+    <TopNavigation
+      key={'header'}
+      utilities={utilities}
+      i18nStrings={{ overflowMenuTitleText: 'Header', overflowMenuTriggerText: 'Header' }}
+      identity={{ title: Config.applicationName, href: '', logo: { src: 'logo512.png' } }}/>
+  );
+};
+
+export default NavHeader;",
   "src/config.json": Object {
     "applicationName": "CustomOptions",
   },
@@ -1656,9 +1725,7 @@ export default Home;",
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import {
-  BrowserRouter,
-} from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import '@cloudscape-design/global-styles/index.css';
@@ -3124,16 +3191,15 @@ import {
   BreadcrumbGroupProps,
   SideNavigation,
   SideNavigationProps,
-  TopNavigation,
 } from '@cloudscape-design/components';
 import AppLayout, { AppLayoutProps } from '@cloudscape-design/components/app-layout';
 import { CancelableEventHandler } from '@cloudscape-design/components/internal/events';
-import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
 import { createContext, useCallback, useMemo, useState } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Auth from './Auth';
 import Config from './config.json';
 import Home from './Home';
+import NavHeader from './NavHeader';
 
 /**
  * Define your nav items here.
@@ -3165,8 +3231,6 @@ const findNavItem = (href: string, root?: SideNavigationProps.Item[]): SideNavig
  */
 const App: React.FC = () => {
   const navigate = useNavigate();
-  const [theme, setTheme] = useState('theme.light');
-  const [density, setDensity] = useState('density.comfortable');
   const [activeHref, setActiveHref] = useState('/');
   const [activeBreadcrumbs, setActiveBreadcrumbs] = useState<BreadcrumbGroupProps.Item[]>([{ text: '/', href: '/' }]);
   const [appLayoutProps, setAppLayoutProps] = useState<AppLayoutProps>({});
@@ -3196,73 +3260,7 @@ const App: React.FC = () => {
 
   return (
     <Auth>
-      <TopNavigation
-        key={'header'}
-        utilities={[{
-          type: 'menu-dropdown',
-          iconName: 'settings',
-          ariaLabel: 'Settings',
-          title: 'Settings',
-          items: [{
-            id: 'theme',
-            text: 'Theme',
-            items: [
-              {
-                id: 'theme.light',
-                text: 'Light',
-                disabled: theme === 'theme.light',
-                disabledReason: 'currently selected',
-              },
-              {
-                id: 'theme.dark',
-                text: 'Dark',
-                disabled: theme === 'theme.dark',
-                disabledReason: 'currently selected',
-              },
-            ],
-          }, {
-            id: 'density',
-            text: 'Density',
-            items: [
-              {
-                id: 'density.comfortable',
-                text: 'Comfortable',
-                disabled: density === 'density.comfortable',
-                disabledReason: 'currently selected',
-              },
-              {
-                id: 'density.compact',
-                text: 'Compact',
-                disabled: density === 'density.compact',
-                disabledReason: 'currently selected',
-              },
-            ],
-          }],
-          onItemClick: (e) => {
-            switch (e.detail.id) {
-              case 'theme.light':
-                applyMode(Mode.Light);
-                setTheme('theme.light');
-                break;
-              case 'theme.dark':
-                applyMode(Mode.Dark);
-                setTheme('theme.dark');
-                break;
-              case 'density.comfortable':
-                applyDensity(Density.Comfortable);
-                setDensity('density.comfortable');
-                break;
-              case 'density.compact':
-                applyDensity(Density.Compact);
-                setDensity('density.compact');
-                break;
-              default:
-                break;
-            }
-          },
-        }]}
-        i18nStrings={{ overflowMenuTitleText: 'Header', overflowMenuTriggerText: 'Header' }}
-        identity={{ title: Config.applicationName, href: '', logo: { src: 'logo512.png' } }}/>
+      <NavHeader/>
       <AppLayout
         headerSelector=\\"header\\"
         breadcrumbs={<BreadcrumbGroup
@@ -3308,7 +3306,7 @@ export default App;",
  ******************************************************************************************************************** */
 
 import { Authenticator, ThemeProvider, Theme, useTheme } from '@aws-amplify/ui-react';
-import { Amplify } from 'aws-amplify';
+import { Amplify, Auth as AmplifyAuth, Hub } from 'aws-amplify';
 import React, { createContext, useCallback, useEffect, useState, useMemo } from 'react';
 
 /**
@@ -3372,24 +3370,43 @@ const Auth: React.FC<any> = ({ children }) => {
         return response.json();
       })
       .then(runtimeCtx => {
-        setRuntimeContext(runtimeContext);
-
-        runtimeCtx.region &&
-        runtimeCtx.userPoolId &&
-        runtimeCtx.userPoolWebClientId &&
-        runtimeCtx.identityPoolId &&
-        Amplify.configure({
-          Auth: {
-            region: runtimeCtx.region,
-            userPoolId: runtimeCtx.userPoolId,
-            userPoolWebClientId: runtimeCtx.userPoolWebClientId,
-            identityPoolId: runtimeCtx.identityPoolId,
-          },
-        });
+        if (runtimeCtx.region &&
+            runtimeCtx.userPoolId &&
+            runtimeCtx.userPoolWebClientId &&
+            runtimeCtx.identityPoolId) {
+          Amplify.configure({
+            Auth: {
+              region: runtimeCtx.region,
+              userPoolId: runtimeCtx.userPoolId,
+              userPoolWebClientId: runtimeCtx.userPoolWebClientId,
+              identityPoolId: runtimeCtx.identityPoolId,
+            },
+          });
+          AmplifyAuth.currentUserInfo()
+            .then(user => setRuntimeContext({ ...runtimeCtx, user }))
+            .catch(e => console.error(e));
+        } else {
+          console.warn('runtime-config.json should have region, userPoolId, userPoolWebClientId & identityPoolId.');
+        }
       })
       .catch(() => console.log('No runtime-config.json detected'))
       .finally(() => setRuntimeContextLoaded(true));
   }, [setRuntimeContext, setRuntimeContextLoaded]);
+
+  useEffect(() => {
+    Hub.listen('auth', (data) => {
+      switch (data.payload.event) {
+        case 'signIn':
+          AmplifyAuth.currentUserInfo()
+            .then(user => setRuntimeContext({ ...runtimeContext, user }))
+            .catch(e => console.error(e));
+          break;
+        case 'signOut':
+          window.location.reload();
+          break;
+      }
+    });
+  }, [runtimeContext]);
 
   const AuthWrapper: React.FC<any> = useCallback(({ children: _children }) => runtimeContext.userPoolId ?
     <ThemeProvider theme={theme}>
@@ -3460,6 +3477,125 @@ const Home: React.FC = () => {
 };
 
 export default Home;",
+  "src/NavHeader.tsx": "/*********************************************************************************************************************
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the \\"License\\").
+ You may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an \\"AS IS\\" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ ******************************************************************************************************************** */
+
+import { TopNavigation } from '@cloudscape-design/components';
+import { TopNavigationProps } from '@cloudscape-design/components/top-navigation/1.0-beta';
+import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
+import { Auth as AmplifyAuth } from 'aws-amplify';
+import React, { useContext, useState } from 'react';
+import { RuntimeConfigContext } from './Auth';
+import Config from './config.json';
+
+/**
+ * Defines the Navigation Header
+ */
+const NavHeader: React.FC = () => {
+  const [theme, setTheme] = useState('theme.light');
+  const [density, setDensity] = useState('density.comfortable');
+  const { runtimeContext } = useContext(RuntimeConfigContext);
+
+  const utilities: TopNavigationProps.Utility[] = [{
+    type: 'menu-dropdown',
+    iconName: 'settings',
+    ariaLabel: 'Settings',
+    title: 'Settings',
+    items: [{
+      id: 'theme',
+      text: 'Theme',
+      items: [
+        {
+          id: 'theme.light',
+          text: 'Light',
+          disabled: theme === 'theme.light',
+          disabledReason: 'currently selected',
+        },
+        {
+          id: 'theme.dark',
+          text: 'Dark',
+          disabled: theme === 'theme.dark',
+          disabledReason: 'currently selected',
+        },
+      ],
+    }, {
+      id: 'density',
+      text: 'Density',
+      items: [
+        {
+          id: 'density.comfortable',
+          text: 'Comfortable',
+          disabled: density === 'density.comfortable',
+          disabledReason: 'currently selected',
+        },
+        {
+          id: 'density.compact',
+          text: 'Compact',
+          disabled: density === 'density.compact',
+          disabledReason: 'currently selected',
+        },
+      ],
+    }],
+    onItemClick: (e) => {
+      switch (e.detail.id) {
+        case 'theme.light':
+          applyMode(Mode.Light);
+          setTheme('theme.light');
+          break;
+        case 'theme.dark':
+          applyMode(Mode.Dark);
+          setTheme('theme.dark');
+          break;
+        case 'density.comfortable':
+          applyDensity(Density.Comfortable);
+          setDensity('density.comfortable');
+          break;
+        case 'density.compact':
+          applyDensity(Density.Compact);
+          setDensity('density.compact');
+          break;
+        default:
+          break;
+      }
+    },
+  }];
+
+  runtimeContext.user && utilities.push({
+    type: 'menu-dropdown',
+    text: runtimeContext?.user?.username,
+    description: runtimeContext?.user?.attributes?.email,
+    iconName: 'user-profile',
+    items: [
+      { id: 'signout', text: 'Sign out' },
+    ],
+    onItemClick: async () => {
+      await AmplifyAuth.signOut();
+    },
+  });
+
+  return (
+    <TopNavigation
+      key={'header'}
+      utilities={utilities}
+      i18nStrings={{ overflowMenuTitleText: 'Header', overflowMenuTriggerText: 'Header' }}
+      identity={{ title: Config.applicationName, href: '', logo: { src: 'logo512.png' } }}/>
+  );
+};
+
+export default NavHeader;",
   "src/config.json": Object {
     "applicationName": "Defaults",
   },
@@ -3481,9 +3617,7 @@ export default Home;",
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import {
-  BrowserRouter,
-} from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import '@cloudscape-design/global-styles/index.css';
