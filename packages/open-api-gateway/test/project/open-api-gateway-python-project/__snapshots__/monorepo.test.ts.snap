@@ -13803,12 +13803,45 @@ export type LambdaRequestParameters<RequestParameters, RequestArrayParameters, R
     body: RequestBody,
 };
 
+/**
+ * A lambda handler function which is part of a chain. It may invoke the remainder of the chain via the given chain input
+ */
+export type ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> = (
+  input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
+  event: any,
+  context: any,
+  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>,
+) => Promise<OperationResponse<RequestOutput, ApiError>>;
+
 // Type for a lambda handler function to be wrapped
 export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> = (
-    input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
-    event: any,
-    context: any,
+  input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
+  event: any,
+  context: any,
 ) => Promise<OperationResponse<RequestOutput, ApiError>>;
+
+export interface LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> {
+  next: LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>;
+}
+
+/**
+ * Build a chain from the given array of chained lambda handlers
+ */
+const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>(...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>[]): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> => {
+  if (handlers.length === 0) {
+    return {
+      next: () => {
+        throw new Error(\\"No more handlers remain in the chain! The last handler should not call next.\\");
+      }
+    };
+  }
+  const [currentHandler, ...remainingHandlers] = handlers;
+  return {
+    next: (input, event, context) => {
+      return currentHandler(input, event, context, buildHandlerChain(...remainingHandlers));
+    },
+  };
+};
 
 // Type alias for the request
 type SayHelloRequestInput = SayHelloRequest;
@@ -13832,12 +13865,12 @@ export interface SayHelloRequestArrayParameters {
 export type SayHelloRequestBody = never;
 
 // Type that the handler function provided to the wrapper must conform to
-type SayHelloHandlerFunction<ApiError> = LambdaHandlerFunction<SayHelloRequestParameters, SayHelloRequestArrayParameters, SayHelloRequestBody, HelloResponse, ApiError>;
+export type SayHelloHandlerFunction<ApiError> = ChainedLambdaHandlerFunction<SayHelloRequestParameters, SayHelloRequestArrayParameters, SayHelloRequestBody, HelloResponse, ApiError>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of sayHello
  */
-export const sayHelloHandler = <ApiError>(handler: SayHelloHandlerFunction<ApiError>): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+export const sayHelloHandler = <ApiError>(firstHandler: SayHelloHandlerFunction<ApiError>, ...remainingHandlers: SayHelloHandlerFunction<ApiError>[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -13849,7 +13882,8 @@ export const sayHelloHandler = <ApiError>(handler: SayHelloHandlerFunction<ApiEr
 
     const body = parseBody(event.body, ['application/json']) as SayHelloRequestBody;
 
-    const response = await handler({
+    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const response = await chain.next({
         requestParameters,
         requestArrayParameters,
         body,
