@@ -1346,7 +1346,7 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
 /**
  * Parse the body if the content type is json, otherwise leave as a raw string
  */
-const parseBody = (body: string, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? JSON.parse(body || '{}') : body;
+const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
 // Api gateway lambda handler type
 type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
@@ -1442,7 +1442,12 @@ export const someTestOperationHandler = <ApiError>(firstHandler: SomeTestOperati
         ...(event.multiValueQueryStringParameters || {}),
     }) as unknown as SomeTestOperationRequestArrayParameters;
 
-    const body = parseBody(event.body, ['application/json',]) as SomeTestOperationRequestBody;
+    const demarshal = (bodyString: string): any => {
+        let parsed = JSON.parse(bodyString);
+        parsed = TestRequestFromJSON(parsed);
+        return parsed;
+    };
+    const body = parseBody(event.body, demarshal, ['application/json',]) as SomeTestOperationRequestBody;
 
     const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
     const response = await chain.next({
@@ -1451,9 +1456,25 @@ export const someTestOperationHandler = <ApiError>(firstHandler: SomeTestOperati
         body,
     }, event, context);
 
+    const marshal = (responseBody: any): string => {
+        let response = responseBody;
+        switch(response.statusCode) {
+            case 200:
+                response = TestResponseToJSON(response);
+                break;
+            case 400:
+                response = ApiErrorToJSON(response);
+                break;
+            default:
+                break;
+        }
+
+        return JSON.stringify(response);
+    };
+
     return {
         ...response,
-        body: response.body ? JSON.stringify(response.body) : '',
+        body: response.body ? marshal(response.body) : '',
     };
 };
 ",
@@ -3561,7 +3582,7 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
 /**
  * Parse the body if the content type is json, otherwise leave as a raw string
  */
-const parseBody = (body: string, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? JSON.parse(body || '{}') : body;
+const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
 // Api gateway lambda handler type
 type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
@@ -3660,7 +3681,12 @@ export const operationOneHandler = <ApiError>(firstHandler: OperationOneHandlerF
         ...(event.multiValueQueryStringParameters || {}),
     }) as unknown as OperationOneRequestArrayParameters;
 
-    const body = parseBody(event.body, ['application/json',]) as OperationOneRequestBody;
+    const demarshal = (bodyString: string): any => {
+        let parsed = JSON.parse(bodyString);
+        parsed = TestRequestFromJSON(parsed);
+        return parsed;
+    };
+    const body = parseBody(event.body, demarshal, ['application/json',]) as OperationOneRequestBody;
 
     const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
     const response = await chain.next({
@@ -3669,9 +3695,25 @@ export const operationOneHandler = <ApiError>(firstHandler: OperationOneHandlerF
         body,
     }, event, context);
 
+    const marshal = (responseBody: any): string => {
+        let response = responseBody;
+        switch(response.statusCode) {
+            case 200:
+                response = TestResponseToJSON(response);
+                break;
+            case 400:
+                response = ApiErrorToJSON(response);
+                break;
+            default:
+                break;
+        }
+
+        return JSON.stringify(response);
+    };
+
     return {
         ...response,
-        body: response.body ? JSON.stringify(response.body) : '',
+        body: response.body ? marshal(response.body) : '',
     };
 };
 // Type alias for the request
@@ -3710,7 +3752,11 @@ export const withoutOperationIdDeleteHandler = <ApiError>(firstHandler: WithoutO
         ...(event.multiValueQueryStringParameters || {}),
     }) as unknown as WithoutOperationIdDeleteRequestArrayParameters;
 
-    const body = parseBody(event.body, ['application/json']) as WithoutOperationIdDeleteRequestBody;
+    const demarshal = (bodyString: string): any => {
+        let parsed = JSON.parse(bodyString);
+        return parsed;
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as WithoutOperationIdDeleteRequestBody;
 
     const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
     const response = await chain.next({
@@ -3719,9 +3765,22 @@ export const withoutOperationIdDeleteHandler = <ApiError>(firstHandler: WithoutO
         body,
     }, event, context);
 
+    const marshal = (responseBody: any): string => {
+        let response = responseBody;
+        switch(response.statusCode) {
+            case 200:
+                response = TestResponseToJSON(response);
+                break;
+            default:
+                break;
+        }
+
+        return JSON.stringify(response);
+    };
+
     return {
         ...response,
-        body: response.body ? JSON.stringify(response.body) : '',
+        body: response.body ? marshal(response.body) : '',
     };
 };
 ",

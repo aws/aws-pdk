@@ -14314,7 +14314,7 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
 /**
  * Parse the body if the content type is json, otherwise leave as a raw string
  */
-const parseBody = (body: string, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? JSON.parse(body || '{}') : body;
+const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
 // Api gateway lambda handler type
 type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
@@ -14410,7 +14410,11 @@ export const sayHelloHandler = <ApiError>(firstHandler: SayHelloHandlerFunction<
         ...(event.multiValueQueryStringParameters || {}),
     }) as unknown as SayHelloRequestArrayParameters;
 
-    const body = parseBody(event.body, ['application/json']) as SayHelloRequestBody;
+    const demarshal = (bodyString: string): any => {
+        let parsed = JSON.parse(bodyString);
+        return parsed;
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 
     const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
     const response = await chain.next({
@@ -14419,9 +14423,25 @@ export const sayHelloHandler = <ApiError>(firstHandler: SayHelloHandlerFunction<
         body,
     }, event, context);
 
+    const marshal = (responseBody: any): string => {
+        let response = responseBody;
+        switch(response.statusCode) {
+            case 200:
+                response = HelloResponseToJSON(response);
+                break;
+            case 400:
+                response = ApiErrorToJSON(response);
+                break;
+            default:
+                break;
+        }
+
+        return JSON.stringify(response);
+    };
+
     return {
         ...response,
-        body: response.body ? JSON.stringify(response.body) : '',
+        body: response.body ? marshal(response.body) : '',
     };
 };
 ",
@@ -29767,7 +29787,7 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
 /**
  * Parse the body if the content type is json, otherwise leave as a raw string
  */
-const parseBody = (body: string, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? JSON.parse(body || '{}') : body;
+const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
 // Api gateway lambda handler type
 type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
@@ -29863,7 +29883,11 @@ export const sayHelloHandler = <ApiError>(firstHandler: SayHelloHandlerFunction<
         ...(event.multiValueQueryStringParameters || {}),
     }) as unknown as SayHelloRequestArrayParameters;
 
-    const body = parseBody(event.body, ['application/json']) as SayHelloRequestBody;
+    const demarshal = (bodyString: string): any => {
+        let parsed = JSON.parse(bodyString);
+        return parsed;
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 
     const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
     const response = await chain.next({
@@ -29872,9 +29896,25 @@ export const sayHelloHandler = <ApiError>(firstHandler: SayHelloHandlerFunction<
         body,
     }, event, context);
 
+    const marshal = (responseBody: any): string => {
+        let response = responseBody;
+        switch(response.statusCode) {
+            case 200:
+                response = HelloResponseToJSON(response);
+                break;
+            case 400:
+                response = ApiErrorToJSON(response);
+                break;
+            default:
+                break;
+        }
+
+        return JSON.stringify(response);
+    };
+
     return {
         ...response,
-        body: response.body ? JSON.stringify(response.body) : '',
+        body: response.body ? marshal(response.body) : '',
     };
 };
 ",
@@ -45224,7 +45264,7 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
 /**
  * Parse the body if the content type is json, otherwise leave as a raw string
  */
-const parseBody = (body: string, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? JSON.parse(body || '{}') : body;
+const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
 // Api gateway lambda handler type
 type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
@@ -45320,7 +45360,11 @@ export const sayHelloHandler = <ApiError>(firstHandler: SayHelloHandlerFunction<
         ...(event.multiValueQueryStringParameters || {}),
     }) as unknown as SayHelloRequestArrayParameters;
 
-    const body = parseBody(event.body, ['application/json']) as SayHelloRequestBody;
+    const demarshal = (bodyString: string): any => {
+        let parsed = JSON.parse(bodyString);
+        return parsed;
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 
     const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
     const response = await chain.next({
@@ -45329,9 +45373,25 @@ export const sayHelloHandler = <ApiError>(firstHandler: SayHelloHandlerFunction<
         body,
     }, event, context);
 
+    const marshal = (responseBody: any): string => {
+        let response = responseBody;
+        switch(response.statusCode) {
+            case 200:
+                response = HelloResponseToJSON(response);
+                break;
+            case 400:
+                response = ApiErrorToJSON(response);
+                break;
+            default:
+                break;
+        }
+
+        return JSON.stringify(response);
+    };
+
     return {
         ...response,
-        body: response.body ? JSON.stringify(response.body) : '',
+        body: response.body ? marshal(response.body) : '',
     };
 };
 ",

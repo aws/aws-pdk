@@ -3,10 +3,8 @@
 import {
     {{#imports}}
     {{className}},
-    {{^withoutRuntimeChecks}}
     {{className}}FromJSON,
     {{className}}ToJSON,
-    {{/withoutRuntimeChecks}}
     {{/imports}}
 } from '../../models';
 {{/imports.0}}
@@ -63,7 +61,7 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
 /**
  * Parse the body if the content type is json, otherwise leave as a raw string
  */
-const parseBody = (body: string, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? JSON.parse(body || '{}') : body;
+const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
 // Api gateway lambda handler type
 type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
@@ -174,7 +172,14 @@ export const {{nickname}}Handler = <ApiError>(firstHandler: {{operationIdCamelCa
         ...(event.multiValueQueryStringParameters || {}),
     }) as unknown as {{operationIdCamelCase}}RequestArrayParameters;
 
-    const body = parseBody(event.body, [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}]) as {{operationIdCamelCase}}RequestBody;
+    const demarshal = (bodyString: string): any => {
+        let parsed = JSON.parse(bodyString);
+        {{#bodyParam}}
+        parsed = {{dataType}}FromJSON(parsed);
+        {{/bodyParam}}
+        return parsed;
+    };
+    const body = parseBody(event.body, demarshal, [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}]) as {{operationIdCamelCase}}RequestBody;
 
     const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
     const response = await chain.next({
@@ -183,9 +188,24 @@ export const {{nickname}}Handler = <ApiError>(firstHandler: {{operationIdCamelCa
         body,
     }, event, context);
 
+    const marshal = (responseBody: any): string => {
+        let response = responseBody;
+        switch(response.statusCode) {
+        {{#responses}}
+            case {{code}}:
+                response = {{dataType}}ToJSON(response);
+                break;
+        {{/responses}}
+            default:
+                break;
+        }
+
+        return JSON.stringify(response);
+    };
+
     return {
         ...response,
-        body: response.body ? JSON.stringify(response.body) : '',
+        body: response.body ? marshal(response.body) : '',
     };
 };
 {{/operation}}

@@ -447,10 +447,27 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
 In typescript, interceptors are passed as separate arguments to the generated handler wrapper, in the order in which they should be executed.
 
 ```ts
-import { sayHelloHandler, ApiError } from "my-api-typescript-client";
+import {
+  sayHelloHandler,
+  ApiError,
+  LambdaRequestParameters,
+  LambdaHandlerChain,
+  OperationResponse
+} from "my-api-typescript-client";
 
 // Interceptor to wrap invocations in a try/catch, returning a 500 error for any unhandled exceptions.
-const tryCatchInterceptor = async (input, event, context, chain) => {
+const tryCatchInterceptor = async <
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  RequestOutput,
+  TError
+>(
+  input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
+  event: any,
+  context: any,
+  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, TError>,
+): Promise<OperationResponse<RequestOutput, TError>> => {
   try {
     return await chain.next(input, event, context);
   } catch (e) {
