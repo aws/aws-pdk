@@ -110,7 +110,12 @@ export class UserIdentity extends Construct {
           ...(props?.identityPoolOptions?.authenticationProviders?.userPools ||
             []),
           ...(!props?.userPool
-            ? [new UserPoolAuthenticationProvider({ userPool: this.userPool })]
+            ? [
+                new UserPoolAuthenticationProvider({
+                  userPool: this.userPool,
+                  userPoolClient: this.userPoolClient!,
+                }),
+              ]
             : []),
         ],
       },
