@@ -1401,6 +1401,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#interceptors" class="md-nav__link">
+    Interceptors
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#other-details" class="md-nav__link">
     Other Details
   </a>
@@ -1663,7 +1670,7 @@ aws-prototyping-sdk library.</p>
 <p>To use this package, add a dependency on: <code>@aws-prototyping-sdk/open-api-gateway</code></p>
 </div>
 <h2 id="openapi-gateway">OpenAPI Gateway</h2>
-<p>Define your APIs using <a href="https://swagger.io/specification/">OpenAPI v3</a>, and leverage the power of generated clients, automatic input validation, and type safe client and server code!</p>
+<p>Define your APIs using <a href="https://swagger.io/specification/">OpenAPI v3</a>, and leverage the power of generated clients and documentation, automatic input validation, and type safe client and server code!</p>
 <p>This package vends a projen project type which allows you to define an API using <a href="https://swagger.io/specification/">OpenAPI v3</a>, and a construct which manages deploying this API in API Gateway, given a lambda integration for every operation.</p>
 <p>The project will generate models and clients from your OpenAPI spec in your desired languages, and can be utilised both client side or server side in lambda handlers. The project type also generates a wrapper construct which adds type safety to ensure a lambda integration is provided for every API integration.</p>
 <p>When you change your API specification, just run <code>npx projen</code> again to regenerate all of this!</p>
@@ -1672,7 +1679,7 @@ aws-prototyping-sdk library.</p>
 <p>It's recommended that this project is used as part of an <code>nx_monorepo</code> project. You can still use this as a standalone project if you like (eg <code>npx projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts</code>), however you will need to manage build order (ie building the generated client first, followed by the project).</p>
 <p>For usage in a monorepo:</p>
 <p>Create the project in your .projenrc:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="nx">ClientLanguage</span><span class="p">,</span><span class="w"> </span><span class="nx">OpenApiGatewayTsProject</span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/open-api-gateway&quot;</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ClientLanguage</span><span class="p">,</span><span class="w"> </span><span class="nx">DocumentationFormat</span><span class="p">,</span><span class="w"> </span><span class="nx">OpenApiGatewayTsProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/open-api-gateway&quot;</span><span class="p">;</span><span class="w"></span>
 
 <span class="ow">new</span><span class="w"> </span><span class="nx">OpenApiGatewayTsProject</span><span class="p">({</span><span class="w"></span>
 <span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">myNxMonorepo</span><span class="p">,</span><span class="w"></span>
@@ -1680,6 +1687,7 @@ aws-prototyping-sdk library.</p>
 <span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-api&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">  </span><span class="nx">clientLanguages</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">ClientLanguage</span><span class="p">.</span><span class="nx">TYPESCRIPT</span><span class="p">,</span><span class="w"> </span><span class="nx">ClientLanguage</span><span class="p">.</span><span class="nx">PYTHON</span><span class="p">,</span><span class="w"> </span><span class="nx">ClientLanguage</span><span class="p">.</span><span class="nx">JAVA</span><span class="p">],</span><span class="w"></span>
+<span class="w">  </span><span class="nx">documentationFormats</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">DocumentationFormat</span><span class="p">.</span><span class="nx">HTML2</span><span class="p">,</span><span class="w"> </span><span class="nx">DocumentationFormat</span><span class="p">.</span><span class="nx">PLANTUML</span><span class="p">,</span><span class="w"> </span><span class="nx">DocumentationFormat</span><span class="p">.</span><span class="nx">MARKDOWN</span><span class="p">],</span><span class="w"></span>
 <span class="p">});</span><span class="w"></span>
 </code></pre></div>
 <p>In the output directory (<code>outdir</code>), you'll find a few files to get you started.</p>
@@ -1698,6 +1706,10 @@ aws-prototyping-sdk library.</p>
     |_ typescript/ - A generated typescript API client, including generated lambda handler wrappers
     |_ python/ - A generated python API client.
     |_ java/ - A generated java API client.
+    |_ documentation/
+        |_ html2/ - Generated html documentation
+        |_ markdown/ - Generated markdown documentation
+        |_ plantuml/ - Generated plant uml documentation
 </code></pre></div>
 <p>If you would prefer to not generate the sample code, you can pass <code>sampleCode: false</code> to <code>OpenApiGatewayTsProject</code>.</p>
 <p>To make changes to your api, simply update <code>spec.yaml</code> and run <code>npx projen</code> to synthesize all the typesafe client/server code!</p>
@@ -2006,6 +2018,74 @@ aws-prototyping-sdk library.</p>
         <span class="n">body</span><span class="o">=</span><span class="n">HelloResponse</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Hello </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">request_parameters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])),</span>
         <span class="n">headers</span><span class="o">=</span><span class="p">{}</span>
     <span class="p">)</span>
+</code></pre></div>
+<h3 id="interceptors">Interceptors</h3>
+<p>The lambda handler wrappers allow you to pass in a <em>chain</em> of handler functions to handle the request. This allows you to implement middleware / interceptors for handling requests. Each handler function may choose whether or not to continue the handler chain by invoking <code>chain.next(input, event, context)</code>. Note that the last handler in the chain (ie the actual request handler which transforms the input to the output) should not call <code>chain.next</code>.</p>
+<h4 id="typescript_3">Typescript</h4>
+<p>In typescript, interceptors are passed as separate arguments to the generated handler wrapper, in the order in which they should be executed.</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">sayHelloHandler</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">ApiError</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">LambdaRequestParameters</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">LambdaHandlerChain</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">OperationResponse</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;my-api-typescript-client&quot;</span><span class="p">;</span><span class="w"></span>
+
+<span class="c1">// Interceptor to wrap invocations in a try/catch, returning a 500 error for any unhandled exceptions.</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">tryCatchInterceptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="o">&lt;</span><span class="w"></span>
+<span class="w">  </span><span class="nx">RequestParameters</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">RequestArrayParameters</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">RequestBody</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">RequestOutput</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">TError</span><span class="w"></span>
+<span class="o">&gt;</span><span class="p">(</span><span class="w"></span>
+<span class="w">  </span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="kt">LambdaRequestParameters</span><span class="o">&lt;</span><span class="nx">RequestParameters</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestArrayParameters</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestBody</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">event</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">context</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">chain</span><span class="o">:</span><span class="w"> </span><span class="kt">LambdaHandlerChain</span><span class="o">&lt;</span><span class="nx">RequestParameters</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestArrayParameters</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestBody</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestOutput</span><span class="p">,</span><span class="w"> </span><span class="nx">TError</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">OperationResponse</span><span class="o">&lt;</span><span class="nx">RequestOutput</span><span class="p">,</span><span class="w"> </span><span class="nx">TError</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">chain</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="nx">input</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="p">,</span><span class="w"> </span><span class="nx">context</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">statusCode</span><span class="o">:</span><span class="w"> </span><span class="kt">500</span><span class="p">,</span><span class="w"> </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">errorMessage</span><span class="o">:</span><span class="w"> </span><span class="kt">e.message</span><span class="w"> </span><span class="p">}};</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="c1">// tryCatchInterceptor is passed first, so it runs first and calls the second argument function (the request handler) via chain.next</span><span class="w"></span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">sayHelloHandler</span><span class="o">&lt;</span><span class="nx">ApiError</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">tryCatchInterceptor</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">input</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">statusCode</span><span class="o">:</span><span class="w"> </span><span class="kt">200</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="sb">`Hello </span><span class="si">${</span><span class="nx">input</span><span class="p">.</span><span class="nx">requestParameters</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">!`</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">  </span><span class="p">};</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+</code></pre></div>
+<p>Another example interceptor might be to record request time metrics. The example below includes the full generic type signature for an interceptor:</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">LambdaRequestParameters</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">LambdaHandlerChain</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">OperationResponse</span><span class="p">,</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;my-api-typescript-client&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">timingInterceptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="o">&lt;</span><span class="w"></span>
+<span class="w">  </span><span class="nx">RequestParameters</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">RequestArrayParameters</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">RequestBody</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">RequestOutput</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">TError</span><span class="w"></span>
+<span class="o">&gt;</span><span class="p">(</span><span class="w"></span>
+<span class="w">  </span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="kt">LambdaRequestParameters</span><span class="o">&lt;</span><span class="nx">RequestParameters</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestArrayParameters</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestBody</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">event</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">context</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">chain</span><span class="o">:</span><span class="w"> </span><span class="kt">LambdaHandlerChain</span><span class="o">&lt;</span><span class="nx">RequestParameters</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestArrayParameters</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestBody</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestOutput</span><span class="p">,</span><span class="w"> </span><span class="nx">TError</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">OperationResponse</span><span class="o">&lt;</span><span class="nx">RequestOutput</span><span class="p">,</span><span class="w"> </span><span class="nx">TError</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">chain</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="nx">input</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="p">,</span><span class="w"> </span><span class="nx">context</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Took </span><span class="si">${</span><span class="nx">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">start</span><span class="si">}</span><span class="sb">ms`</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">response</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 </code></pre></div>
 <h3 id="other-details">Other Details</h3>
 <h4 id="workspaces-and-openapigatewaytsproject">Workspaces and <code>OpenApiGatewayTsProject</code></h4>
@@ -9144,7 +9224,7 @@ this task should synthesize the project files.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="typescript_3"><code>TYPESCRIPT</code> <a name="TYPESCRIPT" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.TYPESCRIPT"></a></h5>
+<h5 id="typescript_4"><code>TYPESCRIPT</code> <a name="TYPESCRIPT" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.TYPESCRIPT"></a></h5>
 <hr />
 <h5 id="python_3"><code>PYTHON</code> <a name="PYTHON" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.PYTHON"></a></h5>
 <hr />
@@ -9219,7 +9299,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2022-07-21
+      2022-07-25
     
   </small>
 </div>
