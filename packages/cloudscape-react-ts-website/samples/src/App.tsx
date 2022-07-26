@@ -90,7 +90,6 @@ const App: React.FC = () => {
     <Auth>
       <NavHeader/>
       <AppLayout
-        headerSelector="header"
         breadcrumbs={<BreadcrumbGroup
           onFollow={onNavigate}
           items={activeBreadcrumbs}/>}
