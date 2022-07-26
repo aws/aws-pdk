@@ -45,16 +45,6 @@ export const AppLayoutContext = createContext({
 });
 
 /**
- * Finds a Nav Item matching the provided href.
- *
- * @param href href to search for
- * @param root root nav items to begin search
- * @returns a nav item matching href or undefined.
- */
-const findNavItem = (href: string, root?: SideNavigationProps.Item[]): SideNavigationProps.Item | undefined =>
-  root?.find((i: any) => i?.href === href) || root?.map((i: any) => findNavItem(href, i?.items))?.find((i: any) => i?.href === href);
-
-/**
  * Defines the App layout and contains logic for routing.
  */
 const App: React.FC = () => {
@@ -80,8 +70,7 @@ const App: React.FC = () => {
           href,
           text: segment,
         };
-      })
-      .filter((item: any) => findNavItem(item?.href, NAVIGATION_ITEMS)),
+      }),
     );
     navigate(e.detail.href);
   }, [navigate, setAppLayoutProps, setActiveBreadcrumbs]);
@@ -90,7 +79,6 @@ const App: React.FC = () => {
     <Auth>
       <NavHeader/>
       <AppLayout
-        headerSelector="header"
         breadcrumbs={<BreadcrumbGroup
           onFollow={onNavigate}
           items={activeBreadcrumbs}/>}

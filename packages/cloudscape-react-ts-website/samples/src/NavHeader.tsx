@@ -112,7 +112,7 @@ const NavHeader: React.FC = () => {
       key={'header'}
       utilities={utilities}
       i18nStrings={{ overflowMenuTitleText: 'Header', overflowMenuTriggerText: 'Header' }}
-      identity={{ title: Config.applicationName, href: '', logo: { src: 'logo512.png' } }}/>
+      identity={{ title: Config.applicationName, href: '', logo: { src: '/logo512.png' } }}/>
   );
 };
 
