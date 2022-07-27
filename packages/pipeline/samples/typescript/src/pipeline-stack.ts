@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import { PDKPipeline } from '@aws-prototyping-sdk/pipeline';
 import { Stack, StackProps } from 'aws-cdk-lib';
-import { PDKPipeline } from 'aws-prototyping-sdk/pipeline';
 import { Construct } from 'constructs';
 
 export class PipelineStack extends Stack {

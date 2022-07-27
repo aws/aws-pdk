@@ -14,7 +14,7 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { PDKNag } from 'aws-prototyping-sdk/pdk-nag';
+import { PDKNag } from '@aws-prototyping-sdk/pdk-nag';
 import { ApplicationStage } from './application-stage';
 import { PipelineStack } from './pipeline-stack';
 
