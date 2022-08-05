@@ -189,18 +189,21 @@ export const {{nickname}}Handler = <ApiError>(firstHandler: {{operationIdCamelCa
     }, event, context);
 
     const marshal = (responseBody: any): string => {
+
         let response = responseBody;
         switch(response.statusCode) {
         {{#responses}}
             case {{code}}:
-                response = {{dataType}}ToJSON(response);
+                {{^isPrimitiveType}}
+                response = JSON.stringify({{dataType}}ToJSON(response));
+                {{/isPrimitiveType}}
                 break;
         {{/responses}}
             default:
                 break;
         }
 
-        return JSON.stringify(response);
+        return response;
     };
 
     return {
