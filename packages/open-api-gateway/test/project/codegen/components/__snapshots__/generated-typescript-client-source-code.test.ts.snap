@@ -1457,19 +1457,20 @@ export const someTestOperationHandler = <ApiError>(firstHandler: SomeTestOperati
     }, event, context);
 
     const marshal = (responseBody: any): string => {
+
         let response = responseBody;
         switch(response.statusCode) {
             case 200:
-                response = TestResponseToJSON(response);
+                response = JSON.stringify(TestResponseToJSON(response));
                 break;
             case 400:
-                response = ApiErrorToJSON(response);
+                response = JSON.stringify(ApiErrorToJSON(response));
                 break;
             default:
                 break;
         }
 
-        return JSON.stringify(response);
+        return response;
     };
 
     return {
@@ -3425,6 +3426,10 @@ import {
     TestResponseToJSON,
 } from '../models';
 
+export interface MediaTypesRequest {
+    body: Blob;
+}
+
 export interface OperationOneRequest {
     param1: string;
     param2: Array<string>;
@@ -3437,6 +3442,37 @@ export interface OperationOneRequest {
  * 
  */
 export class DefaultApi extends runtime.BaseAPI {
+
+    /**
+     */
+    async mediaTypesRaw(requestParameters: MediaTypesRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<string>> {
+        if (requestParameters.body === null || requestParameters.body === undefined) {
+            throw new runtime.RequiredError('body','Required parameter requestParameters.body was null or undefined when calling mediaTypes.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/pdf';
+
+        const response = await this.request({
+            path: \`/different-media-type\`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters.body as any,
+        }, initOverrides);
+
+        return new runtime.TextApiResponse(response) as any;
+    }
+
+    /**
+     */
+    async mediaTypes(requestParameters: MediaTypesRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<string> {
+        const response = await this.mediaTypesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      */
@@ -3537,18 +3573,24 @@ import {
 } from '../../models';
 // Import request parameter interfaces
 import {
+    MediaTypesRequest,
     OperationOneRequest,
     
 } from '..';
 
 // Generic type for object keyed by operation names
 export interface OperationConfig<T> {
+    mediaTypes: T;
     operationOne: T;
     withoutOperationIdDelete: T;
 }
 
 // Look up path and http method for a given operation name
 export const OperationLookup = {
+    mediaTypes: {
+        path: '/different-media-type',
+        method: 'POST',
+    },
     operationOne: {
         path: '/path/{pathParam}',
         method: 'POST',
@@ -3642,6 +3684,74 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
 };
 
 // Type alias for the request
+type MediaTypesRequestInput = MediaTypesRequest;
+
+/**
+ * Single-value path/query parameters for MediaTypes
+ */
+export interface MediaTypesRequestParameters {
+}
+
+/**
+ * Multi-value query parameters for MediaTypes
+ */
+export interface MediaTypesRequestArrayParameters {
+}
+
+/**
+ * Request body parameter for MediaTypes
+ */
+export type MediaTypesRequestBody = Blob;
+
+// Type that the handler function provided to the wrapper must conform to
+export type MediaTypesHandlerFunction<ApiError> = ChainedLambdaHandlerFunction<MediaTypesRequestParameters, MediaTypesRequestArrayParameters, MediaTypesRequestBody, string, ApiError>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of mediaTypes
+ */
+export const mediaTypesHandler = <ApiError>(firstHandler: MediaTypesHandlerFunction<ApiError>, ...remainingHandlers: MediaTypesHandlerFunction<ApiError>[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+    const requestParameters = decodeRequestParameters({
+        ...(event.pathParameters || {}),
+        ...(event.queryStringParameters || {}),
+    }) as unknown as MediaTypesRequestParameters;
+
+    const requestArrayParameters = decodeRequestParameters({
+        ...(event.multiValueQueryStringParameters || {}),
+    }) as unknown as MediaTypesRequestArrayParameters;
+
+    const demarshal = (bodyString: string): any => {
+        let parsed = JSON.parse(bodyString);
+        parsed = BlobFromJSON(parsed);
+        return parsed;
+    };
+    const body = parseBody(event.body, demarshal, ['application/pdf',]) as MediaTypesRequestBody;
+
+    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const response = await chain.next({
+        requestParameters,
+        requestArrayParameters,
+        body,
+    }, event, context);
+
+    const marshal = (responseBody: any): string => {
+
+        let response = responseBody;
+        switch(response.statusCode) {
+            case 200:
+                break;
+            default:
+                break;
+        }
+
+        return response;
+    };
+
+    return {
+        ...response,
+        body: response.body ? marshal(response.body) : '',
+    };
+};
+// Type alias for the request
 type OperationOneRequestInput = OperationOneRequest;
 
 /**
@@ -3696,19 +3806,20 @@ export const operationOneHandler = <ApiError>(firstHandler: OperationOneHandlerF
     }, event, context);
 
     const marshal = (responseBody: any): string => {
+
         let response = responseBody;
         switch(response.statusCode) {
             case 200:
-                response = TestResponseToJSON(response);
+                response = JSON.stringify(TestResponseToJSON(response));
                 break;
             case 400:
-                response = ApiErrorToJSON(response);
+                response = JSON.stringify(ApiErrorToJSON(response));
                 break;
             default:
                 break;
         }
 
-        return JSON.stringify(response);
+        return response;
     };
 
     return {
@@ -3766,16 +3877,17 @@ export const withoutOperationIdDeleteHandler = <ApiError>(firstHandler: WithoutO
     }, event, context);
 
     const marshal = (responseBody: any): string => {
+
         let response = responseBody;
         switch(response.statusCode) {
             case 200:
-                response = TestResponseToJSON(response);
+                response = JSON.stringify(TestResponseToJSON(response));
                 break;
             default:
                 break;
         }
 
-        return JSON.stringify(response);
+        return response;
     };
 
     return {

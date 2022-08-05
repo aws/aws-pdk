@@ -7337,16 +7337,12 @@ public class Example {
     defaultClient.setBasePath(\\"http://localhost\\");
 
     DefaultApi apiInstance = new DefaultApi(defaultClient);
-    String param1 = \\"param1_example\\"; // String | 
-    List<String> param2 = Arrays.asList(); // List<String> | 
-    BigDecimal param3 = new BigDecimal(78); // BigDecimal | 
-    String pathParam = \\"pathParam_example\\"; // String | 
-    TestRequest testRequest = new TestRequest(); // TestRequest | 
+    File body = new File(\\"/path/to/file\\"); // File | 
     try {
-      TestResponse result = apiInstance.operationOne(param1, param2, param3, pathParam, testRequest);
+      String result = apiInstance.mediaTypes(body);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println(\\"Exception when calling DefaultApi#operationOne\\");
+      System.err.println(\\"Exception when calling DefaultApi#mediaTypes\\");
       System.err.println(\\"Status code: \\" + e.getCode());
       System.err.println(\\"Reason: \\" + e.getResponseBody());
       System.err.println(\\"Response headers: \\" + e.getResponseHeaders());
@@ -7363,6 +7359,7 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*DefaultApi* | [**mediaTypes**](docs/DefaultApi.md#mediaTypes) | **POST** /different-media-type | 
 *DefaultApi* | [**operationOne**](docs/DefaultApi.md#operationOne) | **POST** /path/{pathParam} | 
 *DefaultApi* | [**withoutOperationIdDelete**](docs/DefaultApi.md#withoutOperationIdDelete) | **DELETE** /without-operation-id | 
 
@@ -7461,6 +7458,25 @@ paths:
                 $ref: '#/components/schemas/TestResponse'
           description: Successful response
       x-accepts: application/json
+  /different-media-type:
+    post:
+      operationId: mediaTypes
+      requestBody:
+        content:
+          application/pdf:
+            schema:
+              format: binary
+              type: string
+        required: true
+      responses:
+        \\"200\\":
+          content:
+            application/x-mpegurl:
+              schema:
+                type: string
+          description: Success
+      x-content-type: application/pdf
+      x-accepts: application/x-mpegurl
 components:
   schemas:
     ApiError:
@@ -7708,9 +7724,70 @@ All URIs are relative to *http://localhost*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**mediaTypes**](DefaultApi.md#mediaTypes) | **POST** /different-media-type |  |
 | [**operationOne**](DefaultApi.md#operationOne) | **POST** /path/{pathParam} |  |
 | [**withoutOperationIdDelete**](DefaultApi.md#withoutOperationIdDelete) | **DELETE** /without-operation-id |  |
 
+
+<a name=\\"mediaTypes\\"></a>
+# **mediaTypes**
+> String mediaTypes(body)
+
+
+
+### Example
+\`\`\`java
+// Import classes:
+import test.test.client.ApiClient;
+import test.test.client.ApiException;
+import test.test.client.Configuration;
+import test.test.client.models.*;
+import test.test.client.api.DefaultApi;
+
+public class Example {
+  public static void main(String[] args) {
+    ApiClient defaultClient = Configuration.getDefaultApiClient();
+    defaultClient.setBasePath(\\"http://localhost\\");
+
+    DefaultApi apiInstance = new DefaultApi(defaultClient);
+    File body = new File(\\"/path/to/file\\"); // File | 
+    try {
+      String result = apiInstance.mediaTypes(body);
+      System.out.println(result);
+    } catch (ApiException e) {
+      System.err.println(\\"Exception when calling DefaultApi#mediaTypes\\");
+      System.err.println(\\"Status code: \\" + e.getCode());
+      System.err.println(\\"Reason: \\" + e.getResponseBody());
+      System.err.println(\\"Response headers: \\" + e.getResponseHeaders());
+      e.printStackTrace();
+    }
+  }
+}
+\`\`\`
+
+### Parameters
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **body** | **File**|  | |
+
+### Return type
+
+**String**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/pdf
+ - **Accept**: application/x-mpegurl
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Success |  -  |
 
 <a name=\\"operationOne\\"></a>
 # **operationOne**
@@ -11874,6 +11951,7 @@ import java.io.IOException;
 
 import test.test.client.model.ApiError;
 import java.math.BigDecimal;
+import java.io.File;
 import test.test.client.model.TestRequest;
 import test.test.client.model.TestResponse;
 
@@ -11921,6 +11999,132 @@ public class DefaultApi {
         this.localCustomBaseUrl = customBaseUrl;
     }
 
+    /**
+     * Build call for mediaTypes
+     * @param body  (required)
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary=\\"Response Details\\" border=\\"1\\">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> Success </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call mediaTypesCall(File body, final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = body;
+
+        // create path and map variables
+        String localVarPath = \\"/different-media-type\\";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            \\"application/x-mpegurl\\"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put(\\"Accept\\", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            \\"application/pdf\\"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put(\\"Content-Type\\", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, \\"POST\\", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings(\\"rawtypes\\")
+    private okhttp3.Call mediaTypesValidateBeforeCall(File body, final ApiCallback _callback) throws ApiException {
+        
+        // verify the required parameter 'body' is set
+        if (body == null) {
+            throw new ApiException(\\"Missing the required parameter 'body' when calling mediaTypes(Async)\\");
+        }
+        
+
+        okhttp3.Call localVarCall = mediaTypesCall(body, _callback);
+        return localVarCall;
+
+    }
+
+    /**
+     * 
+     * 
+     * @param body  (required)
+     * @return String
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary=\\"Response Details\\" border=\\"1\\">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> Success </td><td>  -  </td></tr>
+     </table>
+     */
+    public String mediaTypes(File body) throws ApiException {
+        ApiResponse<String> localVarResp = mediaTypesWithHttpInfo(body);
+        return localVarResp.getData();
+    }
+
+    /**
+     * 
+     * 
+     * @param body  (required)
+     * @return ApiResponse&lt;String&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary=\\"Response Details\\" border=\\"1\\">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> Success </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<String> mediaTypesWithHttpInfo(File body) throws ApiException {
+        okhttp3.Call localVarCall = mediaTypesValidateBeforeCall(body, null);
+        Type localVarReturnType = new TypeToken<String>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    /**
+     *  (asynchronously)
+     * 
+     * @param body  (required)
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary=\\"Response Details\\" border=\\"1\\">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> Success </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call mediaTypesAsync(File body, final ApiCallback<String> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = mediaTypesValidateBeforeCall(body, _callback);
+        Type localVarReturnType = new TypeToken<String>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
     /**
      * Build call for operationOne
      * @param param1  (required)
@@ -12225,6 +12429,7 @@ import test.test.client.model.*;
 
 import test.test.client.model.ApiError;
 import java.math.BigDecimal;
+import java.io.File;
 import test.test.client.model.TestRequest;
 import test.test.client.model.TestResponse;
 
@@ -12234,6 +12439,7 @@ import java.util.Map;
 // Generic type for object \\"keyed\\" by operation names
 @javax.annotation.Generated(value = \\"org.openapitools.codegen.languages.JavaClientCodegen\\")
 public abstract class OperationConfig<T> {
+    public T mediaTypes;
     public T operationOne;
     public T withoutOperationIdDelete;
 }
@@ -12246,6 +12452,7 @@ import test.test.client.model.*;
 
 import test.test.client.model.ApiError;
 import java.math.BigDecimal;
+import java.io.File;
 import test.test.client.model.TestRequest;
 import test.test.client.model.TestResponse;
 
@@ -12262,6 +12469,7 @@ public class OperationLookup {
     public static Map<String, Map<String, String>> getOperationLookup() {
         final Map<String, Map<String, String>> config = new HashMap<>();
 
+        config.put(\\"mediaTypes\\", new HashMap<String, String>() { { put(\\"path\\", \\"/different-media-type\\"); put(\\"method\\", \\"POST\\"); } });
         config.put(\\"operationOne\\", new HashMap<String, String>() { { put(\\"path\\", \\"/path/{pathParam}\\"); put(\\"method\\", \\"POST\\"); } });
         config.put(\\"withoutOperationIdDelete\\", new HashMap<String, String>() { { put(\\"path\\", \\"/without-operation-id\\"); put(\\"method\\", \\"DELETE\\"); } });
 
@@ -13596,6 +13804,7 @@ package test.test.client.api;
 import test.test.client.ApiException;
 import test.test.client.model.ApiError;
 import java.math.BigDecimal;
+import java.io.File;
 import test.test.client.model.TestRequest;
 import test.test.client.model.TestResponse;
 import org.junit.jupiter.api.Disabled;
@@ -13613,6 +13822,16 @@ import java.util.Map;
 public class DefaultApiTest {
 
     private final DefaultApi api = new DefaultApi();
+
+    /**
+     * @throws ApiException if the Api call fails
+     */
+    @Test
+    public void mediaTypesTest() throws ApiException {
+        File body = null;
+        String response = api.mediaTypes(body);
+        // TODO: test validations
+    }
 
     /**
      * @throws ApiException if the Api call fails

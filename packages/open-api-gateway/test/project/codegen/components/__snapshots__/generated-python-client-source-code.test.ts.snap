@@ -6597,21 +6597,13 @@ configuration = test.Configuration(
 with test.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = default_api.DefaultApi(api_client)
-    param1 = \\"param1_example\\" # str | 
-param2 = [
-        \\"param2_example\\"
-    ] # [str] | 
-param3 = 3.14 # int, float | 
-path_param = \\"pathParam_example\\" # str | 
-test_request = TestRequest(
-        my_input=3.14,
-    ) # TestRequest | 
+    body = open('/path/to/file', 'rb') # file_type | 
 
     try:
-        api_response = api_instance.operation_one(param1param2param3path_paramtest_request)
+        api_response = api_instance.media_types(body)
         pprint(api_response)
     except test.ApiException as e:
-        print(\\"Exception when calling DefaultApi->operation_one: %s\\\\n\\" % e)
+        print(\\"Exception when calling DefaultApi->media_types: %s\\\\n\\" % e)
 \`\`\`
 
 ## Documentation for API Endpoints
@@ -6620,6 +6612,7 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*DefaultApi* | [**media_types**](docs/DefaultApi.md#media_types) | **POST** /different-media-type | 
 *DefaultApi* | [**operation_one**](docs/DefaultApi.md#operation_one) | **POST** /path/{pathParam} | 
 *DefaultApi* | [**without_operation_id_delete**](docs/DefaultApi.md#without_operation_id_delete) | **DELETE** /without-operation-id | 
 
@@ -6673,8 +6666,89 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**media_types**](DefaultApi.md#media_types) | **POST** /different-media-type | 
 [**operation_one**](DefaultApi.md#operation_one) | **POST** /path/{pathParam} | 
 [**without_operation_id_delete**](DefaultApi.md#without_operation_id_delete) | **DELETE** /without-operation-id | 
+
+# **media_types**
+> str media_types(body)
+
+
+
+### Example
+
+\`\`\`python
+import test
+from test.api import default_api
+from pprint import pprint
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = test.Configuration(
+    host = \\"http://localhost\\"
+)
+
+# Enter a context with an instance of the API client
+with test.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = default_api.DefaultApi(api_client)
+
+    # example passing only required values which don't have defaults set
+    body = open('/path/to/file', 'rb')
+    try:
+        api_response = api_instance.media_types(
+            body=body,
+        )
+        pprint(api_response)
+    except test.ApiException as e:
+        print(\\"Exception when calling DefaultApi->media_types: %s\\\\n\\" % e)
+\`\`\`
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+body | typing.Union[SchemaForRequestBodyApplicationPdf] | required |
+content_type | str | optional, default is 'application/pdf' | Selects the schema and serialization of the request body
+accept_content_types | typing.Tuple[str] | default is ('application/x-mpegurl', ) | Tells the server the content type(s) that are accepted by the client
+stream | bool | default is False | if True then the response.content will be streamed and loaded from a file like object. When downloading a file, set this to True to force the code to deserialize the content to a FileSchema file
+timeout | typing.Optional[typing.Union[int, typing.Tuple]] | default is None | the timeout used by the rest client
+skip_deserialization | bool | default is False | when True, headers and body will be unset and an instance of api_client.ApiResponseWithoutDeserialization will be returned
+
+### body
+
+#### SchemaForRequestBodyApplicationPdf
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**file_type** |  | 
+
+### Return Types, Responses
+
+Code | Class | Description
+------------- | ------------- | -------------
+n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
+200 | ApiResponseFor200 | Success
+
+#### ApiResponseFor200
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor200ResponseBodyApplicationXMpegurl, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor200ResponseBodyApplicationXMpegurl
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**str** |  | 
+
+
+**str**
+
+### Authorization
+
+No authorization required
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **operation_one**
 > TestResponse operation_one(param1param2param3path_paramtest_request)
@@ -7060,11 +7134,13 @@ if __name__ == \\"__main__\\":
 \\"\\"\\"
 
 from test.api_client import ApiClient
+from test.api.default_api_endpoints.media_types import MediaTypes
 from test.api.default_api_endpoints.operation_one import OperationOne
 from test.api.default_api_endpoints.without_operation_id_delete import WithoutOperationIdDelete
 
 
 class DefaultApi(
+    MediaTypes,
     OperationOne,
     WithoutOperationIdDelete,
     ApiClient,
@@ -7079,6 +7155,173 @@ class DefaultApi(
   "test/api/default_api_endpoints/__init__.py": "# do not import all endpoints into this module because that uses a lot of memory and stack frames
 # if you need the ability to import all endpoints from this module, import them with
 # from test.api.default_api import DefaultApi
+",
+  "test/api/default_api_endpoints/media_types.py": "# coding: utf-8
+
+\\"\\"\\"
+
+
+    Generated by: https://openapi-generator.tech
+\\"\\"\\"
+
+from dataclasses import dataclass
+import re  # noqa: F401
+import sys  # noqa: F401
+import typing
+import urllib3
+import functools  # noqa: F401
+from urllib3._collections import HTTPHeaderDict
+
+from test import api_client, exceptions
+import decimal  # noqa: F401
+from datetime import date, datetime  # noqa: F401
+from frozendict import frozendict  # noqa: F401
+
+from test.schemas import (  # noqa: F401
+    AnyTypeSchema,
+    ComposedSchema,
+    DictSchema,
+    ListSchema,
+    StrSchema,
+    IntSchema,
+    Int32Schema,
+    Int64Schema,
+    Float32Schema,
+    Float64Schema,
+    NumberSchema,
+    UUIDSchema,
+    DateSchema,
+    DateTimeSchema,
+    DecimalSchema,
+    BoolSchema,
+    BinarySchema,
+    NoneSchema,
+    none_type,
+    Configuration,
+    Unset,
+    unset,
+    ComposedBase,
+    ListBase,
+    DictBase,
+    NoneBase,
+    StrBase,
+    IntBase,
+    Int32Base,
+    Int64Base,
+    Float32Base,
+    Float64Base,
+    NumberBase,
+    UUIDBase,
+    DateBase,
+    DateTimeBase,
+    BoolBase,
+    BinaryBase,
+    Schema,
+    _SchemaValidator,
+    _SchemaTypeChecker,
+    _SchemaEnumMaker
+)
+
+# body param
+SchemaForRequestBodyApplicationPdf = BinarySchema
+
+
+request_body_body = api_client.RequestBody(
+    content={
+        'application/pdf': api_client.MediaType(
+            schema=SchemaForRequestBodyApplicationPdf),
+    },
+    required=True,
+)
+_path = '/different-media-type'
+_method = 'POST'
+SchemaFor200ResponseBodyApplicationXMpegurl = StrSchema
+
+
+@dataclass
+class ApiResponseFor200(api_client.ApiResponse):
+    response: urllib3.HTTPResponse
+    body: typing.Union[
+        SchemaFor200ResponseBodyApplicationXMpegurl,
+    ]
+    headers: Unset = unset
+
+
+_response_for_200 = api_client.OpenApiResponse(
+    response_cls=ApiResponseFor200,
+    content={
+        'application/x-mpegurl': api_client.MediaType(
+            schema=SchemaFor200ResponseBodyApplicationXMpegurl),
+    },
+)
+_status_code_to_response = {
+    '200': _response_for_200,
+}
+_all_accept_content_types = (
+    'application/x-mpegurl',
+)
+
+
+class MediaTypes(api_client.Api):
+
+    def media_types(
+        self: api_client.Api,
+        body: typing.Union[SchemaForRequestBodyApplicationPdf],
+        content_type: str = 'application/pdf',
+        accept_content_types: typing.Tuple[str] = _all_accept_content_types,
+        stream: bool = False,
+        timeout: typing.Optional[typing.Union[int, typing.Tuple]] = None,
+        skip_deserialization: bool = False,
+    ) -> typing.Union[
+        ApiResponseFor200,
+        api_client.ApiResponseWithoutDeserialization
+    ]:
+        \\"\\"\\"
+        :param skip_deserialization: If true then api_response.response will be set but
+            api_response.body and api_response.headers will not be deserialized into schema
+            class instances
+        \\"\\"\\"
+
+        _headers = HTTPHeaderDict()
+        # TODO add cookie handling
+        if accept_content_types:
+            for accept_content_type in accept_content_types:
+                _headers.add('Accept', accept_content_type)
+
+        if body is unset:
+            raise exceptions.ApiValueError(
+                'The required body parameter has an invalid value of: unset. Set a valid value instead')
+        _fields = None
+        _body = None
+        serialized_data = request_body_body.serialize(body, content_type)
+        _headers.add('Content-Type', content_type)
+        if 'fields' in serialized_data:
+            _fields = serialized_data['fields']
+        elif 'body' in serialized_data:
+            _body = serialized_data['body']
+        response = self.api_client.call_api(
+            resource_path=_path,
+            method=_method,
+            headers=_headers,
+            fields=_fields,
+            body=_body,
+            stream=stream,
+            timeout=timeout,
+        )
+
+        if skip_deserialization:
+            api_response = api_client.ApiResponseWithoutDeserialization(response=response)
+        else:
+            response_for_status = _status_code_to_response.get(str(response.status))
+            if response_for_status:
+                api_response = response_for_status.deserialize(response, self.api_client.configuration)
+            else:
+                api_response = api_client.ApiResponseWithoutDeserialization(response=response)
+
+        if not 200 <= response.status <= 299:
+            raise exceptions.ApiException(api_response=api_response)
+
+        return api_response
 ",
   "test/api/default_api_endpoints/operation_one.py": "# coding: utf-8
 
@@ -7540,12 +7783,17 @@ T = TypeVar('T')
 # Generic type for object keyed by operation names
 @dataclass
 class OperationConfig(Generic[T]):
+    media_types: T
     operation_one: T
     without_operation_id_delete: T
     ...
 
 # Look up path and http method for a given operation name
 OperationLookup = {
+    \\"media_types\\": {
+        \\"path\\": \\"/different-media-type\\",
+        \\"method\\": \\"POST\\",
+    },
     \\"operation_one\\": {
         \\"path\\": \\"/path/{pathParam}\\",
         \\"method\\": \\"POST\\",
@@ -7605,6 +7853,53 @@ class ApiResponse(Generic[ResponseBody, ApiError]):
     headers: Dict[str, str]
     body: Union[ResponseBody, ApiError]
 
+
+
+# Request parameters are single value query params or path params
+class MediaTypesRequestParameters(TypedDict):
+    ...
+
+# Request array parameters are multi-value query params
+class MediaTypesRequestArrayParameters(TypedDict):
+    ...
+
+# Request body type (default to Any when no body parameters exist)
+MediaTypesRequestBody = file_type
+
+# Request type for media_types
+MediaTypesRequest = ApiRequest[MediaTypesRequestParameters, MediaTypesRequestArrayParameters, MediaTypesRequestBody]
+
+class MediaTypesHandlerFunction(Protocol):
+    def __call__(self, input: MediaTypesRequest, **kwargs) -> ApiResponse[str, ApiError]:
+        ...
+
+def media_types_handler(handler: MediaTypesHandlerFunction):
+    \\"\\"\\"
+    Decorator for an api handler for the media_types operation, providing a typed interface for inputs and outputs
+    \\"\\"\\"
+    @wraps(handler)
+    def wrapper(event, context, **kwargs):
+        request_parameters = decode_request_parameters({
+            **(event['pathParameters'] or {}),
+            **(event['queryStringParameters'] or {}),
+        })
+        request_array_parameters = decode_request_parameters({
+            **(event['multiValueQueryStringParameters'] or {}),
+        })
+        body = parse_body(event['body'], ['application/pdf',], MediaTypesRequestBody)
+        response = handler(ApiRequest(
+            request_parameters,
+            request_array_parameters,
+            body,
+            event,
+            context,
+        ), **kwargs)
+        return {
+            'statusCode': response.status_code,
+            'headers': response.headers,
+            'body': json.dumps(response.body) if response.body is not None else '',
+        }
+    return wrapper
 
 
 # Request parameters are single value query params or path params
@@ -12587,6 +12882,12 @@ class TestDefaultApi(unittest.TestCase):
         self.api = DefaultApi()  # noqa: E501
 
     def tearDown(self):
+        pass
+
+    def test_media_types(self):
+        \\"\\"\\"Test case for media_types
+
+        \\"\\"\\"
         pass
 
     def test_operation_one(self):
