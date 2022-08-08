@@ -209,14 +209,19 @@ const customSecurityScheme = (
 };
 
 /**
- * Return a list of all authorizers used in the api
+ * Return a list of all unique authorizers used in the api
  */
-export const getAllAuthorizers = (options: OpenApiOptions): Authorizer[] => [
-  ...(options.defaultAuthorizer ? [options.defaultAuthorizer] : []),
-  ...Object.values(options.integrations).flatMap(({ authorizer }) =>
-    authorizer ? [authorizer] : []
-  ),
-];
+export const getAllAuthorizers = (options: OpenApiOptions): Authorizer[] =>
+  Object.values(
+    Object.fromEntries(
+      [
+        ...(options.defaultAuthorizer ? [options.defaultAuthorizer] : []),
+        ...Object.values(options.integrations).flatMap(({ authorizer }) =>
+          authorizer ? [authorizer] : []
+        ),
+      ].map((a) => [a.authorizerId, a])
+    )
+  );
 
 /**
  * Generate the security schemes section of an OpenAPI specification
