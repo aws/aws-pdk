@@ -1456,26 +1456,25 @@ export const someTestOperationHandler = <ApiError>(firstHandler: SomeTestOperati
         body,
     }, event, context);
 
-    const marshal = (responseBody: any): string => {
-
-        let response = responseBody;
-        switch(response.statusCode) {
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
             case 200:
-                response = JSON.stringify(TestResponseToJSON(response));
+                marshalledBody = JSON.stringify(TestResponseToJSON(marshalledBody));
                 break;
             case 400:
-                response = JSON.stringify(ApiErrorToJSON(response));
+                marshalledBody = JSON.stringify(ApiErrorToJSON(marshalledBody));
                 break;
             default:
                 break;
         }
 
-        return response;
+        return marshalledBody;
     };
 
     return {
         ...response,
-        body: response.body ? marshal(response.body) : '',
+        body: response.body ? marshal(response.statusCode, response.body) : '',
     };
 };
 ",
@@ -3733,22 +3732,21 @@ export const mediaTypesHandler = <ApiError>(firstHandler: MediaTypesHandlerFunct
         body,
     }, event, context);
 
-    const marshal = (responseBody: any): string => {
-
-        let response = responseBody;
-        switch(response.statusCode) {
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
             case 200:
                 break;
             default:
                 break;
         }
 
-        return response;
+        return marshalledBody;
     };
 
     return {
         ...response,
-        body: response.body ? marshal(response.body) : '',
+        body: response.body ? marshal(response.statusCode, response.body) : '',
     };
 };
 // Type alias for the request
@@ -3805,26 +3803,25 @@ export const operationOneHandler = <ApiError>(firstHandler: OperationOneHandlerF
         body,
     }, event, context);
 
-    const marshal = (responseBody: any): string => {
-
-        let response = responseBody;
-        switch(response.statusCode) {
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
             case 200:
-                response = JSON.stringify(TestResponseToJSON(response));
+                marshalledBody = JSON.stringify(TestResponseToJSON(marshalledBody));
                 break;
             case 400:
-                response = JSON.stringify(ApiErrorToJSON(response));
+                marshalledBody = JSON.stringify(ApiErrorToJSON(marshalledBody));
                 break;
             default:
                 break;
         }
 
-        return response;
+        return marshalledBody;
     };
 
     return {
         ...response,
-        body: response.body ? marshal(response.body) : '',
+        body: response.body ? marshal(response.statusCode, response.body) : '',
     };
 };
 // Type alias for the request
@@ -3876,23 +3873,22 @@ export const withoutOperationIdDeleteHandler = <ApiError>(firstHandler: WithoutO
         body,
     }, event, context);
 
-    const marshal = (responseBody: any): string => {
-
-        let response = responseBody;
-        switch(response.statusCode) {
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
             case 200:
-                response = JSON.stringify(TestResponseToJSON(response));
+                marshalledBody = JSON.stringify(TestResponseToJSON(marshalledBody));
                 break;
             default:
                 break;
         }
 
-        return response;
+        return marshalledBody;
     };
 
     return {
         ...response,
-        body: response.body ? marshal(response.body) : '',
+        body: response.body ? marshal(response.statusCode, response.body) : '',
     };
 };
 ",
