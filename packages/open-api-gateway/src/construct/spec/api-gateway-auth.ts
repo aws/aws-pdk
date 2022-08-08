@@ -21,10 +21,12 @@ import {
   CognitoAuthorizer,
   CustomAuthorizer,
   CustomAuthorizerType,
+  NoneAuthorizer,
 } from "../authorizers";
 import {
   isCognitoAuthorizer,
   isCustomAuthorizer,
+  isIamAuthorizer,
 } from "../authorizers/predicates";
 import { OpenApiOptions } from "./api-gateway-integrations-types";
 import { functionInvocationUri } from "./utils";
@@ -70,12 +72,19 @@ export interface CustomApiGatewayAuthorizer {
 /**
  * Open API definition for an api gateway security scheme
  */
-export interface ApiGatewaySecurityScheme<AuthorizerType>
+export interface ApiGatewaySecurityScheme
   extends OpenAPIV3.ApiKeySecurityScheme {
   /**
    * The type of api gateway authorizer
    */
   readonly "x-amazon-apigateway-authtype": string;
+}
+
+/**
+ * Open API definition for an api gateway security scheme with authorizer details
+ */
+export interface ApiGatewaySecuritySchemeWithAuthorizer<AuthorizerType>
+  extends ApiGatewaySecurityScheme {
   /**
    * Details about the authorizer
    */
@@ -86,13 +95,18 @@ export interface ApiGatewaySecurityScheme<AuthorizerType>
  * The security scheme for a cognito authorizer
  */
 export type CognitoSecurityScheme =
-  ApiGatewaySecurityScheme<CognitoApiGatewayAuthorizer>;
+  ApiGatewaySecuritySchemeWithAuthorizer<CognitoApiGatewayAuthorizer>;
 
 /**
  * The security scheme for a custom authorizer
  */
 export type CustomSecurityScheme =
-  ApiGatewaySecurityScheme<CustomApiGatewayAuthorizer>;
+  ApiGatewaySecuritySchemeWithAuthorizer<CustomApiGatewayAuthorizer>;
+
+/**
+ * The security scheme for an iam authorizer
+ */
+export type IamSecurityScheme = ApiGatewaySecurityScheme;
 
 // Regex to match against a single header identity source
 const SINGLE_HEADER_IDENTITY_SOURCE_REGEX =
@@ -103,7 +117,11 @@ const SINGLE_HEADER_IDENTITY_SOURCE_REGEX =
  * @param authorizer the authorizer used for the method
  */
 export const applyMethodAuthorizer = (authorizer: Authorizer) => {
-  if (isCustomAuthorizer(authorizer) || isCognitoAuthorizer(authorizer)) {
+  if (
+    isCustomAuthorizer(authorizer) ||
+    isCognitoAuthorizer(authorizer) ||
+    isIamAuthorizer(authorizer)
+  ) {
     return {
       security: [
         {
@@ -114,13 +132,25 @@ export const applyMethodAuthorizer = (authorizer: Authorizer) => {
       ],
     };
   }
-  // IAM and NONE are specified via x-amazon-apigateway-auth
+
+  // NONE is specified via x-amazon-apigateway-auth
   return {
     "x-amazon-apigateway-auth": {
-      type: authorizer.authorizationType,
+      type: (authorizer as NoneAuthorizer).authorizationType,
     },
   };
 };
+
+/**
+ * Create an OpenAPI security scheme definition for an iam authorizer
+ * @see https://docs.amazonaws.cn/en_us/apigateway/latest/developerguide/api-gateway-swagger-extensions-authtype.html
+ */
+const iamSecurityScheme = (): IamSecurityScheme => ({
+  type: "apiKey",
+  name: "Authorization",
+  in: "header",
+  "x-amazon-apigateway-authtype": "awsSigv4",
+});
 
 /**
  * Create an OpenAPI security scheme definition for a cognito authorizer
@@ -179,14 +209,19 @@ const customSecurityScheme = (
 };
 
 /**
- * Return a list of all authorizers used in the api
+ * Return a list of all unique authorizers used in the api
  */
-export const getAllAuthorizers = (options: OpenApiOptions): Authorizer[] => [
-  ...(options.defaultAuthorizer ? [options.defaultAuthorizer] : []),
-  ...Object.values(options.integrations).flatMap(({ authorizer }) =>
-    authorizer ? [authorizer] : []
-  ),
-];
+export const getAllAuthorizers = (options: OpenApiOptions): Authorizer[] =>
+  Object.values(
+    Object.fromEntries(
+      [
+        ...(options.defaultAuthorizer ? [options.defaultAuthorizer] : []),
+        ...Object.values(options.integrations).flatMap(({ authorizer }) =>
+          authorizer ? [authorizer] : []
+        ),
+      ].map((a) => [a.authorizerId, a])
+    )
+  );
 
 /**
  * Generate the security schemes section of an OpenAPI specification
@@ -198,7 +233,7 @@ export const prepareSecuritySchemes = (
   // All the defined authorizers
   const allAuthorizers = getAllAuthorizers(options);
 
-  // Cognito and custom authorizers must be declared in security schemes
+  // Cognito, IAM and custom authorizers must be declared in security schemes
   return {
     ...Object.fromEntries(
       allAuthorizers
@@ -215,6 +250,11 @@ export const prepareSecuritySchemes = (
           authorizer.authorizerId,
           customSecurityScheme(scope, authorizer as CustomAuthorizer),
         ])
+    ),
+    ...Object.fromEntries(
+      allAuthorizers
+        .filter((authorizer) => isIamAuthorizer(authorizer))
+        .map((authorizer) => [authorizer.authorizerId, iamSecurityScheme()])
     ),
   };
 };
