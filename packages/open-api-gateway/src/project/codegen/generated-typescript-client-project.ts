@@ -30,6 +30,11 @@ export interface GeneratedTypescriptClientProjectOptions
    * The absolute path to the OpenAPI specification (spec.yaml) from which to generate code
    */
   readonly specPath: string;
+
+  /**
+   * Indicates whether the client generator needs to be invoked
+   */
+  readonly generateClient: boolean;
 }
 
 /**
@@ -86,6 +91,7 @@ export class GeneratedTypescriptClientProject extends TypeScriptProject {
 
     new GeneratedTypescriptClientSourceCode(this, {
       specPath: options.specPath,
+      invokeGenerator: options.generateClient,
     });
   }
 

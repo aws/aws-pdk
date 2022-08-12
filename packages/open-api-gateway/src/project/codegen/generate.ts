@@ -14,7 +14,9 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import * as path from "path";
+import { getLogger } from "log4js";
 import { Project, TextFile } from "projen";
+import { ClientLanguageConfig } from "../client-config";
 import { ClientLanguage } from "../languages";
 import {
   GeneratedJavaClientProject,
@@ -29,14 +31,17 @@ import {
   GeneratedTypescriptClientProjectOptions,
 } from "./generated-typescript-client-project";
 
+const logger = getLogger();
+
 // Some options that we'll infer automatically for each client project, unless overridden
 type CommonProjectOptions =
-  | "specPath"
+  | "artifactId"
+  | "generateClient"
+  | "groupId"
+  | "moduleName"
   | "name"
   | "outdir"
-  | "moduleName"
-  | "artifactId"
-  | "groupId";
+  | "specPath";
 
 /**
  * Options for generating clients
@@ -89,59 +94,86 @@ export interface GenerateClientProjectsOptions {
  * Returns a generated client project for the given language
  */
 const generateClientProject = (
-  language: ClientLanguage,
+  languageConfig: ClientLanguageConfig,
   options: GenerateClientProjectsOptions
-): Project => {
-  switch (language) {
-    case ClientLanguage.TYPESCRIPT:
-      return new GeneratedTypescriptClientProject({
-        parent: options.parent,
-        // Ensure kebab-case for typescript
-        name: `${options.parentPackageName}-${ClientLanguage.TYPESCRIPT}`.replace(
-          /_/g,
-          "-"
-        ),
-        outdir: path.join(options.generatedCodeDir, ClientLanguage.TYPESCRIPT),
-        specPath: options.parsedSpecPath,
-        ...options.typescriptOptions,
-      });
-    case ClientLanguage.PYTHON:
-      // Ensure snake_case for python
-      const moduleName = `${options.parentPackageName}_${ClientLanguage.PYTHON}`
-        .replace(/@/g, "")
-        .replace(/[\-/]/g, "_");
-      return new GeneratedPythonClientProject({
-        parent: options.parent,
-        // Use dashes in project name since distributable's PKG-INFO always converts _ to -
-        // https://stackoverflow.com/questions/36300788/python-package-wheel-pkg-info-name
-        name: moduleName.replace(/_/g, "-"),
-        moduleName,
-        outdir: path.join(options.generatedCodeDir, ClientLanguage.PYTHON),
-        specPath: options.parsedSpecPath,
-        ...options.pythonOptions,
-      });
-    case ClientLanguage.JAVA:
-      // Ensure no dashes/underscores since name is used in package name
-      const javaProjectName =
-        `${options.parentPackageName}-${ClientLanguage.JAVA}`
+): Project | undefined => {
+  switch (languageConfig.clientLanguage) {
+    case ClientLanguage.TYPESCRIPT: {
+      if (languageConfig.isDefault || languageConfig.generate) {
+        logger.trace("Attempting to generate TYPESCRIPT client project.");
+        return new GeneratedTypescriptClientProject({
+          parent: options.parent,
+          generateClient: languageConfig.generate,
+          // Ensure kebab-case for typescript
+          name: `${options.parentPackageName}-${ClientLanguage.TYPESCRIPT}`.replace(
+            /_/g,
+            "-"
+          ),
+          outdir: path.join(
+            options.generatedCodeDir,
+            ClientLanguage.TYPESCRIPT
+          ),
+          specPath: options.parsedSpecPath,
+          ...options.typescriptOptions,
+        });
+      } else {
+        return undefined;
+      }
+    }
+    case ClientLanguage.PYTHON: {
+      if (languageConfig.isDefault || languageConfig.generate) {
+        logger.trace("Attempting to generate PYTHON client project.");
+        // Ensure snake_case for python
+        const moduleName =
+          `${options.parentPackageName}_${ClientLanguage.PYTHON}`
+            .replace(/@/g, "")
+            .replace(/[\-/]/g, "_");
+        return new GeneratedPythonClientProject({
+          parent: options.parent,
+          generateClient: languageConfig.generate,
+          // Use dashes in project name since distributable's PKG-INFO always converts _ to -
+          // https://stackoverflow.com/questions/36300788/python-package-wheel-pkg-info-name
+          name: moduleName.replace(/_/g, "-"),
+          moduleName,
+          outdir: path.join(options.generatedCodeDir, ClientLanguage.PYTHON),
+          specPath: options.parsedSpecPath,
+          ...options.pythonOptions,
+        });
+      } else {
+        return undefined;
+      }
+    }
+    case ClientLanguage.JAVA: {
+      if (languageConfig.isDefault || languageConfig.generate) {
+        logger.trace("Attempting to generate JAVA client project.");
+        // Ensure no dashes/underscores since name is used in package name
+        const javaProjectName =
+          `${options.parentPackageName}-${ClientLanguage.JAVA}`
+            .replace(/@/g, "")
+            .replace(/[\-/_]/g, "");
+
+        const artifactId = `${options.parentPackageName}-${ClientLanguage.JAVA}`
           .replace(/@/g, "")
-          .replace(/[\-/_]/g, "");
+          .replace(/[/_]/g, "-");
 
-      const artifactId = `${options.parentPackageName}-${ClientLanguage.JAVA}`
-        .replace(/@/g, "")
-        .replace(/[/_]/g, "-");
-
-      return new GeneratedJavaClientProject({
-        parent: options.parent,
-        name: javaProjectName,
-        artifactId,
-        groupId: "com.generated.api",
-        outdir: path.join(options.generatedCodeDir, ClientLanguage.JAVA),
-        specPath: options.parsedSpecPath,
-        ...options.javaOptions,
-      });
+        return new GeneratedJavaClientProject({
+          parent: options.parent,
+          generateClient: languageConfig.generate,
+          name: javaProjectName,
+          artifactId,
+          groupId: "com.generated.api",
+          outdir: path.join(options.generatedCodeDir, ClientLanguage.JAVA),
+          specPath: options.parsedSpecPath,
+          ...options.javaOptions,
+        });
+      } else {
+        return undefined;
+      }
+    }
     default:
-      throw new Error(`Unknown client language ${language}`);
+      throw new Error(
+        `Unknown client language ${languageConfig.clientLanguage}`
+      );
   }
 };
 
@@ -151,7 +183,7 @@ const generateClientProject = (
  * @param options options for the projects to be created
  */
 export const generateClientProjects = (
-  languages: Set<ClientLanguage>,
+  languageConfigs: ClientLanguageConfig[],
   options: GenerateClientProjectsOptions
 ): { [language: string]: Project } => {
   new TextFile(
@@ -169,10 +201,13 @@ export const generateClientProjects = (
     }
   );
 
-  return Object.fromEntries(
-    [...languages].map((language) => [
-      language,
-      generateClientProject(language, options),
-    ])
-  );
+  const generatedClients: { [languge: string]: Project } = {};
+  languageConfigs.forEach((languageConfig) => {
+    const project = generateClientProject(languageConfig, options);
+    if (project != null) {
+      generatedClients[languageConfig.clientLanguage] = project;
+    }
+  });
+
+  return generatedClients;
 };

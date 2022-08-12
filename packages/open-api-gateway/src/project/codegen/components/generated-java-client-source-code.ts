@@ -14,10 +14,13 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
+import { getLogger } from "log4js";
 import { Component } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { ClientLanguage } from "../../languages";
 import { invokeOpenApiGenerator } from "./utils";
+
+const logger = getLogger();
 
 /**
  * Configuration for the GeneratedJavaClient component
@@ -27,6 +30,11 @@ export interface GeneratedJavaClientSourceCodeOptions {
    * Absolute path to the OpenAPI specification (spec.yaml)
    */
   readonly specPath: string;
+
+  /**
+   * Control if generator needs to be invoked
+   */
+  readonly invokeGenerator: boolean;
 }
 
 /**
@@ -49,29 +57,32 @@ export class GeneratedJavaClientSourceCode extends Component {
   synthesize() {
     super.synthesize();
 
-    const javaProject = this.project as JavaProject;
-    const invokerPackage = `${javaProject.pom.groupId}.${javaProject.name}.client`;
+    if (this.options.invokeGenerator) {
+      const javaProject = this.project as JavaProject;
+      const invokerPackage = `${javaProject.pom.groupId}.${javaProject.name}.client`;
 
-    // Generate the java client
-    invokeOpenApiGenerator({
-      generator: "java",
-      specPath: this.options.specPath,
-      outputPath: this.project.outdir,
-      generatorDirectory: ClientLanguage.JAVA,
-      additionalProperties: {
-        // TODO: Upgrade to openapi-generator 6.0.1 when released so that useSingleRequestParameter is honoured
-        // https://github.com/OpenAPITools/openapi-generator/milestone/42
-        // https://github.com/OpenAPITools/openapi-generator/pull/12580
-        // This will be required for generating java lambda handler wrappers
-        useSingleRequestParameter: "true",
-        groupId: javaProject.pom.groupId,
-        artifactId: javaProject.pom.artifactId,
-        artifactVersion: javaProject.pom.version,
-        invokerPackage,
-        apiPackage: `${invokerPackage}.api`,
-        modelPackage: `${invokerPackage}.model`,
-        hideGenerationTimestamp: "true",
-      },
-    });
+      // Generate the java client
+      logger.debug("Generating java client...");
+      invokeOpenApiGenerator({
+        generator: "java",
+        specPath: this.options.specPath,
+        outputPath: this.project.outdir,
+        generatorDirectory: ClientLanguage.JAVA,
+        additionalProperties: {
+          // TODO: Upgrade to openapi-generator 6.0.1 when released so that useSingleRequestParameter is honoured
+          // https://github.com/OpenAPITools/openapi-generator/milestone/42
+          // https://github.com/OpenAPITools/openapi-generator/pull/12580
+          // This will be required for generating java lambda handler wrappers
+          useSingleRequestParameter: "true",
+          groupId: javaProject.pom.groupId,
+          artifactId: javaProject.pom.artifactId,
+          artifactVersion: javaProject.pom.version,
+          invokerPackage,
+          apiPackage: `${invokerPackage}.api`,
+          modelPackage: `${invokerPackage}.model`,
+          hideGenerationTimestamp: "true",
+        },
+      });
+    }
   }
 }

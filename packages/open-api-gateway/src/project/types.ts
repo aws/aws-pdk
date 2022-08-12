@@ -36,6 +36,11 @@ export interface OpenApiGatewayProjectOptions {
    */
   readonly generatedCodeDir?: string;
   /**
+   * Force to generate code and docs even if there were no changes in spec
+   * @default "false"
+   */
+  readonly forceGenerateCodeAndDocs?: boolean;
+  /**
    * The path to the OpenAPI specification file, relative to the project source directory (srcdir).
    * @default "spec/spec.yaml"
    */

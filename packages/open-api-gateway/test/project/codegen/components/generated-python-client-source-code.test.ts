@@ -29,6 +29,7 @@ const synthGeneratedCode = (specFileName: string): SynthOutput => {
   return synthGeneratedCodeProject(specFileName, project, (specPath) => {
     new GeneratedPythonClientSourceCode(project, {
       specPath,
+      invokeGenerator: true,
     });
   });
 };

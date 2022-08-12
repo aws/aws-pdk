@@ -15,8 +15,15 @@
  ******************************************************************************************************************** */
 
 import * as path from "path";
+import { unlinkSync } from "fs-extra";
+import { isEqual } from "lodash";
+import { getLogger } from "log4js";
 import { Project, SampleFile, ProjectOptions } from "projen";
+import { tryReadFileSync } from "projen/lib/util";
 import { ParsedSpec } from "./components/parsed-spec";
+
+// initialize logger
+const logger = getLogger();
 
 /**
  * Configuration for the OpenAPI spec project
@@ -44,11 +51,14 @@ export class OpenApiSpecProject extends Project {
   public readonly specFileName: string;
   public readonly parsedSpecFileName: string;
 
+  public readonly specChanged: boolean = true;
+
   // Store whether we've synthesized the project
   private synthed: boolean = false;
 
   constructor(options: OpenApiSpecProjectOptions) {
     super(options);
+    logger.trace("OpenApiSpecProject constructor");
     // HACK: remove all components but the ones we are registering - removes .gitignore, tasks, etc since these are
     // unused and a distraction for end-users!
     // @ts-ignore
@@ -64,6 +74,9 @@ export class OpenApiSpecProject extends Project {
     this.specPath = path.join(this.outdir, this.specFileName);
     this.parsedSpecPath = path.join(this.outdir, this.parsedSpecFileName);
 
+    logger.debug(`specPath = "${this.specPath}"`);
+    logger.debug(`parsedSpecPath = "${this.parsedSpecPath}"`);
+
     // Create a sample OpenAPI spec yaml if not defined
     new SampleFile(this, this.specFileName, {
       sourcePath: path.join(
@@ -75,6 +88,34 @@ export class OpenApiSpecProject extends Project {
         "spec.yaml"
       ),
     });
+
+    // Check if there is already a .parsed-spec.json present
+    const existingParsedSpecJson = tryReadFileSync(this.parsedSpecPath);
+    if (existingParsedSpecJson != null) {
+      // generate a new temporary parsed-spec
+      const tmpParseSpecPath = `${this.parsedSpecPath}.tmp`;
+      logger.trace(`Generating temp spec at "${tmpParseSpecPath}"`);
+      ParsedSpec.parse(this.specPath, tmpParseSpecPath);
+
+      // load it
+      const newParsedSpecJson = tryReadFileSync(tmpParseSpecPath);
+
+      if (newParsedSpecJson != null) {
+        const prevParseSpec = JSON.parse(existingParsedSpecJson);
+        const newParsedSpec = JSON.parse(newParsedSpecJson);
+
+        // check if spec changed and keep it
+        logger.trace("Comparing previous and newly generated specs.");
+        this.specChanged = !isEqual(prevParseSpec, newParsedSpec);
+        logger.debug(`Spec Changed :: ${this.specChanged}`);
+
+        // remove tmp parsed-spec file
+        logger.trace("Removing temp spec file.");
+        unlinkSync(tmpParseSpecPath);
+      }
+    } else {
+      logger.debug(`No parsedSpec file found at "${this.parsedSpecPath}".`);
+    }
 
     // Parse the spec to produce a consolidated, bundled spec which can be read by cdk constructs or other tooling
     new ParsedSpec(this, {
@@ -91,8 +132,10 @@ export class OpenApiSpecProject extends Project {
     // project's install phase (pre-synth). Projen will call this method again at the usual time to synthesize this,
     // project, at which point we're already done so can skip.
     if (this.synthed) {
+      logger.trace("OpenApiSpecProject already synthed. Skipping...");
       return;
     }
+    logger.trace("OpenApiSpecProject synth");
     super.synth();
 
     this.synthed = true;

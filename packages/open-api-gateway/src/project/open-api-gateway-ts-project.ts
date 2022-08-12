@@ -15,6 +15,7 @@
  ******************************************************************************************************************** */
 
 import * as path from "path";
+import { getLogger } from "log4js";
 import { Project, SampleDir, SampleFile, YamlFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import {
@@ -22,6 +23,7 @@ import {
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
 import { exec } from "projen/lib/util";
+import { ClientSettings } from "./codegen/components/client-settings";
 import { DocsProject } from "./codegen/docs-project";
 import { generateClientProjects } from "./codegen/generate";
 import { GeneratedTypescriptClientProject } from "./codegen/generated-typescript-client-project";
@@ -33,6 +35,8 @@ import {
 } from "./samples/typescript";
 import { OpenApiSpecProject } from "./spec/open-api-spec-project";
 import { OpenApiGatewayProjectOptions } from "./types";
+
+const logger = getLogger();
 
 const OPENAPI_GATEWAY_PDK_PACKAGE_NAME =
   "@aws-prototyping-sdk/open-api-gateway";
@@ -82,6 +86,11 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
   public readonly generatedCodeDir: string;
 
   /**
+   * Force to generate code and docs even if there were no changes in spec
+   */
+  public readonly forceGenerateCodeAndDocs: boolean;
+
+  /**
    * Reference to the PNPM workspace yaml file which adds the dependency between this project and the generated
    * typescript client when this project is used in a monorepo, and the package manager is PNPM.
    */
@@ -110,7 +119,14 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
       this.specFileName = "spec.yaml";
     }
     this.generatedCodeDir = options.generatedCodeDir ?? "generated";
+    this.forceGenerateCodeAndDocs = options.forceGenerateCodeAndDocs ?? false;
     this.apiSrcDir = options.apiSrcDir ?? "api";
+
+    logger.debug(`specDir = "${this.specDir}"`);
+    logger.debug(`specFileName = "${this.specFileName}"`);
+    logger.debug(`generatedCodeDir = "${this.generatedCodeDir}"`);
+    logger.debug(`forceGenerateCodeAndDocs = ${this.forceGenerateCodeAndDocs}`);
+    logger.debug(`apiSrcDir = "${this.apiSrcDir}"`);
 
     // Allow json files to be imported (for importing the parsed spec)
     this.tsconfig?.addInclude(`${this.srcdir}/**/*.json`);
@@ -150,27 +166,39 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     const clientLanguages = new Set(options.clientLanguages);
     clientLanguages.add(ClientLanguage.TYPESCRIPT);
 
-    this.generatedClients = generateClientProjects(clientLanguages, {
-      parent: this.hasParent ? options.parent! : this,
-      parentPackageName: this.package.packageName,
-      generatedCodeDir: generatedCodeDirRelativeToParent,
-      parsedSpecPath: spec.parsedSpecPath,
-      typescriptOptions: {
-        defaultReleaseBranch: options.defaultReleaseBranch,
-        packageManager: options.packageManager,
-        ...options.typescriptClientOptions,
-      },
-      pythonOptions: {
-        authorName: options.authorName ?? "APJ Cope",
-        authorEmail: options.authorEmail ?? "apj-cope@amazon.com",
-        version: "0.0.0",
-        ...options.pythonClientOptions,
-      },
-      javaOptions: {
-        version: "0.0.0",
-        ...options.javaClientOptions,
-      },
+    const clientSettings = new ClientSettings(this, {
+      clientLanguages: [...clientLanguages],
+      defaultClientLanguage: ClientLanguage.TYPESCRIPT,
+      documentationFormats: options.documentationFormats ?? [],
+      forceGenerateCodeAndDocs: this.forceGenerateCodeAndDocs,
+      generatedCodeDir: this.generatedCodeDir,
+      specChanged: spec.specChanged,
     });
+
+    this.generatedClients = generateClientProjects(
+      clientSettings.clientLanguageConfigs,
+      {
+        parent: this.hasParent ? options.parent! : this,
+        parentPackageName: this.package.packageName,
+        generatedCodeDir: generatedCodeDirRelativeToParent,
+        parsedSpecPath: spec.parsedSpecPath,
+        typescriptOptions: {
+          defaultReleaseBranch: options.defaultReleaseBranch,
+          packageManager: options.packageManager,
+          ...options.typescriptClientOptions,
+        },
+        pythonOptions: {
+          authorName: options.authorName ?? "APJ Cope",
+          authorEmail: options.authorEmail ?? "apj-cope@amazon.com",
+          version: "0.0.0",
+          ...options.pythonClientOptions,
+        },
+        javaOptions: {
+          version: "0.0.0",
+          ...options.javaClientOptions,
+        },
+      }
+    );
 
     this.generatedTypescriptClient = this.generatedClients[
       ClientLanguage.TYPESCRIPT
@@ -241,16 +269,21 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
       files: getTypescriptSampleTests(sampleOptions),
     });
 
-    // Generate documentation if requested
-    if ((options.documentationFormats ?? []).length > 0) {
-      new DocsProject({
-        parent: this,
-        outdir: path.join(this.generatedCodeDir, "documentation"),
-        name: "docs",
-        formats: [...new Set(options.documentationFormats)],
-        specPath: spec.parsedSpecPath,
-      });
-    }
+    // Generate documentation if needed
+    new DocsProject({
+      parent: this,
+      outdir: path.join(this.generatedCodeDir, "documentation"),
+      name: "docs",
+      formatConfigs: clientSettings.documentationFormatConfigs,
+      specPath: spec.parsedSpecPath,
+    });
+  }
+
+  /**
+   * @inheritDoc
+   */
+  preSynthesize() {
+    super.preSynthesize();
   }
 
   /**
