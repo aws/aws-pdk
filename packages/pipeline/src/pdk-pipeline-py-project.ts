@@ -45,6 +45,8 @@ export class PDKPipelinePyProject extends AwsCdkPythonApp {
       this.addDependency(dep)
     );
 
+    this.addDevDependency("pytest");
+
     new SampleDir(this, this.moduleName, {
       sourceDir: path.join(__dirname, "..", "samples", "python", "infra"),
     });
