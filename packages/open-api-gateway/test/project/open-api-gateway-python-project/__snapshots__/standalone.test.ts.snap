@@ -13630,6 +13630,7 @@ export class TextApiResponse {
 from os import path
 from pathlib import Path
 
+SPEC_PATH = path.join(str(Path(__file__).absolute().parent), \\"spec/.parsed-spec.json\\")
 SPEC = json.loads(pkgutil.get_data(__name__, \\"spec/.parsed-spec.json\\"))
 
 def get_project_root():
@@ -13642,7 +13643,7 @@ def get_generated_client_layer_directory():
   "my_api/api/api.py": "from dataclasses import fields
 from aws_prototyping_sdk.open_api_gateway import OpenApiGatewayLambdaApi, OpenApiIntegration
 from my_api_python.api.default_api_operation_config import OperationLookup, OperationConfig
-from my_api import SPEC
+from my_api import SPEC, SPEC_PATH
 
 class Api(OpenApiGatewayLambdaApi):
     \\"\\"\\"
@@ -13654,6 +13655,7 @@ class Api(OpenApiGatewayLambdaApi):
             **kwargs,
             integrations={ field.name: getattr(integrations, field.name) for field in fields(integrations) },
             spec=SPEC,
+            spec_path=SPEC_PATH,
             operation_lookup=OperationLookup,
         )
 ",

@@ -21,14 +21,13 @@ import {
   CognitoAuthorizer,
   CustomAuthorizer,
   CustomAuthorizerType,
-  NoneAuthorizer,
 } from "../authorizers";
 import {
   isCognitoAuthorizer,
   isCustomAuthorizer,
   isIamAuthorizer,
 } from "../authorizers/predicates";
-import { OpenApiOptions } from "./api-gateway-integrations-types";
+import { OpenApiIntegrations } from "./api-gateway-integrations-types";
 import { functionInvocationUri } from "./utils";
 
 /**
@@ -113,32 +112,38 @@ const SINGLE_HEADER_IDENTITY_SOURCE_REGEX =
   /^method.request.header.(?<header>[^\.\s,]+)$/;
 
 /**
- * Create the OpenAPI definition with api gateway extensions for the given authorizer
- * @param authorizer the authorizer used for the method
+ * Serialised representation of a method authorizer
  */
-export const applyMethodAuthorizer = (authorizer: Authorizer) => {
+export interface SerialisedAuthorizerReference {
+  /**
+   * The unique identifier of the authorizer to reference
+   */
+  readonly authorizerId: string;
+  /**
+   * Scopes to use for this particular authorizer reference
+   */
+  readonly authorizationScopes?: string[];
+}
+
+/**
+ * Build a serialized reference to an authorizer for use in an api method
+ * @param authorizer the author to serialize
+ */
+export const serializeAsAuthorizerReference = (
+  authorizer: Authorizer
+): SerialisedAuthorizerReference | undefined => {
   if (
+    isIamAuthorizer(authorizer) ||
     isCustomAuthorizer(authorizer) ||
-    isCognitoAuthorizer(authorizer) ||
-    isIamAuthorizer(authorizer)
+    isCognitoAuthorizer(authorizer)
   ) {
     return {
-      security: [
-        {
-          [authorizer.authorizerId]: isCognitoAuthorizer(authorizer)
-            ? authorizer.authorizationScopes
-            : [],
-        },
-      ],
+      authorizerId: authorizer.authorizerId,
+      authorizationScopes: authorizer.authorizationScopes,
     };
   }
-
-  // NONE is specified via x-amazon-apigateway-auth
-  return {
-    "x-amazon-apigateway-auth": {
-      type: (authorizer as NoneAuthorizer).authorizationType,
-    },
-  };
+  // NONE authorizer is just returned as undefined
+  return undefined;
 };
 
 /**
@@ -211,12 +216,15 @@ const customSecurityScheme = (
 /**
  * Return a list of all unique authorizers used in the api
  */
-export const getAllAuthorizers = (options: OpenApiOptions): Authorizer[] =>
+export const getAllAuthorizers = (
+  integrations: OpenApiIntegrations,
+  defaultAuthorizer?: Authorizer
+): Authorizer[] =>
   Object.values(
     Object.fromEntries(
       [
-        ...(options.defaultAuthorizer ? [options.defaultAuthorizer] : []),
-        ...Object.values(options.integrations).flatMap(({ authorizer }) =>
+        ...(defaultAuthorizer ? [defaultAuthorizer] : []),
+        ...Object.values(integrations).flatMap(({ authorizer }) =>
           authorizer ? [authorizer] : []
         ),
       ].map((a) => [a.authorizerId, a])
@@ -228,10 +236,11 @@ export const getAllAuthorizers = (options: OpenApiOptions): Authorizer[] =>
  */
 export const prepareSecuritySchemes = (
   scope: Construct,
-  options: OpenApiOptions
+  integrations: OpenApiIntegrations,
+  defaultAuthorizer?: Authorizer
 ): { [key: string]: OpenAPIV3.SecuritySchemeObject } => {
   // All the defined authorizers
-  const allAuthorizers = getAllAuthorizers(options);
+  const allAuthorizers = getAllAuthorizers(integrations, defaultAuthorizer);
 
   // Cognito, IAM and custom authorizers must be declared in security schemes
   return {

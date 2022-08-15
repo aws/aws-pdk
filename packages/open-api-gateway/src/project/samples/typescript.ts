@@ -62,7 +62,7 @@ import spec from "../${options.specDir}/${options.parsedSpecFileName}";
 
 export type ApiIntegrations = OperationConfig<OpenApiIntegration>;
 
-export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, "spec" | "operationLookup" | "integrations"> {
+export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, "spec" | "specPath" | "operationLookup" | "integrations"> {
   readonly integrations: ApiIntegrations;
 }
 
@@ -76,6 +76,7 @@ export class Api extends OpenApiGatewayLambdaApi {
       ...props,
       integrations: props.integrations as any,
       spec,
+      specPath: "../${options.specDir}/${options.parsedSpecFileName}",
       operationLookup: OperationLookup as any,
     });
   }
@@ -149,8 +150,7 @@ describe("Api", () => {
         function: new Function(stack, \`\${operation}Lambda\`, {
           code: Code.fromInline("test"), handler: "test", runtime: Runtime.NODEJS_14_X,
         }),
-      }]),
-      ) as any,
+      }])) as any,
     });
   
     const template = Template.fromStack(stack);

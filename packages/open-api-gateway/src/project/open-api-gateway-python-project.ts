@@ -212,6 +212,7 @@ export class OpenApiGatewayPythonProject extends PythonProject {
 from os import path
 from pathlib import Path
 
+SPEC_PATH = path.join(str(Path(__file__).absolute().parent), "${this.specDir}/${spec.parsedSpecFileName}")
 SPEC = json.loads(pkgutil.get_data(__name__, "${this.specDir}/${spec.parsedSpecFileName}"))
 
 def get_project_root():
