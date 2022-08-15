@@ -97,6 +97,7 @@ export class PipelinePythonSampleProject extends PythonProject {
       sample: false,
       name: "pipeline-sample-py",
       version: "0.0.0",
+      devDeps: ["pytest"],
       deps: [
         "aws-cdk-lib",
         "constructs",
