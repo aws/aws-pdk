@@ -58,6 +58,7 @@ export const getTypescriptSampleSource = (
   "api.ts": `import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from "${options.openApiGatewayPackageName}";
 import { Construct } from "constructs";
 import { OperationLookup, OperationConfig } from "${options.typescriptClientPackageName}";
+import * as path from "path";
 import spec from "../${options.specDir}/${options.parsedSpecFileName}";
 
 export type ApiIntegrations = OperationConfig<OpenApiIntegration>;
@@ -76,7 +77,7 @@ export class Api extends OpenApiGatewayLambdaApi {
       ...props,
       integrations: props.integrations as any,
       spec,
-      specPath: "../${options.specDir}/${options.parsedSpecFileName}",
+      specPath: path.resolve(__dirname, "../${options.specDir}/${options.parsedSpecFileName}"),
       operationLookup: OperationLookup as any,
     });
   }
