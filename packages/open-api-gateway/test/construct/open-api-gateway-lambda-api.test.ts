@@ -14,6 +14,8 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
+import * as fs from "fs";
+import * as path from "path";
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
@@ -110,6 +112,20 @@ const multiOperationLookup = Object.fromEntries(
   ])
 );
 
+const withTempSpec = <T>(
+  spec: OpenAPIV3.Document,
+  fn: (specPath: string) => T
+): T => {
+  const dir = fs.mkdtempSync("spec");
+  try {
+    const specPath = path.join(dir, "spec.json");
+    fs.writeFileSync(specPath, JSON.stringify(spec));
+    return fn(specPath);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+};
+
 describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
   it("Synth", () => {
     const stack = new Stack(PDKNag.app());
@@ -118,51 +134,57 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       handler: "handler",
       runtime: Runtime.NODEJS_16_X,
     });
-    new OpenApiGatewayLambdaApi(stack, "ApiTest", {
-      spec: sampleSpec,
-      operationLookup,
-      integrations: {
-        testOperation: {
-          function: func,
+    withTempSpec(sampleSpec, (specPath) => {
+      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+        spec: sampleSpec,
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            function: func,
+          },
         },
-      },
+      });
+      NagSuppressions.addResourceSuppressions(
+        func,
+        [
+          {
+            id: "AwsSolutions-IAM4",
+            reason: "This is a test construct.",
+          },
+        ],
+        true
+      );
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     });
-    NagSuppressions.addResourceSuppressions(
-      func,
-      [
-        {
-          id: "AwsSolutions-IAM4",
-          reason: "This is a test construct.",
-        },
-      ],
-      true
-    );
-    expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
   });
 
   it("With IAM Auth and CORS", () => {
     const stack = new Stack();
-    new OpenApiGatewayLambdaApi(stack, "ApiTest", {
-      defaultAuthorizer: Authorizers.iam(),
-      corsOptions: {
-        allowOrigins: Cors.ALL_ORIGINS,
-        allowMethods: Cors.ALL_METHODS,
-        allowCredentials: true,
-        statusCode: 200,
-      },
-      spec: sampleSpec,
-      operationLookup,
-      integrations: {
-        testOperation: {
-          function: new Function(stack, "Lambda", {
-            code: Code.fromInline("code"),
-            handler: "handler",
-            runtime: Runtime.NODEJS_16_X,
-          }),
+    withTempSpec(sampleSpec, (specPath) => {
+      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+        defaultAuthorizer: Authorizers.iam(),
+        corsOptions: {
+          allowOrigins: Cors.ALL_ORIGINS,
+          allowMethods: Cors.ALL_METHODS,
+          allowCredentials: true,
+          statusCode: 200,
         },
-      },
+        spec: sampleSpec,
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            function: new Function(stack, "Lambda", {
+              code: Code.fromInline("code"),
+              handler: "handler",
+              runtime: Runtime.NODEJS_16_X,
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     });
-    expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
   });
 
   it("With Cognito Auth", () => {
@@ -173,21 +195,24 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       userPools: [new UserPool(stack, "pool")],
     });
 
-    new OpenApiGatewayLambdaApi(stack, "ApiTest", {
-      defaultAuthorizer: authorizer,
-      spec: sampleSpec,
-      operationLookup,
-      integrations: {
-        testOperation: {
-          function: new Function(stack, "Lambda", {
-            code: Code.fromInline("code"),
-            handler: "handler",
-            runtime: Runtime.NODEJS_16_X,
-          }),
+    withTempSpec(sampleSpec, (specPath) => {
+      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+        defaultAuthorizer: authorizer,
+        spec: sampleSpec,
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            function: new Function(stack, "Lambda", {
+              code: Code.fromInline("code"),
+              handler: "handler",
+              runtime: Runtime.NODEJS_16_X,
+            }),
+          },
         },
-      },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     });
-    expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
   });
 
   it("With Custom Auth", () => {
@@ -202,21 +227,24 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       }),
     });
 
-    new OpenApiGatewayLambdaApi(stack, "ApiTest", {
-      defaultAuthorizer: authorizer,
-      spec: sampleSpec,
-      operationLookup,
-      integrations: {
-        testOperation: {
-          function: new Function(stack, "Lambda", {
-            code: Code.fromInline("code"),
-            handler: "handler",
-            runtime: Runtime.NODEJS_16_X,
-          }),
+    withTempSpec(sampleSpec, (specPath) => {
+      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+        defaultAuthorizer: authorizer,
+        spec: sampleSpec,
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            function: new Function(stack, "Lambda", {
+              code: Code.fromInline("code"),
+              handler: "handler",
+              runtime: Runtime.NODEJS_16_X,
+            }),
+          },
         },
-      },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     });
-    expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
   });
 
   it("With Mixed Auth", () => {
@@ -249,75 +277,84 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       authorizationScopes: ["foo/bar"],
     });
 
-    new OpenApiGatewayLambdaApi(stack, "ApiTest", {
-      defaultAuthorizer: Authorizers.iam(),
-      spec: multiOperationSpec,
-      operationLookup: multiOperationLookup as any,
-      integrations: {
-        getOperation: {
-          function: lambdaIntegration,
-          authorizer: cognitoAuthorizer,
+    withTempSpec(multiOperationSpec, (specPath) => {
+      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+        defaultAuthorizer: Authorizers.iam(),
+        spec: multiOperationSpec,
+        specPath,
+        operationLookup: multiOperationLookup as any,
+        integrations: {
+          getOperation: {
+            function: lambdaIntegration,
+            authorizer: cognitoAuthorizer,
+          },
+          putOperation: {
+            function: lambdaIntegration,
+            authorizer: cognitoAuthorizer.withScopes("other/scope"),
+          },
+          postOperation: {
+            function: lambdaIntegration,
+            authorizer: customAuthorizer,
+          },
+          deleteOperation: {
+            function: lambdaIntegration,
+            // authorizer not specified default should be used
+          },
         },
-        putOperation: {
-          function: lambdaIntegration,
-          authorizer: cognitoAuthorizer.withScopes("other/scope"),
-        },
-        postOperation: {
-          function: lambdaIntegration,
-          authorizer: customAuthorizer,
-        },
-        deleteOperation: {
-          function: lambdaIntegration,
-          // authorizer not specified default should be used
-        },
-      },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     });
-    expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
   });
 
   it("Should Throw When Integration Missing", () => {
     const stack = new Stack();
-    expect(
-      () =>
-        new OpenApiGatewayLambdaApi(stack, "ApiTest", {
-          spec: sampleSpec,
-          operationLookup,
-          integrations: {},
-        })
-    ).toThrow(
-      "Missing required integration for operation testOperation (get /test)"
-    );
+    withTempSpec(sampleSpec, (specPath) => {
+      expect(
+        () =>
+          new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+            spec: sampleSpec,
+            specPath,
+            operationLookup,
+            integrations: {},
+          })
+      ).toThrow(
+        "Missing required integration for operation testOperation (get /test)"
+      );
+    });
   });
 
   it("Should Throw When Token Authorizer Does Not Use Single Header", () => {
     const stack = new Stack();
-    expect(
-      () =>
-        new OpenApiGatewayLambdaApi(stack, "ApiTest", {
-          defaultAuthorizer: Authorizers.custom({
-            authorizerId: "auth",
-            function: new Function(stack, "LambdaAuthorizer", {
-              code: Code.fromInline("auth"),
-              handler: "handler",
-              runtime: Runtime.NODEJS_16_X,
-            }),
-            // Query param, not a header
-            identitySource: "method.request.querystring.QueryString1",
-          }),
-          spec: sampleSpec,
-          operationLookup,
-          integrations: {
-            testOperation: {
-              function: new Function(stack, "Lambda", {
-                code: Code.fromInline("code"),
+    withTempSpec(sampleSpec, (specPath) => {
+      expect(
+        () =>
+          new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+            defaultAuthorizer: Authorizers.custom({
+              authorizerId: "auth",
+              function: new Function(stack, "LambdaAuthorizer", {
+                code: Code.fromInline("auth"),
                 handler: "handler",
                 runtime: Runtime.NODEJS_16_X,
               }),
+              // Query param, not a header
+              identitySource: "method.request.querystring.QueryString1",
+            }),
+            spec: sampleSpec,
+            specPath,
+            operationLookup,
+            integrations: {
+              testOperation: {
+                function: new Function(stack, "Lambda", {
+                  code: Code.fromInline("code"),
+                  handler: "handler",
+                  runtime: Runtime.NODEJS_16_X,
+                }),
+              },
             },
-          },
-        })
-    ).toThrow(
-      "identitySource must be a single header for a token authorizer, eg method.request.header.Authorization"
-    );
+          })
+      ).toThrow(
+        "identitySource must be a single header for a token authorizer, eg method.request.header.Authorization"
+      );
+    });
   });
 });

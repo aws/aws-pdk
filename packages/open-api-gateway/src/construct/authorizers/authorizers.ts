@@ -29,6 +29,10 @@ export interface AuthorizerProps {
    * The type of the authorizer
    */
   readonly authorizationType: AuthorizationType;
+  /**
+   * Scopes for the authorizer, if any
+   */
+  readonly authorizationScopes?: string[];
 }
 
 /**
@@ -43,10 +47,15 @@ export abstract class Authorizer {
    * The type of the authorizer
    */
   public readonly authorizationType: AuthorizationType;
+  /**
+   * Scopes for the authorizer, if any
+   */
+  public readonly authorizationScopes?: string[];
 
   constructor(props: AuthorizerProps) {
     this.authorizerId = props.authorizerId;
     this.authorizationType = props.authorizationType;
+    this.authorizationScopes = props.authorizationScopes;
   }
 }
 
@@ -79,20 +88,14 @@ export class CognitoAuthorizer extends Authorizer {
    * The Cognito user pools associated with this authorizer
    */
   public readonly userPools: IUserPool[];
-  /**
-   * A list of authorization scopes configured on the method. When used as the default authorizer, these scopes will be
-   * applied to all methods without an authorizer at the integration level.
-   * @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes
-   */
-  public readonly authorizationScopes: string[];
 
   constructor(props: CognitoAuthorizerProps) {
     super({
       authorizerId: props.authorizerId,
       authorizationType: AuthorizationType.COGNITO,
+      authorizationScopes: props.authorizationScopes,
     });
     this.userPools = props.userPools;
-    this.authorizationScopes = props.authorizationScopes ?? [];
   }
 
   /**

@@ -16,13 +16,6 @@
 import { Stack } from "aws-cdk-lib";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
-import { MethodAndPath } from "./api-gateway-integrations-types";
-
-/**
- * Serialise a method and path into a single string
- */
-export const concatMethodAndPath = ({ method, path }: MethodAndPath) =>
-  `${method.toLowerCase()}||${path.toLowerCase()}`;
 
 /**
  * Generate the lambda function invocation uri for the given lambda within the given scope

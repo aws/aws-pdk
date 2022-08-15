@@ -55,7 +55,7 @@ export const getPythonSampleSource = (
   "api.py": `from dataclasses import fields
 from ${options.openApiGatewayPackageName} import OpenApiGatewayLambdaApi, OpenApiIntegration
 from ${options.pythonClientPackageName}.api.default_api_operation_config import OperationLookup, OperationConfig
-from ${options.moduleName} import SPEC
+from ${options.moduleName} import SPEC, SPEC_PATH
 
 class Api(OpenApiGatewayLambdaApi):
     """
@@ -67,6 +67,7 @@ class Api(OpenApiGatewayLambdaApi):
             **kwargs,
             integrations={ field.name: getattr(integrations, field.name) for field in fields(integrations) },
             spec=SPEC,
+            spec_path=SPEC_PATH,
             operation_lookup=OperationLookup,
         )
 `,
