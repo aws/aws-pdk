@@ -1847,6 +1847,7 @@
 
 <span class="n">NxMonorepoProjectOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
+<span class="c1">//  .commitGenerated(java.lang.Boolean)</span><span class="w"></span>
 <span class="c1">//  .logging(LoggerOptions)</span><span class="w"></span>
 <span class="c1">//  .outdir(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .parent(Project)</span><span class="w"></span>
@@ -1908,6 +1909,7 @@
 <span class="c1">//  .stability(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .jsiiReleaseVersion(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .majorVersion(java.lang.Number)</span><span class="w"></span>
+<span class="c1">//  .minMajorVersion(java.lang.Number)</span><span class="w"></span>
 <span class="c1">//  .npmDistTag(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .postBuildSteps(java.util.List&lt;JobStep&gt;)</span><span class="w"></span>
 <span class="c1">//  .prerelease(java.lang.String)</span><span class="w"></span>
@@ -1996,6 +1998,11 @@
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.name">name</a></code></td>
 <td><code>java.lang.String</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.commitGenerated">commitGenerated</a></code></td>
+<td><code>java.lang.Boolean</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.logging">logging</a></code></td>
@@ -2301,6 +2308,11 @@
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.majorVersion">majorVersion</a></code></td>
 <td><code>java.lang.Number</code></td>
 <td>Major version to release from the default branch.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.minMajorVersion">minMajorVersion</a></code></td>
+<td><code>java.lang.Number</code></td>
+<td>Minimal Major version to release.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.npmDistTag">npmDistTag</a></code></td>
@@ -2673,6 +2685,15 @@
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commitgeneratedoptional"><code>commitGenerated</code><sup>Optional</sup> <a name="commitGenerated" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getCommitGenerated</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.Boolean</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.logging"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">LoggerOptions</span><span class="w"> </span><span class="nf">getLogging</span><span class="p">();</span><span class="w"></span>
@@ -3297,6 +3318,18 @@ the standard script will be overwritten.</p>
 <p>Major version to release from the default branch.</p>
 <p>If this is specified, we bump the latest version of this major version line.
 If not specified, we bump the global latest version.</p>
+<hr />
+<h5 id="minmajorversionoptional"><code>minMajorVersion</code><sup>Optional</sup> <a name="minMajorVersion" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.minMajorVersion"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Number</span><span class="w"> </span><span class="nf">getMinMajorVersion</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.Number</li>
+<li><em>Default:</em> No minimum version is being enforced</li>
+</ul>
+<p>Minimal Major version to release.</p>
+<p>This can be useful to set to 1, as breaking changes before the 1.x major
+release are not incrementing the major version number.</p>
+<p>Can not be set together with <code>majorVersion</code>.</p>
 <hr />
 <h5 id="npmdisttagoptional"><code>npmDistTag</code><sup>Optional</sup> <a name="npmDistTag" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.npmDistTag"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getNpmDistTag</span><span class="p">();</span><span class="w"></span>
@@ -4539,6 +4572,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 
 <span class="n">NxMonorepoProject</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span><span class="w"></span>
 <span class="w">    </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
+<span class="c1">//  .commitGenerated(java.lang.Boolean)</span><span class="w"></span>
 <span class="c1">//  .logging(LoggerOptions)</span><span class="w"></span>
 <span class="c1">//  .outdir(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .parent(Project)</span><span class="w"></span>
@@ -4600,6 +4634,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <span class="c1">//  .stability(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .jsiiReleaseVersion(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .majorVersion(java.lang.Number)</span><span class="w"></span>
+<span class="c1">//  .minMajorVersion(java.lang.Number)</span><span class="w"></span>
 <span class="c1">//  .npmDistTag(java.lang.String)</span><span class="w"></span>
 <span class="c1">//  .postBuildSteps(java.util.List&lt;JobStep&gt;)</span><span class="w"></span>
 <span class="c1">//  .prerelease(java.lang.String)</span><span class="w"></span>
@@ -4687,6 +4722,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.name">name</a></code></td>
 <td><code>java.lang.String</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.commitGenerated">commitGenerated</a></code></td>
+<td><code>java.lang.Boolean</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.logging">logging</a></code></td>
@@ -4992,6 +5032,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.majorVersion">majorVersion</a></code></td>
 <td><code>java.lang.Number</code></td>
 <td>Major version to release from the default branch.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.minMajorVersion">minMajorVersion</a></code></td>
+<td><code>java.lang.Number</code></td>
+<td>Minimal Major version to release.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.npmDistTag">npmDistTag</a></code></td>
@@ -5362,6 +5407,13 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commitgeneratedoptional_1"><code>commitGenerated</code><sup>Optional</sup> <a name="commitGenerated" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.commitGenerated"></a></h5>
+<ul>
+<li><em>Type:</em> java.lang.Boolean</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional_1"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.logging"></a></h5>
 <ul>
@@ -5874,6 +5926,16 @@ the standard script will be overwritten.</p>
 <p>Major version to release from the default branch.</p>
 <p>If this is specified, we bump the latest version of this major version line.
 If not specified, we bump the global latest version.</p>
+<hr />
+<h5 id="minmajorversionoptional_1"><code>minMajorVersion</code><sup>Optional</sup> <a name="minMajorVersion" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.minMajorVersion"></a></h5>
+<ul>
+<li><em>Type:</em> java.lang.Number</li>
+<li><em>Default:</em> No minimum version is being enforced</li>
+</ul>
+<p>Minimal Major version to release.</p>
+<p>This can be useful to set to 1, as breaking changes before the 1.x major
+release are not incrementing the major version number.</p>
+<p>Can not be set together with <code>majorVersion</code>.</p>
 <hr />
 <h5 id="npmdisttagoptional_1"><code>npmDistTag</code><sup>Optional</sup> <a name="npmDistTag" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.npmDistTag"></a></h5>
 <ul>
@@ -6926,6 +6988,11 @@ on a Python project as an example.</p>
 <td><em>No description.</em></td>
 </tr>
 <tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.commitGenerated">commitGenerated</a></code></td>
+<td><code>java.lang.Boolean</code></td>
+<td>Whether to commit the managed files by default.</td>
+</tr>
+<tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.compileTask">compileTask</a></code></td>
 <td><code>io.github.cdklabs.projen.Task</code></td>
 <td><em>No description.</em></td>
@@ -7224,6 +7291,14 @@ on a Python project as an example.</p>
 <ul>
 <li><em>Type:</em> io.github.cdklabs.projen.Task</li>
 </ul>
+<hr />
+<h5 id="commitgeneratedrequired"><code>commitGenerated</code><sup>Required</sup> <a name="commitGenerated" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getCommitGenerated</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.Boolean</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="compiletaskrequired"><code>compileTask</code><sup>Required</sup> <a name="compileTask" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.compileTask"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Task</span><span class="w"> </span><span class="nf">getCompileTask</span><span class="p">();</span><span class="w"></span>
@@ -7770,7 +7845,7 @@ dependant projects first.</p>
   <small>
     
       Last update:
-      2022-08-08
+      2022-08-15
     
   </small>
 </div>

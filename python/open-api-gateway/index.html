@@ -2144,6 +2144,7 @@ aws-prototyping-sdk library.</p>
   <span class="n">cloud_watch_role</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">deploy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">deploy_options</span><span class="p">:</span> <span class="n">StageOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">disable_execute_api_endpoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">domain_name</span><span class="p">:</span> <span class="n">DomainNameOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">endpoint_export_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2157,7 +2158,8 @@ aws-prototyping-sdk library.</p>
   <span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">MethodAndPath</span><span class="p">],</span>
   <span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">spec</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+  <span class="n">spec</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+  <span class="n">spec_path</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
 <table>
@@ -2193,6 +2195,11 @@ aws-prototyping-sdk library.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.deployOptions">deploy_options</a></code></td>
 <td><code>aws_cdk.aws_apigateway.StageOptions</code></td>
 <td>Options for the API Gateway stage that will always point to the latest deployment when <code>deploy</code> is enabled.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.description">description</a></code></td>
+<td><code>str</code></td>
+<td>A description of the RestApi construct.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.disableExecuteApiEndpoint">disable_execute_api_endpoint</a></code></td>
@@ -2264,6 +2271,11 @@ aws-prototyping-sdk library.</p>
 <td><code>typing.Any</code></td>
 <td>The parsed OpenAPI specification.</td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.specPath">spec_path</a></code></td>
+<td><code>str</code></td>
+<td>Path to the JSON open api spec.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -2311,6 +2323,13 @@ of this REST API.</p>
 <p>Options for the API Gateway stage that will always point to the latest deployment when <code>deploy</code> is enabled.</p>
 <p>If <code>deploy</code> is disabled,
 this value cannot be set.</p>
+<hr />
+<h5 id="descriptionoptional"><code>description</code><sup>Optional</sup> <a name="description" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.description"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> 'Automatically created by the RestApi construct'</li>
+</ul>
+<p>A description of the RestApi construct.</p>
 <hr />
 <h5 id="disable_execute_api_endpointoptional"><code>disable_execute_api_endpoint</code><sup>Optional</sup> <a name="disable_execute_api_endpoint" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.disableExecuteApiEndpoint"></a></h5>
 <ul>
@@ -2420,6 +2439,12 @@ Authorizers specified at the integration level will override this for that opera
 </ul>
 <p>The parsed OpenAPI specification.</p>
 <hr />
+<h5 id="spec_pathrequired"><code>spec_path</code><sup>Required</sup> <a name="spec_path" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.specPath"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Path to the JSON open api spec.</p>
+<hr />
 <h4 id="methods">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
@@ -2433,66 +2458,6 @@ Authorizers specified at the integration level will override this for that opera
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.toString">to_string</a></code></td>
 <td>Returns a string representation of this construct.</td>
 </tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.applyRemovalPolicy">apply_removal_policy</a></code></td>
-<td>Apply the given removal policy to this resource.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addApiKey">add_api_key</a></code></td>
-<td>Add an ApiKey.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addDomainName">add_domain_name</a></code></td>
-<td>Defines an API Gateway domain name and maps it to this API.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addGatewayResponse">add_gateway_response</a></code></td>
-<td>Adds a new gateway response.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addUsagePlan">add_usage_plan</a></code></td>
-<td>Adds a usage plan.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.arnForExecuteApi">arn_for_execute_api</a></code></td>
-<td>Gets the "execute-api" ARN.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metric">metric</a></code></td>
-<td>Returns the given named metric for this API.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheHitCount">metric_cache_hit_count</a></code></td>
-<td>Metric for the number of requests served from the API cache in a given period.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheMissCount">metric_cache_miss_count</a></code></td>
-<td>Metric for the number of requests served from the backend in a given period, when API caching is enabled.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricClientError">metric_client_error</a></code></td>
-<td>Metric for the number of client-side errors captured in a given period.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCount">metric_count</a></code></td>
-<td>Metric for the total number API requests in a given period.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricIntegrationLatency">metric_integration_latency</a></code></td>
-<td>Metric for the time between when API Gateway relays a request to the backend and when it receives a response from the backend.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricLatency">metric_latency</a></code></td>
-<td>The time between when API Gateway receives a request from a client and when it returns a response to the client.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricServerError">metric_server_error</a></code></td>
-<td>Metric for the number of server-side errors captured in a given period.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.urlForPath">url_for_path</a></code></td>
-<td>Returns the URL for an HTTP path.</td>
-</tr>
 </tbody>
 </table>
 <hr />
@@ -2500,1031 +2465,6 @@ Authorizers specified at the integration level will override this for that opera
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">to_string</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span>
 </code></pre></div>
 <p>Returns a string representation of this construct.</p>
-<h5 id="apply_removal_policy"><code>apply_removal_policy</code> <a name="apply_removal_policy" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.applyRemovalPolicy"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">apply_removal_policy</span><span class="p">(</span>
-  <span class="n">policy</span><span class="p">:</span> <span class="n">RemovalPolicy</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
-</code></pre></div>
-<p>Apply the given removal policy to this resource.</p>
-<p>The Removal Policy controls what happens to this resource when it stops
-being managed by CloudFormation, either because you've removed it from the
-CDK application or because you've made a change that requires the resource
-to be replaced.</p>
-<p>The resource can be deleted (<code>RemovalPolicy.DESTROY</code>), or left in your AWS
-account for data recovery and cleanup later (<code>RemovalPolicy.RETAIN</code>).</p>
-<h6 id="policyrequired"><code>policy</code><sup>Required</sup> <a name="policy" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.applyRemovalPolicy.parameter.policy"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.RemovalPolicy</li>
-</ul>
-<hr />
-<h5 id="add_api_key"><code>add_api_key</code> <a name="add_api_key" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addApiKey"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add_api_key</span><span class="p">(</span>
-  <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-  <span class="n">default_cors_preflight_options</span><span class="p">:</span> <span class="n">CorsOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">default_integration</span><span class="p">:</span> <span class="n">Integration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">default_method_options</span><span class="p">:</span> <span class="n">MethodOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">api_key_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IApiKey</span>
-</code></pre></div>
-<p>Add an ApiKey.</p>
-<h6 id="idrequired_1"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addApiKey.parameter.id"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<hr />
-<h6 id="default_cors_preflight_optionsoptional"><code>default_cors_preflight_options</code><sup>Optional</sup> <a name="default_cors_preflight_options" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addApiKey.parameter.defaultCorsPreflightOptions"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.CorsOptions</li>
-<li><em>Default:</em> CORS is disabled</li>
-</ul>
-<p>Adds a CORS preflight OPTIONS method to this resource and all child resources.</p>
-<p>You can add CORS at the resource-level using <code>addCorsPreflight</code>.</p>
-<hr />
-<h6 id="default_integrationoptional"><code>default_integration</code><sup>Optional</sup> <a name="default_integration" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addApiKey.parameter.defaultIntegration"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.Integration</li>
-<li><em>Default:</em> Inherited from parent.</li>
-</ul>
-<p>An integration to use as a default for all methods created within this API unless an integration is specified.</p>
-<hr />
-<h6 id="default_method_optionsoptional"><code>default_method_options</code><sup>Optional</sup> <a name="default_method_options" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addApiKey.parameter.defaultMethodOptions"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.MethodOptions</li>
-<li><em>Default:</em> Inherited from parent.</li>
-</ul>
-<p>Method options to use as a default for all methods created within this API unless custom options are specified.</p>
-<hr />
-<h6 id="api_key_nameoptional"><code>api_key_name</code><sup>Optional</sup> <a name="api_key_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addApiKey.parameter.apiKeyName"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> automically generated name</li>
-</ul>
-<p>A name for the API key.</p>
-<p>If you don't specify a name, AWS CloudFormation generates a unique physical ID and uses that ID for the API key name.</p>
-<blockquote>
-<p><a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-apikey.html#cfn-apigateway-apikey-name">http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-apikey.html#cfn-apigateway-apikey-name</a></p>
-</blockquote>
-<hr />
-<h6 id="descriptionoptional"><code>description</code><sup>Optional</sup> <a name="description" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addApiKey.parameter.description"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> none</li>
-</ul>
-<p>A description of the purpose of the API key.</p>
-<blockquote>
-<p><a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-apikey.html#cfn-apigateway-apikey-description">http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-apikey.html#cfn-apigateway-apikey-description</a></p>
-</blockquote>
-<hr />
-<h6 id="valueoptional"><code>value</code><sup>Optional</sup> <a name="value" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addApiKey.parameter.value"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> none</li>
-</ul>
-<p>The value of the API key.</p>
-<p>Must be at least 20 characters long.</p>
-<blockquote>
-<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-apikey.html#cfn-apigateway-apikey-value">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-apikey.html#cfn-apigateway-apikey-value</a></p>
-</blockquote>
-<hr />
-<h5 id="add_domain_name"><code>add_domain_name</code> <a name="add_domain_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addDomainName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add_domain_name</span><span class="p">(</span>
-  <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-  <span class="n">certificate</span><span class="p">:</span> <span class="n">ICertificate</span><span class="p">,</span>
-  <span class="n">domain_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-  <span class="n">base_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">endpoint_type</span><span class="p">:</span> <span class="n">EndpointType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">mtls</span><span class="p">:</span> <span class="n">MTLSConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">security_policy</span><span class="p">:</span> <span class="n">SecurityPolicy</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DomainName</span>
-</code></pre></div>
-<p>Defines an API Gateway domain name and maps it to this API.</p>
-<h6 id="idrequired_2"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addDomainName.parameter.id"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<p>The construct id.</p>
-<hr />
-<h6 id="certificaterequired"><code>certificate</code><sup>Required</sup> <a name="certificate" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addDomainName.parameter.certificate"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_certificatemanager.ICertificate</li>
-</ul>
-<p>The reference to an AWS-managed certificate for use by the edge-optimized endpoint for the domain name.</p>
-<p>For "EDGE" domain names, the certificate
-needs to be in the US East (N. Virginia) region.</p>
-<hr />
-<h6 id="domain_namerequired"><code>domain_name</code><sup>Required</sup> <a name="domain_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addDomainName.parameter.domainName"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<p>The custom domain name for your API.</p>
-<p>Uppercase letters are not supported.</p>
-<hr />
-<h6 id="base_pathoptional"><code>base_path</code><sup>Optional</sup> <a name="base_path" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addDomainName.parameter.basePath"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> map requests from the domain root (e.g. <code>example.com</code>). If this is undefined, no additional mappings will be allowed on this domain name.</li>
-</ul>
-<p>The base path name that callers of the API must provide in the URL after the domain name (e.g. <code>example.com/base-path</code>). If you specify this property, it can't be an empty string.</p>
-<hr />
-<h6 id="endpoint_typeoptional"><code>endpoint_type</code><sup>Optional</sup> <a name="endpoint_type" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addDomainName.parameter.endpointType"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.EndpointType</li>
-<li><em>Default:</em> REGIONAL</li>
-</ul>
-<p>The type of endpoint for this DomainName.</p>
-<hr />
-<h6 id="mtlsoptional"><code>mtls</code><sup>Optional</sup> <a name="mtls" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addDomainName.parameter.mtls"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.MTLSConfig</li>
-<li><em>Default:</em> mTLS is not configured.</li>
-</ul>
-<p>The mutual TLS authentication configuration for a custom domain name.</p>
-<hr />
-<h6 id="security_policyoptional"><code>security_policy</code><sup>Optional</sup> <a name="security_policy" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addDomainName.parameter.securityPolicy"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.SecurityPolicy</li>
-<li><em>Default:</em> SecurityPolicy.TLS_1_0</li>
-</ul>
-<p>The Transport Layer Security (TLS) version + cipher suite for this domain name.</p>
-<blockquote>
-<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-domainname.html">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-domainname.html</a></p>
-</blockquote>
-<hr />
-<h5 id="add_gateway_response"><code>add_gateway_response</code> <a name="add_gateway_response" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addGatewayResponse"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add_gateway_response</span><span class="p">(</span>
-  <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-  <span class="nb">type</span><span class="p">:</span> <span class="n">ResponseType</span><span class="p">,</span>
-  <span class="n">response_headers</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">status_code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">templates</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GatewayResponse</span>
-</code></pre></div>
-<p>Adds a new gateway response.</p>
-<h6 id="idrequired_3"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addGatewayResponse.parameter.id"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<hr />
-<h6 id="typerequired"><code>type</code><sup>Required</sup> <a name="type" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addGatewayResponse.parameter.type"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.ResponseType</li>
-</ul>
-<p>Response type to associate with gateway response.</p>
-<blockquote>
-<p><a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/supported-gateway-response-types.html">https://docs.aws.amazon.com/apigateway/latest/developerguide/supported-gateway-response-types.html</a></p>
-</blockquote>
-<hr />
-<h6 id="response_headersoptional"><code>response_headers</code><sup>Optional</sup> <a name="response_headers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addGatewayResponse.parameter.responseHeaders"></a></h6>
-<ul>
-<li><em>Type:</em> typing.Mapping[str]</li>
-<li><em>Default:</em> no headers</li>
-</ul>
-<p>Custom headers parameters for response.</p>
-<hr />
-<h6 id="status_codeoptional"><code>status_code</code><sup>Optional</sup> <a name="status_code" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addGatewayResponse.parameter.statusCode"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> standard http status code for the response type.</li>
-</ul>
-<p>Http status code for response.</p>
-<hr />
-<h6 id="templatesoptional"><code>templates</code><sup>Optional</sup> <a name="templates" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addGatewayResponse.parameter.templates"></a></h6>
-<ul>
-<li><em>Type:</em> typing.Mapping[str]</li>
-<li><em>Default:</em> Response from api will be returned without applying any transformation.</li>
-</ul>
-<p>Custom templates to get mapped as response.</p>
-<hr />
-<h5 id="add_usage_plan"><code>add_usage_plan</code> <a name="add_usage_plan" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addUsagePlan"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add_usage_plan</span><span class="p">(</span>
-  <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-  <span class="n">api_stages</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">UsagePlanPerApiStage</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">quota</span><span class="p">:</span> <span class="n">QuotaSettings</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">throttle</span><span class="p">:</span> <span class="n">ThrottleSettings</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UsagePlan</span>
-</code></pre></div>
-<p>Adds a usage plan.</p>
-<h6 id="idrequired_4"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addUsagePlan.parameter.id"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<hr />
-<h6 id="api_stagesoptional"><code>api_stages</code><sup>Optional</sup> <a name="api_stages" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addUsagePlan.parameter.apiStages"></a></h6>
-<ul>
-<li><em>Type:</em> typing.List[aws_cdk.aws_apigateway.UsagePlanPerApiStage]</li>
-<li><em>Default:</em> none</li>
-</ul>
-<p>API Stages to be associated with the usage plan.</p>
-<hr />
-<h6 id="descriptionoptional_1"><code>description</code><sup>Optional</sup> <a name="description" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addUsagePlan.parameter.description"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> none</li>
-</ul>
-<p>Represents usage plan purpose.</p>
-<hr />
-<h6 id="nameoptional"><code>name</code><sup>Optional</sup> <a name="name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addUsagePlan.parameter.name"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> none</li>
-</ul>
-<p>Name for this usage plan.</p>
-<hr />
-<h6 id="quotaoptional"><code>quota</code><sup>Optional</sup> <a name="quota" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addUsagePlan.parameter.quota"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.QuotaSettings</li>
-<li><em>Default:</em> none</li>
-</ul>
-<p>Number of requests clients can make in a given time period.</p>
-<hr />
-<h6 id="throttleoptional"><code>throttle</code><sup>Optional</sup> <a name="throttle" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.addUsagePlan.parameter.throttle"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.ThrottleSettings</li>
-<li><em>Default:</em> none</li>
-</ul>
-<p>Overall throttle settings for the API.</p>
-<hr />
-<h5 id="arn_for_execute_api"><code>arn_for_execute_api</code> <a name="arn_for_execute_api" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.arnForExecuteApi"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">arn_for_execute_api</span><span class="p">(</span>
-  <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">stage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
-</code></pre></div>
-<p>Gets the "execute-api" ARN.</p>
-<h6 id="methodoptional"><code>method</code><sup>Optional</sup> <a name="method" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.arnForExecuteApi.parameter.method"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<hr />
-<h6 id="pathoptional"><code>path</code><sup>Optional</sup> <a name="path" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.arnForExecuteApi.parameter.path"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<hr />
-<h6 id="stageoptional"><code>stage</code><sup>Optional</sup> <a name="stage" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.arnForExecuteApi.parameter.stage"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<hr />
-<h5 id="metric"><code>metric</code> <a name="metric" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metric"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">metric</span><span class="p">(</span>
-  <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-  <span class="n">account</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">dimensions_map</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">period</span><span class="p">:</span> <span class="n">Duration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">unit</span><span class="p">:</span> <span class="n">Unit</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span>
-</code></pre></div>
-<p>Returns the given named metric for this API.</p>
-<h6 id="metric_namerequired"><code>metric_name</code><sup>Required</sup> <a name="metric_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metric.parameter.metricName"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<hr />
-<h6 id="accountoptional"><code>account</code><sup>Optional</sup> <a name="account" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metric.parameter.account"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment account.</li>
-</ul>
-<p>Account which this metric comes from.</p>
-<hr />
-<h6 id="coloroptional"><code>color</code><sup>Optional</sup> <a name="color" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metric.parameter.color"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Automatic color</li>
-</ul>
-<p>The hex color code, prefixed with '#' (e.g. '#00ff00'), to use when this metric is rendered on a graph. The <code>Color</code> class has a set of standard colors that can be used here.</p>
-<hr />
-<h6 id="dimensions_mapoptional"><code>dimensions_map</code><sup>Optional</sup> <a name="dimensions_map" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metric.parameter.dimensionsMap"></a></h6>
-<ul>
-<li><em>Type:</em> typing.Mapping[str]</li>
-<li><em>Default:</em> No dimensions.</li>
-</ul>
-<p>Dimensions of the metric.</p>
-<hr />
-<h6 id="labeloptional"><code>label</code><sup>Optional</sup> <a name="label" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metric.parameter.label"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> No label</li>
-</ul>
-<p>Label for this metric when added to a Graph in a Dashboard.</p>
-<p>You can use <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/graph-dynamic-labels.html">dynamic labels</a>
-to show summary information about the entire displayed time series
-in the legend. For example, if you use:</p>
-<div class="highlight"><pre><span></span><code>[max: ${MAX}] MyMetric
-</code></pre></div>
-<p>As the metric label, the maximum value in the visible range will
-be shown next to the time series name in the graph's legend.</p>
-<hr />
-<h6 id="periodoptional"><code>period</code><sup>Optional</sup> <a name="period" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metric.parameter.period"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.Duration</li>
-<li><em>Default:</em> Duration.minutes(5)</li>
-</ul>
-<p>The period over which the specified statistic is applied.</p>
-<hr />
-<h6 id="regionoptional"><code>region</code><sup>Optional</sup> <a name="region" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metric.parameter.region"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment region.</li>
-</ul>
-<p>Region which this metric comes from.</p>
-<hr />
-<h6 id="statisticoptional"><code>statistic</code><sup>Optional</sup> <a name="statistic" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metric.parameter.statistic"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Average</li>
-</ul>
-<p>What function to use for aggregating.</p>
-<p>Can be one of the following:</p>
-<ul>
-<li>"Minimum" | "min"</li>
-<li>"Maximum" | "max"</li>
-<li>"Average" | "avg"</li>
-<li>"Sum" | "sum"</li>
-<li>"SampleCount | "n"</li>
-<li>"pNN.NN"</li>
-</ul>
-<hr />
-<h6 id="unitoptional"><code>unit</code><sup>Optional</sup> <a name="unit" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metric.parameter.unit"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_cloudwatch.Unit</li>
-<li><em>Default:</em> All metric datums in the given metric stream</li>
-</ul>
-<p>Unit used to filter the metric stream.</p>
-<p>Only refer to datums emitted to the metric stream with the given unit and
-ignore all others. Only useful when datums are being emitted to the same
-metric stream under different units.</p>
-<p>The default is to use all matric datums in the stream, regardless of unit,
-which is recommended in nearly all cases.</p>
-<p>CloudWatch does not honor this property for graphs.</p>
-<hr />
-<h5 id="metric_cache_hit_count"><code>metric_cache_hit_count</code> <a name="metric_cache_hit_count" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheHitCount"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">metric_cache_hit_count</span><span class="p">(</span>
-  <span class="n">account</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">dimensions_map</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">period</span><span class="p">:</span> <span class="n">Duration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">unit</span><span class="p">:</span> <span class="n">Unit</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span>
-</code></pre></div>
-<p>Metric for the number of requests served from the API cache in a given period.</p>
-<p>Default: sum over 5 minutes</p>
-<h6 id="accountoptional_1"><code>account</code><sup>Optional</sup> <a name="account" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheHitCount.parameter.account"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment account.</li>
-</ul>
-<p>Account which this metric comes from.</p>
-<hr />
-<h6 id="coloroptional_1"><code>color</code><sup>Optional</sup> <a name="color" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheHitCount.parameter.color"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Automatic color</li>
-</ul>
-<p>The hex color code, prefixed with '#' (e.g. '#00ff00'), to use when this metric is rendered on a graph. The <code>Color</code> class has a set of standard colors that can be used here.</p>
-<hr />
-<h6 id="dimensions_mapoptional_1"><code>dimensions_map</code><sup>Optional</sup> <a name="dimensions_map" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheHitCount.parameter.dimensionsMap"></a></h6>
-<ul>
-<li><em>Type:</em> typing.Mapping[str]</li>
-<li><em>Default:</em> No dimensions.</li>
-</ul>
-<p>Dimensions of the metric.</p>
-<hr />
-<h6 id="labeloptional_1"><code>label</code><sup>Optional</sup> <a name="label" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheHitCount.parameter.label"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> No label</li>
-</ul>
-<p>Label for this metric when added to a Graph in a Dashboard.</p>
-<p>You can use <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/graph-dynamic-labels.html">dynamic labels</a>
-to show summary information about the entire displayed time series
-in the legend. For example, if you use:</p>
-<div class="highlight"><pre><span></span><code>[max: ${MAX}] MyMetric
-</code></pre></div>
-<p>As the metric label, the maximum value in the visible range will
-be shown next to the time series name in the graph's legend.</p>
-<hr />
-<h6 id="periodoptional_1"><code>period</code><sup>Optional</sup> <a name="period" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheHitCount.parameter.period"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.Duration</li>
-<li><em>Default:</em> Duration.minutes(5)</li>
-</ul>
-<p>The period over which the specified statistic is applied.</p>
-<hr />
-<h6 id="regionoptional_1"><code>region</code><sup>Optional</sup> <a name="region" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheHitCount.parameter.region"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment region.</li>
-</ul>
-<p>Region which this metric comes from.</p>
-<hr />
-<h6 id="statisticoptional_1"><code>statistic</code><sup>Optional</sup> <a name="statistic" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheHitCount.parameter.statistic"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Average</li>
-</ul>
-<p>What function to use for aggregating.</p>
-<p>Can be one of the following:</p>
-<ul>
-<li>"Minimum" | "min"</li>
-<li>"Maximum" | "max"</li>
-<li>"Average" | "avg"</li>
-<li>"Sum" | "sum"</li>
-<li>"SampleCount | "n"</li>
-<li>"pNN.NN"</li>
-</ul>
-<hr />
-<h6 id="unitoptional_1"><code>unit</code><sup>Optional</sup> <a name="unit" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheHitCount.parameter.unit"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_cloudwatch.Unit</li>
-<li><em>Default:</em> All metric datums in the given metric stream</li>
-</ul>
-<p>Unit used to filter the metric stream.</p>
-<p>Only refer to datums emitted to the metric stream with the given unit and
-ignore all others. Only useful when datums are being emitted to the same
-metric stream under different units.</p>
-<p>The default is to use all matric datums in the stream, regardless of unit,
-which is recommended in nearly all cases.</p>
-<p>CloudWatch does not honor this property for graphs.</p>
-<hr />
-<h5 id="metric_cache_miss_count"><code>metric_cache_miss_count</code> <a name="metric_cache_miss_count" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheMissCount"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">metric_cache_miss_count</span><span class="p">(</span>
-  <span class="n">account</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">dimensions_map</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">period</span><span class="p">:</span> <span class="n">Duration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">unit</span><span class="p">:</span> <span class="n">Unit</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span>
-</code></pre></div>
-<p>Metric for the number of requests served from the backend in a given period, when API caching is enabled.</p>
-<p>Default: sum over 5 minutes</p>
-<h6 id="accountoptional_2"><code>account</code><sup>Optional</sup> <a name="account" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheMissCount.parameter.account"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment account.</li>
-</ul>
-<p>Account which this metric comes from.</p>
-<hr />
-<h6 id="coloroptional_2"><code>color</code><sup>Optional</sup> <a name="color" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheMissCount.parameter.color"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Automatic color</li>
-</ul>
-<p>The hex color code, prefixed with '#' (e.g. '#00ff00'), to use when this metric is rendered on a graph. The <code>Color</code> class has a set of standard colors that can be used here.</p>
-<hr />
-<h6 id="dimensions_mapoptional_2"><code>dimensions_map</code><sup>Optional</sup> <a name="dimensions_map" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheMissCount.parameter.dimensionsMap"></a></h6>
-<ul>
-<li><em>Type:</em> typing.Mapping[str]</li>
-<li><em>Default:</em> No dimensions.</li>
-</ul>
-<p>Dimensions of the metric.</p>
-<hr />
-<h6 id="labeloptional_2"><code>label</code><sup>Optional</sup> <a name="label" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheMissCount.parameter.label"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> No label</li>
-</ul>
-<p>Label for this metric when added to a Graph in a Dashboard.</p>
-<p>You can use <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/graph-dynamic-labels.html">dynamic labels</a>
-to show summary information about the entire displayed time series
-in the legend. For example, if you use:</p>
-<div class="highlight"><pre><span></span><code>[max: ${MAX}] MyMetric
-</code></pre></div>
-<p>As the metric label, the maximum value in the visible range will
-be shown next to the time series name in the graph's legend.</p>
-<hr />
-<h6 id="periodoptional_2"><code>period</code><sup>Optional</sup> <a name="period" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheMissCount.parameter.period"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.Duration</li>
-<li><em>Default:</em> Duration.minutes(5)</li>
-</ul>
-<p>The period over which the specified statistic is applied.</p>
-<hr />
-<h6 id="regionoptional_2"><code>region</code><sup>Optional</sup> <a name="region" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheMissCount.parameter.region"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment region.</li>
-</ul>
-<p>Region which this metric comes from.</p>
-<hr />
-<h6 id="statisticoptional_2"><code>statistic</code><sup>Optional</sup> <a name="statistic" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheMissCount.parameter.statistic"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Average</li>
-</ul>
-<p>What function to use for aggregating.</p>
-<p>Can be one of the following:</p>
-<ul>
-<li>"Minimum" | "min"</li>
-<li>"Maximum" | "max"</li>
-<li>"Average" | "avg"</li>
-<li>"Sum" | "sum"</li>
-<li>"SampleCount | "n"</li>
-<li>"pNN.NN"</li>
-</ul>
-<hr />
-<h6 id="unitoptional_2"><code>unit</code><sup>Optional</sup> <a name="unit" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCacheMissCount.parameter.unit"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_cloudwatch.Unit</li>
-<li><em>Default:</em> All metric datums in the given metric stream</li>
-</ul>
-<p>Unit used to filter the metric stream.</p>
-<p>Only refer to datums emitted to the metric stream with the given unit and
-ignore all others. Only useful when datums are being emitted to the same
-metric stream under different units.</p>
-<p>The default is to use all matric datums in the stream, regardless of unit,
-which is recommended in nearly all cases.</p>
-<p>CloudWatch does not honor this property for graphs.</p>
-<hr />
-<h5 id="metric_client_error"><code>metric_client_error</code> <a name="metric_client_error" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricClientError"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">metric_client_error</span><span class="p">(</span>
-  <span class="n">account</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">dimensions_map</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">period</span><span class="p">:</span> <span class="n">Duration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">unit</span><span class="p">:</span> <span class="n">Unit</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span>
-</code></pre></div>
-<p>Metric for the number of client-side errors captured in a given period.</p>
-<p>Default: sum over 5 minutes</p>
-<h6 id="accountoptional_3"><code>account</code><sup>Optional</sup> <a name="account" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricClientError.parameter.account"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment account.</li>
-</ul>
-<p>Account which this metric comes from.</p>
-<hr />
-<h6 id="coloroptional_3"><code>color</code><sup>Optional</sup> <a name="color" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricClientError.parameter.color"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Automatic color</li>
-</ul>
-<p>The hex color code, prefixed with '#' (e.g. '#00ff00'), to use when this metric is rendered on a graph. The <code>Color</code> class has a set of standard colors that can be used here.</p>
-<hr />
-<h6 id="dimensions_mapoptional_3"><code>dimensions_map</code><sup>Optional</sup> <a name="dimensions_map" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricClientError.parameter.dimensionsMap"></a></h6>
-<ul>
-<li><em>Type:</em> typing.Mapping[str]</li>
-<li><em>Default:</em> No dimensions.</li>
-</ul>
-<p>Dimensions of the metric.</p>
-<hr />
-<h6 id="labeloptional_3"><code>label</code><sup>Optional</sup> <a name="label" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricClientError.parameter.label"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> No label</li>
-</ul>
-<p>Label for this metric when added to a Graph in a Dashboard.</p>
-<p>You can use <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/graph-dynamic-labels.html">dynamic labels</a>
-to show summary information about the entire displayed time series
-in the legend. For example, if you use:</p>
-<div class="highlight"><pre><span></span><code>[max: ${MAX}] MyMetric
-</code></pre></div>
-<p>As the metric label, the maximum value in the visible range will
-be shown next to the time series name in the graph's legend.</p>
-<hr />
-<h6 id="periodoptional_3"><code>period</code><sup>Optional</sup> <a name="period" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricClientError.parameter.period"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.Duration</li>
-<li><em>Default:</em> Duration.minutes(5)</li>
-</ul>
-<p>The period over which the specified statistic is applied.</p>
-<hr />
-<h6 id="regionoptional_3"><code>region</code><sup>Optional</sup> <a name="region" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricClientError.parameter.region"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment region.</li>
-</ul>
-<p>Region which this metric comes from.</p>
-<hr />
-<h6 id="statisticoptional_3"><code>statistic</code><sup>Optional</sup> <a name="statistic" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricClientError.parameter.statistic"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Average</li>
-</ul>
-<p>What function to use for aggregating.</p>
-<p>Can be one of the following:</p>
-<ul>
-<li>"Minimum" | "min"</li>
-<li>"Maximum" | "max"</li>
-<li>"Average" | "avg"</li>
-<li>"Sum" | "sum"</li>
-<li>"SampleCount | "n"</li>
-<li>"pNN.NN"</li>
-</ul>
-<hr />
-<h6 id="unitoptional_3"><code>unit</code><sup>Optional</sup> <a name="unit" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricClientError.parameter.unit"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_cloudwatch.Unit</li>
-<li><em>Default:</em> All metric datums in the given metric stream</li>
-</ul>
-<p>Unit used to filter the metric stream.</p>
-<p>Only refer to datums emitted to the metric stream with the given unit and
-ignore all others. Only useful when datums are being emitted to the same
-metric stream under different units.</p>
-<p>The default is to use all matric datums in the stream, regardless of unit,
-which is recommended in nearly all cases.</p>
-<p>CloudWatch does not honor this property for graphs.</p>
-<hr />
-<h5 id="metric_count"><code>metric_count</code> <a name="metric_count" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCount"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">metric_count</span><span class="p">(</span>
-  <span class="n">account</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">dimensions_map</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">period</span><span class="p">:</span> <span class="n">Duration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">unit</span><span class="p">:</span> <span class="n">Unit</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span>
-</code></pre></div>
-<p>Metric for the total number API requests in a given period.</p>
-<p>Default: sample count over 5 minutes</p>
-<h6 id="accountoptional_4"><code>account</code><sup>Optional</sup> <a name="account" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCount.parameter.account"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment account.</li>
-</ul>
-<p>Account which this metric comes from.</p>
-<hr />
-<h6 id="coloroptional_4"><code>color</code><sup>Optional</sup> <a name="color" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCount.parameter.color"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Automatic color</li>
-</ul>
-<p>The hex color code, prefixed with '#' (e.g. '#00ff00'), to use when this metric is rendered on a graph. The <code>Color</code> class has a set of standard colors that can be used here.</p>
-<hr />
-<h6 id="dimensions_mapoptional_4"><code>dimensions_map</code><sup>Optional</sup> <a name="dimensions_map" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCount.parameter.dimensionsMap"></a></h6>
-<ul>
-<li><em>Type:</em> typing.Mapping[str]</li>
-<li><em>Default:</em> No dimensions.</li>
-</ul>
-<p>Dimensions of the metric.</p>
-<hr />
-<h6 id="labeloptional_4"><code>label</code><sup>Optional</sup> <a name="label" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCount.parameter.label"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> No label</li>
-</ul>
-<p>Label for this metric when added to a Graph in a Dashboard.</p>
-<p>You can use <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/graph-dynamic-labels.html">dynamic labels</a>
-to show summary information about the entire displayed time series
-in the legend. For example, if you use:</p>
-<div class="highlight"><pre><span></span><code>[max: ${MAX}] MyMetric
-</code></pre></div>
-<p>As the metric label, the maximum value in the visible range will
-be shown next to the time series name in the graph's legend.</p>
-<hr />
-<h6 id="periodoptional_4"><code>period</code><sup>Optional</sup> <a name="period" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCount.parameter.period"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.Duration</li>
-<li><em>Default:</em> Duration.minutes(5)</li>
-</ul>
-<p>The period over which the specified statistic is applied.</p>
-<hr />
-<h6 id="regionoptional_4"><code>region</code><sup>Optional</sup> <a name="region" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCount.parameter.region"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment region.</li>
-</ul>
-<p>Region which this metric comes from.</p>
-<hr />
-<h6 id="statisticoptional_4"><code>statistic</code><sup>Optional</sup> <a name="statistic" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCount.parameter.statistic"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Average</li>
-</ul>
-<p>What function to use for aggregating.</p>
-<p>Can be one of the following:</p>
-<ul>
-<li>"Minimum" | "min"</li>
-<li>"Maximum" | "max"</li>
-<li>"Average" | "avg"</li>
-<li>"Sum" | "sum"</li>
-<li>"SampleCount | "n"</li>
-<li>"pNN.NN"</li>
-</ul>
-<hr />
-<h6 id="unitoptional_4"><code>unit</code><sup>Optional</sup> <a name="unit" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricCount.parameter.unit"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_cloudwatch.Unit</li>
-<li><em>Default:</em> All metric datums in the given metric stream</li>
-</ul>
-<p>Unit used to filter the metric stream.</p>
-<p>Only refer to datums emitted to the metric stream with the given unit and
-ignore all others. Only useful when datums are being emitted to the same
-metric stream under different units.</p>
-<p>The default is to use all matric datums in the stream, regardless of unit,
-which is recommended in nearly all cases.</p>
-<p>CloudWatch does not honor this property for graphs.</p>
-<hr />
-<h5 id="metric_integration_latency"><code>metric_integration_latency</code> <a name="metric_integration_latency" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricIntegrationLatency"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">metric_integration_latency</span><span class="p">(</span>
-  <span class="n">account</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">dimensions_map</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">period</span><span class="p">:</span> <span class="n">Duration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">unit</span><span class="p">:</span> <span class="n">Unit</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span>
-</code></pre></div>
-<p>Metric for the time between when API Gateway relays a request to the backend and when it receives a response from the backend.</p>
-<p>Default: average over 5 minutes.</p>
-<h6 id="accountoptional_5"><code>account</code><sup>Optional</sup> <a name="account" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricIntegrationLatency.parameter.account"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment account.</li>
-</ul>
-<p>Account which this metric comes from.</p>
-<hr />
-<h6 id="coloroptional_5"><code>color</code><sup>Optional</sup> <a name="color" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricIntegrationLatency.parameter.color"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Automatic color</li>
-</ul>
-<p>The hex color code, prefixed with '#' (e.g. '#00ff00'), to use when this metric is rendered on a graph. The <code>Color</code> class has a set of standard colors that can be used here.</p>
-<hr />
-<h6 id="dimensions_mapoptional_5"><code>dimensions_map</code><sup>Optional</sup> <a name="dimensions_map" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricIntegrationLatency.parameter.dimensionsMap"></a></h6>
-<ul>
-<li><em>Type:</em> typing.Mapping[str]</li>
-<li><em>Default:</em> No dimensions.</li>
-</ul>
-<p>Dimensions of the metric.</p>
-<hr />
-<h6 id="labeloptional_5"><code>label</code><sup>Optional</sup> <a name="label" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricIntegrationLatency.parameter.label"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> No label</li>
-</ul>
-<p>Label for this metric when added to a Graph in a Dashboard.</p>
-<p>You can use <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/graph-dynamic-labels.html">dynamic labels</a>
-to show summary information about the entire displayed time series
-in the legend. For example, if you use:</p>
-<div class="highlight"><pre><span></span><code>[max: ${MAX}] MyMetric
-</code></pre></div>
-<p>As the metric label, the maximum value in the visible range will
-be shown next to the time series name in the graph's legend.</p>
-<hr />
-<h6 id="periodoptional_5"><code>period</code><sup>Optional</sup> <a name="period" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricIntegrationLatency.parameter.period"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.Duration</li>
-<li><em>Default:</em> Duration.minutes(5)</li>
-</ul>
-<p>The period over which the specified statistic is applied.</p>
-<hr />
-<h6 id="regionoptional_5"><code>region</code><sup>Optional</sup> <a name="region" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricIntegrationLatency.parameter.region"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment region.</li>
-</ul>
-<p>Region which this metric comes from.</p>
-<hr />
-<h6 id="statisticoptional_5"><code>statistic</code><sup>Optional</sup> <a name="statistic" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricIntegrationLatency.parameter.statistic"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Average</li>
-</ul>
-<p>What function to use for aggregating.</p>
-<p>Can be one of the following:</p>
-<ul>
-<li>"Minimum" | "min"</li>
-<li>"Maximum" | "max"</li>
-<li>"Average" | "avg"</li>
-<li>"Sum" | "sum"</li>
-<li>"SampleCount | "n"</li>
-<li>"pNN.NN"</li>
-</ul>
-<hr />
-<h6 id="unitoptional_5"><code>unit</code><sup>Optional</sup> <a name="unit" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricIntegrationLatency.parameter.unit"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_cloudwatch.Unit</li>
-<li><em>Default:</em> All metric datums in the given metric stream</li>
-</ul>
-<p>Unit used to filter the metric stream.</p>
-<p>Only refer to datums emitted to the metric stream with the given unit and
-ignore all others. Only useful when datums are being emitted to the same
-metric stream under different units.</p>
-<p>The default is to use all matric datums in the stream, regardless of unit,
-which is recommended in nearly all cases.</p>
-<p>CloudWatch does not honor this property for graphs.</p>
-<hr />
-<h5 id="metric_latency"><code>metric_latency</code> <a name="metric_latency" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricLatency"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">metric_latency</span><span class="p">(</span>
-  <span class="n">account</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">dimensions_map</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">period</span><span class="p">:</span> <span class="n">Duration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">unit</span><span class="p">:</span> <span class="n">Unit</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span>
-</code></pre></div>
-<p>The time between when API Gateway receives a request from a client and when it returns a response to the client.</p>
-<p>The latency includes the integration latency and other API Gateway overhead.</p>
-<p>Default: average over 5 minutes.</p>
-<h6 id="accountoptional_6"><code>account</code><sup>Optional</sup> <a name="account" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricLatency.parameter.account"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment account.</li>
-</ul>
-<p>Account which this metric comes from.</p>
-<hr />
-<h6 id="coloroptional_6"><code>color</code><sup>Optional</sup> <a name="color" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricLatency.parameter.color"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Automatic color</li>
-</ul>
-<p>The hex color code, prefixed with '#' (e.g. '#00ff00'), to use when this metric is rendered on a graph. The <code>Color</code> class has a set of standard colors that can be used here.</p>
-<hr />
-<h6 id="dimensions_mapoptional_6"><code>dimensions_map</code><sup>Optional</sup> <a name="dimensions_map" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricLatency.parameter.dimensionsMap"></a></h6>
-<ul>
-<li><em>Type:</em> typing.Mapping[str]</li>
-<li><em>Default:</em> No dimensions.</li>
-</ul>
-<p>Dimensions of the metric.</p>
-<hr />
-<h6 id="labeloptional_6"><code>label</code><sup>Optional</sup> <a name="label" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricLatency.parameter.label"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> No label</li>
-</ul>
-<p>Label for this metric when added to a Graph in a Dashboard.</p>
-<p>You can use <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/graph-dynamic-labels.html">dynamic labels</a>
-to show summary information about the entire displayed time series
-in the legend. For example, if you use:</p>
-<div class="highlight"><pre><span></span><code>[max: ${MAX}] MyMetric
-</code></pre></div>
-<p>As the metric label, the maximum value in the visible range will
-be shown next to the time series name in the graph's legend.</p>
-<hr />
-<h6 id="periodoptional_6"><code>period</code><sup>Optional</sup> <a name="period" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricLatency.parameter.period"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.Duration</li>
-<li><em>Default:</em> Duration.minutes(5)</li>
-</ul>
-<p>The period over which the specified statistic is applied.</p>
-<hr />
-<h6 id="regionoptional_6"><code>region</code><sup>Optional</sup> <a name="region" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricLatency.parameter.region"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment region.</li>
-</ul>
-<p>Region which this metric comes from.</p>
-<hr />
-<h6 id="statisticoptional_6"><code>statistic</code><sup>Optional</sup> <a name="statistic" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricLatency.parameter.statistic"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Average</li>
-</ul>
-<p>What function to use for aggregating.</p>
-<p>Can be one of the following:</p>
-<ul>
-<li>"Minimum" | "min"</li>
-<li>"Maximum" | "max"</li>
-<li>"Average" | "avg"</li>
-<li>"Sum" | "sum"</li>
-<li>"SampleCount | "n"</li>
-<li>"pNN.NN"</li>
-</ul>
-<hr />
-<h6 id="unitoptional_6"><code>unit</code><sup>Optional</sup> <a name="unit" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricLatency.parameter.unit"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_cloudwatch.Unit</li>
-<li><em>Default:</em> All metric datums in the given metric stream</li>
-</ul>
-<p>Unit used to filter the metric stream.</p>
-<p>Only refer to datums emitted to the metric stream with the given unit and
-ignore all others. Only useful when datums are being emitted to the same
-metric stream under different units.</p>
-<p>The default is to use all matric datums in the stream, regardless of unit,
-which is recommended in nearly all cases.</p>
-<p>CloudWatch does not honor this property for graphs.</p>
-<hr />
-<h5 id="metric_server_error"><code>metric_server_error</code> <a name="metric_server_error" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricServerError"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">metric_server_error</span><span class="p">(</span>
-  <span class="n">account</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">dimensions_map</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">period</span><span class="p">:</span> <span class="n">Duration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">unit</span><span class="p">:</span> <span class="n">Unit</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span>
-</code></pre></div>
-<p>Metric for the number of server-side errors captured in a given period.</p>
-<p>Default: sum over 5 minutes</p>
-<h6 id="accountoptional_7"><code>account</code><sup>Optional</sup> <a name="account" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricServerError.parameter.account"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment account.</li>
-</ul>
-<p>Account which this metric comes from.</p>
-<hr />
-<h6 id="coloroptional_7"><code>color</code><sup>Optional</sup> <a name="color" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricServerError.parameter.color"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Automatic color</li>
-</ul>
-<p>The hex color code, prefixed with '#' (e.g. '#00ff00'), to use when this metric is rendered on a graph. The <code>Color</code> class has a set of standard colors that can be used here.</p>
-<hr />
-<h6 id="dimensions_mapoptional_7"><code>dimensions_map</code><sup>Optional</sup> <a name="dimensions_map" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricServerError.parameter.dimensionsMap"></a></h6>
-<ul>
-<li><em>Type:</em> typing.Mapping[str]</li>
-<li><em>Default:</em> No dimensions.</li>
-</ul>
-<p>Dimensions of the metric.</p>
-<hr />
-<h6 id="labeloptional_7"><code>label</code><sup>Optional</sup> <a name="label" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricServerError.parameter.label"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> No label</li>
-</ul>
-<p>Label for this metric when added to a Graph in a Dashboard.</p>
-<p>You can use <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/graph-dynamic-labels.html">dynamic labels</a>
-to show summary information about the entire displayed time series
-in the legend. For example, if you use:</p>
-<div class="highlight"><pre><span></span><code>[max: ${MAX}] MyMetric
-</code></pre></div>
-<p>As the metric label, the maximum value in the visible range will
-be shown next to the time series name in the graph's legend.</p>
-<hr />
-<h6 id="periodoptional_7"><code>period</code><sup>Optional</sup> <a name="period" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricServerError.parameter.period"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.Duration</li>
-<li><em>Default:</em> Duration.minutes(5)</li>
-</ul>
-<p>The period over which the specified statistic is applied.</p>
-<hr />
-<h6 id="regionoptional_7"><code>region</code><sup>Optional</sup> <a name="region" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricServerError.parameter.region"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Deployment region.</li>
-</ul>
-<p>Region which this metric comes from.</p>
-<hr />
-<h6 id="statisticoptional_7"><code>statistic</code><sup>Optional</sup> <a name="statistic" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricServerError.parameter.statistic"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-<li><em>Default:</em> Average</li>
-</ul>
-<p>What function to use for aggregating.</p>
-<p>Can be one of the following:</p>
-<ul>
-<li>"Minimum" | "min"</li>
-<li>"Maximum" | "max"</li>
-<li>"Average" | "avg"</li>
-<li>"Sum" | "sum"</li>
-<li>"SampleCount | "n"</li>
-<li>"pNN.NN"</li>
-</ul>
-<hr />
-<h6 id="unitoptional_7"><code>unit</code><sup>Optional</sup> <a name="unit" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.metricServerError.parameter.unit"></a></h6>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_cloudwatch.Unit</li>
-<li><em>Default:</em> All metric datums in the given metric stream</li>
-</ul>
-<p>Unit used to filter the metric stream.</p>
-<p>Only refer to datums emitted to the metric stream with the given unit and
-ignore all others. Only useful when datums are being emitted to the same
-metric stream under different units.</p>
-<p>The default is to use all matric datums in the stream, regardless of unit,
-which is recommended in nearly all cases.</p>
-<p>CloudWatch does not honor this property for graphs.</p>
-<hr />
-<h5 id="url_for_path"><code>url_for_path</code> <a name="url_for_path" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.urlForPath"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">url_for_path</span><span class="p">(</span>
-  <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
-</code></pre></div>
-<p>Returns the URL for an HTTP path.</p>
-<p>Fails if <code>deploymentStage</code> is not set either by <code>deploy</code> or explicitly.</p>
-<h6 id="pathoptional_1"><code>path</code><sup>Optional</sup> <a name="path" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.urlForPath.parameter.path"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<hr />
 <h4 id="static-functions">Static Functions <a name="Static Functions" id="Static Functions"></a></h4>
 <table>
 <thead>
@@ -3537,14 +2477,6 @@ which is recommended in nearly all cases.</p>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.isConstruct">is_construct</a></code></td>
 <td>Checks if <code>x</code> is a construct.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.isOwnedResource">is_owned_resource</a></code></td>
-<td>Returns true if the construct was created by CDK, and false otherwise.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.isResource">is_resource</a></code></td>
-<td>Check whether the given construct is a Resource.</td>
 </tr>
 </tbody>
 </table>
@@ -3575,32 +2507,6 @@ this type-testing method instead.</p>
 </ul>
 <p>Any object.</p>
 <hr />
-<h5 id="is_owned_resource"><code>is_owned_resource</code> <a name="is_owned_resource" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.isOwnedResource"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.open_api_gateway</span>
-
-<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">OpenApiGatewayLambdaApi</span><span class="o">.</span><span class="n">is_owned_resource</span><span class="p">(</span>
-  <span class="n">construct</span><span class="p">:</span> <span class="n">IConstruct</span>
-<span class="p">)</span>
-</code></pre></div>
-<p>Returns true if the construct was created by CDK, and false otherwise.</p>
-<h6 id="constructrequired"><code>construct</code><sup>Required</sup> <a name="construct" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.isOwnedResource.parameter.construct"></a></h6>
-<ul>
-<li><em>Type:</em> constructs.IConstruct</li>
-</ul>
-<hr />
-<h5 id="is_resource"><code>is_resource</code> <a name="is_resource" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.isResource"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.open_api_gateway</span>
-
-<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">OpenApiGatewayLambdaApi</span><span class="o">.</span><span class="n">is_resource</span><span class="p">(</span>
-  <span class="n">construct</span><span class="p">:</span> <span class="n">IConstruct</span>
-<span class="p">)</span>
-</code></pre></div>
-<p>Check whether the given construct is a Resource.</p>
-<h6 id="constructrequired_1"><code>construct</code><sup>Required</sup> <a name="construct" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.isResource.parameter.construct"></a></h6>
-<ul>
-<li><em>Type:</em> constructs.IConstruct</li>
-</ul>
-<hr />
 <h4 id="properties">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
@@ -3617,49 +2523,9 @@ this type-testing method instead.</p>
 <td>The tree node.</td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.env">env</a></code></td>
-<td><code>aws_cdk.ResourceEnvironment</code></td>
-<td>The environment this resource belongs to.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.stack">stack</a></code></td>
-<td><code>aws_cdk.Stack</code></td>
-<td>The stack in which this resource is defined.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.restApiId">rest_api_id</a></code></td>
-<td><code>str</code></td>
-<td>The ID of this API Gateway RestApi.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.restApiName">rest_api_name</a></code></td>
-<td><code>str</code></td>
-<td>A human friendly name for this Rest API.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.restApiRootResourceId">rest_api_root_resource_id</a></code></td>
-<td><code>str</code></td>
-<td>The resource ID of the root resource.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.root">root</a></code></td>
-<td><code>aws_cdk.aws_apigateway.IResource</code></td>
-<td>Represents the root resource of this API endpoint ('/').</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.domainName">domain_name</a></code></td>
-<td><code>aws_cdk.aws_apigateway.DomainName</code></td>
-<td>The first domain name mapped to this API, if defined through the <code>domainName</code> configuration prop, or added via <code>addDomainName</code>.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.latestDeployment">latest_deployment</a></code></td>
-<td><code>aws_cdk.aws_apigateway.Deployment</code></td>
-<td>API Gateway deployment that represents the latest changes of the API.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.deploymentStage">deployment_stage</a></code></td>
-<td><code>aws_cdk.aws_apigateway.Stage</code></td>
-<td>API Gateway stage that points to the latest deployment (if defined).</td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.api">api</a></code></td>
+<td><code>aws_cdk.aws_apigateway.SpecRestApi</code></td>
+<td><em>No description.</em></td>
 </tr>
 </tbody>
 </table>
@@ -3672,89 +2538,12 @@ this type-testing method instead.</p>
 </ul>
 <p>The tree node.</p>
 <hr />
-<h5 id="envrequired"><code>env</code><sup>Required</sup> <a name="env" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.env"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">env</span><span class="p">:</span> <span class="n">ResourceEnvironment</span>
+<h5 id="apirequired"><code>api</code><sup>Required</sup> <a name="api" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.api"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">api</span><span class="p">:</span> <span class="n">SpecRestApi</span>
 </code></pre></div>
 <ul>
-<li><em>Type:</em> aws_cdk.ResourceEnvironment</li>
+<li><em>Type:</em> aws_cdk.aws_apigateway.SpecRestApi</li>
 </ul>
-<p>The environment this resource belongs to.</p>
-<p>For resources that are created and managed by the CDK
-(generally, those created by creating new class instances like Role, Bucket, etc.),
-this is always the same as the environment of the stack they belong to;
-however, for imported resources
-(those obtained from static methods like fromRoleArn, fromBucketName, etc.),
-that might be different than the stack they were imported into.</p>
-<hr />
-<h5 id="stackrequired"><code>stack</code><sup>Required</sup> <a name="stack" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.stack"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">stack</span><span class="p">:</span> <span class="n">Stack</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws_cdk.Stack</li>
-</ul>
-<p>The stack in which this resource is defined.</p>
-<hr />
-<h5 id="rest_api_idrequired"><code>rest_api_id</code><sup>Required</sup> <a name="rest_api_id" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.restApiId"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">rest_api_id</span><span class="p">:</span> <span class="nb">str</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<p>The ID of this API Gateway RestApi.</p>
-<hr />
-<h5 id="rest_api_namerequired"><code>rest_api_name</code><sup>Required</sup> <a name="rest_api_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.restApiName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">rest_api_name</span><span class="p">:</span> <span class="nb">str</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<p>A human friendly name for this Rest API.</p>
-<p>Note that this is different from <code>restApiId</code>.</p>
-<hr />
-<h5 id="rest_api_root_resource_idrequired"><code>rest_api_root_resource_id</code><sup>Required</sup> <a name="rest_api_root_resource_id" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.restApiRootResourceId"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">rest_api_root_resource_id</span><span class="p">:</span> <span class="nb">str</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<p>The resource ID of the root resource.</p>
-<hr />
-<h5 id="rootrequired"><code>root</code><sup>Required</sup> <a name="root" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.root"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">root</span><span class="p">:</span> <span class="n">IResource</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.IResource</li>
-</ul>
-<p>Represents the root resource of this API endpoint ('/').</p>
-<p>Resources and Methods are added to this resource.</p>
-<hr />
-<h5 id="domain_nameoptional_1"><code>domain_name</code><sup>Optional</sup> <a name="domain_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.domainName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">domain_name</span><span class="p">:</span> <span class="n">DomainName</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.DomainName</li>
-</ul>
-<p>The first domain name mapped to this API, if defined through the <code>domainName</code> configuration prop, or added via <code>addDomainName</code>.</p>
-<hr />
-<h5 id="latest_deploymentoptional"><code>latest_deployment</code><sup>Optional</sup> <a name="latest_deployment" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.latestDeployment"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">latest_deployment</span><span class="p">:</span> <span class="n">Deployment</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.Deployment</li>
-</ul>
-<p>API Gateway deployment that represents the latest changes of the API.</p>
-<p>This resource will be automatically updated every time the REST API model changes.
-This will be undefined if <code>deploy</code> is false.</p>
-<hr />
-<h5 id="deployment_stagerequired"><code>deployment_stage</code><sup>Required</sup> <a name="deployment_stage" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.deploymentStage"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">deployment_stage</span><span class="p">:</span> <span class="n">Stage</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_apigateway.Stage</li>
-</ul>
-<p>API Gateway stage that points to the latest deployment (if defined).</p>
-<p>If <code>deploy</code> is disabled, you will need to explicitly assign this value in order to
-set up integrations.</p>
 <hr />
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
 <h3 id="authorizerprops">AuthorizerProps <a name="AuthorizerProps" id="@aws-prototyping-sdk/open-api-gateway.AuthorizerProps"></a></h3>
@@ -3764,7 +2553,8 @@ set up integrations.</p>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">AuthorizerProps</span><span class="p">(</span>
   <span class="n">authorization_type</span><span class="p">:</span> <span class="n">AuthorizationType</span><span class="p">,</span>
-  <span class="n">authorizer_id</span><span class="p">:</span> <span class="nb">str</span>
+  <span class="n">authorizer_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">authorization_scopes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
 <h4 id="properties_1">Properties <a name="Properties" id="Properties"></a></h4>
@@ -3787,6 +2577,11 @@ set up integrations.</p>
 <td><code>str</code></td>
 <td>The unique identifier for the authorizer.</td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.AuthorizerProps.property.authorizationScopes">authorization_scopes</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Scopes for the authorizer, if any.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -3805,6 +2600,14 @@ set up integrations.</p>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The unique identifier for the authorizer.</p>
+<hr />
+<h5 id="authorization_scopesoptional"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.AuthorizerProps.property.authorizationScopes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">authorization_scopes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>Scopes for the authorizer, if any.</p>
 <hr />
 <h3 id="cognitoauthorizerprops">CognitoAuthorizerProps <a name="CognitoAuthorizerProps" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps"></a></h3>
 <p>Properties used to configure a cognito authorizer.</p>
@@ -3861,7 +2664,7 @@ set up integrations.</p>
 </ul>
 <p>The Cognito user pools associated with this authorizer.</p>
 <hr />
-<h5 id="authorization_scopesoptional"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps.property.authorizationScopes"></a></h5>
+<h5 id="authorization_scopesoptional_1"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps.property.authorizationScopes"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">authorization_scopes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 </code></pre></div>
 <ul>
@@ -4033,6 +2836,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">cloud_watch_role</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">deploy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">deploy_options</span><span class="p">:</span> <span class="n">StageOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">disable_execute_api_endpoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">domain_name</span><span class="p">:</span> <span class="n">DomainNameOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">endpoint_export_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4046,7 +2850,8 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">MethodAndPath</span><span class="p">],</span>
   <span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">spec</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+  <span class="n">spec</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+  <span class="n">spec_path</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
 <h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
@@ -4073,6 +2878,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.deployOptions">deploy_options</a></code></td>
 <td><code>aws_cdk.aws_apigateway.StageOptions</code></td>
 <td>Options for the API Gateway stage that will always point to the latest deployment when <code>deploy</code> is enabled.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.description">description</a></code></td>
+<td><code>str</code></td>
+<td>A description of the RestApi construct.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.disableExecuteApiEndpoint">disable_execute_api_endpoint</a></code></td>
@@ -4144,6 +2954,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td><code>typing.Any</code></td>
 <td>The parsed OpenAPI specification.</td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.specPath">spec_path</a></code></td>
+<td><code>str</code></td>
+<td>Path to the JSON open api spec.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -4188,6 +3003,15 @@ of this REST API.</p>
 <p>If <code>deploy</code> is disabled,
 this value cannot be set.</p>
 <hr />
+<h5 id="descriptionoptional_1"><code>description</code><sup>Optional</sup> <a name="description" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.description"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> 'Automatically created by the RestApi construct'</li>
+</ul>
+<p>A description of the RestApi construct.</p>
+<hr />
 <h5 id="disable_execute_api_endpointoptional_1"><code>disable_execute_api_endpoint</code><sup>Optional</sup> <a name="disable_execute_api_endpoint" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.disableExecuteApiEndpoint"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">disable_execute_api_endpoint</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
@@ -4202,7 +3026,7 @@ API, disable the default endpoint.</p>
 <p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-restapi.html">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-restapi.html</a></p>
 </blockquote>
 <hr />
-<h5 id="domain_nameoptional_2"><code>domain_name</code><sup>Optional</sup> <a name="domain_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.domainName"></a></h5>
+<h5 id="domain_nameoptional_1"><code>domain_name</code><sup>Optional</sup> <a name="domain_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.domainName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">domain_name</span><span class="p">:</span> <span class="n">DomainNameOptions</span>
 </code></pre></div>
 <ul>
@@ -4323,6 +3147,14 @@ Authorizers specified at the integration level will override this for that opera
 <li><em>Type:</em> typing.Any</li>
 </ul>
 <p>The parsed OpenAPI specification.</p>
+<hr />
+<h5 id="spec_pathrequired_1"><code>spec_path</code><sup>Required</sup> <a name="spec_path" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.specPath"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">spec_path</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Path to the JSON open api spec.</p>
 <hr />
 <h3 id="openapigatewayprojectoptions">OpenApiGatewayProjectOptions <a name="OpenApiGatewayProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions"></a></h3>
 <p>Options common to all open api gateway projects.</p>
@@ -4486,6 +3318,7 @@ Authorizers specified at the integration level will override this for that opera
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">OpenApiGatewayPythonProjectOptions</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4518,6 +3351,7 @@ Authorizers specified at the integration level will override this for that opera
   <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">homepage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">license</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">poetry_options</span><span class="p">:</span> <span class="n">PoetryPyprojectOptionsWithoutDeps</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">setup_config</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -4560,6 +3394,11 @@ Authorizers specified at the integration level will override this for that opera
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.logging">logging</a></code></td>
@@ -4722,6 +3561,11 @@ Authorizers specified at the integration level will override this for that opera
 <td>License of this package as an SPDX identifier.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.packageName">package_name</a></code></td>
+<td><code>str</code></td>
+<td>Package name.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.poetryOptions">poetry_options</a></code></td>
 <td><code>projen.python.PoetryPyprojectOptionsWithoutDeps</code></td>
 <td>Additional options to set for poetry if using poetry.</td>
@@ -4862,6 +3706,15 @@ Authorizers specified at the integration level will override this for that opera
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commit_generatedoptional"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional"><code>logging</code><sup>Optional</sup> <a name="logging" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.logging"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span>
@@ -5179,6 +4032,14 @@ and <code>packages</code> scope.</p>
 </ul>
 <p>License of this package as an SPDX identifier.</p>
 <hr />
+<h5 id="package_nameoptional"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.packageName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Package name.</p>
+<hr />
 <h5 id="poetry_optionsoptional"><code>poetry_options</code><sup>Optional</sup> <a name="poetry_options" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.poetryOptions"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">poetry_options</span><span class="p">:</span> <span class="n">PoetryPyprojectOptionsWithoutDeps</span>
 </code></pre></div>
@@ -5426,6 +4287,7 @@ task which will run <code>.projenrc.py</code>.</p>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">OpenApiGatewayTsProjectOptions</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -5487,6 +4349,7 @@ task which will run <code>.projenrc.py</code>.</p>
   <span class="n">stability</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">jsii_release_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">min_major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_dist_tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">post_build_steps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">JobStep</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">prerelease</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -5580,6 +4443,11 @@ task which will run <code>.projenrc.py</code>.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.logging">logging</a></code></td>
@@ -5885,6 +4753,11 @@ task which will run <code>.projenrc.py</code>.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.majorVersion">major_version</a></code></td>
 <td><code>typing.Union[int, float]</code></td>
 <td>Major version to release from the default branch.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.minMajorVersion">min_major_version</a></code></td>
+<td><code>typing.Union[int, float]</code></td>
+<td>Minimal Major version to release.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.npmDistTag">npm_dist_tag</a></code></td>
@@ -6282,6 +5155,15 @@ task which will run <code>.projenrc.py</code>.</p>
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commit_generatedoptional_1"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional_1"><code>logging</code><sup>Optional</sup> <a name="logging" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.logging"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span>
@@ -6805,7 +5687,7 @@ Use the <code>licensed</code> option if you want to no license to be specified.<
 </ul>
 <p>The Node Package Manager used to execute scripts.</p>
 <hr />
-<h5 id="package_nameoptional"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.packageName"></a></h5>
+<h5 id="package_nameoptional_1"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.packageName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -6906,6 +5788,18 @@ the standard script will be overwritten.</p>
 <p>Major version to release from the default branch.</p>
 <p>If this is specified, we bump the latest version of this major version line.
 If not specified, we bump the global latest version.</p>
+<hr />
+<h5 id="min_major_versionoptional"><code>min_major_version</code><sup>Optional</sup> <a name="min_major_version" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.minMajorVersion"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">min_major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+<li><em>Default:</em> No minimum version is being enforced</li>
+</ul>
+<p>Minimal Major version to release.</p>
+<p>This can be useful to set to 1, as breaking changes before the 1.x major
+release are not incrementing the major version number.</p>
+<p>Can not be set together with <code>majorVersion</code>.</p>
 <hr />
 <h5 id="npm_dist_tagoptional"><code>npm_dist_tag</code><sup>Optional</sup> <a name="npm_dist_tag" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.npmDistTag"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">npm_dist_tag</span><span class="p">:</span> <span class="nb">str</span>
@@ -7771,7 +6665,8 @@ Authorizers specified at the integration level will override this for that opera
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">Authorizer</span><span class="p">(</span>
   <span class="n">authorization_type</span><span class="p">:</span> <span class="n">AuthorizationType</span><span class="p">,</span>
-  <span class="n">authorizer_id</span><span class="p">:</span> <span class="nb">str</span>
+  <span class="n">authorizer_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">authorization_scopes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
 <table>
@@ -7793,6 +6688,11 @@ Authorizers specified at the integration level will override this for that opera
 <td><code>str</code></td>
 <td>The unique identifier for the authorizer.</td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer.Initializer.parameter.authorizationScopes">authorization_scopes</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Scopes for the authorizer, if any.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -7807,6 +6707,12 @@ Authorizers specified at the integration level will override this for that opera
 <li><em>Type:</em> str</li>
 </ul>
 <p>The unique identifier for the authorizer.</p>
+<hr />
+<h5 id="authorization_scopesoptional_2"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.Authorizer.Initializer.parameter.authorizationScopes"></a></h5>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>Scopes for the authorizer, if any.</p>
 <hr />
 <h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
@@ -7828,6 +6734,11 @@ Authorizers specified at the integration level will override this for that opera
 <td><code>str</code></td>
 <td>The unique identifier for the authorizer.</td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer.property.authorizationScopes">authorization_scopes</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Scopes for the authorizer, if any.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -7846,6 +6757,14 @@ Authorizers specified at the integration level will override this for that opera
 <li><em>Type:</em> str</li>
 </ul>
 <p>The unique identifier for the authorizer.</p>
+<hr />
+<h5 id="authorization_scopesoptional_3"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.Authorizer.property.authorizationScopes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">authorization_scopes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>Scopes for the authorizer, if any.</p>
 <hr />
 <h3 id="authorizers_1">Authorizers <a name="Authorizers" id="@aws-prototyping-sdk/open-api-gateway.Authorizers"></a></h3>
 <p>Class used to construct authorizers for use in the OpenApiGatewayLambdaApi construct.</p>
@@ -7921,7 +6840,7 @@ Authorizers specified at the integration level will override this for that opera
 </ul>
 <p>The Cognito user pools associated with this authorizer.</p>
 <hr />
-<h6 id="authorization_scopesoptional_1"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.Authorizers.cognito.parameter.authorizationScopes"></a></h6>
+<h6 id="authorization_scopesoptional_4"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.Authorizers.cognito.parameter.authorizationScopes"></a></h6>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 <li><em>Default:</em> []</li>
@@ -8046,7 +6965,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>The Cognito user pools associated with this authorizer.</p>
 <hr />
-<h5 id="authorization_scopesoptional_2"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.Initializer.parameter.authorizationScopes"></a></h5>
+<h5 id="authorization_scopesoptional_5"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.Initializer.parameter.authorizationScopes"></a></h5>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 <li><em>Default:</em> []</li>
@@ -8112,7 +7031,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.authorizationScopes">authorization_scopes</a></code></td>
 <td><code>typing.List[str]</code></td>
-<td>A list of authorization scopes configured on the method.</td>
+<td>Scopes for the authorizer, if any.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.userPools">user_pools</a></code></td>
@@ -8138,18 +7057,13 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>The unique identifier for the authorizer.</p>
 <hr />
-<h5 id="authorization_scopesrequired_1"><code>authorization_scopes</code><sup>Required</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.authorizationScopes"></a></h5>
+<h5 id="authorization_scopesoptional_6"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.authorizationScopes"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">authorization_scopes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> typing.List[str]</li>
 </ul>
-<p>A list of authorization scopes configured on the method.</p>
-<p>When used as the default authorizer, these scopes will be
-applied to all methods without an authorizer at the integration level.</p>
-<blockquote>
-<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html#cfn-apigateway-method-authorizationscopes</a></p>
-</blockquote>
+<p>Scopes for the authorizer, if any.</p>
 <hr />
 <h5 id="user_poolsrequired_3"><code>user_pools</code><sup>Required</sup> <a name="user_pools" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizer.property.userPools"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">user_pools</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">IUserPool</span><span class="p">]</span>
@@ -8269,6 +7183,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td>The unique identifier for the authorizer.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.authorizationScopes">authorization_scopes</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Scopes for the authorizer, if any.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.authorizerResultTtlInSeconds">authorizer_result_ttl_in_seconds</a></code></td>
 <td><code>typing.Union[int, float]</code></td>
 <td>The number of seconds during which the authorizer result is cached.</td>
@@ -8307,6 +7226,14 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>The unique identifier for the authorizer.</p>
 <hr />
+<h5 id="authorization_scopesoptional_7"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.authorizationScopes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">authorization_scopes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>Scopes for the authorizer, if any.</p>
+<hr />
 <h5 id="authorizer_result_ttl_in_secondsrequired"><code>authorizer_result_ttl_in_seconds</code><sup>Required</sup> <a name="authorizer_result_ttl_in_seconds" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.authorizerResultTtlInSeconds"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">authorizer_result_ttl_in_seconds</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
 </code></pre></div>
@@ -8334,7 +7261,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource</a></p>
 </blockquote>
 <hr />
-<h5 id="typerequired_1"><code>type</code><sup>Required</sup> <a name="type" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.type"></a></h5>
+<h5 id="typerequired"><code>type</code><sup>Required</sup> <a name="type" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.type"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="nb">type</span><span class="p">:</span> <span class="n">CustomAuthorizerType</span>
 </code></pre></div>
 <ul>
@@ -8389,6 +7316,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td><code>str</code></td>
 <td>The unique identifier for the authorizer.</td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IamAuthorizer.property.authorizationScopes">authorization_scopes</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Scopes for the authorizer, if any.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -8407,6 +7339,14 @@ applied to all methods without an authorizer at the integration level.</p>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The unique identifier for the authorizer.</p>
+<hr />
+<h5 id="authorization_scopesoptional_8"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.IamAuthorizer.property.authorizationScopes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">authorization_scopes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>Scopes for the authorizer, if any.</p>
 <hr />
 <h3 id="noneauthorizer">NoneAuthorizer <a name="NoneAuthorizer" id="@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer"></a></h3>
 <p>No authorizer.</p>
@@ -8452,6 +7392,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td><code>str</code></td>
 <td>The unique identifier for the authorizer.</td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer.property.authorizationScopes">authorization_scopes</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Scopes for the authorizer, if any.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -8471,6 +7416,14 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>The unique identifier for the authorizer.</p>
 <hr />
+<h5 id="authorization_scopesoptional_9"><code>authorization_scopes</code><sup>Optional</sup> <a name="authorization_scopes" id="@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer.property.authorizationScopes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">authorization_scopes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>Scopes for the authorizer, if any.</p>
+<hr />
 <h3 id="openapigatewaypythonproject">OpenApiGatewayPythonProject <a name="OpenApiGatewayPythonProject" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject"></a></h3>
 <p>Synthesizes a Python Project with an OpenAPI spec, generated clients, a CDK construct for deploying the API with API Gateway, and generated lambda handler wrappers for type-safe handling of requests.</p>
 <h4 id="initializers_7">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer"></a></h4>
@@ -8478,6 +7431,7 @@ applied to all methods without an authorizer at the integration level.</p>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">OpenApiGatewayPythonProject</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -8510,6 +7464,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">homepage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">license</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">poetry_options</span><span class="p">:</span> <span class="n">PoetryPyprojectOptionsWithoutDeps</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">setup_config</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -8551,6 +7506,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.logging">logging</a></code></td>
@@ -8713,6 +7673,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td>License of this package as an SPDX identifier.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.packageName">package_name</a></code></td>
+<td><code>str</code></td>
+<td>Package name.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.poetryOptions">poetry_options</a></code></td>
 <td><code>projen.python.PoetryPyprojectOptionsWithoutDeps</code></td>
 <td>Additional options to set for poetry if using poetry.</td>
@@ -8851,6 +7816,13 @@ applied to all methods without an authorizer at the integration level.</p>
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commit_generatedoptional_2"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.commitGenerated"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional_2"><code>logging</code><sup>Optional</sup> <a name="logging" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.logging"></a></h5>
 <ul>
@@ -9111,6 +8083,12 @@ and <code>packages</code> scope.</p>
 <li><em>Type:</em> str</li>
 </ul>
 <p>License of this package as an SPDX identifier.</p>
+<hr />
+<h5 id="package_nameoptional_2"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.packageName"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Package name.</p>
 <hr />
 <h5 id="poetry_optionsoptional_1"><code>poetry_options</code><sup>Optional</sup> <a name="poetry_options" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.poetryOptions"></a></h5>
 <ul>
@@ -9660,6 +8638,11 @@ resolved from the root of <em>this</em> project.</p>
 <td><em>No description.</em></td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.property.compileTask">compile_task</a></code></td>
 <td><code>projen.Task</code></td>
 <td><em>No description.</em></td>
@@ -9864,6 +8847,14 @@ resolved from the root of <em>this</em> project.</p>
 <li><em>Type:</em> projen.Task</li>
 </ul>
 <hr />
+<h5 id="commit_generatedrequired"><code>commit_generated</code><sup>Required</sup> <a name="commit_generated" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
+<hr />
 <h5 id="compile_taskrequired"><code>compile_task</code><sup>Required</sup> <a name="compile_task" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.property.compileTask"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">compile_task</span><span class="p">:</span> <span class="n">Task</span>
 </code></pre></div>
@@ -9980,7 +8971,7 @@ resolved from the root of <em>this</em> project.</p>
 </ul>
 <p>The command to use in order to run the projen CLI.</p>
 <hr />
-<h5 id="rootrequired_1"><code>root</code><sup>Required</sup> <a name="root" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.property.root"></a></h5>
+<h5 id="rootrequired"><code>root</code><sup>Required</sup> <a name="root" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.property.root"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">root</span><span class="p">:</span> <span class="n">Project</span>
 </code></pre></div>
 <ul>
@@ -10216,6 +9207,7 @@ this task should synthesize the project files.</p>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">open_api_gateway</span><span class="o">.</span><span class="n">OpenApiGatewayTsProject</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -10277,6 +9269,7 @@ this task should synthesize the project files.</p>
   <span class="n">stability</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">jsii_release_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">min_major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_dist_tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">post_build_steps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">JobStep</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">prerelease</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -10369,6 +9362,11 @@ this task should synthesize the project files.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.logging">logging</a></code></td>
@@ -10674,6 +9672,11 @@ this task should synthesize the project files.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.majorVersion">major_version</a></code></td>
 <td><code>typing.Union[int, float]</code></td>
 <td>Major version to release from the default branch.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.minMajorVersion">min_major_version</a></code></td>
+<td><code>typing.Union[int, float]</code></td>
+<td>Minimal Major version to release.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.npmDistTag">npm_dist_tag</a></code></td>
@@ -11069,6 +10072,13 @@ this task should synthesize the project files.</p>
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commit_generatedoptional_3"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.commitGenerated"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional_3"><code>logging</code><sup>Optional</sup> <a name="logging" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.logging"></a></h5>
 <ul>
@@ -11500,7 +10510,7 @@ Use the <code>licensed</code> option if you want to no license to be specified.<
 </ul>
 <p>The Node Package Manager used to execute scripts.</p>
 <hr />
-<h5 id="package_nameoptional_1"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.packageName"></a></h5>
+<h5 id="package_nameoptional_3"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.packageName"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 <li><em>Default:</em> defaults to project name</li>
@@ -11581,6 +10591,16 @@ the standard script will be overwritten.</p>
 <p>Major version to release from the default branch.</p>
 <p>If this is specified, we bump the latest version of this major version line.
 If not specified, we bump the global latest version.</p>
+<hr />
+<h5 id="min_major_versionoptional_1"><code>min_major_version</code><sup>Optional</sup> <a name="min_major_version" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.minMajorVersion"></a></h5>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+<li><em>Default:</em> No minimum version is being enforced</li>
+</ul>
+<p>Minimal Major version to release.</p>
+<p>This can be useful to set to 1, as breaking changes before the 1.x major
+release are not incrementing the major version number.</p>
+<p>Can not be set together with <code>majorVersion</code>.</p>
 <hr />
 <h5 id="npm_dist_tagoptional_1"><code>npm_dist_tag</code><sup>Optional</sup> <a name="npm_dist_tag" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.npmDistTag"></a></h5>
 <ul>
@@ -12729,6 +11749,11 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <td><em>No description.</em></td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.compileTask">compile_task</a></code></td>
 <td><code>projen.Task</code></td>
 <td><em>No description.</em></td>
@@ -13058,6 +12083,14 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <li><em>Type:</em> projen.Task</li>
 </ul>
 <hr />
+<h5 id="commit_generatedrequired_1"><code>commit_generated</code><sup>Required</sup> <a name="commit_generated" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
+<hr />
 <h5 id="compile_taskrequired_1"><code>compile_task</code><sup>Required</sup> <a name="compile_task" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.compileTask"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">compile_task</span><span class="p">:</span> <span class="n">Task</span>
 </code></pre></div>
@@ -13174,7 +12207,7 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 </ul>
 <p>The command to use in order to run the projen CLI.</p>
 <hr />
-<h5 id="rootrequired_2"><code>root</code><sup>Required</sup> <a name="root" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.root"></a></h5>
+<h5 id="rootrequired_1"><code>root</code><sup>Required</sup> <a name="root" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.root"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">root</span><span class="p">:</span> <span class="n">Project</span>
 </code></pre></div>
 <ul>
@@ -13715,7 +12748,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2022-08-08
+      2022-08-15
     
   </small>
 </div>

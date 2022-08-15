@@ -1847,6 +1847,7 @@
 
 <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">NxMonorepoProjectOptions</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1908,6 +1909,7 @@
   <span class="n">stability</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">jsii_release_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">min_major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_dist_tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">post_build_steps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">JobStep</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">prerelease</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1996,6 +1998,11 @@
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.logging">logging</a></code></td>
@@ -2301,6 +2308,11 @@
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.majorVersion">major_version</a></code></td>
 <td><code>typing.Union[int, float]</code></td>
 <td>Major version to release from the default branch.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.minMajorVersion">min_major_version</a></code></td>
+<td><code>typing.Union[int, float]</code></td>
+<td>Minimal Major version to release.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.npmDistTag">npm_dist_tag</a></code></td>
@@ -2673,6 +2685,15 @@
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commit_generatedoptional"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.logging"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span>
@@ -3297,6 +3318,18 @@ the standard script will be overwritten.</p>
 <p>Major version to release from the default branch.</p>
 <p>If this is specified, we bump the latest version of this major version line.
 If not specified, we bump the global latest version.</p>
+<hr />
+<h5 id="min_major_versionoptional"><code>min_major_version</code><sup>Optional</sup> <a name="min_major_version" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.minMajorVersion"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">min_major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+<li><em>Default:</em> No minimum version is being enforced</li>
+</ul>
+<p>Minimal Major version to release.</p>
+<p>This can be useful to set to 1, as breaking changes before the 1.x major
+release are not incrementing the major version number.</p>
+<p>Can not be set together with <code>majorVersion</code>.</p>
 <hr />
 <h5 id="npm_dist_tagoptional"><code>npm_dist_tag</code><sup>Optional</sup> <a name="npm_dist_tag" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProjectOptions.property.npmDistTag"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">npm_dist_tag</span><span class="p">:</span> <span class="nb">str</span>
@@ -4539,6 +4572,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 
 <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">NxMonorepoProject</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4600,6 +4634,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">stability</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">jsii_release_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">min_major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_dist_tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">post_build_steps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">JobStep</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">prerelease</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4687,6 +4722,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.logging">logging</a></code></td>
@@ -4992,6 +5032,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.majorVersion">major_version</a></code></td>
 <td><code>typing.Union[int, float]</code></td>
 <td>Major version to release from the default branch.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.minMajorVersion">min_major_version</a></code></td>
+<td><code>typing.Union[int, float]</code></td>
+<td>Minimal Major version to release.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.npmDistTag">npm_dist_tag</a></code></td>
@@ -5362,6 +5407,13 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commit_generatedoptional_1"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.commitGenerated"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional_1"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.logging"></a></h5>
 <ul>
@@ -5874,6 +5926,16 @@ the standard script will be overwritten.</p>
 <p>Major version to release from the default branch.</p>
 <p>If this is specified, we bump the latest version of this major version line.
 If not specified, we bump the global latest version.</p>
+<hr />
+<h5 id="min_major_versionoptional_1"><code>min_major_version</code><sup>Optional</sup> <a name="min_major_version" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.minMajorVersion"></a></h5>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+<li><em>Default:</em> No minimum version is being enforced</li>
+</ul>
+<p>Minimal Major version to release.</p>
+<p>This can be useful to set to 1, as breaking changes before the 1.x major
+release are not incrementing the major version number.</p>
+<p>Can not be set together with <code>majorVersion</code>.</p>
 <hr />
 <h5 id="npm_dist_tagoptional_1"><code>npm_dist_tag</code><sup>Optional</sup> <a name="npm_dist_tag" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.Initializer.parameter.npmDistTag"></a></h5>
 <ul>
@@ -7034,6 +7096,11 @@ on a Python project as an example.</p>
 <td><em>No description.</em></td>
 </tr>
 <tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
+</tr>
+<tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.compileTask">compile_task</a></code></td>
 <td><code>projen.Task</code></td>
 <td><em>No description.</em></td>
@@ -7332,6 +7399,14 @@ on a Python project as an example.</p>
 <ul>
 <li><em>Type:</em> projen.Task</li>
 </ul>
+<hr />
+<h5 id="commit_generatedrequired"><code>commit_generated</code><sup>Required</sup> <a name="commit_generated" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="compile_taskrequired"><code>compile_task</code><sup>Required</sup> <a name="compile_task" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.compileTask"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">compile_task</span><span class="p">:</span> <span class="n">Task</span>
@@ -7878,7 +7953,7 @@ dependant projects first.</p>
   <small>
     
       Last update:
-      2022-08-08
+      2022-08-15
     
   </small>
 </div>

@@ -1562,6 +1562,7 @@ automated PR builds and approvals.</p>
   <span class="n">pipeline_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">publish_assets_in_parallel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">reuse_cross_region_support_stacks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">role</span><span class="p">:</span> <span class="n">IRole</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">self_mutation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">self_mutation_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">synth_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1651,6 +1652,11 @@ automated PR builds and approvals.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipeline.Initializer.parameter.reuseCrossRegionSupportStacks">reuse_cross_region_support_stacks</a></code></td>
 <td><code>bool</code></td>
 <td>Reuse the same cross region support stack for all pipelines in the App.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipeline.Initializer.parameter.role">role</a></code></td>
+<td><code>aws_cdk.aws_iam.IRole</code></td>
+<td>The IAM role to be assumed by this Pipeline.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipeline.Initializer.parameter.selfMutation">self_mutation</a></code></td>
@@ -1840,6 +1846,13 @@ projects.</p>
 <li><em>Default:</em> true (Use the same support stack for all pipelines in App)</li>
 </ul>
 <p>Reuse the same cross region support stack for all pipelines in the App.</p>
+<hr />
+<h5 id="roleoptional"><code>role</code><sup>Optional</sup> <a name="role" id="aws-prototyping-sdk.pipeline.PDKPipeline.Initializer.parameter.role"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_iam.IRole</li>
+<li><em>Default:</em> A new role is created</li>
+</ul>
+<p>The IAM role to be assumed by this Pipeline.</p>
 <hr />
 <h5 id="self_mutationoptional"><code>self_mutation</code><sup>Optional</sup> <a name="self_mutation" id="aws-prototyping-sdk.pipeline.PDKPipeline.Initializer.parameter.selfMutation"></a></h5>
 <ul>
@@ -2481,6 +2494,7 @@ this type-testing method instead.</p>
 
 <span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelineJavaProjectOptions</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2555,6 +2569,11 @@ this type-testing method instead.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineJavaProjectOptions.property.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineJavaProjectOptions.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineJavaProjectOptions.property.logging">logging</a></code></td>
@@ -2857,6 +2876,15 @@ this type-testing method instead.</p>
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commit_generatedoptional"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="aws-prototyping-sdk.pipeline.PDKPipelineJavaProjectOptions.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.pipeline.PDKPipelineJavaProjectOptions.property.logging"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span>
@@ -3496,6 +3524,7 @@ if you pass in [] the default commands of this construct will be retained.</p>
   <span class="n">pipeline_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">publish_assets_in_parallel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">reuse_cross_region_support_stacks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">role</span><span class="p">:</span> <span class="n">IRole</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">self_mutation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">self_mutation_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">synth_code_build_defaults</span><span class="p">:</span> <span class="n">CodeBuildOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3576,6 +3605,11 @@ if you pass in [] the default commands of this construct will be retained.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineProps.property.reuseCrossRegionSupportStacks">reuse_cross_region_support_stacks</a></code></td>
 <td><code>bool</code></td>
 <td>Reuse the same cross region support stack for all pipelines in the App.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineProps.property.role">role</a></code></td>
+<td><code>aws_cdk.aws_iam.IRole</code></td>
+<td>The IAM role to be assumed by this Pipeline.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineProps.property.selfMutation">self_mutation</a></code></td>
@@ -3780,6 +3814,15 @@ projects.</p>
 </ul>
 <p>Reuse the same cross region support stack for all pipelines in the App.</p>
 <hr />
+<h5 id="roleoptional_1"><code>role</code><sup>Optional</sup> <a name="role" id="aws-prototyping-sdk.pipeline.PDKPipelineProps.property.role"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">role</span><span class="p">:</span> <span class="n">IRole</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_iam.IRole</li>
+<li><em>Default:</em> A new role is created</li>
+</ul>
+<p>The IAM role to be assumed by this Pipeline.</p>
+<hr />
 <h5 id="self_mutationoptional_1"><code>self_mutation</code><sup>Optional</sup> <a name="self_mutation" id="aws-prototyping-sdk.pipeline.PDKPipelineProps.property.selfMutation"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">self_mutation</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div>
@@ -3872,6 +3915,7 @@ a partial ShellStepProps.</p>
 
 <span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelinePyProjectOptions</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3904,6 +3948,7 @@ a partial ShellStepProps.</p>
   <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">homepage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">license</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">poetry_options</span><span class="p">:</span> <span class="n">PoetryPyprojectOptionsWithoutDeps</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">setup_config</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3954,6 +3999,11 @@ a partial ShellStepProps.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.logging">logging</a></code></td>
@@ -4114,6 +4164,11 @@ a partial ShellStepProps.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.license">license</a></code></td>
 <td><code>str</code></td>
 <td>License of this package as an SPDX identifier.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.packageName">package_name</a></code></td>
+<td><code>str</code></td>
+<td>Package name.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.poetryOptions">poetry_options</a></code></td>
@@ -4296,6 +4351,15 @@ a partial ShellStepProps.</p>
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commit_generatedoptional_1"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional_1"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.logging"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span>
@@ -4612,6 +4676,14 @@ and <code>packages</code> scope.</p>
 <li><em>Type:</em> str</li>
 </ul>
 <p>License of this package as an SPDX identifier.</p>
+<hr />
+<h5 id="package_nameoptional"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.packageName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Package name.</p>
 <hr />
 <h5 id="poetry_optionsoptional"><code>poetry_options</code><sup>Optional</sup> <a name="poetry_options" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.poetryOptions"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">poetry_options</span><span class="p">:</span> <span class="n">PoetryPyprojectOptionsWithoutDeps</span>
@@ -4955,6 +5027,7 @@ If you use experimental features this will let you define the moment you include
 
 <span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelineTsProjectOptions</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -5016,6 +5089,7 @@ If you use experimental features this will let you define the moment you include
   <span class="n">stability</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">jsii_release_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">min_major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_dist_tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">post_build_steps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">JobStep</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">prerelease</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -5121,6 +5195,11 @@ If you use experimental features this will let you define the moment you include
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.logging">logging</a></code></td>
@@ -5426,6 +5505,11 @@ If you use experimental features this will let you define the moment you include
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.majorVersion">major_version</a></code></td>
 <td><code>typing.Union[int, float]</code></td>
 <td>Major version to release from the default branch.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.minMajorVersion">min_major_version</a></code></td>
+<td><code>typing.Union[int, float]</code></td>
+<td>Minimal Major version to release.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.npmDistTag">npm_dist_tag</a></code></td>
@@ -5883,6 +5967,15 @@ If you use experimental features this will let you define the moment you include
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commit_generatedoptional_2"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional_2"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.logging"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span>
@@ -6406,7 +6499,7 @@ Use the <code>licensed</code> option if you want to no license to be specified.<
 </ul>
 <p>The Node Package Manager used to execute scripts.</p>
 <hr />
-<h5 id="package_nameoptional"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.packageName"></a></h5>
+<h5 id="package_nameoptional_1"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.packageName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -6507,6 +6600,18 @@ the standard script will be overwritten.</p>
 <p>Major version to release from the default branch.</p>
 <p>If this is specified, we bump the latest version of this major version line.
 If not specified, we bump the global latest version.</p>
+<hr />
+<h5 id="min_major_versionoptional"><code>min_major_version</code><sup>Optional</sup> <a name="min_major_version" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.minMajorVersion"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">min_major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+<li><em>Default:</em> No minimum version is being enforced</li>
+</ul>
+<p>Minimal Major version to release.</p>
+<p>This can be useful to set to 1, as breaking changes before the 1.x major
+release are not incrementing the major version number.</p>
+<p>Can not be set together with <code>majorVersion</code>.</p>
 <hr />
 <h5 id="npm_dist_tagoptional"><code>npm_dist_tag</code><sup>Optional</sup> <a name="npm_dist_tag" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.npmDistTag"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">npm_dist_tag</span><span class="p">:</span> <span class="nb">str</span>
@@ -7772,6 +7877,7 @@ If you use experimental features this will let you define the moment you include
 
 <span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelineJavaProject</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -7845,6 +7951,11 @@ If you use experimental features this will let you define the moment you include
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineJavaProject.Initializer.parameter.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineJavaProject.Initializer.parameter.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineJavaProject.Initializer.parameter.logging">logging</a></code></td>
@@ -8145,6 +8256,13 @@ If you use experimental features this will let you define the moment you include
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commit_generatedoptional_3"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="aws-prototyping-sdk.pipeline.PDKPipelineJavaProject.Initializer.parameter.commitGenerated"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional_3"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.pipeline.PDKPipelineJavaProject.Initializer.parameter.logging"></a></h5>
 <ul>
@@ -9078,6 +9196,11 @@ resolved from the root of <em>this</em> project.</p>
 <td><em>No description.</em></td>
 </tr>
 <tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineJavaProject.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
+</tr>
+<tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineJavaProject.property.compileTask">compile_task</a></code></td>
 <td><code>projen.Task</code></td>
 <td><em>No description.</em></td>
@@ -9281,6 +9404,14 @@ resolved from the root of <em>this</em> project.</p>
 <ul>
 <li><em>Type:</em> projen.Task</li>
 </ul>
+<hr />
+<h5 id="commit_generatedrequired"><code>commit_generated</code><sup>Required</sup> <a name="commit_generated" id="aws-prototyping-sdk.pipeline.PDKPipelineJavaProject.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="compile_taskrequired"><code>compile_task</code><sup>Required</sup> <a name="compile_task" id="aws-prototyping-sdk.pipeline.PDKPipelineJavaProject.property.compileTask"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">compile_task</span><span class="p">:</span> <span class="n">Task</span>
@@ -9633,6 +9764,7 @@ this task should synthesize the project files.</p>
 
 <span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelinePyProject</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -9665,6 +9797,7 @@ this task should synthesize the project files.</p>
   <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">homepage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">license</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">poetry_options</span><span class="p">:</span> <span class="n">PoetryPyprojectOptionsWithoutDeps</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">setup_config</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -9714,6 +9847,11 @@ this task should synthesize the project files.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.logging">logging</a></code></td>
@@ -9874,6 +10012,11 @@ this task should synthesize the project files.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.license">license</a></code></td>
 <td><code>str</code></td>
 <td>License of this package as an SPDX identifier.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.packageName">package_name</a></code></td>
+<td><code>str</code></td>
+<td>Package name.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.poetryOptions">poetry_options</a></code></td>
@@ -10054,6 +10197,13 @@ this task should synthesize the project files.</p>
 <li><em>Default:</em> $BASEDIR</li>
 </ul>
 <p>This is the name of your project.</p>
+<hr />
+<h5 id="commit_generatedoptional_4"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.commitGenerated"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="loggingoptional_4"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.logging"></a></h5>
 <ul>
@@ -10314,6 +10464,12 @@ and <code>packages</code> scope.</p>
 <li><em>Type:</em> str</li>
 </ul>
 <p>License of this package as an SPDX identifier.</p>
+<hr />
+<h5 id="package_nameoptional_2"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.packageName"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Package name.</p>
 <hr />
 <h5 id="poetry_optionsoptional_1"><code>poetry_options</code><sup>Optional</sup> <a name="poetry_options" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.poetryOptions"></a></h5>
 <ul>
@@ -10950,6 +11106,11 @@ resolved from the root of <em>this</em> project.</p>
 <td><em>No description.</em></td>
 </tr>
 <tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProject.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
+</tr>
+<tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProject.property.compileTask">compile_task</a></code></td>
 <td><code>projen.Task</code></td>
 <td><em>No description.</em></td>
@@ -11153,6 +11314,14 @@ resolved from the root of <em>this</em> project.</p>
 <ul>
 <li><em>Type:</em> projen.Task</li>
 </ul>
+<hr />
+<h5 id="commit_generatedrequired_1"><code>commit_generated</code><sup>Required</sup> <a name="commit_generated" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProject.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="compile_taskrequired_1"><code>compile_task</code><sup>Required</sup> <a name="compile_task" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProject.property.compileTask"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">compile_task</span><span class="p">:</span> <span class="n">Task</span>
@@ -11505,6 +11674,7 @@ this task should synthesize the project files.</p>
 
 <span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipelineTsProject</span><span class="p">(</span>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">logging</span><span class="p">:</span> <span class="n">LoggerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -11566,6 +11736,7 @@ this task should synthesize the project files.</p>
   <span class="n">stability</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">jsii_release_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">min_major_version</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_dist_tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">post_build_steps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">JobStep</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">prerelease</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -11670,6 +11841,11 @@ this task should synthesize the project files.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.name">name</a></code></td>
 <td><code>str</code></td>
 <td>This is the name of your project.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.logging">logging</a></code></td>
@@ -11975,6 +12151,11 @@ this task should synthesize the project files.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.majorVersion">major_version</a></code></td>
 <td><code>typing.Union[int, float]</code></td>
 <td>Major version to release from the default branch.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.minMajorVersion">min_major_version</a></code></td>
+<td><code>typing.Union[int, float]</code></td>
+<td>Minimal Major version to release.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.npmDistTag">npm_dist_tag</a></code></td>
@@ -12431,6 +12612,13 @@ this task should synthesize the project files.</p>
 </ul>
 <p>This is the name of your project.</p>
 <hr />
+<h5 id="commit_generatedoptional_5"><code>commit_generated</code><sup>Optional</sup> <a name="commit_generated" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.commitGenerated"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
+<hr />
 <h5 id="loggingoptional_5"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.logging"></a></h5>
 <ul>
 <li><em>Type:</em> projen.LoggerOptions</li>
@@ -12861,7 +13049,7 @@ Use the <code>licensed</code> option if you want to no license to be specified.<
 </ul>
 <p>The Node Package Manager used to execute scripts.</p>
 <hr />
-<h5 id="package_nameoptional_1"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.packageName"></a></h5>
+<h5 id="package_nameoptional_3"><code>package_name</code><sup>Optional</sup> <a name="package_name" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.packageName"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 <li><em>Default:</em> defaults to project name</li>
@@ -12942,6 +13130,16 @@ the standard script will be overwritten.</p>
 <p>Major version to release from the default branch.</p>
 <p>If this is specified, we bump the latest version of this major version line.
 If not specified, we bump the global latest version.</p>
+<hr />
+<h5 id="min_major_versionoptional_1"><code>min_major_version</code><sup>Optional</sup> <a name="min_major_version" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.minMajorVersion"></a></h5>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+<li><em>Default:</em> No minimum version is being enforced</li>
+</ul>
+<p>Minimal Major version to release.</p>
+<p>This can be useful to set to 1, as breaking changes before the 1.x major
+release are not incrementing the major version number.</p>
+<p>Can not be set together with <code>majorVersion</code>.</p>
 <hr />
 <h5 id="npm_dist_tagoptional_1"><code>npm_dist_tag</code><sup>Optional</sup> <a name="npm_dist_tag" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProject.Initializer.parameter.npmDistTag"></a></h5>
 <ul>
@@ -14221,6 +14419,11 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <td><em>No description.</em></td>
 </tr>
 <tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProject.property.commitGenerated">commit_generated</a></code></td>
+<td><code>bool</code></td>
+<td>Whether to commit the managed files by default.</td>
+</tr>
+<tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProject.property.compileTask">compile_task</a></code></td>
 <td><code>projen.Task</code></td>
 <td><em>No description.</em></td>
@@ -14539,6 +14742,14 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <ul>
 <li><em>Type:</em> projen.Task</li>
 </ul>
+<hr />
+<h5 id="commit_generatedrequired_2"><code>commit_generated</code><sup>Required</sup> <a name="commit_generated" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProject.property.commitGenerated"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">commit_generated</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Whether to commit the managed files by default.</p>
 <hr />
 <h5 id="compile_taskrequired_2"><code>compile_task</code><sup>Required</sup> <a name="compile_task" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProject.property.compileTask"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">compile_task</span><span class="p">:</span> <span class="n">Task</span>
@@ -15084,7 +15295,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2022-08-08
+      2022-08-15
     
   </small>
 </div>
