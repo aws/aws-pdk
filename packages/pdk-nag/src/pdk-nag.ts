@@ -197,9 +197,7 @@ export class PDKNag {
         applyToChildren
       );
     } catch (e) {
-      console.info(
-        `Unable to add Nag Suppression for path: ${path} as it does not exist.`
-      );
+      // Do Nothing
     }
   }
 

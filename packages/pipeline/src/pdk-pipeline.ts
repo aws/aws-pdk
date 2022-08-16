@@ -142,7 +142,10 @@ export class PDKPipeline extends CodePipeline {
         codeRepository,
         props.defaultBranchName || DEFAULT_BRANCH_NAME
       ),
-      installCommands: ["yarn install --frozen-lockfile"],
+      installCommands: [
+        "npm install -g aws-cdk",
+        "yarn install --frozen-lockfile",
+      ],
       commands:
         commands && commands.length > 0
           ? commands
