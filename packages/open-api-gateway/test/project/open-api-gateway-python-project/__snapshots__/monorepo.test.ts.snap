@@ -8032,7 +8032,7 @@ class SayHello(api_client.Api):
 ",
   "packages/my_api/generated/python/my_api_python/api/default_api_operation_config.py": "import urllib.parse
 import json
-from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
 from dataclasses import dataclass
 
@@ -8102,14 +8102,13 @@ class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]
 
 
 ResponseBody = TypeVar('ResponseBody')
-ApiError = TypeVar('ApiError')
-
+StatusCode = TypeVar('StatusCode')
 
 @dataclass
-class ApiResponse(Generic[ResponseBody, ApiError]):
-    status_code: int
+class ApiResponse(Generic[StatusCode, ResponseBody]):
+    status_code: StatusCode
     headers: Dict[str, str]
-    body: Union[ResponseBody, ApiError]
+    body: ResponseBody
 
 
 
@@ -8125,11 +8124,15 @@ class SayHelloRequestArrayParameters(TypedDict):
 # Request body type (default to Any when no body parameters exist)
 SayHelloRequestBody = Any
 
+SayHello200OperationResponse = ApiResponse[Literal[200], HelloResponse]
+SayHello400OperationResponse = ApiResponse[Literal[400], ApiError]
+SayHelloOperationResponses = Union[SayHello200OperationResponse, SayHello400OperationResponse, ]
+
 # Request type for say_hello
 SayHelloRequest = ApiRequest[SayHelloRequestParameters, SayHelloRequestArrayParameters, SayHelloRequestBody]
 
 class SayHelloHandlerFunction(Protocol):
-    def __call__(self, input: SayHelloRequest, **kwargs) -> ApiResponse[HelloResponse, ApiError]:
+    def __call__(self, input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
         ...
 
 def say_hello_handler(handler: SayHelloHandlerFunction):
@@ -13790,10 +13793,10 @@ const parseBody = (body: string, demarshal: (body: string) => any, contentTypes:
 type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
 
 // Type of the response to be returned by an operation lambda handler
-export interface OperationResponse<T, ApiError> {
-    statusCode: number;
+export interface OperationResponse<StatusCode extends number, Body> {
+    statusCode: StatusCode;
     headers?: { [key: string]: string };
-    body?: T | ApiError;
+    body: Body;
 }
 
 // Input for a lambda handler for an operation
@@ -13806,28 +13809,28 @@ export type LambdaRequestParameters<RequestParameters, RequestArrayParameters, R
 /**
  * A lambda handler function which is part of a chain. It may invoke the remainder of the chain via the given chain input
  */
-export type ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> = (
+export type ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
   input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
   event: any,
   context: any,
-  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>,
-) => Promise<OperationResponse<RequestOutput, ApiError>>;
+  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+) => Promise<Response>;
 
 // Type for a lambda handler function to be wrapped
-export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> = (
+export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
   input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
   event: any,
   context: any,
-) => Promise<OperationResponse<RequestOutput, ApiError>>;
+) => Promise<Response>;
 
-export interface LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> {
-  next: LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>;
+export interface LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> {
+  next: LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>;
 }
 
 /**
  * Build a chain from the given array of chained lambda handlers
  */
-const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>(...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>[]): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> => {
+const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, Response>(...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>[]): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> => {
   if (handlers.length === 0) {
     return {
       next: () => {
@@ -13842,9 +13845,6 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
     },
   };
 };
-
-// Type alias for the request
-type SayHelloRequestInput = SayHelloRequest;
 
 /**
  * Single-value path/query parameters for SayHello
@@ -13864,13 +13864,17 @@ export interface SayHelloRequestArrayParameters {
  */
 export type SayHelloRequestBody = never;
 
+export type SayHello200OperationResponse = OperationResponse<200, HelloResponse>;
+export type SayHello400OperationResponse = OperationResponse<400, ApiError>;
+export type SayHelloOperationResponses = | SayHello200OperationResponse | SayHello400OperationResponse ;
+
 // Type that the handler function provided to the wrapper must conform to
-export type SayHelloHandlerFunction<ApiError> = ChainedLambdaHandlerFunction<SayHelloRequestParameters, SayHelloRequestArrayParameters, SayHelloRequestBody, HelloResponse, ApiError>;
+export type SayHelloHandlerFunction = ChainedLambdaHandlerFunction<SayHelloRequestParameters, SayHelloRequestArrayParameters, SayHelloRequestBody, SayHelloOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of sayHello
  */
-export const sayHelloHandler = <ApiError>(firstHandler: SayHelloHandlerFunction<ApiError>, ...remainingHandlers: SayHelloHandlerFunction<ApiError>[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+export const sayHelloHandler = (firstHandler: SayHelloHandlerFunction, ...remainingHandlers: SayHelloHandlerFunction[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -14521,12 +14525,11 @@ class Api(OpenApiGatewayLambdaApi):
             operation_lookup=OperationLookup,
         )
 ",
-  "packages/my_api/my_api/api/handlers/say_hello_handler_sample.py": "from my_api_python.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse
-from my_api_python.model.api_error import ApiError
+  "packages/my_api/my_api/api/handlers/say_hello_handler_sample.py": "from my_api_python.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
 from my_api_python.model.hello_response import HelloResponse
 
 @say_hello_handler
-def handler(input: SayHelloRequest, **kwargs) -> ApiResponse[HelloResponse, ApiError]:
+def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
     \\"\\"\\"
     An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs
     \\"\\"\\"

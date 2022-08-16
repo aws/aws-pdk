@@ -1038,7 +1038,7 @@ class SomeTestOperation(api_client.Api):
 ",
   "test/api/default_api_operation_config.py": "import urllib.parse
 import json
-from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
 from dataclasses import dataclass
 
@@ -1109,14 +1109,13 @@ class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]
 
 
 ResponseBody = TypeVar('ResponseBody')
-ApiError = TypeVar('ApiError')
-
+StatusCode = TypeVar('StatusCode')
 
 @dataclass
-class ApiResponse(Generic[ResponseBody, ApiError]):
-    status_code: int
+class ApiResponse(Generic[StatusCode, ResponseBody]):
+    status_code: StatusCode
     headers: Dict[str, str]
-    body: Union[ResponseBody, ApiError]
+    body: ResponseBody
 
 
 
@@ -1132,11 +1131,15 @@ class SomeTestOperationRequestArrayParameters(TypedDict):
 # Request body type (default to Any when no body parameters exist)
 SomeTestOperationRequestBody = TestRequest
 
+SomeTestOperation200OperationResponse = ApiResponse[Literal[200], TestResponse]
+SomeTestOperation400OperationResponse = ApiResponse[Literal[400], ApiError]
+SomeTestOperationOperationResponses = Union[SomeTestOperation200OperationResponse, SomeTestOperation400OperationResponse, ]
+
 # Request type for some_test_operation
 SomeTestOperationRequest = ApiRequest[SomeTestOperationRequestParameters, SomeTestOperationRequestArrayParameters, SomeTestOperationRequestBody]
 
 class SomeTestOperationHandlerFunction(Protocol):
-    def __call__(self, input: SomeTestOperationRequest, **kwargs) -> ApiResponse[TestResponse, ApiError]:
+    def __call__(self, input: SomeTestOperationRequest, **kwargs) -> SomeTestOperationOperationResponses:
         ...
 
 def some_test_operation_handler(handler: SomeTestOperationHandlerFunction):
@@ -6596,13 +6599,11 @@ configuration = test.Configuration(
 with test.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = default_api.DefaultApi(api_client)
-    body = open('/path/to/file', 'rb') # file_type | 
-
+    
     try:
-        api_response = api_instance.media_types(body)
-        pprint(api_response)
+        api_instance.empty()
     except test.ApiException as e:
-        print(\\"Exception when calling DefaultApi->media_types: %s\\\\n\\" % e)
+        print(\\"Exception when calling DefaultApi->empty: %s\\\\n\\" % e)
 \`\`\`
 
 ## Documentation for API Endpoints
@@ -6611,6 +6612,7 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*DefaultApi* | [**empty**](docs/DefaultApi.md#empty) | **PUT** /empty-response | 
 *DefaultApi* | [**media_types**](docs/DefaultApi.md#media_types) | **POST** /different-media-type | 
 *DefaultApi* | [**operation_one**](docs/DefaultApi.md#operation_one) | **POST** /path/{pathParam} | 
 *DefaultApi* | [**without_operation_id_delete**](docs/DefaultApi.md#without_operation_id_delete) | **DELETE** /without-operation-id | 
@@ -6665,9 +6667,64 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**empty**](DefaultApi.md#empty) | **PUT** /empty-response | 
 [**media_types**](DefaultApi.md#media_types) | **POST** /different-media-type | 
 [**operation_one**](DefaultApi.md#operation_one) | **POST** /path/{pathParam} | 
 [**without_operation_id_delete**](DefaultApi.md#without_operation_id_delete) | **DELETE** /without-operation-id | 
+
+# **empty**
+> empty()
+
+
+
+### Example
+
+\`\`\`python
+import test
+from test.api import default_api
+from pprint import pprint
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = test.Configuration(
+    host = \\"http://localhost\\"
+)
+
+# Enter a context with an instance of the API client
+with test.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = default_api.DefaultApi(api_client)
+
+    # example, this endpoint has no required or optional parameters
+    try:
+        api_response = api_instance.empty()
+    except test.ApiException as e:
+        print(\\"Exception when calling DefaultApi->empty: %s\\\\n\\" % e)
+\`\`\`
+### Parameters
+This endpoint does not need any parameter.
+
+### Return Types, Responses
+
+Code | Class | Description
+------------- | ------------- | -------------
+n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
+204 | ApiResponseFor204 | No response body!
+
+#### ApiResponseFor204
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | Unset | body was not defined |
+headers | Unset | headers were not defined |
+
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **media_types**
 > str media_types(body)
@@ -7132,12 +7189,14 @@ if __name__ == \\"__main__\\":
 \\"\\"\\"
 
 from test.api_client import ApiClient
+from test.api.default_api_endpoints.empty import Empty
 from test.api.default_api_endpoints.media_types import MediaTypes
 from test.api.default_api_endpoints.operation_one import OperationOne
 from test.api.default_api_endpoints.without_operation_id_delete import WithoutOperationIdDelete
 
 
 class DefaultApi(
+    Empty,
     MediaTypes,
     OperationOne,
     WithoutOperationIdDelete,
@@ -7153,6 +7212,129 @@ class DefaultApi(
   "test/api/default_api_endpoints/__init__.py": "# do not import all endpoints into this module because that uses a lot of memory and stack frames
 # if you need the ability to import all endpoints from this module, import them with
 # from test.api.default_api import DefaultApi
+",
+  "test/api/default_api_endpoints/empty.py": "# coding: utf-8
+
+\\"\\"\\"
+
+
+    Generated by: https://openapi-generator.tech
+\\"\\"\\"
+
+from dataclasses import dataclass
+import re  # noqa: F401
+import sys  # noqa: F401
+import typing
+import urllib3
+import functools  # noqa: F401
+
+from test import api_client, exceptions
+import decimal  # noqa: F401
+from datetime import date, datetime  # noqa: F401
+from frozendict import frozendict  # noqa: F401
+
+from test.schemas import (  # noqa: F401
+    AnyTypeSchema,
+    ComposedSchema,
+    DictSchema,
+    ListSchema,
+    StrSchema,
+    IntSchema,
+    Int32Schema,
+    Int64Schema,
+    Float32Schema,
+    Float64Schema,
+    NumberSchema,
+    UUIDSchema,
+    DateSchema,
+    DateTimeSchema,
+    DecimalSchema,
+    BoolSchema,
+    BinarySchema,
+    NoneSchema,
+    none_type,
+    Configuration,
+    Unset,
+    unset,
+    ComposedBase,
+    ListBase,
+    DictBase,
+    NoneBase,
+    StrBase,
+    IntBase,
+    Int32Base,
+    Int64Base,
+    Float32Base,
+    Float64Base,
+    NumberBase,
+    UUIDBase,
+    DateBase,
+    DateTimeBase,
+    BoolBase,
+    BinaryBase,
+    Schema,
+    _SchemaValidator,
+    _SchemaTypeChecker,
+    _SchemaEnumMaker
+)
+
+_path = '/empty-response'
+_method = 'PUT'
+
+
+@dataclass
+class ApiResponseFor204(api_client.ApiResponse):
+    response: urllib3.HTTPResponse
+    body: Unset = unset
+    headers: Unset = unset
+
+
+_response_for_204 = api_client.OpenApiResponse(
+    response_cls=ApiResponseFor204,
+)
+_status_code_to_response = {
+    '204': _response_for_204,
+}
+
+
+class Empty(api_client.Api):
+
+    def empty(
+        self: api_client.Api,
+        stream: bool = False,
+        timeout: typing.Optional[typing.Union[int, typing.Tuple]] = None,
+        skip_deserialization: bool = False,
+    ) -> typing.Union[
+        ApiResponseFor204,
+        api_client.ApiResponseWithoutDeserialization
+    ]:
+        \\"\\"\\"
+        :param skip_deserialization: If true then api_response.response will be set but
+            api_response.body and api_response.headers will not be deserialized into schema
+            class instances
+        \\"\\"\\"
+        # TODO add cookie handling
+
+        response = self.api_client.call_api(
+            resource_path=_path,
+            method=_method,
+            stream=stream,
+            timeout=timeout,
+        )
+
+        if skip_deserialization:
+            api_response = api_client.ApiResponseWithoutDeserialization(response=response)
+        else:
+            response_for_status = _status_code_to_response.get(str(response.status))
+            if response_for_status:
+                api_response = response_for_status.deserialize(response, self.api_client.configuration)
+            else:
+                api_response = api_client.ApiResponseWithoutDeserialization(response=response)
+
+        if not 200 <= response.status <= 299:
+            raise exceptions.ApiException(api_response=api_response)
+
+        return api_response
 ",
   "test/api/default_api_endpoints/media_types.py": "# coding: utf-8
 
@@ -7761,7 +7943,7 @@ class WithoutOperationIdDelete(api_client.Api):
 ",
   "test/api/default_api_operation_config.py": "import urllib.parse
 import json
-from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
 from dataclasses import dataclass
 
@@ -7781,6 +7963,7 @@ T = TypeVar('T')
 # Generic type for object keyed by operation names
 @dataclass
 class OperationConfig(Generic[T]):
+    empty: T
     media_types: T
     operation_one: T
     without_operation_id_delete: T
@@ -7788,6 +7971,10 @@ class OperationConfig(Generic[T]):
 
 # Look up path and http method for a given operation name
 OperationLookup = {
+    \\"empty\\": {
+        \\"path\\": \\"/empty-response\\",
+        \\"method\\": \\"PUT\\",
+    },
     \\"media_types\\": {
         \\"path\\": \\"/different-media-type\\",
         \\"method\\": \\"POST\\",
@@ -7842,15 +8029,64 @@ class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]
 
 
 ResponseBody = TypeVar('ResponseBody')
-ApiError = TypeVar('ApiError')
-
+StatusCode = TypeVar('StatusCode')
 
 @dataclass
-class ApiResponse(Generic[ResponseBody, ApiError]):
-    status_code: int
+class ApiResponse(Generic[StatusCode, ResponseBody]):
+    status_code: StatusCode
     headers: Dict[str, str]
-    body: Union[ResponseBody, ApiError]
+    body: ResponseBody
 
+
+
+# Request parameters are single value query params or path params
+class EmptyRequestParameters(TypedDict):
+    ...
+
+# Request array parameters are multi-value query params
+class EmptyRequestArrayParameters(TypedDict):
+    ...
+
+# Request body type (default to Any when no body parameters exist)
+EmptyRequestBody = Any
+
+Empty204OperationResponse = ApiResponse[Literal[204], None]
+EmptyOperationResponses = Union[Empty204OperationResponse, ]
+
+# Request type for empty
+EmptyRequest = ApiRequest[EmptyRequestParameters, EmptyRequestArrayParameters, EmptyRequestBody]
+
+class EmptyHandlerFunction(Protocol):
+    def __call__(self, input: EmptyRequest, **kwargs) -> EmptyOperationResponses:
+        ...
+
+def empty_handler(handler: EmptyHandlerFunction):
+    \\"\\"\\"
+    Decorator for an api handler for the empty operation, providing a typed interface for inputs and outputs
+    \\"\\"\\"
+    @wraps(handler)
+    def wrapper(event, context, **kwargs):
+        request_parameters = decode_request_parameters({
+            **(event['pathParameters'] or {}),
+            **(event['queryStringParameters'] or {}),
+        })
+        request_array_parameters = decode_request_parameters({
+            **(event['multiValueQueryStringParameters'] or {}),
+        })
+        body = parse_body(event['body'], [], EmptyRequestBody)
+        response = handler(ApiRequest(
+            request_parameters,
+            request_array_parameters,
+            body,
+            event,
+            context,
+        ), **kwargs)
+        return {
+            'statusCode': response.status_code,
+            'headers': response.headers,
+            'body': json.dumps(response.body) if response.body is not None else '',
+        }
+    return wrapper
 
 
 # Request parameters are single value query params or path params
@@ -7864,11 +8100,14 @@ class MediaTypesRequestArrayParameters(TypedDict):
 # Request body type (default to Any when no body parameters exist)
 MediaTypesRequestBody = file_type
 
+MediaTypes200OperationResponse = ApiResponse[Literal[200], str]
+MediaTypesOperationResponses = Union[MediaTypes200OperationResponse, ]
+
 # Request type for media_types
 MediaTypesRequest = ApiRequest[MediaTypesRequestParameters, MediaTypesRequestArrayParameters, MediaTypesRequestBody]
 
 class MediaTypesHandlerFunction(Protocol):
-    def __call__(self, input: MediaTypesRequest, **kwargs) -> ApiResponse[str, ApiError]:
+    def __call__(self, input: MediaTypesRequest, **kwargs) -> MediaTypesOperationResponses:
         ...
 
 def media_types_handler(handler: MediaTypesHandlerFunction):
@@ -7915,11 +8154,15 @@ class OperationOneRequestArrayParameters(TypedDict):
 # Request body type (default to Any when no body parameters exist)
 OperationOneRequestBody = TestRequest
 
+OperationOne200OperationResponse = ApiResponse[Literal[200], TestResponse]
+OperationOne400OperationResponse = ApiResponse[Literal[400], ApiError]
+OperationOneOperationResponses = Union[OperationOne200OperationResponse, OperationOne400OperationResponse, ]
+
 # Request type for operation_one
 OperationOneRequest = ApiRequest[OperationOneRequestParameters, OperationOneRequestArrayParameters, OperationOneRequestBody]
 
 class OperationOneHandlerFunction(Protocol):
-    def __call__(self, input: OperationOneRequest, **kwargs) -> ApiResponse[TestResponse, ApiError]:
+    def __call__(self, input: OperationOneRequest, **kwargs) -> OperationOneOperationResponses:
         ...
 
 def operation_one_handler(handler: OperationOneHandlerFunction):
@@ -7962,11 +8205,14 @@ class WithoutOperationIdDeleteRequestArrayParameters(TypedDict):
 # Request body type (default to Any when no body parameters exist)
 WithoutOperationIdDeleteRequestBody = Any
 
+WithoutOperationIdDelete200OperationResponse = ApiResponse[Literal[200], TestResponse]
+WithoutOperationIdDeleteOperationResponses = Union[WithoutOperationIdDelete200OperationResponse, ]
+
 # Request type for without_operation_id_delete
 WithoutOperationIdDeleteRequest = ApiRequest[WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestArrayParameters, WithoutOperationIdDeleteRequestBody]
 
 class WithoutOperationIdDeleteHandlerFunction(Protocol):
-    def __call__(self, input: WithoutOperationIdDeleteRequest, **kwargs) -> ApiResponse[TestResponse, ApiError]:
+    def __call__(self, input: WithoutOperationIdDeleteRequest, **kwargs) -> WithoutOperationIdDeleteOperationResponses:
         ...
 
 def without_operation_id_delete_handler(handler: WithoutOperationIdDeleteHandlerFunction):
@@ -12880,6 +13126,12 @@ class TestDefaultApi(unittest.TestCase):
         self.api = DefaultApi()  # noqa: E501
 
     def tearDown(self):
+        pass
+
+    def test_empty(self):
+        \\"\\"\\"Test case for empty
+
+        \\"\\"\\"
         pass
 
     def test_media_types(self):

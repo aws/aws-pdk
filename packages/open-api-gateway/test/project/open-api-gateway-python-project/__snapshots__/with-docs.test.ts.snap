@@ -4475,7 +4475,7 @@ class SayHello(api_client.Api):
 ",
   "generated/python/my_api_python/api/default_api_operation_config.py": "import urllib.parse
 import json
-from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
 from dataclasses import dataclass
 
@@ -4545,14 +4545,13 @@ class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]
 
 
 ResponseBody = TypeVar('ResponseBody')
-ApiError = TypeVar('ApiError')
-
+StatusCode = TypeVar('StatusCode')
 
 @dataclass
-class ApiResponse(Generic[ResponseBody, ApiError]):
-    status_code: int
+class ApiResponse(Generic[StatusCode, ResponseBody]):
+    status_code: StatusCode
     headers: Dict[str, str]
-    body: Union[ResponseBody, ApiError]
+    body: ResponseBody
 
 
 
@@ -4568,11 +4567,15 @@ class SayHelloRequestArrayParameters(TypedDict):
 # Request body type (default to Any when no body parameters exist)
 SayHelloRequestBody = Any
 
+SayHello200OperationResponse = ApiResponse[Literal[200], HelloResponse]
+SayHello400OperationResponse = ApiResponse[Literal[400], ApiError]
+SayHelloOperationResponses = Union[SayHello200OperationResponse, SayHello400OperationResponse, ]
+
 # Request type for say_hello
 SayHelloRequest = ApiRequest[SayHelloRequestParameters, SayHelloRequestArrayParameters, SayHelloRequestBody]
 
 class SayHelloHandlerFunction(Protocol):
-    def __call__(self, input: SayHelloRequest, **kwargs) -> ApiResponse[HelloResponse, ApiError]:
+    def __call__(self, input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
         ...
 
 def say_hello_handler(handler: SayHelloHandlerFunction):
@@ -9507,12 +9510,11 @@ class Api(OpenApiGatewayLambdaApi):
             operation_lookup=OperationLookup,
         )
 ",
-  "my_api/api/handlers/say_hello_handler_sample.py": "from my_api_python.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse
-from my_api_python.model.api_error import ApiError
+  "my_api/api/handlers/say_hello_handler_sample.py": "from my_api_python.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
 from my_api_python.model.hello_response import HelloResponse
 
 @say_hello_handler
-def handler(input: SayHelloRequest, **kwargs) -> ApiResponse[HelloResponse, ApiError]:
+def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
     \\"\\"\\"
     An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs
     \\"\\"\\"

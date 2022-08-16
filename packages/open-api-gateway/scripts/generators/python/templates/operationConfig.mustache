@@ -1,6 +1,6 @@
 import urllib.parse
 import json
-from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
 from dataclasses import dataclass
 
@@ -79,14 +79,13 @@ class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]
 
 
 ResponseBody = TypeVar('ResponseBody')
-ApiError = TypeVar('ApiError')
-
+StatusCode = TypeVar('StatusCode')
 
 @dataclass
-class ApiResponse(Generic[ResponseBody, ApiError]):
-    status_code: int
+class ApiResponse(Generic[StatusCode, ResponseBody]):
+    status_code: StatusCode
     headers: Dict[str, str]
-    body: Union[ResponseBody, ApiError]
+    body: ResponseBody
 
 
 {{#operations}}
@@ -117,11 +116,16 @@ class {{operationIdCamelCase}}RequestArrayParameters(TypedDict):
 # Request body type (default to Any when no body parameters exist)
 {{operationIdCamelCase}}RequestBody = {{^bodyParams.isEmpty}}{{#bodyParams.0}}{{dataType}}{{/bodyParams.0}}{{/bodyParams.isEmpty}}{{#bodyParams.isEmpty}}Any{{/bodyParams.isEmpty}}
 
+{{#responses}}
+{{operationIdCamelCase}}{{code}}OperationResponse = ApiResponse[Literal[{{code}}], {{^simpleType}}{{dataType}}{{/simpleType}}{{#simpleType}}None{{/simpleType}}]
+{{/responses}}
+{{operationIdCamelCase}}OperationResponses = Union[{{#responses}}{{operationIdCamelCase}}{{code}}OperationResponse, {{/responses}}]
+
 # Request type for {{operationId}}
 {{operationIdCamelCase}}Request = ApiRequest[{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody]
 
 class {{operationIdCamelCase}}HandlerFunction(Protocol):
-    def __call__(self, input: {{operationIdCamelCase}}Request, **kwargs) -> ApiResponse[{{returnType}}, ApiError]:
+    def __call__(self, input: {{operationIdCamelCase}}Request, **kwargs) -> {{operationIdCamelCase}}OperationResponses:
         ...
 
 def {{operationId}}_handler(handler: {{operationIdCamelCase}}HandlerFunction):

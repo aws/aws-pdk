@@ -1352,10 +1352,10 @@ const parseBody = (body: string, demarshal: (body: string) => any, contentTypes:
 type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
 
 // Type of the response to be returned by an operation lambda handler
-export interface OperationResponse<T, ApiError> {
-    statusCode: number;
+export interface OperationResponse<StatusCode extends number, Body> {
+    statusCode: StatusCode;
     headers?: { [key: string]: string };
-    body?: T | ApiError;
+    body: Body;
 }
 
 // Input for a lambda handler for an operation
@@ -1368,28 +1368,28 @@ export type LambdaRequestParameters<RequestParameters, RequestArrayParameters, R
 /**
  * A lambda handler function which is part of a chain. It may invoke the remainder of the chain via the given chain input
  */
-export type ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> = (
+export type ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
   input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
   event: any,
   context: any,
-  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>,
-) => Promise<OperationResponse<RequestOutput, ApiError>>;
+  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+) => Promise<Response>;
 
 // Type for a lambda handler function to be wrapped
-export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> = (
+export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
   input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
   event: any,
   context: any,
-) => Promise<OperationResponse<RequestOutput, ApiError>>;
+) => Promise<Response>;
 
-export interface LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> {
-  next: LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>;
+export interface LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> {
+  next: LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>;
 }
 
 /**
  * Build a chain from the given array of chained lambda handlers
  */
-const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>(...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>[]): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> => {
+const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, Response>(...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>[]): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> => {
   if (handlers.length === 0) {
     return {
       next: () => {
@@ -1404,9 +1404,6 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
     },
   };
 };
-
-// Type alias for the request
-type SomeTestOperationRequestInput = SomeTestOperationRequest;
 
 /**
  * Single-value path/query parameters for SomeTestOperation
@@ -1426,13 +1423,17 @@ export interface SomeTestOperationRequestArrayParameters {
  */
 export type SomeTestOperationRequestBody = TestRequest;
 
+export type SomeTestOperation200OperationResponse = OperationResponse<200, TestResponse>;
+export type SomeTestOperation400OperationResponse = OperationResponse<400, ApiError>;
+export type SomeTestOperationOperationResponses = | SomeTestOperation200OperationResponse | SomeTestOperation400OperationResponse ;
+
 // Type that the handler function provided to the wrapper must conform to
-export type SomeTestOperationHandlerFunction<ApiError> = ChainedLambdaHandlerFunction<SomeTestOperationRequestParameters, SomeTestOperationRequestArrayParameters, SomeTestOperationRequestBody, TestResponse, ApiError>;
+export type SomeTestOperationHandlerFunction = ChainedLambdaHandlerFunction<SomeTestOperationRequestParameters, SomeTestOperationRequestArrayParameters, SomeTestOperationRequestBody, SomeTestOperationOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of someTestOperation
  */
-export const someTestOperationHandler = <ApiError>(firstHandler: SomeTestOperationHandlerFunction<ApiError>, ...remainingHandlers: SomeTestOperationHandlerFunction<ApiError>[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+export const someTestOperationHandler = (firstHandler: SomeTestOperationHandlerFunction, ...remainingHandlers: SomeTestOperationHandlerFunction[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -3444,6 +3445,29 @@ export class DefaultApi extends runtime.BaseAPI {
 
     /**
      */
+    async emptyRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: \`/empty-response\`,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async empty(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<void> {
+        await this.emptyRaw(initOverrides);
+    }
+
+    /**
+     */
     async mediaTypesRaw(requestParameters: MediaTypesRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<string>> {
         if (requestParameters.body === null || requestParameters.body === undefined) {
             throw new runtime.RequiredError('body','Required parameter requestParameters.body was null or undefined when calling mediaTypes.');
@@ -3572,6 +3596,7 @@ import {
 } from '../../models';
 // Import request parameter interfaces
 import {
+    
     MediaTypesRequest,
     OperationOneRequest,
     
@@ -3579,6 +3604,7 @@ import {
 
 // Generic type for object keyed by operation names
 export interface OperationConfig<T> {
+    empty: T;
     mediaTypes: T;
     operationOne: T;
     withoutOperationIdDelete: T;
@@ -3586,6 +3612,10 @@ export interface OperationConfig<T> {
 
 // Look up path and http method for a given operation name
 export const OperationLookup = {
+    empty: {
+        path: '/empty-response',
+        method: 'PUT',
+    },
     mediaTypes: {
         path: '/different-media-type',
         method: 'POST',
@@ -3629,10 +3659,10 @@ const parseBody = (body: string, demarshal: (body: string) => any, contentTypes:
 type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
 
 // Type of the response to be returned by an operation lambda handler
-export interface OperationResponse<T, ApiError> {
-    statusCode: number;
+export interface OperationResponse<StatusCode extends number, Body> {
+    statusCode: StatusCode;
     headers?: { [key: string]: string };
-    body?: T | ApiError;
+    body: Body;
 }
 
 // Input for a lambda handler for an operation
@@ -3645,28 +3675,28 @@ export type LambdaRequestParameters<RequestParameters, RequestArrayParameters, R
 /**
  * A lambda handler function which is part of a chain. It may invoke the remainder of the chain via the given chain input
  */
-export type ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> = (
+export type ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
   input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
   event: any,
   context: any,
-  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>,
-) => Promise<OperationResponse<RequestOutput, ApiError>>;
+  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+) => Promise<Response>;
 
 // Type for a lambda handler function to be wrapped
-export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> = (
+export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
   input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
   event: any,
   context: any,
-) => Promise<OperationResponse<RequestOutput, ApiError>>;
+) => Promise<Response>;
 
-export interface LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> {
-  next: LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>;
+export interface LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> {
+  next: LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>;
 }
 
 /**
  * Build a chain from the given array of chained lambda handlers
  */
-const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>(...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError>[]): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, ApiError> => {
+const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, Response>(...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>[]): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> => {
   if (handlers.length === 0) {
     return {
       next: () => {
@@ -3682,9 +3712,72 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
   };
 };
 
-// Type alias for the request
-type MediaTypesRequestInput = MediaTypesRequest;
+/**
+ * Single-value path/query parameters for Empty
+ */
+export interface EmptyRequestParameters {
+}
 
+/**
+ * Multi-value query parameters for Empty
+ */
+export interface EmptyRequestArrayParameters {
+}
+
+/**
+ * Request body parameter for Empty
+ */
+export type EmptyRequestBody = never;
+
+export type Empty204OperationResponse = OperationResponse<204, undefined>;
+export type EmptyOperationResponses = | Empty204OperationResponse ;
+
+// Type that the handler function provided to the wrapper must conform to
+export type EmptyHandlerFunction = ChainedLambdaHandlerFunction<EmptyRequestParameters, EmptyRequestArrayParameters, EmptyRequestBody, EmptyOperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of empty
+ */
+export const emptyHandler = (firstHandler: EmptyHandlerFunction, ...remainingHandlers: EmptyHandlerFunction[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+    const requestParameters = decodeRequestParameters({
+        ...(event.pathParameters || {}),
+        ...(event.queryStringParameters || {}),
+    }) as unknown as EmptyRequestParameters;
+
+    const requestArrayParameters = decodeRequestParameters({
+        ...(event.multiValueQueryStringParameters || {}),
+    }) as unknown as EmptyRequestArrayParameters;
+
+    const demarshal = (bodyString: string): any => {
+        let parsed = JSON.parse(bodyString);
+        return parsed;
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as EmptyRequestBody;
+
+    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const response = await chain.next({
+        requestParameters,
+        requestArrayParameters,
+        body,
+    }, event, context);
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+            case 204:
+                break;
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    return {
+        ...response,
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
 /**
  * Single-value path/query parameters for MediaTypes
  */
@@ -3702,13 +3795,16 @@ export interface MediaTypesRequestArrayParameters {
  */
 export type MediaTypesRequestBody = Blob;
 
+export type MediaTypes200OperationResponse = OperationResponse<200, string>;
+export type MediaTypesOperationResponses = | MediaTypes200OperationResponse ;
+
 // Type that the handler function provided to the wrapper must conform to
-export type MediaTypesHandlerFunction<ApiError> = ChainedLambdaHandlerFunction<MediaTypesRequestParameters, MediaTypesRequestArrayParameters, MediaTypesRequestBody, string, ApiError>;
+export type MediaTypesHandlerFunction = ChainedLambdaHandlerFunction<MediaTypesRequestParameters, MediaTypesRequestArrayParameters, MediaTypesRequestBody, MediaTypesOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of mediaTypes
  */
-export const mediaTypesHandler = <ApiError>(firstHandler: MediaTypesHandlerFunction<ApiError>, ...remainingHandlers: MediaTypesHandlerFunction<ApiError>[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+export const mediaTypesHandler = (firstHandler: MediaTypesHandlerFunction, ...remainingHandlers: MediaTypesHandlerFunction[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -3749,9 +3845,6 @@ export const mediaTypesHandler = <ApiError>(firstHandler: MediaTypesHandlerFunct
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
 };
-// Type alias for the request
-type OperationOneRequestInput = OperationOneRequest;
-
 /**
  * Single-value path/query parameters for OperationOne
  */
@@ -3773,13 +3866,17 @@ export interface OperationOneRequestArrayParameters {
  */
 export type OperationOneRequestBody = TestRequest;
 
+export type OperationOne200OperationResponse = OperationResponse<200, TestResponse>;
+export type OperationOne400OperationResponse = OperationResponse<400, ApiError>;
+export type OperationOneOperationResponses = | OperationOne200OperationResponse | OperationOne400OperationResponse ;
+
 // Type that the handler function provided to the wrapper must conform to
-export type OperationOneHandlerFunction<ApiError> = ChainedLambdaHandlerFunction<OperationOneRequestParameters, OperationOneRequestArrayParameters, OperationOneRequestBody, TestResponse, ApiError>;
+export type OperationOneHandlerFunction = ChainedLambdaHandlerFunction<OperationOneRequestParameters, OperationOneRequestArrayParameters, OperationOneRequestBody, OperationOneOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of operationOne
  */
-export const operationOneHandler = <ApiError>(firstHandler: OperationOneHandlerFunction<ApiError>, ...remainingHandlers: OperationOneHandlerFunction<ApiError>[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+export const operationOneHandler = (firstHandler: OperationOneHandlerFunction, ...remainingHandlers: OperationOneHandlerFunction[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -3824,9 +3921,6 @@ export const operationOneHandler = <ApiError>(firstHandler: OperationOneHandlerF
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
 };
-// Type alias for the request
-type WithoutOperationIdDeleteRequestInput = {};
-
 /**
  * Single-value path/query parameters for WithoutOperationIdDelete
  */
@@ -3844,13 +3938,16 @@ export interface WithoutOperationIdDeleteRequestArrayParameters {
  */
 export type WithoutOperationIdDeleteRequestBody = never;
 
+export type WithoutOperationIdDelete200OperationResponse = OperationResponse<200, TestResponse>;
+export type WithoutOperationIdDeleteOperationResponses = | WithoutOperationIdDelete200OperationResponse ;
+
 // Type that the handler function provided to the wrapper must conform to
-export type WithoutOperationIdDeleteHandlerFunction<ApiError> = ChainedLambdaHandlerFunction<WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestArrayParameters, WithoutOperationIdDeleteRequestBody, TestResponse, ApiError>;
+export type WithoutOperationIdDeleteHandlerFunction = ChainedLambdaHandlerFunction<WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestArrayParameters, WithoutOperationIdDeleteRequestBody, WithoutOperationIdDeleteOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of withoutOperationIdDelete
  */
-export const withoutOperationIdDeleteHandler = <ApiError>(firstHandler: WithoutOperationIdDeleteHandlerFunction<ApiError>, ...remainingHandlers: WithoutOperationIdDeleteHandlerFunction<ApiError>[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+export const withoutOperationIdDeleteHandler = (firstHandler: WithoutOperationIdDeleteHandlerFunction, ...remainingHandlers: WithoutOperationIdDeleteHandlerFunction[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),

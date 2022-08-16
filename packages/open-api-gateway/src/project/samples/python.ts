@@ -111,12 +111,11 @@ class SampleApi(Construct):
       )
 `,
         // Generate an example lambda handler
-        "handlers/say_hello_handler_sample.py": `from ${options.pythonClientPackageName}.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse
-from ${options.pythonClientPackageName}.model.api_error import ApiError
+        "handlers/say_hello_handler_sample.py": `from ${options.pythonClientPackageName}.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
 from ${options.pythonClientPackageName}.model.hello_response import HelloResponse
 
 @say_hello_handler
-def handler(input: SayHelloRequest, **kwargs) -> ApiResponse[HelloResponse, ApiError]:
+def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
     """
     An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs
     """
