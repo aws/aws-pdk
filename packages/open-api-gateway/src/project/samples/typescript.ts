@@ -109,12 +109,12 @@ export class SampleApi extends Api {
 }
 `,
         // Generate an example lambda handler
-        "sample-api.say-hello.ts": `import { sayHelloHandler, ApiError } from "${options.typescriptClientPackageName}";
+        "sample-api.say-hello.ts": `import { sayHelloHandler } from "${options.typescriptClientPackageName}";
 
 /**
  * An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs.
  */
-export const handler = sayHelloHandler<ApiError>(async (input) => {
+export const handler = sayHelloHandler(async (input) => {
   return {
     statusCode: 200,
     body: {

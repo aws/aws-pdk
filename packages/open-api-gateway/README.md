@@ -405,14 +405,14 @@ You'll find details about how to use the python client in the README.md alongsid
 
 ### Lambda Handler Wrappers
 
-Lambda handler wrappers are also importable from the generated client. These provide input/output type safety, as well as allowing you to define a custom type for API error responses.
+Lambda handler wrappers are also importable from the generated client. These provide input/output type safety, ensuring that your API handlers return outputs that correspond to your specification.
 
 #### Typescript
 
 ```ts
-import { sayHelloHandler, ApiError } from "my-api-typescript-client";
+import { sayHelloHandler } from "my-api-typescript-client";
 
-export const handler = sayHelloHandler<ApiError>(async (input) => {
+export const handler = sayHelloHandler(async (input) => {
   return {
     statusCode: 200,
     body: {
@@ -449,10 +449,8 @@ In typescript, interceptors are passed as separate arguments to the generated ha
 ```ts
 import {
   sayHelloHandler,
-  ApiError,
   LambdaRequestParameters,
   LambdaHandlerChain,
-  OperationResponse
 } from "my-api-typescript-client";
 
 // Interceptor to wrap invocations in a try/catch, returning a 500 error for any unhandled exceptions.
@@ -460,23 +458,22 @@ const tryCatchInterceptor = async <
   RequestParameters,
   RequestArrayParameters,
   RequestBody,
-  RequestOutput,
-  TError
+  Response
 >(
   input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
   event: any,
   context: any,
-  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, TError>,
-): Promise<OperationResponse<RequestOutput, TError>> => {
+  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+): Promise<Response | OperationResponse<500, { errorMessage: string }>> => {
   try {
     return await chain.next(input, event, context);
-  } catch (e) {
+  } catch (e: any) {
     return { statusCode: 500, body: { errorMessage: e.message }};
   }
 };
 
 // tryCatchInterceptor is passed first, so it runs first and calls the second argument function (the request handler) via chain.next
-export const handler = sayHelloHandler<ApiError>(tryCatchInterceptor, async (input) => {
+export const handler = sayHelloHandler(tryCatchInterceptor, async (input) => {
   return {
     statusCode: 200,
     body: {
@@ -492,21 +489,19 @@ Another example interceptor might be to record request time metrics. The example
 import {
   LambdaRequestParameters,
   LambdaHandlerChain,
-  OperationResponse,
 } from 'my-api-typescript-client';
 
 const timingInterceptor = async <
   RequestParameters,
   RequestArrayParameters,
   RequestBody,
-  RequestOutput,
-  TError
+  Response
 >(
   input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
   event: any,
   context: any,
-  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, RequestOutput, TError>,
-): Promise<OperationResponse<RequestOutput, TError>> => {
+  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+): Promise<Response> => {
   const start = Date.now();
   const response = await chain.next(input, event, context);
   const end = Date.now();

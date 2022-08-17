@@ -7337,12 +7337,10 @@ public class Example {
     defaultClient.setBasePath(\\"http://localhost\\");
 
     DefaultApi apiInstance = new DefaultApi(defaultClient);
-    File body = new File(\\"/path/to/file\\"); // File | 
     try {
-      String result = apiInstance.mediaTypes(body);
-      System.out.println(result);
+      apiInstance.empty();
     } catch (ApiException e) {
-      System.err.println(\\"Exception when calling DefaultApi#mediaTypes\\");
+      System.err.println(\\"Exception when calling DefaultApi#empty\\");
       System.err.println(\\"Status code: \\" + e.getCode());
       System.err.println(\\"Reason: \\" + e.getResponseBody());
       System.err.println(\\"Response headers: \\" + e.getResponseHeaders());
@@ -7359,6 +7357,7 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*DefaultApi* | [**empty**](docs/DefaultApi.md#empty) | **PUT** /empty-response | 
 *DefaultApi* | [**mediaTypes**](docs/DefaultApi.md#mediaTypes) | **POST** /different-media-type | 
 *DefaultApi* | [**operationOne**](docs/DefaultApi.md#operationOne) | **POST** /path/{pathParam} | 
 *DefaultApi* | [**withoutOperationIdDelete**](docs/DefaultApi.md#withoutOperationIdDelete) | **DELETE** /without-operation-id | 
@@ -7457,6 +7456,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/TestResponse'
           description: Successful response
+      x-accepts: application/json
+  /empty-response:
+    put:
+      operationId: empty
+      responses:
+        \\"204\\":
+          description: No response body!
       x-accepts: application/json
   /different-media-type:
     post:
@@ -7724,10 +7730,66 @@ All URIs are relative to *http://localhost*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**empty**](DefaultApi.md#empty) | **PUT** /empty-response |  |
 | [**mediaTypes**](DefaultApi.md#mediaTypes) | **POST** /different-media-type |  |
 | [**operationOne**](DefaultApi.md#operationOne) | **POST** /path/{pathParam} |  |
 | [**withoutOperationIdDelete**](DefaultApi.md#withoutOperationIdDelete) | **DELETE** /without-operation-id |  |
 
+
+<a name=\\"empty\\"></a>
+# **empty**
+> empty()
+
+
+
+### Example
+\`\`\`java
+// Import classes:
+import test.test.client.ApiClient;
+import test.test.client.ApiException;
+import test.test.client.Configuration;
+import test.test.client.models.*;
+import test.test.client.api.DefaultApi;
+
+public class Example {
+  public static void main(String[] args) {
+    ApiClient defaultClient = Configuration.getDefaultApiClient();
+    defaultClient.setBasePath(\\"http://localhost\\");
+
+    DefaultApi apiInstance = new DefaultApi(defaultClient);
+    try {
+      apiInstance.empty();
+    } catch (ApiException e) {
+      System.err.println(\\"Exception when calling DefaultApi#empty\\");
+      System.err.println(\\"Status code: \\" + e.getCode());
+      System.err.println(\\"Reason: \\" + e.getResponseBody());
+      System.err.println(\\"Response headers: \\" + e.getResponseHeaders());
+      e.printStackTrace();
+    }
+  }
+}
+\`\`\`
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+null (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **204** | No response body! |  -  |
 
 <a name=\\"mediaTypes\\"></a>
 # **mediaTypes**
@@ -12000,6 +12062,119 @@ public class DefaultApi {
     }
 
     /**
+     * Build call for empty
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary=\\"Response Details\\" border=\\"1\\">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 204 </td><td> No response body! </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call emptyCall(final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = null;
+
+        // create path and map variables
+        String localVarPath = \\"/empty-response\\";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put(\\"Accept\\", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put(\\"Content-Type\\", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, \\"PUT\\", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings(\\"rawtypes\\")
+    private okhttp3.Call emptyValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+        
+
+        okhttp3.Call localVarCall = emptyCall(_callback);
+        return localVarCall;
+
+    }
+
+    /**
+     * 
+     * 
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary=\\"Response Details\\" border=\\"1\\">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 204 </td><td> No response body! </td><td>  -  </td></tr>
+     </table>
+     */
+    public void empty() throws ApiException {
+        emptyWithHttpInfo();
+    }
+
+    /**
+     * 
+     * 
+     * @return ApiResponse&lt;Void&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary=\\"Response Details\\" border=\\"1\\">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 204 </td><td> No response body! </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<Void> emptyWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = emptyValidateBeforeCall(null);
+        return localVarApiClient.execute(localVarCall);
+    }
+
+    /**
+     *  (asynchronously)
+     * 
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary=\\"Response Details\\" border=\\"1\\">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 204 </td><td> No response body! </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call emptyAsync(final ApiCallback<Void> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = emptyValidateBeforeCall(_callback);
+        localVarApiClient.executeAsync(localVarCall, _callback);
+        return localVarCall;
+    }
+    /**
      * Build call for mediaTypes
      * @param body  (required)
      * @param _callback Callback for upload/download progress
@@ -12439,6 +12614,7 @@ import java.util.Map;
 // Generic type for object \\"keyed\\" by operation names
 @javax.annotation.Generated(value = \\"org.openapitools.codegen.languages.JavaClientCodegen\\")
 public abstract class OperationConfig<T> {
+    public T empty;
     public T mediaTypes;
     public T operationOne;
     public T withoutOperationIdDelete;
@@ -12469,6 +12645,7 @@ public class OperationLookup {
     public static Map<String, Map<String, String>> getOperationLookup() {
         final Map<String, Map<String, String>> config = new HashMap<>();
 
+        config.put(\\"empty\\", new HashMap<String, String>() { { put(\\"path\\", \\"/empty-response\\"); put(\\"method\\", \\"PUT\\"); } });
         config.put(\\"mediaTypes\\", new HashMap<String, String>() { { put(\\"path\\", \\"/different-media-type\\"); put(\\"method\\", \\"POST\\"); } });
         config.put(\\"operationOne\\", new HashMap<String, String>() { { put(\\"path\\", \\"/path/{pathParam}\\"); put(\\"method\\", \\"POST\\"); } });
         config.put(\\"withoutOperationIdDelete\\", new HashMap<String, String>() { { put(\\"path\\", \\"/without-operation-id\\"); put(\\"method\\", \\"DELETE\\"); } });
@@ -13822,6 +13999,15 @@ import java.util.Map;
 public class DefaultApiTest {
 
     private final DefaultApi api = new DefaultApi();
+
+    /**
+     * @throws ApiException if the Api call fails
+     */
+    @Test
+    public void emptyTest() throws ApiException {
+        api.empty();
+        // TODO: test validations
+    }
 
     /**
      * @throws ApiException if the Api call fails
