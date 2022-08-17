@@ -1995,11 +1995,10 @@ aws-prototyping-sdk library.</p>
 </code></pre></div>
 <p>You'll find details about how to use the python client in the README.md alongside your generated client.</p>
 <h3 id="lambda-handler-wrappers">Lambda Handler Wrappers</h3>
-<p>Lambda handler wrappers are also importable from the generated client. These provide input/output type safety, as well as allowing you to define a custom type for API error responses.</p>
+<p>Lambda handler wrappers are also importable from the generated client. These provide input/output type safety, ensuring that your API handlers return outputs that correspond to your specification.</p>
 <h4 id="typescript_2">Typescript</h4>
 <div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.sayHelloHandler</span><span class="p">;</span><span class="w"></span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.ApiError</span><span class="p">;</span><span class="w"></span>
 
 <span class="n">Object</span><span class="w"> </span><span class="n">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sayHelloHandler</span><span class="p">(</span><span class="n">async</span><span class="w"> </span><span class="p">(</span><span class="n">input</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -2029,27 +2028,24 @@ aws-prototyping-sdk library.</p>
 <p>In typescript, interceptors are passed as separate arguments to the generated handler wrapper, in the order in which they should be executed.</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.sayHelloHandler</span><span class="p">;</span><span class="w"></span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.ApiError</span><span class="p">;</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.LambdaRequestParameters</span><span class="p">;</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.LambdaHandlerChain</span><span class="p">;</span><span class="w"></span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.OperationResponse</span><span class="p">;</span><span class="w"></span>
 
 <span class="c1">// Interceptor to wrap invocations in a try/catch, returning a 500 error for any unhandled exceptions.</span><span class="w"></span>
 <span class="n">__function</span><span class="w"> </span><span class="n">tryCatchInterceptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">async</span><span class="w"> </span><span class="o">&lt;</span><span class="w"></span>
 <span class="w">  </span><span class="n">RequestParameters</span><span class="p">,</span><span class="w"></span>
 <span class="w">  </span><span class="n">RequestArrayParameters</span><span class="p">,</span><span class="w"></span>
 <span class="w">  </span><span class="n">RequestBody</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="n">RequestOutput</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="n">TError</span><span class="w"></span>
+<span class="w">  </span><span class="n">Response</span><span class="w"></span>
 <span class="o">&gt;</span><span class="p">(</span><span class="w"></span>
 <span class="w">  </span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="n">LambdaRequestParameters</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestArrayParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestBody</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
 <span class="w">  </span><span class="n">event</span><span class="p">:</span><span class="w"> </span><span class="n">any</span><span class="p">,</span><span class="w"></span>
 <span class="w">  </span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="n">any</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="n">chain</span><span class="p">:</span><span class="w"> </span><span class="n">LambdaHandlerChain</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestArrayParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestBody</span><span class="p">,</span><span class="w"> </span><span class="n">RequestOutput</span><span class="p">,</span><span class="w"> </span><span class="n">TError</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
-<span class="p">):</span><span class="w"> </span><span class="n">Promise</span><span class="o">&lt;</span><span class="n">OperationResponse</span><span class="o">&lt;</span><span class="n">RequestOutput</span><span class="p">,</span><span class="w"> </span><span class="n">TError</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">chain</span><span class="p">:</span><span class="w"> </span><span class="n">LambdaHandlerChain</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestArrayParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestBody</span><span class="p">,</span><span class="w"> </span><span class="n">Response</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="p">):</span><span class="w"> </span><span class="n">Promise</span><span class="o">&lt;</span><span class="n">Response</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">OperationResponse</span><span class="o">&lt;</span><span class="mi">500</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">errorMessage</span><span class="p">:</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="p">}</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">await</span><span class="w"> </span><span class="n">chain</span><span class="p">.</span><span class="na">next</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="w"> </span><span class="n">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">statusCode</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span><span class="w"> </span><span class="n">body</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">errorMessage</span><span class="p">:</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="na">message</span><span class="w"> </span><span class="p">}};</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="p">};</span><span class="w"></span>
@@ -2068,20 +2064,18 @@ aws-prototyping-sdk library.</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.LambdaRequestParameters</span><span class="p">;</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.LambdaHandlerChain</span><span class="p">;</span><span class="w"></span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.OperationResponse</span><span class="p">;</span><span class="w"></span>
 
 <span class="n">__function</span><span class="w"> </span><span class="n">timingInterceptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">async</span><span class="w"> </span><span class="o">&lt;</span><span class="w"></span>
 <span class="w">  </span><span class="n">RequestParameters</span><span class="p">,</span><span class="w"></span>
 <span class="w">  </span><span class="n">RequestArrayParameters</span><span class="p">,</span><span class="w"></span>
 <span class="w">  </span><span class="n">RequestBody</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="n">RequestOutput</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="n">TError</span><span class="w"></span>
+<span class="w">  </span><span class="n">Response</span><span class="w"></span>
 <span class="o">&gt;</span><span class="p">(</span><span class="w"></span>
 <span class="w">  </span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="n">LambdaRequestParameters</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestArrayParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestBody</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
 <span class="w">  </span><span class="n">event</span><span class="p">:</span><span class="w"> </span><span class="n">any</span><span class="p">,</span><span class="w"></span>
 <span class="w">  </span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="n">any</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="n">chain</span><span class="p">:</span><span class="w"> </span><span class="n">LambdaHandlerChain</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestArrayParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestBody</span><span class="p">,</span><span class="w"> </span><span class="n">RequestOutput</span><span class="p">,</span><span class="w"> </span><span class="n">TError</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
-<span class="p">):</span><span class="w"> </span><span class="n">Promise</span><span class="o">&lt;</span><span class="n">OperationResponse</span><span class="o">&lt;</span><span class="n">RequestOutput</span><span class="p">,</span><span class="w"> </span><span class="n">TError</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">chain</span><span class="p">:</span><span class="w"> </span><span class="n">LambdaHandlerChain</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestArrayParameters</span><span class="p">,</span><span class="w"> </span><span class="n">RequestBody</span><span class="p">,</span><span class="w"> </span><span class="n">Response</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="p">):</span><span class="w"> </span><span class="n">Promise</span><span class="o">&lt;</span><span class="n">Response</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Date</span><span class="p">.</span><span class="na">now</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">await</span><span class="w"> </span><span class="n">chain</span><span class="p">.</span><span class="na">next</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Date</span><span class="p">.</span><span class="na">now</span><span class="p">();</span><span class="w"></span>
@@ -12499,7 +12493,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2022-08-16
+      2022-08-17
     
   </small>
 </div>
