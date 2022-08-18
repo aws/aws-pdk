@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import * as crypto from "crypto";
 import { S3 } from "aws-sdk"; // eslint-disable-line
 import { prepareApiSpec, PrepareApiSpecOptions } from "./prepare-spec";
 
@@ -40,7 +41,8 @@ export interface PrepareApiSpecCustomResourceProperties
    */
   readonly inputSpecLocation: S3Location;
   /**
-   * The location to write the prepared spec
+   * The location to write the prepared spec. Note that the key is used as a prefix and the output location will
+   * include a hash.
    */
   readonly outputSpecLocation: S3Location;
 }
@@ -75,6 +77,15 @@ interface OnEventResponse {
    * Status of the custom resource
    */
   readonly Status: "SUCCESS" | "FAILED";
+  /**
+   * Data returned by the custom resource
+   */
+  readonly Data?: {
+    /**
+     * The key for the output spec in the output bucket
+     */
+    readonly outputSpecKey: string;
+  };
 }
 
 const s3 = new S3();
@@ -84,12 +95,13 @@ const s3 = new S3();
  * @param inputSpecLocation location of the specification to prepare
  * @param outputSpecLocation location to write the prepared spec to
  * @param options integrations, authorizers etc to apply
+ * @return the output location of the prepared spec
  */
 const prepare = async ({
   inputSpecLocation,
   outputSpecLocation,
   ...options
-}: PrepareApiSpecCustomResourceProperties) => {
+}: PrepareApiSpecCustomResourceProperties): Promise<S3Location> => {
   // Read the spec from the s3 input location
   const inputSpec = JSON.parse(
     (
@@ -104,26 +116,41 @@ const prepare = async ({
 
   // Prepare the spec
   const preparedSpec = prepareApiSpec(inputSpec, options);
+  const preparedSpecHash = crypto
+    .createHash("sha256")
+    .update(JSON.stringify(preparedSpec))
+    .digest("hex");
+
+  const outputLocation: S3Location = {
+    bucket: outputSpecLocation.bucket,
+    key: `${outputSpecLocation.key}/${preparedSpecHash}.json`,
+  };
 
   // Write the spec to the s3 output location
   await s3
     .putObject({
-      Bucket: outputSpecLocation.bucket,
-      Key: outputSpecLocation.key,
+      Bucket: outputLocation.bucket,
+      Key: outputLocation.key,
       Body: JSON.stringify(preparedSpec),
     })
     .promise();
+
+  return outputLocation;
 };
 
 exports.handler = async (event: OnEventRequest): Promise<OnEventResponse> => {
-  const { outputSpecLocation } = event.ResourceProperties;
-
   switch (event.RequestType) {
     case "Create":
     case "Update":
       // Prepare the spec on create
-      await prepare(event.ResourceProperties);
-      break;
+      const outputLocation = await prepare(event.ResourceProperties);
+      return {
+        PhysicalResourceId: outputLocation.key,
+        Status: "SUCCESS",
+        Data: {
+          outputSpecKey: outputLocation.key,
+        },
+      };
     case "Delete":
     // Nothing to do for delete
     default:
@@ -131,7 +158,7 @@ exports.handler = async (event: OnEventRequest): Promise<OnEventResponse> => {
   }
 
   return {
-    PhysicalResourceId: outputSpecLocation.key,
+    PhysicalResourceId: event.PhysicalResourceId!,
     Status: "SUCCESS",
   };
 };

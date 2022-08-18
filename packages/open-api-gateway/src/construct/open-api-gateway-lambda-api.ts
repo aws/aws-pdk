@@ -102,7 +102,7 @@ export class OpenApiGatewayLambdaApi extends Construct {
       path: specPath,
     });
     // We'll output the prepared spec in the same asset bucket
-    const preparedSpecOutputKey = `${inputSpecAsset.s3ObjectKey}.prepared-spec.json`;
+    const preparedSpecOutputKeyPrefix = `${inputSpecAsset.s3ObjectKey}-prepared`;
 
     const stack = Stack.of(this);
 
@@ -141,7 +141,11 @@ export class OpenApiGatewayLambdaApi extends Construct {
               effect: Effect.ALLOW,
               actions: ["s3:putObject"],
               resources: [
-                inputSpecAsset.bucket.arnForObjects(preparedSpecOutputKey),
+                // The output file will include a hash of the prepared spec, which is not known until deploy time since
+                // tokens must be resolved
+                inputSpecAsset.bucket.arnForObjects(
+                  `${preparedSpecOutputKeyPrefix}/*`
+                ),
               ],
             }),
           ],
@@ -265,7 +269,7 @@ export class OpenApiGatewayLambdaApi extends Construct {
 
     // Spec preparation will happen in a custom resource lambda so that references to lambda integrations etc can be
     // resolved. However, we also prepare inline to perform some additional validation at synth time.
-    prepareApiSpec(spec, prepareSpecOptions);
+    const preparedSpec = prepareApiSpec(spec, prepareSpecOptions);
 
     const prepareApiSpecCustomResourceProperties: PrepareApiSpecCustomResourceProperties =
       {
@@ -275,7 +279,7 @@ export class OpenApiGatewayLambdaApi extends Construct {
         },
         outputSpecLocation: {
           bucket: inputSpecAsset.bucket.bucketName,
-          key: preparedSpecOutputKey,
+          key: preparedSpecOutputKeyPrefix,
         },
         ...prepareSpecOptions,
       };
@@ -294,7 +298,7 @@ export class OpenApiGatewayLambdaApi extends Construct {
     this.api = new SpecRestApi(this, id, {
       apiDefinition: ApiDefinition.fromBucket(
         inputSpecAsset.bucket,
-        preparedSpecOutputKey
+        prepareSpecCustomResource.getAttString("outputSpecKey")
       ),
       deployOptions: {
         accessLogDestination: new LogGroupLogDestination(
@@ -307,6 +311,11 @@ export class OpenApiGatewayLambdaApi extends Construct {
     });
 
     this.api.node.addDependency(prepareSpecCustomResource);
+
+    // While the api will be updated when the output path from the custom resource changes, CDK still needs to know when
+    // to redeploy the api. This is achieved by including a hash of the spec in the logical id (internalised in the
+    // addToLogicalId method since this is how changes of individual resources/methods etc trigger redeployments in CDK)
+    this.api.latestDeployment?.addToLogicalId(preparedSpec);
 
     // Grant API Gateway permission to invoke each lambda which implements an integration or custom authorizer
     getLabelledFunctions(props).forEach(({ label, function: lambda }) => {
