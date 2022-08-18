@@ -18,6 +18,7 @@ import {
   AppProps,
   Aspects,
   Stack,
+  Stage,
   StageSynthesisOptions,
 } from "aws-cdk-lib";
 import { CloudAssembly } from "aws-cdk-lib/cx-api";
@@ -214,7 +215,15 @@ export class PDKNag {
         stack.node.id
       }/`;
     } else {
-      return `${stack.stackName}/`;
+      const stageName = Stage.of(stack)?.stageName;
+      const stagePrefix = stageName && `${stageName}-`;
+      let stackName = stack.stackName;
+
+      stackName =
+        stagePrefix && stackName.startsWith(stagePrefix)
+          ? `${stageName}/${stackName.slice(stagePrefix.length)}`
+          : stackName;
+      return `${stackName}/`;
     }
   }
 
