@@ -7,8 +7,6 @@ on:
 env:
   NX_BRANCH: mainline
   NX_RUN_GROUP: ${{ github.run_id }}
-  NX_CLOUD_DISTRIBUTED_EXECUTION: true
-  NX_CLOUD_DISTRIBUTED_EXECUTION_STOP_AGENTS_ON_FAILURE: true
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 jobs:
   release:
@@ -36,15 +34,10 @@ jobs:
         run: yarn install --check-files --frozen-lockfile
       - name: Synth Project
         run: npx projen
-      - name: Start NX CI Run
-        run: npx nx-cloud start-ci-run    
       - name: Build
         run: npx nx run-many --target=build --all --parallel=4 --output-style stream
-      - name: Stop NX Agents
-        if: always()
-        run: npx nx-cloud stop-all-agents
       - name: Release
-        run: NX_CLOUD_DISTRIBUTED_EXECUTION=false npx nx run-many --target=release:mainline --all --parallel=4 --output-style stream
+        run: npx nx run-many --target=release:mainline --all --parallel=4 --output-style stream
       - name: Check for mutations
         run: git diff --ignore-space-at-eol --exit-code
       - name: Check for new commits
@@ -194,18 +187,3 @@ jobs:
           git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')
       - name: Push
         run: git push origin gh-pages:gh-pages
-  agents:
-    runs-on: ubuntu-latest
-    name: Agent 1
-    timeout-minutes: 60
-    strategy:
-      matrix:
-        agent: [ 1, 2, 3 ]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with: 
-          node-version: '14'
-      - run: yarn install --check-files --frozen-lockfile
-      - name: Start Nx Agent ${{ matrix.agent }}
-        run: npx nx-cloud start-agent  
