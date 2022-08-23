@@ -89,6 +89,7 @@ export class Api extends OpenApiGatewayLambdaApi {
         // TODO: Consider generating this sample from the parsed spec
         "sample-api.ts": `import { Authorizers } from "${options.openApiGatewayPackageName}";
 import { Construct } from "constructs";
+import { Cors } from "aws-cdk-lib/aws-apigateway";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Api } from "./api";
 
@@ -99,6 +100,10 @@ export class SampleApi extends Api {
   constructor(scope: Construct, id: string) {
     super(scope, id, {
       defaultAuthorizer: Authorizers.iam(),
+      corsOptions: {
+        allowOrigins: Cors.ALL_ORIGINS,
+        allowMethods: Cors.ALL_METHODS,
+      },
       integrations: {
         sayHello: {
           function: new NodejsFunction(scope, "say-hello"),
@@ -117,6 +122,10 @@ export class SampleApi extends Api {
 export const handler = sayHelloHandler(async (input) => {
   return {
     statusCode: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "*",
+    },
     body: {
       message: \`Hello \${input.requestParameters.name}!\`,
     },

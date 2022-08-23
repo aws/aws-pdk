@@ -68,6 +68,7 @@ class CloudscapeReactTsSampleWebsiteProject extends ReactTypeScriptProject {
         "react-router-dom",
         "aws-amplify",
         "@aws-amplify/ui-react",
+        "aws4fetch",
       ],
       gitignore: ["runtime-config.json"],
     });

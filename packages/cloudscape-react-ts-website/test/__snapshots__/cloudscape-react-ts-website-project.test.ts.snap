@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`AwsUiReactTsWebsiteProject Unit Tests Custom Options 1`] = `
+exports[`CloudscapeReactTsWebsiteProject Unit Tests Custom Options 1`] = `
 Object {
   ".eslintrc.json": Object {
     "env": Object {
@@ -637,6 +637,10 @@ tsconfig.tsbuildinfo
         "type": "runtime",
       },
       Object {
+        "name": "aws4fetch",
+        "type": "runtime",
+      },
+      Object {
         "name": "react",
         "type": "runtime",
       },
@@ -813,7 +817,7 @@ tsconfig.tsbuildinfo
             "spawn": "eslint",
           },
           Object {
-            "exec": "react-scripts test --watchAll=false",
+            "exec": "react-scripts test --watchAll=false --passWithNoTests",
           },
         ],
       },
@@ -1152,6 +1156,7 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
       "@cloudscape-design/global-styles": "*",
       "aws-amplify": "*",
       "aws-prototoyping-sdk": "*",
+      "aws4fetch": "*",
       "react": "*",
       "react-dom": "*",
       "react-router-dom": "*",
@@ -1417,8 +1422,7 @@ export const RuntimeConfigContext = createContext<any>({});
  * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
  */
 const Auth: React.FC<any> = ({ children }) => {
-  const [runtimeContext, setRuntimeContext] = useState<any>({});
-  const [runtimeContextLoaded, setRuntimeContextLoaded] = useState(false);
+  const [runtimeContext, setRuntimeContext] = useState<any>(undefined);
   const { tokens } = useTheme();
 
   // Customize your login theme
@@ -1485,9 +1489,11 @@ const Auth: React.FC<any> = ({ children }) => {
           console.warn('runtime-config.json should have region, userPoolId, userPoolWebClientId & identityPoolId.');
         }
       })
-      .catch(() => console.log('No runtime-config.json detected'))
-      .finally(() => setRuntimeContextLoaded(true));
-  }, [setRuntimeContext, setRuntimeContextLoaded]);
+      .catch(() => {
+        console.log('No runtime-config.json detected');
+        setRuntimeContext({});
+      });
+  }, [setRuntimeContext]);
 
   useEffect(() => {
     Hub.listen('auth', (data) => {
@@ -1512,10 +1518,10 @@ const Auth: React.FC<any> = ({ children }) => {
     </ThemeProvider> :
     <>
       {
-        runtimeContextLoaded ?
+        runtimeContext ?
           _children : <></> // Don't render anything if the context has not finalized
       }
-    </>, [runtimeContext.userPoolId, runtimeContextLoaded, theme]);
+    </>, [runtimeContext, theme]);
 
   return (
     <AuthWrapper>
@@ -1692,6 +1698,100 @@ const NavHeader: React.FC = () => {
 };
 
 export default NavHeader;",
+  "src/api-client-middleware/sigv4-middleware.ts": "/*********************************************************************************************************************
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the \\"License\\").
+ You may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an \\"AS IS\\" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ ******************************************************************************************************************** */
+
+import { Auth } from 'aws-amplify';
+import { AwsV4Signer } from 'aws4fetch';
+
+type FetchAPI = WindowOrWorkerGlobalScope['fetch'];
+
+interface RequestContext {
+  fetch: FetchAPI;
+  url: string;
+  init: RequestInit;
+}
+
+interface ResponseContext {
+  fetch: FetchAPI;
+  url: string;
+  init: RequestInit;
+  response: Response;
+}
+
+interface FetchParams {
+  url: string;
+  init: RequestInit;
+}
+
+interface Middleware {
+  pre?(context: RequestContext): Promise<FetchParams | void>;
+  post?(context: ResponseContext): Promise<Response | void>;
+}
+
+/**
+ * This middleware is useful for the open-api-gateway generated typescript client, if you are using IAM/Sigv4
+ * authentication. This can safely be removed from your website project if not!
+ */
+export const sigv4SignMiddleware = (region: string): Middleware => ({
+  pre: async ({ init, url }) => {
+    // Retrieve the current signed in user credentials
+    const { accessKeyId, secretAccessKey, sessionToken } = await Auth.currentCredentials();
+    // Sign the request
+    const { url: signedUrl, headers, body, method } = await new AwsV4Signer({
+      accessKeyId,
+      secretAccessKey,
+      sessionToken,
+      region,
+      service: 'execute-api',
+      url,
+      body: init.body,
+      headers: init.headers,
+      method: init.method,
+    }).sign();
+    // Return the signed request
+    return {
+      url: signedUrl.toString(),
+      init: {
+        ...init,
+        headers,
+        body,
+        method,
+      },
+    };
+  },
+});
+
+/**
+ * This middleware is useful for the open-api-gateway generated typescript client, for adding the
+ * application/json content-type header to requests.
+ */
+export const addJsonContentTypeHeaderMiddleware: Middleware = {
+  pre: async ({ init, url }) => ({
+    url,
+    init: {
+      ...init,
+      headers: {
+        ...init.headers,
+        'Content-Type': 'application/json',
+      },
+    },
+  }),
+};
+",
   "src/config.json": Object {
     "applicationName": "CustomOptions",
   },
@@ -1885,7 +1985,7 @@ import '@testing-library/jest-dom';
 }
 `;
 
-exports[`AwsUiReactTsWebsiteProject Unit Tests Defaults 1`] = `
+exports[`CloudscapeReactTsWebsiteProject Unit Tests Defaults 1`] = `
 Object {
   ".eslintrc.json": Object {
     "env": Object {
@@ -2518,6 +2618,10 @@ tsconfig.tsbuildinfo
         "type": "runtime",
       },
       Object {
+        "name": "aws4fetch",
+        "type": "runtime",
+      },
+      Object {
         "name": "react",
         "type": "runtime",
       },
@@ -2694,7 +2798,7 @@ tsconfig.tsbuildinfo
             "spawn": "eslint",
           },
           Object {
-            "exec": "react-scripts test --watchAll=false",
+            "exec": "react-scripts test --watchAll=false --passWithNoTests",
           },
         ],
       },
@@ -3032,6 +3136,7 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
       "@cloudscape-design/components": "*",
       "@cloudscape-design/global-styles": "*",
       "aws-amplify": "*",
+      "aws4fetch": "*",
       "react": "*",
       "react-dom": "*",
       "react-router-dom": "*",
@@ -3297,8 +3402,7 @@ export const RuntimeConfigContext = createContext<any>({});
  * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
  */
 const Auth: React.FC<any> = ({ children }) => {
-  const [runtimeContext, setRuntimeContext] = useState<any>({});
-  const [runtimeContextLoaded, setRuntimeContextLoaded] = useState(false);
+  const [runtimeContext, setRuntimeContext] = useState<any>(undefined);
   const { tokens } = useTheme();
 
   // Customize your login theme
@@ -3365,9 +3469,11 @@ const Auth: React.FC<any> = ({ children }) => {
           console.warn('runtime-config.json should have region, userPoolId, userPoolWebClientId & identityPoolId.');
         }
       })
-      .catch(() => console.log('No runtime-config.json detected'))
-      .finally(() => setRuntimeContextLoaded(true));
-  }, [setRuntimeContext, setRuntimeContextLoaded]);
+      .catch(() => {
+        console.log('No runtime-config.json detected');
+        setRuntimeContext({});
+      });
+  }, [setRuntimeContext]);
 
   useEffect(() => {
     Hub.listen('auth', (data) => {
@@ -3392,10 +3498,10 @@ const Auth: React.FC<any> = ({ children }) => {
     </ThemeProvider> :
     <>
       {
-        runtimeContextLoaded ?
+        runtimeContext ?
           _children : <></> // Don't render anything if the context has not finalized
       }
-    </>, [runtimeContext.userPoolId, runtimeContextLoaded, theme]);
+    </>, [runtimeContext, theme]);
 
   return (
     <AuthWrapper>
@@ -3572,6 +3678,100 @@ const NavHeader: React.FC = () => {
 };
 
 export default NavHeader;",
+  "src/api-client-middleware/sigv4-middleware.ts": "/*********************************************************************************************************************
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the \\"License\\").
+ You may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an \\"AS IS\\" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ ******************************************************************************************************************** */
+
+import { Auth } from 'aws-amplify';
+import { AwsV4Signer } from 'aws4fetch';
+
+type FetchAPI = WindowOrWorkerGlobalScope['fetch'];
+
+interface RequestContext {
+  fetch: FetchAPI;
+  url: string;
+  init: RequestInit;
+}
+
+interface ResponseContext {
+  fetch: FetchAPI;
+  url: string;
+  init: RequestInit;
+  response: Response;
+}
+
+interface FetchParams {
+  url: string;
+  init: RequestInit;
+}
+
+interface Middleware {
+  pre?(context: RequestContext): Promise<FetchParams | void>;
+  post?(context: ResponseContext): Promise<Response | void>;
+}
+
+/**
+ * This middleware is useful for the open-api-gateway generated typescript client, if you are using IAM/Sigv4
+ * authentication. This can safely be removed from your website project if not!
+ */
+export const sigv4SignMiddleware = (region: string): Middleware => ({
+  pre: async ({ init, url }) => {
+    // Retrieve the current signed in user credentials
+    const { accessKeyId, secretAccessKey, sessionToken } = await Auth.currentCredentials();
+    // Sign the request
+    const { url: signedUrl, headers, body, method } = await new AwsV4Signer({
+      accessKeyId,
+      secretAccessKey,
+      sessionToken,
+      region,
+      service: 'execute-api',
+      url,
+      body: init.body,
+      headers: init.headers,
+      method: init.method,
+    }).sign();
+    // Return the signed request
+    return {
+      url: signedUrl.toString(),
+      init: {
+        ...init,
+        headers,
+        body,
+        method,
+      },
+    };
+  },
+});
+
+/**
+ * This middleware is useful for the open-api-gateway generated typescript client, for adding the
+ * application/json content-type header to requests.
+ */
+export const addJsonContentTypeHeaderMiddleware: Middleware = {
+  pre: async ({ init, url }) => ({
+    url,
+    init: {
+      ...init,
+      headers: {
+        ...init.headers,
+        'Content-Type': 'application/json',
+      },
+    },
+  }),
+};
+",
   "src/config.json": Object {
     "applicationName": "Defaults",
   },

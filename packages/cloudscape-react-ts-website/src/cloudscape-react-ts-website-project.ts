@@ -71,23 +71,21 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       "@cloudscape-design/collection-hooks",
       "react-router-dom",
       "aws-amplify",
-      "@aws-amplify/ui-react"
+      "@aws-amplify/ui-react",
+      "aws4fetch"
     );
+
+    this.testTask.reset();
+    const lintTask = this.tasks.tryFind("eslint");
+    lintTask && this.testTask.spawn(lintTask);
+    this.testTask.exec("react-scripts test --watchAll=false --passWithNoTests");
 
     this.applicationName = options.applicationName ?? "Sample App";
     this.publicDir = options.publicDir ?? "public";
     const srcDir = path.resolve(__dirname, "../samples/src");
     new SampleDir(this, this.srcdir, {
       files: {
-        ...Object.fromEntries(
-          fs
-            .readdirSync(srcDir)
-            .filter((f) => f !== "config.json")
-            .map((name) => [
-              name,
-              fs.readFileSync(`${srcDir}/${name}`).toString(),
-            ])
-        ),
+        ...Object.fromEntries(this.buildSampleDirEntries(srcDir)),
         "config.json": JSON.stringify(
           {
             applicationName: this.applicationName,
@@ -109,5 +107,27 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
           .replace("<title></title>", `<title>${this.applicationName}</title>`),
       },
     });
+  }
+
+  private buildSampleDirEntries(
+    dir: string,
+    pathPrefixes: string[] = []
+  ): [string, string][] {
+    return fs
+      .readdirSync(dir, { withFileTypes: true })
+      .filter((f) => f.name !== "config.json")
+      .flatMap((f) =>
+        f.isDirectory()
+          ? this.buildSampleDirEntries(`${dir}/${f.name}`, [
+              ...pathPrefixes,
+              f.name,
+            ])
+          : [
+              [
+                `${path.join(...pathPrefixes, f.name)}`,
+                fs.readFileSync(`${dir}/${f.name}`).toString(),
+              ],
+            ]
+      );
   }
 }
