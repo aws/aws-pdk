@@ -168,7 +168,10 @@ class PDKRelease extends Release {
     releaseTask.env("RELEASE", "true");
     releaseTask.exec("rm -rf dist");
     releaseTask.spawn(project.tasks.tryFind("bump")!);
-    releaseTask.spawn(project.buildTask);
+    releaseTask.spawn(project.preCompileTask);
+    releaseTask.spawn(project.compileTask);
+    releaseTask.spawn(project.postCompileTask);
+    releaseTask.spawn(project.packageTask);
     releaseTask.spawn(project.tasks.tryFind("unbump")!);
 
     project.package.addField("publishConfig", {
