@@ -118,7 +118,7 @@ const Auth: React.FC<any> = ({ children }) => {
     });
   }, []);
 
-  const AuthWrapper: React.FC<any> = useCallback(({ children: _children }) => runtimeContext.userPoolId ?
+  const AuthWrapper: React.FC<any> = useCallback(({ children: _children }) => runtimeContext?.userPoolId ?
     <ThemeProvider theme={theme}>
       <Authenticator variation="modal" hideSignUp>
         {_children}
