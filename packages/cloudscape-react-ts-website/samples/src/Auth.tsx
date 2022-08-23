@@ -30,8 +30,7 @@ export const RuntimeConfigContext = createContext<any>({});
  * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
  */
 const Auth: React.FC<any> = ({ children }) => {
-  const [runtimeContext, setRuntimeContext] = useState<any>({});
-  const [runtimeContextLoaded, setRuntimeContextLoaded] = useState(false);
+  const [runtimeContext, setRuntimeContext] = useState<any>(undefined);
   const { tokens } = useTheme();
 
   // Customize your login theme
@@ -98,9 +97,11 @@ const Auth: React.FC<any> = ({ children }) => {
           console.warn('runtime-config.json should have region, userPoolId, userPoolWebClientId & identityPoolId.');
         }
       })
-      .catch(() => console.log('No runtime-config.json detected'))
-      .finally(() => setRuntimeContextLoaded(true));
-  }, [setRuntimeContext, setRuntimeContextLoaded]);
+      .catch(() => {
+        console.log('No runtime-config.json detected');
+        setRuntimeContext({});
+      });
+  }, [setRuntimeContext]);
 
   useEffect(() => {
     Hub.listen('auth', (data) => {
@@ -125,10 +126,10 @@ const Auth: React.FC<any> = ({ children }) => {
     </ThemeProvider> :
     <>
       {
-        runtimeContextLoaded ?
+        runtimeContext ?
           _children : <></> // Don't render anything if the context has not finalized
       }
-    </>, [runtimeContext.userPoolId, runtimeContextLoaded, theme]);
+    </>, [runtimeContext, theme]);
 
   return (
     <AuthWrapper>

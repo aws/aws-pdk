@@ -17,7 +17,7 @@
 import { synthSnapshot } from "projen/lib/util/synth";
 import { CloudscapeReactTsWebsiteProject } from "../src";
 
-describe("AwsUiReactTsWebsiteProject Unit Tests", () => {
+describe("CloudscapeReactTsWebsiteProject Unit Tests", () => {
   it("Defaults", () => {
     const project = new CloudscapeReactTsWebsiteProject({
       defaultReleaseBranch: "mainline",
