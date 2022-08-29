@@ -17,7 +17,7 @@
 import path from "path";
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { NodeProject } from "projen/lib/javascript";
+import { NodeProject, NpmConfig } from "projen/lib/javascript";
 import {
   NxMonorepoProject,
   TargetDependencyProject,
@@ -138,6 +138,10 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       ".venv",
       "tsconfig.tsbuildinfo"
     );
+
+    // add local `.npmrc` to automatically avoid build hangs if npx is promping to install a package
+    const npmrc = new NpmConfig(this);
+    npmrc.addConfig("yes", "true");
 
     resolveDependencies(this);
 
