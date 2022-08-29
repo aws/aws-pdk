@@ -34,12 +34,5 @@ describe("OpenAPI Gateway Ts Standalone Unit Tests", () => {
       packageManager,
     });
     expect(synthSnapshot(project)).toMatchSnapshot();
-
-    // testing that new invoke didn't happen
-    // TODO: check for existence of generated folder for TS/JAVA/PY
-    // then delete it
-    // create a new project2 with the same parameters --> no generated folder
-    // check for non-existense
-    // project.synth()
   });
 });
