@@ -144,7 +144,7 @@ export class PDKPipeline extends CodePipeline {
       ),
       installCommands: [
         "npm install -g aws-cdk",
-        "yarn install --frozen-lockfile",
+        "yarn install --frozen-lockfile || npx projen && yarn install --frozen-lockfile",
       ],
       commands:
         commands && commands.length > 0
