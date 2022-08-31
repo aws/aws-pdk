@@ -15,11 +15,14 @@
  ******************************************************************************************************************** */
 
 import * as path from "path";
-import * as fs from "fs-extra";
+import { writeFileSync } from "fs-extra";
+import { getLogger } from "log4js";
 import { Component } from "projen";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { ClientLanguage } from "../../languages";
 import { invokeOpenApiGenerator } from "./utils";
+
+const logger = getLogger();
 
 /**
  * Configuration for the GeneratedTypescriptClient component
@@ -29,6 +32,11 @@ export interface GeneratedTypescriptClientSourceCodeOptions {
    * Absolute path to the OpenAPI specification (spec.yaml)
    */
   readonly specPath: string;
+
+  /**
+   * Control if generator needs to be invoked
+   */
+  readonly invokeGenerator: boolean;
 }
 
 /**
@@ -51,32 +59,35 @@ export class GeneratedTypescriptClientSourceCode extends Component {
   synthesize() {
     super.synthesize();
 
-    // Generate the typescript client
-    invokeOpenApiGenerator({
-      generator: "typescript-fetch",
-      specPath: this.options.specPath,
-      outputPath: this.project.outdir,
-      generatorDirectory: ClientLanguage.TYPESCRIPT,
-      additionalProperties: {
-        npmName: (this.project as TypeScriptProject).package.packageName,
-        typescriptThreePlus: "true",
-        useSingleParameter: "true",
-        supportsES6: "true",
-      },
-    });
+    if (this.options.invokeGenerator) {
+      // Generate the typescript client
+      logger.debug("Generating typescript client...");
+      invokeOpenApiGenerator({
+        generator: "typescript-fetch",
+        specPath: this.options.specPath,
+        outputPath: this.project.outdir,
+        generatorDirectory: ClientLanguage.TYPESCRIPT,
+        additionalProperties: {
+          npmName: (this.project as TypeScriptProject).package.packageName,
+          typescriptThreePlus: "true",
+          useSingleParameter: "true",
+          supportsES6: "true",
+        },
+      });
 
-    // Write an index.ts which exposes the additional generated file OperationConfig.ts, which contains handler wrappers
-    // and other generated code used by the construct.
-    fs.writeFileSync(
-      path.join(this.project.outdir, "src", "index.ts"),
-      [
-        "/* tslint:disable */",
-        "/* eslint-disable */",
-        "export * from './runtime';",
-        "export * from './apis';",
-        "export * from './models';",
-        "export * from './apis/DefaultApi/OperationConfig';",
-      ].join("\n")
-    );
+      // Write an index.ts which exposes the additional generated file OperationConfig.ts, which contains handler wrappers
+      // and other generated code used by the construct.
+      writeFileSync(
+        path.join(this.project.outdir, "src", "index.ts"),
+        [
+          "/* tslint:disable */",
+          "/* eslint-disable */",
+          "export * from './runtime';",
+          "export * from './apis';",
+          "export * from './models';",
+          "export * from './apis/DefaultApi/OperationConfig';",
+        ].join("\n")
+      );
+    }
   }
 }

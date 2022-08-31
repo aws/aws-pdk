@@ -28,6 +28,10 @@ export interface GeneratedPythonClientProjectOptions
    */
   readonly specPath: string;
   /**
+   * Indicates whether the client generator needs to be invoked
+   */
+  readonly generateClient: boolean;
+  /**
    * Whether or not to generate a lambda layer for this package
    */
   readonly generateLayer?: boolean;
@@ -54,6 +58,7 @@ export class GeneratedPythonClientProject extends PythonProject {
 
     new GeneratedPythonClientSourceCode(this, {
       specPath: options.specPath,
+      invokeGenerator: options.generateClient,
     });
 
     new OpenApiGeneratorIgnoreFile(this);

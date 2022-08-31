@@ -37,13 +37,9 @@ void (async () => {
     specPath: { type: String, alias: "s" },
     outputPath: { type: String, alias: "o" },
   });
-  console.log("Parsing spec", args.specPath);
-
   const parsedSpec = await SwaggerParser.bundle(args.specPath);
 
   writeFile(args.outputPath, JSON.stringify(parsedSpec, null, 2), {
     readonly: true,
   });
-
-  console.log("Written parsed spec to", args.outputPath);
 })();

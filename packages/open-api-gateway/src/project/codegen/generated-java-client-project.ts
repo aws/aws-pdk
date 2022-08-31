@@ -25,6 +25,11 @@ export interface GeneratedJavaClientProjectOptions extends JavaProjectOptions {
    * The absolute path to the OpenAPI specification (spec.yaml) from which to generate code
    */
   readonly specPath: string;
+
+  /**
+   * Indicates whether the client generator needs to be invoked
+   */
+  readonly generateClient: boolean;
 }
 
 const DEPENDENCIES: string[] = [
@@ -74,6 +79,7 @@ export class GeneratedJavaClientProject extends JavaProject {
 
     new GeneratedJavaClientSourceCode(this, {
       specPath: options.specPath,
+      invokeGenerator: options.generateClient,
     });
   }
 

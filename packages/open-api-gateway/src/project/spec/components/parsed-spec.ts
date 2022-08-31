@@ -36,19 +36,10 @@ export interface ParsedSpecOptions {
  * Component for parsing the yaml OpenAPI spec as a single json object, resolving references etc.
  */
 export class ParsedSpec extends Component {
-  private options: ParsedSpecOptions;
-
-  constructor(project: Project, options: ParsedSpecOptions) {
-    super(project);
-    this.options = options;
-  }
-
-  synthesize() {
-    super.synthesize();
-
+  static parse(specPath: string, outputPath: string) {
     // Parse the spec and write to the target output path
     exec(
-      `./parse-openapi-spec --specPath=${this.options.specPath} --outputPath=${this.options.outputPath}`,
+      `./parse-openapi-spec --specPath=${specPath} --outputPath=${outputPath}`,
       {
         cwd: path.resolve(
           __dirname,
@@ -61,5 +52,18 @@ export class ParsedSpec extends Component {
         ),
       }
     );
+  }
+
+  private options: ParsedSpecOptions;
+
+  constructor(project: Project, options: ParsedSpecOptions) {
+    super(project);
+    this.options = options;
+  }
+
+  synthesize() {
+    super.synthesize();
+
+    ParsedSpec.parse(this.options.specPath, this.options.outputPath);
   }
 }

@@ -17,6 +17,7 @@
 import * as path from "path";
 import { Project, SampleDir, SampleFile, TextFile } from "projen";
 import { PythonProject, PythonProjectOptions } from "projen/lib/python";
+import { ClientSettings } from "./codegen/components/client-settings";
 import { DocsProject } from "./codegen/docs-project";
 import { generateClientProjects } from "./codegen/generate";
 import { GeneratedPythonClientProject } from "./codegen/generated-python-client-project";
@@ -74,6 +75,11 @@ export class OpenApiGatewayPythonProject extends PythonProject {
    */
   public readonly generatedCodeDir: string;
 
+  /**
+   * Force to generate code and docs even if there were no changes in spec
+   */
+  public readonly forceGenerateCodeAndDocs?: boolean;
+
   private readonly hasParent: boolean;
 
   constructor(options: OpenApiGatewayPythonProjectOptions) {
@@ -99,6 +105,7 @@ export class OpenApiGatewayPythonProject extends PythonProject {
       this.specFileName = "spec.yaml";
     }
     this.generatedCodeDir = options.generatedCodeDir ?? "generated";
+    this.forceGenerateCodeAndDocs = options.forceGenerateCodeAndDocs ?? false;
     this.apiSrcDir = options.apiSrcDir ?? "api";
 
     // Generated project should have a dependency on this project, in order to run the generation scripts
@@ -130,6 +137,15 @@ export class OpenApiGatewayPythonProject extends PythonProject {
     const clientLanguages = new Set(options.clientLanguages);
     clientLanguages.add(ClientLanguage.PYTHON);
 
+    const clientSettings = new ClientSettings(this, {
+      clientLanguages: [...clientLanguages],
+      defaultClientLanguage: ClientLanguage.PYTHON,
+      documentationFormats: options.documentationFormats ?? [],
+      forceGenerateCodeAndDocs: this.forceGenerateCodeAndDocs,
+      generatedCodeDir: this.generatedCodeDir,
+      specChanged: spec.specChanged,
+    });
+
     // Share the same env between this project and the generated client. Accept a custom venv if part of a monorepo
     const envDir = options.venvOptions?.envdir || ".env";
     // env directory relative to the generated python client
@@ -139,34 +155,37 @@ export class OpenApiGatewayPythonProject extends PythonProject {
       envDir
     );
 
-    this.generatedClients = generateClientProjects(clientLanguages, {
-      parent: this.hasParent ? options.parent! : this,
-      parentPackageName: this.name,
-      generatedCodeDir: generatedCodeDirRelativeToParent,
-      parsedSpecPath: spec.parsedSpecPath,
-      typescriptOptions: {
-        defaultReleaseBranch: "main",
-        ...options.typescriptClientOptions,
-      },
-      pythonOptions: {
-        authorName: options.authorName ?? "APJ Cope",
-        authorEmail: options.authorEmail ?? "apj-cope@amazon.com",
-        version: "0.0.0",
-        ...options.pythonClientOptions,
-        // We are more prescriptive about the generated client since we must set up a dependency in the shared env
-        pip: true,
-        poetry: false,
-        venv: true,
-        venvOptions: {
-          envdir: clientEnvDir,
+    this.generatedClients = generateClientProjects(
+      clientSettings.clientLanguageConfigs,
+      {
+        parent: this.hasParent ? options.parent! : this,
+        parentPackageName: this.name,
+        generatedCodeDir: generatedCodeDirRelativeToParent,
+        parsedSpecPath: spec.parsedSpecPath,
+        typescriptOptions: {
+          defaultReleaseBranch: "main",
+          ...options.typescriptClientOptions,
         },
-        generateLayer: true,
-      },
-      javaOptions: {
-        version: "0.0.0",
-        ...options.javaClientOptions,
-      },
-    });
+        pythonOptions: {
+          authorName: options.authorName ?? "APJ Cope",
+          authorEmail: options.authorEmail ?? "apj-cope@amazon.com",
+          version: "0.0.0",
+          ...options.pythonClientOptions,
+          // We are more prescriptive about the generated client since we must set up a dependency in the shared env
+          pip: true,
+          poetry: false,
+          venv: true,
+          venvOptions: {
+            envdir: clientEnvDir,
+          },
+          generateLayer: true,
+        },
+        javaOptions: {
+          version: "0.0.0",
+          ...options.javaClientOptions,
+        },
+      }
+    );
 
     this.generatedPythonClient = this.generatedClients[
       ClientLanguage.PYTHON
@@ -236,15 +255,13 @@ def get_generated_client_layer_directory():
     this.addDevDependency(`pytest@${pytestVersion}`);
     this.testTask.exec("pytest");
 
-    // Generate documentation if requested
-    if ((options.documentationFormats ?? []).length > 0) {
-      new DocsProject({
-        parent: this,
-        outdir: path.join(this.generatedCodeDir, "documentation"),
-        name: "docs",
-        formats: [...new Set(options.documentationFormats)],
-        specPath: spec.parsedSpecPath,
-      });
-    }
+    // Generate documentation if needed
+    new DocsProject({
+      parent: this,
+      outdir: path.join(this.generatedCodeDir, "documentation"),
+      name: "docs",
+      formatConfigs: clientSettings.documentationFormatConfigs,
+      specPath: spec.parsedSpecPath,
+    });
   }
 }

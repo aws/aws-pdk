@@ -28,6 +28,7 @@ const synthGeneratedCode = (specFileName: string): SynthOutput => {
   return synthGeneratedCodeProject(specFileName, project, (specPath) => {
     new GeneratedJavaClientSourceCode(project, {
       specPath,
+      invokeGenerator: true,
     });
   });
 };

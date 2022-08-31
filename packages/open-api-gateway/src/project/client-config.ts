@@ -13,12 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import { ClientLanguage, DocumentationFormat } from "./languages";
 
-// instantiate log4js when app is initialized
-import { configure as configureLog4js } from "log4js";
-import * as log4jsSettings from "./.log4jsrc.json";
+/**
+ * Indicates whtehr a client language is default and should be generated.
+ */
+export interface ClientLanguageConfig {
+  readonly clientLanguage: ClientLanguage;
+  readonly isDefault: boolean;
+  readonly generate: boolean;
+}
 
-configureLog4js(log4jsSettings);
-
-export * from "./construct";
-export * from "./project";
+/**
+ * Indicates whether a documentation format should be generated.
+ */
+export interface DocumentationFormatConfig {
+  readonly documentationFormat: DocumentationFormat;
+  readonly generate: boolean;
+}

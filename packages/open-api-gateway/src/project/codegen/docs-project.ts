@@ -14,11 +14,15 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
+import { getLogger } from "log4js";
 import { Project, ProjectOptions } from "projen";
+import { DocumentationFormatConfig } from "../client-config";
 import { DocumentationFormat } from "../languages";
 import { GeneratedHtml2Docs } from "./components/docs/generated-html2-docs";
 import { GeneratedMarkdownDocs } from "./components/docs/generated-markdown-docs";
 import { GeneratedPlantUmlDocs } from "./components/docs/generated-plantuml-docs";
+
+const logger = getLogger();
 
 /**
  * Configuration for the OpenAPI docs project
@@ -31,7 +35,7 @@ export interface DocsProjectOptions extends ProjectOptions {
   /**
    * The formats to generate documentation in
    */
-  readonly formats: DocumentationFormat[];
+  readonly formatConfigs: DocumentationFormatConfig[];
 }
 
 /**
@@ -46,9 +50,14 @@ export class DocsProject extends Project {
     this._components = [];
 
     // Generate docs in all specified formats
-    options.formats.forEach((format) =>
-      this.generateDocs(format, options.specPath)
-    );
+    options.formatConfigs.forEach((formatConfig) => {
+      logger.trace(
+        `${formatConfig.documentationFormat} :: generate = ${formatConfig.generate}`
+      );
+      if (formatConfig.generate) {
+        this.generateDocs(formatConfig.documentationFormat, options.specPath);
+      }
+    });
   }
 
   /**

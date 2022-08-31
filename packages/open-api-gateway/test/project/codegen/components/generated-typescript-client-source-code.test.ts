@@ -26,6 +26,7 @@ const synthGeneratedCode = (specFileName: string): SynthOutput => {
   return synthGeneratedCodeProject(specFileName, project, (specPath) => {
     new GeneratedTypescriptClientSourceCode(project, {
       specPath,
+      invokeGenerator: true,
     });
   });
 };
