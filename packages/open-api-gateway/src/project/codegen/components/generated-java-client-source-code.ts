@@ -69,10 +69,6 @@ export class GeneratedJavaClientSourceCode extends Component {
         outputPath: this.project.outdir,
         generatorDirectory: ClientLanguage.JAVA,
         additionalProperties: {
-          // TODO: Upgrade to openapi-generator 6.0.1 when released so that useSingleRequestParameter is honoured
-          // https://github.com/OpenAPITools/openapi-generator/milestone/42
-          // https://github.com/OpenAPITools/openapi-generator/pull/12580
-          // This will be required for generating java lambda handler wrappers
           useSingleRequestParameter: "true",
           groupId: javaProject.pom.groupId,
           artifactId: javaProject.pom.artifactId,
@@ -81,6 +77,11 @@ export class GeneratedJavaClientSourceCode extends Component {
           apiPackage: `${invokerPackage}.api`,
           modelPackage: `${invokerPackage}.model`,
           hideGenerationTimestamp: "true",
+          additionalModelTypeAnnotations: [
+            "@lombok.AllArgsConstructor",
+            // Regular lombok builder is not used since an abstract base schema class is also annotated
+            "@lombok.experimental.SuperBuilder",
+          ].join("\\ "),
         },
       });
     }

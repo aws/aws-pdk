@@ -6855,6 +6855,31 @@ with test.ApiClient(configuration) as api_client:
         pprint(api_response)
     except test.ApiException as e:
         print(\\"Exception when calling DefaultApi->operation_one: %s\\\\n\\" % e)
+
+    # example passing only optional values
+    path_params = {
+        'pathParam': \\"pathParam_example\\",
+    }
+    query_params = {
+        'param1': \\"param1_example\\",
+        'param2': [
+        \\"param2_example\\"
+    ],
+        'param3': 3.14,
+        'param4': \\"param4_example\\",
+    }
+    body = TestRequest(
+        my_input=3.14,
+    )
+    try:
+        api_response = api_instance.operation_one(
+            path_params=path_params,
+            query_params=query_params,
+            body=body,
+        )
+        pprint(api_response)
+    except test.ApiException as e:
+        print(\\"Exception when calling DefaultApi->operation_one: %s\\\\n\\" % e)
 \`\`\`
 ### Parameters
 
@@ -6885,6 +6910,7 @@ Name | Type | Description  | Notes
 param1 | Param1Schema | | 
 param2 | Param2Schema | | 
 param3 | Param3Schema | | 
+param4 | Param4Schema | | optional
 
 
 #### Param1Schema
@@ -6904,6 +6930,12 @@ Type | Description | Notes
 Type | Description | Notes
 ------------- | ------------- | -------------
 **int, float** |  | 
+
+#### Param4Schema
+
+Type | Description | Notes
+------------- | ------------- | -------------
+**str** |  | 
 
 ### path_params
 #### RequestPathParams
@@ -7583,6 +7615,7 @@ class Param2Schema(
 ):
     _items = StrSchema
 Param3Schema = NumberSchema
+Param4Schema = StrSchema
 RequestRequiredQueryParams = typing.TypedDict(
     'RequestRequiredQueryParams',
     {
@@ -7594,6 +7627,7 @@ RequestRequiredQueryParams = typing.TypedDict(
 RequestOptionalQueryParams = typing.TypedDict(
     'RequestOptionalQueryParams',
     {
+        'param4': Param4Schema,
     },
     total=False
 )
@@ -7622,6 +7656,12 @@ request_query_param3 = api_client.QueryParameter(
     style=api_client.ParameterStyle.FORM,
     schema=Param3Schema,
     required=True,
+    explode=True,
+)
+request_query_param4 = api_client.QueryParameter(
+    name=\\"param4\\",
+    style=api_client.ParameterStyle.FORM,
+    schema=Param4Schema,
     explode=True,
 )
 # path params
@@ -7749,6 +7789,7 @@ class OperationOne(api_client.Api):
             request_query_param1,
             request_query_param2,
             request_query_param3,
+            request_query_param4,
         ):
             parameter_data = query_params.get(parameter.name, unset)
             if parameter_data is unset:
@@ -8146,6 +8187,7 @@ class OperationOneRequestParameters(TypedDict):
     param1: str
     param3: str
     pathParam: str
+    param4: str
     ...
 
 # Request array parameters are multi-value query params

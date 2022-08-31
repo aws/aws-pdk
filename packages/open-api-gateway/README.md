@@ -403,6 +403,27 @@ with ApiClient(configuration) as api_client:
 
 You'll find details about how to use the python client in the README.md alongside your generated client.
 
+#### Java
+
+The [java](https://openapi-generator.tech/docs/generators/java/) OpenAPI generator is used to generate OpenAPI clients for Java.
+
+Example usage:
+
+```java
+import com.generated.api.myapijava.client.api.DefaultApi;
+import com.generated.api.myapijava.client.ApiClient;
+import com.generated.api.myapijava.client.Configuration;
+import com.generated.api.myapijava.client.models.HelloResponse;
+
+ApiClient client = Configuration.getDefaultApiClient();
+client.setBasePath("https://xxxxxxxxxx.execute-api.ap-southeast-2.amazonaws.com");
+
+DefaultApi api = new DefaultApi(client);
+HelloResponse response = api.sayHello("Adrian").execute()
+```
+
+You'll find more details about how to use the Java client in the README.md alongside your generated client.
+
 ### Lambda Handler Wrappers
 
 Lambda handler wrappers are also importable from the generated client. These provide input/output type safety, ensuring that your API handlers return outputs that correspond to your specification.
@@ -438,13 +459,33 @@ def handler(input: SayHelloRequest, **kwargs) -> ApiResponse[HelloResponse, ApiE
     )
 ```
 
+#### Java
+
+```java
+import com.generated.api.myapijava.client.api.Handlers.SayHello;
+import com.generated.api.myapijava.client.api.Handlers.SayHello200Response;
+import com.generated.api.myapijava.client.api.Handlers.SayHelloRequestInput;
+import com.generated.api.myapijava.client.api.Handlers.SayHelloResponse;
+import com.generated.api.myapijava.client.model.HelloResponse;
+
+
+public class SayHelloHandler extends SayHello {
+    @Override
+    public SayHelloResponse handle(SayHelloRequestInput sayHelloRequestInput) {
+        return SayHello200Response.of(HelloResponse.builder()
+                .message(String.format("Hello %s", sayHelloRequestInput.getInput().getRequestParameters().getName()))
+                .build());
+    }
+}
+```
+
 ### Interceptors
 
-The lambda handler wrappers allow you to pass in a _chain_ of handler functions to handle the request. This allows you to implement middleware / interceptors for handling requests. Each handler function may choose whether or not to continue the handler chain by invoking `chain.next(input, event, context)`. Note that the last handler in the chain (ie the actual request handler which transforms the input to the output) should not call `chain.next`.
+The lambda handler wrappers allow you to pass in a _chain_ of handler functions to handle the request. This allows you to implement middleware / interceptors for handling requests. Each handler function may choose whether or not to continue the handler chain by invoking `chain.next`.
 
 #### Typescript
 
-In typescript, interceptors are passed as separate arguments to the generated handler wrapper, in the order in which they should be executed.
+In typescript, interceptors are passed as separate arguments to the generated handler wrapper, in the order in which they should be executed. Call `chain.next(input, event, context)` from an interceptor to delegate to the rest of the chain to handle a request. Note that the last handler in the chain (ie the actual request handler which transforms the input to the output) should not call `chain.next`.
 
 ```ts
 import {
@@ -510,6 +551,144 @@ const timingInterceptor = async <
 };
 ```
 
+Interceptors may add extra properties to the `context` to pass state to further interceptors or the final lambda handler, for example an `identityInterceptor` might want to extract the authenticated user from the request so that it is available in handlers.
+
+```ts
+import {
+  LambdaRequestParameters,
+  LambdaHandlerChain,
+} from 'my-api-typescript-client';
+
+const identityInterceptor = async <
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response
+>(
+  input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
+  event: any,
+  context: any,
+  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+): Promise<Response> => {
+  const authenticatedUser = await getAuthenticatedUser(event);
+  return await chain.next(input, event, {
+    ...context,
+    authenticatedUser,
+  });
+};
+```
+
+#### Java
+
+In Java, interceptors can be added to a handler via the `@Interceptors` class annotation:
+
+```java
+import com.generated.api.myjavaapi.client.api.Handlers.Interceptors;
+
+@Interceptors({ TimingInterceptor.class, TryCatchInterceptor.class })
+public class SayHelloHandler extends SayHello {
+    @Override
+    public SayHelloResponse handle(SayHelloRequestInput sayHelloRequestInput) {
+        return SayHello200Response.of(HelloResponse.builder()
+                .message(String.format("Hello %s", sayHelloRequestInput.getInput().getRequestParameters().getName()))
+                .build());
+    }
+}
+```
+
+To write an interceptor, you can implement the `Interceptor` interface. For example, a timing interceptor:
+
+```java
+import com.generated.api.myjavaapi.client.api.Handlers.Interceptor;
+import com.generated.api.myjavaapi.client.api.Handlers.ChainedRequestInput;
+import com.generated.api.myjavaapi.client.api.Handlers.Response;
+
+public class TimingInterceptor<Input> implements Interceptor<Input> {
+    @Override
+    public Response handle(ChainedRequestInput<Input> input) {
+        long start = System.currentTimeMillis();
+        Response res = input.getChain().next(input);
+        long end = System.currentTimeMillis();
+        System.out.printf("Took %d ms%n", end - start);
+        return res;
+    }
+}
+```
+
+Interceptors may choose to return different responses, for example to catch errors:
+
+```java
+import com.generated.api.myjavaapi.client.api.Handlers.Interceptor;
+import com.generated.api.myjavaapi.client.api.Handlers.ChainedRequestInput;
+import com.generated.api.myjavaapi.client.api.Handlers.Response;
+import com.generated.api.myjavaapi.client.api.Handlers.ApiResponse;
+import com.generated.api.myjavaapi.client.model.ApiError;
+
+public class TryCatchInterceptor<Input> implements Interceptor<Input> {
+    @Override
+    public Response handle(ChainedRequestInput<Input> input) {
+        try {
+            return input.getChain().next(input);
+        } catch (Exception e) {
+            return ApiResponse.builder()
+                    .statusCode(500)
+                    .body(ApiError.builder()
+                            .errorMessage(e.getMessage())
+                            .build().toJson())
+                    .build();
+        }
+    }
+}
+```
+
+Interceptors are permitted to mutate the "interceptor context", which is a `Map<String, Object>`. Each interceptor in the chain, and the final handler, can access this context:
+
+```java
+public class IdentityInterceptor<Input> implements Interceptor<Input> {
+    @Override
+    public Response handle(ChainedRequestInput<Input> input) {
+        input.getInterceptorContext().put("AuthenticatedUser", this.getAuthenticatedUser(input.getEvent()));
+        return input.getChain().next(input);
+    }
+}
+```
+
+Interceptors can also mutate the response returned by the handler chain. An example use case might be adding cross-origin resource sharing headers:
+
+```java
+public static class AddCorsHeadersInterceptor<Input> implements Interceptor<Input> {
+    @Override
+    public Response handle(ChainedRequestInput<Input> input) {
+        Response res = input.getChain().next(input);
+        res.getHeaders().put("Access-Control-Allow-Origin", "*");
+        res.getHeaders().put("Access-Control-Allow-Headers", "*");
+        return res;
+    }
+}
+```
+
+##### Interceptors with Dependency Injection
+
+Interceptors referenced by the `@Interceptors` annotation must be constructable with no arguments. If more complex instantiation of your interceptor is required (for example if you are using dependency injection or wish to pass configuration to your interceptor), you may instead override the `getInterceptors` method in your handler:
+
+```java
+public class SayHelloHandler extends SayHello {
+    @Override
+    public List<Interceptor<SayHelloInput>> getInterceptors() {
+        return Arrays.asList(
+                new MyConfiguredInterceptor<>(42),
+                new MyOtherConfiguredInterceptor<>("configuration"));
+    }
+
+    @Override
+    public SayHelloResponse handle(SayHelloRequestInput sayHelloRequestInput) {
+        return SayHello200Response.of(HelloResponse.builder()
+                .message(String.format("Hello %s!", sayHelloRequestInput.getInput().getRequestParameters().getName()))
+                .build());
+    }
+}
+```
+
 ### Other Details
 
 #### Workspaces and `OpenApiGatewayTsProject`
@@ -567,3 +746,77 @@ new PythonProject({
 });
 ```
 
+#### Java API Lambda Handlers
+
+To build your lambda handlers in Java, it's recommended to create a separate `JavaProject` in your `.projenrc`. This needs to build a "super jar" with all of your dependencies packed into a single jar. You can use the `maven-shade-plugin` to achieve this (see [the java lambda docs for details](https://docs.aws.amazon.com/lambda/latest/dg/java-package.html)). You'll need to add a dependency on the generated java client for the handler wrappers. For example, your `.projenrc.ts` might look like:
+
+```ts
+const api = new OpenApiGatewayTsProject({
+  parent: monorepo,
+  name: '@my-test/api',
+  outdir: 'packages/api',
+  defaultReleaseBranch: 'main',
+  clientLanguages: [ClientLanguage.JAVA],
+});
+
+const apiJavaClient = (api.generatedClients[ClientLanguage.JAVA] as JavaProject);
+
+const javaLambdaProject = new JavaProject({
+  parent: monorepo,
+  outdir: 'packages/java-lambdas',
+  artifactId: "my-java-lambdas",
+  groupId: "com.mycompany",
+  name: "javalambdas",
+  version: "1.0.0",
+  // Add a dependency on the java client
+  deps: [`${apiJavaClient.pom.groupId}/${apiJavaClient.pom.artifactId}@${apiJavaClient.pom.version}`],
+});
+
+// Set up the dependency on the generated lambda client
+monorepo.addImplicitDependency(javaLambdaProject, apiJavaClient);
+javaLambdaProject.pom.addRepository({
+  url: `file://../api/generated/java/dist/java`,
+  id: 'java-api-client',
+});
+
+// Use the maven-shade-plugin as part of the maven package task
+javaLambdaProject.pom.addPlugin('org.apache.maven.plugins/maven-shade-plugin@3.2.2', {
+  configuration: {
+    createDependencyReducedPom: false,
+    finalName: 'my-java-lambdas',
+  },
+  executions: [{
+    id: 'shade-task',
+    phase: 'package', // <- NB "phase" is supported in projen ^0.61.37
+    goals: ['shade'],
+  }],
+});
+
+// Build the "super jar" as part of the project's package task
+javaLambdaProject.packageTask.exec('mvn clean install');
+```
+
+You can then implement your lambda handlers in your `java-lambdas` project using the generated lambda handler wrappers (see above).
+
+Finally, you can create a lambda function in your CDK infrastructure which points to the resultant "super jar":
+
+```ts
+new Api(this, 'JavaApi', {
+  integrations: {
+    sayHello: {
+      function: new Function(this, 'SayHelloJava', {
+        code: Code.fromAsset('../java-lambdas/target/my-java-lambdas.jar'),
+        handler: 'com.mycompany.SayHelloHandler',
+        runtime: Runtime.JAVA_11,
+        timeout: Duration.seconds(30),
+      }),
+    },
+  },
+});
+```
+
+Note that to ensure the jar is built before the CDK infrastructure which consumes it, you must add a dependency, eg:
+
+```ts
+monorepo.addImplicitDependency(infra, javaLambdaProject);
+```

@@ -67,9 +67,9 @@ const serializeProperties = (properties: { [key: string]: string }) =>
  */
 export const invokeOpenApiGenerator = (options: GenerationOptions) => {
   const additionalProperties = options.additionalProperties
-    ? ` --additional-properties ${serializeProperties(
+    ? ` --additional-properties "${serializeProperties(
         options.additionalProperties
-      )}`
+      )}"`
     : "";
   exec(
     `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --generator-dir ${options.generatorDirectory}${additionalProperties}`,
