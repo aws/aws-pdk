@@ -14,6 +14,7 @@ from {{packageName}}.schemas import (
     file_type,
     none_type,
 )
+from {{packageName}}.api_client import JSONEncoder
 
 T = TypeVar('T')
 
@@ -152,7 +153,7 @@ def {{operationId}}_handler(handler: {{operationIdCamelCase}}HandlerFunction):
         return {
             'statusCode': response.status_code,
             'headers': response.headers,
-            'body': json.dumps(response.body) if response.body is not None else '',
+            'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
         }
     return wrapper
 

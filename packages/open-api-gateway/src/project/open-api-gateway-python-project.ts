@@ -206,8 +206,8 @@ export class OpenApiGatewayPythonProject extends PythonProject {
       moduleName: this.moduleName,
     };
 
-    // Define some helpers for resolving resource paths in __init__.py
-    new SampleFile(this, path.join(this.moduleName, "__init__.py"), {
+    // Define some helpers for resolving resource paths in spec_utils.py
+    new SampleFile(this, path.join(this.moduleName, "spec_utils.py"), {
       contents: `import pkgutil, json
 from os import path
 from pathlib import Path
@@ -221,6 +221,10 @@ def get_project_root():
 def get_generated_client_layer_directory():
     return path.join(str(get_project_root()), "${pythonLayerDistDir}")
 `,
+    });
+
+    new SampleFile(this, path.join(this.moduleName, "__init__.py"), {
+      contents: "#",
     });
 
     new SampleDir(this, path.join(this.moduleName, this.apiSrcDir), {
