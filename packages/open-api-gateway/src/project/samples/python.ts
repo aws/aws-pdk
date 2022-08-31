@@ -55,7 +55,7 @@ export const getPythonSampleSource = (
   "api.py": `from dataclasses import fields
 from ${options.openApiGatewayPackageName} import OpenApiGatewayLambdaApi, OpenApiIntegration
 from ${options.pythonClientPackageName}.api.default_api_operation_config import OperationLookup, OperationConfig
-from ${options.moduleName} import SPEC, SPEC_PATH
+from ${options.moduleName}.spec_utils import SPEC, SPEC_PATH
 
 class Api(OpenApiGatewayLambdaApi):
     """
@@ -80,7 +80,7 @@ from ${options.pythonClientPackageName}.api.default_api_operation_config import 
 from aws_cdk.aws_lambda import LayerVersion, Code, Function, Runtime
 from .api import Api
 from constructs import Construct
-from ${options.moduleName} import get_generated_client_layer_directory
+from ${options.moduleName}.spec_utils import get_generated_client_layer_directory
 from pathlib import Path
 from os import path
 
