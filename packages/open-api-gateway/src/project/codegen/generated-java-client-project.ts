@@ -48,6 +48,8 @@ const DEPENDENCIES: string[] = [
   // For handler wrappers
   "com.amazonaws/aws-lambda-java-core@1.2.1",
   "com.amazonaws/aws-lambda-java-events@3.11.0",
+  // Lombok is used to add the builder pattern to models for neater construction
+  "org.projectlombok/lombok@1.18.24",
 ];
 
 const TEST_DEPENDENCIES: string[] = [
