@@ -298,4 +298,48 @@ describe("OpenAPIGateway Ts Project - Regenerate Clients/Docs Tests", () => {
     // markdown docs were generated later than html2 docs
     expect(generatedDocHTML2LMT).toBeLessThan(generatedDocMDLMTOther);
   });
+
+  it("Maintain References to Generated Client Projects without Regenerating", () => {
+    // create a project
+    const project = new OpenApiGatewayTsProject({
+      defaultReleaseBranch,
+      name,
+      generatedCodeDir,
+      clientLanguages: [ClientLanguage.TYPESCRIPT, ClientLanguage.JAVA],
+    });
+    project.synth();
+
+    expect(project.generatedClients[ClientLanguage.JAVA]).toBeDefined();
+    expect(project.generatedClients[ClientLanguage.TYPESCRIPT]).toBeDefined();
+
+    const { outdir } = project;
+    const generatedFileLMT = getClientFileLastModifiedTimestamp(
+      outdir,
+      "src/index.ts"
+    );
+
+    // create another project with the same outdir
+    const projectOther = new OpenApiGatewayTsProject({
+      defaultReleaseBranch,
+      name,
+      generatedCodeDir,
+      clientLanguages: [ClientLanguage.TYPESCRIPT, ClientLanguage.JAVA],
+      outdir,
+    });
+    projectOther.synth();
+
+    const generatedFileLMTOther = getClientFileLastModifiedTimestamp(
+      outdir,
+      "src/index.ts"
+    );
+
+    // current `index.ts` should have the same modified time as the original project
+    expect(generatedFileLMT).toEqual(generatedFileLMTOther);
+
+    // References to generated client projects should remain even if they weren't regenerated
+    expect(projectOther.generatedClients[ClientLanguage.JAVA]).toBeDefined();
+    expect(
+      projectOther.generatedClients[ClientLanguage.TYPESCRIPT]
+    ).toBeDefined();
+  });
 });
