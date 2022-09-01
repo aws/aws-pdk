@@ -99,76 +99,60 @@ const generateClientProject = (
 ): Project | undefined => {
   switch (languageConfig.clientLanguage) {
     case ClientLanguage.TYPESCRIPT: {
-      if (languageConfig.isDefault || languageConfig.generate) {
-        logger.trace("Attempting to generate TYPESCRIPT client project.");
-        return new GeneratedTypescriptClientProject({
-          parent: options.parent,
-          generateClient: languageConfig.generate,
-          // Ensure kebab-case for typescript
-          name: `${options.parentPackageName}-${ClientLanguage.TYPESCRIPT}`.replace(
-            /_/g,
-            "-"
-          ),
-          outdir: path.join(
-            options.generatedCodeDir,
-            ClientLanguage.TYPESCRIPT
-          ),
-          specPath: options.parsedSpecPath,
-          ...options.typescriptOptions,
-        });
-      } else {
-        return undefined;
-      }
+      logger.trace("Attempting to generate TYPESCRIPT client project.");
+      return new GeneratedTypescriptClientProject({
+        parent: options.parent,
+        generateClient: languageConfig.generate,
+        // Ensure kebab-case for typescript
+        name: `${options.parentPackageName}-${ClientLanguage.TYPESCRIPT}`.replace(
+          /_/g,
+          "-"
+        ),
+        outdir: path.join(options.generatedCodeDir, ClientLanguage.TYPESCRIPT),
+        specPath: options.parsedSpecPath,
+        ...options.typescriptOptions,
+      });
     }
     case ClientLanguage.PYTHON: {
-      if (languageConfig.isDefault || languageConfig.generate) {
-        logger.trace("Attempting to generate PYTHON client project.");
-        // Ensure snake_case for python
-        const moduleName =
-          `${options.parentPackageName}_${ClientLanguage.PYTHON}`
-            .replace(/@/g, "")
-            .replace(/[\-/]/g, "_");
-        return new GeneratedPythonClientProject({
-          parent: options.parent,
-          generateClient: languageConfig.generate,
-          // Use dashes in project name since distributable's PKG-INFO always converts _ to -
-          // https://stackoverflow.com/questions/36300788/python-package-wheel-pkg-info-name
-          name: moduleName.replace(/_/g, "-"),
-          moduleName,
-          outdir: path.join(options.generatedCodeDir, ClientLanguage.PYTHON),
-          specPath: options.parsedSpecPath,
-          ...options.pythonOptions,
-        });
-      } else {
-        return undefined;
-      }
+      logger.trace("Attempting to generate PYTHON client project.");
+      // Ensure snake_case for python
+      const moduleName = `${options.parentPackageName}_${ClientLanguage.PYTHON}`
+        .replace(/@/g, "")
+        .replace(/[\-/]/g, "_");
+      return new GeneratedPythonClientProject({
+        parent: options.parent,
+        generateClient: languageConfig.generate,
+        // Use dashes in project name since distributable's PKG-INFO always converts _ to -
+        // https://stackoverflow.com/questions/36300788/python-package-wheel-pkg-info-name
+        name: moduleName.replace(/_/g, "-"),
+        moduleName,
+        outdir: path.join(options.generatedCodeDir, ClientLanguage.PYTHON),
+        specPath: options.parsedSpecPath,
+        ...options.pythonOptions,
+      });
     }
     case ClientLanguage.JAVA: {
-      if (languageConfig.isDefault || languageConfig.generate) {
-        logger.trace("Attempting to generate JAVA client project.");
-        // Ensure no dashes/underscores since name is used in package name
-        const javaProjectName =
-          `${options.parentPackageName}-${ClientLanguage.JAVA}`
-            .replace(/@/g, "")
-            .replace(/[\-/_]/g, "");
-
-        const artifactId = `${options.parentPackageName}-${ClientLanguage.JAVA}`
+      logger.trace("Attempting to generate JAVA client project.");
+      // Ensure no dashes/underscores since name is used in package name
+      const javaProjectName =
+        `${options.parentPackageName}-${ClientLanguage.JAVA}`
           .replace(/@/g, "")
-          .replace(/[/_]/g, "-");
+          .replace(/[\-/_]/g, "");
 
-        return new GeneratedJavaClientProject({
-          parent: options.parent,
-          generateClient: languageConfig.generate,
-          name: javaProjectName,
-          artifactId,
-          groupId: "com.generated.api",
-          outdir: path.join(options.generatedCodeDir, ClientLanguage.JAVA),
-          specPath: options.parsedSpecPath,
-          ...options.javaOptions,
-        });
-      } else {
-        return undefined;
-      }
+      const artifactId = `${options.parentPackageName}-${ClientLanguage.JAVA}`
+        .replace(/@/g, "")
+        .replace(/[/_]/g, "-");
+
+      return new GeneratedJavaClientProject({
+        parent: options.parent,
+        generateClient: languageConfig.generate,
+        name: javaProjectName,
+        artifactId,
+        groupId: "com.generated.api",
+        outdir: path.join(options.generatedCodeDir, ClientLanguage.JAVA),
+        specPath: options.parsedSpecPath,
+        ...options.javaOptions,
+      });
     }
     default:
       throw new Error(
