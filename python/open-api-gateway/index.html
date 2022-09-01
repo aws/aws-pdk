@@ -1730,8 +1730,7 @@ aws-prototyping-sdk library.</p>
 <span class="p">)</span>
 </code></pre></div>
 <p>You will need to set up a shared virtual environment and configure dependencies via the monorepo (see README.md for the nx-monorepo package). An example of a full <code>.projenrc.ts</code> might be:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
-<span class="kn">from</span> <span class="nn">projen.VenvOptions</span> <span class="kn">import</span> <span class="n">VenvOptions</span><span class="p">,</span> <span class="n">VenvOptions</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">projen.VenvOptions</span> <span class="kn">import</span> <span class="n">VenvOptions</span><span class="p">,</span> <span class="n">VenvOptions</span>
 <span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
 <span class="kn">from</span> <span class="nn">aws_prototyping_sdk.open_api_gateway</span> <span class="kn">import</span> <span class="n">ClientLanguage</span><span class="p">,</span> <span class="n">OpenApiGatewayPythonProject</span>
 <span class="kn">from</span> <span class="nn">projen.awscdk</span> <span class="kn">import</span> <span class="n">AwsCdkPythonApp</span>
@@ -3163,6 +3162,7 @@ Authorizers specified at the integration level will override this for that opera
   <span class="n">client_languages</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="p">],</span>
   <span class="n">api_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">documentation_formats</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DocumentationFormat</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">force_generate_code_and_docs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">java_client_options</span><span class="p">:</span> <span class="n">JavaProjectOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parsed_spec_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3195,6 +3195,11 @@ Authorizers specified at the integration level will override this for that opera
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.documentationFormats">documentation_formats</a></code></td>
 <td><code>typing.List[<a href="#@aws-prototyping-sdk/open-api-gateway.DocumentationFormat">DocumentationFormat</a>]</code></td>
 <td>Formats to generate documentation in.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.forceGenerateCodeAndDocs">force_generate_code_and_docs</a></code></td>
+<td><code>bool</code></td>
+<td>Force to generate code and docs even if there were no changes in spec.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.generatedCodeDir">generated_code_dir</a></code></td>
@@ -3253,6 +3258,15 @@ Authorizers specified at the integration level will override this for that opera
 <li><em>Type:</em> typing.List[<a href="#@aws-prototyping-sdk/open-api-gateway.DocumentationFormat">DocumentationFormat</a>]</li>
 </ul>
 <p>Formats to generate documentation in.</p>
+<hr />
+<h5 id="force_generate_code_and_docsoptional"><code>force_generate_code_and_docs</code><sup>Optional</sup> <a name="force_generate_code_and_docs" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.forceGenerateCodeAndDocs"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">force_generate_code_and_docs</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> "false"</li>
+</ul>
+<p>Force to generate code and docs even if there were no changes in spec.</p>
 <hr />
 <h5 id="generated_code_diroptional"><code>generated_code_dir</code><sup>Optional</sup> <a name="generated_code_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.property.generatedCodeDir"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span>
@@ -3370,6 +3384,7 @@ Authorizers specified at the integration level will override this for that opera
   <span class="n">client_languages</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="p">],</span>
   <span class="n">api_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">documentation_formats</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DocumentationFormat</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">force_generate_code_and_docs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">java_client_options</span><span class="p">:</span> <span class="n">JavaProjectOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parsed_spec_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3662,6 +3677,11 @@ Authorizers specified at the integration level will override this for that opera
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.documentationFormats">documentation_formats</a></code></td>
 <td><code>typing.List[<a href="#@aws-prototyping-sdk/open-api-gateway.DocumentationFormat">DocumentationFormat</a>]</code></td>
 <td>Formats to generate documentation in.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.forceGenerateCodeAndDocs">force_generate_code_and_docs</a></code></td>
+<td><code>bool</code></td>
+<td>Force to generate code and docs even if there were no changes in spec.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.generatedCodeDir">generated_code_dir</a></code></td>
@@ -4223,6 +4243,15 @@ task which will run <code>.projenrc.py</code>.</p>
 </ul>
 <p>Formats to generate documentation in.</p>
 <hr />
+<h5 id="force_generate_code_and_docsoptional_1"><code>force_generate_code_and_docs</code><sup>Optional</sup> <a name="force_generate_code_and_docs" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.forceGenerateCodeAndDocs"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">force_generate_code_and_docs</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> "false"</li>
+</ul>
+<p>Force to generate code and docs even if there were no changes in spec.</p>
+<hr />
 <h5 id="generated_code_diroptional_1"><code>generated_code_dir</code><sup>Optional</sup> <a name="generated_code_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.generatedCodeDir"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
@@ -4419,6 +4448,7 @@ task which will run <code>.projenrc.py</code>.</p>
   <span class="n">client_languages</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="p">],</span>
   <span class="n">api_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">documentation_formats</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DocumentationFormat</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">force_generate_code_and_docs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">java_client_options</span><span class="p">:</span> <span class="n">JavaProjectOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parsed_spec_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -5111,6 +5141,11 @@ task which will run <code>.projenrc.py</code>.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.documentationFormats">documentation_formats</a></code></td>
 <td><code>typing.List[<a href="#@aws-prototyping-sdk/open-api-gateway.DocumentationFormat">DocumentationFormat</a>]</code></td>
 <td>Formats to generate documentation in.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.forceGenerateCodeAndDocs">force_generate_code_and_docs</a></code></td>
+<td><code>bool</code></td>
+<td>Force to generate code and docs even if there were no changes in spec.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.generatedCodeDir">generated_code_dir</a></code></td>
@@ -6472,6 +6507,15 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>Formats to generate documentation in.</p>
 <hr />
+<h5 id="force_generate_code_and_docsoptional_2"><code>force_generate_code_and_docs</code><sup>Optional</sup> <a name="force_generate_code_and_docs" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.forceGenerateCodeAndDocs"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">force_generate_code_and_docs</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> "false"</li>
+</ul>
+<p>Force to generate code and docs even if there were no changes in spec.</p>
+<hr />
 <h5 id="generated_code_diroptional_2"><code>generated_code_dir</code><sup>Optional</sup> <a name="generated_code_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.property.generatedCodeDir"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
@@ -7483,6 +7527,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">client_languages</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="p">],</span>
   <span class="n">api_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">documentation_formats</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DocumentationFormat</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">force_generate_code_and_docs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">java_client_options</span><span class="p">:</span> <span class="n">JavaProjectOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parsed_spec_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -7774,6 +7819,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.documentationFormats">documentation_formats</a></code></td>
 <td><code>typing.List[<a href="#@aws-prototyping-sdk/open-api-gateway.DocumentationFormat">DocumentationFormat</a>]</code></td>
 <td>Formats to generate documentation in.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.forceGenerateCodeAndDocs">force_generate_code_and_docs</a></code></td>
+<td><code>bool</code></td>
+<td>Force to generate code and docs even if there were no changes in spec.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.generatedCodeDir">generated_code_dir</a></code></td>
@@ -8232,6 +8282,13 @@ task which will run <code>.projenrc.py</code>.</p>
 <li><em>Type:</em> typing.List[<a href="#@aws-prototyping-sdk/open-api-gateway.DocumentationFormat">DocumentationFormat</a>]</li>
 </ul>
 <p>Formats to generate documentation in.</p>
+<hr />
+<h5 id="force_generate_code_and_docsoptional_3"><code>force_generate_code_and_docs</code><sup>Optional</sup> <a name="force_generate_code_and_docs" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.forceGenerateCodeAndDocs"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> "false"</li>
+</ul>
+<p>Force to generate code and docs even if there were no changes in spec.</p>
 <hr />
 <h5 id="generated_code_diroptional_3"><code>generated_code_dir</code><sup>Optional</sup> <a name="generated_code_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.generatedCodeDir"></a></h5>
 <ul>
@@ -8835,6 +8892,11 @@ resolved from the root of <em>this</em> project.</p>
 <td><code>str</code></td>
 <td>The name of the spec file.</td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.property.forceGenerateCodeAndDocs">force_generate_code_and_docs</a></code></td>
+<td><code>bool</code></td>
+<td>Force to generate code and docs even if there were no changes in spec.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -9170,6 +9232,14 @@ FQN of the project type.</p>
 </ul>
 <p>The name of the spec file.</p>
 <hr />
+<h5 id="force_generate_code_and_docsoptional_4"><code>force_generate_code_and_docs</code><sup>Optional</sup> <a name="force_generate_code_and_docs" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.property.forceGenerateCodeAndDocs"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">force_generate_code_and_docs</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Force to generate code and docs even if there were no changes in spec.</p>
+<hr />
 <h4 id="constants">Constants <a name="Constants" id="Constants"></a></h4>
 <table>
 <thead>
@@ -9339,6 +9409,7 @@ this task should synthesize the project files.</p>
   <span class="n">client_languages</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="p">],</span>
   <span class="n">api_src_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">documentation_formats</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DocumentationFormat</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">force_generate_code_and_docs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">generated_code_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">java_client_options</span><span class="p">:</span> <span class="n">JavaProjectOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parsed_spec_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -10030,6 +10101,11 @@ this task should synthesize the project files.</p>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.documentationFormats">documentation_formats</a></code></td>
 <td><code>typing.List[<a href="#@aws-prototyping-sdk/open-api-gateway.DocumentationFormat">DocumentationFormat</a>]</code></td>
 <td>Formats to generate documentation in.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.forceGenerateCodeAndDocs">force_generate_code_and_docs</a></code></td>
+<td><code>bool</code></td>
+<td>Force to generate code and docs even if there were no changes in spec.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.generatedCodeDir">generated_code_dir</a></code></td>
@@ -11139,6 +11215,13 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>Formats to generate documentation in.</p>
 <hr />
+<h5 id="force_generate_code_and_docsoptional_5"><code>force_generate_code_and_docs</code><sup>Optional</sup> <a name="force_generate_code_and_docs" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.forceGenerateCodeAndDocs"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> "false"</li>
+</ul>
+<p>Force to generate code and docs even if there were no changes in spec.</p>
+<hr />
 <h5 id="generated_code_diroptional_4"><code>generated_code_dir</code><sup>Optional</sup> <a name="generated_code_dir" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer.parameter.generatedCodeDir"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
@@ -12042,6 +12125,11 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <td>The directory in which the api generated code will reside, relative to the project srcdir.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.forceGenerateCodeAndDocs">force_generate_code_and_docs</a></code></td>
+<td><code>bool</code></td>
+<td>Force to generate code and docs even if there were no changes in spec.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.generatedClients">generated_clients</a></code></td>
 <td><code>typing.Mapping[projen.Project]</code></td>
 <td>References to the client projects that were generated, keyed by language.</td>
@@ -12568,6 +12656,14 @@ release workflow.</p>
 </ul>
 <p>The directory in which the api generated code will reside, relative to the project srcdir.</p>
 <hr />
+<h5 id="force_generate_code_and_docsrequired"><code>force_generate_code_and_docs</code><sup>Required</sup> <a name="force_generate_code_and_docs" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.forceGenerateCodeAndDocs"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">force_generate_code_and_docs</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Force to generate code and docs even if there were no changes in spec.</p>
+<hr />
 <h5 id="generated_clientsrequired_1"><code>generated_clients</code><sup>Required</sup> <a name="generated_clients" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.property.generatedClients"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">generated_clients</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">Project</span><span class="p">]</span>
 </code></pre></div>
@@ -12746,7 +12842,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2022-08-31
+      2022-09-01
     
   </small>
 </div>
