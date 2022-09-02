@@ -311,6 +311,7 @@ describe("OpenAPIGateway Ts Project - Regenerate Clients/Docs Tests", () => {
 
     expect(project.generatedClients[ClientLanguage.JAVA]).toBeDefined();
     expect(project.generatedClients[ClientLanguage.TYPESCRIPT]).toBeDefined();
+    expect(project.generatedClients[ClientLanguage.PYTHON]).not.toBeDefined();
 
     const { outdir } = project;
     const generatedFileLMT = getClientFileLastModifiedTimestamp(
@@ -341,5 +342,10 @@ describe("OpenAPIGateway Ts Project - Regenerate Clients/Docs Tests", () => {
     expect(
       projectOther.generatedClients[ClientLanguage.TYPESCRIPT]
     ).toBeDefined();
+
+    // We should not have generated a project for a language we did not request
+    expect(
+      projectOther.generatedClients[ClientLanguage.PYTHON]
+    ).not.toBeDefined();
   });
 });
