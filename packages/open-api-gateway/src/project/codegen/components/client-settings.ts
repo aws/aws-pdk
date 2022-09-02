@@ -92,92 +92,50 @@ export class ClientSettings extends Component {
       options.generatedCodeDir,
       this.clientSettingsFilename
     );
-    // add client settings file to .gitignore
-    this.project.addGitIgnore(this.clientSettingsPath);
 
-    // if spec changed --> generate all
-    // if forceGenerate is on --> generate all
-    if (options.specChanged || options.forceGenerateCodeAndDocs) {
-      logger.debug(
-        `specChanged=${options.specChanged}, forceGenerate=${options.forceGenerateCodeAndDocs} :: all clients and docs will be generated`
-      );
-      this.clientLanguageConfigs = this.getClientLanguageConfigs(
-        options.clientLanguages,
-        options.defaultClientLanguage
-      );
-      this.documentationFormatConfigs = this.getDocumentationFormatConfigs(
-        options.documentationFormats
-      );
-    } else {
-      // spec didn't change and forceGenerate is off
-      // load previously generated client config
-      const clientSettingsPathAbs = path.join(
-        project.outdir,
-        this.clientSettingsPath
-      );
-      logger.trace(`Reading client settings from ${clientSettingsPathAbs}`);
-      const existingClientConfig = tryReadFileSync(clientSettingsPathAbs);
-      if (existingClientConfig != null) {
-        const parsedClientConfig = JSON.parse(existingClientConfig);
+    // load previously generated client config
+    const clientSettingsPathAbs = path.join(
+      project.outdir,
+      this.clientSettingsPath
+    );
+    logger.trace(`Reading client settings from ${clientSettingsPathAbs}`);
+    const existingClientConfig = tryReadFileSync(clientSettingsPathAbs);
 
-        // previously generated client settings
-        const prevClientLanguages = parsedClientConfig.clientLanguages;
-        const prevDocFormats = parsedClientConfig.documentationFormats;
+    const prevClientLanguages = new Set<ClientLanguage>();
+    const prevDocFormats = new Set<DocumentationFormat>();
 
-        const currClientLanguages = options.clientLanguages;
-        const currDocFormats = options.documentationFormats;
+    if (existingClientConfig) {
+      const parsedClientConfig = JSON.parse(existingClientConfig);
 
-        // keep only those lang/doc formats that were not present previously
-        this.clientLanguageConfigs = this.getClientLanguageConfigs(
-          currClientLanguages.filter(
-            (lang) => !prevClientLanguages.includes(lang)
-          ),
-          options.defaultClientLanguage
-        );
-        this.documentationFormatConfigs = this.getDocumentationFormatConfigs(
-          currDocFormats.filter((format) => !prevDocFormats.includes(format))
-        );
-      } else {
-        logger.debug(
-          `No generated client settings file found at ${clientSettingsPathAbs}. All languages and docs will be generated`
-        );
-        this.clientLanguageConfigs = this.getClientLanguageConfigs(
-          options.clientLanguages,
-          options.defaultClientLanguage
-        );
-        this.documentationFormatConfigs = this.getDocumentationFormatConfigs(
-          options.documentationFormats
-        );
-      }
+      // previously generated client settings
+      parsedClientConfig.clientLanguages.map((l: ClientLanguage) =>
+        prevClientLanguages.add(l)
+      );
+      parsedClientConfig.documentationFormats.map((d: DocumentationFormat) =>
+        prevDocFormats.add(d)
+      );
     }
-  }
 
-  getClientLanguageConfigs(
-    clientLanguages: ClientLanguage[],
-    defaultLanguage: ClientLanguage
-  ): ClientLanguageConfig[] {
-    const values = Object.values(ClientLanguage);
+    this.clientLanguageConfigs = options.clientLanguages.map(
+      (clientLanguage) => ({
+        clientLanguage,
+        isDefault: clientLanguage === options.defaultClientLanguage,
+        generate:
+          options.specChanged ||
+          options.forceGenerateCodeAndDocs ||
+          !prevClientLanguages.has(clientLanguage),
+      })
+    );
 
-    return values.map((currLang) => {
-      return <ClientLanguageConfig>{
-        clientLanguage: currLang,
-        isDefault: defaultLanguage === currLang,
-        generate: clientLanguages.includes(currLang),
-      };
-    });
-  }
-
-  getDocumentationFormatConfigs(
-    documentationFormats: DocumentationFormat[]
-  ): DocumentationFormatConfig[] {
-    const values = Object.values(DocumentationFormat);
-
-    return values.map((currFormat) => {
-      return <DocumentationFormatConfig>{
-        documentationFormat: currFormat,
-        generate: documentationFormats.includes(currFormat),
-      };
-    });
+    this.documentationFormatConfigs = options.documentationFormats.map(
+      (documentationFormat) => ({
+        documentationFormat,
+        generate:
+          options.specChanged ||
+          options.forceGenerateCodeAndDocs ||
+          !prevDocFormats.has(documentationFormat),
+      })
+    );
   }
 
   synthesize(): void {
