@@ -72,10 +72,12 @@ export class GeneratedPythonClientProject extends PythonProject {
     // Package into a directory that can be used as a lambda layer. This is done as part of install since the end user
     // must control build order in the monorepo via explicit dependencies, and adding here means we can run as part of
     // initial project synthesis which ensures this is created regardless of whether the user has remembered to
-    // configure build order
+    // configure build order.
     if (options.generateLayer) {
+      const relativeLayerDir = path.join(".", this.layerDistDir, "python");
+      this.depsManager.installTask.exec(`rm -rf ${relativeLayerDir}`);
       this.depsManager.installTask.exec(
-        `pip install . --target ${path.join(".", this.layerDistDir, "python")}`
+        `pip install . --target ${relativeLayerDir}`
       );
     }
   }
