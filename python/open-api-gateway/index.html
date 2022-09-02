@@ -2028,12 +2028,12 @@ aws-prototyping-sdk library.</p>
     <span class="p">})</span>
 </code></pre></div>
 <h4 id="python_2">Python</h4>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python.api.default_api_operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">ApiResponse</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python.api.default_api_operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">ApiResponse</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span>
 <span class="kn">from</span> <span class="nn">myapi_python.model.api_error</span> <span class="kn">import</span> <span class="n">ApiError</span>
 <span class="kn">from</span> <span class="nn">myapi_python.model.hello_response</span> <span class="kn">import</span> <span class="n">HelloResponse</span>
 
 <span class="nd">@say_hello_handler</span>
-<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiResponse</span><span class="p">[</span><span class="n">HelloResponse</span><span class="p">,</span> <span class="n">ApiError</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">ApiResponse</span><span class="p">(</span>
         <span class="n">status_code</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
         <span class="n">body</span><span class="o">=</span><span class="n">HelloResponse</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Hello </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">request_parameters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])),</span>
@@ -2111,7 +2111,7 @@ aws-prototyping-sdk library.</p>
   <span class="n">const</span> <span class="n">start</span> <span class="o">=</span> <span class="n">Date</span><span class="o">.</span><span class="n">now</span><span class="p">();</span>
   <span class="n">const</span> <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">chain</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">);</span>
   <span class="n">const</span> <span class="n">end</span> <span class="o">=</span> <span class="n">Date</span><span class="o">.</span><span class="n">now</span><span class="p">();</span>
-  <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="err">`</span><span class="n">Took</span> <span class="err">$</span><span class="p">{</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">}</span><span class="n">ms</span><span class="err">`</span><span class="p">);</span>
+  <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="err">`</span><span class="n">Took</span> <span class="err">$</span><span class="p">{</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">}</span> <span class="n">ms</span><span class="err">`</span><span class="p">);</span>
   <span class="k">return</span> <span class="n">response</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -2136,6 +2136,64 @@ aws-prototyping-sdk library.</p>
     <span class="n">authenticatedUser</span><span class="p">,</span>
   <span class="p">});</span>
 <span class="p">}</span>
+</code></pre></div>
+<h4 id="python_3">Python</h4>
+<p>In Python, a list of interceptors can be passed as a keyword argument to the generated lambda handler decorator, for example:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python.api.default_api_operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">ApiResponse</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span>
+<span class="kn">from</span> <span class="nn">myapi_python.model.api_error</span> <span class="kn">import</span> <span class="n">ApiError</span>
+<span class="kn">from</span> <span class="nn">myapi_python.model.hello_response</span> <span class="kn">import</span> <span class="n">HelloResponse</span>
+
+<span class="nd">@say_hello_handler</span><span class="p">(</span><span class="n">interceptors</span><span class="o">=</span><span class="p">[</span><span class="n">timing_interceptor</span><span class="p">,</span> <span class="n">try_catch_interceptor</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">ApiResponse</span><span class="p">(</span>
+        <span class="n">status_code</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">body</span><span class="o">=</span><span class="n">HelloResponse</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Hello </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">request_parameters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])),</span>
+        <span class="n">headers</span><span class="o">=</span><span class="p">{}</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Writing an interceptor is just like writing a lambda handler. Call <code>chain.next(input)</code> from an interceptor to delegate to the rest of the chain to handle a request.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">myapi_python.api.default_api_operation_config</span> <span class="kn">import</span> <span class="n">ChainedApiRequest</span><span class="p">,</span> <span class="n">ApiResponse</span>
+
+<span class="k">def</span> <span class="nf">timing_interceptor</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">ChainedApiRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiResponse</span><span class="p">:</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Took </span><span class="si">{}</span><span class="s2"> ms&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">response</span>
+</code></pre></div>
+<p>Interceptors may choose to return different responses, for example to return a 500 response for any unhandled exceptions:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">myapi_python.model.api_error</span> <span class="kn">import</span> <span class="n">ApiError</span>
+<span class="kn">from</span> <span class="nn">myapi_python.api.default_api_operation_config</span> <span class="kn">import</span> <span class="n">ChainedApiRequest</span><span class="p">,</span> <span class="n">ApiResponse</span>
+
+<span class="k">def</span> <span class="nf">try_catch_interceptor</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">ChainedApiRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiResponse</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ApiResponse</span><span class="p">(</span>
+            <span class="n">status_code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+            <span class="n">body</span><span class="o">=</span><span class="n">ApiError</span><span class="p">(</span><span class="n">errorMessage</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)),</span>
+            <span class="n">headers</span><span class="o">=</span><span class="p">{}</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>Interceptors are permitted to mutate the "interceptor context", which is a <code>Dict[str, Any]</code>. Each interceptor in the chain, and the final handler, can access this context:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">identity_interceptor</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">ChainedApiRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiResponse</span><span class="p">:</span>
+    <span class="nb">input</span><span class="o">.</span><span class="n">interceptor_context</span><span class="p">[</span><span class="s2">&quot;AuthenticatedUser&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_authenticated_user</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">event</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+</code></pre></div>
+<p>Interceptors can also mutate the response returned by the handler chain. An example use case might be adding cross-origin resource sharing headers:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add_cors_headers_interceptor</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">ChainedApiRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiResponse</span><span class="p">:</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ApiResponse</span><span class="p">(</span>
+        <span class="n">status_code</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+        <span class="n">body</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">body</span><span class="p">,</span>
+        <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+            <span class="o">**</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span>
+            <span class="s2">&quot;Access-Control-Allow-Origin&quot;</span><span class="p">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Access-Control-Allow-Headers&quot;</span><span class="p">:</span> <span class="s2">&quot;*&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
 </code></pre></div>
 <h4 id="java_2">Java</h4>
 <p>In Java, interceptors can be added to a handler via the <code>@Interceptors</code> class annotation:</p>
@@ -2167,7 +2225,7 @@ aws-prototyping-sdk library.</p>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<p>Interceptors may choose to return different responses, for example to catch errors:</p>
+<p>Interceptors may choose to return different responses, for example to return a 500 response for any unhandled exceptions:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myjavaapi.client.api.Handlers.Interceptor</span><span class="p">;</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myjavaapi.client.api.Handlers.ChainedRequestInput</span><span class="p">;</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myjavaapi.client.api.Handlers.Response</span><span class="p">;</span><span class="w"></span>
@@ -12982,7 +13040,7 @@ this task should synthesize the project files.</p>
 <hr />
 <h5 id="typescript_4"><code>TYPESCRIPT</code> <a name="TYPESCRIPT" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.TYPESCRIPT"></a></h5>
 <hr />
-<h5 id="python_3"><code>PYTHON</code> <a name="PYTHON" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.PYTHON"></a></h5>
+<h5 id="python_4"><code>PYTHON</code> <a name="PYTHON" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.PYTHON"></a></h5>
 <hr />
 <h5 id="java_3"><code>JAVA</code> <a name="JAVA" id="@aws-prototyping-sdk/open-api-gateway.ClientLanguage.JAVA"></a></h5>
 <hr />
