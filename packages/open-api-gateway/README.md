@@ -446,12 +446,12 @@ export const handler = sayHelloHandler(async (input) => {
 #### Python
 
 ```python
-from myapi_python.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse
+from myapi_python.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
 from myapi_python.model.api_error import ApiError
 from myapi_python.model.hello_response import HelloResponse
 
 @say_hello_handler
-def handler(input: SayHelloRequest, **kwargs) -> ApiResponse[HelloResponse, ApiError]:
+def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
     return ApiResponse(
         status_code=200,
         body=HelloResponse(message="Hello {}!".format(input.request_parameters["name"])),
@@ -546,7 +546,7 @@ const timingInterceptor = async <
   const start = Date.now();
   const response = await chain.next(input, event, context);
   const end = Date.now();
-  console.log(`Took ${end - start}ms`);
+  console.log(`Took ${end - start} ms`);
   return response;
 };
 ```
@@ -576,6 +576,80 @@ const identityInterceptor = async <
     authenticatedUser,
   });
 };
+```
+
+#### Python
+
+In Python, a list of interceptors can be passed as a keyword argument to the generated lambda handler decorator, for example:
+
+```python
+from myapi_python.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
+from myapi_python.model.api_error import ApiError
+from myapi_python.model.hello_response import HelloResponse
+
+@say_hello_handler(interceptors=[timing_interceptor, try_catch_interceptor])
+def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
+    return ApiResponse(
+        status_code=200,
+        body=HelloResponse(message="Hello {}!".format(input.request_parameters["name"])),
+        headers={}
+    )
+```
+
+Writing an interceptor is just like writing a lambda handler. Call `chain.next(input)` from an interceptor to delegate to the rest of the chain to handle a request.
+
+```python
+import time
+from myapi_python.api.default_api_operation_config import ChainedApiRequest, ApiResponse
+
+def timing_interceptor(input: ChainedApiRequest) -> ApiResponse:
+    start = int(round(time.time() * 1000))
+    response = input.chain.next(input)
+    end = int(round(time.time() * 1000))
+    print("Took {} ms".format(end - start))
+    return response
+```
+
+Interceptors may choose to return different responses, for example to return a 500 response for any unhandled exceptions:
+
+```python
+import time
+from myapi_python.model.api_error import ApiError
+from myapi_python.api.default_api_operation_config import ChainedApiRequest, ApiResponse
+
+def try_catch_interceptor(input: ChainedApiRequest) -> ApiResponse:
+    try:
+        return input.chain.next(input)
+    except Exception as e:
+        return ApiResponse(
+            status_code=500,
+            body=ApiError(errorMessage=str(e)),
+            headers={}
+        )
+```
+
+Interceptors are permitted to mutate the "interceptor context", which is a `Dict[str, Any]`. Each interceptor in the chain, and the final handler, can access this context:
+
+```python
+def identity_interceptor(input: ChainedApiRequest) -> ApiResponse:
+    input.interceptor_context["AuthenticatedUser"] = get_authenticated_user(input.event)
+    return input.chain.next(input)
+```
+
+Interceptors can also mutate the response returned by the handler chain. An example use case might be adding cross-origin resource sharing headers:
+
+```python
+def add_cors_headers_interceptor(input: ChainedApiRequest) -> ApiResponse:
+    response = input.chain.next(input)
+    return ApiResponse(
+        status_code=response.status_code,
+        body=response.body,
+        headers={
+            **response.headers,
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*"
+        }
+    )
 ```
 
 #### Java
@@ -615,7 +689,7 @@ public class TimingInterceptor<Input> implements Interceptor<Input> {
 }
 ```
 
-Interceptors may choose to return different responses, for example to catch errors:
+Interceptors may choose to return different responses, for example to return a 500 response for any unhandled exceptions:
 
 ```java
 import com.generated.api.myjavaapi.client.api.Handlers.Interceptor;

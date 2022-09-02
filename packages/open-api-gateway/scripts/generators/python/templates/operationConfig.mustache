@@ -68,7 +68,8 @@ def parse_body(body, content_types, model):
 RequestParameters = TypeVar('RequestParameters')
 RequestArrayParameters = TypeVar('RequestArrayParameters')
 RequestBody = TypeVar('RequestBody')
-
+ResponseBody = TypeVar('ResponseBody')
+StatusCode = TypeVar('StatusCode')
 
 @dataclass
 class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]):
@@ -77,10 +78,13 @@ class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]
     body: RequestBody
     event: Any
     context: Any
+    interceptor_context: Dict[str, Any]
 
+@dataclass
+class ChainedApiRequest(ApiRequest[RequestParameters, RequestArrayParameters, RequestBody],
+    Generic[RequestParameters, RequestArrayParameters, RequestBody]):
 
-ResponseBody = TypeVar('ResponseBody')
-StatusCode = TypeVar('StatusCode')
+    chain: 'HandlerChain'
 
 @dataclass
 class ApiResponse(Generic[StatusCode, ResponseBody]):
@@ -88,6 +92,31 @@ class ApiResponse(Generic[StatusCode, ResponseBody]):
     headers: Dict[str, str]
     body: ResponseBody
 
+class HandlerChain(Generic[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
+    def next(self, request: ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+        raise Exception("Not implemented!")
+
+def _build_handler_chain(_interceptors, handler) -> HandlerChain:
+    if len(_interceptors) == 0:
+        class BaseHandlerChain(HandlerChain[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+                return handler(request)
+        return BaseHandlerChain()
+    else:
+        interceptor = _interceptors.pop(0)
+
+        class RemainingHandlerChain(HandlerChain[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+                return interceptor(ChainedApiRequest(
+                    request_parameters = request.request_parameters,
+                    request_array_parameters = request.request_array_parameters,
+                    body = request.body,
+                    event = request.event,
+                    context = request.context,
+                    interceptor_context = request.interceptor_context,
+                    chain = _build_handler_chain(_interceptors, handler),
+                ))
+        return RemainingHandlerChain()
 
 {{#operations}}
 {{#operation}}
@@ -124,38 +153,54 @@ class {{operationIdCamelCase}}RequestArrayParameters(TypedDict):
 
 # Request type for {{operationId}}
 {{operationIdCamelCase}}Request = ApiRequest[{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody]
+{{operationIdCamelCase}}ChainedRequest = ChainedApiRequest[{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody]
 
 class {{operationIdCamelCase}}HandlerFunction(Protocol):
     def __call__(self, input: {{operationIdCamelCase}}Request, **kwargs) -> {{operationIdCamelCase}}OperationResponses:
         ...
 
-def {{operationId}}_handler(handler: {{operationIdCamelCase}}HandlerFunction):
+{{operationIdCamelCase}}Interceptor = Callable[[{{operationIdCamelCase}}ChainedRequest], {{operationIdCamelCase}}OperationResponses]
+
+def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = None, interceptors: List[{{operationIdCamelCase}}Interceptor] = []):
     """
     Decorator for an api handler for the {{operationId}} operation, providing a typed interface for inputs and outputs
     """
-    @wraps(handler)
-    def wrapper(event, context, **kwargs):
-        request_parameters = decode_request_parameters({
-            **(event['pathParameters'] or {}),
-            **(event['queryStringParameters'] or {}),
-        })
-        request_array_parameters = decode_request_parameters({
-            **(event['multiValueQueryStringParameters'] or {}),
-        })
-        body = parse_body(event['body'], [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}], {{operationIdCamelCase}}RequestBody)
-        response = handler(ApiRequest(
-            request_parameters,
-            request_array_parameters,
-            body,
-            event,
-            context,
-        ), **kwargs)
-        return {
-            'statusCode': response.status_code,
-            'headers': response.headers,
-            'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
-        }
-    return wrapper
+    def _handler_wrapper(handler: {{operationIdCamelCase}}HandlerFunction):
+        @wraps(handler)
+        def wrapper(event, context, **kwargs):
+            request_parameters = decode_request_parameters({
+                **(event['pathParameters'] or {}),
+                **(event['queryStringParameters'] or {}),
+            })
+            request_array_parameters = decode_request_parameters({
+                **(event['multiValueQueryStringParameters'] or {}),
+            })
+            body = parse_body(event['body'], [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}], {{operationIdCamelCase}}RequestBody)
 
+            interceptor_context = {}
+
+            chain = _build_handler_chain(interceptors, handler)
+            response = chain.next(ApiRequest(
+                request_parameters,
+                request_array_parameters,
+                body,
+                event,
+                context,
+                interceptor_context,
+            ), **kwargs)
+            return {
+                'statusCode': response.status_code,
+                'headers': response.headers,
+                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+            }
+        return wrapper
+
+    # Support use as a decorator with no arguments, or with interceptor arguments
+    if callable(_handler):
+        return _handler_wrapper(_handler)
+    elif _handler is None:
+        return _handler_wrapper
+    else:
+        raise Exception("Positional arguments are not supported by {{operationId}}_handler.")
 {{/operation}}
 {{/operations}}
