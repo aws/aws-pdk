@@ -17,6 +17,9 @@ import {
     {{/operations}}
 } from '..';
 
+// API Gateway Types
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+
 // Generic type for object keyed by operation names
 export interface OperationConfig<T> {
     {{#operations}}
@@ -64,7 +67,7 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
 // Api gateway lambda handler type
-type ApiGatewayLambdaHandler = (event: any, context: any) => Promise<any>;
+type ApiGatewayLambdaHandler = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>;
 
 // Type of the response to be returned by an operation lambda handler
 export interface OperationResponse<StatusCode extends number, Body> {
@@ -80,31 +83,44 @@ export type LambdaRequestParameters<RequestParameters, RequestArrayParameters, R
     body: RequestBody,
 };
 
+export type InterceptorContext = { [key: string]: any };
+
+export interface RequestInput<RequestParameters, RequestArrayParameters, RequestBody> {
+    input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>;
+    event: APIGatewayProxyEvent;
+    context: Context;
+    interceptorContext: InterceptorContext;
+}
+
+export interface ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response> extends RequestInput<RequestParameters, RequestArrayParameters, RequestBody> {
+    chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>;
+}
+
 /**
  * A lambda handler function which is part of a chain. It may invoke the remainder of the chain via the given chain input
  */
 export type ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
-  input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
-  event: any,
-  context: any,
-  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+  input: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
 ) => Promise<Response>;
 
 // Type for a lambda handler function to be wrapped
 export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
-  input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
-  event: any,
-  context: any,
+  input: RequestInput<RequestParameters, RequestArrayParameters, RequestBody>,
 ) => Promise<Response>;
 
 export interface LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> {
   next: LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>;
 }
 
+// Interceptor is a type alias for ChainedLambdaHandlerFunction
+export type Interceptor<RequestParameters, RequestArrayParameters, RequestBody, Response> = ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>;
+
 /**
  * Build a chain from the given array of chained lambda handlers
  */
-const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, Response>(...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>[]): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> => {
+const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, Response>(
+  ...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>[]
+): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> => {
   if (handlers.length === 0) {
     return {
       next: () => {
@@ -114,8 +130,11 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
   }
   const [currentHandler, ...remainingHandlers] = handlers;
   return {
-    next: (input, event, context) => {
-      return currentHandler(input, event, context, buildHandlerChain(...remainingHandlers));
+    next: (input) => {
+      return currentHandler({
+        ...input,
+        chain: buildHandlerChain(...remainingHandlers),
+      });
     },
   };
 };
@@ -159,12 +178,16 @@ export type {{operationIdCamelCase}}{{code}}OperationResponse = OperationRespons
 export type {{operationIdCamelCase}}OperationResponses = {{#responses}}| {{operationIdCamelCase}}{{code}}OperationResponse {{/responses}};
 
 // Type that the handler function provided to the wrapper must conform to
-export type {{operationIdCamelCase}}HandlerFunction = ChainedLambdaHandlerFunction<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody, {{operationIdCamelCase}}OperationResponses>;
+export type {{operationIdCamelCase}}HandlerFunction = LambdaHandlerFunction<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody, {{operationIdCamelCase}}OperationResponses>;
+export type {{operationIdCamelCase}}ChainedHandlerFunction = ChainedLambdaHandlerFunction<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody, {{operationIdCamelCase}}OperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of {{nickname}}
  */
-export const {{nickname}}Handler = (firstHandler: {{operationIdCamelCase}}HandlerFunction, ...remainingHandlers: {{operationIdCamelCase}}HandlerFunction[]): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+export const {{nickname}}Handler = (
+    firstHandler: {{operationIdCamelCase}}ChainedHandlerFunction,
+    ...remainingHandlers: {{operationIdCamelCase}}ChainedHandlerFunction[]
+): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -185,10 +208,15 @@ export const {{nickname}}Handler = (firstHandler: {{operationIdCamelCase}}Handle
 
     const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
     const response = await chain.next({
-        requestParameters,
-        requestArrayParameters,
-        body,
-    }, event, context);
+        input: {
+            requestParameters,
+            requestArrayParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: {},
+    });
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
