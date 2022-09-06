@@ -15,40 +15,38 @@
  ******************************************************************************************************************** */
 
 import * as path from "path";
-import { Project, SampleDir, SampleFile, TextFile } from "projen";
-import { PythonProject, PythonProjectOptions } from "projen/lib/python";
+import { DependencyType, Project, SampleDir } from "projen";
+import { JavaProject, JavaProjectOptions } from "projen/lib/java";
 import { ClientSettings } from "./codegen/components/client-settings";
 import { DocsProject } from "./codegen/docs-project";
 import { generateClientProjects } from "./codegen/generate";
-import { GeneratedPythonClientProject } from "./codegen/generated-python-client-project";
+import { GeneratedJavaClientProject } from "./codegen/generated-java-client-project";
 import { ClientLanguage } from "./languages";
-import {
-  getPythonSampleSource,
-  PythonSampleCodeOptions,
-} from "./samples/python";
+import { getJavaSampleSource, JavaSampleCodeOptions } from "./samples/java";
 import { OpenApiSpecProject } from "./spec/open-api-spec-project";
 import { OpenApiGatewayProjectOptions } from "./types";
 
-const OPENAPI_GATEWAY_PDK_PACKAGE_NAME = "aws_prototyping_sdk.open_api_gateway";
+const OPENAPI_GATEWAY_PDK_PACKAGE_NAME =
+  "software.aws.awsprototypingsdk/open-api-gateway@^0";
 
 /**
- * Configuration for the OpenApiGatewayPythonProject
+ * Configuration for the OpenApiGatewayJavaProject
  */
-export interface OpenApiGatewayPythonProjectOptions
-  extends PythonProjectOptions,
+export interface OpenApiGatewayJavaProjectOptions
+  extends JavaProjectOptions,
     OpenApiGatewayProjectOptions {}
 
 /**
- * Synthesizes a Python Project with an OpenAPI spec, generated clients, a CDK construct for deploying the API
+ * Synthesizes a Java Project with an OpenAPI spec, generated clients, a CDK construct for deploying the API
  * with API Gateway, and generated lambda handler wrappers for type-safe handling of requests.
  *
- * @pjid open-api-gateway-py
+ * @pjid open-api-gateway-java
  */
-export class OpenApiGatewayPythonProject extends PythonProject {
+export class OpenApiGatewayJavaProject extends JavaProject {
   /**
-   * A reference to the generated python client
+   * A reference to the generated java client
    */
-  public readonly generatedPythonClient: PythonProject;
+  public readonly generatedJavaClient: JavaProject;
 
   /**
    * References to the client projects that were generated, keyed by language
@@ -61,7 +59,8 @@ export class OpenApiGatewayPythonProject extends PythonProject {
   public readonly specDir: string;
 
   /**
-   * The directory in which the api generated code will reside, relative to the project srcdir
+   * The directory in which the api generated code will reside, relative to the project srcdir. This will also be used
+   * as the package for the api project.
    */
   public readonly apiSrcDir: string;
 
@@ -82,19 +81,10 @@ export class OpenApiGatewayPythonProject extends PythonProject {
 
   private readonly hasParent: boolean;
 
-  constructor(options: OpenApiGatewayPythonProjectOptions) {
+  constructor(options: OpenApiGatewayJavaProjectOptions) {
     super({
       ...options,
       sample: false,
-      venv: true,
-      venvOptions: {
-        envdir: ".env",
-        ...options?.venvOptions,
-      },
-      pip: true,
-      poetry: false,
-      pytest: false,
-      setuptools: true,
     });
 
     if (options.specFile) {
@@ -111,16 +101,29 @@ export class OpenApiGatewayPythonProject extends PythonProject {
     // Generated project should have a dependency on this project, in order to run the generation scripts
     [
       OPENAPI_GATEWAY_PDK_PACKAGE_NAME,
-      "constructs",
-      "aws-cdk-lib",
-      "cdk-nag",
+      "software.constructs/constructs@^10",
+      "software.amazon.awscdk/aws-cdk-lib@^2",
+      "io.github.cdklabs/cdknag@^2",
+      "org.projectlombok/lombok@^1",
+      "com.fasterxml.jackson.core/jackson-databind@^2",
+      "io.github.cdklabs/projen@^0",
     ].forEach((dep) => this.addDependency(dep));
 
-    // Synthesize the openapi spec early since it's used by the generated python client, which is also synth'd early
+    // Remove the projen test dependency since otherwise it takes precedence, causing projen to be unavailable at synth time
+    this.deps.removeDependency("io.github.cdklabs/projen", DependencyType.TEST);
+
+    // Synthesize the openapi spec early since it's used by the generated java client, which is also synth'd early
     const spec = new OpenApiSpecProject({
       name: `${this.name}-spec`,
       parent: this,
-      outdir: path.join(this.moduleName, this.specDir),
+      outdir: path.join("src", this.specDir),
+      // Write the parsed spec to the resources directory so that it can be packaged into the jar
+      parsedSpecOutdir: path.join(
+        ...this.specDir.split("/").map(() => ".."),
+        "main",
+        "resources",
+        this.specDir
+      ),
       specFileName: this.specFileName,
       parsedSpecFileName: options.parsedSpecFileName,
     });
@@ -132,28 +135,19 @@ export class OpenApiGatewayPythonProject extends PythonProject {
       ? path.join(options.outdir!, this.generatedCodeDir)
       : this.generatedCodeDir;
 
-    // Always generate the python client since this project will take a dependency on it in order to produce the
+    // Always generate the java client since this project will take a dependency on it in order to produce the
     // type-safe cdk construct wrapper.
     const clientLanguages = new Set(options.clientLanguages);
-    clientLanguages.add(ClientLanguage.PYTHON);
+    clientLanguages.add(ClientLanguage.JAVA);
 
     const clientSettings = new ClientSettings(this, {
       clientLanguages: [...clientLanguages],
-      defaultClientLanguage: ClientLanguage.PYTHON,
+      defaultClientLanguage: ClientLanguage.JAVA,
       documentationFormats: options.documentationFormats ?? [],
       forceGenerateCodeAndDocs: this.forceGenerateCodeAndDocs,
       generatedCodeDir: this.generatedCodeDir,
       specChanged: spec.specChanged,
     });
-
-    // Share the same env between this project and the generated client. Accept a custom venv if part of a monorepo
-    const envDir = options.venvOptions?.envdir || ".env";
-    // env directory relative to the generated python client
-    const clientEnvDir = path.join(
-      "..",
-      ...this.generatedCodeDir.split("/").map(() => ".."),
-      envDir
-    );
 
     this.generatedClients = generateClientProjects(
       clientSettings.clientLanguageConfigs,
@@ -167,18 +161,10 @@ export class OpenApiGatewayPythonProject extends PythonProject {
           ...options.typescriptClientOptions,
         },
         pythonOptions: {
-          authorName: options.authorName ?? "APJ Cope",
-          authorEmail: options.authorEmail ?? "apj-cope@amazon.com",
+          authorName: "APJ Cope",
+          authorEmail: "apj-cope@amazon.com",
           version: "0.0.0",
           ...options.pythonClientOptions,
-          // We are more prescriptive about the generated client since we must set up a dependency in the shared env
-          pip: true,
-          poetry: false,
-          venv: true,
-          venvOptions: {
-            envdir: clientEnvDir,
-          },
-          generateLayer: true,
         },
         javaOptions: {
           version: "0.0.0",
@@ -187,81 +173,73 @@ export class OpenApiGatewayPythonProject extends PythonProject {
       }
     );
 
-    this.generatedPythonClient = this.generatedClients[
-      ClientLanguage.PYTHON
-    ] as GeneratedPythonClientProject;
+    this.generatedJavaClient = this.generatedClients[
+      ClientLanguage.JAVA
+    ] as GeneratedJavaClientProject;
 
     // Synth early so that the generated code is available prior to this project's install phase
-    this.generatedPythonClient.synth();
+    this.generatedJavaClient.synth();
 
-    // Add a dependency on the generated python client, which should be available since we share the virtual env
-    this.addDependency(this.generatedPythonClient.moduleName);
+    // Add a dependency on the generated java client
+    this.addDependency(
+      `${this.generatedJavaClient.pom.groupId}/${this.generatedJavaClient.pom.artifactId}@${this.generatedJavaClient.pom.version}`
+    );
+
+    // Add a dependency on the generated java client repository
+    this.pom.addRepository({
+      url: `file://./${this.generatedCodeDir}/${ClientLanguage.JAVA}/dist/java`,
+      id: "generated-java-api-client",
+    });
 
     if (this.hasParent) {
-      // Since the generated python client project is parented by this project's parent rather than this project,
+      // Since the generated java client project is parented by this project's parent rather than this project,
       // projen will clean up the generated client when synthesizing this project unless we add an explicit exclude.
       this.addExcludeFromCleanup(`${this.generatedCodeDir}/**/*`);
 
       if ("addImplicitDependency" in this.parent!) {
-        // If we're within a monorepo, add an implicit dependency to ensure the generated python client is built first
+        // If we're within a monorepo, add an implicit dependency to ensure the generated java client is built first
         (this.parent! as any).addImplicitDependency(
           this,
-          this.generatedPythonClient
+          this.generatedJavaClient
         );
       }
     }
 
-    // Get the lambda layer dir relative to the root of this project
-    const pythonLayerDistDir = path.join(
-      this.generatedCodeDir,
-      ClientLanguage.PYTHON,
-      (this.generatedPythonClient as GeneratedPythonClientProject).layerDistDir
-    );
-
-    // Ensure it's included in the package
-    new TextFile(this, "MANIFEST.in", {
-      lines: [`recursive-include ${pythonLayerDistDir} *`],
+    // We build this project as a super jar so that it can be deployed as a lambda. This isn't ideal for jar size and
+    // so is not the recommended approach, however is makes it possible for a "one-click" way to get started with a
+    // full hello world api. Included in the generated "SampleApi.java" is a comment encouraging users to read the
+    // README and to move to defining a separate package for lambda handlers.
+    this.pom.addPlugin("org.apache.maven.plugins/maven-shade-plugin@3.3.0", {
+      configuration: {
+        createDependencyReducedPom: false,
+        // Name is the same as the regular maven build jar, which ensures the api jar path resolves to the super jar
+        // for deployment as a lambda.
+        finalName: `${this.name}-${options.version}`,
+      },
+      executions: [
+        {
+          id: "shade-task",
+          phase: "package",
+          goals: ["shade"],
+        },
+      ],
     });
 
-    // Generate the sample source and test code
-    const sampleOptions: PythonSampleCodeOptions = {
+    const javaClientPackage = `${this.generatedJavaClient.pom.groupId}.${this.generatedJavaClient.name}.client`;
+
+    // Generate the sample source code
+    const sampleOptions: JavaSampleCodeOptions = {
       openApiGatewayPackageName: OPENAPI_GATEWAY_PDK_PACKAGE_NAME,
-      pythonClientPackageName: this.generatedPythonClient.moduleName,
-      sampleCode: options.sample,
+      sampleCode: options.sample ?? true, // Generate sample code by default
+      apiSrcDir: this.apiSrcDir,
       specDir: this.specDir,
       parsedSpecFileName: spec.parsedSpecFileName,
-      moduleName: this.moduleName,
+      javaClientPackage,
     };
 
-    // Define some helpers for resolving resource paths in spec_utils.py
-    new SampleFile(this, path.join(this.moduleName, "spec_utils.py"), {
-      contents: `import pkgutil, json
-from os import path
-from pathlib import Path
-
-SPEC_PATH = path.join(str(Path(__file__).absolute().parent), "${this.specDir}/${spec.parsedSpecFileName}")
-SPEC = json.loads(pkgutil.get_data(__name__, "${this.specDir}/${spec.parsedSpecFileName}"))
-
-def get_project_root():
-    return Path(__file__).absolute().parent.parent
-
-def get_generated_client_layer_directory():
-    return path.join(str(get_project_root()), "${pythonLayerDistDir}")
-`,
+    new SampleDir(this, path.join("src", "main", "java", this.apiSrcDir), {
+      files: getJavaSampleSource(sampleOptions),
     });
-
-    new SampleFile(this, path.join(this.moduleName, "__init__.py"), {
-      contents: "#",
-    });
-
-    new SampleDir(this, path.join(this.moduleName, this.apiSrcDir), {
-      files: getPythonSampleSource(sampleOptions),
-    });
-
-    // Set up pytest manually since the default pytest generates tests for sample code which doesn't exist
-    const pytestVersion = options.pytestOptions?.version || "6.2.1";
-    this.addDevDependency(`pytest@${pytestVersion}`);
-    this.testTask.exec("pytest");
 
     // Generate documentation if needed
     new DocsProject({

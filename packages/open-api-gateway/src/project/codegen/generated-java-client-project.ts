@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import { JsonFile } from "projen";
 import { JavaProject, JavaProjectOptions } from "projen/lib/java";
 import { GeneratedJavaClientSourceCode } from "./components/generated-java-client-source-code";
 import { OpenApiGeneratorIgnoreFile } from "./components/open-api-generator-ignore-file";
@@ -82,6 +83,19 @@ export class GeneratedJavaClientProject extends JavaProject {
     new GeneratedJavaClientSourceCode(this, {
       specPath: options.specPath,
       invokeGenerator: options.generateClient,
+    });
+
+    // Use a package.json to ensure the client is discoverable by nx
+    new JsonFile(this, "package.json", {
+      obj: {
+        name: this.name,
+        __pdk__: true,
+        version: options.version,
+        scripts: Object.fromEntries(
+          this.tasks.all.map((task) => [task.name, `npx projen ${task.name}`])
+        ),
+      },
+      readonly: true,
     });
   }
 

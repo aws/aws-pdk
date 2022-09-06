@@ -14,6 +14,7 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import * as path from "path";
+import { JsonFile } from "projen";
 import { PythonProject, PythonProjectOptions } from "projen/lib/python";
 import { GeneratedPythonClientSourceCode } from "./components/generated-python-client-source-code";
 import { OpenApiGeneratorIgnoreFile } from "./components/open-api-generator-ignore-file";
@@ -59,6 +60,19 @@ export class GeneratedPythonClientProject extends PythonProject {
     new GeneratedPythonClientSourceCode(this, {
       specPath: options.specPath,
       invokeGenerator: options.generateClient,
+    });
+
+    // Use a package.json to ensure the client is discoverable by nx
+    new JsonFile(this, "package.json", {
+      obj: {
+        name: this.name,
+        __pdk__: true,
+        version: options.version,
+        scripts: Object.fromEntries(
+          this.tasks.all.map((task) => [task.name, `npx projen ${task.name}`])
+        ),
+      },
+      readonly: true,
     });
 
     new OpenApiGeneratorIgnoreFile(this);

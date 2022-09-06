@@ -39,6 +39,11 @@ export interface OpenApiSpecProjectOptions extends ProjectOptions {
    * @default ".parsed-spec.json"
    */
   readonly parsedSpecFileName?: string;
+  /**
+   * The directory to write the parsed spec to, relative to the project output directory
+   * @default the project outdir
+   */
+  readonly parsedSpecOutdir?: string;
 }
 
 /**
@@ -72,7 +77,11 @@ export class OpenApiSpecProject extends Project {
     }
 
     this.specPath = path.join(this.outdir, this.specFileName);
-    this.parsedSpecPath = path.join(this.outdir, this.parsedSpecFileName);
+    this.parsedSpecPath = path.join(
+      this.outdir,
+      ...(options.parsedSpecOutdir ? [options.parsedSpecOutdir] : []),
+      this.parsedSpecFileName
+    );
 
     logger.debug(`specPath = "${this.specPath}"`);
     logger.debug(`parsedSpecPath = "${this.parsedSpecPath}"`);

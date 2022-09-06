@@ -10,12 +10,21 @@ import java.util.Map;
 
 // Generic type for object "keyed" by operation names
 {{>generatedAnnotation}}
-public abstract class OperationConfig<T> {
+@lombok.Builder @lombok.Getter
+public class OperationConfig<T> {
     {{#operations}}
     {{#operation}}
-    public T {{nickname}};
+    private T {{nickname}};
     {{/operation}}
     {{/operations}}
-}
 
-// TODO: Generate handler wrappers
+    public Map<String, T> asMap() {
+        Map<String, T> map = new HashMap<>();
+        {{#operations}}
+        {{#operation}}
+        map.put("{{nickname}}", this.{{nickname}});
+        {{/operation}}
+        {{/operations}}
+        return map;
+    }
+}

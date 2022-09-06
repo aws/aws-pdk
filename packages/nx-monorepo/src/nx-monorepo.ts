@@ -374,6 +374,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   private synthesizeNonNodePackageJson() {
     this.subProjects
       .filter((subProject: any) => !isNodeProject(subProject))
+      .filter((subProject: Project) => !subProject.tryFindFile("package.json"))
       .forEach((subProject: Project) => {
         // generate a package.json if not found
         const manifest: any = {};
