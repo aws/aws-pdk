@@ -10,9 +10,20 @@ When you change your API specification, just run `npx projen` again to regenerat
 
 ### Project
 
+Use the provided projen project types to get started with your API quickly! There are options for TypeScript, Python and Java:
+
+* `OpenApiGatewayTsProject`
+* `OpenApiGatewayPythonProject`
+* `OpenApiGatewayJavaProject`
+
+Choose the project type based on the language you'd like to _write your CDK infrastructure in_. Whichever option above you choose, you can still write your server-side code in any language.
+
+It's recommended that these projects are used as part of an `nx-monorepo` project, as it makes setting up dependencies much easier, and
+you will not need to manage the build order of generated clients.
+
 #### Typescript
 
-It's recommended that this project is used as part of an `nx_monorepo` project. You can still use this as a standalone project if you like (eg `npx projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts`), however you will need to manage build order (ie building the generated client first, followed by the project).
+While it is recommended to use the project within an `nx-monorepo`, you can still use this as a standalone project if you like (eg `npx projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts`), however you will need to manage build order (ie building the generated client first, followed by the project).
 
 For usage in a monorepo:
 
@@ -46,7 +57,7 @@ In the output directory (`outdir`), you'll find a few files to get you started.
         |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
                                      generated lambda handler wrappers for marshalling and type safety.
 |_ generated/
-    |_ typescript/ - A generated typescript API client, including generated lambda handler wrappers
+    |_ typescript/ - A generated typescript API client.
     |_ python/ - A generated python API client.
     |_ java/ - A generated java API client.
     |_ documentation/
@@ -147,11 +158,58 @@ You'll find the following directory structure in `packages/myapi`:
                                               generated lambda handler wrappers for marshalling and type safety.
 |_ generated/
     |_ typescript/ - A generated typescript API client.
-    |_ python/ - A generated python API client, including generated lambda handler wrappers.
+    |_ python/ - A generated python API client.
     |_ java/ - A generated java API client.
 ```
 
 For simplicity, the generated code deploys a lambda layer for the generated code and its dependencies. You may choose to define an entirely separate projen `PythonProject` for your lambda handlers should you wish to add more dependencies than just the generated code.
+
+#### Java
+
+As well as TypeScript and Python, you can choose to generate the cdk construct and sample handler in Java.
+
+```ts
+new OpenApiGatewayJavaProject({
+  parent: monorepo,
+  outdir: 'packages/myapi',
+  name: "myapi",
+  groupId: "com.mycompany",
+  artifactId: "my-api",
+  version: "1.0.0",
+  clientLanguages: [ClientLanguage.PYTHON, ClientLanguage.TYPESCRIPT],
+  documentationFormats: [DocumentationFormat.HTML2, DocumentationFormat.PLANTUML, DocumentationFormat.MARKDOWN],
+});
+```
+
+The output directory will look a little like this:
+
+```
+|_ src/
+    |_ spec/
+        |_ spec.yaml - The OpenAPI specification - edit this to define your API
+    |_ main/
+        |_ java/
+            |_ api/
+                |_ Api.java - A CDK construct which defines the API Gateway resources to deploy your API. 
+                |             This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+                |             to your API. You shouldn't need to modify this, instead just extend it as in SampleApi.java.
+                |_ ApiProps.java - Defines properties for the CDK construct in Api.java
+                |_ SampleApi.java - Example usage of the construct defined in Api.java
+                |_ SayHelloHandler.java - An example lambda handler for the operation defined in spec.yaml, making use of the
+                                        generated lambda handler wrappers for marshalling and type safety.
+        |_ resources/
+            |_ .parsed-spec.json - A json spec generated from your spec.yaml. This will be bundled in the project jar.
+|_ generated/
+    |_ typescript/ - A generated typescript API client
+    |_ python/ - A generated python API client.
+    |_ java/ - A generated java API client.
+    |_ documentation/
+        |_ html2/ - Generated html documentation
+        |_ markdown/ - Generated markdown documentation
+        |_ plantuml/ - Generated plant uml documentation
+```
+
+The `SampleApi` construct uses a lambda function which deploys the entire project jar as a simple way to get started with an api that deploys out of the box. This jar includes a lot of extra code and dependencies that you don't need in your lambda, so it's recommended that after experimenting with the construct, you separate your lambdas into another `JavaProject`. Please refer to the `Java API Lambda Handlers` section of this README for details on how to set this up.
 
 ### OpenAPI Specification
 

@@ -13,9 +13,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import { synthSnapshot } from "projen/lib/util/synth";
+import { ClientLanguage, OpenApiGatewayJavaProject } from "../../../src";
 
-export * from "./open-api-gateway-ts-project";
-export * from "./open-api-gateway-python-project";
-export * from "./open-api-gateway-java-project";
-export * from "./languages";
-export * from "./types";
+describe("OpenAPI Gateway Java Standalone Unit Tests", () => {
+  it("Standalone", () => {
+    const project = new OpenApiGatewayJavaProject({
+      name: "myapi",
+      groupId: "software.aws.test",
+      artifactId: "my-api",
+      version: "1.0.0",
+      clientLanguages: [
+        ClientLanguage.TYPESCRIPT,
+        ClientLanguage.PYTHON,
+        ClientLanguage.JAVA,
+      ],
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+});
