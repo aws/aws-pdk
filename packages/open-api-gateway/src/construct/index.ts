@@ -15,5 +15,6 @@
  ******************************************************************************************************************** */
 
 export * from "./open-api-gateway-lambda-api";
+export * from "./waf/types";
 export * from "./authorizers";
 export * from "./spec";

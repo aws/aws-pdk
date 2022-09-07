@@ -41,6 +41,11 @@ import {
 } from "aws-cdk-lib/aws-lambda";
 import { LogGroup } from "aws-cdk-lib/aws-logs";
 import { Asset } from "aws-cdk-lib/aws-s3-assets";
+import {
+  CfnIPSet,
+  CfnWebACL,
+  CfnWebACLAssociation,
+} from "aws-cdk-lib/aws-wafv2";
 import { Provider } from "aws-cdk-lib/custom-resources";
 import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
@@ -57,6 +62,8 @@ import {
 } from "./spec/api-gateway-auth";
 import { getLabelledFunctions } from "./spec/api-gateway-integrations";
 import { functionInvocationUri } from "./spec/utils";
+import { OpenApiGatewayWebAcl } from "./waf/open-api-gateway-web-acl";
+import { OpenApiGatewayWebAclOptions } from "./waf/types";
 
 /**
  * Configuration for the OpenApiGatewayLambdaApi construct
@@ -72,6 +79,11 @@ export interface OpenApiGatewayLambdaApiProps
    * Path to the JSON open api spec
    */
   readonly specPath: string;
+  /**
+   * Options for the AWS WAF v2 WebACL associated with the api. By default, a Web ACL with the AWS default managed
+   * rule set will be associated with the API. These options may disable or override the defaults.
+   */
+  readonly webAclOptions?: OpenApiGatewayWebAclOptions;
 }
 
 /**
@@ -79,6 +91,9 @@ export interface OpenApiGatewayLambdaApiProps
  */
 export class OpenApiGatewayLambdaApi extends Construct {
   public readonly api: SpecRestApi;
+  readonly webAcl?: CfnWebACL;
+  readonly ipSet?: CfnIPSet;
+  readonly webAclAssociation?: CfnWebACLAssociation;
 
   constructor(
     scope: Construct,
@@ -330,6 +345,18 @@ export class OpenApiGatewayLambdaApi extends Construct {
         }),
       });
     });
+
+    // Create and associate the web acl if not disabled
+    if (!props.webAclOptions?.disable) {
+      const acl = new OpenApiGatewayWebAcl(this, `${id}-Acl`, {
+        ...props.webAclOptions,
+        apiDeploymentStageArn: this.api.deploymentStage.stageArn,
+      });
+
+      this.webAcl = acl.webAcl;
+      this.ipSet = acl.ipSet;
+      this.webAclAssociation = acl.webAclAssociation;
+    }
 
     NagSuppressions.addResourceSuppressions(
       this,
