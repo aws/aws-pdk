@@ -1730,7 +1730,8 @@ aws-prototyping-sdk library.</p>
 <span class="p">)</span>
 </code></pre></div>
 <p>You will need to set up a shared virtual environment and configure dependencies via the monorepo (see README.md for the nx-monorepo package). An example of a full <code>.projenrc.ts</code> might be:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">projen.VenvOptions</span> <span class="kn">import</span> <span class="n">VenvOptions</span><span class="p">,</span> <span class="n">VenvOptions</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="kn">from</span> <span class="nn">projen.VenvOptions</span> <span class="kn">import</span> <span class="n">VenvOptions</span><span class="p">,</span> <span class="n">VenvOptions</span>
 <span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
 <span class="kn">from</span> <span class="nn">aws_prototyping_sdk.open_api_gateway</span> <span class="kn">import</span> <span class="n">ClientLanguage</span><span class="p">,</span> <span class="n">OpenApiGatewayPythonProject</span>
 <span class="kn">from</span> <span class="nn">projen.awscdk</span> <span class="kn">import</span> <span class="n">AwsCdkPythonApp</span>
@@ -2017,7 +2018,7 @@ aws-prototyping-sdk library.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
 <span class="kn">from</span> <span class="nn">my_api_typescript_client</span> <span class="kn">import</span> <span class="n">say_hello_handler</span>
 
-<span class="n">handler</span> <span class="o">=</span> <span class="n">say_hello_handler</span><span class="p">(</span><span class="k">async</span> <span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+<span class="n">handler</span> <span class="o">=</span> <span class="n">say_hello_handler</span><span class="p">(</span><span class="k">async</span> <span class="p">({</span> <span class="nb">input</span> <span class="p">})</span> <span class="o">=&gt;</span> <span class="p">{</span>
       <span class="k">return</span> <span class="p">{</span>
         <span class="n">statusCode</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">body</span><span class="p">:</span> <span class="p">{</span>
@@ -2059,31 +2060,23 @@ aws-prototyping-sdk library.</p>
 <h3 id="interceptors">Interceptors</h3>
 <p>The lambda handler wrappers allow you to pass in a <em>chain</em> of handler functions to handle the request. This allows you to implement middleware / interceptors for handling requests. Each handler function may choose whether or not to continue the handler chain by invoking <code>chain.next</code>.</p>
 <h4 id="typescript_3">Typescript</h4>
-<p>In typescript, interceptors are passed as separate arguments to the generated handler wrapper, in the order in which they should be executed. Call <code>chain.next(input, event, context)</code> from an interceptor to delegate to the rest of the chain to handle a request. Note that the last handler in the chain (ie the actual request handler which transforms the input to the output) should not call <code>chain.next</code>.</p>
+<p>In typescript, interceptors are passed as separate arguments to the generated handler wrapper, in the order in which they should be executed. Call <code>request.chain.next(request)</code> from an interceptor to delegate to the rest of the chain to handle a request. Note that the last handler in the chain (ie the actual request handler which transforms the input to the output) should not call <code>chain.next</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
-<span class="kn">from</span> <span class="nn">my_api_typescript_client</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">LambdaRequestParameters</span><span class="p">,</span> <span class="n">LambdaHandlerChain</span>
+<span class="kn">from</span> <span class="nn">my_api_typescript_client</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">ChainedRequestInput</span><span class="p">,</span> <span class="n">OperationResponse</span>
 
 <span class="c1"># Interceptor to wrap invocations in a try/catch, returning a 500 error for any unhandled exceptions.</span>
-<span class="n">try_catch_interceptor</span> <span class="o">=</span> <span class="k">async</span> <span class="o">&lt;</span>
-  <span class="n">RequestParameters</span><span class="p">,</span>
-  <span class="n">RequestArrayParameters</span><span class="p">,</span>
-  <span class="n">RequestBody</span><span class="p">,</span>
-  <span class="n">Response</span>
-<span class="o">&gt;</span><span class="p">(</span>
-  <span class="nb">input</span><span class="p">:</span> <span class="n">LambdaRequestParameters</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="o">&gt;</span><span class="p">,</span>
-  <span class="n">event</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
-  <span class="n">context</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
-  <span class="n">chain</span><span class="p">:</span> <span class="n">LambdaHandlerChain</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="p">,</span> <span class="n">Response</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="n">try_catch_interceptor</span> <span class="o">=</span> <span class="k">async</span> <span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="p">,</span> <span class="n">Response</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="n">request</span><span class="p">:</span> <span class="n">ChainedRequestInput</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="p">,</span> <span class="n">Response</span><span class="o">&gt;</span>
 <span class="p">):</span> <span class="n">Promise</span><span class="o">&lt;</span><span class="n">Response</span> <span class="o">|</span> <span class="n">OperationResponse</span><span class="o">&lt;</span><span class="mi">500</span><span class="p">,</span> <span class="p">{</span> <span class="n">errorMessage</span><span class="p">:</span> <span class="n">string</span> <span class="p">}</span><span class="o">&gt;&gt;</span> <span class="o">=&gt;</span> <span class="p">{</span>
   <span class="k">try</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="n">chain</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">);</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="n">request</span><span class="p">);</span>
   <span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="nb">any</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="p">{</span> <span class="n">statusCode</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="p">{</span> <span class="n">errorMessage</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span> <span class="p">}};</span>
   <span class="p">}</span>
 <span class="p">}</span>
 
 <span class="c1"># tryCatchInterceptor is passed first, so it runs first and calls the second argument function (the request handler) via chain.next</span>
-<span class="n">handler</span> <span class="o">=</span> <span class="n">say_hello_handler</span><span class="p">(</span><span class="n">try_catch_interceptor</span><span class="p">,</span> <span class="k">async</span> <span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+<span class="n">handler</span> <span class="o">=</span> <span class="n">say_hello_handler</span><span class="p">(</span><span class="n">try_catch_interceptor</span><span class="p">,</span> <span class="k">async</span> <span class="p">({</span> <span class="nb">input</span> <span class="p">})</span> <span class="o">=&gt;</span> <span class="p">{</span>
       <span class="k">return</span> <span class="p">{</span>
         <span class="n">statusCode</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">body</span><span class="p">:</span> <span class="p">{</span>
@@ -2094,45 +2087,32 @@ aws-prototyping-sdk library.</p>
 </code></pre></div>
 <p>Another example interceptor might be to record request time metrics. The example below includes the full generic type signature for an interceptor:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
-<span class="kn">from</span> <span class="nn">my_api_typescript_client</span> <span class="kn">import</span> <span class="n">LambdaRequestParameters</span><span class="p">,</span> <span class="n">LambdaHandlerChain</span>
+<span class="kn">from</span> <span class="nn">my_api_typescript_client</span> <span class="kn">import</span> <span class="n">ChainedRequestInput</span>
 
-<span class="n">timing_interceptor</span> <span class="o">=</span> <span class="k">async</span> <span class="o">&lt;</span>
-  <span class="n">RequestParameters</span><span class="p">,</span>
-  <span class="n">RequestArrayParameters</span><span class="p">,</span>
-  <span class="n">RequestBody</span><span class="p">,</span>
-  <span class="n">Response</span>
-<span class="o">&gt;</span><span class="p">(</span>
-  <span class="nb">input</span><span class="p">:</span> <span class="n">LambdaRequestParameters</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="o">&gt;</span><span class="p">,</span>
-  <span class="n">event</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
-  <span class="n">context</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
-  <span class="n">chain</span><span class="p">:</span> <span class="n">LambdaHandlerChain</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="p">,</span> <span class="n">Response</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="n">timing_interceptor</span> <span class="o">=</span> <span class="k">async</span> <span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="p">,</span> <span class="n">Response</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="n">request</span><span class="p">:</span> <span class="n">ChainedRequestInput</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="p">,</span> <span class="n">Response</span><span class="o">&gt;</span>
 <span class="p">):</span> <span class="n">Promise</span><span class="o">&lt;</span><span class="n">Response</span><span class="o">&gt;</span> <span class="o">=&gt;</span> <span class="p">{</span>
   <span class="n">const</span> <span class="n">start</span> <span class="o">=</span> <span class="n">Date</span><span class="o">.</span><span class="n">now</span><span class="p">();</span>
-  <span class="n">const</span> <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">chain</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">);</span>
+  <span class="n">const</span> <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="n">request</span><span class="p">);</span>
   <span class="n">const</span> <span class="n">end</span> <span class="o">=</span> <span class="n">Date</span><span class="o">.</span><span class="n">now</span><span class="p">();</span>
   <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="err">`</span><span class="n">Took</span> <span class="err">$</span><span class="p">{</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">}</span> <span class="n">ms</span><span class="err">`</span><span class="p">);</span>
   <span class="k">return</span> <span class="n">response</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Interceptors may add extra properties to the <code>context</code> to pass state to further interceptors or the final lambda handler, for example an <code>identityInterceptor</code> might want to extract the authenticated user from the request so that it is available in handlers.</p>
+<p>Interceptors may mutate the <code>interceptorContext</code> to pass state to further interceptors or the final lambda handler, for example an <code>identityInterceptor</code> might want to extract the authenticated user from the request so that it is available in handlers.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
 <span class="kn">from</span> <span class="nn">my_api_typescript_client</span> <span class="kn">import</span> <span class="n">LambdaRequestParameters</span><span class="p">,</span> <span class="n">LambdaHandlerChain</span>
 
-<span class="n">identity_interceptor</span> <span class="o">=</span> <span class="k">async</span> <span class="o">&lt;</span>
-  <span class="n">RequestParameters</span><span class="p">,</span>
-  <span class="n">RequestArrayParameters</span><span class="p">,</span>
-  <span class="n">RequestBody</span><span class="p">,</span>
-  <span class="n">Response</span>
-<span class="o">&gt;</span><span class="p">(</span>
-  <span class="nb">input</span><span class="p">:</span> <span class="n">LambdaRequestParameters</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="o">&gt;</span><span class="p">,</span>
-  <span class="n">event</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
-  <span class="n">context</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
-  <span class="n">chain</span><span class="p">:</span> <span class="n">LambdaHandlerChain</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="p">,</span> <span class="n">Response</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="n">identity_interceptor</span> <span class="o">=</span> <span class="k">async</span> <span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="p">,</span> <span class="n">Response</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="n">request</span><span class="p">:</span> <span class="n">ChainedRequestInput</span><span class="o">&lt;</span><span class="n">RequestParameters</span><span class="p">,</span> <span class="n">RequestArrayParameters</span><span class="p">,</span> <span class="n">RequestBody</span><span class="p">,</span> <span class="n">Response</span><span class="o">&gt;</span>
 <span class="p">):</span> <span class="n">Promise</span><span class="o">&lt;</span><span class="n">Response</span><span class="o">&gt;</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="n">const</span> <span class="n">authenticatedUser</span> <span class="o">=</span> <span class="k">await</span> <span class="n">getAuthenticatedUser</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
-  <span class="k">return</span> <span class="k">await</span> <span class="n">chain</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="p">{</span>
-    <span class="o">...</span><span class="n">context</span><span class="p">,</span>
-    <span class="n">authenticatedUser</span><span class="p">,</span>
+  <span class="n">const</span> <span class="n">authenticatedUser</span> <span class="o">=</span> <span class="k">await</span> <span class="n">getAuthenticatedUser</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">event</span><span class="p">);</span>
+  <span class="k">return</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">next</span><span class="p">({</span>
+    <span class="o">...</span><span class="n">request</span><span class="p">,</span>
+    <span class="n">interceptorContext</span><span class="p">:</span> <span class="p">{</span>
+      <span class="o">...</span><span class="n">request</span><span class="o">.</span><span class="n">interceptorContext</span><span class="p">,</span>
+      <span class="n">authenticatedUser</span><span class="p">,</span>
+    <span class="p">},</span>
   <span class="p">});</span>
 <span class="p">}</span>
 </code></pre></div>
