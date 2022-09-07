@@ -433,7 +433,7 @@ Lambda handler wrappers are also importable from the generated client. These pro
 ```ts
 import { sayHelloHandler } from "my-api-typescript-client";
 
-export const handler = sayHelloHandler(async (input) => {
+export const handler = sayHelloHandler(async ({ input }) => {
   return {
     statusCode: 200,
     body: {
@@ -485,36 +485,28 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
 
 #### Typescript
 
-In typescript, interceptors are passed as separate arguments to the generated handler wrapper, in the order in which they should be executed. Call `chain.next(input, event, context)` from an interceptor to delegate to the rest of the chain to handle a request. Note that the last handler in the chain (ie the actual request handler which transforms the input to the output) should not call `chain.next`.
+In typescript, interceptors are passed as separate arguments to the generated handler wrapper, in the order in which they should be executed. Call `request.chain.next(request)` from an interceptor to delegate to the rest of the chain to handle a request. Note that the last handler in the chain (ie the actual request handler which transforms the input to the output) should not call `chain.next`.
 
 ```ts
 import {
   sayHelloHandler,
-  LambdaRequestParameters,
-  LambdaHandlerChain,
+  ChainedRequestInput,
+  OperationResponse,
 } from "my-api-typescript-client";
 
 // Interceptor to wrap invocations in a try/catch, returning a 500 error for any unhandled exceptions.
-const tryCatchInterceptor = async <
-  RequestParameters,
-  RequestArrayParameters,
-  RequestBody,
-  Response
->(
-  input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
-  event: any,
-  context: any,
-  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+const tryCatchInterceptor = async <RequestParameters, RequestArrayParameters, RequestBody, Response>(
+  request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>
 ): Promise<Response | OperationResponse<500, { errorMessage: string }>> => {
   try {
-    return await chain.next(input, event, context);
+    return await request.chain.next(request);
   } catch (e: any) {
     return { statusCode: 500, body: { errorMessage: e.message }};
   }
 };
 
 // tryCatchInterceptor is passed first, so it runs first and calls the second argument function (the request handler) via chain.next
-export const handler = sayHelloHandler(tryCatchInterceptor, async (input) => {
+export const handler = sayHelloHandler(tryCatchInterceptor, async ({ input }) => {
   return {
     statusCode: 200,
     body: {
@@ -528,30 +520,21 @@ Another example interceptor might be to record request time metrics. The example
 
 ```ts
 import {
-  LambdaRequestParameters,
-  LambdaHandlerChain,
+  ChainedRequestInput,
 } from 'my-api-typescript-client';
 
-const timingInterceptor = async <
-  RequestParameters,
-  RequestArrayParameters,
-  RequestBody,
-  Response
->(
-  input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
-  event: any,
-  context: any,
-  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+const timingInterceptor = async <RequestParameters, RequestArrayParameters, RequestBody, Response>(
+  request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>
 ): Promise<Response> => {
   const start = Date.now();
-  const response = await chain.next(input, event, context);
+  const response = await request.chain.next(request);
   const end = Date.now();
   console.log(`Took ${end - start} ms`);
   return response;
 };
 ```
 
-Interceptors may add extra properties to the `context` to pass state to further interceptors or the final lambda handler, for example an `identityInterceptor` might want to extract the authenticated user from the request so that it is available in handlers.
+Interceptors may mutate the `interceptorContext` to pass state to further interceptors or the final lambda handler, for example an `identityInterceptor` might want to extract the authenticated user from the request so that it is available in handlers.
 
 ```ts
 import {
@@ -559,21 +542,16 @@ import {
   LambdaHandlerChain,
 } from 'my-api-typescript-client';
 
-const identityInterceptor = async <
-  RequestParameters,
-  RequestArrayParameters,
-  RequestBody,
-  Response
->(
-  input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>,
-  event: any,
-  context: any,
-  chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+const identityInterceptor = async <RequestParameters, RequestArrayParameters, RequestBody, Response>(
+  request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>
 ): Promise<Response> => {
-  const authenticatedUser = await getAuthenticatedUser(event);
-  return await chain.next(input, event, {
-    ...context,
-    authenticatedUser,
+  const authenticatedUser = await getAuthenticatedUser(request.event);
+  return await request.chain.next({
+    ...request,
+    interceptorContext: {
+      ...request.interceptorContext,
+      authenticatedUser,
+    },
   });
 };
 ```

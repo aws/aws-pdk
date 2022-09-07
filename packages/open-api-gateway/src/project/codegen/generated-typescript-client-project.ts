@@ -80,6 +80,9 @@ export class GeneratedTypescriptClientProject extends TypeScriptProject {
       this.npmConfig.addConfig("strict-peer-dependencies", "false");
     }
 
+    // For event and context types
+    this.addDeps("@types/aws-lambda");
+
     // Tell OpenAPI Generator CLI not to generate files that we will generate via this project, or don't need.
     const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
     openapiGeneratorIgnore.addPatterns(

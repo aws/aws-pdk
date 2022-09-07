@@ -119,7 +119,7 @@ export class SampleApi extends Api {
 /**
  * An example lambda handler which uses the generated handler wrapper to manage marshalling inputs/outputs.
  */
-export const handler = sayHelloHandler(async (input) => {
+export const handler = sayHelloHandler(async ({ input }) => {
   return {
     statusCode: 200,
     headers: {
