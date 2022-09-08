@@ -308,7 +308,7 @@ Object {
                     Array [
                       "origin-access-identity/cloudfront/",
                       Object {
-                        "Ref": "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E",
+                        "Ref": "DefaultsOriginAccessIdentity7F5D47DF",
                       },
                     ],
                   ],
@@ -325,14 +325,6 @@ Object {
         },
       },
       "Type": "AWS::CloudFront::Distribution",
-    },
-    "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E": Object {
-      "Properties": Object {
-        "CloudFrontOriginAccessIdentityConfig": Object {
-          "Comment": "Identity for NestedStackDefaultsCloudfrontDistributionOrigin1D3B56211",
-        },
-      },
-      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "DefaultsDistributionLogBucket7EA741E2": Object {
       "DeletionPolicy": "Delete",
@@ -468,6 +460,14 @@ Object {
         },
       },
       "Type": "AWS::S3::BucketPolicy",
+    },
+    "DefaultsOriginAccessIdentity7F5D47DF": Object {
+      "Properties": Object {
+        "CloudFrontOriginAccessIdentityConfig": Object {
+          "Comment": "Allows CloudFront to reach the bucket",
+        },
+      },
+      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C": Object {
       "DeletionPolicy": "Delete",
@@ -1036,12 +1036,30 @@ Object {
               ],
             },
             Object {
+              "Action": "s3:ListBucket",
+              "Effect": "Allow",
+              "Principal": Object {
+                "CanonicalUser": Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsOriginAccessIdentity7F5D47DF",
+                    "S3CanonicalUserId",
+                  ],
+                },
+              },
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsWebsiteBucket3263D025",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
               "Action": "s3:GetObject",
               "Effect": "Allow",
               "Principal": Object {
                 "CanonicalUser": Object {
                   "Fn::GetAtt": Array [
-                    "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E",
+                    "DefaultsOriginAccessIdentity7F5D47DF",
                     "S3CanonicalUserId",
                   ],
                 },
@@ -1426,7 +1444,7 @@ Object {
                     Array [
                       "origin-access-identity/cloudfront/",
                       Object {
-                        "Ref": "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E",
+                        "Ref": "DefaultsOriginAccessIdentity7F5D47DF",
                       },
                     ],
                   ],
@@ -1443,14 +1461,6 @@ Object {
         },
       },
       "Type": "AWS::CloudFront::Distribution",
-    },
-    "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E": Object {
-      "Properties": Object {
-        "CloudFrontOriginAccessIdentityConfig": Object {
-          "Comment": "Identity for DefaultsCloudfrontDistributionOrigin1BA23CD94",
-        },
-      },
-      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "DefaultsDistributionLogBucket7EA741E2": Object {
       "DeletionPolicy": "Delete",
@@ -1586,6 +1596,14 @@ Object {
         },
       },
       "Type": "AWS::S3::BucketPolicy",
+    },
+    "DefaultsOriginAccessIdentity7F5D47DF": Object {
+      "Properties": Object {
+        "CloudFrontOriginAccessIdentityConfig": Object {
+          "Comment": "Allows CloudFront to reach the bucket",
+        },
+      },
+      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
     "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C": Object {
       "DeletionPolicy": "Delete",
@@ -2132,12 +2150,30 @@ Object {
               ],
             },
             Object {
+              "Action": "s3:ListBucket",
+              "Effect": "Allow",
+              "Principal": Object {
+                "CanonicalUser": Object {
+                  "Fn::GetAtt": Array [
+                    "DefaultsOriginAccessIdentity7F5D47DF",
+                    "S3CanonicalUserId",
+                  ],
+                },
+              },
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsWebsiteBucket3263D025",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
               "Action": "s3:GetObject",
               "Effect": "Allow",
               "Principal": Object {
                 "CanonicalUser": Object {
                   "Fn::GetAtt": Array [
-                    "DefaultsCloudfrontDistributionOrigin1S3OriginCFA7596E",
+                    "DefaultsOriginAccessIdentity7F5D47DF",
                     "S3CanonicalUserId",
                   ],
                 },
