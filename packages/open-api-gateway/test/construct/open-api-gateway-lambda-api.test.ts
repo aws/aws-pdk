@@ -357,4 +357,85 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       );
     });
   });
+
+  it("Without Waf", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    withTempSpec(sampleSpec, (specPath) => {
+      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+        spec: sampleSpec,
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            function: func,
+          },
+        },
+        webAclOptions: {
+          disable: true,
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
+  it("With Waf IP Set", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    withTempSpec(sampleSpec, (specPath) => {
+      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+        spec: sampleSpec,
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            function: func,
+          },
+        },
+        webAclOptions: {
+          cidrAllowList: {
+            cidrType: "IPV4",
+            cidrRanges: ["1.2.3.4/5"],
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
+  it("With Custom Managed Rules", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    withTempSpec(sampleSpec, (specPath) => {
+      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+        spec: sampleSpec,
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            function: func,
+          },
+        },
+        webAclOptions: {
+          managedRules: [
+            { vendor: "AWS", name: "AWSManagedRulesAmazonIpReputationList" },
+            { vendor: "AWS", name: "AWSManagedRulesAnonymousIpList" },
+          ],
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
 });

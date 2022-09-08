@@ -930,3 +930,32 @@ Note that to ensure the jar is built before the CDK infrastructure which consume
 ```ts
 monorepo.addImplicitDependency(infra, javaLambdaProject);
 ```
+
+#### AWS WAFv2 Web ACL
+
+By default, a [Web ACL](https://docs.aws.amazon.com/waf/latest/developerguide/web-acl.html) is deployed and attached to your API Gateway Rest API with the "[AWSManagedRulesCommonRuleSet](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-baseline.html)", which provides protection against exploitation of a wide range of vulnerabilities, including some of the high risk and commonly occurring vulnerabilities described in OWASP publications such as [OWASP Top 10](https://owasp.org/www-project-top-ten/).
+
+You can customise the Web ACL configuration via the `webAclOptions` of your `Api` CDK construct, eg:
+
+```ts
+export class SampleApi extends Api {
+  constructor(scope: Construct, id: string) {
+    super(scope, id, {
+      integrations: { ... },
+      webAclOptions: {
+        // Allow access only to specific CIDR ranges
+        cidrAllowList: {
+          cidrType: 'IPV4',
+          cidrRanges: ['1.2.3.4/5'],
+        },
+        // Pick from the set here: https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html
+        managedRules: [
+          { vendor: 'AWS', name: 'AWSManagedRulesSQLiRuleSet' },
+        ],
+      },
+    });
+  }
+}
+```
+
+You can remove the Web ACL entirely with `webAclOptions: { disable: true }` - you may wish to use this if you'd like to set up a Web ACL yourself with more control over the rules.
