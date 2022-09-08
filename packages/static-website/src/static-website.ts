@@ -20,11 +20,13 @@ import {
   Distribution,
   DistributionProps,
   IOrigin,
+  OriginAccessIdentity,
   OriginBindConfig,
   OriginBindOptions,
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
 import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
+import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Key } from "aws-cdk-lib/aws-kms";
 import {
   BlockPublicAccess,
@@ -176,18 +178,33 @@ export class StaticWebsite extends Construct {
         serverAccessLogsPrefix: "access-logs",
       });
 
+    const originAccessIdentity = new OriginAccessIdentity(
+      this,
+      "OriginAccessIdentity"
+    );
+    this.websiteBucket.addToResourcePolicy(
+      new PolicyStatement({
+        resources: [this.websiteBucket.bucketArn],
+        actions: ["s3:ListBucket"],
+        principals: [originAccessIdentity.grantPrincipal],
+      })
+    );
+
     const defaultRootObject =
       distributionProps?.defaultRootObject ?? "index.html";
     this.cloudFrontDistribution = new Distribution(
       this,
       "CloudfrontDistribution",
       {
+        ...distributionProps,
         webAclId: webAclArn,
         enableLogging: true,
         logBucket: logBucket,
         defaultBehavior: {
           ...distributionProps?.defaultBehavior,
-          origin: new S3Origin(this.websiteBucket),
+          origin: new S3Origin(this.websiteBucket, {
+            originAccessIdentity,
+          }),
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },
         defaultRootObject,
@@ -198,7 +215,6 @@ export class StaticWebsite extends Construct {
             responsePagePath: `/${defaultRootObject}`,
           },
         ],
-        ...distributionProps,
       }
     );
 
