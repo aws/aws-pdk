@@ -210,14 +210,14 @@ export class NxMonorepoProject extends TypeScriptProject {
   constructor(options: NxMonorepoProjectOptions) {
     super({
       ...options,
-      github: false,
-      jest: false,
-      package: false,
-      prettier: true,
+      github: options.github ?? false,
+      package: options.package ?? false,
+      prettier: options.prettier ?? true,
       projenrcTs: true,
-      release: false,
-      sampleCode: false,
-      defaultReleaseBranch: "mainline",
+      release: options.release ?? false,
+      jest: options.jest ?? false,
+      defaultReleaseBranch: options.defaultReleaseBranch ?? "mainline",
+      sampleCode: false, // root should never have sample code
     });
 
     this.nxConfig = options.nxConfig;
