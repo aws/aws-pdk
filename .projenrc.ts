@@ -15,6 +15,7 @@
  ******************************************************************************************************************** */
 import { PDKProject } from "./private/pdk-project";
 import { AwsPrototypingSdkProject } from "./private/projects/aws-prototyping-sdk-project";
+import { AwsSolutionTemplate } from "./private/projects/aws-solution-template-project";
 import { CloudscapeReactTsWebsiteProject } from "./private/projects/cloudscape-react-ts-website";
 import { DocsProject } from "./private/projects/docs-project";
 import { IdentityProject } from "./private/projects/identity-project";
@@ -37,6 +38,7 @@ const pdkNagProject = new PDKNagProject(monorepoProject);
 const nxMonorepoProject = new NXMonorepoProject(monorepoProject);
 const pipelineProject = new PipelineProject(monorepoProject);
 const awsPrototypingSdkProject = new AwsPrototypingSdkProject(monorepoProject);
+new AwsSolutionTemplate(monorepoProject);
 new StaticWebsiteProject(monorepoProject);
 new IdentityProject(monorepoProject);
 new OpenApiGatewayProject(monorepoProject);
