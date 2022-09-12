@@ -21,6 +21,7 @@ import type {
   OperationLookup,
 } from "../spec";
 import { SerialisedAuthorizerReference } from "../spec/api-gateway-auth";
+import { DefaultAuthorizerIds, HttpMethods } from "./constants";
 
 /**
  * Serialise a method and path into a single string
@@ -84,20 +85,10 @@ export interface PrepareApiSpecOptions {
    * Security schemes to add to the spec
    */
   readonly securitySchemes: { [key: string]: OpenAPIV3.SecuritySchemeObject };
-}
-
-/**
- * HTTP methods supported by Open API v3
- */
-enum HttpMethods {
-  GET = "get",
-  PUT = "put",
-  POST = "post",
-  DELETE = "delete",
-  OPTIONS = "options",
-  HEAD = "head",
-  PATCH = "patch",
-  TRACE = "trace",
+  /**
+   * The default authorizer to reference
+   */
+  readonly defaultAuthorizerReference?: SerialisedAuthorizerReference;
 }
 
 /**
@@ -108,22 +99,25 @@ const applyMethodAuthorizer = (
   methodAuthorizer?: SerialisedAuthorizerReference
 ) => {
   if (methodAuthorizer) {
-    return {
-      security: [
-        {
-          [methodAuthorizer.authorizerId]:
-            methodAuthorizer.authorizationScopes || [],
+    if (methodAuthorizer.authorizerId === DefaultAuthorizerIds.NONE) {
+      return {
+        security: [],
+        "x-amazon-apigateway-auth": {
+          type: "NONE",
         },
-      ],
-    };
+      };
+    } else {
+      return {
+        security: [
+          {
+            [methodAuthorizer.authorizerId]:
+              methodAuthorizer.authorizationScopes || [],
+          },
+        ],
+      };
+    }
   }
-
-  // NONE is specified via x-amazon-apigateway-auth
-  return {
-    "x-amazon-apigateway-auth": {
-      type: "NONE",
-    },
-  };
+  return {};
 };
 
 /**
@@ -145,6 +139,12 @@ const applyMethodIntegration = (
 
   const { methodAuthorizer, functionInvocationUri } =
     integrations[operationName as keyof OpenApiIntegrations];
+
+  validateAuthorizerReference(
+    methodAuthorizer,
+    operation.security,
+    operationName
+  );
 
   return {
     ...operation,
@@ -280,6 +280,140 @@ const preparePathSpec = (
 };
 
 /**
+ * Return whether the given OpenAPI object is a reference object
+ */
+const isRef = (obj: any): obj is OpenAPIV3.ReferenceObject => "$ref" in obj;
+
+/**
+ * Validate the construct security schemes against the security schemes in the original spec.
+ * Construct-defined authorizers always override those in the spec if they have the same ID, however we validate that
+ * we are not overriding an authorizer of a different type to avoid mistakes/mismatches between the spec and the
+ * construct.
+ * @param constructSecuritySchemes security schemes generated from the construct authorizers
+ * @param existingSpecSecuritySchemes security schemes already defined in the spec
+ */
+const validateSecuritySchemes = (
+  constructSecuritySchemes: { [key: string]: OpenAPIV3.SecuritySchemeObject },
+  existingSpecSecuritySchemes?: {
+    [key: string]: OpenAPIV3.SecuritySchemeObject | OpenAPIV3.ReferenceObject;
+  }
+) => {
+  if (existingSpecSecuritySchemes) {
+    const constructSecuritySchemeIds = new Set(
+      Object.keys(constructSecuritySchemes)
+    );
+    const existingSecuritySchemeIds = new Set(
+      Object.keys(existingSpecSecuritySchemes)
+    );
+
+    const overlappingSecuritySchemeIds = [...constructSecuritySchemeIds].filter(
+      (id) => existingSecuritySchemeIds.has(id)
+    );
+
+    // Any overlapping security schemes (defined in both the spec (or source smithy model) and the construct) must be of the same type.
+    // The one defined in the construct will take precedence since a custom/cognito authorizer can have a resolved arn in the construct,
+    // and we allow usage in the model as a forward definition with blank arn.
+    overlappingSecuritySchemeIds.forEach((schemeId) => {
+      if (!isRef(existingSpecSecuritySchemes[schemeId])) {
+        const existingScheme = existingSpecSecuritySchemes[
+          schemeId
+        ] as OpenAPIV3.SecuritySchemeObject;
+
+        if (constructSecuritySchemes[schemeId].type !== existingScheme.type) {
+          throw new Error(
+            `Security scheme with id ${schemeId} was of type ${constructSecuritySchemes[schemeId].type} in construct but ${existingScheme.type} in OpenAPI spec or Smithy model.`
+          );
+        }
+        const constructApiGatewayAuthType = (
+          constructSecuritySchemes[schemeId] as any
+        )["x-amazon-apigateway-authtype"];
+        const existingApiGatewayAuthType = (existingScheme as any)[
+          "x-amazon-apigateway-authtype"
+        ];
+
+        if (constructApiGatewayAuthType !== existingApiGatewayAuthType) {
+          throw new Error(
+            `Security scheme with id ${schemeId} was of type ${constructApiGatewayAuthType} in construct but ${existingApiGatewayAuthType} in OpenAPI spec or Smithy model.`
+          );
+        }
+      } else {
+        throw new Error(
+          `Security scheme with id ${schemeId} is a reference in the OpenAPI spec or Smithy model which is not supported.`
+        );
+      }
+    });
+  }
+};
+
+/**
+ * Validate the given authorizer reference (either default or at an operation level) defined in the construct against
+ * those already in the spec.
+ * @param constructAuthorizer the authorizer defined in the construct
+ * @param existingSpecAuthorizers the authorizers already defined in the spec
+ * @param operation the operation we are validating (for clearer error messages)
+ */
+const validateAuthorizerReference = (
+  constructAuthorizer?: SerialisedAuthorizerReference,
+  existingSpecAuthorizers?: OpenAPIV3.SecurityRequirementObject[],
+  operation: string = "Default"
+) => {
+  // Only need to validate if defined in both - if just one we'll use that.
+  if (constructAuthorizer && existingSpecAuthorizers) {
+    const mergedSpecAuthorizers = Object.fromEntries(
+      existingSpecAuthorizers.flatMap((securityRequirement) =>
+        Object.keys(securityRequirement).map((id) => [
+          id,
+          securityRequirement[id],
+        ])
+      )
+    );
+    const specAuthorizerIds = Object.keys(mergedSpecAuthorizers);
+
+    if (specAuthorizerIds.length > 1) {
+      // Spec defined multiple authorizers but the construct can only specify one
+      throw new Error(
+        `${operation} authorizers ${specAuthorizerIds
+          .sort()
+          .join(
+            ", "
+          )} defined in the OpenAPI Spec or Smithy Model would be overridden by single construct authorizer ${
+          constructAuthorizer.authorizerId
+        }`
+      );
+    } else if (specAuthorizerIds.length === 1) {
+      // Single authorizer - check that they have the same id
+      if (specAuthorizerIds[0] !== constructAuthorizer.authorizerId) {
+        throw new Error(
+          `${operation} authorizer ${specAuthorizerIds[0]} defined in the OpenAPI Spec or Smithy Model would be overridden by construct authorizer ${constructAuthorizer.authorizerId}`
+        );
+      }
+
+      // Check that there are no differing scopes between the construct and spec
+      const specScopes = new Set(mergedSpecAuthorizers[specAuthorizerIds[0]]);
+      const constructScopes = new Set(constructAuthorizer.authorizationScopes);
+      const differingScopes = [
+        ...[...specScopes].filter((scope) => !constructScopes.has(scope)),
+        ...[...constructScopes].filter((scope) => !specScopes.has(scope)),
+      ];
+      if (differingScopes.length > 0) {
+        throw new Error(
+          `${operation} authorizer scopes ${[...specScopes].join(
+            ", "
+          )} defined in the OpenAPI Spec or Smithy Model differ from those in the construct (${[
+            ...constructScopes,
+          ].join(", ")})`
+        );
+      }
+    } else if (constructAuthorizer.authorizerId !== DefaultAuthorizerIds.NONE) {
+      // "security" section of spec is [] which means no auth, but the authorizer in the construct is not the "none" authorizer.
+      throw new Error(
+        `${operation} explicitly defines no auth in the OpenAPI Spec or Smithy Model which would be overridden by construct authorizer ${constructAuthorizer.authorizerId}`
+      );
+    }
+  }
+};
+
+/**
  * Prepares the api spec for deployment by adding integrations, configuring auth, etc
  */
 export const prepareApiSpec = (
@@ -297,6 +431,15 @@ export const prepareApiSpec = (
   );
   const getOperationName = (methodAndPath: MethodAndPath) =>
     operationNameByPath[concatMethodAndPath(methodAndPath)];
+
+  validateSecuritySchemes(
+    options.securitySchemes,
+    spec.components?.securitySchemes
+  );
+  validateAuthorizerReference(
+    options.defaultAuthorizerReference,
+    spec.security
+  );
 
   return {
     ...spec,
@@ -336,7 +479,16 @@ export const prepareApiSpec = (
     },
     components: {
       ...spec.components,
-      securitySchemes: options.securitySchemes,
+      securitySchemes: {
+        // Apply any security schemes that already exist in the spec
+        ...spec.components?.securitySchemes,
+        // Construct security schemes override any in the spec with the same id
+        ...options.securitySchemes,
+      },
     },
+    // Apply the default authorizer at the top level
+    ...(options.defaultAuthorizerReference
+      ? applyMethodAuthorizer(options.defaultAuthorizerReference)
+      : {}),
   } as any;
 };

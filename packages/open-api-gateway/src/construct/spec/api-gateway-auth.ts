@@ -130,21 +130,14 @@ export interface SerialisedAuthorizerReference {
  * @param authorizer the author to serialize
  */
 export const serializeAsAuthorizerReference = (
-  authorizer: Authorizer
-): SerialisedAuthorizerReference | undefined => {
-  if (
-    isIamAuthorizer(authorizer) ||
-    isCustomAuthorizer(authorizer) ||
-    isCognitoAuthorizer(authorizer)
-  ) {
-    return {
-      authorizerId: authorizer.authorizerId,
-      authorizationScopes: authorizer.authorizationScopes,
-    };
-  }
-  // NONE authorizer is just returned as undefined
-  return undefined;
-};
+  authorizer?: Authorizer
+): SerialisedAuthorizerReference | undefined =>
+  authorizer
+    ? {
+        authorizerId: authorizer.authorizerId,
+        authorizationScopes: authorizer.authorizationScopes,
+      }
+    : undefined;
 
 /**
  * Create an OpenAPI security scheme definition for an iam authorizer

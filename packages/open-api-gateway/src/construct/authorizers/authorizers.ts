@@ -16,6 +16,7 @@
 import { AuthorizationType } from "aws-cdk-lib/aws-apigateway";
 import { IUserPool } from "aws-cdk-lib/aws-cognito";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
+import { DefaultAuthorizerIds } from "../prepare-spec-event-handler/constants";
 
 /**
  * Properties for an authorizer
@@ -206,7 +207,7 @@ export class CustomAuthorizer extends Authorizer {
 export class NoneAuthorizer extends Authorizer {
   constructor() {
     super({
-      authorizerId: "none",
+      authorizerId: DefaultAuthorizerIds.NONE,
       authorizationType: AuthorizationType.NONE,
     });
   }
@@ -218,7 +219,7 @@ export class NoneAuthorizer extends Authorizer {
 export class IamAuthorizer extends Authorizer {
   constructor() {
     super({
-      authorizerId: "iam",
+      authorizerId: DefaultAuthorizerIds.IAM,
       authorizationType: AuthorizationType.IAM,
     });
   }

@@ -17,11 +17,56 @@ import { JavaProjectOptions } from "projen/lib/java";
 import { PythonProjectOptions } from "projen/lib/python";
 import { TypeScriptProjectOptions } from "projen/lib/typescript";
 import { ClientLanguage, DocumentationFormat } from "./languages";
+import { SmithyBuildOptions } from "./smithy/types";
 
 /**
  * Options common to all open api gateway projects
  */
-export interface OpenApiGatewayProjectOptions {
+export interface OpenApiGatewayProjectOptions extends CommonApiProjectOptions {
+  /**
+   * The path to the OpenAPI specification file, relative to the project source directory (srcdir).
+   * @default "spec/spec.yaml"
+   */
+  readonly specFile?: string;
+}
+
+/**
+ * Options common to all smithy api gateway projects
+ */
+export interface SmithyApiGatewayProjectOptions
+  extends CommonApiProjectOptions {
+  /**
+   * The fully qualified name of the service. Change this if you change the service or namespace in your model.
+   * @default "example.hello#Hello"
+   */
+  readonly serviceName?: string;
+  /**
+   * The path to the Smithy model directory, relative to the project source directory (srcdir).
+   * @default "model"
+   */
+  readonly modelDir?: string;
+  /**
+   * Any additional properties you'd like to add your smithy-build.json. The smithy-build.json will automatically
+   * include the "openapi" plugin, but you can add extra configuration for that via this option if you like.
+   * @see https://awslabs.github.io/smithy/2.0/guides/building-models/build-config.html
+   * @see https://awslabs.github.io/smithy/2.0/guides/converting-to-openapi.html#openapi-configuration-settings
+   */
+  readonly smithyBuildOptions?: SmithyBuildOptions;
+  /**
+   * Set to false if you would like to check in your smithy build output or have more fine-grained control over what is
+   * checked in, eg if you add other projections to the smithy-build.json file.
+   * @default true
+   */
+  readonly ignoreSmithyBuildOutput?: boolean;
+  /**
+   * Path to a directory containing a custom gradle wrapper (gradlew) to use instead of the one provided by the PDK,
+   * relative to the project outdir.
+   * Use this if you would like to own and check in the gradle wrapper instead of using the provided one.
+   */
+  readonly gradleWrapperPath?: string;
+}
+
+export interface CommonApiProjectOptions {
   /**
    * The list of languages for which clients will be generated. A typescript client will always be generated.
    */
@@ -40,11 +85,6 @@ export interface OpenApiGatewayProjectOptions {
    * @default "false"
    */
   readonly forceGenerateCodeAndDocs?: boolean;
-  /**
-   * The path to the OpenAPI specification file, relative to the project source directory (srcdir).
-   * @default "spec/spec.yaml"
-   */
-  readonly specFile?: string;
   /**
    * The directory in which the api generated code will reside, relative to the project srcdir
    */

@@ -112,7 +112,7 @@ class SampleApi(Construct):
 `,
         // Generate an example lambda handler
         "handlers/say_hello_handler_sample.py": `from ${options.pythonClientPackageName}.apis.tags.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
-from ${options.pythonClientPackageName}.model.hello_response import HelloResponse
+from ${options.pythonClientPackageName}.model.hello_response import SayHelloResponseContent
 
 @say_hello_handler
 def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
@@ -121,7 +121,7 @@ def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
     """
     return ApiResponse(
         status_code=200,
-        body=HelloResponse(message="Hello {}!".format(input.request_parameters["name"])),
+        body=SayHelloResponseContent(message="Hello {}!".format(input.request_parameters["name"])),
         headers={}
     )
 `,

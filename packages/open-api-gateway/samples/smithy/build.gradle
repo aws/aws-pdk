@@ -1,0 +1,31 @@
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+configurations {
+    smithy
+}
+
+// Add more dependencies here if you'd like to reference them in smithy-build.json
+// Feel free to upgrade versions as appropriate
+dependencies {
+    smithy("software.amazon.smithy:smithy-cli:1.24.0")
+    smithy("software.amazon.smithy:smithy-model:1.24.0")
+    smithy("software.amazon.smithy:smithy-openapi:1.24.0")
+    smithy("software.amazon.smithy:smithy-aws-traits:1.24.0")
+}
+
+// This task is called by the SmithyApiGateway project during project synthesis, modify at your own risk!
+task generate(type: JavaExec) {
+    classpath configurations.smithy
+            main = "software.amazon.smithy.cli.SmithyCli"
+
+    args("build",
+            "--config",
+            file(config).toString(),
+            "--output",
+            file(output).toString(),
+            "--discover",
+            file(discover).toString())
+}
