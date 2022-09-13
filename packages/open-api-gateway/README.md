@@ -504,7 +504,7 @@ export const handler = sayHelloHandler(async ({ input }) => {
 #### Python
 
 ```python
-from myapi_python.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
+from myapi_python.apis.tags.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
 from myapi_python.model.api_error import ApiError
 from myapi_python.model.hello_response import HelloResponse
 
@@ -619,7 +619,7 @@ const identityInterceptor = async <RequestParameters, RequestArrayParameters, Re
 In Python, a list of interceptors can be passed as a keyword argument to the generated lambda handler decorator, for example:
 
 ```python
-from myapi_python.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
+from myapi_python.apis.tags.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
 from myapi_python.model.api_error import ApiError
 from myapi_python.model.hello_response import HelloResponse
 
@@ -636,7 +636,7 @@ Writing an interceptor is just like writing a lambda handler. Call `chain.next(i
 
 ```python
 import time
-from myapi_python.api.default_api_operation_config import ChainedApiRequest, ApiResponse
+from myapi_python.apis.tags.default_api_operation_config import ChainedApiRequest, ApiResponse
 
 def timing_interceptor(input: ChainedApiRequest) -> ApiResponse:
     start = int(round(time.time() * 1000))
@@ -651,7 +651,7 @@ Interceptors may choose to return different responses, for example to return a 5
 ```python
 import time
 from myapi_python.model.api_error import ApiError
-from myapi_python.api.default_api_operation_config import ChainedApiRequest, ApiResponse
+from myapi_python.apis.tags.default_api_operation_config import ChainedApiRequest, ApiResponse
 
 def try_catch_interceptor(input: ChainedApiRequest) -> ApiResponse:
     try:

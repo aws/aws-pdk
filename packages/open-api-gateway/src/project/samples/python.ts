@@ -54,7 +54,7 @@ export const getPythonSampleSource = (
   // This file provides a type-safe interface to the exported OpenApiGatewayLambdaApi construct
   "api.py": `from dataclasses import fields
 from ${options.openApiGatewayPackageName} import OpenApiGatewayLambdaApi, OpenApiIntegration
-from ${options.pythonClientPackageName}.api.default_api_operation_config import OperationLookup, OperationConfig
+from ${options.pythonClientPackageName}.apis.tags.default_api_operation_config import OperationLookup, OperationConfig
 from ${options.moduleName}.spec_utils import SPEC, SPEC_PATH
 
 class Api(OpenApiGatewayLambdaApi):
@@ -76,7 +76,7 @@ class Api(OpenApiGatewayLambdaApi):
         // Generate an example which instantiates the Api construct
         // TODO: Consider generating this sample from the parsed spec
         "sample_api.py": `from ${options.openApiGatewayPackageName} import Authorizers, OpenApiIntegration
-from ${options.pythonClientPackageName}.api.default_api_operation_config import OperationConfig
+from ${options.pythonClientPackageName}.apis.tags.default_api_operation_config import OperationConfig
 from aws_cdk.aws_lambda import LayerVersion, Code, Function, Runtime
 from .api import Api
 from constructs import Construct
@@ -111,7 +111,7 @@ class SampleApi(Construct):
       )
 `,
         // Generate an example lambda handler
-        "handlers/say_hello_handler_sample.py": `from ${options.pythonClientPackageName}.api.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
+        "handlers/say_hello_handler_sample.py": `from ${options.pythonClientPackageName}.apis.tags.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
 from ${options.pythonClientPackageName}.model.hello_response import HelloResponse
 
 @say_hello_handler
