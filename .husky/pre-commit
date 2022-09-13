@@ -1,6 +1,21 @@
 #!/bin/sh
+set -eo pipefail
+
 . "$(dirname "$0")/_/husky.sh"
 
+PRE_SHA="$(git diff HEAD --ignore-space-at-eol | shasum -a 256 --tag)"
+
 npx projen
-npx nx run-many --target=eslint --all && npx projen eslint
-git diff --ignore-space-at-eol --exit-code
+npx nx affected --target=eslint-staged --uncommitted
+npx projen eslint-staged
+
+POST_SHA="$(git diff HEAD --ignore-space-at-eol | shasum -a 256  --tag)"
+
+if [ "$PRE_SHA" != "$POST_SHA" ]
+then
+	RED='\033[0;31m'
+	NC='\033[0m' # No Color
+	echo "${RED}Pre-commit modified your working directory${NC} (eg: projen, eslint --fix)"
+	echo "${RED}Please verify and stage changed, then retry git commit${NC}"
+	exit 1
+fi

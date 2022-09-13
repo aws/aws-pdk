@@ -134,6 +134,15 @@ export class PDKProject extends JsiiProject {
       });
     }
 
+    this.addTask("eslint-staged", {
+      description: "Run eslint against the staged files only",
+      steps: [
+        {
+          exec: "eslint --fix --no-error-on-unmatched-pattern $(git diff --name-only --relative --staged HEAD . | grep -E '.(ts|tsx)$' | xargs)",
+        },
+      ],
+    });
+
     this.pdkRelease = new PDKRelease(this);
   }
 }
