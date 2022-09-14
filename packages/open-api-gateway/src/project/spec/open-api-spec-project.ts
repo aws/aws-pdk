@@ -44,6 +44,10 @@ export interface OpenApiSpecProjectOptions extends ProjectOptions {
    * @default the project outdir
    */
   readonly parsedSpecOutdir?: string;
+  /**
+   * Override the directory of the _input_ OpenAPI specification and skip synthesizing the sample spec.yaml
+   */
+  readonly overrideSpecPath?: string;
 }
 
 /**
@@ -76,7 +80,8 @@ export class OpenApiSpecProject extends Project {
       throw new Error("Parsed spec file must end with .json");
     }
 
-    this.specPath = path.join(this.outdir, this.specFileName);
+    this.specPath =
+      options.overrideSpecPath ?? path.join(this.outdir, this.specFileName);
     this.parsedSpecPath = path.join(
       this.outdir,
       ...(options.parsedSpecOutdir ? [options.parsedSpecOutdir] : []),
@@ -87,16 +92,18 @@ export class OpenApiSpecProject extends Project {
     logger.debug(`parsedSpecPath = "${this.parsedSpecPath}"`);
 
     // Create a sample OpenAPI spec yaml if not defined
-    new SampleFile(this, this.specFileName, {
-      sourcePath: path.join(
-        __dirname,
-        "..",
-        "..",
-        "..",
-        "samples",
-        "spec.yaml"
-      ),
-    });
+    if (!options.overrideSpecPath) {
+      new SampleFile(this, this.specFileName, {
+        sourcePath: path.join(
+          __dirname,
+          "..",
+          "..",
+          "..",
+          "samples",
+          "spec.yaml"
+        ),
+      });
+    }
 
     // Check if there is already a .parsed-spec.json present
     const existingParsedSpecJson = tryReadFileSync(this.parsedSpecPath);

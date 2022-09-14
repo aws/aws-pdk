@@ -25,7 +25,7 @@ import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { NagSuppressions } from "cdk-nag";
 import { OpenAPIV3 } from "openapi-types";
 import { MethodAndPath, OpenApiGatewayLambdaApi } from "../../src/construct";
-import { Authorizers } from "../../src/construct/authorizers";
+import { Authorizers, Authorizer } from "../../src/construct/authorizers";
 import { CustomAuthorizerType } from "../../src/construct/authorizers/authorizers";
 
 const sampleSpec: OpenAPIV3.Document = {
@@ -436,6 +436,244 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
         },
       });
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
+  it("Permits Matching No Authorizers In Spec And Construct", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    const spec = {
+      ...sampleSpec,
+      security: undefined,
+    };
+    withTempSpec(spec, (specPath) => {
+      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+        defaultAuthorizer: Authorizers.none(),
+        spec,
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            function: func,
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
+  interface AuthorizerMismatchTestCase {
+    readonly expectedErrorMessage: string;
+    readonly specSecurityRequirements: OpenAPIV3.SecurityRequirementObject[];
+    readonly constructAuthorizer: Authorizer;
+  }
+
+  const authorizerMismatchTestCases = (
+    operation: string
+  ): AuthorizerMismatchTestCase[] => [
+    {
+      specSecurityRequirements: [
+        {
+          "different-default-authorizer": [],
+        },
+      ],
+      constructAuthorizer: Authorizers.iam(),
+      expectedErrorMessage: `${operation} authorizer different-default-authorizer defined in the OpenAPI Spec or Smithy Model would be overridden by construct authorizer ${
+        Authorizers.iam().authorizerId
+      }`,
+    },
+    {
+      specSecurityRequirements: [
+        {
+          "my-custom": ["scope1", "scope2"],
+        },
+      ],
+      constructAuthorizer: Authorizers.cognito({
+        authorizerId: "my-custom",
+        userPools: [],
+        authorizationScopes: ["scope1"],
+      }),
+      expectedErrorMessage: `${operation} authorizer scopes scope1, scope2 defined in the OpenAPI Spec or Smithy Model differ from those in the construct (scope1)`,
+    },
+    {
+      specSecurityRequirements: [
+        {
+          "authorizer-1": [],
+        },
+        {
+          "authorizer-2": [],
+        },
+      ],
+      constructAuthorizer: Authorizers.iam(),
+      expectedErrorMessage: `${operation} authorizers authorizer-1, authorizer-2 defined in the OpenAPI Spec or Smithy Model would be overridden by single construct authorizer ${
+        Authorizers.iam().authorizerId
+      }`,
+    },
+    {
+      specSecurityRequirements: [],
+      constructAuthorizer: Authorizers.iam(),
+      expectedErrorMessage: `${operation} explicitly defines no auth in the OpenAPI Spec or Smithy Model which would be overridden by construct authorizer ${
+        Authorizers.iam().authorizerId
+      }`,
+    },
+  ];
+
+  it.each(authorizerMismatchTestCases("Default"))(
+    "Throws Error For Mismatching Default Authorizer",
+    ({
+      specSecurityRequirements,
+      constructAuthorizer,
+      expectedErrorMessage,
+    }) => {
+      const stack = new Stack();
+      const func = new Function(stack, "Lambda", {
+        code: Code.fromInline("code"),
+        handler: "handler",
+        runtime: Runtime.NODEJS_16_X,
+      });
+      const spec = {
+        ...sampleSpec,
+        security: specSecurityRequirements,
+      };
+      withTempSpec(spec, (specPath) => {
+        expect(() => {
+          new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+            defaultAuthorizer: constructAuthorizer,
+            spec,
+            specPath,
+            operationLookup,
+            integrations: {
+              testOperation: {
+                function: func,
+              },
+            },
+          });
+        }).toThrow(expectedErrorMessage);
+      });
+    }
+  );
+
+  it.each(authorizerMismatchTestCases("testOperation"))(
+    "Throws Error For Mismatching Method-Level Authorizer",
+    ({
+      specSecurityRequirements,
+      constructAuthorizer,
+      expectedErrorMessage,
+    }) => {
+      const stack = new Stack();
+      const func = new Function(stack, "Lambda", {
+        code: Code.fromInline("code"),
+        handler: "handler",
+        runtime: Runtime.NODEJS_16_X,
+      });
+      const spec = {
+        ...sampleSpec,
+        paths: {
+          "/test": {
+            get: {
+              ...(sampleSpec.paths["/test"]!.get as any),
+              security: specSecurityRequirements,
+            },
+          },
+        },
+      };
+      withTempSpec(spec, (specPath) => {
+        expect(() => {
+          new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+            spec,
+            specPath,
+            operationLookup,
+            integrations: {
+              testOperation: {
+                function: func,
+                authorizer: constructAuthorizer,
+              },
+            },
+          });
+        }).toThrow(expectedErrorMessage);
+      });
+    }
+  );
+
+  it("Throws For Clashing Security Schemes", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    const spec = {
+      ...sampleSpec,
+      components: {
+        securitySchemes: {
+          "my-custom-scheme": {
+            type: "oauth2",
+            flows: {},
+          } as any,
+        },
+      },
+    };
+    withTempSpec(spec, (specPath) => {
+      expect(() => {
+        new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+          defaultAuthorizer: Authorizers.custom({
+            authorizerId: "my-custom-scheme",
+            function: func,
+          }),
+          spec,
+          specPath,
+          operationLookup,
+          integrations: {
+            testOperation: {
+              function: func,
+            },
+          },
+        });
+      }).toThrow();
+    });
+  });
+
+  it("Throws For Clashing ApiGateway Security Schemes", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    const spec = {
+      ...sampleSpec,
+      components: {
+        securitySchemes: {
+          "my-custom-scheme": {
+            type: "apiKey",
+            name: "my-scheme",
+            in: "header",
+            "x-amazon-apigateway-authtype": "COGNITO_USER_POOLS",
+          } as any,
+        },
+      },
+    };
+    withTempSpec(spec, (specPath) => {
+      expect(() => {
+        new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+          defaultAuthorizer: Authorizers.custom({
+            authorizerId: "my-custom-scheme",
+            function: func,
+          }),
+          spec,
+          specPath,
+          operationLookup,
+          integrations: {
+            testOperation: {
+              function: func,
+            },
+          },
+        });
+      }).toThrow();
     });
   });
 });

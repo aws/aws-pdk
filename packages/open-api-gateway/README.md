@@ -1,10 +1,10 @@
 ## OpenAPI Gateway
 
-Define your APIs using [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated clients and documentation, automatic input validation, and type safe client and server code!
+Define your APIs using [Smithy](https://awslabs.github.io/smithy/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated clients and documentation, automatic input validation, and type safe client and server code!
 
-This package vends a projen project type which allows you to define an API using [OpenAPI v3](https://swagger.io/specification/), and a construct which manages deploying this API in API Gateway, given a lambda integration for every operation.
+This package vends a projen project type which allows you to define an API using either [Smithy](https://awslabs.github.io/smithy/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and a construct which manages deploying this API in API Gateway, given a lambda integration for every operation.
 
-The project will generate models and clients from your OpenAPI spec in your desired languages, and can be utilised both client side or server side in lambda handlers. The project type also generates a wrapper construct which adds type safety to ensure a lambda integration is provided for every API integration.
+The project will generate models and clients from your api definition in your desired languages, and can be utilised both client side or server side in lambda handlers. The project type also generates a wrapper construct which adds type safety to ensure a lambda integration is provided for every API integration.
 
 When you change your API specification, just run `npx projen` again to regenerate all of this!
 
@@ -12,16 +12,24 @@ When you change your API specification, just run `npx projen` again to regenerat
 
 Use the provided projen project types to get started with your API quickly! There are options for TypeScript, Python and Java:
 
-* `OpenApiGatewayTsProject`
-* `OpenApiGatewayPythonProject`
-* `OpenApiGatewayJavaProject`
+* Smithy
+  * `SmithyApiGatewayTsProject`
+  * `SmithyApiGatewayPythonProject`
+  * `SmithyApiGatewayJavaProject`
+* OpenAPI
+  * `OpenApiGatewayTsProject`
+  * `OpenApiGatewayPythonProject`
+  * `OpenApiGatewayJavaProject`
+
+We recommend using the Smithy-based projects, given that Smithy has a less verbose and more powerful IDL (Interface Definition Language).
 
 Choose the project type based on the language you'd like to _write your CDK infrastructure in_. Whichever option above you choose, you can still write your server-side code in any language.
 
-It's recommended that these projects are used as part of an `nx-monorepo` project, as it makes setting up dependencies much easier, and
-you will not need to manage the build order of generated clients.
+It's recommended that these projects are used as part of an `nx-monorepo` project, as it makes setting up dependencies much easier, and you will not need to manage the build order of generated clients.
 
 #### Typescript
+
+##### OpenAPI
 
 While it is recommended to use the project within an `nx-monorepo`, you can still use this as a standalone project if you like (eg `npx projen new --from @aws-prototyping-sdk/open-api-gateway open-api-gateway-ts`), however you will need to manage build order (ie building the generated client first, followed by the project).
 
@@ -72,7 +80,127 @@ To make changes to your api, simply update `spec.yaml` and run `npx projen` to s
 
 The `SampleApi` construct uses `NodejsFunction` to declare the example lambda, but you are free to change this!
 
+##### Smithy
+
+To create a project with Smithy as your interface definition language (IDL), you can use the `SmithyApiGatewayTsProject`:
+
+```ts
+import { ClientLanguage, DocumentationFormat, SmithyApiGatewayTsProject } from "@aws-prototyping-sdk/open-api-gateway";
+
+new SmithyApiGatewayTsProject({
+  parent: myNxMonorepo,
+  defaultReleaseBranch: "mainline",
+  name: "my-api",
+  outdir: "packages/api",
+  clientLanguages: [ClientLanguage.TYPESCRIPT, ClientLanguage.PYTHON, ClientLanguage.JAVA],
+  documentationFormats: [DocumentationFormat.HTML2, DocumentationFormat.PLANTUML, DocumentationFormat.MARKDOWN],
+});
+```
+
+This will result in a directory structure similar to the following:
+
+```
+|_ model/
+    |_ main.smithy - The Smithy model used to define your API. You can define as many .smithy files in here as you like.
+|_ smithy-build/
+    |_ build.gradle - Smithy build gradle file - use this to add dependencies/plugins used in your smithy build
+    |_ settings.gradle - Setup for the Smithy gradle project
+    |_ smithy-build.json - Smithy build configuration - managed via options on the projen project
+|_ src/
+    |_ spec/
+        |_ .parsed-spec.json - A json spec generated from your Smithy model.
+    |_ api/
+        |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API. 
+        |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+        |           to your API. You shouldn't need to modify this, instead just extend it as in sample-api.ts.
+        |_ sample-api.ts - Example usage of the construct defined in api.ts.
+        |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
+                                     generated lambda handler wrappers for marshalling and type safety.
+|_ generated/
+    |_ typescript/ - A generated typescript API client.
+    |_ python/ - A generated python API client.
+    |_ java/ - A generated java API client.
+    |_ documentation/
+        |_ html2/ - Generated html documentation
+        |_ markdown/ - Generated markdown documentation
+        |_ plantuml/ - Generated plant uml documentation
+```
+
+###### Customisation
+
+You can customise the Smithy project with several properties:
+
+```ts
+new SmithyApiGatewayTsProject({
+  parent: myNxMonorepo,
+  defaultReleaseBranch: "mainline",
+  name: "my-api",
+  outdir: "packages/api",
+  clientLanguages: [],
+  // The fully qualified service name for your API, including both the namespace and service name:
+  serviceName: 'com.mycompany#MyService',
+  // Custom directory for your smithy model, relative to the project outdir
+  modelDir: 'api-model',
+  // By default, the contents of `smithy-build/output` will be ignored by source control.
+  // Set this to false to include it, for example if you are generating clients directly from the smithy model.
+  ignoreSmithyBuildOutput: false,
+  // By default, the gradle wrapper is abstracted away in the PDK package itself.
+  // Set this to the path of a directory (relative to the outdir) where you have run `gradle wrapper`
+  // if you would like to use your own gradle wrapper and check this in to source control.
+  gradleWrapperPath: 'gradle',
+  // Use smithyBuildOptions to control what is added to smithy-build.json. See more details below.
+  smithyBuildOptions: {
+    projections: {
+      "ts-client": {
+        "plugins": {
+          "typescript-codegen": {
+            "package" : "@my-test/smithy-generated-typescript-client",
+            "packageVersion": "0.0.1"
+          }
+        }
+      }
+    }
+  }
+});
+```
+
+`smithyBuildOptions` allows you to customise the Smithy build, used for generating clients from the Smithy model (eg above), or customising the OpenAPI generation.
+
+OpenAPI generation can be customised by referencing the `openapi` projection as follows:
+
+```ts
+smithyBuildOptions: {
+  projections: {
+    openapi: {
+      plugins: {
+        openapi: {
+          // Customise the openapi projection here...
+          forbidGreedyLabels: true,
+          ...
+        }
+      }
+    }
+  }
+}
+```
+
+The OpenAPI specification generated by this projection is used to create the CDK infrastructure, lambda handler wrappers, etc. Options for configuring OpenAPI generation can be found [in the Smithy OpenAPI documentation](https://awslabs.github.io/smithy/2.0/guides/converting-to-openapi.html).
+
+Note that any additional dependencies required for projections/plugins can be added by modifying your `smithy-build/build.gradle` file:
+
+```gradle
+dependencies {
+    smithy("software.amazon.smithy:smithy-cli:1.24.0")
+    smithy("software.amazon.smithy:smithy-model:1.24.0")
+    smithy("software.amazon.smithy:smithy-openapi:1.24.0")
+    smithy("software.amazon.smithy:smithy-aws-traits:1.24.0")
+    smithy("other.dependency.example...")
+}
+```
+
 #### Python
+
+##### OpenAPI
 
 As well as typescript, you can choose to generate the cdk construct and sample handler in python.
 
@@ -164,7 +292,13 @@ You'll find the following directory structure in `packages/myapi`:
 
 For simplicity, the generated code deploys a lambda layer for the generated code and its dependencies. You may choose to define an entirely separate projen `PythonProject` for your lambda handlers should you wish to add more dependencies than just the generated code.
 
+##### Smithy
+
+Similar to typescript, you can use the `SmithyApiGatewayPythonProject`.
+
 #### Java
+
+##### OpenAPI
 
 As well as TypeScript and Python, you can choose to generate the cdk construct and sample handler in Java.
 
@@ -210,6 +344,74 @@ The output directory will look a little like this:
 ```
 
 The `SampleApi` construct uses a lambda function which deploys the entire project jar as a simple way to get started with an api that deploys out of the box. This jar includes a lot of extra code and dependencies that you don't need in your lambda, so it's recommended that after experimenting with the construct, you separate your lambdas into another `JavaProject`. Please refer to the `Java API Lambda Handlers` section of this README for details on how to set this up.
+
+##### Smithy
+
+Similar to typescript and python, you can use the `SmithyApiGatewayJavaProject`.
+
+### Smithy IDL
+
+Please refer to the [Smithy documentation](https://awslabs.github.io/smithy/2.0/quickstart.html) for how to write models in Smithy. A basic example is provided below:
+
+```smithy
+$version: "2"
+namespace example.hello
+
+use aws.protocols#restJson1
+
+@title("A Sample Hello World API")
+
+/// A sample smithy api
+@restJson1
+service Hello {
+    version: "1.0"
+    operations: [SayHello]
+}
+
+@readonly
+@http(method: "GET", uri: "/hello")
+operation SayHello {
+    input: SayHelloInput
+    output: SayHelloOutput
+    errors: [ApiError]
+}
+
+string Name
+string Message
+
+@input
+structure SayHelloInput {
+    @httpQuery("name")
+    @required
+    name: Name
+}
+
+@output
+structure SayHelloOutput {
+    @required
+    message: Message
+}
+
+@error("client")
+structure ApiError {
+    @required
+    errorMessage: Message
+}
+```
+
+#### Supported Protocols
+
+Currently only [AWS restJson1](https://awslabs.github.io/smithy/2.0/aws/protocols/aws-restjson1-protocol.html) is supported. Please ensure your service is annotated with the `@restJson1` trait.
+
+#### Multiple Files
+
+You can split your definition into multiple files and folders, so long as they are all under the `model` directory in your API project.
+
+#### Authorizers
+
+Smithy supports [adding API Gateway authorizers in the model itself](https://awslabs.github.io/smithy/2.0/aws/aws-auth.html). Given that at model definition time one usually does not know the ARN of the user pool or lambda function for an authorizer, it is recommended to add the authorizer(s) in your Api CDK construct.
+
+If using Smithy generated clients, some authorizer traits (eg sigv4) will include configuring the client for that particular method of authorization, so it can be beneficial to still define authorizers in the model. We therefore support specifying authorizers in both the model and the construct, but note that the construct will take precedence where the authorizer ID is the same.
 
 ### OpenAPI Specification
 

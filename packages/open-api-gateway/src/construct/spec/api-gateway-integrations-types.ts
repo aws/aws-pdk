@@ -86,7 +86,7 @@ export interface OpenApiOptions {
    */
   readonly operationLookup: OperationLookup;
   /**
-   * The default authorizer to use for your api. When omitted, no authorizer is used.
+   * The default authorizer to use for your api. When omitted, no default authorizer is used.
    * Authorizers specified at the integration level will override this for that operation.
    */
   readonly defaultAuthorizer?: Authorizer;

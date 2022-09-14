@@ -170,7 +170,7 @@ import ${options.javaClientPackage}.api.Handlers.SayHello;
 import ${options.javaClientPackage}.api.Handlers.SayHello200Response;
 import ${options.javaClientPackage}.api.Handlers.SayHelloRequestInput;
 import ${options.javaClientPackage}.api.Handlers.SayHelloResponse;
-import ${options.javaClientPackage}.model.HelloResponse;
+import ${options.javaClientPackage}.model.SayHelloResponseContent;
 
 /**
  * An example lambda handler which uses the generated handler wrapper class (Handlers.SayHello) to manage marshalling
@@ -179,7 +179,7 @@ import ${options.javaClientPackage}.model.HelloResponse;
 public class SayHelloHandler extends SayHello {
     @Override
     public SayHelloResponse handle(SayHelloRequestInput sayHelloRequestInput) {
-        return SayHello200Response.of(HelloResponse.builder()
+        return SayHello200Response.of(SayHelloResponseContent.builder()
                 .message(String.format("Hello %s", sayHelloRequestInput.getInput().getRequestParameters().getName()))
                 .build());
     }

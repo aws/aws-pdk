@@ -49,7 +49,6 @@ import {
 import { Provider } from "aws-cdk-lib/custom-resources";
 import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
-import { Authorizers } from "./authorizers";
 import { PrepareApiSpecCustomResourceProperties } from "./prepare-spec-event-handler";
 import {
   prepareApiSpec,
@@ -254,6 +253,8 @@ export class OpenApiGatewayLambdaApi extends Construct {
     );
 
     const prepareSpecOptions: PrepareApiSpecOptions = {
+      defaultAuthorizerReference:
+        serializeAsAuthorizerReference(defaultAuthorizer),
       integrations: Object.fromEntries(
         Object.entries(integrations).map(([operation, integration]) => [
           operation,
@@ -263,7 +264,7 @@ export class OpenApiGatewayLambdaApi extends Construct {
               integration.function
             ),
             methodAuthorizer: serializeAsAuthorizerReference(
-              integration.authorizer || defaultAuthorizer || Authorizers.none()
+              integration.authorizer
             ),
           },
         ])

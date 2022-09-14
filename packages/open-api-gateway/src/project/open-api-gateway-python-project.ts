@@ -82,14 +82,14 @@ export class OpenApiGatewayPythonProject extends PythonProject {
 
   private readonly hasParent: boolean;
 
-  constructor(options: OpenApiGatewayPythonProjectOptions) {
+  constructor(projectOptions: OpenApiGatewayPythonProjectOptions) {
     super({
-      ...options,
+      ...projectOptions,
       sample: false,
       venv: true,
       venvOptions: {
         envdir: ".env",
-        ...options?.venvOptions,
+        ...projectOptions?.venvOptions,
       },
       pip: true,
       poetry: false,
@@ -97,7 +97,9 @@ export class OpenApiGatewayPythonProject extends PythonProject {
       setuptools: true,
     });
 
-    if (options.specFile) {
+    const options = this.preConstruct(projectOptions);
+
+    if (options.specFile && !path.isAbsolute(options.specFile)) {
       this.specDir = path.dirname(options.specFile);
       this.specFileName = path.basename(options.specFile);
     } else {
@@ -123,6 +125,11 @@ export class OpenApiGatewayPythonProject extends PythonProject {
       outdir: path.join(this.moduleName, this.specDir),
       specFileName: this.specFileName,
       parsedSpecFileName: options.parsedSpecFileName,
+      ...(options.specFile && path.isAbsolute(options.specFile)
+        ? {
+            overrideSpecPath: options.specFile,
+          }
+        : {}),
     });
     spec.synth();
 
@@ -271,5 +278,15 @@ def get_generated_client_layer_directory():
       formatConfigs: clientSettings.documentationFormatConfigs,
       specPath: spec.parsedSpecPath,
     });
+  }
+
+  /**
+   * This method provides inheritors a chance to synthesize extra resources prior to those created by this project.
+   * Return any options you wish to change, other than python project options.
+   */
+  protected preConstruct(
+    options: OpenApiGatewayPythonProjectOptions
+  ): OpenApiGatewayPythonProjectOptions {
+    return options;
   }
 }
