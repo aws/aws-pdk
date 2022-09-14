@@ -91,6 +91,14 @@ export interface PrepareApiSpecOptions {
   readonly defaultAuthorizerReference?: SerialisedAuthorizerReference;
 }
 
+// Add to methods to ensure no auth is added
+const NO_AUTH_SPEC_SNIPPET = {
+  security: [],
+  "x-amazon-apigateway-auth": {
+    type: "NONE",
+  },
+};
+
 /**
  * Create the OpenAPI definition with api gateway extensions for the given authorizer
  * @param methodAuthorizer the authorizer used for the method
@@ -100,12 +108,7 @@ const applyMethodAuthorizer = (
 ) => {
   if (methodAuthorizer) {
     if (methodAuthorizer.authorizerId === DefaultAuthorizerIds.NONE) {
-      return {
-        security: [],
-        "x-amazon-apigateway-auth": {
-          type: "NONE",
-        },
-      };
+      return NO_AUTH_SPEC_SNIPPET;
     } else {
       return {
         security: [
@@ -245,6 +248,8 @@ const generateCorsOptionsMethod = (
           },
         },
       },
+      // No auth for CORS options requests
+      ...NO_AUTH_SPEC_SNIPPET,
     },
   };
 };
