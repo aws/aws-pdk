@@ -93,7 +93,8 @@ export class OpenApiGatewayPythonProject extends PythonProject {
       },
       pip: true,
       poetry: false,
-      pytest: false,
+      // No tests by default, but allow user to override
+      pytest: projectOptions.pytest ?? false,
       setuptools: true,
     });
 
@@ -264,11 +265,6 @@ def get_generated_client_layer_directory():
     new SampleDir(this, path.join(this.moduleName, this.apiSrcDir), {
       files: getPythonSampleSource(sampleOptions),
     });
-
-    // Set up pytest manually since the default pytest generates tests for sample code which doesn't exist
-    const pytestVersion = options.pytestOptions?.version || "6.2.1";
-    this.addDevDependency(`pytest@${pytestVersion}`);
-    this.testTask.exec("pytest");
 
     // Generate documentation if needed
     new DocsProject({

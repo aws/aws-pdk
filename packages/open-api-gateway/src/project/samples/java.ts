@@ -15,7 +15,7 @@
  ******************************************************************************************************************** */
 export interface JavaSampleCodeOptions {
   /**
-   * The package name which exports the OpenApiGatewayLambdaApi construct (ie this pdk package!)
+   * The package name which exports the OpenApiGatewayRestApi construct (ie this pdk package!)
    */
   readonly openApiGatewayPackageName: string;
   /**
@@ -91,8 +91,8 @@ public class ApiProps implements RestApiBaseProps {
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import software.aws.awsprototypingsdk.openapigateway.MethodAndPath;
-import software.aws.awsprototypingsdk.openapigateway.OpenApiGatewayLambdaApi;
-import software.aws.awsprototypingsdk.openapigateway.OpenApiGatewayLambdaApiProps;
+import software.aws.awsprototypingsdk.openapigateway.OpenApiGatewayRestApi;
+import software.aws.awsprototypingsdk.openapigateway.OpenApiGatewayRestApiProps;
 import software.constructs.Construct;
 import ${options.javaClientPackage}.api.OperationLookup;
 
@@ -107,7 +107,7 @@ import java.util.stream.Collectors;
  * Type-safe construct for the API Gateway resources defined by the spec.
  * You will likely not need to modify this file, and can instead extend it and define your integrations.
  */
-public class Api extends OpenApiGatewayLambdaApi {
+public class Api extends OpenApiGatewayRestApi {
     private static class SpecDetails {
         static String specPath;
         static Object spec;
@@ -131,7 +131,7 @@ public class Api extends OpenApiGatewayLambdaApi {
     }
 
     public Api(Construct scope, String id, ApiProps props) {
-        super(scope, id, OpenApiGatewayLambdaApiProps.builder()
+        super(scope, id, OpenApiGatewayRestApiProps.builder()
                 .defaultAuthorizer(props.getDefaultAuthorizer())
                 .corsOptions(props.getCorsOptions())
                 .operationLookup(OperationLookup.getOperationLookup()
@@ -194,6 +194,7 @@ import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.FunctionProps;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.aws.awsprototypingsdk.openapigateway.Authorizers;
+import software.aws.awsprototypingsdk.openapigateway.Integrations;
 import software.aws.awsprototypingsdk.openapigateway.OpenApiIntegration;
 import ${options.javaClientPackage}.api.OperationConfig;
 import software.constructs.Construct;
@@ -214,18 +215,19 @@ public class SampleApi extends Api {
                         .build())
                 .integrations(OperationConfig.<OpenApiIntegration>builder()
                         .sayHello(OpenApiIntegration.builder()
-                                .function(new Function(scope, "say-hello", FunctionProps.builder()
-                                        // Use the entire project jar for the lambda code in order to provide a simple,
-                                        // "one-click" way to build the api. However this jar is much larger than necessary
-                                        // since it includes cdk infrastructure, dependencies etc.
-                                        // It is recommended to follow the instructions in the "Java API Lambda Handlers"
-                                        // section of the open-api-gateway README to define your lambda handlers as a
-                                        // separate project.
-                                        .code(Code.fromAsset(SampleApi.getJarPath()))
-                                        .handler("${apiPackage}.SayHelloHandler")
-                                        .runtime(Runtime.JAVA_11)
-                                        .timeout(Duration.seconds(30))
-                                        .build()))
+                                .integration(Integrations.lambda(
+                                        new Function(scope, "say-hello", FunctionProps.builder()
+                                                // Use the entire project jar for the lambda code in order to provide a simple,
+                                                // "one-click" way to build the api. However this jar is much larger than necessary
+                                                // since it includes cdk infrastructure, dependencies etc.
+                                                // It is recommended to follow the instructions in the "Java API Lambda Handlers"
+                                                // section of the open-api-gateway README to define your lambda handlers as a
+                                                // separate project.
+                                                .code(Code.fromAsset(SampleApi.getJarPath()))
+                                                .handler("${apiPackage}.SayHelloHandler")
+                                                .runtime(Runtime.JAVA_11)
+                                                .timeout(Duration.seconds(30))
+                                                .build())))
                                 .build())
                         .build())
                 .build());

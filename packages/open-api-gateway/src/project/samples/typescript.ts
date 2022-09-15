@@ -54,8 +54,8 @@ export const getTypescriptSampleSource = (
     "export * from './api';",
     ...(options.sampleCode !== false ? ["export * from './sample-api';"] : []),
   ].join("\n"),
-  // This file provides a type-safe interface to the exported OpenApiGatewayLambdaApi construct
-  "api.ts": `import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from "${options.openApiGatewayPackageName}";
+  // This file provides a type-safe interface to the exported OpenApiGatewayRestApi construct
+  "api.ts": `import { OpenApiGatewayRestApi, OpenApiGatewayRestApiProps, OpenApiIntegration } from "${options.openApiGatewayPackageName}";
 import { Construct } from "constructs";
 import { OperationLookup, OperationConfig } from "${options.typescriptClientPackageName}";
 import * as path from "path";
@@ -63,7 +63,7 @@ import spec from "../${options.specDir}/${options.parsedSpecFileName}";
 
 export type ApiIntegrations = OperationConfig<OpenApiIntegration>;
 
-export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, "spec" | "specPath" | "operationLookup" | "integrations"> {
+export interface ApiProps extends Omit<OpenApiGatewayRestApiProps, "spec" | "specPath" | "operationLookup" | "integrations"> {
   readonly integrations: ApiIntegrations;
 }
 
@@ -71,7 +71,7 @@ export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, "spec" | "s
  * Type-safe construct for the API Gateway resources defined by the spec.
  * You will likely not need to modify this file, and can instead extend it and define your integrations.
  */
-export class Api extends OpenApiGatewayLambdaApi {
+export class Api extends OpenApiGatewayRestApi {
   constructor(scope: Construct, id: string, props: ApiProps) {
     super(scope, id, {
       ...props,
@@ -87,7 +87,7 @@ export class Api extends OpenApiGatewayLambdaApi {
     ? {
         // Generate an example which instantiates the Api construct
         // TODO: Consider generating this sample from the parsed spec
-        "sample-api.ts": `import { Authorizers } from "${options.openApiGatewayPackageName}";
+        "sample-api.ts": `import { Authorizers, Integrations } from "${options.openApiGatewayPackageName}";
 import { Construct } from "constructs";
 import { Cors } from "aws-cdk-lib/aws-apigateway";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -106,7 +106,7 @@ export class SampleApi extends Api {
       },
       integrations: {
         sayHello: {
-          function: new NodejsFunction(scope, "say-hello"),
+          integration: Integrations.lambda(new NodejsFunction(scope, "say-hello")),
         },
       },
     });
@@ -142,7 +142,8 @@ export const handler = sayHelloHandler(async ({ input }) => {
 export const getTypescriptSampleTests = (
   options: TypescriptSampleCodeOptions
 ) => ({
-  "api.test.ts": `import { Stack } from "aws-cdk-lib";
+  "api.test.ts": `import { Integrations } from "${options.openApiGatewayPackageName}";
+import { Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { OperationLookup } from "${options.typescriptClientPackageName}";
@@ -157,9 +158,9 @@ describe("Api", () => {
     new Api(stack, "ApiTest", {
       // Create a dummy integration for every operation defined in the api
       integrations: Object.fromEntries(Object.keys(OperationLookup).map((operation) => [operation, {
-        function: new Function(stack, \`\${operation}Lambda\`, {
+        integration: Integrations.lambda(new Function(stack, \`\${operation}Lambda\`, {
           code: Code.fromInline("test"), handler: "test", runtime: Runtime.NODEJS_14_X,
-        }),
+        })),
       }])) as any,
     });
   
