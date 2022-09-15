@@ -149,10 +149,8 @@ describe("OpenAPIGateway Ts Project - Regenerate Clients/Docs Tests", () => {
     // current `index.ts` should have later modified timestamp as the original project's
     expect(generatedFileLMT).toBeLessThan(generatedFileLMTOther);
 
-    // current `index.html` in "html2" doc folder will be the same
-    // because the generator uses "--minimal-update" switch:
-    // the output only changes when spec changes, however, the generator runs
-    expect(generatedDocHTML2LMT).toEqual(generatedDocHTML2LMTOther);
+    // current `index.html` in "html2" doc folder should also have later modified timestamp
+    expect(generatedDocHTML2LMT).toBeLessThan(generatedDocHTML2LMTOther);
   });
 
   it("Change spec will regenerate clients/docs", () => {
