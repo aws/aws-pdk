@@ -80,11 +80,6 @@ export class GeneratedJavaClientProject extends JavaProject {
     DEPENDENCIES.forEach((dep) => this.addDependency(dep));
     TEST_DEPENDENCIES.forEach((dep) => this.addTestDependency(dep));
 
-    new GeneratedJavaClientSourceCode(this, {
-      specPath: options.specPath,
-      invokeGenerator: options.generateClient,
-    });
-
     // Use a package.json to ensure the client is discoverable by nx
     new JsonFile(this, "package.json", {
       obj: {
@@ -96,6 +91,11 @@ export class GeneratedJavaClientProject extends JavaProject {
         ),
       },
       readonly: true,
+    });
+
+    new GeneratedJavaClientSourceCode(this, {
+      specPath: options.specPath,
+      invokeGenerator: options.generateClient,
     });
   }
 

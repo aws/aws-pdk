@@ -57,11 +57,6 @@ export class GeneratedPythonClientProject extends PythonProject {
       ...options,
     });
 
-    new GeneratedPythonClientSourceCode(this, {
-      specPath: options.specPath,
-      invokeGenerator: options.generateClient,
-    });
-
     // Use a package.json to ensure the client is discoverable by nx
     new JsonFile(this, "package.json", {
       obj: {
@@ -76,6 +71,11 @@ export class GeneratedPythonClientProject extends PythonProject {
     });
 
     new OpenApiGeneratorIgnoreFile(this);
+
+    new GeneratedPythonClientSourceCode(this, {
+      specPath: options.specPath,
+      invokeGenerator: options.generateClient,
+    });
 
     // With pip and venv (default), it's useful to install our package into the shared venv to make
     // it easier for other packages in the monorepo to take dependencies on this package.
