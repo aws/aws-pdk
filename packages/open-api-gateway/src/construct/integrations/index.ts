@@ -13,9 +13,4 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-
-export * from "./open-api-gateway-rest-api";
-export * from "./waf/types";
-export * from "./authorizers";
 export * from "./integrations";
-export * from "./spec";

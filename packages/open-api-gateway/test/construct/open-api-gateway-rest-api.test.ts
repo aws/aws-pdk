@@ -24,9 +24,31 @@ import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { NagSuppressions } from "cdk-nag";
 import { OpenAPIV3 } from "openapi-types";
-import { MethodAndPath, OpenApiGatewayLambdaApi } from "../../src/construct";
+import { Integrations } from "../../lib";
+import { MethodAndPath, OpenApiGatewayRestApi } from "../../src/construct";
 import { Authorizers, Authorizer } from "../../src/construct/authorizers";
 import { CustomAuthorizerType } from "../../src/construct/authorizers/authorizers";
+
+const testOperation: OpenAPIV3.OperationObject = {
+  operationId: "testOperation",
+  responses: {
+    200: {
+      description: "Successful response",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              message: {
+                type: "string",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
 
 const sampleSpec: OpenAPIV3.Document = {
   openapi: "3.0.3",
@@ -36,26 +58,7 @@ const sampleSpec: OpenAPIV3.Document = {
   },
   paths: {
     "/test": {
-      get: {
-        operationId: "testOperation",
-        responses: {
-          200: {
-            description: "Successful response",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      get: testOperation,
     },
   },
 };
@@ -126,7 +129,7 @@ const withTempSpec = <T>(
   }
 };
 
-describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
+describe("OpenAPI Gateway Rest Api Construct Unit Tests", () => {
   it("Synth", () => {
     const stack = new Stack(PDKNag.app());
     const func = new Function(stack, "Lambda", {
@@ -135,13 +138,13 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       runtime: Runtime.NODEJS_16_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
-      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+      new OpenApiGatewayRestApi(stack, "ApiTest", {
         spec: sampleSpec,
         specPath,
         operationLookup,
         integrations: {
           testOperation: {
-            function: func,
+            integration: Integrations.lambda(func),
           },
         },
       });
@@ -159,10 +162,46 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
     });
   });
 
+  it("With Path Parameters", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+
+    const spec = {
+      ...sampleSpec,
+      paths: {
+        "/test/{param1}/fixed/{param2}/{param3}": testOperation,
+      },
+    };
+
+    withTempSpec(spec, (specPath) => {
+      new OpenApiGatewayRestApi(stack, "ApiTest", {
+        spec,
+        specPath,
+        operationLookup: {
+          testOperation: {
+            path: "/test/{param1}/fixed/{param2}/{param3}",
+            method: "get",
+          },
+        },
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func),
+          },
+        },
+      });
+
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
   it("With IAM Auth and CORS", () => {
     const stack = new Stack();
     withTempSpec(sampleSpec, (specPath) => {
-      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+      new OpenApiGatewayRestApi(stack, "ApiTest", {
         defaultAuthorizer: Authorizers.iam(),
         corsOptions: {
           allowOrigins: Cors.ALL_ORIGINS,
@@ -175,11 +214,13 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
         operationLookup,
         integrations: {
           testOperation: {
-            function: new Function(stack, "Lambda", {
-              code: Code.fromInline("code"),
-              handler: "handler",
-              runtime: Runtime.NODEJS_16_X,
-            }),
+            integration: Integrations.lambda(
+              new Function(stack, "Lambda", {
+                code: Code.fromInline("code"),
+                handler: "handler",
+                runtime: Runtime.NODEJS_16_X,
+              })
+            ),
           },
         },
       });
@@ -196,18 +237,20 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
     });
 
     withTempSpec(sampleSpec, (specPath) => {
-      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+      new OpenApiGatewayRestApi(stack, "ApiTest", {
         defaultAuthorizer: authorizer,
         spec: sampleSpec,
         specPath,
         operationLookup,
         integrations: {
           testOperation: {
-            function: new Function(stack, "Lambda", {
-              code: Code.fromInline("code"),
-              handler: "handler",
-              runtime: Runtime.NODEJS_16_X,
-            }),
+            integration: Integrations.lambda(
+              new Function(stack, "Lambda", {
+                code: Code.fromInline("code"),
+                handler: "handler",
+                runtime: Runtime.NODEJS_16_X,
+              })
+            ),
           },
         },
       });
@@ -228,18 +271,20 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
     });
 
     withTempSpec(sampleSpec, (specPath) => {
-      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+      new OpenApiGatewayRestApi(stack, "ApiTest", {
         defaultAuthorizer: authorizer,
         spec: sampleSpec,
         specPath,
         operationLookup,
         integrations: {
           testOperation: {
-            function: new Function(stack, "Lambda", {
-              code: Code.fromInline("code"),
-              handler: "handler",
-              runtime: Runtime.NODEJS_16_X,
-            }),
+            integration: Integrations.lambda(
+              new Function(stack, "Lambda", {
+                code: Code.fromInline("code"),
+                handler: "handler",
+                runtime: Runtime.NODEJS_16_X,
+              })
+            ),
           },
         },
       });
@@ -278,26 +323,26 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
     });
 
     withTempSpec(multiOperationSpec, (specPath) => {
-      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+      new OpenApiGatewayRestApi(stack, "ApiTest", {
         defaultAuthorizer: Authorizers.iam(),
         spec: multiOperationSpec,
         specPath,
         operationLookup: multiOperationLookup as any,
         integrations: {
           getOperation: {
-            function: lambdaIntegration,
+            integration: Integrations.lambda(lambdaIntegration),
             authorizer: cognitoAuthorizer,
           },
           putOperation: {
-            function: lambdaIntegration,
+            integration: Integrations.lambda(lambdaIntegration),
             authorizer: cognitoAuthorizer.withScopes("other/scope"),
           },
           postOperation: {
-            function: lambdaIntegration,
+            integration: Integrations.lambda(lambdaIntegration),
             authorizer: customAuthorizer,
           },
           deleteOperation: {
-            function: lambdaIntegration,
+            integration: Integrations.lambda(lambdaIntegration),
             // authorizer not specified default should be used
           },
         },
@@ -311,7 +356,7 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
     withTempSpec(sampleSpec, (specPath) => {
       expect(
         () =>
-          new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+          new OpenApiGatewayRestApi(stack, "ApiTest", {
             spec: sampleSpec,
             specPath,
             operationLookup,
@@ -328,7 +373,7 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
     withTempSpec(sampleSpec, (specPath) => {
       expect(
         () =>
-          new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+          new OpenApiGatewayRestApi(stack, "ApiTest", {
             defaultAuthorizer: Authorizers.custom({
               authorizerId: "auth",
               function: new Function(stack, "LambdaAuthorizer", {
@@ -344,11 +389,13 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
             operationLookup,
             integrations: {
               testOperation: {
-                function: new Function(stack, "Lambda", {
-                  code: Code.fromInline("code"),
-                  handler: "handler",
-                  runtime: Runtime.NODEJS_16_X,
-                }),
+                integration: Integrations.lambda(
+                  new Function(stack, "Lambda", {
+                    code: Code.fromInline("code"),
+                    handler: "handler",
+                    runtime: Runtime.NODEJS_16_X,
+                  })
+                ),
               },
             },
           })
@@ -366,13 +413,13 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       runtime: Runtime.NODEJS_16_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
-      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+      new OpenApiGatewayRestApi(stack, "ApiTest", {
         spec: sampleSpec,
         specPath,
         operationLookup,
         integrations: {
           testOperation: {
-            function: func,
+            integration: Integrations.lambda(func),
           },
         },
         webAclOptions: {
@@ -391,13 +438,13 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       runtime: Runtime.NODEJS_16_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
-      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+      new OpenApiGatewayRestApi(stack, "ApiTest", {
         spec: sampleSpec,
         specPath,
         operationLookup,
         integrations: {
           testOperation: {
-            function: func,
+            integration: Integrations.lambda(func),
           },
         },
         webAclOptions: {
@@ -419,13 +466,13 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       runtime: Runtime.NODEJS_16_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
-      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+      new OpenApiGatewayRestApi(stack, "ApiTest", {
         spec: sampleSpec,
         specPath,
         operationLookup,
         integrations: {
           testOperation: {
-            function: func,
+            integration: Integrations.lambda(func),
           },
         },
         webAclOptions: {
@@ -451,14 +498,14 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       security: undefined,
     };
     withTempSpec(spec, (specPath) => {
-      new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+      new OpenApiGatewayRestApi(stack, "ApiTest", {
         defaultAuthorizer: Authorizers.none(),
         spec,
         specPath,
         operationLookup,
         integrations: {
           testOperation: {
-            function: func,
+            integration: Integrations.lambda(func),
           },
         },
       });
@@ -541,14 +588,14 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       };
       withTempSpec(spec, (specPath) => {
         expect(() => {
-          new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+          new OpenApiGatewayRestApi(stack, "ApiTest", {
             defaultAuthorizer: constructAuthorizer,
             spec,
             specPath,
             operationLookup,
             integrations: {
               testOperation: {
-                function: func,
+                integration: Integrations.lambda(func),
               },
             },
           });
@@ -583,13 +630,13 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
       };
       withTempSpec(spec, (specPath) => {
         expect(() => {
-          new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+          new OpenApiGatewayRestApi(stack, "ApiTest", {
             spec,
             specPath,
             operationLookup,
             integrations: {
               testOperation: {
-                function: func,
+                integration: Integrations.lambda(func),
                 authorizer: constructAuthorizer,
               },
             },
@@ -619,7 +666,7 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
     };
     withTempSpec(spec, (specPath) => {
       expect(() => {
-        new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+        new OpenApiGatewayRestApi(stack, "ApiTest", {
           defaultAuthorizer: Authorizers.custom({
             authorizerId: "my-custom-scheme",
             function: func,
@@ -629,7 +676,7 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
           operationLookup,
           integrations: {
             testOperation: {
-              function: func,
+              integration: Integrations.lambda(func),
             },
           },
         });
@@ -659,7 +706,7 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
     };
     withTempSpec(spec, (specPath) => {
       expect(() => {
-        new OpenApiGatewayLambdaApi(stack, "ApiTest", {
+        new OpenApiGatewayRestApi(stack, "ApiTest", {
           defaultAuthorizer: Authorizers.custom({
             authorizerId: "my-custom-scheme",
             function: func,
@@ -669,7 +716,7 @@ describe("OpenAPI Gateway Lambda Api Construct Unit Tests", () => {
           operationLookup,
           integrations: {
             testOperation: {
-              function: func,
+              integration: Integrations.lambda(func),
             },
           },
         });

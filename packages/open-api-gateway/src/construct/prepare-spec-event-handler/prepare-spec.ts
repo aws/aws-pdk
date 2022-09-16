@@ -14,6 +14,7 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import type { OpenAPIV3 } from "openapi-types";
+import { ApiGatewayIntegration } from "../integrations";
 import type {
   Method,
   MethodAndPath,
@@ -36,7 +37,7 @@ export interface SerializedMethodIntegration {
   /**
    * The lambda function invocation uri for the api method
    */
-  readonly functionInvocationUri: string;
+  readonly integration: ApiGatewayIntegration;
   /**
    * The authorizer (if any) to apply to the method
    */
@@ -140,7 +141,7 @@ const applyMethodIntegration = (
     );
   }
 
-  const { methodAuthorizer, functionInvocationUri } =
+  const { methodAuthorizer, integration } =
     integrations[operationName as keyof OpenApiIntegrations];
 
   validateAuthorizerReference(
@@ -165,12 +166,7 @@ const applyMethodIntegration = (
       ])
     ),
     // https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html
-    "x-amazon-apigateway-integration": {
-      type: "AWS_PROXY",
-      httpMethod: "POST",
-      uri: functionInvocationUri,
-      passthroughBehavior: "WHEN_NO_MATCH",
-    },
+    "x-amazon-apigateway-integration": integration,
     ...applyMethodAuthorizer(methodAuthorizer),
   } as any;
 };

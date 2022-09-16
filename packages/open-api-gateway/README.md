@@ -2,9 +2,9 @@
 
 Define your APIs using [Smithy](https://awslabs.github.io/smithy/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated clients and documentation, automatic input validation, and type safe client and server code!
 
-This package vends a projen project type which allows you to define an API using either [Smithy](https://awslabs.github.io/smithy/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and a construct which manages deploying this API in API Gateway, given a lambda integration for every operation.
+This package vends a projen project type which allows you to define an API using either [Smithy](https://awslabs.github.io/smithy/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and a construct which manages deploying this API in API Gateway, given an integration (eg a lambda) for every operation.
 
-The project will generate models and clients from your api definition in your desired languages, and can be utilised both client side or server side in lambda handlers. The project type also generates a wrapper construct which adds type safety to ensure a lambda integration is provided for every API integration.
+The project will generate models and clients from your api definition in your desired languages, and can be utilised both client side or server side in lambda handlers. The project type also generates a wrapper construct which adds type safety to ensure an integration is provided for every API operation.
 
 When you change your API specification, just run `npx projen` again to regenerate all of this!
 
@@ -59,7 +59,7 @@ In the output directory (`outdir`), you'll find a few files to get you started.
         |_ .parsed-spec.json - A json spec generated from your spec.yaml.
     |_ api/
         |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API. 
-        |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+        |           This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
         |           to your API. You shouldn't need to modify this, instead just extend it as in sample-api.ts.
         |_ sample-api.ts - Example usage of the construct defined in api.ts.
         |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
@@ -111,7 +111,7 @@ This will result in a directory structure similar to the following:
         |_ .parsed-spec.json - A json spec generated from your Smithy model.
     |_ api/
         |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API. 
-        |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+        |           This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
         |           to your API. You shouldn't need to modify this, instead just extend it as in sample-api.ts.
         |_ sample-api.ts - Example usage of the construct defined in api.ts.
         |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
@@ -278,7 +278,7 @@ You'll find the following directory structure in `packages/myapi`:
         |_ .parsed-spec.json - A json spec generated from your spec.yaml.
     |_ api/
         |_ api.py - A CDK construct which defines the API Gateway resources to deploy your API. 
-        |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+        |           This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
         |           to your API. You shouldn't need to modify this, instead just extend it as in sample_api.py.
         |_ sample_api.py - Example usage of the construct defined in api.py.
         |_ handlers/
@@ -325,7 +325,7 @@ The output directory will look a little like this:
         |_ java/
             |_ api/
                 |_ Api.java - A CDK construct which defines the API Gateway resources to deploy your API. 
-                |             This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+                |             This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
                 |             to your API. You shouldn't need to modify this, instead just extend it as in SampleApi.java.
                 |_ ApiProps.java - Defines properties for the CDK construct in Api.java
                 |_ SampleApi.java - Example usage of the construct defined in Api.java
@@ -530,7 +530,7 @@ A sample construct is generated which provides a type-safe interface for creatin
 
 ```ts
 import * as path from 'path';
-import { Authorizers } from '@aws-prototyping-sdk/open-api-gateway';
+import { Authorizers, Integrations } from '@aws-prototyping-sdk/open-api-gateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import { Api } from './api';
@@ -545,7 +545,7 @@ export class SampleApi extends Api {
       integrations: {
         // Every operation defined in your API must have an integration defined!
         sayHello: {
-          function: new NodejsFunction(scope, 'say-hello'),
+          integration: Integrations.lambda(new NodejsFunction(scope, 'say-hello')),
         },
       },
     });
@@ -579,11 +579,11 @@ export class SampleApi extends Api {
       integrations: {
         // Everyone in the user pool can call this operation:
         sayHello: {
-          function: new NodejsFunction(scope, 'say-hello'),
+          integration: Integrations.lambda(new NodejsFunction(scope, 'say-hello')),
         },
         // Only users with the given scopes can call this operation
         myRestrictedOperation: {
-          function: new NodejsFunction(scope, 'my-restricted-operation'),
+          integration: Integrations.lambda(new NodejsFunction(scope, 'my-restricted-operation')),
           authorizer: cognitoAuthorizer.withScopes('my-resource-server/my-scope'),
         },
       },
@@ -617,6 +617,20 @@ Authorizers.custom({
   function: new NodejsFunction(scope, 'authorizer'),
 });
 ```
+
+#### Integrations
+
+Integrations are used by API Gateway to service requests.
+
+##### Lambda Integration
+
+Currently, the only built-in integration is a lambda integration. You can construct one using `Integrations.lambda(yourLambdaFunction)`.
+
+##### Custom Integrations
+
+You can implement your own integrations by inheriting the `Integration` class and implementing its `render` method. This method is responsible for returning a snippet of OpenAPI which will be added as the `x-amazon-apigateway-integration` for an operation. Please refer to the [API Gateway Swagger Extensions documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html) for more details.
+
+You can also optionally override the `grant` method if you need to use CDK to grant API Gateway access to invoke your integration.
 
 ### Generated Client
 

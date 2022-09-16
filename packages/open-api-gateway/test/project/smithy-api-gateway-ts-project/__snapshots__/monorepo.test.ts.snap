@@ -18877,7 +18877,7 @@ structure ApiError {
     },
     "version": "2.0",
   },
-  "packages/api/src/api/api.ts": "import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from \\"@aws-prototyping-sdk/open-api-gateway\\";
+  "packages/api/src/api/api.ts": "import { OpenApiGatewayRestApi, OpenApiGatewayRestApiProps, OpenApiIntegration } from \\"@aws-prototyping-sdk/open-api-gateway\\";
 import { Construct } from \\"constructs\\";
 import { OperationLookup, OperationConfig } from \\"@test/my-api-typescript\\";
 import * as path from \\"path\\";
@@ -18885,7 +18885,7 @@ import spec from \\"../spec/.parsed-spec.json\\";
 
 export type ApiIntegrations = OperationConfig<OpenApiIntegration>;
 
-export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, \\"spec\\" | \\"specPath\\" | \\"operationLookup\\" | \\"integrations\\"> {
+export interface ApiProps extends Omit<OpenApiGatewayRestApiProps, \\"spec\\" | \\"specPath\\" | \\"operationLookup\\" | \\"integrations\\"> {
   readonly integrations: ApiIntegrations;
 }
 
@@ -18893,7 +18893,7 @@ export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, \\"spec\\" 
  * Type-safe construct for the API Gateway resources defined by the spec.
  * You will likely not need to modify this file, and can instead extend it and define your integrations.
  */
-export class Api extends OpenApiGatewayLambdaApi {
+export class Api extends OpenApiGatewayRestApi {
   constructor(scope: Construct, id: string, props: ApiProps) {
     super(scope, id, {
       ...props,
@@ -18925,7 +18925,7 @@ export const handler = sayHelloHandler(async ({ input }) => {
   };
 });
 ",
-  "packages/api/src/api/sample-api.ts": "import { Authorizers } from \\"@aws-prototyping-sdk/open-api-gateway\\";
+  "packages/api/src/api/sample-api.ts": "import { Authorizers, Integrations } from \\"@aws-prototyping-sdk/open-api-gateway\\";
 import { Construct } from \\"constructs\\";
 import { Cors } from \\"aws-cdk-lib/aws-apigateway\\";
 import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
@@ -18944,7 +18944,7 @@ export class SampleApi extends Api {
       },
       integrations: {
         sayHello: {
-          function: new NodejsFunction(scope, \\"say-hello\\"),
+          integration: Integrations.lambda(new NodejsFunction(scope, \\"say-hello\\")),
         },
       },
     });
@@ -19024,7 +19024,8 @@ export class SampleApi extends Api {
       },
     },
   },
-  "packages/api/test/api.test.ts": "import { Stack } from \\"aws-cdk-lib\\";
+  "packages/api/test/api.test.ts": "import { Integrations } from \\"@aws-prototyping-sdk/open-api-gateway\\";
+import { Stack } from \\"aws-cdk-lib\\";
 import { Template } from \\"aws-cdk-lib/assertions\\";
 import { Code, Function, Runtime } from \\"aws-cdk-lib/aws-lambda\\";
 import { OperationLookup } from \\"@test/my-api-typescript\\";
@@ -19039,9 +19040,9 @@ describe(\\"Api\\", () => {
     new Api(stack, \\"ApiTest\\", {
       // Create a dummy integration for every operation defined in the api
       integrations: Object.fromEntries(Object.keys(OperationLookup).map((operation) => [operation, {
-        function: new Function(stack, \`\${operation}Lambda\`, {
+        integration: Integrations.lambda(new Function(stack, \`\${operation}Lambda\`, {
           code: Code.fromInline(\\"test\\"), handler: \\"test\\", runtime: Runtime.NODEJS_14_X,
-        }),
+        })),
       }])) as any,
     });
   
@@ -38085,7 +38086,7 @@ structure ApiError {
     },
     "version": "2.0",
   },
-  "packages/api/src/api/api.ts": "import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from \\"@aws-prototyping-sdk/open-api-gateway\\";
+  "packages/api/src/api/api.ts": "import { OpenApiGatewayRestApi, OpenApiGatewayRestApiProps, OpenApiIntegration } from \\"@aws-prototyping-sdk/open-api-gateway\\";
 import { Construct } from \\"constructs\\";
 import { OperationLookup, OperationConfig } from \\"@test/my-api-typescript\\";
 import * as path from \\"path\\";
@@ -38093,7 +38094,7 @@ import spec from \\"../spec/.parsed-spec.json\\";
 
 export type ApiIntegrations = OperationConfig<OpenApiIntegration>;
 
-export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, \\"spec\\" | \\"specPath\\" | \\"operationLookup\\" | \\"integrations\\"> {
+export interface ApiProps extends Omit<OpenApiGatewayRestApiProps, \\"spec\\" | \\"specPath\\" | \\"operationLookup\\" | \\"integrations\\"> {
   readonly integrations: ApiIntegrations;
 }
 
@@ -38101,7 +38102,7 @@ export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, \\"spec\\" 
  * Type-safe construct for the API Gateway resources defined by the spec.
  * You will likely not need to modify this file, and can instead extend it and define your integrations.
  */
-export class Api extends OpenApiGatewayLambdaApi {
+export class Api extends OpenApiGatewayRestApi {
   constructor(scope: Construct, id: string, props: ApiProps) {
     super(scope, id, {
       ...props,
@@ -38133,7 +38134,7 @@ export const handler = sayHelloHandler(async ({ input }) => {
   };
 });
 ",
-  "packages/api/src/api/sample-api.ts": "import { Authorizers } from \\"@aws-prototyping-sdk/open-api-gateway\\";
+  "packages/api/src/api/sample-api.ts": "import { Authorizers, Integrations } from \\"@aws-prototyping-sdk/open-api-gateway\\";
 import { Construct } from \\"constructs\\";
 import { Cors } from \\"aws-cdk-lib/aws-apigateway\\";
 import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
@@ -38152,7 +38153,7 @@ export class SampleApi extends Api {
       },
       integrations: {
         sayHello: {
-          function: new NodejsFunction(scope, \\"say-hello\\"),
+          integration: Integrations.lambda(new NodejsFunction(scope, \\"say-hello\\")),
         },
       },
     });
@@ -38232,7 +38233,8 @@ export class SampleApi extends Api {
       },
     },
   },
-  "packages/api/test/api.test.ts": "import { Stack } from \\"aws-cdk-lib\\";
+  "packages/api/test/api.test.ts": "import { Integrations } from \\"@aws-prototyping-sdk/open-api-gateway\\";
+import { Stack } from \\"aws-cdk-lib\\";
 import { Template } from \\"aws-cdk-lib/assertions\\";
 import { Code, Function, Runtime } from \\"aws-cdk-lib/aws-lambda\\";
 import { OperationLookup } from \\"@test/my-api-typescript\\";
@@ -38247,9 +38249,9 @@ describe(\\"Api\\", () => {
     new Api(stack, \\"ApiTest\\", {
       // Create a dummy integration for every operation defined in the api
       integrations: Object.fromEntries(Object.keys(OperationLookup).map((operation) => [operation, {
-        function: new Function(stack, \`\${operation}Lambda\`, {
+        integration: Integrations.lambda(new Function(stack, \`\${operation}Lambda\`, {
           code: Code.fromInline(\\"test\\"), handler: \\"test\\", runtime: Runtime.NODEJS_14_X,
-        }),
+        })),
       }])) as any,
     });
   
@@ -57291,7 +57293,7 @@ structure ApiError {
     },
     "version": "2.0",
   },
-  "packages/api/src/api/api.ts": "import { OpenApiGatewayLambdaApi, OpenApiGatewayLambdaApiProps, OpenApiIntegration } from \\"@aws-prototyping-sdk/open-api-gateway\\";
+  "packages/api/src/api/api.ts": "import { OpenApiGatewayRestApi, OpenApiGatewayRestApiProps, OpenApiIntegration } from \\"@aws-prototyping-sdk/open-api-gateway\\";
 import { Construct } from \\"constructs\\";
 import { OperationLookup, OperationConfig } from \\"@test/my-api-typescript\\";
 import * as path from \\"path\\";
@@ -57299,7 +57301,7 @@ import spec from \\"../spec/.parsed-spec.json\\";
 
 export type ApiIntegrations = OperationConfig<OpenApiIntegration>;
 
-export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, \\"spec\\" | \\"specPath\\" | \\"operationLookup\\" | \\"integrations\\"> {
+export interface ApiProps extends Omit<OpenApiGatewayRestApiProps, \\"spec\\" | \\"specPath\\" | \\"operationLookup\\" | \\"integrations\\"> {
   readonly integrations: ApiIntegrations;
 }
 
@@ -57307,7 +57309,7 @@ export interface ApiProps extends Omit<OpenApiGatewayLambdaApiProps, \\"spec\\" 
  * Type-safe construct for the API Gateway resources defined by the spec.
  * You will likely not need to modify this file, and can instead extend it and define your integrations.
  */
-export class Api extends OpenApiGatewayLambdaApi {
+export class Api extends OpenApiGatewayRestApi {
   constructor(scope: Construct, id: string, props: ApiProps) {
     super(scope, id, {
       ...props,
@@ -57339,7 +57341,7 @@ export const handler = sayHelloHandler(async ({ input }) => {
   };
 });
 ",
-  "packages/api/src/api/sample-api.ts": "import { Authorizers } from \\"@aws-prototyping-sdk/open-api-gateway\\";
+  "packages/api/src/api/sample-api.ts": "import { Authorizers, Integrations } from \\"@aws-prototyping-sdk/open-api-gateway\\";
 import { Construct } from \\"constructs\\";
 import { Cors } from \\"aws-cdk-lib/aws-apigateway\\";
 import { NodejsFunction } from \\"aws-cdk-lib/aws-lambda-nodejs\\";
@@ -57358,7 +57360,7 @@ export class SampleApi extends Api {
       },
       integrations: {
         sayHello: {
-          function: new NodejsFunction(scope, \\"say-hello\\"),
+          integration: Integrations.lambda(new NodejsFunction(scope, \\"say-hello\\")),
         },
       },
     });
@@ -57438,7 +57440,8 @@ export class SampleApi extends Api {
       },
     },
   },
-  "packages/api/test/api.test.ts": "import { Stack } from \\"aws-cdk-lib\\";
+  "packages/api/test/api.test.ts": "import { Integrations } from \\"@aws-prototyping-sdk/open-api-gateway\\";
+import { Stack } from \\"aws-cdk-lib\\";
 import { Template } from \\"aws-cdk-lib/assertions\\";
 import { Code, Function, Runtime } from \\"aws-cdk-lib/aws-lambda\\";
 import { OperationLookup } from \\"@test/my-api-typescript\\";
@@ -57453,9 +57456,9 @@ describe(\\"Api\\", () => {
     new Api(stack, \\"ApiTest\\", {
       // Create a dummy integration for every operation defined in the api
       integrations: Object.fromEntries(Object.keys(OperationLookup).map((operation) => [operation, {
-        function: new Function(stack, \`\${operation}Lambda\`, {
+        integration: Integrations.lambda(new Function(stack, \`\${operation}Lambda\`, {
           code: Code.fromInline(\\"test\\"), handler: \\"test\\", runtime: Runtime.NODEJS_14_X,
-        }),
+        })),
       }])) as any,
     });
   

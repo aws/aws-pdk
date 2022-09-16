@@ -19,7 +19,7 @@
  */
 export interface PythonSampleCodeOptions {
   /**
-   * The package name which exports the OpenApiGatewayLambdaApi construct (ie this pdk package!)
+   * The package name which exports the OpenApiGatewayRestApi construct (ie this pdk package!)
    */
   readonly openApiGatewayPackageName: string;
   /**
@@ -51,13 +51,13 @@ export const getPythonSampleSource = (
   options: PythonSampleCodeOptions
 ): { [fileName: string]: string } => ({
   "__init__.py": "#",
-  // This file provides a type-safe interface to the exported OpenApiGatewayLambdaApi construct
+  // This file provides a type-safe interface to the exported OpenApiGatewayRestApi construct
   "api.py": `from dataclasses import fields
-from ${options.openApiGatewayPackageName} import OpenApiGatewayLambdaApi, OpenApiIntegration
+from ${options.openApiGatewayPackageName} import OpenApiGatewayRestApi, OpenApiIntegration
 from ${options.pythonClientPackageName}.apis.tags.default_api_operation_config import OperationLookup, OperationConfig
 from ${options.moduleName}.spec_utils import SPEC, SPEC_PATH
 
-class Api(OpenApiGatewayLambdaApi):
+class Api(OpenApiGatewayRestApi):
     """
     Type-safe construct for the API Gateway resources defined by the spec.
     You will likely not need to modify this file, and can instead extend it and define your integrations.
@@ -75,7 +75,7 @@ class Api(OpenApiGatewayLambdaApi):
     ? {
         // Generate an example which instantiates the Api construct
         // TODO: Consider generating this sample from the parsed spec
-        "sample_api.py": `from ${options.openApiGatewayPackageName} import Authorizers, OpenApiIntegration
+        "sample_api.py": `from ${options.openApiGatewayPackageName} import Authorizers, Integrations, OpenApiIntegration
 from ${options.pythonClientPackageName}.apis.tags.default_api_operation_config import OperationConfig
 from aws_cdk.aws_lambda import LayerVersion, Code, Function, Runtime
 from .api import Api
@@ -100,12 +100,12 @@ class SampleApi(Construct):
           default_authorizer=Authorizers.iam(),
           integrations=OperationConfig(
               say_hello=OpenApiIntegration(
-                  function=Function(self, 'SayHello',
+                  integration=Integrations.lambda(Function(self, 'SayHello',
                       runtime=Runtime.PYTHON_3_9,
                       code=Code.from_asset(path.join(str(Path(__file__).parent.absolute()), 'handlers')),
                       handler="say_hello_handler_sample.handler",
                       layers=[self.generated_client_layer],
-                  ),
+                  )),
               ),
           ),
       )

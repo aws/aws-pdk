@@ -15,8 +15,8 @@
  ******************************************************************************************************************** */
 
 import { CorsOptions } from "aws-cdk-lib/aws-apigateway";
-import { IFunction } from "aws-cdk-lib/aws-lambda";
 import { Authorizer } from "../authorizers";
+import { Integration } from "../integrations";
 
 /**
  * Defines an integration for an individual API operation
@@ -25,7 +25,7 @@ export interface OpenApiIntegration {
   /**
    * The lambda function to service the api operation
    */
-  readonly function: IFunction;
+  readonly integration: Integration;
   /**
    * The authorizer to use for this api operation (overrides the default)
    */

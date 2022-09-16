@@ -59,15 +59,14 @@ import {
   prepareSecuritySchemes,
   serializeAsAuthorizerReference,
 } from "./spec/api-gateway-auth";
-import { getLabelledFunctions } from "./spec/api-gateway-integrations";
-import { functionInvocationUri } from "./spec/utils";
+import { getAuthorizerFunctions } from "./spec/api-gateway-integrations";
 import { OpenApiGatewayWebAcl } from "./waf/open-api-gateway-web-acl";
 import { OpenApiGatewayWebAclOptions } from "./waf/types";
 
 /**
- * Configuration for the OpenApiGatewayLambdaApi construct
+ * Configuration for the OpenApiGatewayRestApi construct
  */
-export interface OpenApiGatewayLambdaApiProps
+export interface OpenApiGatewayRestApiProps
   extends RestApiBaseProps,
     OpenApiOptions {
   /**
@@ -86,19 +85,15 @@ export interface OpenApiGatewayLambdaApiProps
 }
 
 /**
- * A construct for creating an api gateway api based on the definition in the OpenAPI spec.
+ * A construct for creating an api gateway rest api based on the definition in the OpenAPI spec.
  */
-export class OpenApiGatewayLambdaApi extends Construct {
+export class OpenApiGatewayRestApi extends Construct {
   public readonly api: SpecRestApi;
   readonly webAcl?: CfnWebACL;
   readonly ipSet?: CfnIPSet;
   readonly webAclAssociation?: CfnWebACLAssociation;
 
-  constructor(
-    scope: Construct,
-    id: string,
-    props: OpenApiGatewayLambdaApiProps
-  ) {
+  constructor(scope: Construct, id: string, props: OpenApiGatewayRestApiProps) {
     super(scope, id);
 
     const {
@@ -256,18 +251,19 @@ export class OpenApiGatewayLambdaApi extends Construct {
       defaultAuthorizerReference:
         serializeAsAuthorizerReference(defaultAuthorizer),
       integrations: Object.fromEntries(
-        Object.entries(integrations).map(([operation, integration]) => [
-          operation,
-          {
-            functionInvocationUri: functionInvocationUri(
-              this,
-              integration.function
-            ),
-            methodAuthorizer: serializeAsAuthorizerReference(
-              integration.authorizer
-            ),
-          },
-        ])
+        Object.entries(integrations).map(
+          ([operationId, { authorizer, integration }]) => [
+            operationId,
+            {
+              integration: integration.render({
+                operationId,
+                scope: this,
+                ...operationLookup[operationId],
+              }),
+              methodAuthorizer: serializeAsAuthorizerReference(authorizer),
+            },
+          ]
+        )
       ),
       securitySchemes: prepareSecuritySchemes(
         this,
@@ -333,8 +329,18 @@ export class OpenApiGatewayLambdaApi extends Construct {
     // addToLogicalId method since this is how changes of individual resources/methods etc trigger redeployments in CDK)
     this.api.latestDeployment?.addToLogicalId(preparedSpec);
 
-    // Grant API Gateway permission to invoke each lambda which implements an integration or custom authorizer
-    getLabelledFunctions(props).forEach(({ label, function: lambda }) => {
+    // Grant API Gateway permission to invoke the integrations
+    Object.keys(integrations).forEach((operationId) => {
+      integrations[operationId].integration.grant({
+        operationId,
+        scope: this,
+        api: this.api,
+        ...operationLookup[operationId],
+      });
+    });
+
+    // Grant API Gateway permission to invoke each custom authorizer lambda (if any)
+    getAuthorizerFunctions(props).forEach(({ label, function: lambda }) => {
       new CfnPermission(this, `LambdaPermission-${label}`, {
         action: "lambda:InvokeFunction",
         principal: "apigateway.amazonaws.com",
