@@ -1443,8 +1443,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#openapigatewaylambdaapi" class="md-nav__link">
-    OpenApiGatewayLambdaApi 
+  <a href="#openapigatewayrestapi" class="md-nav__link">
+    OpenApiGatewayRestApi 
   </a>
   
 </li>
@@ -1461,6 +1461,27 @@
   
     <nav class="md-nav" aria-label="Structs ">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#apigatewayintegration" class="md-nav__link">
+    ApiGatewayIntegration 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apigatewayintegrationresponse" class="md-nav__link">
+    ApiGatewayIntegrationResponse 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apigatewayintegrationtlsconfig" class="md-nav__link">
+    ApiGatewayIntegrationTlsConfig 
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#authorizerprops" class="md-nav__link">
@@ -1498,6 +1519,20 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#integrationgrantprops" class="md-nav__link">
+    IntegrationGrantProps 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integrationrenderprops" class="md-nav__link">
+    IntegrationRenderProps 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#managedrule" class="md-nav__link">
     ManagedRule 
   </a>
@@ -1519,13 +1554,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#openapigatewaylambdaapiprops" class="md-nav__link">
-    OpenApiGatewayLambdaApiProps 
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#openapigatewayprojectoptions" class="md-nav__link">
     OpenApiGatewayProjectOptions 
   </a>
@@ -1535,6 +1563,13 @@
           <li class="md-nav__item">
   <a href="#openapigatewaypythonprojectoptions" class="md-nav__link">
     OpenApiGatewayPythonProjectOptions 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openapigatewayrestapiprops" class="md-nav__link">
+    OpenApiGatewayRestApiProps 
   </a>
   
 </li>
@@ -1679,6 +1714,27 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#integration" class="md-nav__link">
+    Integration 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integrations_1" class="md-nav__link">
+    Integrations 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lambdaintegration" class="md-nav__link">
+    LambdaIntegration 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#noneauthorizer" class="md-nav__link">
     NoneAuthorizer 
   </a>
@@ -1804,8 +1860,8 @@ aws-prototyping-sdk library.</p>
 </div>
 <h2 id="openapi-gateway">OpenAPI Gateway</h2>
 <p>Define your APIs using <a href="https://awslabs.github.io/smithy/2.0/">Smithy</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and leverage the power of generated clients and documentation, automatic input validation, and type safe client and server code!</p>
-<p>This package vends a projen project type which allows you to define an API using either <a href="https://awslabs.github.io/smithy/2.0/">Smithy</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and a construct which manages deploying this API in API Gateway, given a lambda integration for every operation.</p>
-<p>The project will generate models and clients from your api definition in your desired languages, and can be utilised both client side or server side in lambda handlers. The project type also generates a wrapper construct which adds type safety to ensure a lambda integration is provided for every API integration.</p>
+<p>This package vends a projen project type which allows you to define an API using either <a href="https://awslabs.github.io/smithy/2.0/">Smithy</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and a construct which manages deploying this API in API Gateway, given an integration (eg a lambda) for every operation.</p>
+<p>The project will generate models and clients from your api definition in your desired languages, and can be utilised both client side or server side in lambda handlers. The project type also generates a wrapper construct which adds type safety to ensure an integration is provided for every API operation.</p>
 <p>When you change your API specification, just run <code>npx projen</code> again to regenerate all of this!</p>
 <h3 id="project">Project</h3>
 <p>Use the provided projen project types to get started with your API quickly! There are options for TypeScript, Python and Java:</p>
@@ -1845,7 +1901,7 @@ aws-prototyping-sdk library.</p>
         |_ .parsed-spec.json - A json spec generated from your spec.yaml.
     |_ api/
         |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API.
-        |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+        |           This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
         |           to your API. You shouldn&#39;t need to modify this, instead just extend it as in sample-api.ts.
         |_ sample-api.ts - Example usage of the construct defined in api.ts.
         |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
@@ -1887,7 +1943,7 @@ aws-prototyping-sdk library.</p>
         |_ .parsed-spec.json - A json spec generated from your Smithy model.
     |_ api/
         |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API.
-        |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+        |           This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
         |           to your API. You shouldn&#39;t need to modify this, instead just extend it as in sample-api.ts.
         |_ sample-api.ts - Example usage of the construct defined in api.ts.
         |_ sample-api.say-hello.ts - An example lambda handler for the operation defined in spec.yaml, making use of the
@@ -2031,7 +2087,7 @@ aws-prototyping-sdk library.</p>
         |_ .parsed-spec.json - A json spec generated from your spec.yaml.
     |_ api/
         |_ api.py - A CDK construct which defines the API Gateway resources to deploy your API.
-        |           This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+        |           This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
         |           to your API. You shouldn&#39;t need to modify this, instead just extend it as in sample_api.py.
         |_ sample_api.py - Example usage of the construct defined in api.py.
         |_ handlers/
@@ -2067,7 +2123,7 @@ aws-prototyping-sdk library.</p>
         |_ java/
             |_ api/
                 |_ Api.java - A CDK construct which defines the API Gateway resources to deploy your API.
-                |             This wraps the OpenApiGatewayLambdaApi construct and provides typed interfaces for integrations specific
+                |             This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
                 |             to your API. You shouldn&#39;t need to modify this, instead just extend it as in SampleApi.java.
                 |_ ApiProps.java - Defines properties for the CDK construct in Api.java
                 |_ SampleApi.java - Example usage of the construct defined in Api.java
@@ -2231,7 +2287,7 @@ aws-prototyping-sdk library.</p>
 <h3 id="construct">Construct</h3>
 <p>A sample construct is generated which provides a type-safe interface for creating an API Gateway API based on your OpenAPI specification. You'll get a type error if you forget to define an integration for an operation defined in your api.</p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;path&#39;</span><span class="p">;</span><span class="w"></span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Authorizers</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Authorizers</span><span class="p">,</span><span class="w"> </span><span class="nx">Integrations</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="p">;</span><span class="w"></span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NodejsFunction</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;aws-cdk-lib/aws-lambda-nodejs&#39;</span><span class="p">;</span><span class="w"></span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Construct</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;constructs&#39;</span><span class="p">;</span><span class="w"></span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Api</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./api&#39;</span><span class="p">;</span><span class="w"></span>
@@ -2246,7 +2302,7 @@ aws-prototyping-sdk library.</p>
 <span class="w">      </span><span class="nx">integrations</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">        </span><span class="c1">// Every operation defined in your API must have an integration defined!</span><span class="w"></span>
 <span class="w">        </span><span class="nx">sayHello</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">          </span><span class="nx">function</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nx">NodejsFunction</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;say-hello&#39;</span><span class="p">),</span><span class="w"></span>
+<span class="w">          </span><span class="nx">integration</span><span class="o">:</span><span class="w"> </span><span class="kt">Integrations.lambda</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">NodejsFunction</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;say-hello&#39;</span><span class="p">)),</span><span class="w"></span>
 <span class="w">        </span><span class="p">},</span><span class="w"></span>
 <span class="w">      </span><span class="p">},</span><span class="w"></span>
 <span class="w">    </span><span class="p">});</span><span class="w"></span>
@@ -2275,11 +2331,11 @@ aws-prototyping-sdk library.</p>
 <span class="w">      </span><span class="nx">integrations</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">        </span><span class="c1">// Everyone in the user pool can call this operation:</span><span class="w"></span>
 <span class="w">        </span><span class="nx">sayHello</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">          </span><span class="nx">function</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nx">NodejsFunction</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;say-hello&#39;</span><span class="p">),</span><span class="w"></span>
+<span class="w">          </span><span class="nx">integration</span><span class="o">:</span><span class="w"> </span><span class="kt">Integrations.lambda</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">NodejsFunction</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;say-hello&#39;</span><span class="p">)),</span><span class="w"></span>
 <span class="w">        </span><span class="p">},</span><span class="w"></span>
 <span class="w">        </span><span class="c1">// Only users with the given scopes can call this operation</span><span class="w"></span>
 <span class="w">        </span><span class="nx">myRestrictedOperation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">          </span><span class="nx">function</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nx">NodejsFunction</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;my-restricted-operation&#39;</span><span class="p">),</span><span class="w"></span>
+<span class="w">          </span><span class="nx">integration</span><span class="o">:</span><span class="w"> </span><span class="kt">Integrations.lambda</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">NodejsFunction</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;my-restricted-operation&#39;</span><span class="p">)),</span><span class="w"></span>
 <span class="w">          </span><span class="nx">authorizer</span><span class="o">:</span><span class="w"> </span><span class="kt">cognitoAuthorizer.withScopes</span><span class="p">(</span><span class="s1">&#39;my-resource-server/my-scope&#39;</span><span class="p">),</span><span class="w"></span>
 <span class="w">        </span><span class="p">},</span><span class="w"></span>
 <span class="w">      </span><span class="p">},</span><span class="w"></span>
@@ -2304,6 +2360,13 @@ aws-prototyping-sdk library.</p>
 <span class="w">  </span><span class="nx">function</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nx">NodejsFunction</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;authorizer&#39;</span><span class="p">),</span><span class="w"></span>
 <span class="p">});</span><span class="w"></span>
 </code></pre></div>
+<h4 id="integrations">Integrations</h4>
+<p>Integrations are used by API Gateway to service requests.</p>
+<h5 id="lambda-integration">Lambda Integration</h5>
+<p>Currently, the only built-in integration is a lambda integration. You can construct one using <code>Integrations.lambda(yourLambdaFunction)</code>.</p>
+<h5 id="custom-integrations">Custom Integrations</h5>
+<p>You can implement your own integrations by inheriting the <code>Integration</code> class and implementing its <code>render</code> method. This method is responsible for returning a snippet of OpenAPI which will be added as the <code>x-amazon-apigateway-integration</code> for an operation. Please refer to the <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html">API Gateway Swagger Extensions documentation</a> for more details.</p>
+<p>You can also optionally override the <code>grant</code> method if you need to use CDK to grant API Gateway access to invoke your integration.</p>
 <h3 id="generated-client">Generated Client</h3>
 <h4 id="typescript_1">Typescript</h4>
 <p>The <a href="https://openapi-generator.tech/docs/generators/typescript-fetch/">typescript-fetch</a> OpenAPI generator is used to generate OpenAPI clients for typescript. This requires an implementation of <code>fetch</code> to be passed to the client. In the browser one can pass the built in fetch, or in NodeJS you can use an implementation such as <a href="https://www.npmjs.com/package/node-fetch">node-fetch</a>.</p>
@@ -2744,12 +2807,12 @@ aws-prototyping-sdk library.</p>
 <p>You can remove the Web ACL entirely with <code>webAclOptions: { disable: true }</code> - you may wish to use this if you'd like to set up a Web ACL yourself with more control over the rules.</p>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="constructs">Constructs <a name="Constructs" id="Constructs"></a></h2>
-<h3 id="openapigatewaylambdaapi">OpenApiGatewayLambdaApi <a name="OpenApiGatewayLambdaApi" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi"></a></h3>
-<p>A construct for creating an api gateway api based on the definition in the OpenAPI spec.</p>
-<h4 id="initializers">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer"></a></h4>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayLambdaApi</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+<h3 id="openapigatewayrestapi">OpenApiGatewayRestApi <a name="OpenApiGatewayRestApi" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi"></a></h3>
+<p>A construct for creating an api gateway rest api based on the definition in the OpenAPI spec.</p>
+<h4 id="initializers">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayRestApi</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
-<span class="ow">new</span><span class="w"> </span><span class="nx">OpenApiGatewayLambdaApi</span><span class="p">(</span><span class="nx">scope</span><span class="o">:</span><span class="w"> </span><span class="kt">Construct</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">props</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayLambdaApiProps</span><span class="p">)</span><span class="w"></span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">OpenApiGatewayRestApi</span><span class="p">(</span><span class="nx">scope</span><span class="o">:</span><span class="w"> </span><span class="kt">Construct</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">props</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayRestApiProps</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 <table>
 <thead>
@@ -2761,36 +2824,36 @@ aws-prototyping-sdk library.</p>
 </thead>
 <tbody>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.scope">scope</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.Initializer.parameter.scope">scope</a></code></td>
 <td><code>constructs.Construct</code></td>
 <td><em>No description.</em></td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.id">id</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.Initializer.parameter.id">id</a></code></td>
 <td><code>string</code></td>
 <td><em>No description.</em></td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.props">props</a></code></td>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps">OpenApiGatewayLambdaApiProps</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.Initializer.parameter.props">props</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps">OpenApiGatewayRestApiProps</a></code></td>
 <td><em>No description.</em></td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h5 id="scoperequired"><code>scope</code><sup>Required</sup> <a name="scope" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.scope"></a></h5>
+<h5 id="scoperequired"><code>scope</code><sup>Required</sup> <a name="scope" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.Initializer.parameter.scope"></a></h5>
 <ul>
 <li><em>Type:</em> constructs.Construct</li>
 </ul>
 <hr />
-<h5 id="idrequired"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.id"></a></h5>
+<h5 id="idrequired"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.Initializer.parameter.id"></a></h5>
 <ul>
 <li><em>Type:</em> string</li>
 </ul>
 <hr />
-<h5 id="propsrequired"><code>props</code><sup>Required</sup> <a name="props" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.Initializer.parameter.props"></a></h5>
+<h5 id="propsrequired"><code>props</code><sup>Required</sup> <a name="props" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.Initializer.parameter.props"></a></h5>
 <ul>
-<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps">OpenApiGatewayLambdaApiProps</a></li>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps">OpenApiGatewayRestApiProps</a></li>
 </ul>
 <hr />
 <h4 id="methods">Methods <a name="Methods" id="Methods"></a></h4>
@@ -2803,13 +2866,13 @@ aws-prototyping-sdk library.</p>
 </thead>
 <tbody>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.toString">toString</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.toString">toString</a></code></td>
 <td>Returns a string representation of this construct.</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h5 id="tostring"><code>toString</code> <a name="toString" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.toString"></a></h5>
+<h5 id="tostring"><code>toString</code> <a name="toString" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.toString"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">toString</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"></span>
 </code></pre></div>
 <p>Returns a string representation of this construct.</p>
@@ -2823,16 +2886,16 @@ aws-prototyping-sdk library.</p>
 </thead>
 <tbody>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.isConstruct">isConstruct</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.isConstruct">isConstruct</a></code></td>
 <td>Checks if <code>x</code> is a construct.</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h5 id="isconstruct"><code>isConstruct</code> <a name="isConstruct" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.isConstruct"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayLambdaApi</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+<h5 id="isconstruct"><code>isConstruct</code> <a name="isConstruct" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.isConstruct"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayRestApi</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
-<span class="nx">OpenApiGatewayLambdaApi</span><span class="p">.</span><span class="nx">isConstruct</span><span class="p">(</span><span class="nx">x</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"></span>
+<span class="nx">OpenApiGatewayRestApi</span><span class="p">.</span><span class="nx">isConstruct</span><span class="p">(</span><span class="nx">x</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 <p>Checks if <code>x</code> is a construct.</p>
 <p>Use this method instead of <code>instanceof</code> to properly detect <code>Construct</code>
@@ -2847,7 +2910,7 @@ use a monorepo tool: in those cases, multiple copies of the <code>constructs</co
 library can be accidentally installed, and <code>instanceof</code> will behave
 unpredictably. It is safest to avoid using <code>instanceof</code>, and using
 this type-testing method instead.</p>
-<h6 id="xrequired"><code>x</code><sup>Required</sup> <a name="x" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.isConstruct.parameter.x"></a></h6>
+<h6 id="xrequired"><code>x</code><sup>Required</sup> <a name="x" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.isConstruct.parameter.x"></a></h6>
 <ul>
 <li><em>Type:</em> any</li>
 </ul>
@@ -2864,34 +2927,34 @@ this type-testing method instead.</p>
 </thead>
 <tbody>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.node">node</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.property.node">node</a></code></td>
 <td><code>constructs.Node</code></td>
 <td>The tree node.</td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.api">api</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.property.api">api</a></code></td>
 <td><code>aws-cdk-lib.aws_apigateway.SpecRestApi</code></td>
 <td><em>No description.</em></td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.ipSet">ipSet</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.property.ipSet">ipSet</a></code></td>
 <td><code>aws-cdk-lib.aws_wafv2.CfnIPSet</code></td>
 <td><em>No description.</em></td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.webAcl">webAcl</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.property.webAcl">webAcl</a></code></td>
 <td><code>aws-cdk-lib.aws_wafv2.CfnWebACL</code></td>
 <td><em>No description.</em></td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.webAclAssociation">webAclAssociation</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.property.webAclAssociation">webAclAssociation</a></code></td>
 <td><code>aws-cdk-lib.aws_wafv2.CfnWebACLAssociation</code></td>
 <td><em>No description.</em></td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h5 id="noderequired"><code>node</code><sup>Required</sup> <a name="node" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.node"></a></h5>
+<h5 id="noderequired"><code>node</code><sup>Required</sup> <a name="node" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.property.node"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">node</span><span class="o">:</span><span class="w"> </span><span class="kt">Node</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
 <ul>
@@ -2899,28 +2962,28 @@ this type-testing method instead.</p>
 </ul>
 <p>The tree node.</p>
 <hr />
-<h5 id="apirequired"><code>api</code><sup>Required</sup> <a name="api" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.api"></a></h5>
+<h5 id="apirequired"><code>api</code><sup>Required</sup> <a name="api" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.property.api"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">api</span><span class="o">:</span><span class="w"> </span><span class="kt">SpecRestApi</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> aws-cdk-lib.aws_apigateway.SpecRestApi</li>
 </ul>
 <hr />
-<h5 id="ipsetoptional"><code>ipSet</code><sup>Optional</sup> <a name="ipSet" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.ipSet"></a></h5>
+<h5 id="ipsetoptional"><code>ipSet</code><sup>Optional</sup> <a name="ipSet" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.property.ipSet"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">ipSet</span><span class="o">:</span><span class="w"> </span><span class="kt">CfnIPSet</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> aws-cdk-lib.aws_wafv2.CfnIPSet</li>
 </ul>
 <hr />
-<h5 id="webacloptional"><code>webAcl</code><sup>Optional</sup> <a name="webAcl" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.webAcl"></a></h5>
+<h5 id="webacloptional"><code>webAcl</code><sup>Optional</sup> <a name="webAcl" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.property.webAcl"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">webAcl</span><span class="o">:</span><span class="w"> </span><span class="kt">CfnWebACL</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> aws-cdk-lib.aws_wafv2.CfnWebACL</li>
 </ul>
 <hr />
-<h5 id="webaclassociationoptional"><code>webAclAssociation</code><sup>Optional</sup> <a name="webAclAssociation" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApi.property.webAclAssociation"></a></h5>
+<h5 id="webaclassociationoptional"><code>webAclAssociation</code><sup>Optional</sup> <a name="webAclAssociation" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApi.property.webAclAssociation"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">webAclAssociation</span><span class="o">:</span><span class="w"> </span><span class="kt">CfnWebACLAssociation</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
 <ul>
@@ -2928,14 +2991,389 @@ this type-testing method instead.</p>
 </ul>
 <hr />
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
+<h3 id="apigatewayintegration">ApiGatewayIntegration <a name="ApiGatewayIntegration" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration"></a></h3>
+<p>Represents an api gateway integration.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html">https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html</a></p>
+</blockquote>
+<h4 id="initializer">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ApiGatewayIntegration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">apiGatewayIntegration</span><span class="o">:</span><span class="w"> </span><span class="kt">ApiGatewayIntegration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h4 id="properties_1">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.cacheKeyParameters">cacheKeyParameters</a></code></td>
+<td><code>string[]</code></td>
+<td>A list of request parameters whose values are to be cached.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.cacheNamespace">cacheNamespace</a></code></td>
+<td><code>string</code></td>
+<td>An API-specific tag group of related cached parameters.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.connectionId">connectionId</a></code></td>
+<td><code>string</code></td>
+<td>The ID of a VpcLink for the private integration.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.connectionType">connectionType</a></code></td>
+<td><code>string</code></td>
+<td>The integration connection type.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.contentHandling">contentHandling</a></code></td>
+<td><code>string</code></td>
+<td>Request payload encoding conversion types.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.credentials">credentials</a></code></td>
+<td><code>string</code></td>
+<td>For AWS IAM role-based credentials, specify the ARN of an appropriate IAM role.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.httpMethod">httpMethod</a></code></td>
+<td><code>string</code></td>
+<td>The HTTP method used in the integration request.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.passthroughBehavior">passthroughBehavior</a></code></td>
+<td><code>string</code></td>
+<td>Specifies how a request payload of unmapped content type is passed through the integration request without modification.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.requestParameters">requestParameters</a></code></td>
+<td><code>{[ key: string ]: string}</code></td>
+<td>Specifies mappings from method request parameters to integration request parameters.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.requestTemplates">requestTemplates</a></code></td>
+<td><code>{[ key: string ]: string}</code></td>
+<td>Mapping templates for a request payload of specified MIME types.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.responses">responses</a></code></td>
+<td><code>{[ key: string ]: <a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse">ApiGatewayIntegrationResponse</a>}</code></td>
+<td>Defines the method's responses and specifies desired parameter mappings or payload mappings from integration responses to method responses.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.timeoutInMillis">timeoutInMillis</a></code></td>
+<td><code>number</code></td>
+<td>Custom timeout between 50 and 29,000 milliseconds.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.tlsConfig">tlsConfig</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationTlsConfig">ApiGatewayIntegrationTlsConfig</a></code></td>
+<td>Specifies the TLS configuration for an integration.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.type">type</a></code></td>
+<td><code>string</code></td>
+<td>The type of integration with the specified backend.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.uri">uri</a></code></td>
+<td><code>string</code></td>
+<td>The endpoint URI of the backend.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="cachekeyparametersoptional"><code>cacheKeyParameters</code><sup>Optional</sup> <a name="cacheKeyParameters" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.cacheKeyParameters"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">cacheKeyParameters</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[];</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string[]</li>
+</ul>
+<p>A list of request parameters whose values are to be cached.</p>
+<hr />
+<h5 id="cachenamespaceoptional"><code>cacheNamespace</code><sup>Optional</sup> <a name="cacheNamespace" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.cacheNamespace"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">cacheNamespace</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>An API-specific tag group of related cached parameters.</p>
+<hr />
+<h5 id="connectionidoptional"><code>connectionId</code><sup>Optional</sup> <a name="connectionId" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.connectionId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">connectionId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>The ID of a VpcLink for the private integration.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/apigateway/latest/api/API_VpcLink.html">https://docs.aws.amazon.com/apigateway/latest/api/API_VpcLink.html</a></p>
+</blockquote>
+<hr />
+<h5 id="connectiontypeoptional"><code>connectionType</code><sup>Optional</sup> <a name="connectionType" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.connectionType"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">connectionType</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>The integration connection type.</p>
+<p>The valid value is "VPC_LINK" for private integration or "INTERNET", otherwise.</p>
+<hr />
+<h5 id="contenthandlingoptional"><code>contentHandling</code><sup>Optional</sup> <a name="contentHandling" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.contentHandling"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">contentHandling</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>Request payload encoding conversion types.</p>
+<p>Valid values are 1) CONVERT_TO_TEXT, for converting a binary payload
+into a base64-encoded string or converting a text payload into a utf-8-encoded string or passing through the text
+payload natively without modification, and 2) CONVERT_TO_BINARY, for converting a text payload into a
+base64-decoded blob or passing through a binary payload natively without modification.</p>
+<hr />
+<h5 id="credentialsoptional"><code>credentials</code><sup>Optional</sup> <a name="credentials" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.credentials"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">credentials</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>For AWS IAM role-based credentials, specify the ARN of an appropriate IAM role.</p>
+<p>If unspecified, credentials default
+to resource-based permissions that must be added manually to allow the API to access the resource. For more
+information, see Granting Permissions Using a Resource Policy.</p>
+<p>Note: When using IAM credentials, make sure that AWS STS Regional endpoints are enabled for the Region where this
+API is deployed for best performance.</p>
+<hr />
+<h5 id="httpmethodoptional"><code>httpMethod</code><sup>Optional</sup> <a name="httpMethod" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.httpMethod"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">httpMethod</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>The HTTP method used in the integration request.</p>
+<p>For Lambda function invocations, the value must be POST.</p>
+<hr />
+<h5 id="passthroughbehavioroptional"><code>passthroughBehavior</code><sup>Optional</sup> <a name="passthroughBehavior" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.passthroughBehavior"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">passthroughBehavior</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>Specifies how a request payload of unmapped content type is passed through the integration request without modification.</p>
+<p>Supported values are when_no_templates, when_no_match, and never.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/apigateway/latest/api/API_Integration.html#passthroughBehavior">https://docs.aws.amazon.com/apigateway/latest/api/API_Integration.html#passthroughBehavior</a></p>
+</blockquote>
+<hr />
+<h5 id="requestparametersoptional"><code>requestParameters</code><sup>Optional</sup> <a name="requestParameters" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.requestParameters"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">requestParameters</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">};</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> {[ key: string ]: string}</li>
+</ul>
+<p>Specifies mappings from method request parameters to integration request parameters.</p>
+<p>Supported request parameters
+are querystring, path, header, and body.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration-requestParameters.html">https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration-requestParameters.html</a></p>
+</blockquote>
+<hr />
+<h5 id="requesttemplatesoptional"><code>requestTemplates</code><sup>Optional</sup> <a name="requestTemplates" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.requestTemplates"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">requestTemplates</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">};</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> {[ key: string ]: string}</li>
+</ul>
+<p>Mapping templates for a request payload of specified MIME types.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration-requestTemplates.html">https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration-requestTemplates.html</a></p>
+</blockquote>
+<hr />
+<h5 id="responsesoptional"><code>responses</code><sup>Optional</sup> <a name="responses" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.responses"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">responses</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="nx">ApiGatewayIntegrationResponse</span><span class="p">};</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> {[ key: string ]: <a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse">ApiGatewayIntegrationResponse</a>}</li>
+</ul>
+<p>Defines the method's responses and specifies desired parameter mappings or payload mappings from integration responses to method responses.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration-responses.html">https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration-responses.html</a></p>
+</blockquote>
+<hr />
+<h5 id="timeoutinmillisoptional"><code>timeoutInMillis</code><sup>Optional</sup> <a name="timeoutInMillis" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.timeoutInMillis"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">timeoutInMillis</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> number</li>
+</ul>
+<p>Custom timeout between 50 and 29,000 milliseconds.</p>
+<p>The default value is 29,000 milliseconds or 29 seconds.</p>
+<hr />
+<h5 id="tlsconfigoptional"><code>tlsConfig</code><sup>Optional</sup> <a name="tlsConfig" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.tlsConfig"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">tlsConfig</span><span class="o">:</span><span class="w"> </span><span class="kt">ApiGatewayIntegrationTlsConfig</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationTlsConfig">ApiGatewayIntegrationTlsConfig</a></li>
+</ul>
+<p>Specifies the TLS configuration for an integration.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-extensions-integration-tls-config.html">https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-extensions-integration-tls-config.html</a></p>
+</blockquote>
+<hr />
+<h5 id="typeoptional"><code>type</code><sup>Optional</sup> <a name="type" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.type"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>The type of integration with the specified backend.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/apigateway/latest/api/API_Integration.html#type">https://docs.aws.amazon.com/apigateway/latest/api/API_Integration.html#type</a></p>
+</blockquote>
+<hr />
+<h5 id="urioptional"><code>uri</code><sup>Optional</sup> <a name="uri" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegration.property.uri"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>The endpoint URI of the backend.</p>
+<p>For integrations of the aws type, this is an ARN value.
+For the HTTP integration, this is the URL of the HTTP endpoint including the https or http scheme.</p>
+<hr />
+<h3 id="apigatewayintegrationresponse">ApiGatewayIntegrationResponse <a name="ApiGatewayIntegrationResponse" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse"></a></h3>
+<p>API Gateway integration response.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/apigateway/latest/api/API_Integration.html">https://docs.aws.amazon.com/apigateway/latest/api/API_Integration.html</a></p>
+</blockquote>
+<h4 id="initializer_1">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ApiGatewayIntegrationResponse</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">apiGatewayIntegrationResponse</span><span class="o">:</span><span class="w"> </span><span class="kt">ApiGatewayIntegrationResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse.property.responseParameters">responseParameters</a></code></td>
+<td><code>{[ key: string ]: string}</code></td>
+<td>Specifies parameter mappings for the response.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse.property.responseTemplates">responseTemplates</a></code></td>
+<td><code>{[ key: string ]: string}</code></td>
+<td>Specifies MIME type-specific mapping templates for the response’s payload.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse.property.statusCode">statusCode</a></code></td>
+<td><code>string</code></td>
+<td>HTTP status code for the method response.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse.property.contentHandling">contentHandling</a></code></td>
+<td><code>string</code></td>
+<td>Response payload encoding conversion types.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="responseparametersrequired"><code>responseParameters</code><sup>Required</sup> <a name="responseParameters" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse.property.responseParameters"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">responseParameters</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">};</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> {[ key: string ]: string}</li>
+</ul>
+<p>Specifies parameter mappings for the response.</p>
+<hr />
+<h5 id="responsetemplatesrequired"><code>responseTemplates</code><sup>Required</sup> <a name="responseTemplates" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse.property.responseTemplates"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">responseTemplates</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">};</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> {[ key: string ]: string}</li>
+</ul>
+<p>Specifies MIME type-specific mapping templates for the response’s payload.</p>
+<hr />
+<h5 id="statuscoderequired"><code>statusCode</code><sup>Required</sup> <a name="statusCode" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse.property.statusCode"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">statusCode</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>HTTP status code for the method response.</p>
+<hr />
+<h5 id="contenthandlingoptional_1"><code>contentHandling</code><sup>Optional</sup> <a name="contentHandling" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationResponse.property.contentHandling"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">contentHandling</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>Response payload encoding conversion types.</p>
+<p>Valid values are 1) CONVERT_TO_TEXT, for converting a binary payload
+into a base64-encoded string or converting a text payload into a utf-8-encoded string or passing through the text
+payload natively without modification, and 2) CONVERT_TO_BINARY, for converting a text payload into a
+base64-decoded blob or passing through a binary payload natively without modification.</p>
+<hr />
+<h3 id="apigatewayintegrationtlsconfig">ApiGatewayIntegrationTlsConfig <a name="ApiGatewayIntegrationTlsConfig" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationTlsConfig"></a></h3>
+<p>Specifies the TLS configuration for an integration.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-extensions-integration-tls-config.html">https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-extensions-integration-tls-config.html</a></p>
+</blockquote>
+<h4 id="initializer_2">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationTlsConfig.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ApiGatewayIntegrationTlsConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">apiGatewayIntegrationTlsConfig</span><span class="o">:</span><span class="w"> </span><span class="kt">ApiGatewayIntegrationTlsConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationTlsConfig.property.insecureSkipVerification">insecureSkipVerification</a></code></td>
+<td><code>boolean</code></td>
+<td>Specifies whether or not API Gateway skips verification that the certificate for an integration endpoint is issued by a supported certificate authority.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="insecureskipverificationoptional"><code>insecureSkipVerification</code><sup>Optional</sup> <a name="insecureSkipVerification" id="@aws-prototyping-sdk/open-api-gateway.ApiGatewayIntegrationTlsConfig.property.insecureSkipVerification"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">insecureSkipVerification</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+</ul>
+<p>Specifies whether or not API Gateway skips verification that the certificate for an integration endpoint is issued by a supported certificate authority.</p>
+<p>This isn’t recommended, but it enables you to use certificates that are
+signed by private certificate authorities, or certificates that are self-signed. If enabled, API Gateway still
+performs basic certificate validation, which includes checking the certificate's expiration date, hostname, and
+presence of a root certificate authority. Supported only for HTTP and HTTP_PROXY integrations.</p>
+<hr />
 <h3 id="authorizerprops">AuthorizerProps <a name="AuthorizerProps" id="@aws-prototyping-sdk/open-api-gateway.AuthorizerProps"></a></h3>
 <p>Properties for an authorizer.</p>
-<h4 id="initializer">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.AuthorizerProps.Initializer"></a></h4>
+<h4 id="initializer_3">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.AuthorizerProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AuthorizerProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">authorizerProps</span><span class="o">:</span><span class="w"> </span><span class="kt">AuthorizerProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_1">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -2989,12 +3427,12 @@ this type-testing method instead.</p>
 <hr />
 <h3 id="cidrallowlist">CidrAllowList <a name="CidrAllowList" id="@aws-prototyping-sdk/open-api-gateway.CidrAllowList"></a></h3>
 <p>Representation of a CIDR range.</p>
-<h4 id="initializer_1">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.CidrAllowList.Initializer"></a></h4>
+<h4 id="initializer_4">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.CidrAllowList.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CidrAllowList</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">cidrAllowList</span><span class="o">:</span><span class="w"> </span><span class="kt">CidrAllowList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3042,12 +3480,12 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
 <hr />
 <h3 id="cognitoauthorizerprops">CognitoAuthorizerProps <a name="CognitoAuthorizerProps" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps"></a></h3>
 <p>Properties used to configure a cognito authorizer.</p>
-<h4 id="initializer_2">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps.Initializer"></a></h4>
+<h4 id="initializer_5">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.CognitoAuthorizerProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CognitoAuthorizerProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">cognitoAuthorizerProps</span><span class="o">:</span><span class="w"> </span><span class="kt">CognitoAuthorizerProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3106,12 +3544,12 @@ applied to all methods without an authorizer at the integration level.</p>
 </blockquote>
 <hr />
 <h3 id="commonapiprojectoptions">CommonApiProjectOptions <a name="CommonApiProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.CommonApiProjectOptions"></a></h3>
-<h4 id="initializer_3">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.CommonApiProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_6">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.CommonApiProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CommonApiProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">commonApiProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">CommonApiProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3251,12 +3689,12 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="customauthorizerprops">CustomAuthorizerProps <a name="CustomAuthorizerProps" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps"></a></h3>
 <p>Properties used to configure a custom authorizer.</p>
-<h4 id="initializer_4">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.Initializer"></a></h4>
+<h4 id="initializer_7">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CustomAuthorizerProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">customAuthorizerProps</span><span class="o">:</span><span class="w"> </span><span class="kt">CustomAuthorizerProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_8">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3331,7 +3769,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-identitysource</a></p>
 </blockquote>
 <hr />
-<h5 id="typeoptional"><code>type</code><sup>Optional</sup> <a name="type" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.type"></a></h5>
+<h5 id="typeoptional_1"><code>type</code><sup>Optional</sup> <a name="type" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps.property.type"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">CustomAuthorizerType</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
 <ul>
@@ -3342,6 +3780,163 @@ applied to all methods without an authorizer at the integration level.</p>
 <blockquote>
 <p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type</a></p>
 </blockquote>
+<hr />
+<h3 id="integrationgrantprops">IntegrationGrantProps <a name="IntegrationGrantProps" id="@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps"></a></h3>
+<p>Properties for granting the API access to invoke the operation.</p>
+<h4 id="initializer_8">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">IntegrationGrantProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">integrationGrantProps</span><span class="o">:</span><span class="w"> </span><span class="kt">IntegrationGrantProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h4 id="properties_9">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps.property.method">method</a></code></td>
+<td><code>string</code></td>
+<td>The http method of this operation.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps.property.path">path</a></code></td>
+<td><code>string</code></td>
+<td>The path of this operation in the api.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps.property.api">api</a></code></td>
+<td><code>aws-cdk-lib.aws_apigateway.SpecRestApi</code></td>
+<td>The api to grant permissions for.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps.property.operationId">operationId</a></code></td>
+<td><code>string</code></td>
+<td>The ID of the operation for which permissions are being granted.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps.property.scope">scope</a></code></td>
+<td><code>constructs.Construct</code></td>
+<td>The scope in which permission resources can be created.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="methodrequired"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps.property.method"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">method</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>The http method of this operation.</p>
+<hr />
+<h5 id="pathrequired"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps.property.path"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>The path of this operation in the api.</p>
+<hr />
+<h5 id="apirequired_1"><code>api</code><sup>Required</sup> <a name="api" id="@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps.property.api"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">api</span><span class="o">:</span><span class="w"> </span><span class="kt">SpecRestApi</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws-cdk-lib.aws_apigateway.SpecRestApi</li>
+</ul>
+<p>The api to grant permissions for.</p>
+<hr />
+<h5 id="operationidrequired"><code>operationId</code><sup>Required</sup> <a name="operationId" id="@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps.property.operationId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">operationId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>The ID of the operation for which permissions are being granted.</p>
+<hr />
+<h5 id="scoperequired_1"><code>scope</code><sup>Required</sup> <a name="scope" id="@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps.property.scope"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">scope</span><span class="o">:</span><span class="w"> </span><span class="kt">Construct</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> constructs.Construct</li>
+</ul>
+<p>The scope in which permission resources can be created.</p>
+<hr />
+<h3 id="integrationrenderprops">IntegrationRenderProps <a name="IntegrationRenderProps" id="@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps"></a></h3>
+<p>Properties for rendering an integration into an API Gateway OpenAPI extension.</p>
+<h4 id="initializer_9">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">IntegrationRenderProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">integrationRenderProps</span><span class="o">:</span><span class="w"> </span><span class="kt">IntegrationRenderProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h4 id="properties_10">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps.property.method">method</a></code></td>
+<td><code>string</code></td>
+<td>The http method of this operation.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps.property.path">path</a></code></td>
+<td><code>string</code></td>
+<td>The path of this operation in the api.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps.property.operationId">operationId</a></code></td>
+<td><code>string</code></td>
+<td>The ID of the operation being rendered.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps.property.scope">scope</a></code></td>
+<td><code>constructs.Construct</code></td>
+<td>The scope in which the integration is being rendered.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="methodrequired_1"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps.property.method"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">method</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>The http method of this operation.</p>
+<hr />
+<h5 id="pathrequired_1"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps.property.path"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>The path of this operation in the api.</p>
+<hr />
+<h5 id="operationidrequired_1"><code>operationId</code><sup>Required</sup> <a name="operationId" id="@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps.property.operationId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">operationId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>The ID of the operation being rendered.</p>
+<hr />
+<h5 id="scoperequired_2"><code>scope</code><sup>Required</sup> <a name="scope" id="@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps.property.scope"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">scope</span><span class="o">:</span><span class="w"> </span><span class="kt">Construct</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> constructs.Construct</li>
+</ul>
+<p>The scope in which the integration is being rendered.</p>
 <hr />
 <h3 id="managedrule">ManagedRule <a name="ManagedRule" id="@aws-prototyping-sdk/open-api-gateway.ManagedRule"></a></h3>
 <p><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong>*** Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.</p>
@@ -3355,12 +3950,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.</p>
 <hr />
-<h4 id="initializer_5">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.ManagedRule.Initializer"></a></h4>
+<h4 id="initializer_10">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.ManagedRule.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ManagedRule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">managedRule</span><span class="o">:</span><span class="w"> </span><span class="kt">ManagedRule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3403,12 +3998,12 @@ limitations under the License.</p>
 <hr />
 <h3 id="methodandpath">MethodAndPath <a name="MethodAndPath" id="@aws-prototyping-sdk/open-api-gateway.MethodAndPath"></a></h3>
 <p>Structure to contain an API operation's method and path.</p>
-<h4 id="initializer_6">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.MethodAndPath.Initializer"></a></h4>
+<h4 id="initializer_11">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.MethodAndPath.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">MethodAndPath</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">methodAndPath</span><span class="o">:</span><span class="w"> </span><span class="kt">MethodAndPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_12">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3431,7 +4026,7 @@ limitations under the License.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="methodrequired"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/open-api-gateway.MethodAndPath.property.method"></a></h5>
+<h5 id="methodrequired_2"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/open-api-gateway.MethodAndPath.property.method"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">method</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
 <ul>
@@ -3439,7 +4034,7 @@ limitations under the License.</p>
 </ul>
 <p>The http method of this operation.</p>
 <hr />
-<h5 id="pathrequired"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/open-api-gateway.MethodAndPath.property.path"></a></h5>
+<h5 id="pathrequired_2"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/open-api-gateway.MethodAndPath.property.path"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
 <ul>
@@ -3449,12 +4044,12 @@ limitations under the License.</p>
 <hr />
 <h3 id="openapigatewayjavaprojectoptions">OpenApiGatewayJavaProjectOptions <a name="OpenApiGatewayJavaProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayJavaProjectOptions"></a></h3>
 <p>Configuration for the OpenApiGatewayJavaProject.</p>
-<h4 id="initializer_7">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayJavaProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_12">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayJavaProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayJavaProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">openApiGatewayJavaProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayJavaProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_8">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_13">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4290,338 +4885,14 @@ will compile &amp; execute <code>main()</code> from <code>src/main/java/projenrc
 </ul>
 <p>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</p>
 <hr />
-<h3 id="openapigatewaylambdaapiprops">OpenApiGatewayLambdaApiProps <a name="OpenApiGatewayLambdaApiProps" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps"></a></h3>
-<p>Configuration for the OpenApiGatewayLambdaApi construct.</p>
-<h4 id="initializer_8">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.Initializer"></a></h4>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayLambdaApiProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">openApiGatewayLambdaApiProps</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayLambdaApiProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
-</code></pre></div>
-<h4 id="properties_9">Properties <a name="Properties" id="Properties"></a></h4>
-<table>
-<thead>
-<tr>
-<th><strong>Name</strong></th>
-<th><strong>Type</strong></th>
-<th><strong>Description</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.cloudWatchRole">cloudWatchRole</a></code></td>
-<td><code>boolean</code></td>
-<td>Automatically configure an AWS CloudWatch role for API Gateway.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.deploy">deploy</a></code></td>
-<td><code>boolean</code></td>
-<td>Indicates if a Deployment should be automatically created for this API, and recreated when the API model (resources, methods) changes.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.deployOptions">deployOptions</a></code></td>
-<td><code>aws-cdk-lib.aws_apigateway.StageOptions</code></td>
-<td>Options for the API Gateway stage that will always point to the latest deployment when <code>deploy</code> is enabled.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.description">description</a></code></td>
-<td><code>string</code></td>
-<td>A description of the RestApi construct.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.disableExecuteApiEndpoint">disableExecuteApiEndpoint</a></code></td>
-<td><code>boolean</code></td>
-<td>Specifies whether clients can invoke the API using the default execute-api endpoint.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.domainName">domainName</a></code></td>
-<td><code>aws-cdk-lib.aws_apigateway.DomainNameOptions</code></td>
-<td>Configure a custom domain name and map it to this API.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.endpointExportName">endpointExportName</a></code></td>
-<td><code>string</code></td>
-<td>Export name for the CfnOutput containing the API endpoint.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.endpointTypes">endpointTypes</a></code></td>
-<td><code>aws-cdk-lib.aws_apigateway.EndpointType[]</code></td>
-<td>A list of the endpoint types of the API.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.failOnWarnings">failOnWarnings</a></code></td>
-<td><code>boolean</code></td>
-<td>Indicates whether to roll back the resource if a warning occurs while API Gateway is creating the RestApi resource.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.parameters">parameters</a></code></td>
-<td><code>{[ key: string ]: string}</code></td>
-<td>Custom header parameters for the request.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.policy">policy</a></code></td>
-<td><code>aws-cdk-lib.aws_iam.PolicyDocument</code></td>
-<td>A policy document that contains the permissions for this RestApi.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.restApiName">restApiName</a></code></td>
-<td><code>string</code></td>
-<td>A name for the API Gateway RestApi resource.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.retainDeployments">retainDeployments</a></code></td>
-<td><code>boolean</code></td>
-<td>Retains old deployment resources when the API changes.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.integrations">integrations</a></code></td>
-<td><code>{[ key: string ]: <a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration">OpenApiIntegration</a>}</code></td>
-<td>A mapping of API operation to its integration.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.operationLookup">operationLookup</a></code></td>
-<td><code>{[ key: string ]: <a href="#@aws-prototyping-sdk/open-api-gateway.MethodAndPath">MethodAndPath</a>}</code></td>
-<td>Details about each operation.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.corsOptions">corsOptions</a></code></td>
-<td><code>aws-cdk-lib.aws_apigateway.CorsOptions</code></td>
-<td>Cross Origin Resource Sharing options for the API.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.defaultAuthorizer">defaultAuthorizer</a></code></td>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></code></td>
-<td>The default authorizer to use for your api.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.spec">spec</a></code></td>
-<td><code>any</code></td>
-<td>The parsed OpenAPI specification.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.specPath">specPath</a></code></td>
-<td><code>string</code></td>
-<td>Path to the JSON open api spec.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.webAclOptions">webAclOptions</a></code></td>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayWebAclOptions">OpenApiGatewayWebAclOptions</a></code></td>
-<td>Options for the AWS WAF v2 WebACL associated with the api.</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h5 id="cloudwatchroleoptional"><code>cloudWatchRole</code><sup>Optional</sup> <a name="cloudWatchRole" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.cloudWatchRole"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">cloudWatchRole</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> boolean</li>
-<li><em>Default:</em> false if <code>@aws-cdk/aws-apigateway:disableCloudWatchRole</code> is enabled, true otherwise</li>
-</ul>
-<p>Automatically configure an AWS CloudWatch role for API Gateway.</p>
-<hr />
-<h5 id="deployoptional"><code>deploy</code><sup>Optional</sup> <a name="deploy" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.deploy"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">deploy</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> boolean</li>
-<li><em>Default:</em> true</li>
-</ul>
-<p>Indicates if a Deployment should be automatically created for this API, and recreated when the API model (resources, methods) changes.</p>
-<p>Since API Gateway deployments are immutable, When this option is enabled
-(by default), an AWS::ApiGateway::Deployment resource will automatically
-created with a logical ID that hashes the API model (methods, resources
-and options). This means that when the model changes, the logical ID of
-this CloudFormation resource will change, and a new deployment will be
-created.</p>
-<p>If this is set, <code>latestDeployment</code> will refer to the <code>Deployment</code> object
-and <code>deploymentStage</code> will refer to a <code>Stage</code> that points to this
-deployment. To customize the stage options, use the <code>deployOptions</code>
-property.</p>
-<p>A CloudFormation Output will also be defined with the root URL endpoint
-of this REST API.</p>
-<hr />
-<h5 id="deployoptionsoptional"><code>deployOptions</code><sup>Optional</sup> <a name="deployOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.deployOptions"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">deployOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">StageOptions</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws-cdk-lib.aws_apigateway.StageOptions</li>
-<li><em>Default:</em> Based on defaults of <code>StageOptions</code>.</li>
-</ul>
-<p>Options for the API Gateway stage that will always point to the latest deployment when <code>deploy</code> is enabled.</p>
-<p>If <code>deploy</code> is disabled,
-this value cannot be set.</p>
-<hr />
-<h5 id="descriptionoptional_1"><code>description</code><sup>Optional</sup> <a name="description" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.description"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> string</li>
-<li><em>Default:</em> 'Automatically created by the RestApi construct'</li>
-</ul>
-<p>A description of the RestApi construct.</p>
-<hr />
-<h5 id="disableexecuteapiendpointoptional"><code>disableExecuteApiEndpoint</code><sup>Optional</sup> <a name="disableExecuteApiEndpoint" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.disableExecuteApiEndpoint"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">disableExecuteApiEndpoint</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> boolean</li>
-<li><em>Default:</em> false</li>
-</ul>
-<p>Specifies whether clients can invoke the API using the default execute-api endpoint.</p>
-<p>To require that clients use a custom domain name to invoke the
-API, disable the default endpoint.</p>
-<blockquote>
-<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-restapi.html">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-restapi.html</a></p>
-</blockquote>
-<hr />
-<h5 id="domainnameoptional"><code>domainName</code><sup>Optional</sup> <a name="domainName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.domainName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">domainName</span><span class="o">:</span><span class="w"> </span><span class="kt">DomainNameOptions</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws-cdk-lib.aws_apigateway.DomainNameOptions</li>
-<li><em>Default:</em> no domain name is defined, use <code>addDomainName</code> or directly define a <code>DomainName</code>.</li>
-</ul>
-<p>Configure a custom domain name and map it to this API.</p>
-<hr />
-<h5 id="endpointexportnameoptional"><code>endpointExportName</code><sup>Optional</sup> <a name="endpointExportName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.endpointExportName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">endpointExportName</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> string</li>
-<li><em>Default:</em> when no export name is given, output will be created without export</li>
-</ul>
-<p>Export name for the CfnOutput containing the API endpoint.</p>
-<hr />
-<h5 id="endpointtypesoptional"><code>endpointTypes</code><sup>Optional</sup> <a name="endpointTypes" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.endpointTypes"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">endpointTypes</span><span class="o">:</span><span class="w"> </span><span class="kt">EndpointType</span><span class="p">[];</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws-cdk-lib.aws_apigateway.EndpointType[]</li>
-<li><em>Default:</em> EndpointType.EDGE</li>
-</ul>
-<p>A list of the endpoint types of the API.</p>
-<p>Use this property when creating
-an API.</p>
-<hr />
-<h5 id="failonwarningsoptional"><code>failOnWarnings</code><sup>Optional</sup> <a name="failOnWarnings" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.failOnWarnings"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">failOnWarnings</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> boolean</li>
-<li><em>Default:</em> false</li>
-</ul>
-<p>Indicates whether to roll back the resource if a warning occurs while API Gateway is creating the RestApi resource.</p>
-<hr />
-<h5 id="parametersoptional"><code>parameters</code><sup>Optional</sup> <a name="parameters" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.parameters"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">parameters</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">};</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> {[ key: string ]: string}</li>
-<li><em>Default:</em> No parameters.</li>
-</ul>
-<p>Custom header parameters for the request.</p>
-<blockquote>
-<p><a href="https://docs.aws.amazon.com/cli/latest/reference/apigateway/import-rest-api.html">https://docs.aws.amazon.com/cli/latest/reference/apigateway/import-rest-api.html</a></p>
-</blockquote>
-<hr />
-<h5 id="policyoptional"><code>policy</code><sup>Optional</sup> <a name="policy" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.policy"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">policy</span><span class="o">:</span><span class="w"> </span><span class="kt">PolicyDocument</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws-cdk-lib.aws_iam.PolicyDocument</li>
-<li><em>Default:</em> No policy.</li>
-</ul>
-<p>A policy document that contains the permissions for this RestApi.</p>
-<hr />
-<h5 id="restapinameoptional"><code>restApiName</code><sup>Optional</sup> <a name="restApiName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.restApiName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">restApiName</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> string</li>
-<li><em>Default:</em> ID of the RestApi construct.</li>
-</ul>
-<p>A name for the API Gateway RestApi resource.</p>
-<hr />
-<h5 id="retaindeploymentsoptional"><code>retainDeployments</code><sup>Optional</sup> <a name="retainDeployments" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.retainDeployments"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">retainDeployments</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> boolean</li>
-<li><em>Default:</em> false</li>
-</ul>
-<p>Retains old deployment resources when the API changes.</p>
-<p>This allows
-manually reverting stages to point to old deployments via the AWS
-Console.</p>
-<hr />
-<h5 id="integrationsrequired"><code>integrations</code><sup>Required</sup> <a name="integrations" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.integrations"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">integrations</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="nx">OpenApiIntegration</span><span class="p">};</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> {[ key: string ]: <a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration">OpenApiIntegration</a>}</li>
-</ul>
-<p>A mapping of API operation to its integration.</p>
-<hr />
-<h5 id="operationlookuprequired"><code>operationLookup</code><sup>Required</sup> <a name="operationLookup" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.operationLookup"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">operationLookup</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="nx">MethodAndPath</span><span class="p">};</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> {[ key: string ]: <a href="#@aws-prototyping-sdk/open-api-gateway.MethodAndPath">MethodAndPath</a>}</li>
-</ul>
-<p>Details about each operation.</p>
-<hr />
-<h5 id="corsoptionsoptional"><code>corsOptions</code><sup>Optional</sup> <a name="corsOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.corsOptions"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">corsOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">CorsOptions</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws-cdk-lib.aws_apigateway.CorsOptions</li>
-</ul>
-<p>Cross Origin Resource Sharing options for the API.</p>
-<hr />
-<h5 id="defaultauthorizeroptional"><code>defaultAuthorizer</code><sup>Optional</sup> <a name="defaultAuthorizer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.defaultAuthorizer"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">defaultAuthorizer</span><span class="o">:</span><span class="w"> </span><span class="kt">Authorizer</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></li>
-</ul>
-<p>The default authorizer to use for your api.</p>
-<p>When omitted, no default authorizer is used.
-Authorizers specified at the integration level will override this for that operation.</p>
-<hr />
-<h5 id="specrequired"><code>spec</code><sup>Required</sup> <a name="spec" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.spec"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">spec</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> any</li>
-</ul>
-<p>The parsed OpenAPI specification.</p>
-<hr />
-<h5 id="specpathrequired"><code>specPath</code><sup>Required</sup> <a name="specPath" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.specPath"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">specPath</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> string</li>
-</ul>
-<p>Path to the JSON open api spec.</p>
-<hr />
-<h5 id="webacloptionsoptional"><code>webAclOptions</code><sup>Optional</sup> <a name="webAclOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayLambdaApiProps.property.webAclOptions"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">webAclOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayWebAclOptions</span><span class="p">;</span><span class="w"></span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayWebAclOptions">OpenApiGatewayWebAclOptions</a></li>
-</ul>
-<p>Options for the AWS WAF v2 WebACL associated with the api.</p>
-<p>By default, a Web ACL with the AWS default managed
-rule set will be associated with the API. These options may disable or override the defaults.</p>
-<hr />
 <h3 id="openapigatewayprojectoptions">OpenApiGatewayProjectOptions <a name="OpenApiGatewayProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions"></a></h3>
 <p>Options common to all open api gateway projects.</p>
-<h4 id="initializer_9">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_13">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">openApiGatewayProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_10">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_14">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4775,12 +5046,12 @@ rule set will be associated with the API. These options may disable or override 
 <hr />
 <h3 id="openapigatewaypythonprojectoptions">OpenApiGatewayPythonProjectOptions <a name="OpenApiGatewayPythonProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions"></a></h3>
 <p>Configuration for the OpenApiGatewayPythonProject.</p>
-<h4 id="initializer_10">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_14">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayPythonProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">openApiGatewayPythonProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayPythonProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_15">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5413,7 +5684,7 @@ and <code>packages</code> scope.</p>
 <p><a href="https://pypi.org/classifiers/">https://pypi.org/classifiers/</a></p>
 </blockquote>
 <hr />
-<h5 id="descriptionoptional_2"><code>description</code><sup>Optional</sup> <a name="description" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.description"></a></h5>
+<h5 id="descriptionoptional_1"><code>description</code><sup>Optional</sup> <a name="description" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.description"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
 <ul>
@@ -5694,14 +5965,338 @@ task which will run <code>.projenrc.py</code>.</p>
 </ul>
 <p>The path to the OpenAPI specification file, relative to the project source directory (srcdir).</p>
 <hr />
+<h3 id="openapigatewayrestapiprops">OpenApiGatewayRestApiProps <a name="OpenApiGatewayRestApiProps" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps"></a></h3>
+<p>Configuration for the OpenApiGatewayRestApi construct.</p>
+<h4 id="initializer_15">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayRestApiProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">openApiGatewayRestApiProps</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayRestApiProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h4 id="properties_16">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.cloudWatchRole">cloudWatchRole</a></code></td>
+<td><code>boolean</code></td>
+<td>Automatically configure an AWS CloudWatch role for API Gateway.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.deploy">deploy</a></code></td>
+<td><code>boolean</code></td>
+<td>Indicates if a Deployment should be automatically created for this API, and recreated when the API model (resources, methods) changes.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.deployOptions">deployOptions</a></code></td>
+<td><code>aws-cdk-lib.aws_apigateway.StageOptions</code></td>
+<td>Options for the API Gateway stage that will always point to the latest deployment when <code>deploy</code> is enabled.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.description">description</a></code></td>
+<td><code>string</code></td>
+<td>A description of the RestApi construct.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.disableExecuteApiEndpoint">disableExecuteApiEndpoint</a></code></td>
+<td><code>boolean</code></td>
+<td>Specifies whether clients can invoke the API using the default execute-api endpoint.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.domainName">domainName</a></code></td>
+<td><code>aws-cdk-lib.aws_apigateway.DomainNameOptions</code></td>
+<td>Configure a custom domain name and map it to this API.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.endpointExportName">endpointExportName</a></code></td>
+<td><code>string</code></td>
+<td>Export name for the CfnOutput containing the API endpoint.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.endpointTypes">endpointTypes</a></code></td>
+<td><code>aws-cdk-lib.aws_apigateway.EndpointType[]</code></td>
+<td>A list of the endpoint types of the API.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.failOnWarnings">failOnWarnings</a></code></td>
+<td><code>boolean</code></td>
+<td>Indicates whether to roll back the resource if a warning occurs while API Gateway is creating the RestApi resource.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.parameters">parameters</a></code></td>
+<td><code>{[ key: string ]: string}</code></td>
+<td>Custom header parameters for the request.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.policy">policy</a></code></td>
+<td><code>aws-cdk-lib.aws_iam.PolicyDocument</code></td>
+<td>A policy document that contains the permissions for this RestApi.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.restApiName">restApiName</a></code></td>
+<td><code>string</code></td>
+<td>A name for the API Gateway RestApi resource.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.retainDeployments">retainDeployments</a></code></td>
+<td><code>boolean</code></td>
+<td>Retains old deployment resources when the API changes.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.integrations">integrations</a></code></td>
+<td><code>{[ key: string ]: <a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration">OpenApiIntegration</a>}</code></td>
+<td>A mapping of API operation to its integration.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.operationLookup">operationLookup</a></code></td>
+<td><code>{[ key: string ]: <a href="#@aws-prototyping-sdk/open-api-gateway.MethodAndPath">MethodAndPath</a>}</code></td>
+<td>Details about each operation.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.corsOptions">corsOptions</a></code></td>
+<td><code>aws-cdk-lib.aws_apigateway.CorsOptions</code></td>
+<td>Cross Origin Resource Sharing options for the API.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.defaultAuthorizer">defaultAuthorizer</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></code></td>
+<td>The default authorizer to use for your api.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.spec">spec</a></code></td>
+<td><code>any</code></td>
+<td>The parsed OpenAPI specification.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.specPath">specPath</a></code></td>
+<td><code>string</code></td>
+<td>Path to the JSON open api spec.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.webAclOptions">webAclOptions</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayWebAclOptions">OpenApiGatewayWebAclOptions</a></code></td>
+<td>Options for the AWS WAF v2 WebACL associated with the api.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="cloudwatchroleoptional"><code>cloudWatchRole</code><sup>Optional</sup> <a name="cloudWatchRole" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.cloudWatchRole"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">cloudWatchRole</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+<li><em>Default:</em> false if <code>@aws-cdk/aws-apigateway:disableCloudWatchRole</code> is enabled, true otherwise</li>
+</ul>
+<p>Automatically configure an AWS CloudWatch role for API Gateway.</p>
+<hr />
+<h5 id="deployoptional"><code>deploy</code><sup>Optional</sup> <a name="deploy" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.deploy"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">deploy</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>Indicates if a Deployment should be automatically created for this API, and recreated when the API model (resources, methods) changes.</p>
+<p>Since API Gateway deployments are immutable, When this option is enabled
+(by default), an AWS::ApiGateway::Deployment resource will automatically
+created with a logical ID that hashes the API model (methods, resources
+and options). This means that when the model changes, the logical ID of
+this CloudFormation resource will change, and a new deployment will be
+created.</p>
+<p>If this is set, <code>latestDeployment</code> will refer to the <code>Deployment</code> object
+and <code>deploymentStage</code> will refer to a <code>Stage</code> that points to this
+deployment. To customize the stage options, use the <code>deployOptions</code>
+property.</p>
+<p>A CloudFormation Output will also be defined with the root URL endpoint
+of this REST API.</p>
+<hr />
+<h5 id="deployoptionsoptional"><code>deployOptions</code><sup>Optional</sup> <a name="deployOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.deployOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">deployOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">StageOptions</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws-cdk-lib.aws_apigateway.StageOptions</li>
+<li><em>Default:</em> Based on defaults of <code>StageOptions</code>.</li>
+</ul>
+<p>Options for the API Gateway stage that will always point to the latest deployment when <code>deploy</code> is enabled.</p>
+<p>If <code>deploy</code> is disabled,
+this value cannot be set.</p>
+<hr />
+<h5 id="descriptionoptional_2"><code>description</code><sup>Optional</sup> <a name="description" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.description"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+<li><em>Default:</em> 'Automatically created by the RestApi construct'</li>
+</ul>
+<p>A description of the RestApi construct.</p>
+<hr />
+<h5 id="disableexecuteapiendpointoptional"><code>disableExecuteApiEndpoint</code><sup>Optional</sup> <a name="disableExecuteApiEndpoint" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.disableExecuteApiEndpoint"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">disableExecuteApiEndpoint</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Specifies whether clients can invoke the API using the default execute-api endpoint.</p>
+<p>To require that clients use a custom domain name to invoke the
+API, disable the default endpoint.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-restapi.html">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-restapi.html</a></p>
+</blockquote>
+<hr />
+<h5 id="domainnameoptional"><code>domainName</code><sup>Optional</sup> <a name="domainName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.domainName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">domainName</span><span class="o">:</span><span class="w"> </span><span class="kt">DomainNameOptions</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws-cdk-lib.aws_apigateway.DomainNameOptions</li>
+<li><em>Default:</em> no domain name is defined, use <code>addDomainName</code> or directly define a <code>DomainName</code>.</li>
+</ul>
+<p>Configure a custom domain name and map it to this API.</p>
+<hr />
+<h5 id="endpointexportnameoptional"><code>endpointExportName</code><sup>Optional</sup> <a name="endpointExportName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.endpointExportName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">endpointExportName</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+<li><em>Default:</em> when no export name is given, output will be created without export</li>
+</ul>
+<p>Export name for the CfnOutput containing the API endpoint.</p>
+<hr />
+<h5 id="endpointtypesoptional"><code>endpointTypes</code><sup>Optional</sup> <a name="endpointTypes" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.endpointTypes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">endpointTypes</span><span class="o">:</span><span class="w"> </span><span class="kt">EndpointType</span><span class="p">[];</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws-cdk-lib.aws_apigateway.EndpointType[]</li>
+<li><em>Default:</em> EndpointType.EDGE</li>
+</ul>
+<p>A list of the endpoint types of the API.</p>
+<p>Use this property when creating
+an API.</p>
+<hr />
+<h5 id="failonwarningsoptional"><code>failOnWarnings</code><sup>Optional</sup> <a name="failOnWarnings" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.failOnWarnings"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">failOnWarnings</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Indicates whether to roll back the resource if a warning occurs while API Gateway is creating the RestApi resource.</p>
+<hr />
+<h5 id="parametersoptional"><code>parameters</code><sup>Optional</sup> <a name="parameters" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.parameters"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">parameters</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">};</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> {[ key: string ]: string}</li>
+<li><em>Default:</em> No parameters.</li>
+</ul>
+<p>Custom header parameters for the request.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/cli/latest/reference/apigateway/import-rest-api.html">https://docs.aws.amazon.com/cli/latest/reference/apigateway/import-rest-api.html</a></p>
+</blockquote>
+<hr />
+<h5 id="policyoptional"><code>policy</code><sup>Optional</sup> <a name="policy" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.policy"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">policy</span><span class="o">:</span><span class="w"> </span><span class="kt">PolicyDocument</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws-cdk-lib.aws_iam.PolicyDocument</li>
+<li><em>Default:</em> No policy.</li>
+</ul>
+<p>A policy document that contains the permissions for this RestApi.</p>
+<hr />
+<h5 id="restapinameoptional"><code>restApiName</code><sup>Optional</sup> <a name="restApiName" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.restApiName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">restApiName</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+<li><em>Default:</em> ID of the RestApi construct.</li>
+</ul>
+<p>A name for the API Gateway RestApi resource.</p>
+<hr />
+<h5 id="retaindeploymentsoptional"><code>retainDeployments</code><sup>Optional</sup> <a name="retainDeployments" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.retainDeployments"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">retainDeployments</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Retains old deployment resources when the API changes.</p>
+<p>This allows
+manually reverting stages to point to old deployments via the AWS
+Console.</p>
+<hr />
+<h5 id="integrationsrequired"><code>integrations</code><sup>Required</sup> <a name="integrations" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.integrations"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">integrations</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="nx">OpenApiIntegration</span><span class="p">};</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> {[ key: string ]: <a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration">OpenApiIntegration</a>}</li>
+</ul>
+<p>A mapping of API operation to its integration.</p>
+<hr />
+<h5 id="operationlookuprequired"><code>operationLookup</code><sup>Required</sup> <a name="operationLookup" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.operationLookup"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">operationLookup</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="nx">MethodAndPath</span><span class="p">};</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> {[ key: string ]: <a href="#@aws-prototyping-sdk/open-api-gateway.MethodAndPath">MethodAndPath</a>}</li>
+</ul>
+<p>Details about each operation.</p>
+<hr />
+<h5 id="corsoptionsoptional"><code>corsOptions</code><sup>Optional</sup> <a name="corsOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.corsOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">corsOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">CorsOptions</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws-cdk-lib.aws_apigateway.CorsOptions</li>
+</ul>
+<p>Cross Origin Resource Sharing options for the API.</p>
+<hr />
+<h5 id="defaultauthorizeroptional"><code>defaultAuthorizer</code><sup>Optional</sup> <a name="defaultAuthorizer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.defaultAuthorizer"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">defaultAuthorizer</span><span class="o">:</span><span class="w"> </span><span class="kt">Authorizer</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.Authorizer">Authorizer</a></li>
+</ul>
+<p>The default authorizer to use for your api.</p>
+<p>When omitted, no default authorizer is used.
+Authorizers specified at the integration level will override this for that operation.</p>
+<hr />
+<h5 id="specrequired"><code>spec</code><sup>Required</sup> <a name="spec" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.spec"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">spec</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> any</li>
+</ul>
+<p>The parsed OpenAPI specification.</p>
+<hr />
+<h5 id="specpathrequired"><code>specPath</code><sup>Required</sup> <a name="specPath" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.specPath"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">specPath</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>Path to the JSON open api spec.</p>
+<hr />
+<h5 id="webacloptionsoptional"><code>webAclOptions</code><sup>Optional</sup> <a name="webAclOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayRestApiProps.property.webAclOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">webAclOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayWebAclOptions</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayWebAclOptions">OpenApiGatewayWebAclOptions</a></li>
+</ul>
+<p>Options for the AWS WAF v2 WebACL associated with the api.</p>
+<p>By default, a Web ACL with the AWS default managed
+rule set will be associated with the API. These options may disable or override the defaults.</p>
+<hr />
 <h3 id="openapigatewaytsprojectoptions">OpenApiGatewayTsProjectOptions <a name="OpenApiGatewayTsProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions"></a></h3>
 <p>Configuration for the OpenApiGatewayTsProject.</p>
-<h4 id="initializer_11">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_16">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayTsProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">openApiGatewayTsProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayTsProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_12">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_17">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7817,12 +8412,12 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="openapigatewaywebacloptions">OpenApiGatewayWebAclOptions <a name="OpenApiGatewayWebAclOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayWebAclOptions"></a></h3>
 <p>Configuration for the Web ACL associated with the API.</p>
-<h4 id="initializer_12">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayWebAclOptions.Initializer"></a></h4>
+<h4 id="initializer_17">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayWebAclOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayWebAclOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">openApiGatewayWebAclOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayWebAclOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_13">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_18">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7881,12 +8476,12 @@ your own WebACL and associate it yourself.</p>
 <hr />
 <h3 id="openapiintegration">OpenApiIntegration <a name="OpenApiIntegration" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration"></a></h3>
 <p>Defines an integration for an individual API operation.</p>
-<h4 id="initializer_13">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.Initializer"></a></h4>
+<h4 id="initializer_18">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiIntegration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">openApiIntegration</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiIntegration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_14">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_19">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7897,8 +8492,8 @@ your own WebACL and associate it yourself.</p>
 </thead>
 <tbody>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.property.function">function</a></code></td>
-<td><code>aws-cdk-lib.aws_lambda.IFunction</code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.property.integration">integration</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Integration">Integration</a></code></td>
 <td>The lambda function to service the api operation.</td>
 </tr>
 <tr>
@@ -7909,11 +8504,11 @@ your own WebACL and associate it yourself.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="functionrequired_1"><code>function</code><sup>Required</sup> <a name="function" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.property.function"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">function</span><span class="o">:</span><span class="w"> </span><span class="kt">IFunction</span><span class="p">;</span><span class="w"></span>
+<h5 id="integrationrequired"><code>integration</code><sup>Required</sup> <a name="integration" id="@aws-prototyping-sdk/open-api-gateway.OpenApiIntegration.property.integration"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">integration</span><span class="o">:</span><span class="w"> </span><span class="kt">Integration</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
 <ul>
-<li><em>Type:</em> aws-cdk-lib.aws_lambda.IFunction</li>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.Integration">Integration</a></li>
 </ul>
 <p>The lambda function to service the api operation.</p>
 <hr />
@@ -7927,12 +8522,12 @@ your own WebACL and associate it yourself.</p>
 <hr />
 <h3 id="openapioptions">OpenApiOptions <a name="OpenApiOptions" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions"></a></h3>
 <p>Options required alongside an Open API specification to create API Gateway resources.</p>
-<h4 id="initializer_14">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.Initializer"></a></h4>
+<h4 id="initializer_19">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.OpenApiOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">openApiOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_15">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_20">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8001,12 +8596,12 @@ Authorizers specified at the integration level will override this for that opera
 <hr />
 <h3 id="smithyapigatewayjavaprojectoptions">SmithyApiGatewayJavaProjectOptions <a name="SmithyApiGatewayJavaProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayJavaProjectOptions"></a></h3>
 <p>Configuration for the SmithyApiGatewayJavaProject.</p>
-<h4 id="initializer_15">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayJavaProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_20">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayJavaProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyApiGatewayJavaProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyApiGatewayJavaProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyApiGatewayJavaProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_16">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_21">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8903,12 +9498,12 @@ will compile &amp; execute <code>main()</code> from <code>src/main/java/projenrc
 <hr />
 <h3 id="smithyapigatewayprojectoptions">SmithyApiGatewayProjectOptions <a name="SmithyApiGatewayProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayProjectOptions"></a></h3>
 <p>Options common to all smithy api gateway projects.</p>
-<h4 id="initializer_16">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_21">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyApiGatewayProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyApiGatewayProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyApiGatewayProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_17">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_22">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -9121,12 +9716,12 @@ will compile &amp; execute <code>main()</code> from <code>src/main/java/projenrc
 <hr />
 <h3 id="smithyapigatewaypythonprojectoptions">SmithyApiGatewayPythonProjectOptions <a name="SmithyApiGatewayPythonProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProjectOptions"></a></h3>
 <p>Configuration for the SmithyApiGatewayPythonProject.</p>
-<h4 id="initializer_17">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_22">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyApiGatewayPythonProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyApiGatewayPythonProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyApiGatewayPythonProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_18">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_23">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10101,12 +10696,12 @@ task which will run <code>.projenrc.py</code>.</p>
 <hr />
 <h3 id="smithyapigatewaytsprojectoptions">SmithyApiGatewayTsProjectOptions <a name="SmithyApiGatewayTsProjectOptions" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayTsProjectOptions"></a></h3>
 <p>Configuration for the SmithyApiGatewayTsProject.</p>
-<h4 id="initializer_18">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayTsProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_23">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayTsProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyApiGatewayTsProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyApiGatewayTsProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyApiGatewayTsProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_19">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_24">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12281,12 +12876,12 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="smithybuildoptions">SmithyBuildOptions <a name="SmithyBuildOptions" id="@aws-prototyping-sdk/open-api-gateway.SmithyBuildOptions"></a></h3>
 <p>Options for the smithy build file.</p>
-<h4 id="initializer_19">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyBuildOptions.Initializer"></a></h4>
+<h4 id="initializer_24">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyBuildOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyBuildOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyBuildOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyBuildOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_20">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_25">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12357,12 +12952,12 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithycommon">SmithyCommon <a name="SmithyCommon" id="@aws-prototyping-sdk/open-api-gateway.SmithyCommon"></a></h3>
 <p>Properties common to smithy plugins and the root smithy build.</p>
-<h4 id="initializer_20">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyCommon.Initializer"></a></h4>
+<h4 id="initializer_25">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyCommon.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyCommon</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyCommon</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyCommon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_21">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_26">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12403,12 +12998,12 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithyplugin">SmithyPlugin <a name="SmithyPlugin" id="@aws-prototyping-sdk/open-api-gateway.SmithyPlugin"></a></h3>
 <p>A smithy plugin.</p>
-<h4 id="initializer_21">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyPlugin.Initializer"></a></h4>
+<h4 id="initializer_26">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyPlugin.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyPlugin</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyPlugin</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyPlugin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_22">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_27">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12436,12 +13031,12 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithyprojection">SmithyProjection <a name="SmithyProjection" id="@aws-prototyping-sdk/open-api-gateway.SmithyProjection"></a></h3>
 <p>A smithy build projection.</p>
-<h4 id="initializer_22">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyProjection.Initializer"></a></h4>
+<h4 id="initializer_27">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyProjection.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyProjection</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyProjection</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyProjection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_23">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_28">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12508,12 +13103,12 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithytransform">SmithyTransform <a name="SmithyTransform" id="@aws-prototyping-sdk/open-api-gateway.SmithyTransform"></a></h3>
 <p>A smithy build transform.</p>
-<h4 id="initializer_23">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyTransform.Initializer"></a></h4>
+<h4 id="initializer_28">Initializer <a name="Initializer" id="@aws-prototyping-sdk/open-api-gateway.SmithyTransform.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyTransform</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyTransform</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyTransform</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </code></pre></div>
-<h4 id="properties_24">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_29">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12582,7 +13177,7 @@ even if a plugin can't be found on the classpath.</p>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.AuthorizerProps">AuthorizerProps</a></li>
 </ul>
 <hr />
-<h4 id="properties_25">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_30">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12778,7 +13373,7 @@ even if a plugin can't be found on the classpath.</p>
 </ul>
 <p>the scopes to apply.</p>
 <hr />
-<h4 id="properties_26">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_31">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12872,7 +13467,7 @@ even if a plugin can't be found on the classpath.</p>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.CustomAuthorizerProps">CustomAuthorizerProps</a></li>
 </ul>
 <hr />
-<h4 id="properties_27">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_32">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12952,7 +13547,7 @@ even if a plugin can't be found on the classpath.</p>
 </ul>
 <p>The number of seconds during which the authorizer result is cached.</p>
 <hr />
-<h5 id="functionrequired_2"><code>function</code><sup>Required</sup> <a name="function" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.function"></a></h5>
+<h5 id="functionrequired_1"><code>function</code><sup>Required</sup> <a name="function" id="@aws-prototyping-sdk/open-api-gateway.CustomAuthorizer.property.function"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">function</span><span class="o">:</span><span class="w"> </span><span class="kt">IFunction</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
 <ul>
@@ -13006,7 +13601,7 @@ even if a plugin can't be found on the classpath.</p>
 </tbody>
 </table>
 <hr />
-<h4 id="properties_28">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_33">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -13058,9 +13653,191 @@ even if a plugin can't be found on the classpath.</p>
 </ul>
 <p>Scopes for the authorizer, if any.</p>
 <hr />
+<h3 id="integration">Integration <a name="Integration" id="@aws-prototyping-sdk/open-api-gateway.Integration"></a></h3>
+<p>An integration for an API operation.</p>
+<p>You can extend this to implement your own integration if you like.</p>
+<h4 id="initializers_6">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.Integration.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Integration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">Integration</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="methods_2">Methods <a name="Methods" id="Methods"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Integration.grant">grant</a></code></td>
+<td>Grant permissions for the API to invoke the integration.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Integration.render">render</a></code></td>
+<td>Render the integration into an API Gateway OpenAPI extension.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="grant"><code>grant</code> <a name="grant" id="@aws-prototyping-sdk/open-api-gateway.Integration.grant"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">grant</span><span class="p">(</span><span class="nx">_props</span><span class="o">:</span><span class="w"> </span><span class="kt">IntegrationGrantProps</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="w"></span>
+</code></pre></div>
+<p>Grant permissions for the API to invoke the integration.</p>
+<h6 id="_propsrequired"><code>_props</code><sup>Required</sup> <a name="_props" id="@aws-prototyping-sdk/open-api-gateway.Integration.grant.parameter._props"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps">IntegrationGrantProps</a></li>
+</ul>
+<hr />
+<h5 id="render"><code>render</code> <a name="render" id="@aws-prototyping-sdk/open-api-gateway.Integration.render"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">render</span><span class="p">(</span><span class="nx">props</span><span class="o">:</span><span class="w"> </span><span class="kt">IntegrationRenderProps</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">ApiGatewayIntegration</span><span class="w"></span>
+</code></pre></div>
+<p>Render the integration into an API Gateway OpenAPI extension.</p>
+<h6 id="propsrequired_6"><code>props</code><sup>Required</sup> <a name="props" id="@aws-prototyping-sdk/open-api-gateway.Integration.render.parameter.props"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps">IntegrationRenderProps</a></li>
+</ul>
+<hr />
+<h3 id="integrations_1">Integrations <a name="Integrations" id="@aws-prototyping-sdk/open-api-gateway.Integrations"></a></h3>
+<p>A collection of integrations to connect API operations with a backend to service requests.</p>
+<h4 id="initializers_7">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.Integrations.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Integrations</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">Integrations</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="static-functions_2">Static Functions <a name="Static Functions" id="Static Functions"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.Integrations.lambda">lambda</a></code></td>
+<td>An integration that invokes a lambda function to service the request.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="lambda"><code>lambda</code> <a name="lambda" id="@aws-prototyping-sdk/open-api-gateway.Integrations.lambda"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Integrations</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+
+<span class="nx">Integrations</span><span class="p">.</span><span class="nx">lambda</span><span class="p">(</span><span class="nx">lambdaFunction</span><span class="o">:</span><span class="w"> </span><span class="kt">IFunction</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<p>An integration that invokes a lambda function to service the request.</p>
+<h6 id="lambdafunctionrequired"><code>lambdaFunction</code><sup>Required</sup> <a name="lambdaFunction" id="@aws-prototyping-sdk/open-api-gateway.Integrations.lambda.parameter.lambdaFunction"></a></h6>
+<ul>
+<li><em>Type:</em> aws-cdk-lib.aws_lambda.IFunction</li>
+</ul>
+<p>the function to invoke.</p>
+<hr />
+<h3 id="lambdaintegration">LambdaIntegration <a name="LambdaIntegration" id="@aws-prototyping-sdk/open-api-gateway.LambdaIntegration"></a></h3>
+<p>A lambda integration.</p>
+<h4 id="initializers_8">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.LambdaIntegration.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">LambdaIntegration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">LambdaIntegration</span><span class="p">(</span><span class="nx">lambdaFunction</span><span class="o">:</span><span class="w"> </span><span class="kt">IFunction</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.LambdaIntegration.Initializer.parameter.lambdaFunction">lambdaFunction</a></code></td>
+<td><code>aws-cdk-lib.aws_lambda.IFunction</code></td>
+<td><em>No description.</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="lambdafunctionrequired_1"><code>lambdaFunction</code><sup>Required</sup> <a name="lambdaFunction" id="@aws-prototyping-sdk/open-api-gateway.LambdaIntegration.Initializer.parameter.lambdaFunction"></a></h5>
+<ul>
+<li><em>Type:</em> aws-cdk-lib.aws_lambda.IFunction</li>
+</ul>
+<hr />
+<h4 id="methods_3">Methods <a name="Methods" id="Methods"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.LambdaIntegration.grant">grant</a></code></td>
+<td>Grant API Gateway permissions to invoke the lambda.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.LambdaIntegration.render">render</a></code></td>
+<td>Render the lambda integration as a snippet of OpenAPI.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="grant_1"><code>grant</code> <a name="grant" id="@aws-prototyping-sdk/open-api-gateway.LambdaIntegration.grant"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">grant</span><span class="p">(</span><span class="nx">__0</span><span class="o">:</span><span class="w"> </span><span class="kt">IntegrationGrantProps</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="w"></span>
+</code></pre></div>
+<p>Grant API Gateway permissions to invoke the lambda.</p>
+<h6 id="__0required"><code>__0</code><sup>Required</sup> <a name="__0" id="@aws-prototyping-sdk/open-api-gateway.LambdaIntegration.grant.parameter.__0"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationGrantProps">IntegrationGrantProps</a></li>
+</ul>
+<hr />
+<h5 id="render_1"><code>render</code> <a name="render" id="@aws-prototyping-sdk/open-api-gateway.LambdaIntegration.render"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">render</span><span class="p">(</span><span class="nx">props</span><span class="o">:</span><span class="w"> </span><span class="kt">IntegrationRenderProps</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">ApiGatewayIntegration</span><span class="w"></span>
+</code></pre></div>
+<p>Render the lambda integration as a snippet of OpenAPI.</p>
+<h6 id="propsrequired_7"><code>props</code><sup>Required</sup> <a name="props" id="@aws-prototyping-sdk/open-api-gateway.LambdaIntegration.render.parameter.props"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.IntegrationRenderProps">IntegrationRenderProps</a></li>
+</ul>
+<hr />
 <h3 id="noneauthorizer">NoneAuthorizer <a name="NoneAuthorizer" id="@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer"></a></h3>
 <p>No authorizer.</p>
-<h4 id="initializers_6">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer.Initializer"></a></h4>
+<h4 id="initializers_9">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.NoneAuthorizer.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NoneAuthorizer</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="ow">new</span><span class="w"> </span><span class="nx">NoneAuthorizer</span><span class="p">()</span><span class="w"></span>
@@ -13082,7 +13859,7 @@ even if a plugin can't be found on the classpath.</p>
 </tbody>
 </table>
 <hr />
-<h4 id="properties_29">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_34">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -13136,7 +13913,7 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="openapigatewayjavaproject">OpenApiGatewayJavaProject <a name="OpenApiGatewayJavaProject" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayJavaProject"></a></h3>
 <p>Synthesizes a Java Project with an OpenAPI spec, generated clients, a CDK construct for deploying the API with API Gateway, and generated lambda handler wrappers for type-safe handling of requests.</p>
-<h4 id="initializers_7">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayJavaProject.Initializer"></a></h4>
+<h4 id="initializers_10">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayJavaProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayJavaProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="ow">new</span><span class="w"> </span><span class="nx">OpenApiGatewayJavaProject</span><span class="p">(</span><span class="nx">projectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayJavaProjectOptions</span><span class="p">)</span><span class="w"></span>
@@ -13163,7 +13940,7 @@ even if a plugin can't be found on the classpath.</p>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayJavaProjectOptions">OpenApiGatewayJavaProjectOptions</a></li>
 </ul>
 <hr />
-<h4 id="methods_2">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_4">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -13448,7 +14225,7 @@ resolved from the root of <em>this</em> project.</p>
 </ul>
 <p>Format <code>&lt;groupId&gt;/&lt;artifactId&gt;@&lt;semver&gt;</code>.</p>
 <hr />
-<h4 id="properties_30">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_35">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -14042,7 +14819,7 @@ this task should synthesize the project files.</p>
 <hr />
 <h3 id="openapigatewaypythonproject">OpenApiGatewayPythonProject <a name="OpenApiGatewayPythonProject" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject"></a></h3>
 <p>Synthesizes a Python Project with an OpenAPI spec, generated clients, a CDK construct for deploying the API with API Gateway, and generated lambda handler wrappers for type-safe handling of requests.</p>
-<h4 id="initializers_8">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer"></a></h4>
+<h4 id="initializers_11">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayPythonProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="ow">new</span><span class="w"> </span><span class="nx">OpenApiGatewayPythonProject</span><span class="p">(</span><span class="nx">projectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayPythonProjectOptions</span><span class="p">)</span><span class="w"></span>
@@ -14069,7 +14846,7 @@ this task should synthesize the project files.</p>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions">OpenApiGatewayPythonProjectOptions</a></li>
 </ul>
 <hr />
-<h4 id="methods_3">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_5">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -14333,7 +15110,7 @@ resolved from the root of <em>this</em> project.</p>
 </ul>
 <p>Format <code>&lt;module&gt;@&lt;semver&gt;</code>.</p>
 <hr />
-<h4 id="properties_31">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_36">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -14926,7 +15703,7 @@ this task should synthesize the project files.</p>
 <hr />
 <h3 id="openapigatewaytsproject">OpenApiGatewayTsProject <a name="OpenApiGatewayTsProject" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject"></a></h3>
 <p>Synthesizes a Typescript Project with an OpenAPI spec, generated clients, a CDK construct for deploying the API with API Gateway, and generated lambda handler wrappers for type-safe handling of requests.</p>
-<h4 id="initializers_9">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer"></a></h4>
+<h4 id="initializers_12">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiGatewayTsProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="ow">new</span><span class="w"> </span><span class="nx">OpenApiGatewayTsProject</span><span class="p">(</span><span class="nx">projectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiGatewayTsProjectOptions</span><span class="p">)</span><span class="w"></span>
@@ -14953,7 +15730,7 @@ this task should synthesize the project files.</p>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayTsProjectOptions">OpenApiGatewayTsProjectOptions</a></li>
 </ul>
 <hr />
-<h4 id="methods_4">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_6">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -15398,7 +16175,7 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 </ul>
 <p>The command to execute.</p>
 <hr />
-<h4 id="properties_32">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_37">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -16326,7 +17103,7 @@ this task should synthesize the project files.</p>
 <hr />
 <h3 id="smithyapigatewayjavaproject">SmithyApiGatewayJavaProject <a name="SmithyApiGatewayJavaProject" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayJavaProject"></a></h3>
 <p>Synthesizes a Java Project with a Smithy model, generated clients, a CDK construct for deploying the API with API Gateway, and generated lambda handler wrappers for type-safe handling of requests.</p>
-<h4 id="initializers_10">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayJavaProject.Initializer"></a></h4>
+<h4 id="initializers_13">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayJavaProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyApiGatewayJavaProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="ow">new</span><span class="w"> </span><span class="nx">SmithyApiGatewayJavaProject</span><span class="p">(</span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyApiGatewayJavaProjectOptions</span><span class="p">)</span><span class="w"></span>
@@ -16353,7 +17130,7 @@ this task should synthesize the project files.</p>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayJavaProjectOptions">SmithyApiGatewayJavaProjectOptions</a></li>
 </ul>
 <hr />
-<h4 id="methods_5">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_7">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -16638,7 +17415,7 @@ resolved from the root of <em>this</em> project.</p>
 </ul>
 <p>Format <code>&lt;groupId&gt;/&lt;artifactId&gt;@&lt;semver&gt;</code>.</p>
 <hr />
-<h4 id="properties_33">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_38">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -17245,7 +18022,7 @@ this task should synthesize the project files.</p>
 <hr />
 <h3 id="smithyapigatewaypythonproject">SmithyApiGatewayPythonProject <a name="SmithyApiGatewayPythonProject" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProject"></a></h3>
 <p>Synthesizes a Python Project with a Smithy model, generated clients, a CDK construct for deploying the API with API Gateway, and generated lambda handler wrappers for type-safe handling of requests.</p>
-<h4 id="initializers_11">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProject.Initializer"></a></h4>
+<h4 id="initializers_14">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyApiGatewayPythonProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="ow">new</span><span class="w"> </span><span class="nx">SmithyApiGatewayPythonProject</span><span class="p">(</span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyApiGatewayPythonProjectOptions</span><span class="p">)</span><span class="w"></span>
@@ -17272,7 +18049,7 @@ this task should synthesize the project files.</p>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProjectOptions">SmithyApiGatewayPythonProjectOptions</a></li>
 </ul>
 <hr />
-<h4 id="methods_6">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_8">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -17536,7 +18313,7 @@ resolved from the root of <em>this</em> project.</p>
 </ul>
 <p>Format <code>&lt;module&gt;@&lt;semver&gt;</code>.</p>
 <hr />
-<h4 id="properties_34">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_39">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -18142,7 +18919,7 @@ this task should synthesize the project files.</p>
 <hr />
 <h3 id="smithyapigatewaytsproject">SmithyApiGatewayTsProject <a name="SmithyApiGatewayTsProject" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayTsProject"></a></h3>
 <p>Synthesizes a Typescript Project with a Smithy model, generated clients, a CDK construct for deploying the API with API Gateway, and generated lambda handler wrappers for type-safe handling of requests.</p>
-<h4 id="initializers_12">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayTsProject.Initializer"></a></h4>
+<h4 id="initializers_15">Initializers <a name="Initializers" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayTsProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyApiGatewayTsProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/open-api-gateway&#39;</span><span class="w"></span>
 
 <span class="ow">new</span><span class="w"> </span><span class="nx">SmithyApiGatewayTsProject</span><span class="p">(</span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyApiGatewayTsProjectOptions</span><span class="p">)</span><span class="w"></span>
@@ -18169,7 +18946,7 @@ this task should synthesize the project files.</p>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayTsProjectOptions">SmithyApiGatewayTsProjectOptions</a></li>
 </ul>
 <hr />
-<h4 id="methods_7">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_9">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -18614,7 +19391,7 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 </ul>
 <p>The command to execute.</p>
 <hr />
-<h4 id="properties_35">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_40">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -19655,7 +20432,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2022-09-15
+      2022-09-16
     
   </small>
 </div>
