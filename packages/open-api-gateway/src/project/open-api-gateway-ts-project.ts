@@ -16,7 +16,13 @@
 
 import * as path from "path";
 import { getLogger } from "log4js";
-import { Project, SampleDir, SampleFile, YamlFile } from "projen";
+import {
+  DependencyType,
+  Project,
+  SampleDir,
+  SampleFile,
+  YamlFile,
+} from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import {
   TypeScriptProject,
@@ -138,10 +144,14 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
 
     // Generated project should have a dependency on this project, in order to run the generation scripts
     this.addDeps(
-      OPENAPI_GATEWAY_PDK_PACKAGE_NAME,
-      "constructs",
-      "aws-cdk-lib",
-      "cdk-nag"
+      ...[
+        OPENAPI_GATEWAY_PDK_PACKAGE_NAME,
+        "constructs",
+        "aws-cdk-lib",
+        "cdk-nag",
+      ].filter(
+        (dep) => !this.deps.tryGetDependency(dep, DependencyType.RUNTIME)
+      )
     );
 
     // Synthesize the openapi spec early since it's used by the generated typescript client, which is also synth'd early

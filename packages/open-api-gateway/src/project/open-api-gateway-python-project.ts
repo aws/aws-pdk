@@ -15,7 +15,13 @@
  ******************************************************************************************************************** */
 
 import * as path from "path";
-import { Project, SampleDir, SampleFile, TextFile } from "projen";
+import {
+  DependencyType,
+  Project,
+  SampleDir,
+  SampleFile,
+  TextFile,
+} from "projen";
 import { PythonProject, PythonProjectOptions } from "projen/lib/python";
 import { ClientSettings } from "./codegen/components/client-settings";
 import { DocsProject } from "./codegen/docs-project";
@@ -112,12 +118,9 @@ export class OpenApiGatewayPythonProject extends PythonProject {
     this.apiSrcDir = options.apiSrcDir ?? "api";
 
     // Generated project should have a dependency on this project, in order to run the generation scripts
-    [
-      OPENAPI_GATEWAY_PDK_PACKAGE_NAME,
-      "constructs",
-      "aws-cdk-lib",
-      "cdk-nag",
-    ].forEach((dep) => this.addDependency(dep));
+    [OPENAPI_GATEWAY_PDK_PACKAGE_NAME, "constructs", "aws-cdk-lib", "cdk-nag"]
+      .filter((dep) => !this.deps.tryGetDependency(dep, DependencyType.RUNTIME))
+      .forEach((dep) => this.addDependency(dep));
 
     // Synthesize the openapi spec early since it's used by the generated python client, which is also synth'd early
     const spec = new OpenApiSpecProject({

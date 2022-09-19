@@ -109,7 +109,12 @@ export class OpenApiGatewayJavaProject extends JavaProject {
       "org.projectlombok/lombok@^1",
       "com.fasterxml.jackson.core/jackson-databind@^2",
       "io.github.cdklabs/projen@^0",
-    ].forEach((dep) => this.addDependency(dep));
+    ]
+      .filter(
+        (dep) =>
+          !this.deps.tryGetDependency(dep.split("@")[0], DependencyType.RUNTIME)
+      )
+      .forEach((dep) => this.addDependency(dep));
 
     // Remove the projen test dependency since otherwise it takes precedence, causing projen to be unavailable at synth time
     this.deps.removeDependency("io.github.cdklabs/projen", DependencyType.TEST);
