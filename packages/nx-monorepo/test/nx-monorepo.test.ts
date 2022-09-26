@@ -58,6 +58,17 @@ describe("NX Monorepo Unit Tests", () => {
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
 
+  it("Affected Branch", () => {
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "main",
+      name: "AffectedBranch",
+      nxConfig: {
+        affectedBranch: "main",
+      },
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
   it("PNPM", () => {
     const project = new NxMonorepoProject({
       defaultReleaseBranch: "mainline",

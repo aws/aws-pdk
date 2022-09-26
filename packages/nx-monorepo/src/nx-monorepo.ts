@@ -100,6 +100,12 @@ export interface TargetDependency {
  */
 export interface NXConfig {
   /**
+   * Affected branch.
+   *
+   * @default mainline
+   */
+  readonly affectedBranch?: string;
+  /**
    * Configuration for Implicit Dependnecies.
    *
    * @link https://nx.dev/configuration/packagejson#implicitdependencies
@@ -298,7 +304,7 @@ export class NxMonorepoProject extends TypeScriptProject {
           ...(this.nxConfig?.targetDependencies || {}),
         },
         affected: {
-          defaultBase: "mainline",
+          defaultBase: this.nxConfig?.affectedBranch || "mainline",
         },
       },
     });
