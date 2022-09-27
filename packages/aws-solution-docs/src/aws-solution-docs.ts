@@ -13,4 +13,35 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-export * from "./aws-solution-template";
+
+import * as path from "path";
+import { Project, ProjectOptions, SampleDir } from "projen";
+
+export interface AwsSolutionDocsOptions extends ProjectOptions {
+  /**
+   * Doc directory.
+   *
+   * @default "/"
+   */
+  readonly docDir?: string;
+}
+
+export class AwsSolutionDocsProject extends Project {
+  public readonly docDir: string;
+
+  constructor(options: AwsSolutionDocsOptions) {
+    super(options);
+
+    this.docDir = options.docDir ?? "mkdocs";
+
+    this.createSampleDocs();
+  }
+
+  private createSampleDocs(): void {
+    const sampleDir = path.resolve(__dirname, "../samples");
+
+    new SampleDir(this, this.docDir, {
+      sourceDir: sampleDir,
+    });
+  }
+}

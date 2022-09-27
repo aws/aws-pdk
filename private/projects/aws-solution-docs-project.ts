@@ -13,4 +13,27 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-export * from "./aws-solution-template";
+ import { Project } from "projen";
+ import { Stability } from "projen/lib/cdk";
+ import { PDKProject } from "../pdk-project";
+ 
+ /**
+  * Contains configuration for the NXMonorepoProject.
+  */
+ export class AwsSolutionDocsProject extends PDKProject {
+   constructor(parent: Project) {
+     super({
+       parent,
+       author: "CSDC",
+       authorAddress: "whaidong@amazon.com",
+       defaultReleaseBranch: "mainline",
+       name: "aws-solution-docs",
+       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+       devDeps: ["projen"],
+       peerDeps: ["projen"],
+       bundledDeps: [],
+       stability: Stability.EXPERIMENTAL,
+     });
+   }
+ }
+ 

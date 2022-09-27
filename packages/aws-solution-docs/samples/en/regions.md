@@ -1,0 +1,18 @@
+As of [November] 2021, this solution is supported in the following Amazon Web Services Regions:
+
+- us-east-1 (Virginia)
+- us-east-2 (Ohio)   
+- us-west-2 (Oregon)  
+- ca-central-1 (Canada) 
+- sa-east-1 (Sao Paulo)
+- eu-west-1 (Ireland)
+- eu-west-2 (London)
+- eu-west-3 (Paris)   
+- eu-central-1 (Frankfurt)   
+- ap-northeast-1 (Tokyo) 
+- ap-northeast-2 (Seoul)  
+- ap-southeast-1 (Singapore)  
+- ap-southeast-2 (Sydney)   
+- ap-south-1 (Mumbai)  
+- cn-northwest-1 (China (Ningxia) Region operated by NWCD)
+- cn-north-1 (China (Beijing) Region operated by SINNET)  

@@ -17,39 +17,28 @@ import { PDKProject } from "../pdk-project";
 import { Project } from "projen";
 import { Stability } from 'projen/lib/cdk';
 
-export class AwsSolutionTemplate extends PDKProject {
-    constructor(parent: Project) {
-        super({
-            parent,
-            author: "CSDC",
-            authorAddress: "whaidong@amazon.com",
-            defaultReleaseBranch: "mainline",
-            name: "aws-solution-template",
-            repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-            devDeps: [
-              "projen",
-            ],
-            deps: [
-              "projen",
-              "aws-cdk",
-              "@aws-cdk/aws-appsync-alpha",
-              "@aws-solutions-constructs/aws-cloudfront-s3",
-              "aws-sdk",
-              "aws-cdk-lib", // Only needed if writing a CDK construct
-              "constructs"
-            ],
-            peerDeps: [
-              "projen",
-              "aws-cdk",
-              "aws-cdk-lib", // Only needed if writing a CDK construct
-              "constructs" // Only needed if writing a CDK construct
-            ],
-            bundledDeps: [
-                // include any non-jsii deps here
-            ],
-            stability: Stability.EXPERIMENTAL,
-        });
+export class AwsSolutionTemplateProject extends PDKProject {
+  constructor(parent: Project) {
+    super({
+      parent,
+      author: "CSDC",
+      authorAddress: "whaidong@amazon.com",
+      defaultReleaseBranch: "mainline",
+      name: "aws-solution-template",
+      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+      devDeps: [
+        "projen",
+        "@aws-prototyping-sdk/cloudscape-react-ts-website@^0.11.1",
+      ],
+      peerDeps: [
+        "projen",
+      ],
+      bundledDeps: [
+        "@aws-prototyping-sdk/cloudscape-react-ts-website@^0.11.1",
+      ],
+      stability: Stability.EXPERIMENTAL,
+    });
 
-        this.addPackageIgnore("**/node_modules");
-    }
+    this.addPackageIgnore("**/node_modules");
+  }
 }
