@@ -100,7 +100,7 @@ class SampleApi(Construct):
           default_authorizer=Authorizers.iam(),
           integrations=OperationConfig(
               say_hello=OpenApiIntegration(
-                  integration=Integrations.lambda(Function(self, 'SayHello',
+                  integration=Integrations.lambda_(Function(self, 'SayHello',
                       runtime=Runtime.PYTHON_3_9,
                       code=Code.from_asset(path.join(str(Path(__file__).parent.absolute()), 'handlers')),
                       handler="say_hello_handler_sample.handler",
