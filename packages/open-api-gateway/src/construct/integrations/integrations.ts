@@ -271,11 +271,12 @@ export class LambdaIntegration extends Integration {
       sourceArn: Stack.of(scope).formatArn({
         service: "execute-api",
         resource: api.restApiId,
-        // Scope permissions to the stage, method and path of the operation.
+        // Scope permissions to any stage and a specific method and path of the operation.
         // Path parameters (eg {param} are replaced with wildcards)
-        resourceName: `${
-          api.deploymentStage.stageName
-        }/${method.toUpperCase()}${path.replace(/{[^\}]*\}/g, "*")}`,
+        resourceName: `*/${method.toUpperCase()}${path.replace(
+          /{[^\}]*\}/g,
+          "*"
+        )}`,
       }),
     });
   }
