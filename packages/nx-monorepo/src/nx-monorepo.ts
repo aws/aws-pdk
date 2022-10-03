@@ -16,8 +16,17 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { IgnoreFile, JsonFile, Project, TextFile, YamlFile } from "projen";
+import {
+  IgnoreFile,
+  JsonFile,
+  Project,
+  Task,
+  TaskStep,
+  TextFile,
+  YamlFile,
+} from "projen";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
+import { PythonProject } from "projen/lib/python";
 import {
   TypeScriptProject,
   TypeScriptProjectOptions,
@@ -213,6 +222,8 @@ export class NxMonorepoProject extends TypeScriptProject {
   private readonly nxConfig?: NXConfig;
   private readonly workspaceConfig?: WorkspaceConfig;
 
+  private readonly nxJson: JsonFile;
+
   constructor(options: NxMonorepoProjectOptions) {
     super({
       ...options,
@@ -276,7 +287,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       lines: fs.readFileSync(getPluginPath()).toString("utf-8").split("\n"),
     });
 
-    new JsonFile(this, "nx.json", {
+    this.nxJson = new JsonFile(this, "nx.json", {
       obj: {
         extends: "@nrwl/workspace/presets/npm.json",
         plugins: [`./${NX_MONOREPO_PLUGIN_PATH}`],
@@ -351,6 +362,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   synth() {
     this.validateSubProjects();
     this.updateWorkspace();
+    this.wirePythonDependencies();
     this.synthesizeNonNodePackageJson();
     super.synth();
   }
@@ -427,6 +439,75 @@ export class NxMonorepoProject extends TypeScriptProject {
         ),
         nohoist: this.workspaceConfig?.noHoist,
       });
+    }
+  }
+
+  /**
+   * Updates the install task for python projects so that they are run serially and in dependency order such that python
+   * projects within the monorepo can declare dependencies on one another.
+   * @private
+   */
+  private wirePythonDependencies() {
+    // Find any python projects
+    const pythonProjects = this.subProjects.filter(
+      (project) => project instanceof PythonProject
+    ) as PythonProject[];
+
+    if (pythonProjects.length === 0) {
+      // Nothing to do for no python projects
+      return;
+    }
+
+    // Move all install commands to install-py so that they are not installed in parallel by the monorepo package manager.
+    // eg yarn install will run the install task for all packages in parallel which can lead to conflicts for python.
+    pythonProjects.forEach((pythonProject) => {
+      const installPyTask =
+        pythonProject.tasks.tryFind("install-py") ??
+        pythonProject.addTask("install-py");
+      const installTask = pythonProject.tasks.tryFind("install");
+
+      (installTask?.steps || []).forEach((step) => {
+        this.copyStepIntoTask(step, installPyTask, pythonProject);
+      });
+
+      installTask?.reset();
+    });
+
+    // Add an install task to the monorepo to include running the install-py command serially to avoid conflicting writes
+    // to a shared virtual env. This is also managed by nx so that installs occur in dependency order.
+    const monorepoInstallTask =
+      this.tasks.tryFind("install") ?? this.addTask("install");
+    monorepoInstallTask.exec(
+      `npx nx run-many --target install-py --projects ${pythonProjects
+        .map((project) => project.name)
+        .join(",")} --parallel=1`
+    );
+
+    // Update the nx.json to ensure that install-py follows dependency order
+    this.nxJson.addOverride("targetDependencies.install-py", [
+      {
+        target: "install-py",
+        projects: "dependencies",
+      },
+    ]);
+  }
+
+  /**
+   * Copies the given step into the given task. Step and Task must be from the given Project
+   * @private
+   */
+  private copyStepIntoTask(step: TaskStep, task: Task, project: Project) {
+    if (step.exec) {
+      task.exec(step.exec, { name: step.name, cwd: step.cwd });
+    } else if (step.say) {
+      task.say(step.say, { name: step.name, cwd: step.cwd });
+    } else if (step.spawn) {
+      const stepToSpawn = project.tasks.tryFind(step.spawn);
+      if (stepToSpawn) {
+        task.spawn(stepToSpawn, { name: step.name, cwd: step.cwd });
+      }
+    } else if (step.builtin) {
+      task.builtin(step.builtin);
     }
   }
 }
