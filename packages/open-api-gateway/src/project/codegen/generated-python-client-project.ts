@@ -14,7 +14,7 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import * as path from "path";
-import { JsonFile } from "projen";
+import { JsonFile, Task, TaskStep } from "projen";
 import { PythonProject, PythonProjectOptions } from "projen/lib/python";
 import { GeneratedPythonClientSourceCode } from "./components/generated-python-client-source-code";
 import { OpenApiGeneratorIgnoreFile } from "./components/open-api-generator-ignore-file";
@@ -57,6 +57,36 @@ export class GeneratedPythonClientProject extends PythonProject {
       ...options,
     });
 
+    // With pip and venv (default), it's useful to install our package into the shared venv to make
+    // it easier for other packages in the monorepo to take dependencies on this package.
+    if ((options.venv ?? true) && (options.pip ?? true)) {
+      this.depsManager.installTask.exec("pip install --editable .");
+    }
+
+    // Package into a directory that can be used as a lambda layer. This is done as part of install since the end user
+    // must control build order in the monorepo via explicit dependencies, and adding here means we can run as part of
+    // initial project synthesis which ensures this is created regardless of whether the user has remembered to
+    // configure build order.
+    if (options.generateLayer) {
+      const relativeLayerDir = path.join(".", this.layerDistDir, "python");
+      this.depsManager.installTask.exec(`rm -rf ${relativeLayerDir}`);
+      this.depsManager.installTask.exec(
+        `pip install . --target ${relativeLayerDir}`
+      );
+    }
+
+    // The NX monorepo will rewrite install tasks to install-py to ensure installs can be run sequentially in dependency
+    // order. This runs as part of monorepo synthesis which is too late for this project since we synthesize early to
+    // ensure the generated client code is available for the install phase of the api project itself. Thus, we rewrite
+    // the install tasks ourselves instead.
+    if (this.parent && "addImplicitDependency" in this.parent) {
+      const installPyTask = this.addTask("install-py");
+      this.depsManager.installTask.steps.forEach((step) =>
+        this.copyStepIntoTask(step, installPyTask)
+      );
+      this.depsManager.installTask.reset();
+    }
+
     // Use a package.json to ensure the client is discoverable by nx
     new JsonFile(this, "package.json", {
       obj: {
@@ -76,24 +106,6 @@ export class GeneratedPythonClientProject extends PythonProject {
       specPath: options.specPath,
       invokeGenerator: options.generateClient,
     });
-
-    // With pip and venv (default), it's useful to install our package into the shared venv to make
-    // it easier for other packages in the monorepo to take dependencies on this package.
-    if ((options.venv ?? true) && (options.pip ?? true)) {
-      this.depsManager.installTask.exec("pip install --editable .");
-    }
-
-    // Package into a directory that can be used as a lambda layer. This is done as part of install since the end user
-    // must control build order in the monorepo via explicit dependencies, and adding here means we can run as part of
-    // initial project synthesis which ensures this is created regardless of whether the user has remembered to
-    // configure build order.
-    if (options.generateLayer) {
-      const relativeLayerDir = path.join(".", this.layerDistDir, "python");
-      this.depsManager.installTask.exec(`rm -rf ${relativeLayerDir}`);
-      this.depsManager.installTask.exec(
-        `pip install . --target ${relativeLayerDir}`
-      );
-    }
   }
 
   /**
@@ -108,5 +120,24 @@ export class GeneratedPythonClientProject extends PythonProject {
     }
     super.synth();
     this.synthed = true;
+  }
+
+  /**
+   * Copies the given step into the given task within this project
+   * @private
+   */
+  private copyStepIntoTask(step: TaskStep, task: Task) {
+    if (step.exec) {
+      task.exec(step.exec, { name: step.name, cwd: step.cwd });
+    } else if (step.say) {
+      task.say(step.say, { name: step.name, cwd: step.cwd });
+    } else if (step.spawn) {
+      const stepToSpawn = this.tasks.tryFind(step.spawn);
+      if (stepToSpawn) {
+        task.spawn(stepToSpawn, { name: step.name, cwd: step.cwd });
+      }
+    } else if (step.builtin) {
+      task.builtin(step.builtin);
+    }
   }
 }
