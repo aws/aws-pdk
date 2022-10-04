@@ -1906,6 +1906,11 @@ hypens.</p>
 <td>The output directory into which to emit synthesized artifacts.</td>
 </tr>
 <tr>
+<td><code><a href="#aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.postCliContext">postCliContext</a></code></td>
+<td><code>{[ key: string ]: any}</code></td>
+<td>Additional context values for the application.</td>
+</tr>
+<tr>
 <td><code><a href="#aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.stackTraces">stackTraces</a></code></td>
 <td><code>boolean</code></td>
 <td>Include construct creation stack trace in the <code>aws:cdk:trace</code> metadata key of all constructs.</td>
@@ -1973,6 +1978,37 @@ the CLI's <code>--output</code> flag will be used, and if you change it to a dif
 directory the CLI will fail to pick up the generated Cloud Assembly.</p>
 <p>This property is intended for internal and testing use.</p>
 <hr />
+<h5 id="postclicontextoptional"><code>postCliContext</code><sup>Optional</sup> <a name="postCliContext" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.postCliContext"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">postCliContext</span><span class="o">:</span><span class="w"> </span><span class="p">{[</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="nx">any</span><span class="p">};</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> {[ key: string ]: any}</li>
+<li><em>Default:</em> no additional context</li>
+</ul>
+<p>Additional context values for the application.</p>
+<p>Context provided here has precedence over context set by:</p>
+<ul>
+<li>The CLI via --context</li>
+<li>The <code>context</code> key in <code>cdk.json</code></li>
+<li>The {<a class="magiclink magiclink-github magiclink-mention" href="https://github.com/link" title="GitHub User: link">@link</a> AppProps.context} property</li>
+</ul>
+<p>This property is recommended over the {<a class="magiclink magiclink-github magiclink-mention" href="https://github.com/link" title="GitHub User: link">@link</a> AppProps.context} property since you
+can make final decision over which context value to take in your app.</p>
+<p>Context can be read from any construct using <code>node.getContext(key)</code>.</p>
+<hr />
+<p><em>Example</em></p>
+<div class="highlight"><pre><span></span><code><span class="c1">// context from the CLI and from `cdk.json` are stored in the</span><span class="w"></span>
+<span class="c1">// CDK_CONTEXT env variable</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">cliContext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">CDK_CONTEXT</span><span class="o">!</span><span class="p">);</span><span class="w"></span>
+
+<span class="c1">// determine whether to take the context passed in the CLI or not</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">determineValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PROD</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">cliContext</span><span class="p">.</span><span class="nx">SOMEKEY</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;my-prod-value&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">App</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">postCliContext</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">SOMEKEY</span><span class="o">:</span><span class="w"> </span><span class="kt">determineValue</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+</code></pre></div>
 <h5 id="stacktracesoptional"><code>stackTraces</code><sup>Optional</sup> <a name="stackTraces" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.stackTraces"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">stackTraces</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
