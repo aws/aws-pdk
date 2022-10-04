@@ -259,6 +259,20 @@ const preparePathSpec = (
   options: PrepareApiSpecOptions,
   getOperationName: (methodAndPath: MethodAndPath) => string
 ): OpenAPIV3.PathItemObject => {
+  const supportedHttpMethods = new Set<string>(Object.values(HttpMethods));
+  const unsupportedMethodsInSpec = Object.keys(pathItem).filter(
+    (method) => !supportedHttpMethods.has(method)
+  );
+  if (unsupportedMethodsInSpec.length > 0) {
+    throw new Error(
+      `Path ${path} contains unsupported method${
+        unsupportedMethodsInSpec.length > 1 ? "s" : ""
+      } ${unsupportedMethodsInSpec.join(
+        ", "
+      )}. Supported methods are ${Object.values(HttpMethods).join(", ")}.`
+    );
+  }
+
   return {
     ...pathItem,
     ...Object.fromEntries(
