@@ -153,6 +153,13 @@ export interface WorkspaceConfig {
    * @link https://classic.yarnpkg.com/blog/2018/02/15/nohoist/
    */
   readonly noHoist?: string[];
+  /**
+   * List of additional package globs to include in the workspace.
+   *
+   * All packages which are parented by the monorepo are automatically added to the workspace, but you can use this
+   * property to specify any additional paths to packages which may not be managed by projen.
+   */
+  readonly additionalPackages?: string[];
 }
 
 /**
@@ -221,6 +228,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   // immutable data structures
   private readonly nxConfig?: NXConfig;
   private readonly workspaceConfig?: WorkspaceConfig;
+  private readonly additionalWorkspacePackages: string[];
 
   private readonly nxJson: JsonFile;
 
@@ -239,6 +247,8 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     this.nxConfig = options.nxConfig;
     this.workspaceConfig = options.workspaceConfig;
+    this.additionalWorkspacePackages =
+      options.workspaceConfig?.additionalPackages ?? [];
     this.implicitDependencies = this.nxConfig?.implicitDependencies || {};
 
     // Never publish a monorepo root package.
@@ -338,6 +348,14 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   /**
+   * Add one or more additional package globs to the workspace.
+   * @param packageGlobs paths to the package to include in the workspace (for example packages/my-package)
+   */
+  public addWorkspacePackages(...packageGlobs: string[]) {
+    this.additionalWorkspacePackages.push(...packageGlobs);
+  }
+
+  /**
    * Allow project specific target overrides.
    */
   public overrideProjectTargets(project: Project, targets: ProjectTargets) {
@@ -427,16 +445,16 @@ export class NxMonorepoProject extends TypeScriptProject {
       new YamlFile(this, "pnpm-workspace.yaml", {
         readonly: true,
         obj: {
-          packages: this.subProjects.map((subProject) =>
-            path.relative(this.outdir, subProject.outdir)
-          ),
+          packages: this.subProjects
+            .map((subProject) => path.relative(this.outdir, subProject.outdir))
+            .concat(this.additionalWorkspacePackages),
         },
       });
     } else {
       this.package.addField("workspaces", {
-        packages: this.subProjects.map((subProject) =>
-          path.relative(this.outdir, subProject.outdir)
-        ),
+        packages: this.subProjects
+          .map((subProject) => path.relative(this.outdir, subProject.outdir))
+          .concat(this.additionalWorkspacePackages),
         nohoist: this.workspaceConfig?.noHoist,
       });
     }

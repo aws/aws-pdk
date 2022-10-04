@@ -69,6 +69,32 @@ describe("NX Monorepo Unit Tests", () => {
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
 
+  it.each([NodePackageManager.PNPM, NodePackageManager.YARN])(
+    "Additional Workspace Packages",
+    (packageManager) => {
+      const project = new NxMonorepoProject({
+        defaultReleaseBranch: "mainline",
+        packageManager,
+        name: "AdditionalWorkspacePackages",
+        workspaceConfig: {
+          additionalPackages: ["my/custom/package"],
+        },
+      });
+      new TypeScriptProject({
+        name: "ts-subproject",
+        outdir: "packages/ts-subproject",
+        parent: project,
+        packageManager,
+        defaultReleaseBranch: "mainline",
+      });
+      project.addWorkspacePackages(
+        "another/custom/package",
+        "yet/another/package"
+      );
+      expect(synthSnapshot(project)).toMatchSnapshot();
+    }
+  );
+
   it("PNPM", () => {
     const project = new NxMonorepoProject({
       defaultReleaseBranch: "mainline",
