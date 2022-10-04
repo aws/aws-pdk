@@ -173,7 +173,9 @@ describe("OpenAPI Gateway Rest Api Construct Unit Tests", () => {
     const spec = {
       ...sampleSpec,
       paths: {
-        "/test/{param1}/fixed/{param2}/{param3}": testOperation,
+        "/test/{param1}/fixed/{param2}/{param3}": {
+          get: testOperation,
+        },
       },
     };
 
@@ -721,6 +723,64 @@ describe("OpenAPI Gateway Rest Api Construct Unit Tests", () => {
           },
         });
       }).toThrow();
+    });
+  });
+
+  it("Throws For Unsupported HTTP Method", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    const spec = {
+      ...sampleSpec,
+      paths: {
+        "/unsupported/method": {
+          // Type for keys restricts to valid HttpMethods, so cast as any to avoid compile error
+          ["any" as any]: {
+            operationId: "unsupportedOperation",
+            responses: {
+              200: {
+                description: "Successful response",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        message: {
+                          type: "string",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+    withTempSpec(spec, (specPath) => {
+      expect(() => {
+        new OpenApiGatewayRestApi(stack, "ApiTest", {
+          defaultAuthorizer: Authorizers.custom({
+            authorizerId: "my-custom-scheme",
+            function: func,
+          }),
+          spec,
+          specPath,
+          operationLookup,
+          integrations: {
+            testOperation: {
+              integration: Integrations.lambda(func),
+            },
+            unsupportedOperation: {
+              integration: Integrations.lambda(func),
+            },
+          },
+        });
+      }).toThrow(/Path \/unsupported\/method contains unsupported method any./);
     });
   });
 });
