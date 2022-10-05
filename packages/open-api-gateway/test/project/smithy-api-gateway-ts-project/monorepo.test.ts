@@ -44,6 +44,7 @@ describe("Smithy Api Gateway Ts Monorepo Unit Tests", () => {
       ],
       outdir: "packages/api",
       packageManager,
+      serviceName: { namespace: "example.hello", serviceName: "Hello" },
     });
     expect(synthSmithyCodeProject(monorepo)).toMatchSnapshot();
   });

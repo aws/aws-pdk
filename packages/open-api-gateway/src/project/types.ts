@@ -31,15 +31,36 @@ export interface OpenApiGatewayProjectOptions extends CommonApiProjectOptions {
 }
 
 /**
+ * Represents a fully qualified name of a Smithy service.
+ * @see https://awslabs.github.io/smithy/2.0/spec/service-types.html
+ */
+export interface SmithyServiceName {
+  /**
+   * The service namespace. Nested namespaces are separated by '.', for example com.company
+   * @see https://awslabs.github.io/smithy/2.0/spec/model.html#shape-id
+   */
+  readonly namespace: string;
+  /**
+   * The service name. Should be PascalCase, for example HelloService
+   * @see https://awslabs.github.io/smithy/2.0/spec/model.html#shape-id
+   */
+  readonly serviceName: string;
+}
+
+/**
  * Options common to all smithy api gateway projects
  */
 export interface SmithyApiGatewayProjectOptions
   extends CommonApiProjectOptions {
   /**
-   * The fully qualified name of the service. Change this if you change the service or namespace in your model.
+   * The name of the Smithy service from your model which will be targeted for deployment and client generation.
+   * On initial project synthesis this service name will be written to the sample "hello world" model. If you change
+   * this value after initial synthesis you will need to manually update your Smithy models to match, unless you delete
+   * the "model" directory. Likewise, if you change the namespace or service name in your Smithy models you will need to
+   * update this value to ensure your service can be found.
    * @default "example.hello#Hello"
    */
-  readonly serviceName?: string;
+  readonly serviceName: SmithyServiceName;
   /**
    * The path to the Smithy model directory, relative to the project source directory (srcdir).
    * @default "model"

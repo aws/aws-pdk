@@ -49,7 +49,8 @@ export class SmithyApiGatewayTsProject extends OpenApiGatewayTsProject {
   ): OpenApiGatewayTsProjectOptions {
     const { modelDir, generatedSpecFilePath } = setupSmithyBuild(
       this,
-      options as SmithyApiGatewayProjectOptions
+      // Options are the same as those in the constructor, so it is safe to cast to SmithyApiGatewayProjectOptions
+      options as unknown as SmithyApiGatewayProjectOptions
     );
 
     // @ts-ignore this method is called by the constructor
