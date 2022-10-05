@@ -32,6 +32,7 @@ describe("Smithy Api Gateway Ts Standalone Unit Tests", () => {
         ClientLanguage.JAVA,
       ],
       packageManager,
+      serviceName: { namespace: "example.hello", serviceName: "Hello" },
     });
     expect(synthSmithyCodeProject(project)).toMatchSnapshot();
   });

@@ -41,10 +41,8 @@ export const setupSmithyBuild = (
   options: SmithyApiGatewayProjectOptions
 ): SmithyBuildProjectResult => {
   const modelDir = options.modelDir ?? "model";
-  const fullyQualifiedServiceName =
-    options.serviceName ?? "example.hello#Hello";
-
-  const [serviceNamespace, serviceName] = fullyQualifiedServiceName.split("#");
+  const { namespace: serviceNamespace, serviceName } = options.serviceName;
+  const fullyQualifiedServiceName = `${serviceNamespace}#${serviceName}`;
 
   const smithyBuildDir = "smithy-build";
 

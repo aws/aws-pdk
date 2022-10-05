@@ -25,6 +25,7 @@ describe("Smithy Api Gateway Python Standalone Unit Tests", () => {
       version: "1.0.0",
       name: "test",
       clientLanguages: [],
+      serviceName: { namespace: "example.hello", serviceName: "Hello" },
     });
     expect(synthSmithyCodeProject(project)).toMatchSnapshot();
   });
