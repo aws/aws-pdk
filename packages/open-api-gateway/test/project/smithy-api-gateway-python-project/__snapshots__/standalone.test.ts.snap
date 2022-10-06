@@ -2992,7 +2992,7 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
                 return handler(request)
         return BaseHandlerChain()
     else:
-        interceptor = _interceptors.pop(0)
+        interceptor = _interceptors[0]
 
         class RemainingHandlerChain(HandlerChain[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
             def next(self, request: ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
@@ -3003,7 +3003,7 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
                     event = request.event,
                     context = request.context,
                     interceptor_context = request.interceptor_context,
-                    chain = _build_handler_chain(_interceptors, handler),
+                    chain = _build_handler_chain(_interceptors[1:len(_interceptors)], handler),
                 ))
         return RemainingHandlerChain()
 
@@ -9463,7 +9463,7 @@ class Api(OpenApiGatewayRestApi):
         )
 ",
   "test/api/handlers/say_hello_handler_sample.py": "from test_python.apis.tags.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
-from test_python.model.hello_response import SayHelloResponseContent
+from test_python.model.say_hello_response_content import SayHelloResponseContent
 
 @say_hello_handler
 def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:

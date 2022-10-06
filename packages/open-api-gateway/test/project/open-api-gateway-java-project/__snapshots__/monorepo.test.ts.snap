@@ -10158,7 +10158,7 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
                 return handler(request)
         return BaseHandlerChain()
     else:
-        interceptor = _interceptors.pop(0)
+        interceptor = _interceptors[0]
 
         class RemainingHandlerChain(HandlerChain[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
             def next(self, request: ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
@@ -10169,7 +10169,7 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
                     event = request.event,
                     context = request.context,
                     interceptor_context = request.interceptor_context,
-                    chain = _build_handler_chain(_interceptors, handler),
+                    chain = _build_handler_chain(_interceptors[1:len(_interceptors)], handler),
                 ))
         return RemainingHandlerChain()
 
