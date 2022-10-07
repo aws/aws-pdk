@@ -95,6 +95,37 @@ describe("NX Monorepo Unit Tests", () => {
     }
   );
 
+  it("Workspace Package Order", () => {
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "mainline",
+      name: "WorkspacePackageOrder",
+      workspaceConfig: {
+        additionalPackages: ["packages/one"],
+      },
+    });
+    new TypeScriptProject({
+      name: "two",
+      outdir: "packages/two",
+      parent: project,
+      defaultReleaseBranch: "mainline",
+    });
+    project.addWorkspacePackages("packages/three", "packages/four");
+    new TypeScriptProject({
+      name: "five",
+      outdir: "packages/five",
+      parent: project,
+      defaultReleaseBranch: "mainline",
+    });
+    project.addWorkspacePackages("packages/six");
+    new TypeScriptProject({
+      name: "seven",
+      outdir: "packages/seven",
+      parent: project,
+      defaultReleaseBranch: "mainline",
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
   it("PNPM", () => {
     const project = new NxMonorepoProject({
       defaultReleaseBranch: "mainline",

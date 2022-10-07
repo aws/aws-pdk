@@ -228,7 +228,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   // immutable data structures
   private readonly nxConfig?: NXConfig;
   private readonly workspaceConfig?: WorkspaceConfig;
-  private readonly additionalWorkspacePackages: string[];
+  private readonly workspacePackages: string[];
 
   private readonly nxJson: JsonFile;
 
@@ -247,8 +247,7 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     this.nxConfig = options.nxConfig;
     this.workspaceConfig = options.workspaceConfig;
-    this.additionalWorkspacePackages =
-      options.workspaceConfig?.additionalPackages ?? [];
+    this.workspacePackages = options.workspaceConfig?.additionalPackages ?? [];
     this.implicitDependencies = this.nxConfig?.implicitDependencies || {};
 
     // Never publish a monorepo root package.
@@ -352,7 +351,21 @@ export class NxMonorepoProject extends TypeScriptProject {
    * @param packageGlobs paths to the package to include in the workspace (for example packages/my-package)
    */
   public addWorkspacePackages(...packageGlobs: string[]) {
-    this.additionalWorkspacePackages.push(...packageGlobs);
+    // Any subprojects that were added since the last call to this method need to be added first, in order to ensure
+    // we add the workspace packages in a sane order.
+    const relativeSubProjectWorkspacePackages =
+      this.instantiationOrderSubProjects.map((project) =>
+        path.relative(this.outdir, project.outdir)
+      );
+    const existingWorkspacePackages = new Set(this.workspacePackages);
+    this.workspacePackages.push(
+      ...relativeSubProjectWorkspacePackages.filter(
+        (pkg) => !existingWorkspacePackages.has(pkg)
+      )
+    );
+
+    // Add the additional packages next
+    this.workspacePackages.push(...packageGlobs);
   }
 
   /**
@@ -368,10 +381,16 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   // Remove this hack once subProjects is made public in Projen
-  public get subProjects(): Project[] {
+  private get instantiationOrderSubProjects(): Project[] {
     // @ts-ignore
     const subProjects: Project[] = this.subprojects || [];
-    return subProjects.sort((a, b) => a.name.localeCompare(b.name));
+    return subProjects;
+  }
+
+  public get subProjects(): Project[] {
+    return this.instantiationOrderSubProjects.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
   }
 
   /**
@@ -440,21 +459,21 @@ export class NxMonorepoProject extends TypeScriptProject {
    * Add a submodule entry to the appropriate workspace file.
    */
   private updateWorkspace() {
+    // A final call to addWorkspacePackages will update the list of workspace packages with any subprojects that have
+    // not yet been added, in the correct order
+    this.addWorkspacePackages();
+
     // Add workspaces for each subproject
     if (this.package.packageManager === NodePackageManager.PNPM) {
       new YamlFile(this, "pnpm-workspace.yaml", {
         readonly: true,
         obj: {
-          packages: this.subProjects
-            .map((subProject) => path.relative(this.outdir, subProject.outdir))
-            .concat(this.additionalWorkspacePackages),
+          packages: this.workspacePackages,
         },
       });
     } else {
       this.package.addField("workspaces", {
-        packages: this.subProjects
-          .map((subProject) => path.relative(this.outdir, subProject.outdir))
-          .concat(this.additionalWorkspacePackages),
+        packages: this.workspacePackages,
         nohoist: this.workspaceConfig?.noHoist,
       });
     }
