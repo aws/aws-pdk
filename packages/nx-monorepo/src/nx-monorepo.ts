@@ -25,7 +25,11 @@ import {
   TextFile,
   YamlFile,
 } from "projen";
-import { NodePackageManager, NodeProject } from "projen/lib/javascript";
+import {
+  NodePackage,
+  NodePackageManager,
+  NodeProject,
+} from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import {
   TypeScriptProject,
@@ -242,7 +246,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       release: options.release ?? false,
       jest: options.jest ?? false,
       defaultReleaseBranch: options.defaultReleaseBranch ?? "mainline",
-      sampleCode: false, // root should never have sample code
+      sampleCode: false, // root should never have sample code,
     });
 
     this.nxConfig = options.nxConfig;
@@ -401,7 +405,31 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.updateWorkspace();
     this.wirePythonDependencies();
     this.synthesizeNonNodePackageJson();
+
+    // Prevent sub NodeProject packages from `postSynthesis` which will cause individual/extraneous installs.
+    // The workspace package install will handle all the sub NodeProject packages automatically.
+    const subProjectPackages: NodePackage[] = [];
+    this.subProjects.forEach((subProject) => {
+      if (isNodeProject(subProject)) {
+        const subNodeProject: NodeProject = subProject as NodeProject;
+        subProjectPackages.push(subNodeProject.package);
+        // @ts-ignore - `installDependencies` is private
+        subNodeProject.package.installDependencies = () => {};
+      }
+    });
+
     super.synth();
+
+    // Force workspace install deps if any node subproject package has change, unless the workspace changed
+    if (
+      // @ts-ignore - `file` is private
+      (this.package.file as JsonFile).changed !== true &&
+      // @ts-ignore - `file` is private
+      subProjectPackages.find((pkg) => (pkg.file as JsonFile).changed === true)
+    ) {
+      // @ts-ignore - `installDependencies` is private
+      this.package.installDependencies();
+    }
   }
 
   /**
