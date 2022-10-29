@@ -10912,7 +10912,7 @@ class SayHelloRequestParameters(TypedDict):
 class SayHelloRequestArrayParameters(TypedDict):
     ...
 
-# Request body type (default to Any when no body parameters exist)
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 SayHelloRequestBody = Any
 
 SayHello200OperationResponse = ApiResponse[Literal[200], SayHelloResponseContent]
@@ -10943,8 +10943,7 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
-            body = parse_body(event['body'], [], SayHelloRequestBody)
-
+            body = {}
             interceptor_context = {}
 
             chain = _build_handler_chain(interceptors, handler)
@@ -10956,10 +10955,19 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+            elif response.status_code == 400:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 
@@ -15668,8 +15676,7 @@ export const sayHelloHandler = (
     }) as unknown as SayHelloRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
-        return parsed;
+        return {};
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 
@@ -30140,7 +30147,7 @@ class SayHelloRequestParameters(TypedDict):
 class SayHelloRequestArrayParameters(TypedDict):
     ...
 
-# Request body type (default to Any when no body parameters exist)
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 SayHelloRequestBody = Any
 
 SayHello200OperationResponse = ApiResponse[Literal[200], SayHelloResponseContent]
@@ -30171,8 +30178,7 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
-            body = parse_body(event['body'], [], SayHelloRequestBody)
-
+            body = {}
             interceptor_context = {}
 
             chain = _build_handler_chain(interceptors, handler)
@@ -30184,10 +30190,19 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+            elif response.status_code == 400:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 
@@ -34904,8 +34919,7 @@ export const sayHelloHandler = (
     }) as unknown as SayHelloRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
-        return parsed;
+        return {};
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 
@@ -49386,7 +49400,7 @@ class SayHelloRequestParameters(TypedDict):
 class SayHelloRequestArrayParameters(TypedDict):
     ...
 
-# Request body type (default to Any when no body parameters exist)
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 SayHelloRequestBody = Any
 
 SayHello200OperationResponse = ApiResponse[Literal[200], SayHelloResponseContent]
@@ -49417,8 +49431,7 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
-            body = parse_body(event['body'], [], SayHelloRequestBody)
-
+            body = {}
             interceptor_context = {}
 
             chain = _build_handler_chain(interceptors, handler)
@@ -49430,10 +49443,19 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+            elif response.status_code == 400:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 
@@ -54142,8 +54164,7 @@ export const sayHelloHandler = (
     }) as unknown as SayHelloRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
-        return parsed;
+        return {};
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 

@@ -2537,7 +2537,7 @@ class SomeTestOperationRequestParameters(TypedDict):
 class SomeTestOperationRequestArrayParameters(TypedDict):
     ...
 
-# Request body type (default to Any when no body parameters exist)
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 SomeTestOperationRequestBody = TestRequest
 
 SomeTestOperation200OperationResponse = ApiResponse[Literal[200], TestResponse]
@@ -2568,8 +2568,8 @@ def some_test_operation_handler(_handler: SomeTestOperationHandlerFunction = Non
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
+            # Non-primitive type so parse the body into the appropriate model
             body = parse_body(event['body'], ['application/json',], SomeTestOperationRequestBody)
-
             interceptor_context = {}
 
             chain = _build_handler_chain(interceptors, handler)
@@ -2581,10 +2581,19 @@ def some_test_operation_handler(_handler: SomeTestOperationHandlerFunction = Non
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+            elif response.status_code == 400:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 
@@ -7524,11 +7533,13 @@ configuration = test.Configuration(
 with test.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = default_api.DefaultApi(api_client)
-    
+    body = None # bool, date, datetime, dict, float, int, list, str, none_type |  (optional)
+
     try:
-        api_instance.empty()
+        api_response = api_instance.any_request_response(body=body)
+        pprint(api_response)
     except test.ApiException as e:
-        print(\\"Exception when calling DefaultApi->empty: %s\\\\n\\" % e)
+        print(\\"Exception when calling DefaultApi->any_request_response: %s\\\\n\\" % e)
 \`\`\`
 
 ## Documentation for API Endpoints
@@ -7537,6 +7548,7 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*DefaultApi* | [**any_request_response**](docs/apis/tags/DefaultApi.md#any_request_response) | **put** /any-request-response | 
 *DefaultApi* | [**empty**](docs/apis/tags/DefaultApi.md#empty) | **put** /empty-response | 
 *DefaultApi* | [**media_types**](docs/apis/tags/DefaultApi.md#media_types) | **post** /different-media-type | 
 *DefaultApi* | [**operation_one**](docs/apis/tags/DefaultApi.md#operation_one) | **post** /path/{pathParam} | 
@@ -7582,10 +7594,92 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**any_request_response**](#any_request_response) | **put** /any-request-response | 
 [**empty**](#empty) | **put** /empty-response | 
 [**media_types**](#media_types) | **post** /different-media-type | 
 [**operation_one**](#operation_one) | **post** /path/{pathParam} | 
 [**without_operation_id_delete**](#without_operation_id_delete) | **delete** /without-operation-id | 
+
+# **any_request_response**
+<a name=\\"any_request_response\\"></a>
+> bool, date, datetime, dict, float, int, list, str, none_type any_request_response()
+
+
+
+### Example
+
+\`\`\`python
+import test
+from test.apis.tags import default_api
+from pprint import pprint
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = test.Configuration(
+    host = \\"http://localhost\\"
+)
+
+# Enter a context with an instance of the API client
+with test.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = default_api.DefaultApi(api_client)
+
+    # example passing only optional values
+    body = None
+    try:
+        api_response = api_instance.any_request_response(
+            body=body,
+        )
+        pprint(api_response)
+    except test.ApiException as e:
+        print(\\"Exception when calling DefaultApi->any_request_response: %s\\\\n\\" % e)
+\`\`\`
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+body | typing.Union[SchemaForRequestBodyApplicationJson, Unset] | optional, default is unset |
+content_type | str | optional, default is 'application/json' | Selects the schema and serialization of the request body
+accept_content_types | typing.Tuple[str] | default is ('application/json', ) | Tells the server the content type(s) that are accepted by the client
+stream | bool | default is False | if True then the response.content will be streamed and loaded from a file like object. When downloading a file, set this to True to force the code to deserialize the content to a FileSchema file
+timeout | typing.Optional[typing.Union[int, typing.Tuple]] | default is None | the timeout used by the rest client
+skip_deserialization | bool | default is False | when True, headers and body will be unset and an instance of api_client.ApiResponseWithoutDeserialization will be returned
+
+### body
+
+#### SchemaForRequestBodyApplicationJson
+
+Type | Description | Notes
+------------- | ------------- | -------------
+typing.Union[dict, frozendict, str, date, datetime, int, float, bool, Decimal, None, list, tuple, bytes] | |
+
+### Return Types, Responses
+
+Code | Class | Description
+------------- | ------------- | -------------
+n/a | api_client.ApiResponseWithoutDeserialization | When skip_deserialization is True this response is returned
+200 | ApiResponseFor200 | Any response
+
+#### ApiResponseFor200
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+response | urllib3.HTTPResponse | Raw response |
+body | typing.Union[SchemaFor200ResponseBodyApplicationJson, ] |  |
+headers | Unset | headers were not defined |
+
+#### SchemaFor200ResponseBodyApplicationJson
+
+Type | Description | Notes
+------------- | ------------- | -------------
+typing.Union[dict, frozendict, str, date, datetime, int, float, bool, Decimal, None, list, tuple, bytes] | |
+
+
+**bool, date, datetime, dict, float, int, list, str, none_type**
+
+### Authorization
+
+No authorization required
+
+[[Back to top]](#__pageTop) [[Back to API list]](../../../README.md#documentation-for-api-endpoints) [[Back to Model list]](../../../README.md#documentation-for-models) [[Back to README]](../../../README.md)
 
 # **empty**
 <a name=\\"empty\\"></a>
@@ -9617,6 +9711,7 @@ from test.paths import PathValues
 from test.apis.paths.path_path_param import PathPathParam
 from test.apis.paths.without_operation_id import WithoutOperationId
 from test.apis.paths.empty_response import EmptyResponse
+from test.apis.paths.any_request_response import AnyRequestResponse
 from test.apis.paths.different_media_type import DifferentMediaType
 
 PathToApi = typing.TypedDict(
@@ -9625,6 +9720,7 @@ PathToApi = typing.TypedDict(
         PathValues.PATH_PATH_PARAM: PathPathParam,
         PathValues.WITHOUTOPERATIONID: WithoutOperationId,
         PathValues.EMPTYRESPONSE: EmptyResponse,
+        PathValues.ANYREQUESTRESPONSE: AnyRequestResponse,
         PathValues.DIFFERENTMEDIATYPE: DifferentMediaType,
     }
 )
@@ -9634,6 +9730,7 @@ path_to_api = PathToApi(
         PathValues.PATH_PATH_PARAM: PathPathParam,
         PathValues.WITHOUTOPERATIONID: WithoutOperationId,
         PathValues.EMPTYRESPONSE: EmptyResponse,
+        PathValues.ANYREQUESTRESPONSE: AnyRequestResponse,
         PathValues.DIFFERENTMEDIATYPE: DifferentMediaType,
     }
 )
@@ -9641,6 +9738,14 @@ path_to_api = PathToApi(
   "test/apis/paths/__init__.py": "# do not import all endpoints into this module because that uses a lot of memory and stack frames
 # if you need the ability to import all endpoints from this module, import them with
 # from test.apis.path_to_api import path_to_api
+",
+  "test/apis/paths/any_request_response.py": "from test.paths.any_request_response.put import ApiForput
+
+
+class AnyRequestResponse(
+    ApiForput,
+):
+    pass
 ",
   "test/apis/paths/different_media_type.py": "from test.paths.different_media_type.post import ApiForpost
 
@@ -9713,6 +9818,7 @@ class TagValues(str, enum.Enum):
     Generated by: https://openapi-generator.tech
 \\"\\"\\"
 
+from test.paths.any_request_response.put import AnyRequestResponse
 from test.paths.empty_response.put import Empty
 from test.paths.different_media_type.post import MediaTypes
 from test.paths.path_path_param.post import OperationOne
@@ -9720,6 +9826,7 @@ from test.paths.without_operation_id.delete import WithoutOperationIdDelete
 
 
 class DefaultApi(
+    AnyRequestResponse,
     Empty,
     MediaTypes,
     OperationOne,
@@ -9755,6 +9862,7 @@ T = TypeVar('T')
 # Generic type for object keyed by operation names
 @dataclass
 class OperationConfig(Generic[T]):
+    any_request_response: T
     empty: T
     media_types: T
     operation_one: T
@@ -9763,6 +9871,10 @@ class OperationConfig(Generic[T]):
 
 # Look up path and http method for a given operation name
 OperationLookup = {
+    \\"any_request_response\\": {
+        \\"path\\": \\"/any-request-response\\",
+        \\"method\\": \\"put\\",
+    },
     \\"empty\\": {
         \\"path\\": \\"/empty-response\\",
         \\"method\\": \\"put\\",
@@ -9861,6 +9973,79 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
 
 
 # Request parameters are single value query params or path params
+class AnyRequestResponseRequestParameters(TypedDict):
+    ...
+
+# Request array parameters are multi-value query params
+class AnyRequestResponseRequestArrayParameters(TypedDict):
+    ...
+
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
+AnyRequestResponseRequestBody = str
+
+AnyRequestResponse200OperationResponse = ApiResponse[Literal[200], str]
+AnyRequestResponseOperationResponses = Union[AnyRequestResponse200OperationResponse, ]
+
+# Request type for any_request_response
+AnyRequestResponseRequest = ApiRequest[AnyRequestResponseRequestParameters, AnyRequestResponseRequestArrayParameters, AnyRequestResponseRequestBody]
+AnyRequestResponseChainedRequest = ChainedApiRequest[AnyRequestResponseRequestParameters, AnyRequestResponseRequestArrayParameters, AnyRequestResponseRequestBody]
+
+class AnyRequestResponseHandlerFunction(Protocol):
+    def __call__(self, input: AnyRequestResponseRequest, **kwargs) -> AnyRequestResponseOperationResponses:
+        ...
+
+AnyRequestResponseInterceptor = Callable[[AnyRequestResponseChainedRequest], AnyRequestResponseOperationResponses]
+
+def any_request_response_handler(_handler: AnyRequestResponseHandlerFunction = None, interceptors: List[AnyRequestResponseInterceptor] = []):
+    \\"\\"\\"
+    Decorator for an api handler for the any_request_response operation, providing a typed interface for inputs and outputs
+    \\"\\"\\"
+    def _handler_wrapper(handler: AnyRequestResponseHandlerFunction):
+        @wraps(handler)
+        def wrapper(event, context, **kwargs):
+            request_parameters = decode_request_parameters({
+                **(event['pathParameters'] or {}),
+                **(event['queryStringParameters'] or {}),
+            })
+            request_array_parameters = decode_request_parameters({
+                **(event['multiValueQueryStringParameters'] or {}),
+            })
+            # Primitive type so body is passed as the original string
+            body = event['body']
+            interceptor_context = {}
+
+            chain = _build_handler_chain(interceptors, handler)
+            response = chain.next(ApiRequest(
+                request_parameters,
+                request_array_parameters,
+                body,
+                event,
+                context,
+                interceptor_context,
+            ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = response.body
+
+            return {
+                'statusCode': response.status_code,
+                'headers': response.headers,
+                'body': response_body,
+            }
+        return wrapper
+
+    # Support use as a decorator with no arguments, or with interceptor arguments
+    if callable(_handler):
+        return _handler_wrapper(_handler)
+    elif _handler is None:
+        return _handler_wrapper
+    else:
+        raise Exception(\\"Positional arguments are not supported by any_request_response_handler.\\")
+
+# Request parameters are single value query params or path params
 class EmptyRequestParameters(TypedDict):
     ...
 
@@ -9868,7 +10053,7 @@ class EmptyRequestParameters(TypedDict):
 class EmptyRequestArrayParameters(TypedDict):
     ...
 
-# Request body type (default to Any when no body parameters exist)
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 EmptyRequestBody = Any
 
 Empty204OperationResponse = ApiResponse[Literal[204], None]
@@ -9898,8 +10083,7 @@ def empty_handler(_handler: EmptyHandlerFunction = None, interceptors: List[Empt
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
-            body = parse_body(event['body'], [], EmptyRequestBody)
-
+            body = {}
             interceptor_context = {}
 
             chain = _build_handler_chain(interceptors, handler)
@@ -9911,10 +10095,17 @@ def empty_handler(_handler: EmptyHandlerFunction = None, interceptors: List[Empt
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 204:
+                response_body = response.body
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 
@@ -9934,8 +10125,8 @@ class MediaTypesRequestParameters(TypedDict):
 class MediaTypesRequestArrayParameters(TypedDict):
     ...
 
-# Request body type (default to Any when no body parameters exist)
-MediaTypesRequestBody = file_type
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
+MediaTypesRequestBody = str
 
 MediaTypes200OperationResponse = ApiResponse[Literal[200], str]
 MediaTypesOperationResponses = Union[MediaTypes200OperationResponse, ]
@@ -9964,8 +10155,8 @@ def media_types_handler(_handler: MediaTypesHandlerFunction = None, interceptors
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
-            body = parse_body(event['body'], ['application/pdf',], MediaTypesRequestBody)
-
+            # Primitive type so body is passed as the original string
+            body = event['body']
             interceptor_context = {}
 
             chain = _build_handler_chain(interceptors, handler)
@@ -9977,10 +10168,17 @@ def media_types_handler(_handler: MediaTypesHandlerFunction = None, interceptors
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = response.body
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 
@@ -10005,7 +10203,7 @@ class OperationOneRequestArrayParameters(TypedDict):
     param2: List[str]
     ...
 
-# Request body type (default to Any when no body parameters exist)
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 OperationOneRequestBody = TestRequest
 
 OperationOne200OperationResponse = ApiResponse[Literal[200], TestResponse]
@@ -10036,8 +10234,8 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
+            # Non-primitive type so parse the body into the appropriate model
             body = parse_body(event['body'], ['application/json',], OperationOneRequestBody)
-
             interceptor_context = {}
 
             chain = _build_handler_chain(interceptors, handler)
@@ -10049,10 +10247,19 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+            elif response.status_code == 400:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 
@@ -10072,7 +10279,7 @@ class WithoutOperationIdDeleteRequestParameters(TypedDict):
 class WithoutOperationIdDeleteRequestArrayParameters(TypedDict):
     ...
 
-# Request body type (default to Any when no body parameters exist)
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 WithoutOperationIdDeleteRequestBody = Any
 
 WithoutOperationIdDelete200OperationResponse = ApiResponse[Literal[200], TestResponse]
@@ -10102,8 +10309,7 @@ def without_operation_id_delete_handler(_handler: WithoutOperationIdDeleteHandle
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
-            body = parse_body(event['body'], [], WithoutOperationIdDeleteRequestBody)
-
+            body = {}
             interceptor_context = {}
 
             chain = _build_handler_chain(interceptors, handler)
@@ -10115,10 +10321,17 @@ def without_operation_id_delete_handler(_handler: WithoutOperationIdDeleteHandle
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 
@@ -11403,7 +11616,336 @@ class PathValues(str, enum.Enum):
     PATH_PATH_PARAM = \\"/path/{pathParam}\\"
     WITHOUTOPERATIONID = \\"/without-operation-id\\"
     EMPTYRESPONSE = \\"/empty-response\\"
+    ANYREQUESTRESPONSE = \\"/any-request-response\\"
     DIFFERENTMEDIATYPE = \\"/different-media-type\\"
+",
+  "test/paths/any_request_response/__init__.py": "# do not import all endpoints into this module because that uses a lot of memory and stack frames
+# if you need the ability to import all endpoints from this module, import them with
+# from test.paths.any_request_response import Api
+
+from test.paths import PathValues
+
+path = PathValues.ANYREQUESTRESPONSE",
+  "test/paths/any_request_response/put.py": "# coding: utf-8
+
+\\"\\"\\"
+
+
+    Generated by: https://openapi-generator.tech
+\\"\\"\\"
+
+from dataclasses import dataclass
+import urllib3
+from urllib3._collections import HTTPHeaderDict
+
+from test import api_client, exceptions
+from datetime import date, datetime  # noqa: F401
+import decimal  # noqa: F401
+import functools  # noqa: F401
+import io  # noqa: F401
+import re  # noqa: F401
+import typing  # noqa: F401
+import uuid  # noqa: F401
+
+import frozendict  # noqa: F401
+
+from test import schemas  # noqa: F401
+
+from . import path
+
+# body param
+SchemaForRequestBodyApplicationJson = schemas.AnyTypeSchema
+
+
+request_body_body = api_client.RequestBody(
+    content={
+        'application/json': api_client.MediaType(
+            schema=SchemaForRequestBodyApplicationJson),
+    },
+)
+SchemaFor200ResponseBodyApplicationJson = schemas.AnyTypeSchema
+
+
+@dataclass
+class ApiResponseFor200(api_client.ApiResponse):
+    response: urllib3.HTTPResponse
+    body: typing.Union[
+        SchemaFor200ResponseBodyApplicationJson,
+    ]
+    headers: schemas.Unset = schemas.unset
+
+
+_response_for_200 = api_client.OpenApiResponse(
+    response_cls=ApiResponseFor200,
+    content={
+        'application/json': api_client.MediaType(
+            schema=SchemaFor200ResponseBodyApplicationJson),
+    },
+)
+_status_code_to_response = {
+    '200': _response_for_200,
+}
+_all_accept_content_types = (
+    'application/json',
+)
+
+
+class BaseApi(api_client.Api):
+
+    def _any_request_response_oapg(
+        self: api_client.Api,
+        body: typing.Union[SchemaForRequestBodyApplicationJson, dict, frozendict.frozendict, str, date, datetime, uuid.UUID, int, float, decimal.Decimal, None, list, tuple, bytes, schemas.Unset] = schemas.unset,
+        content_type: str = 'application/json',
+        accept_content_types: typing.Tuple[str] = _all_accept_content_types,
+        stream: bool = False,
+        timeout: typing.Optional[typing.Union[int, typing.Tuple]] = None,
+        skip_deserialization: bool = False,
+    ) -> typing.Union[
+        ApiResponseFor200,
+        api_client.ApiResponseWithoutDeserialization
+    ]:
+        \\"\\"\\"
+        :param skip_deserialization: If true then api_response.response will be set but
+            api_response.body and api_response.headers will not be deserialized into schema
+            class instances
+        \\"\\"\\"
+        used_path = path.value
+
+        _headers = HTTPHeaderDict()
+        # TODO add cookie handling
+        if accept_content_types:
+            for accept_content_type in accept_content_types:
+                _headers.add('Accept', accept_content_type)
+
+        _fields = None
+        _body = None
+        if body is not schemas.unset:
+            serialized_data = request_body_body.serialize(body, content_type)
+            _headers.add('Content-Type', content_type)
+            if 'fields' in serialized_data:
+                _fields = serialized_data['fields']
+            elif 'body' in serialized_data:
+                _body = serialized_data['body']
+        response = self.api_client.call_api(
+            resource_path=used_path,
+            method='put'.upper(),
+            headers=_headers,
+            fields=_fields,
+            body=_body,
+            stream=stream,
+            timeout=timeout,
+        )
+
+        if skip_deserialization:
+            api_response = api_client.ApiResponseWithoutDeserialization(response=response)
+        else:
+            response_for_status = _status_code_to_response.get(str(response.status))
+            if response_for_status:
+                api_response = response_for_status.deserialize(response, self.api_client.configuration)
+            else:
+                api_response = api_client.ApiResponseWithoutDeserialization(response=response)
+
+        if not 200 <= response.status <= 299:
+            raise exceptions.ApiException(api_response=api_response)
+
+        return api_response
+
+
+class AnyRequestResponse(BaseApi):
+    # this class is used by api classes that refer to endpoints with operationId fn names
+
+    def any_request_response(
+        self: BaseApi,
+        body: typing.Union[SchemaForRequestBodyApplicationJson, dict, frozendict.frozendict, str, date, datetime, uuid.UUID, int, float, decimal.Decimal, None, list, tuple, bytes, schemas.Unset] = schemas.unset,
+        content_type: str = 'application/json',
+        accept_content_types: typing.Tuple[str] = _all_accept_content_types,
+        stream: bool = False,
+        timeout: typing.Optional[typing.Union[int, typing.Tuple]] = None,
+        skip_deserialization: bool = False,
+    ) -> typing.Union[
+        ApiResponseFor200,
+        api_client.ApiResponseWithoutDeserialization
+    ]:
+        return self._any_request_response_oapg(
+            body=body,
+            content_type=content_type,
+            accept_content_types=accept_content_types,
+            stream=stream,
+            timeout=timeout,
+            skip_deserialization=skip_deserialization
+        )
+
+
+class ApiForput(BaseApi):
+    # this class is used by api classes that refer to endpoints by path and http method names
+
+    def put(
+        self: BaseApi,
+        body: typing.Union[SchemaForRequestBodyApplicationJson, dict, frozendict.frozendict, str, date, datetime, uuid.UUID, int, float, decimal.Decimal, None, list, tuple, bytes, schemas.Unset] = schemas.unset,
+        content_type: str = 'application/json',
+        accept_content_types: typing.Tuple[str] = _all_accept_content_types,
+        stream: bool = False,
+        timeout: typing.Optional[typing.Union[int, typing.Tuple]] = None,
+        skip_deserialization: bool = False,
+    ) -> typing.Union[
+        ApiResponseFor200,
+        api_client.ApiResponseWithoutDeserialization
+    ]:
+        return self._any_request_response_oapg(
+            body=body,
+            content_type=content_type,
+            accept_content_types=accept_content_types,
+            stream=stream,
+            timeout=timeout,
+            skip_deserialization=skip_deserialization
+        )
+
+
+",
+  "test/paths/any_request_response/put.pyi": "# coding: utf-8
+
+\\"\\"\\"
+
+
+    Generated by: https://openapi-generator.tech
+\\"\\"\\"
+
+from dataclasses import dataclass
+import urllib3
+from urllib3._collections import HTTPHeaderDict
+
+from test import api_client, exceptions
+from datetime import date, datetime  # noqa: F401
+import decimal  # noqa: F401
+import functools  # noqa: F401
+import io  # noqa: F401
+import re  # noqa: F401
+import typing  # noqa: F401
+import uuid  # noqa: F401
+
+import frozendict  # noqa: F401
+
+from test import schemas  # noqa: F401
+
+# body param
+SchemaForRequestBodyApplicationJson = schemas.AnyTypeSchema
+SchemaFor200ResponseBodyApplicationJson = schemas.AnyTypeSchema
+_all_accept_content_types = (
+    'application/json',
+)
+
+
+class BaseApi(api_client.Api):
+
+    def _any_request_response_oapg(
+        self: api_client.Api,
+        body: typing.Union[SchemaForRequestBodyApplicationJson, dict, frozendict.frozendict, str, date, datetime, uuid.UUID, int, float, decimal.Decimal, None, list, tuple, bytes, schemas.Unset] = schemas.unset,
+        content_type: str = 'application/json',
+        accept_content_types: typing.Tuple[str] = _all_accept_content_types,
+        stream: bool = False,
+        timeout: typing.Optional[typing.Union[int, typing.Tuple]] = None,
+        skip_deserialization: bool = False,
+    ) -> typing.Union[
+        ApiResponseFor200,
+        api_client.ApiResponseWithoutDeserialization
+    ]:
+        \\"\\"\\"
+        :param skip_deserialization: If true then api_response.response will be set but
+            api_response.body and api_response.headers will not be deserialized into schema
+            class instances
+        \\"\\"\\"
+        used_path = path.value
+
+        _headers = HTTPHeaderDict()
+        # TODO add cookie handling
+        if accept_content_types:
+            for accept_content_type in accept_content_types:
+                _headers.add('Accept', accept_content_type)
+
+        _fields = None
+        _body = None
+        if body is not schemas.unset:
+            serialized_data = request_body_body.serialize(body, content_type)
+            _headers.add('Content-Type', content_type)
+            if 'fields' in serialized_data:
+                _fields = serialized_data['fields']
+            elif 'body' in serialized_data:
+                _body = serialized_data['body']
+        response = self.api_client.call_api(
+            resource_path=used_path,
+            method='put'.upper(),
+            headers=_headers,
+            fields=_fields,
+            body=_body,
+            stream=stream,
+            timeout=timeout,
+        )
+
+        if skip_deserialization:
+            api_response = api_client.ApiResponseWithoutDeserialization(response=response)
+        else:
+            response_for_status = _status_code_to_response.get(str(response.status))
+            if response_for_status:
+                api_response = response_for_status.deserialize(response, self.api_client.configuration)
+            else:
+                api_response = api_client.ApiResponseWithoutDeserialization(response=response)
+
+        if not 200 <= response.status <= 299:
+            raise exceptions.ApiException(api_response=api_response)
+
+        return api_response
+
+
+class AnyRequestResponse(BaseApi):
+    # this class is used by api classes that refer to endpoints with operationId fn names
+
+    def any_request_response(
+        self: BaseApi,
+        body: typing.Union[SchemaForRequestBodyApplicationJson, dict, frozendict.frozendict, str, date, datetime, uuid.UUID, int, float, decimal.Decimal, None, list, tuple, bytes, schemas.Unset] = schemas.unset,
+        content_type: str = 'application/json',
+        accept_content_types: typing.Tuple[str] = _all_accept_content_types,
+        stream: bool = False,
+        timeout: typing.Optional[typing.Union[int, typing.Tuple]] = None,
+        skip_deserialization: bool = False,
+    ) -> typing.Union[
+        ApiResponseFor200,
+        api_client.ApiResponseWithoutDeserialization
+    ]:
+        return self._any_request_response_oapg(
+            body=body,
+            content_type=content_type,
+            accept_content_types=accept_content_types,
+            stream=stream,
+            timeout=timeout,
+            skip_deserialization=skip_deserialization
+        )
+
+
+class ApiForput(BaseApi):
+    # this class is used by api classes that refer to endpoints by path and http method names
+
+    def put(
+        self: BaseApi,
+        body: typing.Union[SchemaForRequestBodyApplicationJson, dict, frozendict.frozendict, str, date, datetime, uuid.UUID, int, float, decimal.Decimal, None, list, tuple, bytes, schemas.Unset] = schemas.unset,
+        content_type: str = 'application/json',
+        accept_content_types: typing.Tuple[str] = _all_accept_content_types,
+        stream: bool = False,
+        timeout: typing.Optional[typing.Union[int, typing.Tuple]] = None,
+        skip_deserialization: bool = False,
+    ) -> typing.Union[
+        ApiResponseFor200,
+        api_client.ApiResponseWithoutDeserialization
+    ]:
+        return self._any_request_response_oapg(
+            body=body,
+            content_type=content_type,
+            accept_content_types=accept_content_types,
+            stream=stream,
+            timeout=timeout,
+            skip_deserialization=skip_deserialization
+        )
+
+
 ",
   "test/paths/different_media_type/__init__.py": "# do not import all endpoints into this module because that uses a lot of memory and stack frames
 # if you need the ability to import all endpoints from this module, import them with
@@ -15464,6 +16006,48 @@ class ApiTestMixin:
     @staticmethod
     def json_bytes(in_data: typing.Any) -> bytes:
         return json.dumps(in_data, separators=(\\",\\", \\":\\"), ensure_ascii=False).encode('utf-8')
+",
+  "test/test_paths/test_any_request_response/__init__.py": "",
+  "test/test_paths/test_any_request_response/test_put.py": "# coding: utf-8
+
+\\"\\"\\"
+
+
+    Generated by: https://openapi-generator.tech
+\\"\\"\\"
+
+import unittest
+from unittest.mock import patch
+
+import urllib3
+
+import test
+from test.paths.any_request_response import put  # noqa: E501
+from test import configuration, schemas, api_client
+
+from .. import ApiTestMixin
+
+
+class TestAnyRequestResponse(ApiTestMixin, unittest.TestCase):
+    \\"\\"\\"
+    AnyRequestResponse unit test stubs
+    \\"\\"\\"
+    _configuration = configuration.Configuration()
+
+    def setUp(self):
+        used_api_client = api_client.ApiClient(configuration=self._configuration)
+        self.api = put.ApiForput(api_client=used_api_client)  # noqa: E501
+
+    def tearDown(self):
+        pass
+
+    response_status = 200
+
+
+
+
+if __name__ == '__main__':
+    unittest.main()
 ",
   "test/test_paths/test_different_media_type/__init__.py": "",
   "test/test_paths/test_different_media_type/test_post.py": "# coding: utf-8

@@ -217,7 +217,7 @@ public class Handlers {
         private String body;
         private Map<String, String> headers;
 
-        private {{operationIdCamelCase}}{{code}}Response({{#dataType}}final {{.}} body, {{/dataType}}final Map<String, String> headers) {
+        private {{operationIdCamelCase}}{{code}}Response({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers) {
             this.body = {{#dataType}}{{#isPrimitiveType}}body{{/isPrimitiveType}}{{^isPrimitiveType}}body.toJson(){{/isPrimitiveType}}{{/dataType}}{{^dataType}}""{{/dataType}};
             this.headers = headers;
         }
@@ -240,14 +240,14 @@ public class Handlers {
         /**
          * Create a {{operationIdCamelCase}}{{code}}Response with{{^dataType}}out{{/dataType}} a body
          */
-        public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{.}} body{{/dataType}}) {
+        public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body{{/dataType}}) {
             return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}new HashMap<>());
         }
 
         /**
          * Create a {{operationIdCamelCase}}{{code}}Response with{{^dataType}}out{{/dataType}} a body and headers
          */
-        public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{.}} body, {{/dataType}}final Map<String, String> headers) {
+        public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers) {
             return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}headers);
         }
     }

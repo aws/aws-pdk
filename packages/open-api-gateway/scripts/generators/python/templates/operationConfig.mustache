@@ -143,11 +143,11 @@ class {{operationIdCamelCase}}RequestArrayParameters(TypedDict):
 {{/allParams}}
     ...
 
-# Request body type (default to Any when no body parameters exist)
-{{operationIdCamelCase}}RequestBody = {{^bodyParams.isEmpty}}{{#bodyParams.0}}{{dataType}}{{/bodyParams.0}}{{/bodyParams.isEmpty}}{{#bodyParams.isEmpty}}Any{{/bodyParams.isEmpty}}
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
+{{operationIdCamelCase}}RequestBody = {{^bodyParams.isEmpty}}{{#bodyParams.0}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/bodyParams.0}}{{/bodyParams.isEmpty}}{{#bodyParams.isEmpty}}Any{{/bodyParams.isEmpty}}
 
 {{#responses}}
-{{operationIdCamelCase}}{{code}}OperationResponse = ApiResponse[Literal[{{code}}], {{^simpleType}}{{dataType}}{{/simpleType}}{{#simpleType}}None{{/simpleType}}]
+{{operationIdCamelCase}}{{code}}OperationResponse = ApiResponse[Literal[{{code}}], {{^simpleType}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/simpleType}}{{#simpleType}}None{{/simpleType}}]
 {{/responses}}
 {{operationIdCamelCase}}OperationResponses = Union[{{#responses}}{{operationIdCamelCase}}{{code}}OperationResponse, {{/responses}}]
 
@@ -175,8 +175,21 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
+            {{^bodyParams.isEmpty}}
+            {{#bodyParams.0}}
+            {{^isPrimitiveType}}
+            # Non-primitive type so parse the body into the appropriate model
             body = parse_body(event['body'], [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}], {{operationIdCamelCase}}RequestBody)
-
+            {{/isPrimitiveType}}
+            {{#isPrimitiveType}}
+            # Primitive type so body is passed as the original string
+            body = event['body']
+            {{/isPrimitiveType}}
+            {{/bodyParams.0}}
+            {{/bodyParams.isEmpty}}
+            {{#bodyParams.isEmpty}}
+            body = {}
+            {{/bodyParams.isEmpty}}
             interceptor_context = {}
 
             chain = _build_handler_chain(interceptors, handler)
@@ -188,10 +201,24 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            {{#responses}}
+            elif response.status_code == {{code}}:
+                {{^isPrimitiveType}}
+                response_body = json.dumps(JSONEncoder().default(response.body))
+                {{/isPrimitiveType}}
+                {{#isPrimitiveType}}
+                response_body = response.body
+                {{/isPrimitiveType}}
+            {{/responses}}
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 

@@ -1475,9 +1475,7 @@ export const someTestOperationHandler = (
     }) as unknown as SomeTestOperationRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
-        parsed = TestRequestFromJSON(parsed);
-        return parsed;
+        return TestRequestFromJSON(JSON.parse(bodyString));
     };
     const body = parseBody(event.body, demarshal, ['application/json',]) as SomeTestOperationRequestBody;
 
@@ -3470,6 +3468,10 @@ import {
     TestResponseToJSON,
 } from '../models';
 
+export interface AnyRequestResponseRequest {
+    body?: any | null;
+}
+
 export interface MediaTypesRequest {
     body: Blob;
 }
@@ -3487,6 +3489,33 @@ export interface OperationOneRequest {
  * 
  */
 export class DefaultApi extends runtime.BaseAPI {
+
+    /**
+     */
+    async anyRequestResponseRaw(requestParameters: AnyRequestResponseRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<any>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: \`/any-request-response\`,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters.body as any,
+        }, initOverrides);
+
+        return new runtime.TextApiResponse(response) as any;
+    }
+
+    /**
+     */
+    async anyRequestResponse(requestParameters: AnyRequestResponseRequest = {}, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<any> {
+        const response = await this.anyRequestResponseRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      */
@@ -3645,6 +3674,7 @@ import {
 } from '../../models';
 // Import request parameter interfaces
 import {
+    AnyRequestResponseRequest,
     
     MediaTypesRequest,
     OperationOneRequest,
@@ -3656,6 +3686,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from \\"aws-lamb
 
 // Generic type for object keyed by operation names
 export interface OperationConfig<T> {
+    anyRequestResponse: T;
     empty: T;
     mediaTypes: T;
     operationOne: T;
@@ -3664,6 +3695,10 @@ export interface OperationConfig<T> {
 
 // Look up path and http method for a given operation name
 export const OperationLookup = {
+    anyRequestResponse: {
+        path: '/any-request-response',
+        method: 'PUT',
+    },
     empty: {
         path: '/empty-response',
         method: 'PUT',
@@ -3781,6 +3816,80 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
 };
 
 /**
+ * Single-value path/query parameters for AnyRequestResponse
+ */
+export interface AnyRequestResponseRequestParameters {
+}
+
+/**
+ * Multi-value query parameters for AnyRequestResponse
+ */
+export interface AnyRequestResponseRequestArrayParameters {
+}
+
+/**
+ * Request body parameter for AnyRequestResponse
+ */
+export type AnyRequestResponseRequestBody = string;
+
+export type AnyRequestResponse200OperationResponse = OperationResponse<200, string>;
+export type AnyRequestResponseOperationResponses = | AnyRequestResponse200OperationResponse ;
+
+// Type that the handler function provided to the wrapper must conform to
+export type AnyRequestResponseHandlerFunction = LambdaHandlerFunction<AnyRequestResponseRequestParameters, AnyRequestResponseRequestArrayParameters, AnyRequestResponseRequestBody, AnyRequestResponseOperationResponses>;
+export type AnyRequestResponseChainedHandlerFunction = ChainedLambdaHandlerFunction<AnyRequestResponseRequestParameters, AnyRequestResponseRequestArrayParameters, AnyRequestResponseRequestBody, AnyRequestResponseOperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of anyRequestResponse
+ */
+export const anyRequestResponseHandler = (
+    firstHandler: AnyRequestResponseChainedHandlerFunction,
+    ...remainingHandlers: AnyRequestResponseChainedHandlerFunction[]
+): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+    const requestParameters = decodeRequestParameters({
+        ...(event.pathParameters || {}),
+        ...(event.queryStringParameters || {}),
+    }) as unknown as AnyRequestResponseRequestParameters;
+
+    const requestArrayParameters = decodeRequestParameters({
+        ...(event.multiValueQueryStringParameters || {}),
+    }) as unknown as AnyRequestResponseRequestArrayParameters;
+
+    const demarshal = (bodyString: string): any => {
+        return bodyString;
+    };
+    const body = parseBody(event.body, demarshal, ['application/json',]) as AnyRequestResponseRequestBody;
+
+    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            requestArrayParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: {},
+    });
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+            case 200:
+                break;
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    return {
+        ...response,
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
+/**
  * Single-value path/query parameters for Empty
  */
 export interface EmptyRequestParameters {
@@ -3821,8 +3930,7 @@ export const emptyHandler = (
     }) as unknown as EmptyRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
-        return parsed;
+        return {};
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as EmptyRequestBody;
 
@@ -3870,7 +3978,7 @@ export interface MediaTypesRequestArrayParameters {
 /**
  * Request body parameter for MediaTypes
  */
-export type MediaTypesRequestBody = Blob;
+export type MediaTypesRequestBody = string;
 
 export type MediaTypes200OperationResponse = OperationResponse<200, string>;
 export type MediaTypesOperationResponses = | MediaTypes200OperationResponse ;
@@ -3896,9 +4004,7 @@ export const mediaTypesHandler = (
     }) as unknown as MediaTypesRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
-        parsed = BlobFromJSON(parsed);
-        return parsed;
+        return bodyString;
     };
     const body = parseBody(event.body, demarshal, ['application/pdf',]) as MediaTypesRequestBody;
 
@@ -3978,9 +4084,7 @@ export const operationOneHandler = (
     }) as unknown as OperationOneRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
-        parsed = TestRequestFromJSON(parsed);
-        return parsed;
+        return TestRequestFromJSON(JSON.parse(bodyString));
     };
     const body = parseBody(event.body, demarshal, ['application/json',]) as OperationOneRequestBody;
 
@@ -4058,8 +4162,7 @@ export const withoutOperationIdDeleteHandler = (
     }) as unknown as WithoutOperationIdDeleteRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
-        return parsed;
+        return {};
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as WithoutOperationIdDeleteRequestBody;
 
