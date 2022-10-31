@@ -170,10 +170,10 @@ export interface {{operationIdCamelCase}}RequestArrayParameters {
 /**
  * Request body parameter for {{operationIdCamelCase}}
  */
-export type {{operationIdCamelCase}}RequestBody = {{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}never{{/bodyParam}};
+export type {{operationIdCamelCase}}RequestBody = {{#bodyParam}}{{#isPrimitiveType}}string{{/isPrimitiveType}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{/bodyParam}}{{^bodyParam}}never{{/bodyParam}};
 
 {{#responses}}
-export type {{operationIdCamelCase}}{{code}}OperationResponse = OperationResponse<{{code}}, {{#dataType}}{{.}}{{/dataType}}{{^dataType}}undefined{{/dataType}}>;
+export type {{operationIdCamelCase}}{{code}}OperationResponse = OperationResponse<{{code}}, {{#dataType}}{{#isPrimitiveType}}string{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}}{{/dataType}}{{^dataType}}undefined{{/dataType}}>;
 {{/responses}}
 export type {{operationIdCamelCase}}OperationResponses = {{#responses}}| {{operationIdCamelCase}}{{code}}OperationResponse {{/responses}};
 
@@ -198,11 +198,17 @@ export const {{nickname}}Handler = (
     }) as unknown as {{operationIdCamelCase}}RequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
         {{#bodyParam}}
-        parsed = {{dataType}}FromJSON(parsed);
+        {{^isPrimitiveType}}
+        return {{dataType}}FromJSON(JSON.parse(bodyString));
+        {{/isPrimitiveType}}
+        {{#isPrimitiveType}}
+        return bodyString;
+        {{/isPrimitiveType}}
         {{/bodyParam}}
-        return parsed;
+        {{^bodyParam}}
+        return {};
+        {{/bodyParam}}
     };
     const body = parseBody(event.body, demarshal, [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}]) as {{operationIdCamelCase}}RequestBody;
 

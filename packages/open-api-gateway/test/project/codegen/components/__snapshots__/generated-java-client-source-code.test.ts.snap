@@ -7896,11 +7896,14 @@ public class Example {
     defaultClient.setBasePath(\\"http://localhost\\");
 
     DefaultApi apiInstance = new DefaultApi(defaultClient);
+    Object body = null; // Object | 
     try {
-      apiInstance.empty()
+      Object result = apiInstance.anyRequestResponse()
+            .body(body)
             .execute();
+      System.out.println(result);
     } catch (ApiException e) {
-      System.err.println(\\"Exception when calling DefaultApi#empty\\");
+      System.err.println(\\"Exception when calling DefaultApi#anyRequestResponse\\");
       System.err.println(\\"Status code: \\" + e.getCode());
       System.err.println(\\"Reason: \\" + e.getResponseBody());
       System.err.println(\\"Response headers: \\" + e.getResponseHeaders());
@@ -7917,6 +7920,7 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*DefaultApi* | [**anyRequestResponse**](docs/DefaultApi.md#anyRequestResponse) | **PUT** /any-request-response | 
 *DefaultApi* | [**empty**](docs/DefaultApi.md#empty) | **PUT** /empty-response | 
 *DefaultApi* | [**mediaTypes**](docs/DefaultApi.md#mediaTypes) | **POST** /different-media-type | 
 *DefaultApi* | [**operationOne**](docs/DefaultApi.md#operationOne) | **POST** /path/{pathParam} | 
@@ -8030,6 +8034,21 @@ paths:
       responses:
         \\"204\\":
           description: No response body!
+      x-accepts: application/json
+  /any-request-response:
+    put:
+      operationId: anyRequestResponse
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      responses:
+        \\"200\\":
+          content:
+            application/json:
+              schema: {}
+          description: Any response
+      x-content-type: application/json
       x-accepts: application/json
   /different-media-type:
     post:
@@ -8312,11 +8331,74 @@ All URIs are relative to *http://localhost*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**anyRequestResponse**](DefaultApi.md#anyRequestResponse) | **PUT** /any-request-response |  |
 | [**empty**](DefaultApi.md#empty) | **PUT** /empty-response |  |
 | [**mediaTypes**](DefaultApi.md#mediaTypes) | **POST** /different-media-type |  |
 | [**operationOne**](DefaultApi.md#operationOne) | **POST** /path/{pathParam} |  |
 | [**withoutOperationIdDelete**](DefaultApi.md#withoutOperationIdDelete) | **DELETE** /without-operation-id |  |
 
+
+<a name=\\"anyRequestResponse\\"></a>
+# **anyRequestResponse**
+> Object anyRequestResponse().body(body).execute();
+
+
+
+### Example
+\`\`\`java
+// Import classes:
+import test.test.client.ApiClient;
+import test.test.client.ApiException;
+import test.test.client.Configuration;
+import test.test.client.models.*;
+import test.test.client.api.DefaultApi;
+
+public class Example {
+  public static void main(String[] args) {
+    ApiClient defaultClient = Configuration.getDefaultApiClient();
+    defaultClient.setBasePath(\\"http://localhost\\");
+
+    DefaultApi apiInstance = new DefaultApi(defaultClient);
+    Object body = null; // Object | 
+    try {
+      Object result = apiInstance.anyRequestResponse()
+            .body(body)
+            .execute();
+      System.out.println(result);
+    } catch (ApiException e) {
+      System.err.println(\\"Exception when calling DefaultApi#anyRequestResponse\\");
+      System.err.println(\\"Status code: \\" + e.getCode());
+      System.err.println(\\"Reason: \\" + e.getResponseBody());
+      System.err.println(\\"Response headers: \\" + e.getResponseHeaders());
+      e.printStackTrace();
+    }
+  }
+}
+\`\`\`
+
+### Parameters
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **body** | **Object**|  | [optional] |
+
+### Return type
+
+**Object**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Any response |  -  |
 
 <a name=\\"empty\\"></a>
 # **empty**
@@ -12665,6 +12747,164 @@ public class DefaultApi {
         this.localCustomBaseUrl = customBaseUrl;
     }
 
+    private okhttp3.Call anyRequestResponseCall(Object body, final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = body;
+
+        // create path and map variables
+        String localVarPath = \\"/any-request-response\\";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            \\"application/json\\"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put(\\"Accept\\", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            \\"application/json\\"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put(\\"Content-Type\\", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, \\"PUT\\", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings(\\"rawtypes\\")
+    private okhttp3.Call anyRequestResponseValidateBeforeCall(Object body, final ApiCallback _callback) throws ApiException {
+        
+
+        okhttp3.Call localVarCall = anyRequestResponseCall(body, _callback);
+        return localVarCall;
+
+    }
+
+
+    private ApiResponse<Object> anyRequestResponseWithHttpInfo(Object body) throws ApiException {
+        okhttp3.Call localVarCall = anyRequestResponseValidateBeforeCall(body, null);
+        Type localVarReturnType = new TypeToken<Object>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    private okhttp3.Call anyRequestResponseAsync(Object body, final ApiCallback<Object> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = anyRequestResponseValidateBeforeCall(body, _callback);
+        Type localVarReturnType = new TypeToken<Object>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+
+    public class APIanyRequestResponseRequest {
+        private Object body;
+
+        private APIanyRequestResponseRequest() {
+        }
+
+        /**
+         * Set body
+         * @param body  (optional)
+         * @return APIanyRequestResponseRequest
+         */
+        public APIanyRequestResponseRequest body(Object body) {
+            this.body = body;
+            return this;
+        }
+
+        /**
+         * Build call for anyRequestResponse
+         * @param _callback ApiCallback API callback
+         * @return Call to execute
+         * @throws ApiException If fail to serialize the request body object
+         * @http.response.details
+         <table summary=\\"Response Details\\" border=\\"1\\">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Any response </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call buildCall(final ApiCallback _callback) throws ApiException {
+            return anyRequestResponseCall(body, _callback);
+        }
+
+        /**
+         * Execute anyRequestResponse request
+         * @return Object
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary=\\"Response Details\\" border=\\"1\\">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Any response </td><td>  -  </td></tr>
+         </table>
+         */
+        public Object execute() throws ApiException {
+            ApiResponse<Object> localVarResp = anyRequestResponseWithHttpInfo(body);
+            return localVarResp.getData();
+        }
+
+        /**
+         * Execute anyRequestResponse request with HTTP info returned
+         * @return ApiResponse&lt;Object&gt;
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary=\\"Response Details\\" border=\\"1\\">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Any response </td><td>  -  </td></tr>
+         </table>
+         */
+        public ApiResponse<Object> executeWithHttpInfo() throws ApiException {
+            return anyRequestResponseWithHttpInfo(body);
+        }
+
+        /**
+         * Execute anyRequestResponse request (asynchronously)
+         * @param _callback The callback to be executed when the API call finishes
+         * @return The request call
+         * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+         * @http.response.details
+         <table summary=\\"Response Details\\" border=\\"1\\">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Any response </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call executeAsync(final ApiCallback<Object> _callback) throws ApiException {
+            return anyRequestResponseAsync(body, _callback);
+        }
+    }
+
+    /**
+     * 
+     * 
+     * @return APIanyRequestResponseRequest
+     * @http.response.details
+     <table summary=\\"Response Details\\" border=\\"1\\">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> Any response </td><td>  -  </td></tr>
+     </table>
+     */
+    public APIanyRequestResponseRequest anyRequestResponse() {
+        return new APIanyRequestResponseRequest();
+    }
     private okhttp3.Call emptyCall(final ApiCallback _callback) throws ApiException {
         String basePath = null;
         // Operation Servers
@@ -13536,6 +13776,234 @@ public class Handlers {
                     });
                 }
             };
+        }
+    }
+
+    /**
+     * Response for the anyRequestResponse operation
+     */
+    public static interface AnyRequestResponseResponse extends Response {}
+
+    /**
+     * Response with status code 200 for the anyRequestResponse operation
+     */
+    public static class AnyRequestResponse200Response implements AnyRequestResponseResponse {
+        private String body;
+        private Map<String, String> headers;
+
+        private AnyRequestResponse200Response(final String body, final Map<String, String> headers) {
+            this.body = body;
+            this.headers = headers;
+        }
+
+        @Override
+        public int getStatusCode() {
+            return 200;
+        }
+
+        @Override
+        public String getBody() {
+            return this.body;
+        }
+
+        @Override
+        public Map<String, String> getHeaders() {
+            return this.headers;
+        }
+
+        /**
+         * Create a AnyRequestResponse200Response with a body
+         */
+        public static AnyRequestResponse200Response of(final String body) {
+            return new AnyRequestResponse200Response(body, new HashMap<>());
+        }
+
+        /**
+         * Create a AnyRequestResponse200Response with a body and headers
+         */
+        public static AnyRequestResponse200Response of(final String body, final Map<String, String> headers) {
+            return new AnyRequestResponse200Response(body, headers);
+        }
+    }
+
+    /**
+     * Single-value query and path parameters for the anyRequestResponse operation
+     */
+    public static class AnyRequestResponseRequestParameters {
+
+        public AnyRequestResponseRequestParameters(final APIGatewayProxyRequestEvent event) {
+            Map<String, String> parameters = new HashMap<>();
+            putAllFromNullableMap(event.getPathParameters(), parameters);
+            putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            Map<String, String> decodedParameters = decodeRequestParameters(parameters);
+
+        }
+
+    }
+
+    /**
+     * Multi-value query parameters for the anyRequestResponse operation
+     */
+    public static class AnyRequestResponseRequestArrayParameters {
+
+        public AnyRequestResponseRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
+            Map<String, List<String>> parameters = new HashMap<>();
+            putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
+
+        }
+
+    }
+
+    /**
+     * Input for the anyRequestResponse operation
+     */
+    public static class AnyRequestResponseInput {
+        private AnyRequestResponseRequestParameters requestParameters;
+        private AnyRequestResponseRequestArrayParameters requestArrayParameters;
+        private String body;
+
+        public AnyRequestResponseInput(final APIGatewayProxyRequestEvent event) {
+            this.requestParameters = new AnyRequestResponseRequestParameters(event);
+            this.requestArrayParameters = new AnyRequestResponseRequestArrayParameters(event);
+            this.body = event.getBody();
+        }
+
+        public AnyRequestResponseRequestParameters getRequestParameters() {
+            return this.requestParameters;
+        }
+
+        public AnyRequestResponseRequestArrayParameters getRequestArrayParameters() {
+            return this.requestArrayParameters;
+        }
+
+        public String getBody() {
+            return this.body;
+        }
+    }
+
+    /**
+     * Full request input for the anyRequestResponse operation, including the raw API Gateway event
+     */
+    public static class AnyRequestResponseRequestInput implements RequestInput<AnyRequestResponseInput> {
+        private APIGatewayProxyRequestEvent event;
+        private Context context;
+        private Map<String, Object> interceptorContext;
+        private AnyRequestResponseInput input;
+
+        public AnyRequestResponseRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final AnyRequestResponseInput input) {
+            this.event = event;
+            this.context = context;
+            this.interceptorContext = interceptorContext;
+            this.input = input;
+        }
+
+        /**
+         * Returns the typed request input, with path, query and body parameters
+         */
+        public AnyRequestResponseInput getInput() {
+            return this.input;
+        }
+
+        /**
+         * Returns the raw API Gateway event
+         */
+        public APIGatewayProxyRequestEvent getEvent() {
+            return this.event;
+        }
+
+        /**
+         * Returns the lambda context
+         */
+        public Context getContext() {
+            return this.context;
+        }
+
+        /**
+         * Returns the interceptor context, which may contain values set by request interceptors
+         */
+        public Map<String, Object> getInterceptorContext() {
+            return this.interceptorContext;
+        }
+    }
+
+    /**
+     * Lambda handler wrapper for the anyRequestResponse operation
+     */
+    public static abstract class AnyRequestResponse implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+        /**
+         * Handle the request for the anyRequestResponse operation
+         */
+        public abstract AnyRequestResponseResponse handle(final AnyRequestResponseRequestInput request);
+
+        /**
+         * For more complex interceptors that require instantiation with parameters, you may override this method to
+         * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+         * prefer the @Interceptors annotation.
+         */
+        public List<Interceptor<AnyRequestResponseInput>> getInterceptors() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            final Map<String, Object> interceptorContext = new HashMap<>();
+
+            // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
+            List<Interceptor<AnyRequestResponseInput>> interceptors = this.getClass().isAnnotationPresent(Interceptors.class)
+                    ? Arrays.stream(this.getClass().getAnnotation(Interceptors.class).value()).map(clazz -> {
+                        try {
+                            return (Interceptor<AnyRequestResponseInput>) clazz.getDeclaredConstructor().newInstance();
+                        } catch (Exception e) {
+                            throw new RuntimeException(String.format(
+                                    \\"Cannot create instance of interceptor %s. Please ensure it has a public constructor \\" +
+                                            \\"with no arguments, or override the getInterceptors method instead of using the annotation\\", clazz.getSimpleName()), e);
+                        }
+                     }).collect(Collectors.toList())
+                    : new ArrayList<>();
+
+            interceptors.addAll(this.getInterceptors());
+
+            final HandlerChain chain = buildHandlerChain(interceptors, new HandlerChain<AnyRequestResponseInput>() {
+                @Override
+                public Response next(ChainedRequestInput<AnyRequestResponseInput> input) {
+                    return handle(new AnyRequestResponseRequestInput(input.getEvent(), input.getContext(), input.getInterceptorContext(), input.getInput()));
+                }
+            });
+
+            final Response response = chain.next(new ChainedRequestInput<AnyRequestResponseInput>() {
+                @Override
+                public HandlerChain getChain() {
+                    // The chain's next method ignores the chain given as input, and is pre-built to follow the remaining
+                    // chain.
+                    return null;
+                }
+
+                @Override
+                public APIGatewayProxyRequestEvent getEvent() {
+                    return event;
+                }
+
+                @Override
+                public Context getContext() {
+                    return context;
+                }
+
+                @Override
+                public AnyRequestResponseInput getInput() {
+                    return new AnyRequestResponseInput(event);
+                }
+
+                @Override
+                public Map<String, Object> getInterceptorContext() {
+                    return interceptorContext;
+                }
+            });
+
+            return new APIGatewayProxyResponseEvent()
+                    .withStatusCode(response.getStatusCode())
+                    .withHeaders(response.getHeaders())
+                    .withBody(response.getBody());
         }
     }
 
@@ -14530,6 +14998,7 @@ import java.util.Map;
 @javax.annotation.Generated(value = \\"org.openapitools.codegen.languages.JavaClientCodegen\\")
 @lombok.Builder @lombok.Getter
 public class OperationConfig<T> {
+    private T anyRequestResponse;
     private T empty;
     private T mediaTypes;
     private T operationOne;
@@ -14537,6 +15006,7 @@ public class OperationConfig<T> {
 
     public Map<String, T> asMap() {
         Map<String, T> map = new HashMap<>();
+        map.put(\\"anyRequestResponse\\", this.anyRequestResponse);
         map.put(\\"empty\\", this.empty);
         map.put(\\"mediaTypes\\", this.mediaTypes);
         map.put(\\"operationOne\\", this.operationOne);
@@ -14568,6 +15038,7 @@ public class OperationLookup {
     public static Map<String, Map<String, String>> getOperationLookup() {
         final Map<String, Map<String, String>> config = new HashMap<>();
 
+        config.put(\\"anyRequestResponse\\", new HashMap<String, String>() { { put(\\"path\\", \\"/any-request-response\\"); put(\\"method\\", \\"PUT\\"); } });
         config.put(\\"empty\\", new HashMap<String, String>() { { put(\\"path\\", \\"/empty-response\\"); put(\\"method\\", \\"PUT\\"); } });
         config.put(\\"mediaTypes\\", new HashMap<String, String>() { { put(\\"path\\", \\"/different-media-type\\"); put(\\"method\\", \\"POST\\"); } });
         config.put(\\"operationOne\\", new HashMap<String, String>() { { put(\\"path\\", \\"/path/{pathParam}\\"); put(\\"method\\", \\"POST\\"); } });
@@ -15927,6 +16398,18 @@ import java.util.Map;
 public class DefaultApiTest {
 
     private final DefaultApi api = new DefaultApi();
+
+    /**
+     * @throws ApiException if the Api call fails
+     */
+    @Test
+    public void anyRequestResponseTest() throws ApiException {
+        Object body = null;
+        Object response = api.anyRequestResponse()
+                .body(body)
+                .execute();
+        // TODO: test validations
+    }
 
     /**
      * @throws ApiException if the Api call fails
