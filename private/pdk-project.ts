@@ -167,7 +167,7 @@ class PDKRelease extends Release {
       "npx license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
     );
     project.packageTask.exec(
-      "npx -p oss-attribution-generator@latest generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution"
+      "npx oss-attribution-generator generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution"
     );
     project.packageTask.spawn(project.tasks.tryFind("package-all")!);
     project.npmignore?.addPatterns("!LICENSE_THIRD_PARTY");
