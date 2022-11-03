@@ -61,6 +61,7 @@ async function main() {
   fs.writeFileSync(`${cwd}/build/docs/content/.pages.yml`,
     `${PAGES_YAML_TEMPLATE}${SUPPORTED_LANGUAGES
       .map((language) => `  - ${language.name}`)
+        .concat('  - troubleshooting')
       .join('\n')}`);
 
   const languages = SUPPORTED_LANGUAGES.map((l) => l.name);
