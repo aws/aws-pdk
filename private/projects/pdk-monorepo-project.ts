@@ -50,6 +50,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "eslint-plugin-header",
         "husky",
         "got@^11.8.5",
+        "license-checker",
+        "oss-attribution-generator",
       ],
       monorepoUpgradeDepsOptions: {
         syncpackConfig: { ...DEFAULT_CONFIG, workspace: false },
@@ -108,6 +110,20 @@ export class PDKMonorepoProject extends NxMonorepoProject {
 
     this.eslint?.addPlugins("header");
     this.eslint?.addRules({ "header/header": [2, "header.js"] });
+
+    // Do NOT lint packages files as they get linted by the package
+    this.eslint?.addIgnorePattern("packages/**/*.*");
+
+    this.addTask("eslint-staged", {
+      description:
+        "Run eslint against the workspace staged files only; excluding ./packages/ files.",
+      steps: [
+        {
+          // exlcude package files as they are run by the packages directly
+          exec: "eslint --fix --no-error-on-unmatched-pattern $(git diff --name-only --relative --staged HEAD . | grep -E '.(ts|tsx)$' | grep -v -E '^packages/' | xargs)",
+        },
+      ],
+    });
 
     this.addTask("prepare", {
       exec: "husky install",
