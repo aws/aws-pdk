@@ -14,6 +14,7 @@
  limitations under the License.
  ******************************************************************************************************************** */
 import { PDKProject } from "./private/pdk-project";
+import { AwsArchProject } from "./private/projects/aws-arch";
 import { AwsPrototypingSdkProject } from "./private/projects/aws-prototyping-sdk-project";
 import { CloudscapeReactTsWebsiteProject } from "./private/projects/cloudscape-react-ts-website";
 import { DocsProject } from "./private/projects/docs-project";
@@ -41,6 +42,7 @@ new StaticWebsiteProject(monorepoProject);
 new IdentityProject(monorepoProject);
 new OpenApiGatewayProject(monorepoProject);
 new CloudscapeReactTsWebsiteProject(monorepoProject);
+new AwsArchProject(monorepoProject);
 
 // implicit dependencies
 pipelineProject.samples.forEach((sample) =>
