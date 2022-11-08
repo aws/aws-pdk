@@ -18,6 +18,7 @@ import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { Aspects, CfnOutput, RemovalPolicy, Stack, Stage } from "aws-cdk-lib";
 import { Repository } from "aws-cdk-lib/aws-codecommit";
 import { Pipeline } from "aws-cdk-lib/aws-codepipeline";
+import { Key } from "aws-cdk-lib/aws-kms";
 import {
   BlockPublicAccess,
   Bucket,
@@ -116,14 +117,22 @@ export class PDKPipeline extends CodePipeline {
       enforceSSL: true,
       autoDeleteObjects: true,
       removalPolicy: RemovalPolicy.DESTROY,
-      encryption: BucketEncryption.S3_MANAGED,
+      encryption: props.crossAccountKeys
+        ? BucketEncryption.KMS
+        : BucketEncryption.S3_MANAGED,
+      encryptionKey: props.crossAccountKeys
+        ? new Key(scope, "ArtifactKey", {
+            enableKeyRotation: true,
+            removalPolicy: RemovalPolicy.DESTROY,
+          })
+        : undefined,
       publicReadAccess: false,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       serverAccessLogsPrefix: "access-logs",
     });
 
     const codePipeline = new Pipeline(scope, "CodePipeline", {
-      enableKeyRotation: true,
+      enableKeyRotation: props.crossAccountKeys,
       restartExecutionOnUpdate: true,
       crossAccountKeys: props.crossAccountKeys,
       artifactBucket,
@@ -231,6 +240,39 @@ export class PDKPipeline extends CodePipeline {
             {
               regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*$/g",
             },
+            {
+              regex: "/^Action::kms:ReEncrypt\\*$/g",
+            },
+            {
+              regex: "/^Action::kms:GenerateDataKey\\*$/g",
+            },
+          ],
+        },
+      ]
+    );
+
+    PDKNag.addResourceSuppressionsByPathNoThrow(
+      stack,
+      `${PDKNag.getStackPrefix(stack)}CodePipeline/Role/DefaultPolicy/Resource`,
+      [
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
+          appliesTo: [
+            {
+              regex: "/^Action::s3:.*$/g",
+            },
+          ],
+        },
+        {
+          id: "AwsSolutions-IAM5",
+          reason:
+            "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+          appliesTo: [
+            {
+              regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*$/g",
+            },
           ],
         },
       ]
@@ -260,6 +302,12 @@ export class PDKPipeline extends CodePipeline {
             {
               regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*$/g",
             },
+            {
+              regex: "/^Action::kms:ReEncrypt\\*$/g",
+            },
+            {
+              regex: "/^Action::kms:GenerateDataKey\\*$/g",
+            },
           ],
         },
       ]
@@ -288,6 +336,12 @@ export class PDKPipeline extends CodePipeline {
           appliesTo: [
             {
               regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*$/g",
+            },
+            {
+              regex: "/^Action::kms:ReEncrypt\\*$/g",
+            },
+            {
+              regex: "/^Action::kms:GenerateDataKey\\*$/g",
             },
           ],
         },
@@ -468,6 +522,12 @@ export class PDKPipeline extends CodePipeline {
           appliesTo: [
             {
               regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*$/g",
+            },
+            {
+              regex: "/^Action::kms:ReEncrypt\\*$/g",
+            },
+            {
+              regex: "/^Action::kms:GenerateDataKey\\*$/g",
             },
           ],
         },
