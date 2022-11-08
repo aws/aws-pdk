@@ -1221,7 +1221,12 @@ Object {
           \\"Type\\": \\"NO_CACHE\\",
         },
         \\"Description\\": \\"Pipeline step pipeline-test/CodePipeline/UpdatePipeline/SelfMutate\\",
-        \\"EncryptionKey\\": \\"alias/aws/s3\\",
+        \\"EncryptionKey\\": Object {
+          \\"Fn::GetAtt\\": Array [
+            \\"ArtifactKey8D84C5F0\\",
+            \\"Arn\\",
+          ],
+        },
         \\"Environment\\": Object {
           \\"ComputeType\\": \\"BUILD_GENERAL1_SMALL\\",
           \\"Image\\": \\"aws/codebuild/standard:5.0\\",
@@ -1350,6 +1355,21 @@ Object {
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
               \\"reason\\": \\"CodePipeline requires access to manage logs and streams whose names are dynamically determined.\\",
+            },
+            Object {
+              \\"applies_to\\": Array [
+                Object {
+                  \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
+                },
+              ],
+              \\"id\\": \\"AwsSolutions-IAM5\\",
+              \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
             },
           ],
         },
@@ -1513,6 +1533,34 @@ Object {
                 },
               ],
             },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
@@ -1525,6 +1573,42 @@ Object {
       },
       \\"Type\\": \\"AWS::IAM::Policy\\",
     },
+    \\"ArtifactKey8D84C5F0\\": Object {
+      \\"DeletionPolicy\\": \\"Delete\\",
+      \\"Properties\\": Object {
+        \\"EnableKeyRotation\\": true,
+        \\"KeyPolicy\\": Object {
+          \\"Statement\\": Array [
+            Object {
+              \\"Action\\": \\"kms:*\\",
+              \\"Effect\\": \\"Allow\\",
+              \\"Principal\\": Object {
+                \\"AWS\\": Object {
+                  \\"Fn::Join\\": Array [
+                    \\"\\",
+                    Array [
+                      \\"arn:\\",
+                      Object {
+                        \\"Ref\\": \\"AWS::Partition\\",
+                      },
+                      \\":iam::\\",
+                      Object {
+                        \\"Ref\\": \\"AWS::AccountId\\",
+                      },
+                      \\":root\\",
+                    ],
+                  ],
+                },
+              },
+              \\"Resource\\": \\"*\\",
+            },
+          ],
+          \\"Version\\": \\"2012-10-17\\",
+        },
+      },
+      \\"Type\\": \\"AWS::KMS::Key\\",
+      \\"UpdateReplacePolicy\\": \\"Delete\\",
+    },
     \\"ArtifactsBucket2AAC5544\\": Object {
       \\"DeletionPolicy\\": \\"Delete\\",
       \\"Properties\\": Object {
@@ -1532,7 +1616,13 @@ Object {
           \\"ServerSideEncryptionConfiguration\\": Array [
             Object {
               \\"ServerSideEncryptionByDefault\\": Object {
-                \\"SSEAlgorithm\\": \\"AES256\\",
+                \\"KMSMasterKeyID\\": Object {
+                  \\"Fn::GetAtt\\": Array [
+                    \\"ArtifactKey8D84C5F0\\",
+                    \\"Arn\\",
+                  ],
+                },
+                \\"SSEAlgorithm\\": \\"aws:kms\\",
               },
             },
           ],
@@ -1667,6 +1757,15 @@ Object {
       ],
       \\"Properties\\": Object {
         \\"ArtifactStore\\": Object {
+          \\"EncryptionKey\\": Object {
+            \\"Id\\": Object {
+              \\"Fn::GetAtt\\": Array [
+                \\"ArtifactKey8D84C5F0\\",
+                \\"Arn\\",
+              ],
+            },
+            \\"Type\\": \\"KMS\\",
+          },
           \\"Location\\": Object {
             \\"Ref\\": \\"ArtifactsBucket2AAC5544\\",
           },
@@ -1806,7 +1905,12 @@ Object {
           \\"Type\\": \\"NO_CACHE\\",
         },
         \\"Description\\": \\"Pipeline step pipeline-test/CodePipeline/Build/Synth\\",
-        \\"EncryptionKey\\": \\"alias/aws/s3\\",
+        \\"EncryptionKey\\": Object {
+          \\"Fn::GetAtt\\": Array [
+            \\"ArtifactKey8D84C5F0\\",
+            \\"Arn\\",
+          ],
+        },
         \\"Environment\\": Object {
           \\"ComputeType\\": \\"BUILD_GENERAL1_SMALL\\",
           \\"Image\\": \\"aws/codebuild/standard:5.0\\",
@@ -1888,6 +1992,12 @@ Object {
               \\"applies_to\\": Array [
                 Object {
                   \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
                 },
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
@@ -2045,6 +2155,37 @@ Object {
                 },
               ],
             },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
@@ -2152,6 +2293,21 @@ Object {
                 Object {
                   \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
                 },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
+                },
+              ],
+              \\"id\\": \\"AwsSolutions-IAM5\\",
+              \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
+            },
+            Object {
+              \\"applies_to\\": Array [
+                Object {
+                  \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
+                },
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
               \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
@@ -2198,6 +2354,22 @@ Object {
                   ],
                 },
               ],
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
             },
             Object {
               \\"Action\\": \\"sts:AssumeRole\\",
@@ -2281,6 +2453,12 @@ Object {
                 Object {
                   \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
                 },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
+                },
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
               \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
@@ -2327,6 +2505,22 @@ Object {
                   ],
                 },
               ],
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
             },
             Object {
               \\"Action\\": Array [
@@ -3847,7 +4041,12 @@ Object {
           \\"Type\\": \\"NO_CACHE\\",
         },
         \\"Description\\": \\"Pipeline step pipeline-test/CodePipeline/UpdatePipeline/SelfMutate\\",
-        \\"EncryptionKey\\": \\"alias/aws/s3\\",
+        \\"EncryptionKey\\": Object {
+          \\"Fn::GetAtt\\": Array [
+            \\"ArtifactKey8D84C5F0\\",
+            \\"Arn\\",
+          ],
+        },
         \\"Environment\\": Object {
           \\"ComputeType\\": \\"BUILD_GENERAL1_SMALL\\",
           \\"Image\\": \\"aws/codebuild/standard:5.0\\",
@@ -3976,6 +4175,21 @@ Object {
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
               \\"reason\\": \\"CodePipeline requires access to manage logs and streams whose names are dynamically determined.\\",
+            },
+            Object {
+              \\"applies_to\\": Array [
+                Object {
+                  \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
+                },
+              ],
+              \\"id\\": \\"AwsSolutions-IAM5\\",
+              \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
             },
           ],
         },
@@ -4139,6 +4353,34 @@ Object {
                 },
               ],
             },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
@@ -4151,6 +4393,42 @@ Object {
       },
       \\"Type\\": \\"AWS::IAM::Policy\\",
     },
+    \\"ArtifactKey8D84C5F0\\": Object {
+      \\"DeletionPolicy\\": \\"Delete\\",
+      \\"Properties\\": Object {
+        \\"EnableKeyRotation\\": true,
+        \\"KeyPolicy\\": Object {
+          \\"Statement\\": Array [
+            Object {
+              \\"Action\\": \\"kms:*\\",
+              \\"Effect\\": \\"Allow\\",
+              \\"Principal\\": Object {
+                \\"AWS\\": Object {
+                  \\"Fn::Join\\": Array [
+                    \\"\\",
+                    Array [
+                      \\"arn:\\",
+                      Object {
+                        \\"Ref\\": \\"AWS::Partition\\",
+                      },
+                      \\":iam::\\",
+                      Object {
+                        \\"Ref\\": \\"AWS::AccountId\\",
+                      },
+                      \\":root\\",
+                    ],
+                  ],
+                },
+              },
+              \\"Resource\\": \\"*\\",
+            },
+          ],
+          \\"Version\\": \\"2012-10-17\\",
+        },
+      },
+      \\"Type\\": \\"AWS::KMS::Key\\",
+      \\"UpdateReplacePolicy\\": \\"Delete\\",
+    },
     \\"ArtifactsBucket2AAC5544\\": Object {
       \\"DeletionPolicy\\": \\"Delete\\",
       \\"Properties\\": Object {
@@ -4158,7 +4436,13 @@ Object {
           \\"ServerSideEncryptionConfiguration\\": Array [
             Object {
               \\"ServerSideEncryptionByDefault\\": Object {
-                \\"SSEAlgorithm\\": \\"AES256\\",
+                \\"KMSMasterKeyID\\": Object {
+                  \\"Fn::GetAtt\\": Array [
+                    \\"ArtifactKey8D84C5F0\\",
+                    \\"Arn\\",
+                  ],
+                },
+                \\"SSEAlgorithm\\": \\"aws:kms\\",
               },
             },
           ],
@@ -4293,6 +4577,15 @@ Object {
       ],
       \\"Properties\\": Object {
         \\"ArtifactStore\\": Object {
+          \\"EncryptionKey\\": Object {
+            \\"Id\\": Object {
+              \\"Fn::GetAtt\\": Array [
+                \\"ArtifactKey8D84C5F0\\",
+                \\"Arn\\",
+              ],
+            },
+            \\"Type\\": \\"KMS\\",
+          },
           \\"Location\\": Object {
             \\"Ref\\": \\"ArtifactsBucket2AAC5544\\",
           },
@@ -4432,7 +4725,12 @@ Object {
           \\"Type\\": \\"NO_CACHE\\",
         },
         \\"Description\\": \\"Pipeline step pipeline-test/CodePipeline/Build/Synth\\",
-        \\"EncryptionKey\\": \\"alias/aws/s3\\",
+        \\"EncryptionKey\\": Object {
+          \\"Fn::GetAtt\\": Array [
+            \\"ArtifactKey8D84C5F0\\",
+            \\"Arn\\",
+          ],
+        },
         \\"Environment\\": Object {
           \\"ComputeType\\": \\"BUILD_GENERAL1_SMALL\\",
           \\"Image\\": \\"aws/codebuild/standard:5.0\\",
@@ -4514,6 +4812,12 @@ Object {
               \\"applies_to\\": Array [
                 Object {
                   \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
                 },
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
@@ -4671,6 +4975,37 @@ Object {
                 },
               ],
             },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
@@ -4778,6 +5113,21 @@ Object {
                 Object {
                   \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
                 },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
+                },
+              ],
+              \\"id\\": \\"AwsSolutions-IAM5\\",
+              \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
+            },
+            Object {
+              \\"applies_to\\": Array [
+                Object {
+                  \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
+                },
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
               \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
@@ -4824,6 +5174,22 @@ Object {
                   ],
                 },
               ],
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
             },
             Object {
               \\"Action\\": \\"sts:AssumeRole\\",
@@ -4907,6 +5273,12 @@ Object {
                 Object {
                   \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
                 },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
+                },
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
               \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
@@ -4953,6 +5325,22 @@ Object {
                   ],
                 },
               ],
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
             },
             Object {
               \\"Action\\": Array [
@@ -6488,7 +6876,12 @@ Object {
           \\"Type\\": \\"NO_CACHE\\",
         },
         \\"Description\\": \\"Pipeline step pipeline-test/CodePipeline/UpdatePipeline/SelfMutate\\",
-        \\"EncryptionKey\\": \\"alias/aws/s3\\",
+        \\"EncryptionKey\\": Object {
+          \\"Fn::GetAtt\\": Array [
+            \\"ArtifactKey8D84C5F0\\",
+            \\"Arn\\",
+          ],
+        },
         \\"Environment\\": Object {
           \\"ComputeType\\": \\"BUILD_GENERAL1_SMALL\\",
           \\"Image\\": \\"aws/codebuild/standard:5.0\\",
@@ -6617,6 +7010,21 @@ Object {
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
               \\"reason\\": \\"CodePipeline requires access to manage logs and streams whose names are dynamically determined.\\",
+            },
+            Object {
+              \\"applies_to\\": Array [
+                Object {
+                  \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
+                },
+              ],
+              \\"id\\": \\"AwsSolutions-IAM5\\",
+              \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
             },
           ],
         },
@@ -6780,6 +7188,34 @@ Object {
                 },
               ],
             },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
@@ -6792,6 +7228,42 @@ Object {
       },
       \\"Type\\": \\"AWS::IAM::Policy\\",
     },
+    \\"ArtifactKey8D84C5F0\\": Object {
+      \\"DeletionPolicy\\": \\"Delete\\",
+      \\"Properties\\": Object {
+        \\"EnableKeyRotation\\": true,
+        \\"KeyPolicy\\": Object {
+          \\"Statement\\": Array [
+            Object {
+              \\"Action\\": \\"kms:*\\",
+              \\"Effect\\": \\"Allow\\",
+              \\"Principal\\": Object {
+                \\"AWS\\": Object {
+                  \\"Fn::Join\\": Array [
+                    \\"\\",
+                    Array [
+                      \\"arn:\\",
+                      Object {
+                        \\"Ref\\": \\"AWS::Partition\\",
+                      },
+                      \\":iam::\\",
+                      Object {
+                        \\"Ref\\": \\"AWS::AccountId\\",
+                      },
+                      \\":root\\",
+                    ],
+                  ],
+                },
+              },
+              \\"Resource\\": \\"*\\",
+            },
+          ],
+          \\"Version\\": \\"2012-10-17\\",
+        },
+      },
+      \\"Type\\": \\"AWS::KMS::Key\\",
+      \\"UpdateReplacePolicy\\": \\"Delete\\",
+    },
     \\"ArtifactsBucket2AAC5544\\": Object {
       \\"DeletionPolicy\\": \\"Delete\\",
       \\"Properties\\": Object {
@@ -6799,7 +7271,13 @@ Object {
           \\"ServerSideEncryptionConfiguration\\": Array [
             Object {
               \\"ServerSideEncryptionByDefault\\": Object {
-                \\"SSEAlgorithm\\": \\"AES256\\",
+                \\"KMSMasterKeyID\\": Object {
+                  \\"Fn::GetAtt\\": Array [
+                    \\"ArtifactKey8D84C5F0\\",
+                    \\"Arn\\",
+                  ],
+                },
+                \\"SSEAlgorithm\\": \\"aws:kms\\",
               },
             },
           ],
@@ -6934,6 +7412,15 @@ Object {
       ],
       \\"Properties\\": Object {
         \\"ArtifactStore\\": Object {
+          \\"EncryptionKey\\": Object {
+            \\"Id\\": Object {
+              \\"Fn::GetAtt\\": Array [
+                \\"ArtifactKey8D84C5F0\\",
+                \\"Arn\\",
+              ],
+            },
+            \\"Type\\": \\"KMS\\",
+          },
           \\"Location\\": Object {
             \\"Ref\\": \\"ArtifactsBucket2AAC5544\\",
           },
@@ -7073,7 +7560,12 @@ Object {
           \\"Type\\": \\"NO_CACHE\\",
         },
         \\"Description\\": \\"Pipeline step pipeline-test/CodePipeline/Build/Synth\\",
-        \\"EncryptionKey\\": \\"alias/aws/s3\\",
+        \\"EncryptionKey\\": Object {
+          \\"Fn::GetAtt\\": Array [
+            \\"ArtifactKey8D84C5F0\\",
+            \\"Arn\\",
+          ],
+        },
         \\"Environment\\": Object {
           \\"ComputeType\\": \\"BUILD_GENERAL1_SMALL\\",
           \\"Image\\": \\"aws/codebuild/standard:5.0\\",
@@ -7155,6 +7647,12 @@ Object {
               \\"applies_to\\": Array [
                 Object {
                   \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
                 },
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
@@ -7312,6 +7810,37 @@ Object {
                 },
               ],
             },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
+            },
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
@@ -7419,6 +7948,21 @@ Object {
                 Object {
                   \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
                 },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
+                },
+              ],
+              \\"id\\": \\"AwsSolutions-IAM5\\",
+              \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
+            },
+            Object {
+              \\"applies_to\\": Array [
+                Object {
+                  \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
+                },
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
               \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
@@ -7465,6 +8009,22 @@ Object {
                   ],
                 },
               ],
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
             },
             Object {
               \\"Action\\": \\"sts:AssumeRole\\",
@@ -7548,6 +8108,12 @@ Object {
                 Object {
                   \\"regex\\": \\"/^Resource::<ArtifactsBucket.*.Arn>/\\\\\\\\\\\\\\\\*$/g\\",
                 },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:ReEncrypt\\\\\\\\\\\\\\\\*$/g\\",
+                },
+                Object {
+                  \\"regex\\": \\"/^Action::kms:GenerateDataKey\\\\\\\\\\\\\\\\*$/g\\",
+                },
               ],
               \\"id\\": \\"AwsSolutions-IAM5\\",
               \\"reason\\": \\"CodePipeline requires access to any and all artifacts in the ArtifactsBucket.\\",
@@ -7594,6 +8160,22 @@ Object {
                   ],
                 },
               ],
+            },
+            Object {
+              \\"Action\\": Array [
+                \\"kms:Decrypt\\",
+                \\"kms:DescribeKey\\",
+                \\"kms:Encrypt\\",
+                \\"kms:ReEncrypt*\\",
+                \\"kms:GenerateDataKey*\\",
+              ],
+              \\"Effect\\": \\"Allow\\",
+              \\"Resource\\": Object {
+                \\"Fn::GetAtt\\": Array [
+                  \\"ArtifactKey8D84C5F0\\",
+                  \\"Arn\\",
+                ],
+              },
             },
             Object {
               \\"Action\\": Array [
