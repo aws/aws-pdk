@@ -91,9 +91,10 @@ export class AwsArchProject extends PDKProject {
       ),
     });
 
-    const prebuildTask = this.addTask("prebuild", {
+    const lazyGenerate = this.addTask("generate:lazy", {
       condition: '[ ! -d "./assets" ]',
     });
-    prebuildTask.spawn(generateTask);
+    lazyGenerate.spawn(generateTask);
+    this.preCompileTask.spawn(lazyGenerate);
   }
 }
