@@ -31,6 +31,7 @@ describe("PDK Pipeline Unit Tests", () => {
       primarySynthDirectory: "cdk.out",
       repositoryName: "Defaults",
       synth: {},
+      crossAccountKeys: false,
       sonarCodeScannerConfig: {
         sonarqubeAuthorizedGroup: "dev",
         sonarqubeDefaultProfileOrGateName: "dev",
@@ -48,6 +49,40 @@ describe("PDK Pipeline Unit Tests", () => {
     pipeline.addStage(stage);
     pipeline.buildPipeline();
 
+    app.synth();
+    expect(app.nagResults().length).toEqual(0);
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("CrossAccount", () => {
+    const app = PDKNag.app();
+    const stack = new Stack(app);
+
+    const pipeline = new PDKPipeline(stack, "CrossAccount", {
+      primarySynthDirectory: "cdk.out",
+      repositoryName: "Defaults",
+      synth: {},
+      crossAccountKeys: true,
+      sonarCodeScannerConfig: {
+        sonarqubeAuthorizedGroup: "dev",
+        sonarqubeDefaultProfileOrGateName: "dev",
+        sonarqubeEndpoint: "https://sonar.dev",
+        sonarqubeProjectName: "Default",
+      },
+    });
+
+    const stage = new Stage(app, "Stage");
+    const appStack = new Stack(stage, "AppStack");
+    new Asset(appStack, "Asset", {
+      path: path.join(__dirname, "pdk-pipeline.test.ts"),
+    });
+
+    pipeline.addStage(stage);
+    pipeline.buildPipeline();
+
+    app.synth();
+    console.log(JSON.stringify(app.nagResults()));
+    expect(app.nagResults().length).toEqual(0);
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
 
