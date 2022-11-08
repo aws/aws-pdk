@@ -94,6 +94,7 @@ export class AwsArchProject extends PDKProject {
     const prebuildTask = this.addTask("prebuild", {
       condition: '[ ! -d "./assets" ]',
     });
+    this.preCompileTask.spawn(prebuildTask);
     prebuildTask.spawn(generateTask);
   }
 }
