@@ -14,3 +14,4 @@
  limitations under the License.
  ******************************************************************************************************************** */
 export * from "./pdk-nag";
+export * from "./packs/aws-prototyping";
