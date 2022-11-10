@@ -41,6 +41,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       name: "aws-prototyping-sdk-monorepo",
       devDeps: [
         "nx",
+        "lerna",
         "@nrwl/devkit",
         "@aws-prototyping-sdk/nx-monorepo@0.0.0",
         "@aws-prototyping-sdk/pipeline@0.0.0",
