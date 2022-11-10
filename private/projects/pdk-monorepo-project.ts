@@ -48,7 +48,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "@commitlint/config-conventional",
         "cz-conventional-changelog",
         "eslint-plugin-header",
-          "lerna",
+        "lerna",
         "husky",
         "got@^11.8.5",
         "license-checker",
