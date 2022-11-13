@@ -757,6 +757,25 @@ export class AwsArchitecture {
   }
 
   /**
+   * Get icon for RDS instance type.
+   * @param instanceType - The {@link AwsAsset.RdsInstanceType} to get icon for
+   * @param {IconFormats} format - The format of icon.
+   * @param {ThemesEnum} [theme] - Optional theme
+   * @returns Returns relative asset icon path
+   */
+  static getRdsInstanceTypeIcon(
+    instanceType: AwsAsset.RdsInstanceType,
+    format: "png" | "svg" = "png",
+    theme?: ThemesEnum
+  ): string {
+    return this.formatAssetPath(
+      AwsAsset.RdsInstanceTypes[instanceType],
+      format,
+      theme
+    );
+  }
+
+  /**
    * Resolve relative asset path to absolute asset path.
    * @param assetPath - The relative asset path to resolve.
    * @returns {string} Absolute asset path

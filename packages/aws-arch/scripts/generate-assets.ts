@@ -47,6 +47,7 @@ const ASSET_PATTERNS = {
   CATEGORY: /Category-Icons_\d+\/Arch-Category_64\/Arch-Category_(?<category>[^_]+)_64\.svg$/,
   SERVICE: /Architecture-Service-Icons_\d+\/Arch_(?<category>[^/]+)\/(Arch_)?64\/Arch_(?<serviceName>[^_]+)_64\.svg$/,
   RESOURCE: /Resource-Icons_\d+\/Res_(?<category>[^/]+)\/Res_48_(Light|Dark)\/Res_(?<serviceName>[^_]+)_(?<resourceName>[^_ ]+) ?_48_((?<theme>Light|Dark))\.svg$/,
+  RDS_INSTANCE: /Resource-Icons_\d+\/Res_(?<category>database)\/Res_48_(Light|Dark)\/Res_(?:(?<serviceName>[^_]+)_)?(?<instanceType>[^_ ]+) ?-Instance(?<alt>-Al?ternat(?:e|ative)?)?_48_((?<theme>Light|Dark))\.svg$/i,
   GENERAL: /(Arch|Res)_General-Icons\/(64|Res_48_(Light|Dark))\/(Arch|Res)_(?<generalIcon>[^_]+)_.*(?<theme>Light|Dark).*\.svg$/,
 };
 
@@ -113,6 +114,7 @@ export async function generate () {
   const resources = new Set<[string, string]>();
   const generalIcons = new Set<[string, string]>();
   const instanceTypes = new Set<[string, string]>();
+  const rdsInstanceTypes = new Set<[string, string]>();
   const iotThings = new Set<[string, string]>();
 
   // Unzip all .svg files (png resources are low-res of 48px only, so we generate them from svg)
@@ -126,7 +128,54 @@ export async function generate () {
     let extract = false;
 
     if (type === 'File' && !fileName.startsWith('.')) {
-      if (entryPath.match(ASSET_PATTERNS.RESOURCE)) {
+      if (entryPath.match(ASSET_PATTERNS.RDS_INSTANCE)) {
+        let { category, instanceType, alt, theme } = entryPath.match(ASSET_PATTERNS.RDS_INSTANCE)!.groups! as { category: string, theme: string, instanceType: string, alt?: string };
+        category = findAwsCategoryDefinition(normalizeIdentifier(category)).id;
+        instanceType = normalizeIdentifier(instanceType);
+        theme = normalizeIdentifier(theme);
+        const serviceName = resolveServiceName("rds");
+
+        // All db asset icons start with some variation of "Amazon-Aurora" prefix, even though they do not belong under Aurora
+        // Example: Res_Amazon-Aurora-Oracle-Instance_48_Light, Res_Amazon-Aurora-Oracle-Instance_48_Light
+        if (instanceType === "rds") {
+          instanceType = "instance";
+        } else if (instanceType !== "aurora") {
+          // only treat the actual "aurora" type as aurora and all others as "rds" types
+          instanceType = instanceType.replace("aurora_", "");
+          instanceType = instanceType.replace("rds_", "");
+          // squash value to align with resource engine values (eg: sql_server => sqlserver)
+          // https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-rds-dbinstance.html#cfn-rds-dbinstance-engine
+          instanceType = instanceType.replace("_", "");
+        }
+
+        if (alt) {
+          instanceType += "_alt"
+        }
+
+        let key: string;
+
+        // Treat default RDS instance as resource of rds, rather than an instance type
+        if (instanceType === "instance" || instanceType === "instance_alt") {
+          key = path.join(category, serviceName, instanceType);
+
+          if (!alt && theme === DEFAULT_THEME) {
+            resources.add(["rds_instance", key]);
+            fullNameLookup["rds_instance"] = "RDS Instance";
+          }
+        } else {
+          key = path.join(category, serviceName, "instance", instanceType);
+
+          if (theme === DEFAULT_THEME) {
+            rdsInstanceTypes.add([instanceType, key]);
+          }
+        }
+        if (theme !== DEFAULT_THEME) {
+          key += `.${theme}`;
+        }
+
+        fileName = key + ext;
+        extract = true;
+      } else if (entryPath.match(ASSET_PATTERNS.RESOURCE)) {
         let { category, serviceName, resourceName, theme } = entryPath.match(ASSET_PATTERNS.RESOURCE)!.groups! as { category: string, serviceName: string, theme: string, resourceName: string };
         const serviceFullName = interpolateFullName(serviceName);
         const resourceFullName = interpolateFullName(resourceName);
@@ -278,6 +327,10 @@ export namespace AwsAsset {
   export const InstanceTypes = ${JSON.stringify(sortedObjectFromEntries(instanceTypes), null, 4)} as const;
 
   export type InstanceType = keyof typeof InstanceTypes;
+
+  export const RdsInstanceTypes = ${JSON.stringify(sortedObjectFromEntries(rdsInstanceTypes), null, 4)} as const;
+
+  export type RdsInstanceType = keyof typeof RdsInstanceTypes;
 
   export const IotThings = ${JSON.stringify(sortedObjectFromEntries(iotThings), null, 4)} as const;
 
