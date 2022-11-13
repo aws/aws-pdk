@@ -25,9 +25,12 @@ export const NORMALIZED_RESOURCE_VARIANTS: {
   iot_device_defender_iot_device_jobs: ["iot_device_jobs_resource"],
   ebs_multiple_volumes: ["multiple_volumes_resource", "multiple_volumes"],
   eventbridge_saas_partner_event: ["saas_event_bus_resource"],
+  lambda_lambda_function: ["lambda_function"],
   managed_blockchain_blockchain: ["qldb"],
   rds_instance: ["rds_dbinstance"],
   transfer_family_ftp: ["transfer_for_ftp_resource"],
   transfer_family_ftps: ["transfer_for_ftps_resource"],
   transfer_family_sftp: ["transfer_for_sftp_resource"],
+  vpc_elastic_network_interface: ["ec2_network_interface"],
+  vpc_network_access_control_list: ["ec2_network_acl"],
 };

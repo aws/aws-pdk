@@ -61,6 +61,7 @@ const DEFAULT_THEME = 'light';
 // Lots of services have logs, rules, policies, which are pulled from IAM
 // TODO: convert generic assets to grayscale
 const GENERAL_ALIASES = {
+  acl: 'networking_content_delivery/vpc/network_access_control_list',
   alarm: 'management_governance/cloudwatch/alarm',
   attachment: 'networking_content_delivery/transit_gateway/attachment',
   config: 'general/gear',
@@ -68,6 +69,7 @@ const GENERAL_ALIASES = {
   credentials_long: 'security_identity_compliance/iam/long_term_security_credential',
   credentials_temp: 'security_identity_compliance/iam/temporary_security_credential',
   encrypted_data: 'security_identity_compliance/iam/encrypted_data',
+  eni: 'networking_content_delivery/vpc/elastic_network_interface',
   event: 'management_governance/cloudwatch/event_event_based',
   interactive_video: 'general/multimedia',
   key: 'security_identity_compliance/iam/permissions',
