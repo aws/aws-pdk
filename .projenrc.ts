@@ -4,6 +4,7 @@ import { PDKProject } from "./private/pdk-project";
 import { AwsArchProject } from "./private/projects/aws-arch";
 import { AwsPrototypingSdkProject } from "./private/projects/aws-prototyping-sdk-project";
 import { CdkGraphProject } from "./private/projects/cdk-graph";
+import { CdkGraphPluginDiagramProject } from "./private/projects/cdk-graph-plugin-diagram";
 import { CloudscapeReactTsWebsiteProject } from "./private/projects/cloudscape-react-ts-website";
 import { DocsProject } from "./private/projects/docs-project";
 import { IdentityProject } from "./private/projects/identity-project";
@@ -32,6 +33,7 @@ new OpenApiGatewayProject(monorepoProject);
 new CloudscapeReactTsWebsiteProject(monorepoProject);
 new AwsArchProject(monorepoProject);
 new CdkGraphProject(monorepoProject);
+new CdkGraphPluginDiagramProject(monorepoProject);
 
 // implicit dependencies
 pipelineProject.samples.forEach((sample) =>

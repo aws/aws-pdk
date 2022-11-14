@@ -1,0 +1,139 @@
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
+import * as path from "path";
+import {
+  CdkGraph,
+  FilterPreset,
+  getConstructUUID,
+} from "@aws-prototyping-sdk/cdk-graph";
+import { FixtureApp } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
+import * as fs from "fs-extra";
+import { toMatchImageSnapshot } from "jest-image-snapshot";
+import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
+import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";
+
+jest.setTimeout(30000);
+
+expect.extend({ toMatchImageSnapshot });
+
+async function getCdkOutDir(name: string): Promise<string> {
+  const dir = path.join(__dirname, "..", ".tmp", "config", name, "cdk.out");
+
+  await fs.ensureDir(dir);
+  await fs.emptyDir(dir);
+
+  return dir;
+}
+
+describe("config", () => {
+  describe("default", () => {
+    let outdir: string;
+    let app: FixtureApp;
+    let graph: CdkGraph;
+    let plugin: CdkGraphDiagramPlugin;
+
+    beforeAll(async () => {
+      outdir = await getCdkOutDir("default");
+
+      app = new FixtureApp({ outdir });
+      plugin = new CdkGraphDiagramPlugin();
+      graph = new CdkGraph(app, {
+        plugins: [plugin],
+      });
+      app.synth();
+      await graph.report();
+    });
+
+    it("should generate default diagram", async () => {
+      expect(plugin.defaultDotArtifact).toBeDefined();
+      expect(
+        await fs.pathExists(plugin.defaultDotArtifact!.filepath)
+      ).toBeTruthy();
+      expect(
+        await fs.readFile(plugin.defaultDotArtifact!.filepath, {
+          encoding: "utf-8",
+        })
+      ).toMatchSnapshot();
+
+      expect(
+        await sharp(plugin.defaultPngArtifact!.filepath).toBuffer()
+      ).toMatchImageSnapshot();
+    });
+  });
+  describe("plan", () => {
+    let outdir: string;
+    let app: FixtureApp;
+    let graph: CdkGraph;
+    let plugin: CdkGraphDiagramPlugin;
+
+    beforeAll(async () => {
+      outdir = await getCdkOutDir("default");
+
+      app = new FixtureApp({ outdir });
+      plugin = new CdkGraphDiagramPlugin({
+        diagrams: [
+          {
+            name: "compact",
+            title: "Compact Diagram",
+            filterPlan: {
+              preset: FilterPreset.COMPACT,
+            },
+          },
+          {
+            name: "verbose",
+            title: "Verbose Diagram",
+            format: DiagramFormat.PNG,
+            ignoreDefaults: true,
+          },
+          {
+            name: "focus",
+            title: "Focus Lambda Diagram (non-extraneous)",
+            filterPlan: {
+              focus: (store) =>
+                store.getNode(getConstructUUID(app.stack.lambda)),
+              preset: FilterPreset.NON_EXTRANEOUS,
+            },
+            ignoreDefaults: true,
+          },
+          {
+            name: "focus-nohoist",
+            title: "Focus WebServer Diagram (noHoist, verbose)",
+            filterPlan: {
+              focus: {
+                node: (store) =>
+                  store.getNode(getConstructUUID(app.stack.webServer)),
+                noHoist: true,
+              },
+            },
+            ignoreDefaults: true,
+          },
+        ],
+      });
+      graph = new CdkGraph(app, {
+        plugins: [plugin],
+      });
+      app.synth();
+      await graph.report();
+    });
+
+    it("should not generate default diagram", async () => {
+      expect(plugin.defaultDotArtifact).not.toBeDefined();
+    });
+
+    it.each(["compact", "verbose", "focus", "focus-nohoist"])(
+      "%s",
+      async (diagramName) => {
+        const artifact = plugin.getDiagramArtifact(
+          diagramName,
+          DiagramFormat.PNG
+        );
+        expect(artifact).toBeDefined();
+        expect(await fs.pathExists(artifact!.filepath)).toBeTruthy();
+
+        expect(
+          await sharp(artifact!.filepath).toBuffer()
+        ).toMatchImageSnapshot();
+      }
+    );
+  });
+});
