@@ -1,18 +1,5 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 
 import path from "path";
 import { Project } from "projen";
@@ -25,6 +12,16 @@ import {
 } from "../../packages/nx-monorepo/src";
 
 export const JEST_VERSION = "^27"; // This is needed due to: https://github.com/aws/jsii/issues/3619
+const HEADER_RULE = {
+  "header/header": [
+    2,
+    "block",
+    [
+      "! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.",
+      "SPDX-License-Identifier: Apache-2.0 ",
+    ],
+  ],
+};
 
 /**
  * Contains configuration for the PDK monorepo (root package).
@@ -109,7 +106,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     });
 
     this.eslint?.addPlugins("header");
-    this.eslint?.addRules({ "header/header": [2, "header.js"] });
+    this.eslint?.addRules(HEADER_RULE);
 
     // Do NOT lint packages files as they get linted by the package
     this.eslint?.addIgnorePattern("packages/**/*.*");
@@ -221,13 +218,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     if (project.eslint) {
       project.addDevDeps("eslint-plugin-header");
       project.eslint.addPlugins("header");
-      const rootHops = (project as Project).outdir
-        .split(this.outdir)[1]
-        .split("/")
-        .splice(1);
-      project.eslint.addRules({
-        "header/header": [2, `${rootHops.map(() => "..").join("/")}/header.js`],
-      });
+      project.eslint.addRules(HEADER_RULE);
     }
   }
 }
