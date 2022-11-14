@@ -1152,6 +1152,11 @@ export namespace Graph {
       return [];
     }
 
+    /** Indicates if node is direct child of the graph root node */
+    get isTopLevel(): boolean {
+      return this.parent === this.store.root;
+    }
+
     /** Get **root** stack */
     get rootStack(): StackNode | undefined {
       if (StackNode.isStackNode(this)) return this;
@@ -1326,9 +1331,17 @@ export namespace Graph {
       return this.scopes.includes(ancestor);
     }
 
-    /** Find nearest *ancestor* of *this node* matching given predicate */
-    findAncestor(predicate: INodePredicate): Node | undefined {
-      return this.scopes.slice().reverse().find(predicate);
+    /**
+     * Find nearest *ancestor* of *this node* matching given predicate.
+     * @param predicate - Predicate to match ancestor
+     * @max {number} [max] - Optional maximum levels to ascend
+     */
+    findAncestor(predicate: INodePredicate, max?: number): Node | undefined {
+      let ancestors = this.scopes.slice().reverse();
+      if (max) {
+        ancestors = ancestors.slice(0, max);
+      }
+      return ancestors.find(predicate);
     }
 
     /**
@@ -1872,12 +1885,14 @@ export namespace Graph {
         return defaultNode;
       }
 
-      const childNode = this.children.filter((node) =>
-        CfnResourceNode.isCfnResourceNode(node)
-      ) as CfnResourceNode[];
-      if (childNode.length === 1) {
-        this._cfnResource = childNode[0];
-        return childNode[0];
+      const childCfnResources = this.children.filter((node) => {
+        return (
+          CfnResourceNode.isCfnResourceNode(node) && node.isEquivalentFqn(this)
+        );
+      }) as CfnResourceNode[];
+      if (childCfnResources.length === 1) {
+        this._cfnResource = childCfnResources[0];
+        return childCfnResources[0];
       }
 
       // prevent looking up again by setting to `null`
@@ -1905,6 +1920,14 @@ export namespace Graph {
 
       this._cfnResource = cfnResource || null;
     }
+
+    /** @inheritdoc */
+    mutateRemoveChild(node: Node): boolean {
+      if (this._cfnResource === node) {
+        this.mutateCfnResource(undefined);
+      }
+      return super.mutateRemoveChild(node);
+    }
   }
 
   /** CfnResourceNode props */
@@ -1928,6 +1951,27 @@ export namespace Graph {
       if (this.cfnType == null) {
         throw new Error("CfnResourceNode requires `cfnType` property");
       }
+    }
+
+    /**
+     * Evaluates if CfnResourceNode fqn is equivalent to ResourceNode fqn.
+     * @example `aws-cdk-lib.aws_lambda.Function` => `aws-cdk-lib.aws_lambda.CfnFunction`
+     * @param resource - {@link Graph.ResourceNode} to compare
+     * @returns Returns `true` if equivalent, otherwise `false`
+     */
+    isEquivalentFqn(resource: Graph.ResourceNode): boolean {
+      const resourceFqnStub = resource.constructInfoFqn
+        ?.split(".")
+        .pop()
+        ?.toLowerCase();
+      const cfnResourceFqnStub = this.constructInfoFqn
+        ?.split(".")
+        .pop()
+        ?.toLowerCase();
+      if (!resourceFqnStub || !cfnResourceFqnStub) {
+        return false;
+      }
+      return `cfn${resourceFqnStub}` === cfnResourceFqnStub;
     }
 
     /**

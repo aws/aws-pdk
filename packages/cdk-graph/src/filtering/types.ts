@@ -13,6 +13,10 @@ export enum FilterPreset {
    * and reduces the noise one expects.
    */
   COMPACT = "compact",
+  /**
+   * Collapses extraneous nodes to parent and prunes extraneous edges.
+   */
+  NON_EXTRANEOUS = "non-extraneous",
 }
 
 /**
@@ -55,10 +59,24 @@ export interface IGraphFilter {
 }
 
 /**
- * Determines root node of filter plan.
+ * Determines focus node of filter plan.
  */
-export interface IFilterRootCallback {
+export interface IFilterFocusCallback {
   (store: Graph.Store): Graph.Node;
+}
+
+export interface IGraphFilterPlanFocusConfig {
+  /** The node or resolver to determine the node to focus on. */
+  readonly node: IFilterFocusCallback | Graph.Node;
+  /**
+   * Indicates if ancestral containers are preserved (eg: Stages, Stack)
+   *
+   * If `false`, the "focused node" will be hoisted to the graph root and all ancestors will be pruned.
+   * If `true`, the "focused" will be left in-place, while all siblings and non-scope ancestors will be pruned.
+   *
+   * @default true
+   */
+  readonly noHoist?: boolean;
 }
 
 /**
@@ -80,18 +98,12 @@ export interface IGraphFilterPlan {
   readonly filters?: IGraphFilter[];
 
   /**
-   * The root node or resolver to determine the filtering root.
+   * Config to focus the graph on specific node.
    */
-  readonly root?: IFilterRootCallback | Graph.Node;
-  /**
-   * Indicates if ancestral containers are preserved (eg: Stages, Stack)
-   *
-   * If `true`, the "root" will be hoisted to the graph root and all ancestors will be pruned.
-   * If `false`, the "root" will be left in-place, while all siblings and non-scope ancestors will be pruned.
-   *
-   * @default false
-   */
-  readonly hoistRoot?: boolean;
+  readonly focus?:
+    | IFilterFocusCallback
+    | Graph.Node
+    | IGraphFilterPlanFocusConfig;
 
   /**
    * Indicates that all nodes will be filtered, rather than just Resource and CfnResource nodes.

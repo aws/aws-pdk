@@ -88,72 +88,73 @@ describe("cdk-graph/filtering", () => {
     });
   });
 
-  describe("preset/reroot/hoist", () => {
+  describe("preset/focus/hoist", () => {
     let outdir: string;
     let graphJsonFile: string;
     let app: FixtureApp;
     let graph: CdkGraph;
     let store: Graph.Store;
-    let planRoot: Graph.Node;
+    let focusedNode: Graph.Node;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("preset/reroot/hoist");
+      outdir = await getCdkOutDir("preset/focus/hoist");
 
       app = new FixtureApp({ outdir });
       graph = new CdkGraph(app);
       app.synth();
       store = graph.graphContext!.store.clone();
       graphJsonFile = graph.graphContext!.graphJson.filepath;
-      planRoot = store.getNode(getConstructUUID(app.stack.lambda));
+      focusedNode = store.getNode(getConstructUUID(app.stack.lambda));
     });
 
-    it("should perform reroot hoist without error", () => {
+    it("should perform focus hoist without error", () => {
       expect(() =>
         performGraphFilterPlan(store, {
-          root: planRoot,
-          hoistRoot: true,
+          focus: focusedNode,
         })
       ).not.toThrow();
     });
 
     it("should hoist plan root to store root and remove other children of root", () => {
       expect(store.root.children.length).toBe(1);
-      expect(store.root.children[0].uuid).toBe(planRoot.uuid);
+      expect(store.root.children[0].uuid).toBe(focusedNode.uuid);
     });
 
     it("should only have plan root nodes in the store", () => {
-      expect(store.counts.nodes).toBe(planRoot.findAll().length + 1); // plus 1 for store.root
+      expect(store.counts.nodes).toBe(focusedNode.findAll().length + 1); // plus 1 for store.root
     });
 
     it("should only have plan root edges in the store", () => {
-      expect(store.counts.edges).toBe(planRoot.findAllLinks().length);
+      expect(store.counts.edges).toBe(focusedNode.findAllLinks().length);
     });
   });
 
-  describe("preset/reroot/no-hoist", () => {
+  describe("preset/focus/no-hoist", () => {
     let outdir: string;
     let graphJsonFile: string;
     let app: FixtureApp;
     let graph: CdkGraph;
     let store: Graph.Store;
-    let planRoot: Graph.Node;
+    let focusedNode: Graph.Node;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("preset/reroot/no-hoist");
+      outdir = await getCdkOutDir("preset/focus/no-hoist");
 
       app = new FixtureApp({ outdir });
       graph = new CdkGraph(app);
       app.synth();
       store = graph.graphContext!.store.clone();
       graphJsonFile = graph.graphContext!.graphJson.filepath;
-      planRoot = store.getNode(getConstructUUID(app.stack.lambda));
+      focusedNode = store.getNode(getConstructUUID(app.stack.lambda));
     });
 
-    it("should perform reroot hoist without error", () => {
+    it("should perform focus hoist without error", () => {
       expect(() =>
         performGraphFilterPlan(store, {
-          root: planRoot,
-          hoistRoot: false,
+          focus: {
+            node: focusedNode,
+            noHoist: true,
+          },
         })
       ).not.toThrow();
     });
@@ -162,9 +163,9 @@ describe("cdk-graph/filtering", () => {
       expect(
         store.root.findAll({
           predicate: (node) => {
-            if (node === planRoot) return false;
-            if (planRoot.isAncestor(node)) return false;
-            if (node.isAncestor(planRoot)) return false;
+            if (node === focusedNode) return false;
+            if (focusedNode.isAncestor(node)) return false;
+            if (node.isAncestor(focusedNode)) return false;
             return true;
           },
         }).length
@@ -173,7 +174,7 @@ describe("cdk-graph/filtering", () => {
 
     it("should only have plan root nodes and direct ancestors in the store", () => {
       expect(store.counts.nodes).toBe(
-        planRoot.findAll().length + planRoot.scopes.length
+        focusedNode.findAll().length + focusedNode.scopes.length
       );
     });
   });

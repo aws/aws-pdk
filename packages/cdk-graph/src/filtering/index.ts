@@ -23,13 +23,20 @@ export function performGraphFilterPlan(
 ): void {
   presets.verifyFilterable(store);
 
-  if (plan.root) {
-    presets.rerootFilter(store, plan);
+  if (plan.focus) {
+    presets.focusFilter(store, plan);
   }
 
   if (plan.preset) {
-    if (plan.preset === FilterPreset.COMPACT) {
-      presets.compactFilterPreset(store);
+    switch (plan.preset) {
+      case FilterPreset.NON_EXTRANEOUS: {
+        presets.nonExtraneousFilterPreset(store);
+        break;
+      }
+      case FilterPreset.COMPACT: {
+        presets.compactFilterPreset(store);
+        break;
+      }
     }
   }
 
