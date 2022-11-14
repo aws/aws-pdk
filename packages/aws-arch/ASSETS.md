@@ -1311,20 +1311,33 @@ The _default theme_ is **light**.
 |  └── users.svg
 ├── groups/
 |  ├── account.png
+|  ├── auto_scaling_group.dark.png
 |  ├── auto_scaling_group.png
+|  ├── aws_cloud.dark.png
 |  ├── aws_cloud.png
+|  ├── aws_cloud_alt.dark.png
 |  ├── aws_cloud_alt.png
+|  ├── aws_step_functions_workflow.dark.png
 |  ├── aws_step_functions_workflow.png
+|  ├── corporate_data_center.dark.png
 |  ├── corporate_data_center.png
+|  ├── ec2_instance_contents.dark.png
 |  ├── ec2_instance_contents.png
+|  ├── elastic_beanstalk.dark.png
 |  ├── elastic_beanstalk.png
 |  ├── iot_greengrass.png
 |  ├── iot_greengrass_deployment.png
+|  ├── on_premise.dark.png
 |  ├── on_premise.png
+|  ├── region.dark.png
 |  ├── region.png
+|  ├── spot_fleet.dark.png
 |  ├── spot_fleet.png
+|  ├── subnet_private.dark.png
 |  ├── subnet_private.png
+|  ├── subnet_public.dark.png
 |  ├── subnet_public.png
+|  ├── vpc.dark.png
 |  └── vpc.png
 ├── internet_of_things/
 |  ├── category_icon.png
@@ -2869,7 +2882,7 @@ The _default theme_ is **light**.
       ├── service_icon.png
       └── service_icon.svg
 
-directory: 329 file: 2516
+directory: 329 file: 2529
 
 
 ```

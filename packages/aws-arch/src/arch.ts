@@ -1,12 +1,13 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { readFileSync } from "node:fs";
 import * as path from "path";
 import { ASSET_DIRNAME } from "./contants";
 import { AwsAsset } from "./generated/assets";
 import { CfnSpec } from "./generated/cfnspec";
 import { DrawioSpec } from "./generated/drawio-spec";
 import { AwsServiceMapping, AwsResourceMapping } from "./generated/mappings";
-import { parseAssetPath } from "./internal/assets/helpers";
+import { parseAssetPath, ParsedAssetKey } from "./internal/assets/helpers";
 import {
   AwsCategoryDefinitions,
   AwsCategoryDefinition,
@@ -21,7 +22,7 @@ import {
 } from "./internal/drawio/types";
 import { CfnMappedService, CfnMappedResource } from "./internal/mapping/types";
 import { PricingManifest } from "./internal/pricing-manifest";
-import { ThemesEnum } from "./themes";
+import { Themes } from "./themes";
 import * as themes from "./themes";
 
 /**
@@ -223,7 +224,7 @@ export class AwsCategory {
    * Retrieves a well-formatted relative path to the icon for this given
    * category in the specified format.
    */
-  icon(format: IconFormats, theme?: ThemesEnum): string | undefined {
+  icon(format: IconFormats, theme?: Themes): string | undefined {
     if (this._assetIcon == null) return;
     try {
       return AwsArchitecture.formatAssetPath(this._assetIcon, format, theme);
@@ -386,10 +387,10 @@ export class AwsService {
   /**
    * Get relative asset icon for the service for a given format and optional theme.
    * @param {IconFormats} format - The format of icon.
-   * @param {ThemesEnum} [theme] - Optional theme
+   * @param {Themes} [theme] - Optional theme
    * @returns Returns relative asset icon path
    */
-  icon(format: IconFormats, theme?: ThemesEnum): string | undefined {
+  icon(format: IconFormats, theme?: Themes): string | undefined {
     if (!this._assetIcon) return undefined;
     try {
       return AwsArchitecture.formatAssetPath(this._assetIcon, format, theme);
@@ -532,6 +533,8 @@ export class AwsResource {
   readonly drawioShape?: DrawioSpec.Aws4.ShapeNames;
 
   /** @internal */
+  private readonly _category?: AwsAsset.Category;
+  /** @internal */
   private readonly _serviceIcon?: string;
   /** @internal */
   private readonly _assetIcon?: string;
@@ -559,6 +562,8 @@ export class AwsResource {
 
     if (cfnMapped.serviceAssetKey) {
       this._serviceIcon = AwsAsset.Services[cfnMapped.serviceAssetKey];
+      this._category = parseAssetPath(this._serviceIcon)
+        .category as AwsAsset.Category;
     }
 
     if (cfnMapped.generalIconKey) {
@@ -569,18 +574,44 @@ export class AwsResource {
   }
 
   /**
+   * Gets the category icon for the resource.
+   *
+   * This maybe different than {@link AwsResource.service.category.icon} based on mappings overrides, which
+   * if do not exist will fallback to {@link AwsResource.service.category.icon}.
+   *
+   * @param {IconFormats} format - The format of icon.
+   * @param {Themes} [theme] - Optional theme
+   * @returns Returns relative asset icon path
+   *
+   * @see {@link AwsService.icon}
+   */
+  getCategoryIcon(format: IconFormats, theme?: Themes): string | undefined {
+    if (this._category) {
+      try {
+        return AwsArchitecture.formatAssetPath(
+          AwsAsset.Categories[this._category],
+          format,
+          theme
+        );
+      } catch {}
+    }
+
+    return this.service.category?.icon(format, theme);
+  }
+
+  /**
    * Gets the service icon for the resource.
    *
    * This maybe different than {@link AwsResource.service.icon} based on mappings overrides, which
    * if do not exist will fallback to {@link AwsResource.service.icon}.
    *
    * @param {IconFormats} format - The format of icon.
-   * @param {ThemesEnum} [theme] - Optional theme
+   * @param {Themes} [theme] - Optional theme
    * @returns Returns relative asset icon path
    *
    * @see {@link AwsService.icon}
    */
-  getServiceIcon(format: IconFormats, theme?: ThemesEnum): string | undefined {
+  getServiceIcon(format: IconFormats, theme?: Themes): string | undefined {
     if (this._serviceIcon) {
       try {
         return AwsArchitecture.formatAssetPath(
@@ -597,10 +628,10 @@ export class AwsResource {
   /**
    * Gets the resource specific icon for the resource.
    * @param {IconFormats} format - The format of icon.
-   * @param {ThemesEnum} [theme] - Optional theme
-   * @returns Returns relative asset icon path
+   * @param {Themes} [theme] - Optional theme
+   * @returns Returns relative asset icon path or undefined if does not have resource icon
    */
-  getResourceIcon(format: IconFormats, theme?: ThemesEnum): string | undefined {
+  getResourceIcon(format: IconFormats, theme?: Themes): string | undefined {
     if (!this._assetIcon) return undefined;
     try {
       return AwsArchitecture.formatAssetPath(this._assetIcon, format, theme);
@@ -609,11 +640,13 @@ export class AwsResource {
     return;
   }
 
-  /** @internal */
-  private _getGeneralIcon(
-    format: IconFormats,
-    theme?: ThemesEnum
-  ): string | undefined {
+  /**
+   * Gets the general icon for the resource if available.
+   * @param {IconFormats} format - The format of icon.
+   * @param {Themes} [theme] - Optional theme
+   * @returns Returns relative asset icon path or undefined if does not have general icon
+   */
+  getGeneralIcon(format: IconFormats, theme?: Themes): string | undefined {
     if (!this._generalIcon) return undefined;
     try {
       return AwsArchitecture.formatAssetPath(this._generalIcon, format, theme);
@@ -628,13 +661,13 @@ export class AwsResource {
    * 2. general icon
    * 3. service icon
    * @param {IconFormats} format - The format of icon.
-   * @param {ThemesEnum} [theme] - Optional theme
+   * @param {Themes} [theme] - Optional theme
    * @returns Returns relative asset icon path
    */
-  icon(format: IconFormats, theme?: ThemesEnum): string | undefined {
+  icon(format: IconFormats, theme?: Themes): string | undefined {
     return (
       this.getResourceIcon(format, theme) ||
-      this._getGeneralIcon(format, theme) ||
+      this.getGeneralIcon(format, theme) ||
       this.getServiceIcon(format, theme)
     );
   }
@@ -741,13 +774,13 @@ export class AwsArchitecture {
    * Get icon for EC2 instance type.
    * @param instanceType - The {@link AwsAsset.InstanceType} to get icon for
    * @param {IconFormats} format - The format of icon.
-   * @param {ThemesEnum} [theme] - Optional theme
+   * @param {Themes} [theme] - Optional theme
    * @returns Returns relative asset icon path
    */
   static getInstanceTypeIcon(
     instanceType: AwsAsset.InstanceType,
     format: "png" | "svg" = "png",
-    theme?: ThemesEnum
+    theme?: Themes
   ): string {
     return this.formatAssetPath(
       AwsAsset.InstanceTypes[instanceType],
@@ -760,13 +793,13 @@ export class AwsArchitecture {
    * Get icon for RDS instance type.
    * @param instanceType - The {@link AwsAsset.RdsInstanceType} to get icon for
    * @param {IconFormats} format - The format of icon.
-   * @param {ThemesEnum} [theme] - Optional theme
+   * @param {Themes} [theme] - Optional theme
    * @returns Returns relative asset icon path
    */
   static getRdsInstanceTypeIcon(
     instanceType: AwsAsset.RdsInstanceType,
     format: "png" | "svg" = "png",
-    theme?: ThemesEnum
+    theme?: Themes
   ): string {
     return this.formatAssetPath(
       AwsAsset.RdsInstanceTypes[instanceType],
@@ -779,29 +812,57 @@ export class AwsArchitecture {
    * Resolve relative asset path to absolute asset path.
    * @param assetPath - The relative asset path to resolve.
    * @returns {string} Absolute asset path
+   * @throws Error if asset path is undefined
+   * @throws Error if asset path is not relative
    */
   static resolveAssetPath(assetPath: string): string {
-    if (assetPath == null)
+    if (assetPath == null) {
       throw new Error("Failed to resolve undefined asset path");
+    }
+    if (path.isAbsolute(assetPath)) {
+      throw new Error("Asset path must be relative path");
+    }
     return path.join(AwsArchitecture.assetDirectory, assetPath);
+  }
+
+  /**
+   * Resolve relative asset path as SVG [Data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs).
+   *
+   * `data:image/svg+xml;base64,...`
+   * @param svgAssetPath - The relative path of svg asset to resolve
+   * @returns SVG [Data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs)
+   * @throws Error if path is not svg
+   */
+  static resolveAssetSvgDataUrl(svgAssetPath: string): string {
+    if (path.extname(svgAssetPath) !== ".svg") {
+      throw new Error("Parameter `svgAssetPath` must end with .svg");
+    }
+    const absolutePath = this.resolveAssetPath(svgAssetPath);
+    const svgXml = readFileSync(absolutePath, { encoding: "utf-8" });
+    const data = Buffer.from(
+      unescape(encodeURIComponent(svgXml)),
+      "utf-8"
+    ).toString("base64");
+    return "data:image/svg+xml;base64," + data;
   }
 
   /**
    * Gets formatted asset path including extension and theme.
    * @param qualifiedAssetKey The qualified asset key (eg: compute/ec2/service_icon, storage/s3/bucket)
    * @param format {IconFormats} The format to return (eg: png, svg)
-   * @param theme {ThemesEnum} - (Optional) The theme to use, if not specific or now matching asset for the them, the default theme is used
+   * @param theme {Themes} - (Optional) The theme to use, if not specific or now matching asset for the them, the default theme is used
    * @returns Relative asset file path
    */
   static formatAssetPath(
     qualifiedAssetKey: string,
     format: IconFormats,
-    theme?: ThemesEnum
+    theme?: Themes
   ): string {
     if (theme && theme !== themes.DefaultThemeId) {
       const themedIcon = `${qualifiedAssetKey}.${theme}.${format}`;
       if (AwsAsset.AssetFiles.has(themedIcon)) {
         return themedIcon;
+      } else {
       }
     }
 
@@ -811,6 +872,19 @@ export class AwsArchitecture {
     }
 
     throw new Error(`Invalid asset key "${qualifiedAssetKey}"`);
+  }
+
+  /**
+   * Parse assets path into part descriptor.
+   * @param assetPath - Absolute or relative asset file path to parse
+   */
+  static parseAssetPath(assetPath: string): ParsedAssetKey {
+    if (path.isAbsolute(assetPath)) {
+      assetPath = path.relative(AwsArchitecture.assetDirectory, assetPath);
+    }
+    assetPath = assetPath.replace(/\.(png|svg)$/i, "");
+
+    return parseAssetPath(assetPath);
   }
 
   /** @internal */

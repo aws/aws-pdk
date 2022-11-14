@@ -3,65 +3,65 @@ SPDX-License-Identifier: Apache-2.0 */
 import { BasePalette } from "./palette";
 import { Theme } from "./types";
 
-/** Light theme color palette */
-export enum LightPalette {
+/** Dark theme color palette */
+export enum DarkPalette {
   PUBLIC = "#E9F3E6", // Green
   PRIVATE = "#E6F2F8", // Blue
 
-  GENERIC = "#5A6B861A", // 10% almost white
+  GENERIC = "#FAFAFA33", // 20% almost white
 
-  PRIMARY = "#232F3E", // Dark Blue
+  PRIMARY = "#FAFAFA", // Almost White
   SECONDARY = "#5B9BD5", // Bright Blue
-  TERTIARY = "#5A6B86", // Light Bluish Gray
+  TERTIARY = "#8FA7C4", // Light Bluish Gray
 }
 
-/** Light theme definition */
-export const LightTheme: Theme = {
-  id: "light",
+/** Dark theme definition */
+export const DarkTheme: Theme = {
+  id: "dark",
   backgrounds: {
-    base: BasePalette.WHITE,
-    private: LightPalette.PRIVATE,
-    public: LightPalette.PUBLIC,
-    generic: LightPalette.GENERIC,
+    base: BasePalette.DARK_BLUE,
+    private: DarkPalette.PRIVATE,
+    public: DarkPalette.PUBLIC,
+    generic: DarkPalette.GENERIC,
   },
   text: {
-    default: BasePalette.BLACK,
-    primary: LightPalette.PRIMARY,
-    secondary: LightPalette.SECONDARY,
-    tertiary: LightPalette.TERTIARY,
+    default: BasePalette.WHITE,
+    primary: DarkPalette.PRIMARY,
+    secondary: DarkPalette.SECONDARY,
+    tertiary: DarkPalette.TERTIARY,
   },
   groups: {
     cloud: {
-      color: "#242F3E",
+      color: "#FAFAFA",
       bgcolor: false,
-      borderColor: "#242F3E",
+      borderColor: "#FAFAFA",
       borderStyle: "solid",
       iconPng: "theme/light/groups/AWSCloud.png",
     },
     cloudAlt: {
-      color: "#242F3E",
+      color: "#FAFAFA",
       bgcolor: false,
-      borderColor: "#242F3E",
+      borderColor: "#FAFAFA",
       borderStyle: "solid",
       iconPng: "theme/light/groups/Cloud.png",
     },
     region: {
-      color: "#127EBA",
+      color: "#00A0C8",
       bgcolor: false,
-      borderColor: "#127EBA",
+      borderColor: "#00A0C8",
       borderStyle: "dotted",
       iconPng: "theme/light/groups/Region.png",
     },
     availabilityZone: {
-      color: "#127EBA",
+      color: "#00A0C8",
       bgcolor: false,
-      borderColor: "#127EBA",
+      borderColor: "#00A0C8",
       borderStyle: "dashed",
     },
     securityGroup: {
-      color: "#DF3312",
+      color: "#FC584C",
       bgcolor: false,
-      borderColor: "#DF3312",
+      borderColor: "#FC584C",
       borderStyle: "solid",
     },
     autoScalingGroup: {
@@ -72,9 +72,9 @@ export const LightTheme: Theme = {
       iconPng: "theme/light/groups/AutoScalingGroup.png",
     },
     vpc: {
-      color: "#3F8624",
+      color: "#69AE35",
       bgcolor: false,
-      borderColor: "#3F8624",
+      borderColor: "#69AE35",
       borderStyle: "solid",
       iconPng: "theme/light/groups/VPC.png",
     },
@@ -86,37 +86,37 @@ export const LightTheme: Theme = {
       iconPng: "theme/light/groups/PrivateSubnet.png",
     },
     publicSubnet: {
-      color: "#3F8624",
+      color: "#69AE35",
       bgcolor: false,
-      borderColor: "#3F8624",
+      borderColor: "#69AE35",
       borderStyle: "none",
       iconPng: "theme/light/groups/PublicSubnet.png",
     },
     serverContents: {
-      color: "#596B85",
+      color: "#8FA7C4",
       bgcolor: false,
-      borderColor: "#596B85",
+      borderColor: "#8FA7C4",
       borderStyle: "solid",
       iconPng: "theme/light/groups/ServerContents.png",
     },
     corporateDataCenter: {
-      color: "#596B85",
+      color: "#8FA7C4",
       bgcolor: false,
-      borderColor: "#596B85",
+      borderColor: "#8FA7C4",
       borderStyle: "solid",
       iconPng: "theme/light/groups/CorporateDataCenter.png",
     },
     ec2InstanceContents: {
-      color: "#D86613",
+      color: "#FF9900",
       bgcolor: false,
-      borderColor: "#D86613",
+      borderColor: "#FF9900",
       borderStyle: "solid",
       iconPng: "theme/light/groups/EC2InstanceContents.png",
     },
     spotFleet: {
-      color: "#D86613",
+      color: "#FF9900",
       bgcolor: false,
-      borderColor: "#D86613",
+      borderColor: "#FF9900",
       borderStyle: "solid",
       iconPng: "theme/light/groups/SpotFleet.png",
     },
@@ -142,56 +142,56 @@ export const LightTheme: Theme = {
       iconPng: "theme/light/groups/AWSIoTGreengrass.png",
     },
     elasticBeanstalkContainer: {
-      color: "#D86613",
+      color: "#FF9900",
       bgcolor: false,
-      borderColor: "#D86613",
+      borderColor: "#FF9900",
       borderStyle: "solid",
       iconPng: "theme/light/groups/ElasticBeanstalkContainer.png",
     },
     awsStepFunctionsWorkflow: {
-      color: "#CD2264",
+      color: "#FF4F8B",
       bgcolor: false,
-      borderColor: "#CD2264",
+      borderColor: "#FF4F8B",
       borderStyle: "solid",
       iconPng: "theme/light/groups/AWSStepFunctionsWorkflow.png",
     },
     generic: {
-      color: "#5A6B86",
-      bgcolor: false,
-      borderColor: "#5A6B86",
+      color: "#8FA7C4",
+      bgcolor: "magenta",
+      borderColor: "#8FA7C4",
       borderStyle: "dashed",
     },
     genericAlt: {
-      color: "#000000CC", // 80%
-      bgcolor: "#5A6B861A", // 10%
+      color: "#FAFAFACC", // 80%
+      bgcolor: "#FAFAFA33", // 20%
       borderColor: false,
       borderStyle: "none",
     },
   },
   arrows: {
     default: {
-      color: LightPalette.GENERIC,
+      color: DarkPalette.GENERIC,
       head: "none",
       tail: "normal",
       width: 0.75,
       style: "solid",
     },
     child: {
-      color: LightPalette.TERTIARY,
+      color: DarkPalette.TERTIARY,
       tail: "none",
       head: "normal",
       width: 1,
       style: "solid",
     },
     reference: {
-      color: LightPalette.TERTIARY,
-      tail: "none",
-      head: "normal",
+      color: DarkPalette.TERTIARY,
+      head: "none",
+      tail: "normal",
       width: 0.75,
       style: "solid",
     },
     dependency: {
-      color: LightPalette.SECONDARY,
+      color: DarkPalette.SECONDARY,
       tail: "normal",
       head: "odot",
       width: 0.75,
