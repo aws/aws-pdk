@@ -24,5 +24,7 @@ export class PDKNagProject extends PDKProject {
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       stability: Stability.STABLE,
     });
+    this.packageTask.exec('ts-node scripts/generate-pack-markdown.ts')
+    this.tsconfigDev.addInclude('scripts/**/*.ts')
   }
 }
