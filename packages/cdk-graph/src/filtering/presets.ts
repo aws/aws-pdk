@@ -1,20 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { ConstructOrder } from "constructs";
-import { FlagEnum, Graph } from "../core";
+import { Graph } from "../core";
+import { Filters, verifyFilterable } from "./filters";
 import { IGraphFilterPlan, IGraphFilterPlanFocusConfig } from "./types";
-
-/**
- * Verify that store is filterable, meaning it allows destructive mutations.
- * @throws Error if store is not filterable
- */
-export function verifyFilterable(store: Graph.Store): void {
-  if (!store.allowDestructiveMutations) {
-    throw new Error(
-      "Store must allow destructive mutations to perform filtering; clone the store before applying filters using `store.clone(true)` operation and passing the cloned store to filtering operation."
-    );
-  }
-}
 
 /**
  * Focus the graph on a specific node.
@@ -86,68 +74,19 @@ export function focusFilter(store: Graph.Store, plan: IGraphFilterPlan): void {
 }
 
 /**
- * Performs **non-extraneous** filter preset to store.
+ * Preset that performs {@link Filters.pruneExtraneous} filter on store.
  * @throws Error if store is not filterable
  * @destructive
  */
 export function nonExtraneousFilterPreset(store: Graph.Store): void {
-  verifyFilterable(store);
-
-  const extraneousNodes = store.root.findAll({
-    order: ConstructOrder.POSTORDER,
-    predicate: (node) => node.isExtraneous,
-  });
-  // collapse all extraneous nodes to nearest non-extraneous parent, or prune the node
-  for (const extraneousNode of extraneousNodes) {
-    const nonExtraneousAncestor = extraneousNode.findAncestor(
-      (node) => !node.isExtraneous
-    );
-    if (nonExtraneousAncestor && !nonExtraneousAncestor.isGraphContainer) {
-      extraneousNode.mutateCollapseTo(nonExtraneousAncestor);
-    } else {
-      extraneousNode.mutateDestroy();
-    }
-  }
-
-  store.edges.forEach((edge) => {
-    if (edge.isExtraneous) {
-      edge.mutateDestroy();
-    }
-  });
+  return Filters.pruneExtraneous()(store);
 }
 
 /**
- * Performs **compact** filter preset to store.
+ * Preset that performs {@link Filters.compact} filter on store.
  * @throws Error if store is not filterable
  * @destructive
  */
 export function compactFilterPreset(store: Graph.Store): void {
-  verifyFilterable(store);
-
-  nonExtraneousFilterPreset(store);
-
-  const cdkOwnedContainers = store.root.findAll({
-    order: ConstructOrder.POSTORDER,
-    predicate: (node) =>
-      node.hasFlag(FlagEnum.CDK_OWNED) &&
-      !node.parent?.hasFlag(FlagEnum.CDK_OWNED),
-  });
-  // collapse all cdk owned containers
-  // NB: collapses the graph more closely mirror what developer writes, not what is auto created by cdk
-  for (const cdkOwnedContainer of cdkOwnedContainers) {
-    cdkOwnedContainer.mutateCollapse();
-  }
-
-  const cdkResources = store.root.findAll({
-    order: ConstructOrder.POSTORDER,
-    predicate: (node) => Graph.ResourceNode.isResourceNode(node),
-  }) as Graph.ResourceNode[];
-  // collapse all cfnResource wrapped by cdk resource
-  for (const cdkResource of cdkResources) {
-    if (cdkResource.isResourceWrapper) {
-      cdkResource.mutateCollapse();
-    } else if (cdkResource.cfnResource) {
-      cdkResource.cfnResource.mutateCollapseToParent();
-    }
-  }
+  Filters.compact()(store);
 }

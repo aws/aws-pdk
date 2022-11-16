@@ -56,6 +56,17 @@ export interface IGraphFilter {
   readonly node?: Graph.INodePredicate;
   /** Predicate to match edges. Edges are evaluated after nodes are filtered. */
   readonly edge?: Graph.IEdgePredicate;
+
+  /**
+   * Indicates that all nodes will be filtered, rather than just Resource and CfnResource nodes.
+   *
+   * By enabling this, all Stages, Stacks, and structural construct boundaries will be filtered as well.
+   * In general, most users intent is to operate against resources and desire to preserve structural groupings,
+   * which is common in most Cfn/Cdk based filtering where inputs are "include" lists.
+   *
+   * Defaults to value of containing {@link IGraphFilterPlan.allNodes}
+   */
+   readonly allNodes?: boolean;
 }
 
 /**
@@ -63,6 +74,15 @@ export interface IGraphFilter {
  */
 export interface IFilterFocusCallback {
   (store: Graph.Store): Graph.Node;
+}
+
+/**
+ * Store filter callback interface used to perform filtering operations
+ * directly against the store, as opposed to using {@link IGraphFilter}
+ * definitions.
+ */
+export interface IGraphStoreFilter {
+  (store: Graph.Store): void;
 }
 
 export interface IGraphFilterPlanFocusConfig {
@@ -89,13 +109,14 @@ export interface IGraphFilterPlan {
   readonly preset?: FilterPreset;
 
   /**
-   * Node/Edge predicate filters to apply to the graph.
+   * Ordered list of {@link IGraphFilter} and {@link IGraphStoreFilter} filters to
+   * apply to the store.
    *
    * - Filters are applied *after* the preset filtering is applied if present.
    * - Filters are applied sequentially against all nodes, as opposed to IAspect.visitor pattern
    * which are sequentially applied per node.
    */
-  readonly filters?: IGraphFilter[];
+  readonly filters?: (IGraphFilter | IGraphStoreFilter)[];
 
   /**
    * Config to focus the graph on specific node.

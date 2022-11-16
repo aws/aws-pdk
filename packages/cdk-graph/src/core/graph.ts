@@ -184,6 +184,12 @@ export namespace Graph {
 
     /** Add **node** to the store */
     addNode(node: Node): void {
+
+      // Do not store root node
+      if (RootNode.isRootNode(node) === true) {
+        return;
+      }
+
       this._nodes.set(node.uuid, node);
 
       this._counters.nodeTypes.add(node.nodeType);
@@ -195,6 +201,11 @@ export namespace Graph {
 
     /** Get stored **node** by UUID */
     getNode(uuid: UUID): Node {
+      // Root node is not stored in "nodes" map
+      if (uuid === RootNode.UUID && this.root) {
+        return this.root;
+      }
+
       const node = this._nodes.get(uuid);
       if (node != null) {
         return node;
@@ -324,6 +335,11 @@ export namespace Graph {
      * @destructive
      */
     mutateRemoveNode(node: Node): boolean {
+      // Root node can not be removed
+      if (RootNode.isRootNode(node) === true) {
+        throw new Error("Root not can not be removed");
+      }
+
       if (node.logicalId && node.stack) {
         this._logicalIdLookup.delete(
           this.computeLogicalUniversalId(node.stack, node.logicalId)
@@ -1376,7 +1392,7 @@ export namespace Graph {
       const all = new Array<Node>();
 
       function visit(c: Node) {
-        if (order === ConstructOrder.PREORDER) {
+        if (order === ConstructOrder.PREORDER && !RootNode.isRootNode(c)) {
           all.push(c);
         }
 
@@ -1384,7 +1400,7 @@ export namespace Graph {
           visit(child);
         }
 
-        if (order === ConstructOrder.POSTORDER) {
+        if (order === ConstructOrder.POSTORDER && !RootNode.isRootNode(c)) {
           all.push(c);
         }
       }
@@ -1776,6 +1792,21 @@ export namespace Graph {
             StackNode.isStackNode(node) ||
             NestedStackNode.isNestedStackNode(node)
         ) as StackNode;
+      }
+    }
+
+    /**
+     * Hoist all children to parent and collapse node to parent.
+     * @destructive
+     */
+    mutateUncluster(): void {
+      this._preMutate();
+
+      if (this.parent && !this.isLeaf) {
+        for (const child of this.children) {
+          child.mutateHoist(this.parent);
+        }
+        this.mutateCollapseToParent();
       }
     }
 
@@ -2456,6 +2487,13 @@ export namespace Graph {
 
       this.addFlag(FlagEnum.GRAPH_CONTAINER);
       this.addFlag(FlagEnum.CLUSTER);
+    }
+
+    /**
+     * @inheritdoc **The root not is excluded from list**
+     */
+    findAll(options?: IFindNodeOptions | undefined): Node[] {
+      return super.findAll(options);
     }
 
     /**

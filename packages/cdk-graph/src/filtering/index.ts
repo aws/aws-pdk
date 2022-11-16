@@ -2,10 +2,12 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { ConstructOrder } from "constructs";
 import { Graph } from "../core";
+import { verifyFilterable } from "./filters";
 import * as presets from "./presets";
 import { FilterPreset, FilterStrategy, IGraphFilterPlan } from "./types";
 
 export * from "./types";
+export * from "./filters";
 
 /**
  * Perform graph filter plan on store.
@@ -21,7 +23,7 @@ export function performGraphFilterPlan(
   store: Graph.Store,
   plan: IGraphFilterPlan
 ): void {
-  presets.verifyFilterable(store);
+  verifyFilterable(store);
 
   if (plan.focus) {
     presets.focusFilter(store, plan);
@@ -41,62 +43,63 @@ export function performGraphFilterPlan(
   }
 
   if (plan.filters) {
-    const nodes: Graph.Node[] = store.root.findAll({
-      order: plan.order || ConstructOrder.PREORDER,
-      predicate: (node) => {
-        // never filter store root
-        if (node === store.root) return false;
-        if (plan.allNodes) return true;
-        // by default only return Resources and CfnResources
-        return (
-          Graph.ResourceNode.isResourceNode(node) ||
-          Graph.CfnResourceNode.isCfnResourceNode(node)
-        );
-      },
-    });
-
     for (const filter of plan.filters) {
-      const inverse = filter.inverse === true;
+      if (typeof filter === "function") {
+        // IGraphStoreFilter
+        filter(store);
+      } else {
+        // IGraphFilter
+        const inverse = filter.inverse === true;
+        const allNodes = filter.allNodes != null ? filter.allNodes : plan.allNodes === true;
 
-      if (filter.node) {
-        for (const node of nodes) {
-          if (node.isDestroyed) continue;
+        const nodes: Graph.Node[] = store.root.findAll({
+          order: plan.order || ConstructOrder.PREORDER,
+          predicate: (node) => {
+            if (allNodes) return true;
+            // by default only return Resources and CfnResources
+            return (
+              Graph.ResourceNode.isResourceNode(node) ||
+              Graph.CfnResourceNode.isCfnResourceNode(node)
+            );
+          },
+        });
 
-          const match = filter.node(node);
+        if (filter.node) {
+          for (const node of nodes) {
+            if (node.isDestroyed) continue;
 
-          if ((match && inverse) || (!match && !inverse)) {
-            switch (filter.strategy || FilterStrategy.PRUNE) {
-              case FilterStrategy.PRUNE: {
-                node.mutateDestroy();
-                break;
-              }
-              case FilterStrategy.COLLAPSE: {
-                node.mutateCollapse();
-                break;
-              }
-              case FilterStrategy.COLLAPSE_TO_PARENT: {
-                node.mutateCollapseToParent();
-                break;
+            const match = filter.node(node);
+
+            if ((match && inverse) || (!match && !inverse)) {
+              switch (filter.strategy || FilterStrategy.PRUNE) {
+                case FilterStrategy.PRUNE: {
+                  node.mutateDestroy();
+                  break;
+                }
+                case FilterStrategy.COLLAPSE: {
+                  node.mutateCollapse();
+                  break;
+                }
+                case FilterStrategy.COLLAPSE_TO_PARENT: {
+                  node.mutateCollapseToParent();
+                  break;
+                }
               }
             }
           }
         }
-      }
-    }
 
-    const edges: Graph.Edge[] = store.edges;
+        if (filter.edge) {
+          const edges: Graph.Edge[] = store.edges;
 
-    for (const filter of plan.filters) {
-      const inverse = filter.inverse === true;
+          for (const edge of edges) {
+            if (edge.isDestroyed) continue;
 
-      if (filter.edge) {
-        for (const edge of edges) {
-          if (edge.isDestroyed) continue;
+            const match = filter.edge(edge);
 
-          const match = filter.edge(edge);
-
-          if ((match && inverse) || (!match && !inverse)) {
-            edge.mutateDestroy();
+            if ((match && inverse) || (!match && !inverse)) {
+              edge.mutateDestroy();
+            }
           }
         }
       }

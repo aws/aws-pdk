@@ -1,35 +1,25 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "path";
-import * as fs from "fs-extra";
 import { CdkGraph, getConstructUUID, Graph } from "../../src";
 import { MultiFixtureApp } from "../__fixtures__/apps";
+import * as testUtils from "./test-utils";
 
-async function getCdkOutDir(name: string): Promise<string> {
-  const dir = path.join(__dirname, "..", ".tmp", "mutations", name, "cdk.out");
-
-  await fs.ensureDir(dir);
-  await fs.emptyDir(dir);
-
-  return dir;
-}
+const makeCdkOutdir = async (name: string) => testUtils.makeCdkOutDir("mutations", name)
 
 describe("cdk-graph/mutations", () => {
   describe("mutate", () => {
     let outdir: string;
-    let graphJsonFile: string;
     let app: MultiFixtureApp;
     let graph: CdkGraph;
     let store: Graph.Store;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("mutate");
+      outdir = await makeCdkOutdir("mutate");
 
       app = new MultiFixtureApp({ outdir });
       graph = new CdkGraph(app);
       app.synth();
       store = graph.graphContext!.store;
-      graphJsonFile = graph.graphContext!.graphJson.filepath;
     });
 
     it("should not allow mutations on un-cloned store", async () => {
