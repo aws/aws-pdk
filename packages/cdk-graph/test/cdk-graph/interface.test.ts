@@ -11,7 +11,8 @@ import {
 import { MultiFixtureApp } from "../__fixtures__/apps";
 import * as testUtils from "./test-utils";
 
-const makeCdkOutdir = async (name: string) => testUtils.makeCdkOutDir("compute", name)
+const makeCdkOutdir = async (name: string) =>
+  testUtils.makeCdkOutDir("compute", name);
 
 describe("cdk-graph/interface", () => {
   describe("core", () => {

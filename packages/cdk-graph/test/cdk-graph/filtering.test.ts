@@ -14,7 +14,8 @@ import { Filters } from "../../src/filtering/filters";
 import { MultiFixtureApp } from "../__fixtures__/apps";
 import * as testUtils from "./test-utils";
 
-const makeCdkOutdir = async (name: string) => testUtils.makeCdkOutDir("filtering", name)
+const makeCdkOutdir = async (name: string) =>
+  testUtils.makeCdkOutDir("filtering", name);
 
 describe("cdk-graph/filtering", () => {
   let outdir: string;
@@ -36,7 +37,7 @@ describe("cdk-graph/filtering", () => {
       let store: Graph.Store;
       beforeAll(() => {
         store = originStore.clone();
-      })
+      });
 
       it("should have compactable nodes before testing", () => {
         // sanity check to ensure we are testing the preset
@@ -92,8 +93,8 @@ describe("cdk-graph/filtering", () => {
 
       beforeAll(() => {
         store = originStore.clone();
-        focusedNode = store.getNode(getConstructUUID(app.stack.lambda))
-      })
+        focusedNode = store.getNode(getConstructUUID(app.stack.lambda));
+      });
 
       it("should perform focus hoist without error", () => {
         expect(() =>
@@ -123,8 +124,8 @@ describe("cdk-graph/filtering", () => {
 
       beforeAll(() => {
         store = originStore.clone();
-        focusedNode = store.getNode(getConstructUUID(app.stack.lambda))
-      })
+        focusedNode = store.getNode(getConstructUUID(app.stack.lambda));
+      });
       it("should perform focus hoist without error", () => {
         expect(() =>
           performGraphFilterPlan(store, {
@@ -164,7 +165,7 @@ describe("cdk-graph/filtering", () => {
 
       beforeAll(() => {
         store = originStore.clone();
-      })
+      });
 
       const filterTypes = [
         CfnFunction.CFN_RESOURCE_TYPE_NAME,
@@ -212,12 +213,9 @@ describe("cdk-graph/filtering", () => {
 
         beforeAll(() => {
           store = originStore.clone();
-        })
+        });
 
-        const include = [
-          NodeTypeEnum.CFN_RESOURCE,
-          NodeTypeEnum.STACK,
-        ];
+        const include = [NodeTypeEnum.CFN_RESOURCE, NodeTypeEnum.STACK];
 
         it("should perform filter without error", () => {
           expect(() =>
@@ -230,7 +228,8 @@ describe("cdk-graph/filtering", () => {
         it("should only have included nodes", () => {
           expect(
             store.root.findAll({
-              predicate: (node) => !include.includes(node.nodeType),
+              predicate: (node) =>
+                !node.isGraphContainer && !include.includes(node.nodeType),
             }).length
           ).toBe(0);
 
@@ -243,12 +242,9 @@ describe("cdk-graph/filtering", () => {
 
         beforeAll(() => {
           store = originStore.clone();
-        })
+        });
 
-        const excluded = [
-          NodeTypeEnum.OUTPUT,
-          NodeTypeEnum.PARAMETER,
-        ];
+        const excluded = [NodeTypeEnum.OUTPUT, NodeTypeEnum.PARAMETER];
 
         it("should perform filter without error", () => {
           expect(() =>
@@ -276,7 +272,7 @@ describe("cdk-graph/filtering", () => {
 
         beforeAll(() => {
           store = originStore.clone();
-        })
+        });
 
         const filterTypes = [
           CfnFunction.CFN_RESOURCE_TYPE_NAME,
@@ -308,7 +304,7 @@ describe("cdk-graph/filtering", () => {
 
         beforeAll(() => {
           store = originStore.clone();
-        })
+        });
 
         const filterTypes = [
           CfnFunction.CFN_RESOURCE_TYPE_NAME,
@@ -340,7 +336,7 @@ describe("cdk-graph/filtering", () => {
 
         beforeAll(() => {
           store = originStore.clone();
-        })
+        });
 
         const filterTypes = [
           CfnFunction.CFN_RESOURCE_TYPE_NAME,
@@ -373,7 +369,7 @@ describe("cdk-graph/filtering", () => {
 
       beforeAll(() => {
         store = originStore.clone();
-      })
+      });
 
       const clusterType = NodeTypeEnum.NESTED_STACK;
 

@@ -66,7 +66,7 @@ export interface IGraphFilter {
    *
    * Defaults to value of containing {@link IGraphFilterPlan.allNodes}
    */
-   readonly allNodes?: boolean;
+  readonly allNodes?: boolean;
 }
 
 /**

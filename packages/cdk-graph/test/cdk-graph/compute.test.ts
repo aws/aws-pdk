@@ -5,7 +5,8 @@ import { CdkGraph, getConstructUUID, Graph, NodeTypeEnum } from "../../src";
 import { FixtureApp, MultiFixtureApp, StagedApp } from "../__fixtures__/apps";
 import * as testUtils from "./test-utils";
 
-const makeCdkOutdir = async (name: string) => testUtils.makeCdkOutDir("compute", name)
+const makeCdkOutdir = async (name: string) =>
+  testUtils.makeCdkOutDir("compute", name);
 
 describe("cdk-graph/compute", () => {
   describe("single-stack-app", () => {

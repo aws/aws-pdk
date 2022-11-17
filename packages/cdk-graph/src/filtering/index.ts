@@ -50,7 +50,8 @@ export function performGraphFilterPlan(
       } else {
         // IGraphFilter
         const inverse = filter.inverse === true;
-        const allNodes = filter.allNodes != null ? filter.allNodes : plan.allNodes === true;
+        const allNodes =
+          filter.allNodes != null ? filter.allNodes : plan.allNodes === true;
 
         const nodes: Graph.Node[] = store.root.findAll({
           order: plan.order || ConstructOrder.PREORDER,

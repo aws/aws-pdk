@@ -4,7 +4,8 @@ import { CdkGraph, getConstructUUID, Graph } from "../../src";
 import { MultiFixtureApp } from "../__fixtures__/apps";
 import * as testUtils from "./test-utils";
 
-const makeCdkOutdir = async (name: string) => testUtils.makeCdkOutDir("mutations", name)
+const makeCdkOutdir = async (name: string) =>
+  testUtils.makeCdkOutDir("mutations", name);
 
 describe("cdk-graph/mutations", () => {
   describe("mutate", () => {

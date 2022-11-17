@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { ConstructOrder } from "constructs";
+import memoize = require("lodash.memoize"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { FlagEnum, Graph, NodeTypeEnum } from "../core";
 import { FilterStrategy, IGraphFilter, IGraphStoreFilter } from "./types";
 
@@ -92,15 +93,37 @@ export namespace Filters {
     };
   }
 
-  function _filterNodeType(nodeTypes: NodeTypeEnum[], exclude: boolean, strategy?: FilterStrategy): IGraphFilter {
-    // Use set for constant lookup
-    const nodeTypesSet = new Set<string>(nodeTypes);
+  function _filterNodeType(
+    values: (string | RegExp)[],
+    exclude: boolean
+  ): IGraphStoreFilter {
+    const isMatch = memoize((input: string) => {
+      if (input == null) {
+        return false;
+      }
 
-    return {
-      strategy: strategy || FilterStrategy.PRUNE,
-      inverse: exclude,
-      node: (node) => nodeTypesSet.has(node.nodeType),
-      allNodes: true,
+      return (
+        values.find((_value) => {
+          if (typeof _value === "string") {
+            return input === _value;
+          }
+          return _value.test(input);
+        }) != null
+      );
+    });
+
+    return (store) => {
+      for (const node of store.root.findAll({
+        order: ConstructOrder.POSTORDER,
+      })) {
+        if (isMatch(node.nodeType) === exclude) {
+          if (node.isLeaf) {
+            node.mutateCollapseToParent();
+          } else {
+            node.mutateUncluster();
+          }
+        }
+      }
     };
   }
 
@@ -111,8 +134,10 @@ export namespace Filters {
    * @throws Error if store is not filterable
    * @destructive
    */
-  export function includeNodeType(nodeTypes: NodeTypeEnum[], strategy?: FilterStrategy): IGraphFilter {
-    return _filterNodeType(nodeTypes, false, strategy);
+  export function includeNodeType(
+    nodeTypes: (string | RegExp)[]
+  ): IGraphStoreFilter {
+    return _filterNodeType(nodeTypes, false);
   }
 
   /**
@@ -122,13 +147,30 @@ export namespace Filters {
    * @throws Error if store is not filterable
    * @destructive
    */
-  export function excludeNodeType(nodeTypes: NodeTypeEnum[], strategy?: FilterStrategy): IGraphFilter {
-    return _filterNodeType(nodeTypes, true, strategy);
+  export function excludeNodeType(
+    nodeTypes: (string | RegExp)[]
+  ): IGraphStoreFilter {
+    return _filterNodeType(nodeTypes, true);
   }
 
-  function _filterCfnType(cfnTypes: string[], exclude: boolean): IGraphFilter {
-    // Use set for constant lookup
-    const cfnTypesSet = new Set<string>(cfnTypes);
+  function _filterCfnType(
+    values: (string | RegExp)[],
+    exclude: boolean
+  ): IGraphFilter {
+    const isMatch = memoize((input: string) => {
+      if (input == null) {
+        return false;
+      }
+
+      return (
+        values.find((_value) => {
+          if (typeof _value === "string") {
+            return input === _value;
+          }
+          return _value.test(input);
+        }) != null
+      );
+    });
 
     return {
       strategy: FilterStrategy.PRUNE,
@@ -139,7 +181,7 @@ export namespace Filters {
           Graph.CfnResourceNode.isCfnResourceNode(node) ||
           Graph.ResourceNode.isResourceNode(node)
         ) {
-          const match = !!node.cfnType && cfnTypesSet.has(node.cfnType);
+          const match = !!node.cfnType && isMatch(node.cfnType);
           return (match && !exclude) || (!match && exclude);
         }
         // Preserve non *Resource nodes
@@ -154,7 +196,7 @@ export namespace Filters {
    * @throws Error if store is not filterable
    * @destructive
    */
-  export function includeCfnType(cfnTypes: string[]): IGraphFilter {
+  export function includeCfnType(cfnTypes: (string | RegExp)[]): IGraphFilter {
     return _filterCfnType(cfnTypes, false);
   }
 
@@ -164,7 +206,7 @@ export namespace Filters {
    * @throws Error if store is not filterable
    * @destructive
    */
-  export function excludeCfnType(cfnTypes: string[]): IGraphFilter {
+  export function excludeCfnType(cfnTypes: (string | RegExp)[]): IGraphFilter {
     return _filterCfnType(cfnTypes, true);
   }
 

@@ -184,7 +184,6 @@ export namespace Graph {
 
     /** Add **node** to the store */
     addNode(node: Node): void {
-
       // Do not store root node
       if (RootNode.isRootNode(node) === true) {
         return;
@@ -1293,9 +1292,15 @@ export namespace Graph {
     get isCluster(): boolean {
       return this.hasFlag(FlagEnum.CLUSTER);
     }
-    /** Indicates if this node is considered a {@link FlagEnum.EXTRANEOUS} */
+    /**
+     * Indicates if this node is considered a {@link FlagEnum.EXTRANEOUS} node
+     * or determined to be extraneous:
+     * - Clusters that contain no children
+     */
     get isExtraneous(): boolean {
-      return this.hasFlag(FlagEnum.EXTRANEOUS);
+      return (
+        this.hasFlag(FlagEnum.EXTRANEOUS) || (this.isCluster && this.isLeaf)
+      );
     }
     /** Indicates if this node is considered a {@link FlagEnum.RESOURCE_WRAPPER} */
     get isResourceWrapper(): boolean {
@@ -1691,6 +1696,9 @@ export namespace Graph {
       if (this.parent) {
         this.parent.mutateRemoveChild(this);
       }
+
+      this._parent = undefined;
+      this._stack = undefined;
 
       this.store.mutateRemoveNode(this);
       this._destroyed = true;
