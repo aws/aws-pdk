@@ -1,28 +1,19 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "path";
 import { aws_arch } from "@aws-prototyping-sdk/aws-arch";
 import { CdkGraph } from "@aws-prototyping-sdk/cdk-graph";
 import { FixtureApp } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
-import { toMatchImageSnapshot } from "jest-image-snapshot";
 import { capitalize } from "lodash";
 import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";
 import { GraphThemeRenderingIconTarget } from "../../src/internal/graphviz";
+import * as testUtils from "./test-utils";
 
-jest.setTimeout(30000);
+jest.setTimeout(90000); // CI tests timeout occasionally so increase to large timeout buffer
 
-expect.extend({ toMatchImageSnapshot });
-
-async function getCdkOutDir(name: string): Promise<string> {
-  const dir = path.join(__dirname, "..", ".tmp", "theme", name, "cdk.out");
-
-  await fs.ensureDir(dir);
-  await fs.emptyDir(dir);
-
-  return dir;
-}
+const makeCdkOutdir = async (name: string) =>
+  testUtils.makeCdkOutDir("theme", name);
 
 describe("theme", () => {
   describe.each(["light", "dark"] as aws_arch.Themes[])("%s", (theme) => {
@@ -32,7 +23,7 @@ describe("theme", () => {
     let plugin: CdkGraphDiagramPlugin;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir(theme);
+      outdir = await makeCdkOutdir(theme);
 
       app = new FixtureApp({ outdir });
       plugin = new CdkGraphDiagramPlugin({

@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "path";
 import { CdkGraph } from "@aws-prototyping-sdk/cdk-graph";
 import {
   FixtureApp,
@@ -8,22 +7,14 @@ import {
   StagedApp,
 } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
-import { toMatchImageSnapshot } from "jest-image-snapshot";
 import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { CdkGraphDiagramPlugin } from "../../src";
+import * as testUtils from "./test-utils";
 
-jest.setTimeout(30000);
+jest.setTimeout(90000); // CI tests timeout occasionally so increase to large timeout buffer
 
-expect.extend({ toMatchImageSnapshot });
-
-async function getCdkOutDir(name: string): Promise<string> {
-  const dir = path.join(__dirname, "..", ".tmp", "dot", name, "cdk.out");
-
-  await fs.ensureDir(dir);
-  await fs.emptyDir(dir);
-
-  return dir;
-}
+const makeCdkOutdir = async (name: string) =>
+  testUtils.makeCdkOutDir("dot", name);
 
 describe("dot", () => {
   describe("single-stack-app", () => {
@@ -33,7 +24,7 @@ describe("dot", () => {
     let plugin: CdkGraphDiagramPlugin;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("single-stack-app");
+      outdir = await makeCdkOutdir("single-stack-app");
 
       app = new FixtureApp({ outdir });
       plugin = new CdkGraphDiagramPlugin();
@@ -74,7 +65,7 @@ describe("dot", () => {
     let plugin: CdkGraphDiagramPlugin;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("multi-stack-app");
+      outdir = await makeCdkOutdir("multi-stack-app");
 
       app = new MultiFixtureApp({ outdir });
       plugin = new CdkGraphDiagramPlugin();
@@ -115,7 +106,7 @@ describe("dot", () => {
     let plugin: CdkGraphDiagramPlugin;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("staged-app");
+      outdir = await makeCdkOutdir("staged-app");
 
       app = new StagedApp({ outdir });
       plugin = new CdkGraphDiagramPlugin();

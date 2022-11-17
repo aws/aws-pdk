@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "path";
 import {
   CdkGraph,
   FilterPreset,
@@ -8,22 +7,14 @@ import {
 } from "@aws-prototyping-sdk/cdk-graph";
 import { FixtureApp } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
-import { toMatchImageSnapshot } from "jest-image-snapshot";
 import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";
+import * as testUtils from "./test-utils";
 
-jest.setTimeout(30000);
+jest.setTimeout(90000); // CI tests timeout occasionally so increase to large timeout buffer
 
-expect.extend({ toMatchImageSnapshot });
-
-async function getCdkOutDir(name: string): Promise<string> {
-  const dir = path.join(__dirname, "..", ".tmp", "config", name, "cdk.out");
-
-  await fs.ensureDir(dir);
-  await fs.emptyDir(dir);
-
-  return dir;
-}
+const makeCdkOutdir = async (name: string) =>
+  testUtils.makeCdkOutDir("config", name);
 
 describe("config", () => {
   describe("default", () => {
@@ -33,7 +24,7 @@ describe("config", () => {
     let plugin: CdkGraphDiagramPlugin;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("default");
+      outdir = await makeCdkOutdir("default");
 
       app = new FixtureApp({ outdir });
       plugin = new CdkGraphDiagramPlugin();
@@ -67,7 +58,7 @@ describe("config", () => {
     let plugin: CdkGraphDiagramPlugin;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("default");
+      outdir = await makeCdkOutdir("default");
 
       app = new FixtureApp({ outdir });
       plugin = new CdkGraphDiagramPlugin({

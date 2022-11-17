@@ -215,11 +215,13 @@ export function buildDiagram(
     });
   } else {
     store.root.children.forEach((gChild) => {
-      const subgraphId = `container_${gChild.uuid}`;
-      const subgraph = new Diagram.Subgraph(subgraphId, "");
-      diagram.addSubgraph(subgraph);
-      entities.set(subgraphId, subgraph);
-      visit(gChild, subgraph);
+      if (gChild.isGraphContainer) {
+        gChild.children.forEach((_gChild) => {
+          visit(_gChild, diagram);
+        });
+      } else {
+        visit(gChild, diagram);
+      }
     });
   }
 
