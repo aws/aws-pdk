@@ -22,10 +22,12 @@ import {
   StageSynthesisOptions,
 } from "aws-cdk-lib";
 import { CloudAssembly } from "aws-cdk-lib/cx-api";
-import { NagPackSuppression, NagSuppressions } from "cdk-nag";
+import {
+  AwsSolutionsChecks,
+  NagPackSuppression,
+  NagSuppressions,
+} from "cdk-nag";
 import { IConstruct } from "constructs";
-
-import { AwsPrototypingChecks } from "./packs/aws-prototyping";
 
 const CDK_NAG_MESSAGE_TYPES = {
   ERROR: "aws:cdk:error",
@@ -130,7 +132,7 @@ export class PDKNagApp extends App {
   }
 }
 
-export class PDKNagAspect extends AwsPrototypingChecks {
+class PDKNagAspect extends AwsSolutionsChecks {
   private readonly app: PDKNagApp;
 
   constructor(app: PDKNagApp) {

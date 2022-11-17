@@ -31,13 +31,26 @@ export class PDKNagProject extends PDKProject {
       name: "pdk-nag",
       depsUpgrade: false,
       peerDeps: ["aws-cdk-lib", "constructs", "cdk-nag"],
-      devDeps: ["cdk-nag", "@aws-cdk/assert"],
+      devDeps: [
+        "cdk-nag",
+        "@aws-cdk/assert",
+        "@types/mustache",
+        "mustache",
+        "@types/fs-extra",
+        "fs-extra",
+      ],
       author: "AWS APJ COPE",
       authorAddress: "apj-cope@amazon.com",
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       stability: Stability.STABLE,
     });
-    this.packageTask.exec('ts-node scripts/generate-pack-markdown.ts')
-    this.tsconfigDev.addInclude('scripts/**/*.ts')
+    this.packageTask.exec("ts-node scripts/generate-pack-markdown.ts");
+    this.tsconfigDev.addInclude("scripts/**/*.ts");
+    this.eslint?.addRules({
+      "import/no-extraneous-dependencies": [
+        "error",
+        { devDependencies: ["scripts/**/*.ts", "**/*.test.ts"] },
+      ],
+    });
   }
 }
