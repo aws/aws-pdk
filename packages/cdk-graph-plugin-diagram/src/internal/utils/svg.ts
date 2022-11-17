@@ -6,14 +6,12 @@ import he = require("he"); // eslint-disable-line @typescript-eslint/no-require-
 import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as svgson from "svgson";
 import traverse = require("traverse"); // eslint-disable-line @typescript-eslint/no-require-imports
-import { AmazonEmberFontConfig } from "../fonts";
+import { FONT_CSS_CLASSES } from "../fonts";
 
 const XLINK_HREF = "xlink:href";
 
 const DATAURL_SVG_BASE64 = "data:image/svg+xml;base64,";
 const DATAURL_PNG_BASE64 = "data:image/png;base64,";
-
-const AMAZON_EMBER_FONTS = Object.values(AmazonEmberFontConfig);
 
 /**
  * Convert svg image definition from svg to png.
@@ -84,32 +82,24 @@ export async function extractSvgDimensions(
 }
 
 /**
- * Resolve SVG fonts - which replaced font-config from dot format to html/svg font-family and styles
+ * Add graph font css styles to svg
  * @internal
  */
-export function resolveSvgFonts(svg: svgson.INode): void {
-  traverse(svg).map(function (this: traverse.TraverseContext, x) {
-    if (
-      this.key === "font-family" &&
-      this.parent &&
-      AMAZON_EMBER_FONTS.includes(x)
-    ) {
-      const fontAttributes = marshalFontAttributes(x);
-      traverse(svg).set(
-        this.path,
-        `${fontAttributes["font-family"]}, Arial Narrow, sans-serif`
-      );
-      fontAttributes["font-style"] &&
-        traverse(svg).set(
-          this.parent.path.concat(["font-style"]),
-          fontAttributes["font-style"]
-        );
-      fontAttributes["font-weight"] &&
-        traverse(svg).set(
-          this.parent.path.concat(["font-weight"]),
-          fontAttributes["font-weight"]
-        );
-    }
+export function addGraphFontCssStyles(svg: svgson.INode): void {
+  svg.children.unshift({
+    name: "style",
+    type: "element",
+    value: "",
+    attributes: {},
+    children: [
+      {
+        name: "",
+        type: "text",
+        attributes: {},
+        children: [],
+        value: FONT_CSS_CLASSES,
+      },
+    ],
   });
 }
 
@@ -219,41 +209,6 @@ export function decodeSvgDataUrl(svgDataUrl: string): string {
   return decodeURIComponent(
     escape(Buffer.from(svgDataUrl, "base64").toString("utf-8"))
   );
-}
-
-interface SvgFontAttributes {
-  "font-family": string;
-  "font-style"?: string;
-  "font-weight"?: string;
-}
-
-function marshalFontAttributes(
-  fontFamily: AmazonEmberFontConfig
-): SvgFontAttributes {
-  const [family, style] = fontFamily.split(":");
-
-  const families = family.split(",");
-  const styles = new Set<string>(
-    style.split(",").flatMap((v) => v.toLowerCase().split(" "))
-  );
-
-  const attributes: SvgFontAttributes = {
-    "font-family": families.pop() as string,
-  };
-
-  for (const _style of styles) {
-    switch (_style) {
-      case "bold": {
-        attributes["font-style"] = "bold";
-        break;
-      }
-      case "italic": {
-        attributes["font-style"] = "italic";
-      }
-    }
-  }
-
-  return attributes;
 }
 
 const CSS_TRANSFORM_SCALE = /scale\((?<scale>[^)]+)\)/i;

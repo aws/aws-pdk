@@ -5,7 +5,7 @@ import { aws_arch } from "@aws-prototyping-sdk/aws-arch";
 import type { Graph } from "@aws-prototyping-sdk/cdk-graph";
 import { cloneDeep } from "lodash";
 import * as Dot from "ts-graphviz";
-import { AmazonEmberFontConfig } from "../../fonts";
+import { FONT_STYLESHEET, GraphFonts } from "../../fonts";
 
 /** Icon rendering target options for GraphTheme */
 export enum GraphThemeRenderingIconTarget {
@@ -303,6 +303,8 @@ function generateGraphThemeFromAwsTheme(
 
 /** Base graph attributes */
 const GRAPH_ATTRIBUTES: Dot.GraphAttributesObject = {
+  ...GraphFonts.REGULAR,
+  stylesheet: FONT_STYLESHEET,
   ratio: "fill",
   orientation: "[lL]*",
   size: "%512,%384!",
@@ -313,8 +315,8 @@ const GRAPH_ATTRIBUTES: Dot.GraphAttributesObject = {
   pad: "%2,%1",
   nodesep: 0.6,
   ranksep: 0.75,
-  fontname: AmazonEmberFontConfig.BOLD,
-  fontsize: 15,
+  fontnames: "ps",
+  fontsize: 14,
   rankdir: "LR",
   compound: true,
   fontcolor: "#222222",
@@ -326,36 +328,36 @@ const GRAPH_ATTRIBUTES: Dot.GraphAttributesObject = {
 
 /** Base subgraph attributes */
 const SUBGRAPH_ATTRIBUTES: Dot.SubgraphAttributesObject = {
+  ...GraphFonts.LIGHT_ITALIC,
   labelloc: "tc",
-  fontname: AmazonEmberFontConfig.LIGHT_ITALIC,
   fontsize: 12,
   style: "rounded,solid",
 };
 
 /** Base cluster attributes */
 const CLUSTER_ATTRIBUTES: Dot.SubgraphAttributesObject = {
+  ...GraphFonts.LIGHT,
   labelloc: "tc",
-  fontname: AmazonEmberFontConfig.LIGHT_REGULAR,
   fontsize: 12,
   style: "rounded,dashed",
 };
 
 /** Base cloud container attributes */
 const CLOUD_ATTRIBUTES: Dot.SubgraphAttributesObject = {
-  fontname: AmazonEmberFontConfig.BOLD,
+  ...GraphFonts.BOLD,
   style: "solid",
 };
 
 /** Base stage attributes */
 const STAGE_ATTRIBUTES: Dot.SubgraphAttributesObject = {
-  fontname: AmazonEmberFontConfig.BOLD_ITALIC,
+  ...GraphFonts.BOLD_ITALIC,
   style: "dashed",
   margin: 6,
 };
 
 /** Base stack attributes */
 const STACK_ATTRIBUTES: Dot.SubgraphAttributesObject = {
-  fontname: AmazonEmberFontConfig.LIGHT_REGULAR,
+  ...GraphFonts.LIGHT,
   style: "solid,bold,filled",
   fillcolor: "#5A6B861A", // 10%
   margin: 10,
@@ -363,7 +365,7 @@ const STACK_ATTRIBUTES: Dot.SubgraphAttributesObject = {
 
 /** Base nested stack attributes */
 const NESTED_STACK_ATTRIBUTES: Dot.SubgraphAttributesObject = {
-  fontname: AmazonEmberFontConfig.LIGHT_ITALIC,
+  ...GraphFonts.LIGHT_ITALIC,
   style: "solid,filled",
   fillcolor: "#5A6B861A", // 10%
   margin: 6,
@@ -371,6 +373,7 @@ const NESTED_STACK_ATTRIBUTES: Dot.SubgraphAttributesObject = {
 
 /** Base node attributes */
 const NODE_ATTRIBUTES: Dot.NodeAttributesObject = {
+  ...GraphFonts.REGULAR,
   shape: "box",
   style: "solid",
   fixedsize: false,
@@ -378,7 +381,6 @@ const NODE_ATTRIBUTES: Dot.NodeAttributesObject = {
   height: 0.25,
   labelloc: "c",
   imagescale: true,
-  fontname: AmazonEmberFontConfig.CONDENSED_REGULAR,
   fontsize: 11,
   penwidth: 0.25,
 };
@@ -427,6 +429,7 @@ const CUSTOM_RESOURCE_NODE_ATTRIBUTES: Dot.NodeAttributesObject = {
 
 /** Base edge attributes */
 const EDGE_ATTRIBUTES: Dot.EdgeAttributesObject = {
+  ...GraphFonts.LIGHT_ITALIC,
   dir: "both",
   color: "#545B64",
   penwidth: 0.75,
@@ -434,7 +437,6 @@ const EDGE_ATTRIBUTES: Dot.EdgeAttributesObject = {
   arrowtail: "dot",
   arrowsize: 0.5,
   fontsize: 9,
-  fontname: AmazonEmberFontConfig.CONDENSED_LIGHT_ITALIC,
   style: "solid",
 };
 

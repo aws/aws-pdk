@@ -3,6 +3,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "node:path";
 import execa = require("execa"); // eslint-disable-line @typescript-eslint/no-require-imports
+import { FONT_FAMILY } from "../../fonts";
 import { Options } from "./types";
 import { resolveDotWasmImage, resolveSvg } from "./utils";
 
@@ -42,7 +43,9 @@ export async function invokeDotWasm(
 function logDotWasmErrors(stderr: string): void {
   stderr.split("\n").forEach((line) => {
     // Ignore font mapping issues - they are resolved by svg rendering itself
-    if (!line.startsWith("Warning: no hard-coded metrics for 'Amazon Ember")) {
+    if (
+      !line.startsWith(`Warning: no hard-coded metrics for '${FONT_FAMILY}'`)
+    ) {
       console.warn("[dot-wasm]", line);
     }
   });

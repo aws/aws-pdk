@@ -5,9 +5,9 @@ import * as fs from "node:fs";
 import { promisify } from "node:util";
 import * as svgson from "svgson";
 import {
+  addGraphFontCssStyles,
   extractSvgDimensions,
   reconcileViewBox,
-  resolveSvgFonts,
   resolveSvgImagesInline,
   unescapeSvgTextValues,
 } from "../../utils/svg";
@@ -55,7 +55,7 @@ export async function resolveSvg(svgString: string): Promise<string> {
   delete svg.attributes.width;
   delete svg.attributes.height;
 
-  resolveSvgFonts(svg);
+  addGraphFontCssStyles(svg);
 
   await resolveSvgImagesInline(svg);
 
