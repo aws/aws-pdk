@@ -41,9 +41,11 @@ describe("dot", () => {
         await fs.pathExists(plugin.defaultDotArtifact!.filepath)
       ).toBeTruthy();
       expect(
-        await fs.readFile(plugin.defaultDotArtifact!.filepath, {
-          encoding: "utf-8",
-        })
+        testUtils.cleanseDotSnapshot(
+          await fs.readFile(plugin.defaultDotArtifact!.filepath, {
+            encoding: "utf-8",
+          })
+        )
       ).toMatchSnapshot();
     });
 
@@ -82,9 +84,11 @@ describe("dot", () => {
         await fs.pathExists(plugin.defaultDotArtifact!.filepath)
       ).toBeTruthy();
       expect(
-        await fs.readFile(plugin.defaultDotArtifact!.filepath, {
-          encoding: "utf-8",
-        })
+        testUtils.cleanseDotSnapshot(
+          await fs.readFile(plugin.defaultDotArtifact!.filepath, {
+            encoding: "utf-8",
+          })
+        )
       ).toMatchSnapshot();
     });
 
@@ -123,9 +127,11 @@ describe("dot", () => {
         await fs.pathExists(plugin.defaultDotArtifact!.filepath)
       ).toBeTruthy();
       expect(
-        await fs.readFile(plugin.defaultDotArtifact!.filepath, {
-          encoding: "utf-8",
-        })
+        testUtils.cleanseDotSnapshot(
+          await fs.readFile(plugin.defaultDotArtifact!.filepath, {
+            encoding: "utf-8",
+          })
+        )
       ).toMatchSnapshot();
     });
 

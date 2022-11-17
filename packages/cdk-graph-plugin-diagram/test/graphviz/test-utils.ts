@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
+import { AwsArchitecture } from "@aws-prototyping-sdk/aws-arch";
 import * as fs from "fs-extra";
 import { toMatchImageSnapshot } from "jest-image-snapshot";
 
@@ -13,4 +14,11 @@ export async function makeCdkOutDir(...name: string[]): Promise<string> {
   await fs.emptyDir(dir);
 
   return dir;
+}
+
+export function cleanseDotSnapshot(dot: string): string {
+  return dot.replace(
+    AwsArchitecture.assetDirectory,
+    "<aws_arch_asset_directory"
+  );
 }

@@ -3,12 +3,13 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "node:fs";
 import { promisify } from "node:util";
+import { AwsArchitecture } from "@aws-prototyping-sdk/aws-arch";
 import * as svgson from "svgson";
 import {
   addGraphFontCssStyles,
   extractSvgDimensions,
   reconcileViewBox,
-  resolveSvgImagesInline,
+  resolveSvgAwsArchAssetImagesInline,
   unescapeSvgTextValues,
 } from "../../utils/svg";
 import { Image } from "./types";
@@ -20,13 +21,14 @@ const readFile = promisify(fs.readFile);
  * struct which requires width and height dimensions.
  */
 export async function resolveDotWasmImage(
-  absoluteAssetPath: string
+  relativePath: string
 ): Promise<Image> {
-  const svgString = await readFile(absoluteAssetPath, { encoding: "utf-8" });
+  const absolutePath = AwsArchitecture.resolveAssetPath(relativePath);
+  const svgString = await readFile(absolutePath, { encoding: "utf-8" });
   const dimensions = await extractSvgDimensions(svgString);
 
   return {
-    path: absoluteAssetPath,
+    path: absolutePath,
     width: dimensions.width,
     height: dimensions.height,
   };
@@ -57,7 +59,7 @@ export async function resolveSvg(svgString: string): Promise<string> {
 
   addGraphFontCssStyles(svg);
 
-  await resolveSvgImagesInline(svg);
+  await resolveSvgAwsArchAssetImagesInline(svg);
 
   return svgson.stringify(svg);
 }

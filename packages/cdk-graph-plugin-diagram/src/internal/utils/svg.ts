@@ -107,16 +107,29 @@ export function addGraphFontCssStyles(svg: svgson.INode): void {
  * Resolve SVG image paths to inline base64 **Data URLs**.
  * @internal
  */
-export async function resolveSvgImagesInline(svg: svgson.INode): Promise<void> {
+export async function resolveSvgAwsArchAssetImagesInline(
+  svg: svgson.INode
+): Promise<void> {
   const imageDefs = new Map<string, svgson.INode>();
 
   svg = traverse(svg).forEach(function (this: traverse.TraverseContext, x) {
     if (typeof x === "object" && x.type === "element") {
       const node = x as svgson.INode;
-      if (
-        node.name === "image" &&
-        node.attributes[XLINK_HREF]?.startsWith(AwsArchitecture.assetDirectory)
-      ) {
+      if (node.name !== "image") {
+        return;
+      }
+
+      const xlinkHref = node.attributes[XLINK_HREF];
+      const isAssetPath =
+        xlinkHref &&
+        xlinkHref.length &&
+        !(
+          xlinkHref.startsWith("http") ||
+          (xlinkHref.startsWith("/") &&
+            !xlinkHref.startsWith(AwsArchitecture.assetDirectory))
+        );
+
+      if (isAssetPath) {
         const {
           width,
           height,
@@ -137,7 +150,7 @@ export async function resolveSvgImagesInline(svg: svgson.INode): Promise<void> {
               id,
               width,
               height,
-              [XLINK_HREF]: assetPath,
+              [XLINK_HREF]: AwsArchitecture.resolveAssetPath(assetPath),
             },
           });
         }

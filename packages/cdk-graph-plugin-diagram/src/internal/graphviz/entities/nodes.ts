@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { AwsArchitecture } from "@aws-prototyping-sdk/aws-arch";
 import { Graph } from "@aws-prototyping-sdk/cdk-graph";
 import { words, startCase } from "lodash";
 import * as Dot from "ts-graphviz";
@@ -97,7 +96,6 @@ export class ImageNode extends Node {
     // If image not defined, treat as regular node
     if (image) {
       this.attributes.apply(GraphTheme.instance.imageNode);
-      image = AwsArchitecture.resolveAssetPath(image);
       this.attributes.set("image", image);
       this.resize();
     }
