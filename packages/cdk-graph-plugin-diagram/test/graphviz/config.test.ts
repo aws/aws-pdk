@@ -7,7 +7,6 @@ import {
 } from "@aws-prototyping-sdk/cdk-graph";
 import { FixtureApp } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
-import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";
 import * as testUtils from "./test-utils";
 
@@ -48,9 +47,10 @@ describe("config", () => {
         )
       ).toMatchSnapshot();
 
-      expect(
-        await sharp(plugin.defaultPngArtifact!.filepath).toBuffer()
-      ).toMatchImageSnapshot();
+      await testUtils.expectToMatchImageSnapshot(
+        plugin.defaultPngArtifact!.filepath,
+        "default"
+      );
     });
   });
   describe("plan", () => {
@@ -123,9 +123,13 @@ describe("config", () => {
         expect(artifact).toBeDefined();
         expect(await fs.pathExists(artifact!.filepath)).toBeTruthy();
 
-        expect(
-          await sharp(artifact!.filepath).toBuffer()
-        ).toMatchImageSnapshot();
+        await testUtils.expectToMatchImageSnapshot(
+          artifact!.filepath,
+          diagramName,
+          // focus and focus-nohoist rendering of fonts is a bit more variant on CI
+          diagramName.startsWith("focus") ? 0.1 : undefined,
+          diagramName.startsWith("focus") ? 0.2 : undefined
+        );
       }
     );
   });

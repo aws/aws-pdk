@@ -8,7 +8,6 @@ import {
 } from "@aws-prototyping-sdk/cdk-graph";
 import { FixtureApp } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
-import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";
 import * as testUtils from "./test-utils";
 
@@ -30,7 +29,7 @@ describe("filter", () => {
     plugin = new CdkGraphDiagramPlugin({
       diagrams: [
         {
-          name: "includeCfnType",
+          name: "filter-cfntype-include",
           title: "Include CfnType Diagram (filter)",
           filterPlan: {
             filters: [
@@ -44,7 +43,7 @@ describe("filter", () => {
           },
         },
         {
-          name: "excludeCfnType",
+          name: "filter-cfntype-exclude",
           title: "Exclude CfnType Diagram (filter)",
           filterPlan: {
             filters: [
@@ -57,7 +56,7 @@ describe("filter", () => {
           },
         },
         {
-          name: "includeNodeType",
+          name: "filter-nodetype-include",
           title: "Include NodeType Diagram (filter)",
           filterPlan: {
             filters: [
@@ -70,7 +69,7 @@ describe("filter", () => {
           },
         },
         {
-          name: "excludeNodeType",
+          name: "filter-nodetype-exclude",
           title: "Exclude NodeType Diagram (filter)",
           filterPlan: {
             filters: [
@@ -85,7 +84,7 @@ describe("filter", () => {
           },
         },
         {
-          name: "uncluster",
+          name: "filter-uncluster",
           title: "Uncluster Diagram (filter)",
           filterPlan: {
             filters: [Filters.uncluster(), Filters.compact()],
@@ -105,16 +104,16 @@ describe("filter", () => {
   });
 
   it.each([
-    "includeCfnType",
-    "excludeCfnType",
-    "includeNodeType",
-    "excludeNodeType",
-    "uncluster",
+    "filter-cfntype-include",
+    "filter-cfntype-exclude",
+    "filter-nodetype-include",
+    "filter-nodetype-exclude",
+    "filter-uncluster",
   ])("%s", async (diagramName) => {
     const artifact = plugin.getDiagramArtifact(diagramName, DiagramFormat.PNG);
     expect(artifact).toBeDefined();
     expect(await fs.pathExists(artifact!.filepath)).toBeTruthy();
 
-    expect(await sharp(artifact!.filepath).toBuffer()).toMatchImageSnapshot();
+    await testUtils.expectToMatchImageSnapshot(artifact!.filepath, diagramName);
   });
 });

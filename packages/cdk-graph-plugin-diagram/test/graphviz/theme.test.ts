@@ -5,7 +5,6 @@ import { CdkGraph } from "@aws-prototyping-sdk/cdk-graph";
 import { FixtureApp } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
 import { capitalize } from "lodash";
-import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";
 import { GraphThemeRenderingIconTarget } from "../../src/internal/graphviz";
 import * as testUtils from "./test-utils";
@@ -34,7 +33,7 @@ describe("theme", () => {
             theme: theme,
           },
           {
-            name: `${theme}-custom`,
+            name: `${theme}-services`,
             title: `${capitalize(theme)} Theme Custom Diagram`,
             theme: {
               theme: theme,
@@ -61,13 +60,14 @@ describe("theme", () => {
       await graph.report();
     });
 
-    it.each([theme, `${theme}-custom`, `${theme}-verbose`])(
+    it.each([theme, `${theme}-services`, `${theme}-verbose`])(
       "%s",
       async (id) => {
         const artifact = plugin.getDiagramArtifact(id, DiagramFormat.PNG);
         const filepath = artifact!.filepath;
         expect(await fs.pathExists(filepath)).toBeTruthy();
-        expect(await sharp(filepath).toBuffer()).toMatchImageSnapshot();
+
+        await testUtils.expectToMatchImageSnapshot(filepath, id);
       }
     );
   });

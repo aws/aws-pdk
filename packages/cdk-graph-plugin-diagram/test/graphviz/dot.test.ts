@@ -7,7 +7,6 @@ import {
   StagedApp,
 } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
-import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { CdkGraphDiagramPlugin } from "../../src";
 import * as testUtils from "./test-utils";
 
@@ -54,9 +53,11 @@ describe("dot", () => {
       expect(
         await fs.pathExists(plugin.defaultPngArtifact!.filepath)
       ).toBeTruthy();
-      expect(
-        await sharp(plugin.defaultPngArtifact!.filepath).toBuffer()
-      ).toMatchImageSnapshot();
+
+      await testUtils.expectToMatchImageSnapshot(
+        plugin.defaultPngArtifact!.filepath,
+        "single-stack"
+      );
     });
   });
 
@@ -97,9 +98,11 @@ describe("dot", () => {
       expect(
         await fs.pathExists(plugin.defaultPngArtifact!.filepath)
       ).toBeTruthy();
-      expect(
-        await sharp(plugin.defaultPngArtifact!.filepath).toBuffer()
-      ).toMatchImageSnapshot();
+
+      await testUtils.expectToMatchImageSnapshot(
+        plugin.defaultPngArtifact!.filepath,
+        "multi-stack"
+      );
     });
   });
 
@@ -140,9 +143,11 @@ describe("dot", () => {
       expect(
         await fs.pathExists(plugin.defaultPngArtifact!.filepath)
       ).toBeTruthy();
-      expect(
-        await sharp(plugin.defaultPngArtifact!.filepath).toBuffer()
-      ).toMatchImageSnapshot();
+
+      await testUtils.expectToMatchImageSnapshot(
+        plugin.defaultPngArtifact!.filepath,
+        "staged"
+      );
     });
   });
 });
