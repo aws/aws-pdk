@@ -7,22 +7,41 @@ import { PDKProject } from "../pdk-project";
 /**
  * Contains utils for testing CDK based constructs.
  */
-export class PDKNagProject extends PDKProject {
+ export class PDKNagProject extends PDKProject {
   constructor(parent: Project) {
     super({
       parent,
       outdir: "packages/pdk-nag",
       defaultReleaseBranch: "mainline",
       sampleCode: false,
-      jest: false,
+      jest: true,
       name: "pdk-nag",
       depsUpgrade: false,
       peerDeps: ["aws-cdk-lib", "constructs", "cdk-nag"],
-      devDeps: ["cdk-nag"],
+      devDeps: [
+        "cdk-nag",
+        "@aws-cdk/assert",
+        "@types/mustache",
+        "mustache",
+        "@types/fs-extra",
+        "fs-extra",
+        "ts-node"
+      ],
       author: "AWS APJ COPE",
       authorAddress: "apj-cope@amazon.com",
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       stability: Stability.STABLE,
+      eslintOptions: {
+        dirs: ["src", "scripts"],
+      },
+    });
+    this.packageTask.exec("npx ts-node scripts/generate-pack-markdown.ts");
+    this.tsconfigEslint!.addInclude("scripts");
+    this.eslint?.addRules({
+      "import/no-extraneous-dependencies": [
+        "error",
+        { devDependencies: ["scripts/**/*.ts", "**/*.test.ts"] },
+      ],
     });
   }
 }
