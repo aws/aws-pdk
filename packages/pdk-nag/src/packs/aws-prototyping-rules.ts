@@ -2,8 +2,16 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { NagMessageLevel, rules } from "cdk-nag";
 
+/**
+ * Pack name
+ *
+ */
 export let PackName = "AwsPrototyping";
 
+/**
+ * Rule metadata
+ *
+ */
 export let RuleMetadata = [
   {
     info: "The S3 bucket does not prohibit public access through bucket level settings.",

@@ -7,7 +7,7 @@ import { IConstruct } from "constructs";
 import { PackName, RuleMetadata } from "./aws-prototyping-rules";
 
 /**
- * Check Best practices for prototypes
+ * Check best practices for prototypes
  *
  */
 export class AwsPrototypingChecks extends NagPack {
@@ -15,6 +15,9 @@ export class AwsPrototypingChecks extends NagPack {
     super(props);
     this.packName = PackName;
   }
+  /**
+   * Check if CfnResource and apply rules
+   */
   public visit(node: IConstruct): void {
     if (node instanceof CfnResource) {
       RuleMetadata.forEach((rule) => {
