@@ -292,10 +292,10 @@ jobs:
         id: self_mutation
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=self_mutation_happened::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"self_mutation_happened=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.self_mutation.outputs.self_mutation_happened
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -396,14 +396,14 @@ jobs:
         run: npx projen release:mainline
       - name: Check for new commits
         id: git_remote
-        run: echo ::set-output name=latest_commit::\\"$(git ls-remote origin -h \${{ github.ref }} | cut -f1)\\"
+        run: echo \\"latest_commit=$(git ls-remote origin -h \${{ github.ref }} | cut -f1)\\" >> $GITHUB_OUTPUT
       - name: Backup artifact permissions
         if: \${{ steps.git_remote.outputs.latest_commit == github.sha }}
         run: cd dist && getfacl -R . > permissions-backup.acl
         continue-on-error: true
       - name: Upload artifact
         if: \${{ steps.git_remote.outputs.latest_commit == github.sha }}
-        uses: actions/upload-artifact@v2.1.1
+        uses: actions/upload-artifact@v3
         with:
           name: build-artifact
           path: dist
@@ -461,10 +461,10 @@ jobs:
         id: create_patch
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=patch_created::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"patch_created=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -677,7 +677,7 @@ tsconfig.tsbuildinfo
       Object {
         "name": "npm-check-updates",
         "type": "build",
-        "version": "^15",
+        "version": "^16",
       },
       Object {
         "name": "projen",
@@ -695,16 +695,6 @@ tsconfig.tsbuildinfo
       Object {
         "name": "typescript",
         "type": "build",
-      },
-      Object {
-        "name": "@types/responselike",
-        "type": "override",
-        "version": "1.0.0",
-      },
-      Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
       },
       Object {
         "name": "@aws-prototyping-sdk/open-api-gateway",
@@ -927,7 +917,7 @@ tsconfig.tsbuildinfo
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "jest --passWithNoTests --all --updateSnapshot",
+            "exec": "jest --passWithNoTests --updateSnapshot",
           },
           Object {
             "spawn": "eslint",
@@ -4573,7 +4563,7 @@ src/runtime.ts
       Object {
         "name": "npm-check-updates",
         "type": "build",
-        "version": "^15",
+        "version": "^16",
       },
       Object {
         "name": "projen",
@@ -4586,16 +4576,6 @@ src/runtime.ts
       Object {
         "name": "typescript",
         "type": "build",
-      },
-      Object {
-        "name": "@types/responselike",
-        "type": "override",
-        "version": "1.0.0",
-      },
-      Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
       },
       Object {
         "name": "@types/aws-lambda",
@@ -4736,7 +4716,7 @@ src/runtime.ts
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "jest --passWithNoTests --all --updateSnapshot",
+            "exec": "jest --passWithNoTests --updateSnapshot",
           },
         ],
       },
@@ -5058,7 +5038,7 @@ npm install PATH_TO_GENERATED_PACKAGE --save
       "@types/node": "^14",
       "jest": "*",
       "jest-junit": "^13",
-      "npm-check-updates": "^15",
+      "npm-check-updates": "^16",
       "projen": "*",
       "ts-jest": "*",
       "typescript": "*",
@@ -5106,10 +5086,6 @@ npm install PATH_TO_GENERATED_PACKAGE --save
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "@test/my-api-typescript",
-    "resolutions": Object {
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
-    },
     "scripts": Object {
       "build": "npx projen build",
       "clobber": "npx projen clobber",
@@ -6000,7 +5976,7 @@ export class TextApiResponse {
       "jest": "*",
       "jest-junit": "^13",
       "json-schema": "*",
-      "npm-check-updates": "^15",
+      "npm-check-updates": "^16",
       "projen": "*",
       "standard-version": "^9",
       "ts-jest": "*",
@@ -6050,10 +6026,6 @@ export class TextApiResponse {
     "main": "lib/index.js",
     "name": "@test/my-api",
     "private": true,
-    "resolutions": Object {
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
-    },
     "scripts": Object {
       "build": "npx projen build",
       "bump": "npx projen bump",

@@ -1,7 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { Auth as AmplifyAuth } from '@aws-amplify/auth';
+import { Amplify, Hub } from '@aws-amplify/core';
 import { Authenticator, ThemeProvider, Theme, useTheme } from '@aws-amplify/ui-react';
-import { Amplify, Auth as AmplifyAuth, Hub } from 'aws-amplify';
 import React, { createContext, useCallback, useEffect, useState, useMemo } from 'react';
 
 /**

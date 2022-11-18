@@ -33,7 +33,7 @@ export class CdkGraphProject extends PDKProject {
       peerDeps: ["projen", "aws-cdk-lib", "constructs"],
       bundledDeps: [
         "chalk@4",
-        "find-up",
+        "find-up@^4",
         "fs-extra",
         "lodash.clonedeep",
         "lodash.isempty",

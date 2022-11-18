@@ -283,10 +283,10 @@ jobs:
         id: self_mutation
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=self_mutation_happened::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"self_mutation_happened=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.self_mutation.outputs.self_mutation_happened
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -381,10 +381,10 @@ jobs:
         id: create_patch
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=patch_created::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"patch_created=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -602,7 +602,7 @@ tsconfig.tsbuildinfo
       Object {
         "name": "npm-check-updates",
         "type": "build",
-        "version": "^15",
+        "version": "^16",
       },
       Object {
         "name": "projen",
@@ -622,16 +622,6 @@ tsconfig.tsbuildinfo
         "name": "@types/express",
         "type": "override",
         "version": "4.17.13",
-      },
-      Object {
-        "name": "@types/responselike",
-        "type": "override",
-        "version": "1.0.0",
-      },
-      Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
       },
       Object {
         "name": "@aws-amplify/ui-react",
@@ -1200,7 +1190,7 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
       "eslint-import-resolver-typescript": "*",
       "eslint-plugin-import": "*",
       "json-schema": "*",
-      "npm-check-updates": "^15",
+      "npm-check-updates": "^16",
       "projen": "*",
       "typescript": "^4.0.3",
     },
@@ -1215,8 +1205,6 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
     "resolutions": Object {
       "@types/express": "4.17.13",
       "@types/express-serve-static-core": "4.17.30",
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
     },
     "scripts": Object {
       "build": "npx projen build",
@@ -1405,8 +1393,9 @@ const App: React.FC = () => {
 export default App;",
   "src/Auth.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { Auth as AmplifyAuth } from '@aws-amplify/auth';
+import { Amplify, Hub } from '@aws-amplify/core';
 import { Authenticator, ThemeProvider, Theme, useTheme } from '@aws-amplify/ui-react';
-import { Amplify, Auth as AmplifyAuth, Hub } from 'aws-amplify';
 import React, { createContext, useCallback, useEffect, useState, useMemo } from 'react';
 
 /**
@@ -1566,10 +1555,11 @@ const Home: React.FC = () => {
 export default Home;",
   "src/NavHeader.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+
+import { Auth as AmplifyAuth } from '@aws-amplify/auth';
 import { TopNavigation } from '@cloudscape-design/components';
 import { TopNavigationProps } from '@cloudscape-design/components/top-navigation/1.0-beta';
 import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
-import { Auth as AmplifyAuth } from 'aws-amplify';
 import React, { useContext, useState } from 'react';
 import { RuntimeConfigContext } from './Auth';
 import Config from './config.json';
@@ -2183,10 +2173,10 @@ jobs:
         id: self_mutation
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=self_mutation_happened::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"self_mutation_happened=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.self_mutation.outputs.self_mutation_happened
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -2281,10 +2271,10 @@ jobs:
         id: create_patch
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=patch_created::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"patch_created=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -2502,7 +2492,7 @@ tsconfig.tsbuildinfo
       Object {
         "name": "npm-check-updates",
         "type": "build",
-        "version": "^15",
+        "version": "^16",
       },
       Object {
         "name": "projen",
@@ -2522,16 +2512,6 @@ tsconfig.tsbuildinfo
         "name": "@types/express",
         "type": "override",
         "version": "4.17.13",
-      },
-      Object {
-        "name": "@types/responselike",
-        "type": "override",
-        "version": "1.0.0",
-      },
-      Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
       },
       Object {
         "name": "@aws-amplify/ui-react",
@@ -3095,7 +3075,7 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
       "eslint-import-resolver-typescript": "*",
       "eslint-plugin-import": "*",
       "json-schema": "*",
-      "npm-check-updates": "^15",
+      "npm-check-updates": "^16",
       "projen": "*",
       "typescript": "^4.0.3",
     },
@@ -3110,8 +3090,6 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
     "resolutions": Object {
       "@types/express": "4.17.13",
       "@types/express-serve-static-core": "4.17.30",
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
     },
     "scripts": Object {
       "build": "npx projen build",
@@ -3300,8 +3278,9 @@ const App: React.FC = () => {
 export default App;",
   "src/Auth.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { Auth as AmplifyAuth } from '@aws-amplify/auth';
+import { Amplify, Hub } from '@aws-amplify/core';
 import { Authenticator, ThemeProvider, Theme, useTheme } from '@aws-amplify/ui-react';
-import { Amplify, Auth as AmplifyAuth, Hub } from 'aws-amplify';
 import React, { createContext, useCallback, useEffect, useState, useMemo } from 'react';
 
 /**
@@ -3461,10 +3440,11 @@ const Home: React.FC = () => {
 export default Home;",
   "src/NavHeader.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+
+import { Auth as AmplifyAuth } from '@aws-amplify/auth';
 import { TopNavigation } from '@cloudscape-design/components';
 import { TopNavigationProps } from '@cloudscape-design/components/top-navigation/1.0-beta';
 import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
-import { Auth as AmplifyAuth } from 'aws-amplify';
 import React, { useContext, useState } from 'react';
 import { RuntimeConfigContext } from './Auth';
 import Config from './config.json';

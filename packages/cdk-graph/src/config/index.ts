@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+
 import findUp = require("find-up"); // eslint-disable-line @typescript-eslint/no-require-imports
 
 /** CdkGraph config file name */
