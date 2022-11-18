@@ -1,9 +1,10 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+
+import { Auth as AmplifyAuth } from '@aws-amplify/auth';
 import { TopNavigation } from '@cloudscape-design/components';
 import { TopNavigationProps } from '@cloudscape-design/components/top-navigation/1.0-beta';
 import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
-import { Auth as AmplifyAuth } from 'aws-amplify';
 import React, { useContext, useState } from 'react';
 import { RuntimeConfigContext } from './Auth';
 import Config from './config.json';
