@@ -13,7 +13,7 @@ import { Release } from "projen/lib/release";
 import {
   ProjectTargets,
   TargetDependencyProject,
-} from "../packages/nx-monorepo";
+} from "../packages/nx-monorepo/src";
 import {
   DEFAULT_NX_OUTPUTS,
   JEST_VERSION,
