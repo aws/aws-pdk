@@ -3,8 +3,10 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Dependency, DependencyType, Project } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { ProjectTargets } from "../../packages/nx-monorepo";
-import { NxMonorepoProject } from "../../packages/nx-monorepo/src";
+import {
+  ProjectTargets,
+  NxMonorepoProject,
+} from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 import { PDKMonorepoProject } from "./pdk-monorepo-project";
 

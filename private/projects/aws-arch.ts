@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { Project, TaskStep } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { ProjectTargets } from "../../packages/nx-monorepo";
+import { ProjectTargets } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
 /**
