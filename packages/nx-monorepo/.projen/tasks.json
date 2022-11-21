@@ -112,7 +112,7 @@
       "description": "Runs eslint against the codebase",
       "steps": [
         {
-          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js"
+          "exec": "eslint --ext .ts,.tsx ${CI:-'--fix'} --no-error-on-unmatched-pattern src test"
         }
       ]
     },
@@ -122,6 +122,14 @@
       "steps": [
         {
           "exec": "eslint --fix --no-error-on-unmatched-pattern $(git diff --name-only --relative --staged HEAD . | grep -E '.(ts|tsx)$' | grep -v 'samples/*' | xargs)"
+        }
+      ]
+    },
+    "jest": {
+      "name": "jest",
+      "steps": [
+        {
+          "exec": "jest --passWithNoTests ${CI:-'--updateSnapshot'}"
         }
       ]
     },
@@ -228,7 +236,7 @@
       "description": "Run tests",
       "steps": [
         {
-          "exec": "jest --passWithNoTests --updateSnapshot"
+          "spawn": "jest"
         },
         {
           "spawn": "eslint"

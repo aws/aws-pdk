@@ -121,6 +121,19 @@ export class PDKProject extends JsiiProject {
       });
     }
 
+    const eslintTask = this.tasks.tryFind("eslint");
+    eslintTask?.reset(
+      `eslint --ext .ts,.tsx \${CI:-'--fix'} --no-error-on-unmatched-pattern ${this.srcdir} ${this.testdir}`
+    );
+    const jestTask =
+      this.jest &&
+      this.addTask("jest", {
+        exec: `jest --passWithNoTests \${CI:-'--updateSnapshot'}`,
+      });
+    this.testTask.reset();
+    jestTask && this.testTask.spawn(jestTask);
+    eslintTask && this.testTask.spawn(eslintTask);
+
     this.addTask("eslint-staged", {
       description: "Run eslint against the staged files only",
       steps: [
