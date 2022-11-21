@@ -38,6 +38,14 @@
       ],
       "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
     },
+    "clean": {
+      "name": "clean",
+      "steps": [
+        {
+          "exec": "rm -rf assets src/generated"
+        }
+      ]
+    },
     "clobber": {
       "name": "clobber",
       "description": "hard resets to HEAD of origin and cleans the local repo",
@@ -109,7 +117,7 @@
       "description": "Runs eslint against the codebase",
       "steps": [
         {
-          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js"
+          "exec": "eslint --ext .ts,.tsx ${CI:-'--fix'} --no-error-on-unmatched-pattern src test"
         }
       ]
     },
@@ -125,6 +133,9 @@
     "generate": {
       "name": "generate",
       "steps": [
+        {
+          "spawn": "clean"
+        },
         {
           "spawn": "generate:assets"
         },
@@ -166,15 +177,6 @@
         }
       ]
     },
-    "generate:lazy": {
-      "name": "generate:lazy",
-      "steps": [
-        {
-          "spawn": "generate"
-        }
-      ],
-      "condition": "[ ! -d \"./assets\" ]"
-    },
     "generate:mappings": {
       "name": "generate:mappings",
       "steps": [
@@ -188,6 +190,14 @@
       "steps": [
         {
           "exec": "ts-node ./scripts/generate-pricing-manifest.ts"
+        }
+      ]
+    },
+    "jest": {
+      "name": "jest",
+      "steps": [
+        {
+          "exec": "jest --passWithNoTests ${CI:-'--updateSnapshot'}"
         }
       ]
     },
@@ -260,7 +270,7 @@
       "description": "Prepare the project for compilation",
       "steps": [
         {
-          "spawn": "generate:lazy"
+          "spawn": "generate"
         }
       ]
     },
@@ -299,7 +309,7 @@
       "description": "Run tests",
       "steps": [
         {
-          "exec": "jest --passWithNoTests --updateSnapshot"
+          "spawn": "jest"
         },
         {
           "spawn": "eslint"

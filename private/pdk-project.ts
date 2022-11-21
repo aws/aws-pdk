@@ -10,7 +10,14 @@ import {
   Stability,
 } from "projen/lib/cdk";
 import { Release } from "projen/lib/release";
-import { JEST_VERSION } from "./projects/pdk-monorepo-project";
+import {
+  ProjectTargets,
+  TargetDependencyProject,
+} from "../packages/nx-monorepo/src";
+import {
+  DEFAULT_NX_OUTPUTS,
+  JEST_VERSION,
+} from "./projects/pdk-monorepo-project";
 
 /**
  * Configuration options for the PDK Project.
@@ -36,7 +43,7 @@ export interface PDKProjectOptions extends JsiiProjectOptions {
  *
  * This project handles correct naming for the PDK, along with validation and auto publishing of artifacts to the various package managers.
  */
-export class PDKProject extends JsiiProject {
+export abstract class PDKProject extends JsiiProject {
   public readonly pdkRelease: PDKRelease;
 
   constructor(options: PDKProjectOptions) {
@@ -121,6 +128,19 @@ export class PDKProject extends JsiiProject {
       });
     }
 
+    const eslintTask = this.tasks.tryFind("eslint");
+    eslintTask?.reset(
+      `eslint --ext .ts,.tsx \${CI:-'--fix'} --no-error-on-unmatched-pattern ${this.srcdir} ${this.testdir}`
+    );
+    const jestTask =
+      this.jest &&
+      this.addTask("jest", {
+        exec: `jest --passWithNoTests \${CI:-'--updateSnapshot'}`,
+      });
+    this.testTask.reset();
+    jestTask && this.testTask.spawn(jestTask);
+    eslintTask && this.testTask.spawn(eslintTask);
+
     this.addTask("eslint-staged", {
       description: "Run eslint against the staged files only",
       steps: [
@@ -131,6 +151,25 @@ export class PDKProject extends JsiiProject {
     });
 
     this.pdkRelease = new PDKRelease(this);
+  }
+
+  /**
+   * Provides the ability to override project specific NX Project Targets.
+   *
+   * @return Nx ProjectTargets specific to this package.
+   */
+  public getNxProjectTargets(): ProjectTargets {
+    return {
+      build: {
+        outputs: [...DEFAULT_NX_OUTPUTS, "{projectRoot}/.jsii"],
+        dependsOn: [
+          {
+            target: "build",
+            projects: TargetDependencyProject.DEPENDENCIES,
+          },
+        ],
+      },
+    };
   }
 }
 

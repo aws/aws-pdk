@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { Project, TaskStep } from "projen";
 import { Stability } from "projen/lib/cdk";
+import { ProjectTargets } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
 /**
@@ -53,6 +54,9 @@ export class AwsArchProject extends PDKProject {
     ]);
 
     const generateTasks = [
+      this.addTask("clean", {
+        exec: "rm -rf assets src/generated",
+      }),
       this.addTask("generate:assets", {
         exec: "ts-node ./scripts/generate-assets.ts",
       }),
@@ -78,10 +82,24 @@ export class AwsArchProject extends PDKProject {
       ),
     });
 
-    const lazyGenerate = this.addTask("generate:lazy", {
-      condition: '[ ! -d "./assets" ]',
-    });
-    lazyGenerate.spawn(generateTask);
-    this.preCompileTask.spawn(lazyGenerate);
+    this.preCompileTask.spawn(generateTask);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public getNxProjectTargets(): ProjectTargets {
+    const projectTargets = super.getNxProjectTargets();
+
+    return {
+      build: {
+        outputs: [
+          ...projectTargets.build.outputs!,
+          "{projectRoot}/assets",
+          "{projectRoot}/src/generated",
+        ],
+        dependsOn: projectTargets.build.dependsOn,
+      },
+    };
   }
 }
