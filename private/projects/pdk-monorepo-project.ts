@@ -3,13 +3,13 @@ SPDX-License-Identifier: Apache-2.0 */
 
 import path from "path";
 import { Project } from "projen";
-import { Stability } from "projen/lib/cdk";
 import { NodeProject, NpmConfig } from "projen/lib/javascript";
 import {
   NxMonorepoProject,
   TargetDependencyProject,
   DEFAULT_CONFIG,
 } from "../../packages/nx-monorepo/src";
+import { PDKProject } from "../pdk-project";
 
 export const JEST_VERSION = "^27"; // This is needed due to: https://github.com/aws/jsii/issues/3619
 const HEADER_RULE = {
@@ -178,37 +178,28 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         subProject.outdir.split(subProject.root.outdir)[1]
       }`;
 
-      // aws-prototyping-sdk needs the stable folders as cached outputs
-      // TODO: this should live as part of the AwsPrototypingSdk project
-      const additionalOutputs =
-        subProject.name === "aws-prototyping-sdk"
-          ? this.subProjects
-              .filter((s: Project) => s.name !== "aws-prototyping-sdk")
-              .filter(
-                (s: any) => s.package?.manifest?.stability === Stability.STABLE
-              )
-              .map((s) => path.join(relativeDir, path.basename(s.outdir)))
-          : [];
-
-      this.overrideProjectTargets(subProject, {
-        build: {
-          outputs: [
-            `${relativeDir}/dist`,
-            `${relativeDir}/build`,
-            `${relativeDir}/coverage`,
-            `${relativeDir}/lib`,
-            `${relativeDir}/target`,
-            `${relativeDir}/.jsii`,
-            ...additionalOutputs,
-          ],
-          dependsOn: [
-            {
-              target: "build",
-              projects: TargetDependencyProject.DEPENDENCIES,
-            },
-          ],
-        },
-      });
+      this.overrideProjectTargets(
+        subProject,
+        subProject instanceof PDKProject
+          ? subProject.getNxProjectTargets()
+          : {
+              build: {
+                outputs: [
+                  `${relativeDir}/dist`,
+                  `${relativeDir}/build`,
+                  `${relativeDir}/coverage`,
+                  `${relativeDir}/lib`,
+                  `${relativeDir}/target`,
+                ],
+                dependsOn: [
+                  {
+                    target: "build",
+                    projects: TargetDependencyProject.DEPENDENCIES,
+                  },
+                ],
+              },
+            }
+      );
     });
 
     super.synth();

@@ -10,6 +10,10 @@ import {
   Stability,
 } from "projen/lib/cdk";
 import { Release } from "projen/lib/release";
+import {
+  ProjectTargets,
+  TargetDependencyProject,
+} from "../packages/nx-monorepo";
 import { JEST_VERSION } from "./projects/pdk-monorepo-project";
 
 /**
@@ -36,7 +40,7 @@ export interface PDKProjectOptions extends JsiiProjectOptions {
  *
  * This project handles correct naming for the PDK, along with validation and auto publishing of artifacts to the various package managers.
  */
-export class PDKProject extends JsiiProject {
+export abstract class PDKProject extends JsiiProject {
   public readonly pdkRelease: PDKRelease;
 
   constructor(options: PDKProjectOptions) {
@@ -144,6 +148,33 @@ export class PDKProject extends JsiiProject {
     });
 
     this.pdkRelease = new PDKRelease(this);
+  }
+
+  /**
+   * Provides the ability to override project specific NX Project Targets.
+   *
+   * @return Nx ProjectTargets specific to this package.
+   */
+  public getNxProjectTargets(): ProjectTargets {
+    const relativeDir = `${this.outdir.split(this.root.outdir)[1]}`;
+    return {
+      build: {
+        outputs: [
+          `${relativeDir}/dist`,
+          `${relativeDir}/build`,
+          `${relativeDir}/coverage`,
+          `${relativeDir}/lib`,
+          `${relativeDir}/target`,
+          `${relativeDir}/.jsii`,
+        ],
+        dependsOn: [
+          {
+            target: "build",
+            projects: TargetDependencyProject.DEPENDENCIES,
+          },
+        ],
+      },
+    };
   }
 }
 

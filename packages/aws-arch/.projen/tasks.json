@@ -38,6 +38,14 @@
       ],
       "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
     },
+    "clean": {
+      "name": "clean",
+      "steps": [
+        {
+          "exec": "rm -rf assets src/generated"
+        }
+      ]
+    },
     "clobber": {
       "name": "clobber",
       "description": "hard resets to HEAD of origin and cleans the local repo",
@@ -126,6 +134,9 @@
       "name": "generate",
       "steps": [
         {
+          "spawn": "clean"
+        },
+        {
           "spawn": "generate:assets"
         },
         {
@@ -165,15 +176,6 @@
           "exec": "ts-node ./scripts/generate-drawio-spec.ts"
         }
       ]
-    },
-    "generate:lazy": {
-      "name": "generate:lazy",
-      "steps": [
-        {
-          "spawn": "generate"
-        }
-      ],
-      "condition": "[ ! -d \"./assets\" ]"
     },
     "generate:mappings": {
       "name": "generate:mappings",
@@ -268,7 +270,7 @@
       "description": "Prepare the project for compilation",
       "steps": [
         {
-          "spawn": "generate:lazy"
+          "spawn": "generate"
         }
       ]
     },

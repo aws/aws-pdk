@@ -3,8 +3,10 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Dependency, DependencyType, Project } from "projen";
 import { Stability } from "projen/lib/cdk";
+import { ProjectTargets } from "../../packages/nx-monorepo";
 import { NxMonorepoProject } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
+import { PDKMonorepoProject } from "./pdk-monorepo-project";
 
 /**
  * File patterns to keep in the .gitignore. Also used to determine which files to keep when cleaning.
@@ -145,5 +147,26 @@ export class AwsPrototypingSdkProject extends PDKProject {
     });
 
     super.synth();
+  }
+
+  /**
+   * @inheritDoc
+   */
+  getNxProjectTargets(): ProjectTargets {
+    const defaultTargets = super.getNxProjectTargets();
+    const relativeDir = `${this.outdir.split(this.root.outdir)[1]}`;
+
+    // aws-prototyping-sdk needs the stable folders as cached outputs
+    const additionalOutputs = (this.root as PDKMonorepoProject).subProjects
+      .filter((s: Project) => s.name !== "aws-prototyping-sdk")
+      .filter((s: any) => s.package?.manifest?.stability === Stability.STABLE)
+      .map((s) => path.join(relativeDir, path.basename(s.outdir)));
+
+    return {
+      build: {
+        outputs: [...defaultTargets.build.outputs!, ...additionalOutputs],
+        dependsOn: defaultTargets.build.dependsOn,
+      },
+    };
   }
 }
