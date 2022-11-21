@@ -14,7 +14,10 @@ import {
   ProjectTargets,
   TargetDependencyProject,
 } from "../packages/nx-monorepo";
-import { JEST_VERSION } from "./projects/pdk-monorepo-project";
+import {
+  DEFAULT_NX_OUTPUTS,
+  JEST_VERSION,
+} from "./projects/pdk-monorepo-project";
 
 /**
  * Configuration options for the PDK Project.
@@ -156,17 +159,9 @@ export abstract class PDKProject extends JsiiProject {
    * @return Nx ProjectTargets specific to this package.
    */
   public getNxProjectTargets(): ProjectTargets {
-    const relativeDir = `${this.outdir.split(this.root.outdir)[1]}`;
     return {
       build: {
-        outputs: [
-          `${relativeDir}/dist`,
-          `${relativeDir}/build`,
-          `${relativeDir}/coverage`,
-          `${relativeDir}/lib`,
-          `${relativeDir}/target`,
-          `${relativeDir}/.jsii`,
-        ],
+        outputs: [...DEFAULT_NX_OUTPUTS, "{projectRoot}/.jsii"],
         dependsOn: [
           {
             target: "build",

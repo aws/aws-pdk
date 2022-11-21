@@ -95,8 +95,8 @@ export class AwsArchProject extends PDKProject {
       build: {
         outputs: [
           ...projectTargets.build.outputs!,
-          "/packages/aws-arch/assets",
-          "/packages/aws-arch/src/generated",
+          "{projectRoot}/assets",
+          "{projectRoot}/src/generated",
         ],
         dependsOn: projectTargets.build.dependsOn,
       },

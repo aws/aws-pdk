@@ -156,13 +156,12 @@ export class AwsPrototypingSdkProject extends PDKProject {
    */
   getNxProjectTargets(): ProjectTargets {
     const defaultTargets = super.getNxProjectTargets();
-    const relativeDir = `${this.outdir.split(this.root.outdir)[1]}`;
 
     // aws-prototyping-sdk needs the stable folders as cached outputs
     const additionalOutputs = (this.root as PDKMonorepoProject).subProjects
       .filter((s: Project) => s.name !== "aws-prototyping-sdk")
       .filter((s: any) => s.package?.manifest?.stability === Stability.STABLE)
-      .map((s) => path.join(relativeDir, path.basename(s.outdir)));
+      .map((s) => path.join("{projectRoot}", path.basename(s.outdir)));
 
     return {
       build: {

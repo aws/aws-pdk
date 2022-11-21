@@ -11,6 +11,14 @@ import {
 } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
+// Default NX outputs to cache
+export const DEFAULT_NX_OUTPUTS = [
+  "{projectRoot}/dist",
+  "{projectRoot}/build",
+  "{projectRoot}/coverage",
+  "{projectRoot}/lib",
+  "{projectRoot}/target",
+];
 export const JEST_VERSION = "^27"; // This is needed due to: https://github.com/aws/jsii/issues/3619
 const HEADER_RULE = {
   "header/header": [
@@ -174,23 +182,13 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       updateJavaPackageTask(subProject);
       this.configureEsLint(subProject);
 
-      const relativeDir = `${
-        subProject.outdir.split(subProject.root.outdir)[1]
-      }`;
-
       this.overrideProjectTargets(
         subProject,
         subProject instanceof PDKProject
           ? subProject.getNxProjectTargets()
           : {
               build: {
-                outputs: [
-                  `${relativeDir}/dist`,
-                  `${relativeDir}/build`,
-                  `${relativeDir}/coverage`,
-                  `${relativeDir}/lib`,
-                  `${relativeDir}/target`,
-                ],
+                outputs: DEFAULT_NX_OUTPUTS,
                 dependsOn: [
                   {
                     target: "build",
