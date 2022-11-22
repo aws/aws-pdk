@@ -14,6 +14,7 @@
     "eject": "npx projen eject",
     "eslint": "npx projen eslint",
     "eslint-staged": "npx projen eslint-staged",
+    "jest": "npx projen jest",
     "package": "npx projen package",
     "package-all": "npx projen package-all",
     "package:java": "npx projen package:java",
@@ -23,6 +24,7 @@
     "pre-compile": "npx projen pre-compile",
     "release:mainline": "npx projen release:mainline",
     "test": "npx projen test",
+    "test:watch": "npx projen test:watch",
     "unbump": "npx projen unbump",
     "watch": "npx projen watch",
     "projen": "npx projen"
@@ -33,6 +35,10 @@
     "organization": false
   },
   "devDependencies": {
+    "@aws-cdk/assert": "^2.51.1",
+    "@types/fs-extra": "^9.0.13",
+    "@types/jest": "^27",
+    "@types/mustache": "^4.2.1",
     "@types/node": "^14",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
@@ -46,13 +52,19 @@
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "fs-extra": "^10.1.0",
+    "jest": "^27",
+    "jest-junit": "^13",
     "jsii": "^1.71.0",
     "jsii-diff": "^1.71.0",
     "jsii-pacmak": "^1.71.0",
     "json-schema": "^0.4.0",
     "license-checker": "^25.0.1",
+    "mustache": "^4.2.0",
     "oss-attribution-generator": "^1.7.1",
     "prettier": "^2.7.1",
+    "ts-jest": "^27",
+    "ts-node": "^10.9.1",
     "typescript": "^4.9.3"
   },
   "peerDependencies": {
@@ -66,6 +78,46 @@
     "access": "public"
   },
   "version": "0.0.0",
+  "jest": {
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.ts?(x)",
+      "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)"
+    ],
+    "clearMocks": true,
+    "collectCoverage": true,
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "clover",
+      "cobertura",
+      "text"
+    ],
+    "coverageDirectory": "coverage",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "watchPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "reporters": [
+      "default",
+      [
+        "jest-junit",
+        {
+          "outputDirectory": "test-reports"
+        }
+      ]
+    ],
+    "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "tsconfig.dev.json"
+      }
+    }
+  },
   "types": "lib/index.d.ts",
   "stability": "stable",
   "jsii": {
