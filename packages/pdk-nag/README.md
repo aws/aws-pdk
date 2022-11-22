@@ -27,8 +27,7 @@ cdk synth --strict
 By default, when creating a PDKNag application the [AwsSolutions](https://github.com/cdklabs/cdk-nag/blob/main/RULES.md) NagPack is instrumented. In order to specify custom NagPacks to instrument, you can configure the PDKApp as follows:
 
 ```ts
-import { PDKNag, AwsPrototypingChecks } from "aws-prototyping-sdk/pdk-nag";
-import { AwsSolutionsChecks } from "cdk-nag";
+import { PDKNag, AwsPrototypingChecks } from "@aws-prototyping-sdk/pdk-nag";
 
 const app = PDKNag.app({
     nagPacks: [new AwsPrototypingChecks()]
