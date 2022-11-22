@@ -1954,6 +1954,19 @@
     PDK Nag
   </a>
   
+    <nav class="md-nav" aria-label="PDK Nag">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#instrumenting-custom-nagpacks" class="md-nav__link">
+    Instrumenting custom NagPacks
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2080,6 +2093,15 @@
 <p>Conversely, CDK will not fail on synth if warnings are detected. To enforce that all warnings are resolved, run the following command:</p>
 <div class="highlight"><pre><span></span><code>cdk synth --strict
 </code></pre></div>
+<h3 id="instrumenting-custom-nagpacks">Instrumenting custom NagPacks</h3>
+<p>By default, when creating a PDKNag application the <a href="https://github.com/cdklabs/cdk-nag/blob/main/RULES.md">AwsSolutions</a> NagPack is instrumented. In order to specify custom NagPacks to instrument, you can configure the PDKApp as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PDKNag</span><span class="p">,</span><span class="w"> </span><span class="nx">AwsPrototypingChecks</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/pdk-nag&quot;</span><span class="p">;</span><span class="w"></span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">PDKNag</span><span class="p">.</span><span class="nx">app</span><span class="p">({</span><span class="w"></span>
+<span class="w">    </span><span class="nx">nagPacks</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="ow">new</span><span class="w"> </span><span class="nx">AwsPrototypingChecks</span><span class="p">()]</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+</code></pre></div>
+<p>In this example, the <a href="https://github.com/aws/aws-prototyping-sdk/blob/mainline/packages/pdk-nag/src/packs/README.md">AwsPrototypingChecks</a> NagPack has been configured to run instead of the default. Multiple NagPacks can also be instrumented by adding NagPack instances to the <code>nagPacks</code> array;</p>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="constructs">Constructs <a name="Constructs" id="Constructs"></a></h2>
 <h3 id="pdknagapp">PDKNagApp <a name="PDKNagApp" id="aws-prototyping-sdk.pdk_nag.PDKNagApp"></a></h3>
@@ -2304,6 +2326,11 @@ on a nested stage, returns its parent.</p>
 <td><code>string</code></td>
 <td>The default region for all resources defined within this stage.</td>
 </tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pdk_nag.PDKNagApp.property.nagPacks">nagPacks</a></code></td>
+<td><code>cdk-nag.NagPack[]</code></td>
+<td><em>No description.</em></td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -2374,6 +2401,13 @@ hypens.</p>
 <li><em>Type:</em> string</li>
 </ul>
 <p>The default region for all resources defined within this stage.</p>
+<hr />
+<h5 id="nagpacksrequired"><code>nagPacks</code><sup>Required</sup> <a name="nagPacks" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.property.nagPacks"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">nagPacks</span><span class="o">:</span><span class="w"> </span><span class="kt">NagPack</span><span class="p">[];</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> cdk-nag.NagPack[]</li>
+</ul>
 <hr />
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
 <h3 id="message">Message <a name="Message" id="aws-prototyping-sdk.pdk_nag.Message"></a></h3>
@@ -2529,6 +2563,11 @@ hypens.</p>
 <td><code>boolean</code></td>
 <td>Determines whether any warnings encountered should trigger a test failure.</td>
 </tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.nagPacks">nagPacks</a></code></td>
+<td><code>cdk-nag.NagPack[]</code></td>
+<td>Custom nag packs to execute.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -2643,6 +2682,15 @@ can make final decision over which context value to take in your app.</p>
 <li><em>Default:</em> false</li>
 </ul>
 <p>Determines whether any warnings encountered should trigger a test failure.</p>
+<hr />
+<h5 id="nagpacksoptional"><code>nagPacks</code><sup>Optional</sup> <a name="nagPacks" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.nagPacks"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">nagPacks</span><span class="o">:</span><span class="w"> </span><span class="kt">NagPack</span><span class="p">[];</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> cdk-nag.NagPack[]</li>
+<li><em>Default:</em> DEFAULT_NAG_PACKS</li>
+</ul>
+<p>Custom nag packs to execute.</p>
 <hr />
 <h2 id="classes">Classes <a name="Classes" id="Classes"></a></h2>
 <h3 id="awsprototypingchecks">AwsPrototypingChecks <a name="AwsPrototypingChecks" id="aws-prototyping-sdk.pdk_nag.AwsPrototypingChecks"></a></h3>
