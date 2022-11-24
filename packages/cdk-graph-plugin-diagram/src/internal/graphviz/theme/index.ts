@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import { aws_arch } from "@aws-prototyping-sdk/aws-arch";
 // @ts-ignore - just used for jsdoc type link, but errors as unused
 import type { Graph } from "@aws-prototyping-sdk/cdk-graph";
-import { cloneDeep } from "lodash";
+import cloneDeep = require("lodash.clonedeep"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as Dot from "ts-graphviz";
 import { FONT_STYLESHEET, GraphFonts } from "../../fonts";
 

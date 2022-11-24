@@ -862,7 +862,6 @@ export class AwsArchitecture {
       const themedIcon = `${qualifiedAssetKey}.${theme}.${format}`;
       if (AwsAsset.AssetFiles.has(themedIcon)) {
         return themedIcon;
-      } else {
       }
     }
 

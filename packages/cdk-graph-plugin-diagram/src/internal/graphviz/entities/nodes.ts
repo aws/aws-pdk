@@ -1,7 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { Graph } from "@aws-prototyping-sdk/cdk-graph";
-import { words, startCase } from "lodash";
+import startCase = require("lodash.startcase"); // eslint-disable-line @typescript-eslint/no-require-imports
+import words = require("lodash.words"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as Dot from "ts-graphviz";
 import wordWrap = require("word-wrap"); // eslint-disable-line @typescript-eslint/no-require-imports
 import {

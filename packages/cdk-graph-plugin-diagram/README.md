@@ -6,7 +6,7 @@
 [![API Documentation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html)
 [![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/cdk-graph-plugin-diagram)
 
-This plugins generates diagrams utilizing the [cdk-graph](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph/index.html) framework.
+This plugin generates diagrams utilizing the [cdk-graph](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph/index.html) framework.
 
 > More comprehensive documentation to come as this package stabilizes.
 
@@ -20,6 +20,8 @@ This plugins generates diagrams utilizing the [cdk-graph](https://aws.github.io/
 ### Quick Start
 ```ts
 // bin/app.ts
+
+// Must wrap cdk app with async IIFE function to enable async cdk-graph report
 (async () => {
   const app = new App();
   // ... add stacks, etc
@@ -29,6 +31,7 @@ This plugins generates diagrams utilizing the [cdk-graph](https://aws.github.io/
 
   app.synth();
 
+  // async cdk-graph reporting hook
   await graph.report();
 })
 
@@ -37,37 +40,22 @@ This plugins generates diagrams utilizing the [cdk-graph](https://aws.github.io/
 // => cdk.out/diagram.png
 ```
 
-> This plugin current only support `async report()` generation follow the above example code.
+> This plugin currently only supports `async report()` generation following the above example. **Make sure to wrap the cdk app with *async IIFE*.**
+
+### Supported Formats
+| Format | Status | Extends | Provider |
+| --- | --- | --- | --- |
+| [DOT](https://graphviz.org/docs/outputs/canon/) | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | - | [Graphviz](docs/graphviz/README.md)
+| [SVG](https://graphviz.org/docs/outputs/svg/) | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | [DOT](https://graphviz.org/docs/outputs/canon/) | [Graphviz](docs/graphviz/README.md)
+| [PNG](https://graphviz.org/docs/outputs/png/) | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | [SVG](https://graphviz.org/docs/outputs/canon/) | [Graphviz](docs/graphviz/README.md)
 
 ---
 ### Diagram Providers
 
-#### **1) [Graphviz / Dot](https://graphviz.org/)**
-![alpha](https://img.shields.io/badge/status-alpha-orange.svg)
-
-| Format | Status | Extends |
+| Provider | Status | Formats |
 | --- | --- | --- |
-| [DOT](https://graphviz.org/docs/outputs/canon/) | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | - |
-| [SVG](https://graphviz.org/docs/outputs/svg/) | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | [DOT](https://graphviz.org/docs/outputs/canon/) |
-| [PNG](https://graphviz.org/docs/outputs/png/) | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | [SVG](https://graphviz.org/docs/outputs/canon/) |
-
-**Examples**
-| | | |
-| --- | --- | --- |
-| Default | Multi Stack | Staged |
-| [<img src="docs/examples/default.png" height="200" />](docs/examples/diagram.png) | [<img src="docs/examples/multi-stack.png" height="200" />](docs/examples/multi-stack.png) | [<img src="docs/examples/staged.png" height="200" />](docs/examples/staged.png) |
-| Focus | Verbose | |
-| [<img src="docs/examples/focus-nohoist.png" width="200" />](docs/examples/focus-nohoist.png) | [<img src="docs/examples/verbose.png" height="200" />](docs/examples/verbose.png) | |
-| Dark | Dark Services | Dark Verbose |
-| [<img src="docs/examples/dark.png" height="200" />](docs/examples/dark.png) | [<img src="docs/examples/dark-services.png" height="200" />](docs/examples/verbose-services.png) | [<img src="docs/examples/dark-verbose.png" height="200" />](docs/examples/dark-verbose.png) |
-
-#### **2) [Diagram.net / Drawio](https://www.diagrams.net/)**
-
-![design](https://img.shields.io/badge/status-design-tan.svg) _very early stage design and development_
-
-To support editing of generated diagram and increase downstream integration, the plugin is planning to support [diagram.net](https://www.diagrams.net/) based diagrams.
-
-<img src="https://www.diagrams.net/assets/img/blog/aws-example.png" height="200" />
+| [Graphviz](docs/graphviz/README.md) | ![alpha](https://img.shields.io/badge/status-alpha-orange.svg) | [DOT](https://graphviz.org/docs/outputs/canon/), [SVG](https://graphviz.org/docs/outputs/svg/), [PNG](https://graphviz.org/docs/outputs/png/) |
+| [Drawio](docs/drawio/README.md) | ![design](https://img.shields.io/badge/status-design-tan.svg) | _TBD: very early stage design and development_ |
 
 ---
 

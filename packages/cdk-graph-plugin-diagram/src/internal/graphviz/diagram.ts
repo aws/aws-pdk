@@ -8,7 +8,7 @@ import {
   NodeTypeEnum,
   UUID,
 } from "@aws-prototyping-sdk/cdk-graph";
-import { uniqBy } from "lodash";
+import uniqBy = require("lodash.uniqby"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as Dot from "ts-graphviz";
 import * as Diagram from "./entities";
 import { ChildLink, ImageNode } from "./entities";
@@ -159,10 +159,6 @@ export function buildDiagram(
       }
       case NodeTypeEnum.STACK: {
         entity = new Diagram.StackCluster(gNode as Graph.StackNode);
-        break;
-      }
-      case NodeTypeEnum.DEFAULT: {
-        entity = new Diagram.Node(gNode);
         break;
       }
       default: {
