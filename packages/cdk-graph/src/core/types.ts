@@ -28,11 +28,13 @@ export enum ConstructInfoFqnEnum {
   CUSTOM_RESOURCE_PROVIDER = "aws-cdk-lib.custom_resources.Provider",
   CUSTOM_RESOURCE_PROVIDER_2 = "aws-cdk-lib.CustomResourceProvider",
   // Lambda
+  LAMBDA = "aws-cdk-lib.aws_lambda.Function",
   CFN_LAMBDA = "aws-cdk-lib.aws_lambda.CfnFunction",
   LAMBDA_LAYER_VERSION = "aws-cdk-lib.aws_lambda.LayerVersion",
   CFN_LAMBDA_LAYER_VERSION = "aws-cdk-lib.aws_lambda.CfnLayerVersion",
   LAMBDA_ALIAS = "aws-cdk-lib.aws_lambda.Alias",
   CFN_LAMBDA_ALIAS = "aws-cdk-lib.aws_lambda.CfnAlias",
+  LAMBDA_BASE = "aws-cdk-lib.aws_lambda.FunctionBase",
   // Assets
   ASSET_STAGING = "aws-cdk-lib.AssetStaging",
   S3_ASSET = "aws-cdk-lib.aws_s3_assets.Asset",
@@ -64,6 +66,7 @@ export const ExtraneousFqnEnum = [
   ConstructInfoFqnEnum.CFN_LAMBDA_LAYER_VERSION,
   ConstructInfoFqnEnum.LAMBDA_ALIAS,
   ConstructInfoFqnEnum.CFN_LAMBDA_ALIAS,
+  ConstructInfoFqnEnum.LAMBDA_BASE,
 ];
 
 /** Common cfn attribute keys */
@@ -157,6 +160,8 @@ export enum FlagEnum {
   CLOSED_EDGE = "CLOSED_EDGE",
   /** Indicates that entity was mutated; meaning a mutation was performed to change originally computed graph value. */
   MUTATED = "MUTATED",
+  /** Indicates that cfn resource has equivalent cdk resource wrapper. (eg: Lambda => CfnLambda) */
+  WRAPPED_CFN_RESOURCE = "WRAPPED_CFN_RESOURCE",
 }
 
 /** Universal unique identifier */

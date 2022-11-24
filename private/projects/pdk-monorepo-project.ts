@@ -109,6 +109,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
           "@aws-prototyping-sdk/open-api-gateway/log4js/*",
           "@aws-prototyping-sdk/cloudscape-react-ts-sample-website",
           "@aws-prototyping-sdk/cloudscape-react-ts-sample-website/**",
+          "@aws-prototyping-sdk/cdk-graph-plugin-diagram/@types/to-px",
         ],
       },
     });

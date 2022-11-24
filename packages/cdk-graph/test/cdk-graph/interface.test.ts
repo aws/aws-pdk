@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "path";
 import * as fs from "fs-extra";
 import {
   CdkGraph,
@@ -10,15 +9,10 @@ import {
   SerializedGraph,
 } from "../../src";
 import { MultiFixtureApp } from "../__fixtures__/apps";
+import * as testUtils from "./test-utils";
 
-async function getCdkOutDir(name: string): Promise<string> {
-  const dir = path.join(__dirname, "..", ".tmp", "interface", name, "cdk.out");
-
-  await fs.ensureDir(dir);
-  await fs.emptyDir(dir);
-
-  return dir;
-}
+const makeCdkOutdir = async (name: string) =>
+  testUtils.makeCdkOutDir("compute", name);
 
 describe("cdk-graph/interface", () => {
   describe("core", () => {
@@ -29,7 +23,7 @@ describe("cdk-graph/interface", () => {
     let store: Graph.Store;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("complex-app");
+      outdir = await makeCdkOutdir("complex-app");
 
       app = new MultiFixtureApp({ outdir });
       graph = new CdkGraph(app);

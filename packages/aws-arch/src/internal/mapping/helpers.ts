@@ -97,7 +97,7 @@ function resolveGeneralIcon(value: string): AwsAsset.GeneralIcon | undefined {
   if (value.match(/^(client)?(certificate)$/i)) {
     return "ssl_padlock";
   }
-  if (value.match(/(profile|user)$/i)) {
+  if (value.match(/(user)$/i)) {
     return "user";
   }
   if (value.match(/(policy|permissions?)$/i)) {

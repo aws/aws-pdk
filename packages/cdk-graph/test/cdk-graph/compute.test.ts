@@ -1,18 +1,12 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "path";
 import * as fs from "fs-extra";
 import { CdkGraph, getConstructUUID, Graph, NodeTypeEnum } from "../../src";
 import { FixtureApp, MultiFixtureApp, StagedApp } from "../__fixtures__/apps";
+import * as testUtils from "./test-utils";
 
-async function getCdkOutDir(name: string): Promise<string> {
-  const dir = path.join(__dirname, "..", ".tmp", "compute", name, "cdk.out");
-
-  await fs.ensureDir(dir);
-  await fs.emptyDir(dir);
-
-  return dir;
-}
+const makeCdkOutdir = async (name: string) =>
+  testUtils.makeCdkOutDir("compute", name);
 
 describe("cdk-graph/compute", () => {
   describe("single-stack-app", () => {
@@ -22,7 +16,7 @@ describe("cdk-graph/compute", () => {
     let graph: CdkGraph;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("single-stack-app");
+      outdir = await makeCdkOutdir("single-stack-app");
 
       app = new FixtureApp({ outdir });
       graph = new CdkGraph(app);
@@ -78,7 +72,7 @@ describe("cdk-graph/compute", () => {
     let store: Graph.Store;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("multi-stack-app");
+      outdir = await makeCdkOutdir("multi-stack-app");
 
       app = new MultiFixtureApp({ outdir });
       graph = new CdkGraph(app);
@@ -145,7 +139,7 @@ describe("cdk-graph/compute", () => {
     let store: Graph.Store;
 
     beforeAll(async () => {
-      outdir = await getCdkOutDir("staged-app");
+      outdir = await makeCdkOutdir("staged-app");
 
       app = new StagedApp({ outdir });
       graph = new CdkGraph(app);

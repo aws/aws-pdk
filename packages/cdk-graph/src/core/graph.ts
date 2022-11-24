@@ -184,6 +184,11 @@ export namespace Graph {
 
     /** Add **node** to the store */
     addNode(node: Node): void {
+      // Do not store root node
+      if (RootNode.isRootNode(node) === true) {
+        return;
+      }
+
       this._nodes.set(node.uuid, node);
 
       this._counters.nodeTypes.add(node.nodeType);
@@ -195,6 +200,11 @@ export namespace Graph {
 
     /** Get stored **node** by UUID */
     getNode(uuid: UUID): Node {
+      // Root node is not stored in "nodes" map
+      if (uuid === RootNode.UUID && this.root) {
+        return this.root;
+      }
+
       const node = this._nodes.get(uuid);
       if (node != null) {
         return node;
@@ -324,6 +334,11 @@ export namespace Graph {
      * @destructive
      */
     mutateRemoveNode(node: Node): boolean {
+      // Root node can not be removed
+      if (RootNode.isRootNode(node) === true) {
+        throw new Error("Root not can not be removed");
+      }
+
       if (node.logicalId && node.stack) {
         this._logicalIdLookup.delete(
           this.computeLogicalUniversalId(node.stack, node.logicalId)
@@ -1152,6 +1167,11 @@ export namespace Graph {
       return [];
     }
 
+    /** Indicates if node is direct child of the graph root node */
+    get isTopLevel(): boolean {
+      return this.parent === this.store.root;
+    }
+
     /** Get **root** stack */
     get rootStack(): StackNode | undefined {
       if (StackNode.isStackNode(this)) return this;
@@ -1272,9 +1292,15 @@ export namespace Graph {
     get isCluster(): boolean {
       return this.hasFlag(FlagEnum.CLUSTER);
     }
-    /** Indicates if this node is considered a {@link FlagEnum.EXTRANEOUS} */
+    /**
+     * Indicates if this node is considered a {@link FlagEnum.EXTRANEOUS} node
+     * or determined to be extraneous:
+     * - Clusters that contain no children
+     */
     get isExtraneous(): boolean {
-      return this.hasFlag(FlagEnum.EXTRANEOUS);
+      return (
+        this.hasFlag(FlagEnum.EXTRANEOUS) || (this.isCluster && this.isLeaf)
+      );
     }
     /** Indicates if this node is considered a {@link FlagEnum.RESOURCE_WRAPPER} */
     get isResourceWrapper(): boolean {
@@ -1326,9 +1352,17 @@ export namespace Graph {
       return this.scopes.includes(ancestor);
     }
 
-    /** Find nearest *ancestor* of *this node* matching given predicate */
-    findAncestor(predicate: INodePredicate): Node | undefined {
-      return this.scopes.slice().reverse().find(predicate);
+    /**
+     * Find nearest *ancestor* of *this node* matching given predicate.
+     * @param predicate - Predicate to match ancestor
+     * @max {number} [max] - Optional maximum levels to ascend
+     */
+    findAncestor(predicate: INodePredicate, max?: number): Node | undefined {
+      let ancestors = this.scopes.slice().reverse();
+      if (max) {
+        ancestors = ancestors.slice(0, max);
+      }
+      return ancestors.find(predicate);
     }
 
     /**
@@ -1363,7 +1397,7 @@ export namespace Graph {
       const all = new Array<Node>();
 
       function visit(c: Node) {
-        if (order === ConstructOrder.PREORDER) {
+        if (order === ConstructOrder.PREORDER && !RootNode.isRootNode(c)) {
           all.push(c);
         }
 
@@ -1371,7 +1405,7 @@ export namespace Graph {
           visit(child);
         }
 
-        if (order === ConstructOrder.POSTORDER) {
+        if (order === ConstructOrder.POSTORDER && !RootNode.isRootNode(c)) {
           all.push(c);
         }
       }
@@ -1663,6 +1697,9 @@ export namespace Graph {
         this.parent.mutateRemoveChild(this);
       }
 
+      this._parent = undefined;
+      this._stack = undefined;
+
       this.store.mutateRemoveNode(this);
       this._destroyed = true;
     }
@@ -1763,6 +1800,21 @@ export namespace Graph {
             StackNode.isStackNode(node) ||
             NestedStackNode.isNestedStackNode(node)
         ) as StackNode;
+      }
+    }
+
+    /**
+     * Hoist all children to parent and collapse node to parent.
+     * @destructive
+     */
+    mutateUncluster(): void {
+      this._preMutate();
+
+      if (this.parent && !this.isLeaf) {
+        for (const child of this.children) {
+          child.mutateHoist(this.parent);
+        }
+        this.mutateCollapseToParent();
       }
     }
 
@@ -1872,12 +1924,14 @@ export namespace Graph {
         return defaultNode;
       }
 
-      const childNode = this.children.filter((node) =>
-        CfnResourceNode.isCfnResourceNode(node)
-      ) as CfnResourceNode[];
-      if (childNode.length === 1) {
-        this._cfnResource = childNode[0];
-        return childNode[0];
+      const childCfnResources = this.children.filter((node) => {
+        return (
+          CfnResourceNode.isCfnResourceNode(node) && node.isEquivalentFqn(this)
+        );
+      }) as CfnResourceNode[];
+      if (childCfnResources.length === 1) {
+        this._cfnResource = childCfnResources[0];
+        return childCfnResources[0];
       }
 
       // prevent looking up again by setting to `null`
@@ -1905,6 +1959,14 @@ export namespace Graph {
 
       this._cfnResource = cfnResource || null;
     }
+
+    /** @inheritdoc */
+    mutateRemoveChild(node: Node): boolean {
+      if (this._cfnResource === node) {
+        this.mutateCfnResource(undefined);
+      }
+      return super.mutateRemoveChild(node);
+    }
   }
 
   /** CfnResourceNode props */
@@ -1928,6 +1990,27 @@ export namespace Graph {
       if (this.cfnType == null) {
         throw new Error("CfnResourceNode requires `cfnType` property");
       }
+    }
+
+    /**
+     * Evaluates if CfnResourceNode fqn is equivalent to ResourceNode fqn.
+     * @example `aws-cdk-lib.aws_lambda.Function` => `aws-cdk-lib.aws_lambda.CfnFunction`
+     * @param resource - {@link Graph.ResourceNode} to compare
+     * @returns Returns `true` if equivalent, otherwise `false`
+     */
+    isEquivalentFqn(resource: Graph.ResourceNode): boolean {
+      const resourceFqnStub = resource.constructInfoFqn
+        ?.split(".")
+        .pop()
+        ?.toLowerCase();
+      const cfnResourceFqnStub = this.constructInfoFqn
+        ?.split(".")
+        .pop()
+        ?.toLowerCase();
+      if (!resourceFqnStub || !cfnResourceFqnStub) {
+        return false;
+      }
+      return `cfn${resourceFqnStub}` === cfnResourceFqnStub;
     }
 
     /**
@@ -2412,6 +2495,13 @@ export namespace Graph {
 
       this.addFlag(FlagEnum.GRAPH_CONTAINER);
       this.addFlag(FlagEnum.CLUSTER);
+    }
+
+    /**
+     * @inheritdoc **The root not is excluded from list**
+     */
+    findAll(options?: IFindNodeOptions | undefined): Node[] {
+      return super.findAll(options);
     }
 
     /**

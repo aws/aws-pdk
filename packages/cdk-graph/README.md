@@ -1,6 +1,9 @@
 ## CDK Graph (`@aws-prototyping-sdk/cdk-graph`)
 
-![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)
+![experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
+![alpha](https://img.shields.io/badge/version-alpha-red.svg)
+[![API Documetnation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph/index.html)
+[![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/cdk-graph)
 
 > More comprehensive documentation to come as this package stabilizes
 
@@ -13,6 +16,16 @@ This package provides the following functionality:
 1. Provides plugin framework for additional tooling to utilize and extend the graph.
 
 The goal of this framework is to enable bespoke tooling to be built without having to first traverse the CDK Tree and Metadata to build a graph. Projects like [cdk-dia](https://github.com/pistazie/cdk-dia) generate a bespoke in-memory graph that is then utilized to generate diagrams; while the diagram generation is the core value it must first have a graph to act upon and currently is required to generate this undifferentiated graph to provide its diagrams. By standardizing on the graph interface necessary to build complex tooling, we can more rapidly build new tooling that focuses on its core value.
+
+---
+
+### Available Plugins
+| Name | Description | Screenshot | Links |
+|--- | --- | --- | --- |
+| **Diagram** | Generate cloud infrastructure diagrams from cdk graph | <img src="https://github.com/aws/aws-prototyping-sdk/blob/mainline/packages/cdk-graph-plugin-diagram/docs/examples/default.png?raw=true" style="max-width:200px;max-height:200px" /> | [![API Documetnation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph/index.html) [![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/cdk-graph) |
+
+
+---
 
 ### Quick Start
 
@@ -51,7 +64,9 @@ new CdkGraph(app, {
 });
 ```
 
-#### Config
+---
+
+### Config
 
 Configuration is supported through the `.cdkgraphrc.js` and depending on the plugin, through passing config to the plugin instance.
 
@@ -92,6 +107,8 @@ new CdkGraph(app, {
   ],
 });
 ```
+
+---
 
 ### Plugin Interface
 
