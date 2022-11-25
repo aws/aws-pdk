@@ -1,65 +1,64 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { ConstructOrder } from "constructs";
-import { FlagEnum, Graph } from "../core";
-import { IGraphFilterPlan } from "./types";
+import { Graph } from "../core";
+import { Filters, verifyFilterable } from "./filters";
+import { IGraphFilterPlan, IGraphFilterPlanFocusConfig } from "./types";
 
 /**
- * Verify that store is filterable, meaning it allows destructive mutations.
+ * Focus the graph on a specific node.
  * @throws Error if store is not filterable
- * @internal
- */
-export function verifyFilterable(store: Graph.Store): void {
-  if (!store.allowDestructiveMutations) {
-    throw new Error(
-      "Store must allow destructive mutations to perform filtering; clone the store before applying filters using `store.clone(true)` operation and passing the cloned store to filtering operation."
-    );
-  }
-}
-
-/**
- * Changes the root of the store based on filter plan.
- * @throws Error if store is not filterable
- * @internal
  * @destructive
  */
-export function rerootFilter(store: Graph.Store, plan: IGraphFilterPlan): void {
+export function focusFilter(store: Graph.Store, plan: IGraphFilterPlan): void {
   verifyFilterable(store);
 
-  if (plan.root == null) return; // noop
+  if (plan.focus == null) return; // noop
 
-  const planRoot =
-    typeof plan.root === "function" ? plan.root(store) : plan.root;
+  let focusedNode: Graph.Node;
+  let hoist: boolean = true;
+  if (typeof plan.focus === "function") {
+    focusedNode = plan.focus(store);
+  } else if (plan.focus instanceof Graph.Node) {
+    focusedNode = plan.focus;
+  } else {
+    const { node: _node, noHoist: _noHoist } =
+      plan.focus as IGraphFilterPlanFocusConfig;
+    if (typeof _node === "function") {
+      focusedNode = _node(store);
+    } else {
+      focusedNode = _node;
+    }
+    hoist = !_noHoist;
+  }
 
-  if (planRoot === store.root) return; // noop
+  if (focusedNode === store.root) return; // noop
 
-  const hoist = !!plan.hoistRoot;
-
-  const ancestors = planRoot.scopes.slice();
+  const ancestors = focusedNode.scopes.slice();
   // remove the actual store.root from ancestors (we can't destroy that)
   const rootAncestor = ancestors.shift();
 
   if (rootAncestor !== store.root) {
     throw new Error(
-      `${planRoot} is not within the store root graph: it has root of ${rootAncestor}`
+      `${focusedNode} is not within the store root graph: it has root of ${rootAncestor}`
     );
   }
 
   if (hoist) {
-    // Move plan root as direct child of store root and prune all other ancestors
-    planRoot.mutateHoist(store.root);
+    // Move focused node as direct child of store root and prune all other ancestors
+    focusedNode.mutateHoist(store.root);
+
     // Only need to destroy to first non-root ancestor to prune the ancestral tree
     if (ancestors.length) {
       ancestors[0].mutateDestroy();
     }
-    // prune all other root children
+    // prune all other root children (unless preserved)
     store.root.children.forEach((child) => {
-      if (child !== planRoot) {
+      if (child !== focusedNode) {
         child.mutateDestroy();
       }
     });
   } else {
-    // keep the plan root in place, but prune non-direct ancestor chain nodes
+    // keep the focused node in place, but prune non-direct ancestor chain nodes
     // the direct ancestor chain is only the nodes scopes
     ancestors.reverse().forEach((ancestor) => {
       ancestor.siblings.forEach((ancestorSibling) => {
@@ -68,65 +67,26 @@ export function rerootFilter(store: Graph.Store, plan: IGraphFilterPlan): void {
     });
 
     // prune all planRoot siblings
-    planRoot.siblings.forEach((sibling) => {
+    focusedNode.siblings.forEach((sibling) => {
       sibling.mutateDestroy();
     });
   }
 }
 
 /**
- * Performs **compact** filter preset to store.
+ * Preset that performs {@link Filters.pruneExtraneous} filter on store.
  * @throws Error if store is not filterable
- * @internal
+ * @destructive
+ */
+export function nonExtraneousFilterPreset(store: Graph.Store): void {
+  return Filters.pruneExtraneous()(store);
+}
+
+/**
+ * Preset that performs {@link Filters.compact} filter on store.
+ * @throws Error if store is not filterable
  * @destructive
  */
 export function compactFilterPreset(store: Graph.Store): void {
-  verifyFilterable(store);
-
-  const extraneousNodes = store.root.findAll({
-    order: ConstructOrder.POSTORDER,
-    predicate: (node) => node.isExtraneous,
-  });
-  // collapse all extraneous nodes to nearest non-extraneous parent, or prune the node
-  for (const extraneousNode of extraneousNodes) {
-    const nonExtraneousAncestor = extraneousNode.findAncestor(
-      (node) => !node.isExtraneous
-    );
-    if (nonExtraneousAncestor && !nonExtraneousAncestor.isGraphContainer) {
-      extraneousNode.mutateCollapseTo(nonExtraneousAncestor);
-    } else {
-      extraneousNode.mutateDestroy();
-    }
-  }
-
-  const cdkOwnedContainers = store.root.findAll({
-    order: ConstructOrder.POSTORDER,
-    predicate: (node) =>
-      node.hasFlag(FlagEnum.CDK_OWNED) &&
-      !node.parent?.hasFlag(FlagEnum.CDK_OWNED),
-  });
-  // collapse all cdk owned containers
-  // NB: collapses the graph more closely mirror what developer writes, not what is auto created by cdk
-  for (const cdkOwnedContainer of cdkOwnedContainers) {
-    cdkOwnedContainer.mutateCollapse();
-  }
-
-  const cdkResources = store.root.findAll({
-    order: ConstructOrder.POSTORDER,
-    predicate: (node) => Graph.ResourceNode.isResourceNode(node),
-  }) as Graph.ResourceNode[];
-  // collapse all cfnResource wrapped by cdk resource
-  for (const cdkResource of cdkResources) {
-    if (cdkResource.isResourceWrapper) {
-      cdkResource.mutateCollapse();
-    } else if (cdkResource.cfnResource) {
-      cdkResource.cfnResource.mutateCollapseToParent();
-    }
-  }
-
-  store.edges.forEach((edge) => {
-    if (edge.isExtraneous) {
-      edge.mutateDestroy();
-    }
-  });
+  Filters.compact()(store);
 }

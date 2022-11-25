@@ -1,10 +1,12 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-/** Enum of available themes */
-export enum ThemesEnum {
-  LIGHT = "light",
-  // TODO: support dark theme
-}
+/**
+ * Available themes.
+ *
+ * Using literal string union rather than enum to prevent downstream requirement
+ * on importing enum (based on Jsii support)
+ */
+export type Themes = "light" | "dark";
 
 /** Theme line style values */
 export type LineStyle = "solid" | "dotted" | "dashed";
@@ -54,6 +56,7 @@ export interface ThemeText {
   readonly default: string;
   readonly primary: string;
   readonly secondary: string;
+  readonly tertiary: string;
 }
 
 /** Theme background dictionary */
@@ -98,7 +101,7 @@ export interface ThemeArrows {
 
 /** Theme definition */
 export interface Theme {
-  readonly id: ThemesEnum;
+  readonly id: Themes;
   readonly text: ThemeText;
   readonly backgrounds: ThemeBackgrounds;
   readonly groups: ThemeGroups;

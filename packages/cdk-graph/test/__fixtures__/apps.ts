@@ -14,6 +14,7 @@ import {
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as rds from "aws-cdk-lib/aws-rds";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
@@ -39,6 +40,7 @@ export const ENVIRONMENTS = {
 export class FixtureStack extends Stack {
   readonly bucket: s3.IBucket;
   readonly lambda: lambda.IFunction;
+  readonly db: rds.IDatabaseInstance;
   readonly role: iam.IRole;
   readonly vpc: ec2.Vpc;
   readonly webServer: ec2.Instance;
@@ -173,6 +175,20 @@ export class FixtureStack extends Stack {
         generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
       }),
       keyName: "bastion-ec2-key-pair",
+    });
+
+    this.db = new rds.DatabaseInstance(this, "Database", {
+      engine: rds.DatabaseInstanceEngine.postgres({
+        version: rds.PostgresEngineVersion.VER_14_3,
+      }),
+      instanceType: ec2.InstanceType.of(
+        ec2.InstanceClass.BURSTABLE4_GRAVITON,
+        ec2.InstanceSize.MEDIUM
+      ),
+      vpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+      },
     });
 
     this.exportValue(this.role.roleArn);

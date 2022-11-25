@@ -13,6 +13,10 @@ export enum FilterPreset {
    * and reduces the noise one expects.
    */
   COMPACT = "compact",
+  /**
+   * Collapses extraneous nodes to parent and prunes extraneous edges.
+   */
+  NON_EXTRANEOUS = "non-extraneous",
 }
 
 /**
@@ -52,13 +56,47 @@ export interface IGraphFilter {
   readonly node?: Graph.INodePredicate;
   /** Predicate to match edges. Edges are evaluated after nodes are filtered. */
   readonly edge?: Graph.IEdgePredicate;
+
+  /**
+   * Indicates that all nodes will be filtered, rather than just Resource and CfnResource nodes.
+   *
+   * By enabling this, all Stages, Stacks, and structural construct boundaries will be filtered as well.
+   * In general, most users intent is to operate against resources and desire to preserve structural groupings,
+   * which is common in most Cfn/Cdk based filtering where inputs are "include" lists.
+   *
+   * Defaults to value of containing {@link IGraphFilterPlan.allNodes}
+   */
+  readonly allNodes?: boolean;
 }
 
 /**
- * Determines root node of filter plan.
+ * Determines focus node of filter plan.
  */
-export interface IFilterRootCallback {
+export interface IFilterFocusCallback {
   (store: Graph.Store): Graph.Node;
+}
+
+/**
+ * Store filter callback interface used to perform filtering operations
+ * directly against the store, as opposed to using {@link IGraphFilter}
+ * definitions.
+ */
+export interface IGraphStoreFilter {
+  (store: Graph.Store): void;
+}
+
+export interface IGraphFilterPlanFocusConfig {
+  /** The node or resolver to determine the node to focus on. */
+  readonly node: IFilterFocusCallback | Graph.Node;
+  /**
+   * Indicates if ancestral containers are preserved (eg: Stages, Stack)
+   *
+   * If `false`, the "focused node" will be hoisted to the graph root and all ancestors will be pruned.
+   * If `true`, the "focused" will be left in-place, while all siblings and non-scope ancestors will be pruned.
+   *
+   * @default true
+   */
+  readonly noHoist?: boolean;
 }
 
 /**
@@ -71,27 +109,22 @@ export interface IGraphFilterPlan {
   readonly preset?: FilterPreset;
 
   /**
-   * Node/Edge predicate filters to apply to the graph.
+   * Ordered list of {@link IGraphFilter} and {@link IGraphStoreFilter} filters to
+   * apply to the store.
    *
    * - Filters are applied *after* the preset filtering is applied if present.
    * - Filters are applied sequentially against all nodes, as opposed to IAspect.visitor pattern
    * which are sequentially applied per node.
    */
-  readonly filters?: IGraphFilter[];
+  readonly filters?: (IGraphFilter | IGraphStoreFilter)[];
 
   /**
-   * The root node or resolver to determine the filtering root.
+   * Config to focus the graph on specific node.
    */
-  readonly root?: IFilterRootCallback | Graph.Node;
-  /**
-   * Indicates if ancestral containers are preserved (eg: Stages, Stack)
-   *
-   * If `true`, the "root" will be hoisted to the graph root and all ancestors will be pruned.
-   * If `false`, the "root" will be left in-place, while all siblings and non-scope ancestors will be pruned.
-   *
-   * @default false
-   */
-  readonly hoistRoot?: boolean;
+  readonly focus?:
+    | IFilterFocusCallback
+    | Graph.Node
+    | IGraphFilterPlanFocusConfig;
 
   /**
    * Indicates that all nodes will be filtered, rather than just Resource and CfnResource nodes.

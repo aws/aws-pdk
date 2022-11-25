@@ -1,37 +1,34 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { Theme, ThemesEnum } from "./types";
+import { BasePalette } from "./palette";
+import { Theme } from "./types";
 
 /** Light theme color palette */
 export enum LightPalette {
-  WHITE = "#FFFFFF",
-  BLACK = "#000000",
-  BLUE = "#4472C4",
-  LIGHT_BLUE = "#5B9BD5",
-  ORGANGE = "#ED7D31",
-  LIGHT_GRAY = "#A5A5A5",
-  GREEN = "#70AD47",
-  YELLOW = "#FFC000",
-  PUBLIC = "#E9F3E6",
-  PRIVATE = "#E6F2F8",
-  GENERIC = "#EFF0F3",
-  PRIMARY = "#232F3D",
-  SECONDARY = "#5A6B86",
+  PUBLIC = "#E9F3E6", // Green
+  PRIVATE = "#E6F2F8", // Blue
+
+  GENERIC = "#5A6B861A", // 10% almost white
+
+  PRIMARY = "#232F3E", // Dark Blue
+  SECONDARY = "#5B9BD5", // Bright Blue
+  TERTIARY = "#5A6B86", // Light Bluish Gray
 }
 
 /** Light theme definition */
 export const LightTheme: Theme = {
-  id: ThemesEnum.LIGHT,
+  id: "light",
   backgrounds: {
-    base: LightPalette.WHITE,
+    base: BasePalette.WHITE,
     private: LightPalette.PRIVATE,
     public: LightPalette.PUBLIC,
     generic: LightPalette.GENERIC,
   },
   text: {
-    default: LightPalette.BLACK,
+    default: BasePalette.BLACK,
     primary: LightPalette.PRIMARY,
     secondary: LightPalette.SECONDARY,
+    tertiary: LightPalette.TERTIARY,
   },
   groups: {
     cloud: {
@@ -83,14 +80,14 @@ export const LightTheme: Theme = {
     },
     privateSubnet: {
       color: "#127EBA",
-      bgcolor: "#E6F2F8",
+      bgcolor: false,
       borderColor: "#127EBA",
       borderStyle: "none",
       iconPng: "theme/light/groups/PrivateSubnet.png",
     },
     publicSubnet: {
       color: "#3F8624",
-      bgcolor: "#E9F3E6",
+      bgcolor: false,
       borderColor: "#3F8624",
       borderStyle: "none",
       iconPng: "theme/light/groups/PublicSubnet.png",
@@ -165,37 +162,37 @@ export const LightTheme: Theme = {
       borderStyle: "dashed",
     },
     genericAlt: {
-      color: "#000000",
-      bgcolor: "#EFF0F3",
+      color: "#000000CC", // 80%
+      bgcolor: "#5A6B861A", // 10%
       borderColor: false,
       borderStyle: "none",
     },
   },
   arrows: {
     default: {
-      color: LightPalette.LIGHT_GRAY,
+      color: LightPalette.GENERIC,
       head: "none",
       tail: "normal",
       width: 0.75,
       style: "solid",
     },
     child: {
-      color: LightPalette.LIGHT_GRAY,
+      color: LightPalette.TERTIARY,
       tail: "none",
       head: "normal",
       width: 1,
       style: "solid",
     },
     reference: {
-      color: LightPalette.ORGANGE,
-      tail: "inv",
-      head: "dot",
+      color: LightPalette.TERTIARY,
+      tail: "none",
+      head: "normal",
       width: 0.75,
       style: "solid",
     },
     dependency: {
-      color: LightPalette.BLUE,
-      tail: "invodot",
+      color: LightPalette.SECONDARY,
+      tail: "normal",
       head: "odot",
       width: 0.75,
       style: "dotted",
