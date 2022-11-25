@@ -23,12 +23,12 @@ export let RuleMetadata = [
   {
     info: "The API does not implement authorization.",
     explanation:
-      "In most cases an API needs to have an authentication and authorization implementation strategy. This includes using such approaches as IAM, Cognito User Pools, Custom authorizer, etc.\n\nExample threat: An actor with a network path to an API gateway stage end-point can interact with the API method in question without authorization, which may lead to reconnaissance and intrusion  activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability  of the data and resource assets associated with the prototype",
+      "In most cases an API needs to have an authentication and authorization implementation strategy. This includes using such approaches as IAM, Cognito User Pools, Custom authorizer, etc.\n\nExample threat: An actor with a network path to an API gateway stage end-point can interact with the API method in question without authorization, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.WARN,
     rule: rules.apigw.APIGWAuthorization,
   },
   {
-    info: "The API Gateway stage does not have caching enabled and encrypted for all methods.",
+    info: "The API Gateway stage does not does not have caching and encryption enabled for all methods.",
     explanation:
       "To help protect data at rest, ensure encryption is enabled for your API Gateway stage's cache. Because sensitive data can be captured for the API method, enable encryption at rest to help protect that data.",
     level: NagMessageLevel.WARN,
@@ -37,7 +37,7 @@ export let RuleMetadata = [
   {
     info: "The REST API does not have request validation enabled.",
     explanation:
-      "The API should have basic request validation enabled. If the API is integrated with custom source (Lambda, ECS, etc..) in the backend, deeper input validation should be considered for implementation.",
+      "The API should have basic request validation enabled. If the API is integrated with a custom source (Lambda, ECS, etc..) in the backend, deeper input validation should be considered for implementation.",
     level: NagMessageLevel.WARN,
     rule: rules.apigw.APIGWRequestValidation,
   },
@@ -72,21 +72,21 @@ export let RuleMetadata = [
   {
     info: "The Auto Scaling launch configuration does not have public IP addresses disabled.",
     explanation:
-      "If you configure your Network Interfaces with a public IP address, then the associated resources to those Network Interfaces are reachable from the internet. EC2 resources should not be publicly accessible, as this may allow unintended access to your applications or servers.\n\nExample threat: A global internet-based actor  can discover EC2 instances that have public IP addresses, which may lead to reconnaissance and intrusion  activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "If you configure your Network Interfaces with a public IP address, then the associated resources to those Network Interfaces are reachable from the internet. EC2 resources should not be publicly accessible, as this may allow unintended access to your applications or servers.\n\nExample threat: A global internet-based actor can discover EC2 instances that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.autoscaling.AutoScalingLaunchConfigPublicIpDisabled,
   },
   {
     info: "The Cloud9 instance does not use a no-ingress EC2 instance with AWS Systems Manager.",
     explanation:
-      "SSM adds an additional layer of protection as it allows operators to control access through IAM permissions and does not require opening inbound ports.\n\nExample threat: A global internet-based actor  can discover Cloud9 EC2 instances that have public IP addresses and that are exposing SSH, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "SSM adds an additional layer of protection as it allows operators to control access through IAM permissions and does not require opening inbound ports.\n\nExample threat: A global internet-based actor can discover Cloud9 EC2 instances that have public IP addresses and that are exposing SSH, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.cloud9.Cloud9InstanceNoIngressSystemsManager,
   },
   {
     info: "The CloudFront distribution may require Geo restrictions.",
     explanation:
-      "Geo restriction may need to be enabled for the distribution in order to allow or deny a country in order to allow or restrict users in specific locations from accessing content.\n\nExample threat: A global internet-based actor  can discover prototype web assets that are exposed via CloudFront distributions, which may lead to recon and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "Geo restriction may need to be enabled for the distribution in order to allow or deny a country in order to allow or restrict users in specific locations from accessing content.\n\nExample threat: A global internet-based actor can discover prototype web assets that are exposed via CloudFront distributions, which may lead to recon and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.cloudfront.CloudFrontDistributionGeoRestrictions,
   },
@@ -107,7 +107,7 @@ export let RuleMetadata = [
   {
     info: "The CloudFront distribution does not use an origin access identity an S3 origin.",
     explanation:
-      "Origin access identities help with security by restricting any direct access to objects through S3 URLs.\n\nExample threat: A global internet-based actor  can bypass the CloudFront distribution and associated controls (e.g. geo blocking), which may lead to direct access to static assets hosted on the S3 origin possibly impacting the confidentiality, integrity and availability of the data assets hosted on the S3 origin for the prototype",
+      "Origin access identities help with security by restricting any direct access to objects through S3 URLs.\n\nExample threat: A global internet-based actor can bypass the CloudFront distribution and associated controls (e.g. geo blocking), which may lead to direct access to static assets hosted on the S3 origin possibly impacting the confidentiality, integrity and availability of the data assets hosted on the S3 origin for the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.cloudfront.CloudFrontDistributionS3OriginAccessIdentity,
   },
@@ -175,14 +175,14 @@ export let RuleMetadata = [
     rule: rules.cognito.CognitoUserPoolAdvancedSecurityModeEnforced,
   },
   {
-    info: "The API GW method does not use a Cognito user pool authorizer.",
+    info: "The API Gateway method does not use a Cognito user pool authorizer.",
     explanation:
       "API Gateway validates the tokens from a successful user pool authentication, and uses them to grant your users access to resources including Lambda functions, or your own API.",
     level: NagMessageLevel.WARN,
     rule: rules.cognito.CognitoUserPoolAPIGWAuthorizer,
   },
   {
-    info: "The Cognito user pool does not require MFA.",
+    info: "The Cognito user pool is not configured to require MFA.",
     explanation:
       "Multi-factor authentication (MFA) increases security for the application by adding another authentication method, and not relying solely on user name and password.",
     level: NagMessageLevel.WARN,
@@ -191,7 +191,7 @@ export let RuleMetadata = [
   {
     info: "The Cognito identity pool allows for unauthenticated logins and does not have a cdk-nag rule suppression with a reason.",
     explanation:
-      "In many cases applications do not warrant unauthenticated guest access applications. Metadata explaining the use case allows for transparency to operators.\n\nExample threat: A global internet-based actor who has discovered a prototype endpoint with Cognito unauthenticated logins can does not need to provide credentials to interact with the endpoint, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "Applications do not warrant unauthenticated guest access in many cases. Metadata explaining the use case allows for transparency to operators.\n\nExample threat: A global internet-based actor who has discovered a prototype endpoint with Cognito unauthenticated logins can does not need to provide credentials to interact with the endpoint, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.cognito.CognitoUserPoolNoUnauthenticatedLogins,
   },
@@ -205,7 +205,7 @@ export let RuleMetadata = [
   {
     info: "The DMS replication instance is public.",
     explanation:
-      "DMS replication instances can contain sensitive information and access control is required for such accounts.\n\nExample threat: A global internet-based actor  can discover DMS instances that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "DMS replication instances can contain sensitive information and access control is required for such accounts.\n\nExample threat: A global internet-based actor can discover DMS instances that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.dms.DMSReplicationNotPublic,
   },
@@ -261,35 +261,35 @@ export let RuleMetadata = [
   {
     info: "The EC2 instance is not within a VPC.",
     explanation:
-      "Because of their logical isolation, domains that reside within an Amazon VPC have an extra layer of security when compared to domains that use public endpoints.\n\nExample threat: A global internet-based actor  can discover EC2 instances that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "Because of their logical isolation, domains that reside within an Amazon VPC have an extra layer of security when compared to domains that use public endpoints.\n\nExample threat: A global internet-based actor can discover EC2 instances that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.ec2.EC2InstancesInVPC,
   },
   {
     info: "The EC2 instance is not part of an ASG and has Termination Protection disabled.",
     explanation:
-      "Termination Protection safety feature enabled in order to protect the instances from being accidentally terminated.",
+      "Termination Protection safety feature should be enabled in order to protect the instances from being accidentally terminated.",
     level: NagMessageLevel.WARN,
     rule: rules.ec2.EC2InstanceTerminationProtection,
   },
   {
     info: "The EC2 instance allows unrestricted inbound IPv4 TCP traffic on one or more common ports (by default these ports include 20, 21, 3389, 3309, 3306, 4333).",
     explanation:
-      "Not restricting access to ports to trusted sources can lead to attacks against the availability, integrity and confidentiality of systems. By default, common ports which should be restricted include port numbers 20, 21, 3389, 3306, and 4333.\n\nExample threat: A global internet-based actor  can discover exposed services (e.g. Telnet, SSH, RDS, MySQL) using their common port numbers, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "Not restricting access to ports to trusted sources can lead to attacks against the availability, integrity and confidentiality of systems. By default, common ports which should be restricted include port numbers 20, 21, 3389, 3306, and 4333.\n\nExample threat: A global internet-based actor can discover exposed services (e.g. Telnet, SSH, RDS, MySQL) using their common port numbers, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.ec2.EC2RestrictedCommonPorts,
   },
   {
     info: "The Security Group allows for 0.0.0.0/0 or ::/0 inbound access.",
     explanation:
-      "Large port ranges, when open, expose instances to unwanted attacks. More than that, they make traceability of vulnerabilities very difficult. For instance, your web servers may only require 80 and 443 ports to be open, but not all. One of the most common mistakes observed is when all ports for 0.0.0.0/0 range are open in a rush to access the instance. EC2 instances must expose only to those ports enabled on the corresponding security group level.\n\nExample threat: A global internet-based actor  can discover EC2 instances that have public IP addresses and allow ingress to all internet address or move laterally to non-public EC2 instances, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "Large port ranges, when open, expose instances to unwanted attacks. More than that, they make traceability of vulnerabilities very difficult. For instance, your web servers may only require 80 and 443 ports to be open, but not all. One of the most common mistakes observed is when all ports for 0.0.0.0/0 range are open in a rush to access the instance. EC2 instances must expose only to those ports enabled on the corresponding security group level.\n\nExample threat: A global internet-based actor can discover EC2 instances that have public IP addresses and allow ingress to all internet address or move laterally to non-public EC2 instances, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.ec2.EC2RestrictedInbound,
   },
   {
     info: "The Security Group allows unrestricted SSH access.",
     explanation:
-      "Not allowing ingress (or remote) traffic from 0.0.0.0/0 or ::/0 to port 22 on your resources helps to restrict remote access.\n\nExample threat: A global internet-based actor  can discover EC2 instances that have public IP addresses and allow ingress to all internet address to SSH or move laterally to non-public EC2 instances via SSH, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "Not allowing ingress (or remote) traffic from 0.0.0.0/0 or ::/0 to port 22 on your resources helps to restrict remote access.\n\nExample threat: A global internet-based actor can discover EC2 instances that have public IP addresses and allow ingress to all internet address to SSH or move laterally to non-public EC2 instances via SSH, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.ec2.EC2RestrictedSSH,
   },
@@ -352,14 +352,14 @@ export let RuleMetadata = [
   {
     info: "The EKS cluster's Kubernetes API server endpoint has public access enabled.",
     explanation:
-      "A cluster's Kubernetes API server endpoint should not be publicly accessible from the Internet in order to avoid exposing private data and minimizing security risks. The API server endpoints should only be accessible from within a AWS Virtual Private Cloud (VPC).\n\nExample threat: A global internet-based actor who has discovered a EKS cluster Kubernetes API server endpoint can perform reconnaissance and intrusion activities against the exposed attack surface, which may lead to  possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "A cluster's Kubernetes API server endpoint should not be publicly accessible from the Internet in order to avoid exposing private data and minimizing security risks. The API server endpoints should only be accessible from within a AWS Virtual Private Cloud (VPC).\n\nExample threat: A global internet-based actor who has discovered a EKS cluster Kubernetes API server endpoint can perform reconnaissance and intrusion activities against the exposed attack surface, which may lead to possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.eks.EKSClusterNoEndpointPublicAccess,
   },
   {
     info: "The ElastiCache cluster is not provisioned in a VPC.",
     explanation:
-      "Provisioning the cluster within a VPC allows for better flexibility and control over the cache clusters security, availability, traffic routing and more.\n\nExample threat: A global internet-based actor  can discover the ElastiCache cluster that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data with the cluster used within the prototype",
+      "Provisioning the cluster within a VPC allows for better flexibility and control over the cache clusters security, availability, traffic routing and more.\n\nExample threat: A global internet-based actor can discover the ElastiCache cluster that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data with the cluster used within the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.elasticache.ElastiCacheClusterInVPC,
   },
@@ -401,14 +401,14 @@ export let RuleMetadata = [
   {
     info: "The Elastic Beanstalk environment is not configured to use a specific VPC.",
     explanation:
-      "Use a non-default in order to separate your environment from default resources.",
+      "Use a non-default VPC in order to separate your environment from default resources.",
     level: NagMessageLevel.WARN,
     rule: rules.elasticbeanstalk.ElasticBeanstalkVPCSpecified,
   },
   {
     info: "The ALB does not have invalid HTTP header dropping enabled.",
     explanation:
-      "Ensure that your Application Load Balancers (ALB) are configured to drop http headers. Because sensitive data can exist, enable encryption in transit to help protect that data",
+      "Ensure that your Application Load Balancers (ALB) are configured to drop http headers. Because sensitive data can exist in these headers.",
     level: NagMessageLevel.WARN,
     rule: rules.elb.ALBHttpDropInvalidHeaderEnabled,
   },
@@ -448,7 +448,7 @@ export let RuleMetadata = [
     rule: rules.elb.ELBTlsHttpsListenersOnly,
   },
   {
-    info: "The ALB, NLB, or GLB listener does not utilize an SSL certificate provided by ACM (Amazon Certificate Manager).",
+    info: "The ALB, NLB, or GLB listener do not utilize an SSL certificate provided by ACM (Amazon Certificate Manager).",
     explanation:
       "Because sensitive data can exist and to help protect data at transit, ensure encryption is enabled for your Elastic Load Balancing. Use AWS Certificate Manager to manage, provision and deploy public and private SSL/TLS certificates with AWS services and internal resources.",
     level: NagMessageLevel.WARN,
@@ -485,7 +485,7 @@ export let RuleMetadata = [
   {
     info: "The event bus policy allows for open access.",
     explanation:
-      'An open policy ("*" principal without a condition) grants anonymous access to an event bus. Use a condition to limit the permission to accounts that fulfill a certain requirement, such as being a member of a certain AWS organization.\n\nExample threat: A global internet-based actor who has discovered the Event Bridge event bus (e.g. Endpoint ID) can put arbitrary  events onto the bus, which may lead to which could be processed by the prototype possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype',
+      'An open policy ("*" principal without a condition) grants anonymous access to an event bus. Use a condition to limit the permission to accounts that fulfill a certain requirement, such as being a member of a certain AWS organization.\n\nExample threat: A global internet-based actor who has discovered the Event Bridge event bus (e.g. Endpoint ID) can put arbitrary events onto the bus, which may lead to which could be processed by the prototype possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype',
     level: NagMessageLevel.ERROR,
     rule: rules.eventbridge.EventBusOpenAccess,
   },
@@ -520,7 +520,7 @@ export let RuleMetadata = [
   {
     info: "The IAM policy grants admin access - meaning the policy allows a principal to perform unlimited actions on any service",
     explanation:
-      "AWS Identity and Access Management (IAM) can help you incorporate the principles of least privilege and separation of duties with access permissions and authorizations, by ensuring that IAM groups have at least one IAM user. Placing IAM users in groups based on their associated permissions or job function is one way to incorporate least privilege.\n\nExample threat: A global internet-based actor who has successfully obtained valid keys or a session associated of the IAM Principal associated  with the IAM policy can perform unlimited AWS actions on any AWS service which are exposed via the AWS API/Management Console/CLI, which may lead to broad and unknown impacts possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "AWS Identity and Access Management (IAM) can help you incorporate the principles of least privilege and separation of duties with access permissions and authorizations, by ensuring that IAM groups have at least one IAM user. Placing IAM users in groups based on their associated permissions or job function is one way to incorporate least privilege.\n\nExample threat: A global internet-based actor who has successfully obtained valid keys or a session associated of the IAM Principal associated with the IAM policy can perform unlimited AWS actions on any AWS service which are exposed via the AWS API/Management Console/CLI, which may lead to broad and unknown impacts possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.iam.IAMPolicyNoStatementsWithAdminAccess,
   },
@@ -532,9 +532,9 @@ export let RuleMetadata = [
     rule: rules.iam.IAMPolicyNoStatementsWithFullAccess,
   },
   {
-    info: "The Kinesis Data Firehose delivery stream does have server-side encryption enabled.",
+    info: "The Kinesis Data Firehose delivery stream does not have server-side encryption enabled.",
     explanation:
-      "This allows the system to meet strict regulatory requirements and enhance the security of system data.",
+      "Enabling encryption allows the system to meet strict regulatory requirements and enhance the security of system data.",
     level: NagMessageLevel.WARN,
     rule: rules.kinesis.KinesisDataFirehoseSSE,
   },
@@ -546,7 +546,7 @@ export let RuleMetadata = [
     rule: rules.kinesis.KinesisDataStreamDefaultKeyWhenSSE,
   },
   {
-    info: "The Kinesis Data Stream does not has server-side encryption enabled.",
+    info: "The Kinesis Data Stream does not have server-side encryption enabled.",
     explanation:
       "Data is encrypted before it's written to the Kinesis stream storage layer, and decrypted after it’s retrieved from storage. This allows the system to meet strict regulatory requirements and enhance the security of system data.",
     level: NagMessageLevel.WARN,
@@ -555,7 +555,7 @@ export let RuleMetadata = [
   {
     info: "The KMS Symmetric key does not have automatic key rotation enabled.",
     explanation:
-      "KMS key rotation allow a system to set an yearly rotation schedule for a KMS key so when a AWS KMS key is required to encrypt new data, the KMS service can automatically use the latest version of the HSA backing key to perform the encryption.",
+      "KMS key rotation allow a system to set a rotation schedule for a KMS key so when a AWS KMS key is required to encrypt new data, the KMS service can automatically use the latest version of the HSA backing key to perform the encryption.",
     level: NagMessageLevel.WARN,
     rule: rules.kms.KMSBackingKeyRotationEnabled,
   },
@@ -667,7 +667,7 @@ export let RuleMetadata = [
   {
     info: "The OpenSearch Service domain does not use dedicated master nodes.",
     explanation:
-      "'Using dedicated master nodes helps improve environmental stability by offloading all the management tasks from the data nodes.",
+      "Using dedicated master nodes helps improve environmental stability by offloading all the management tasks from the data nodes.",
     level: NagMessageLevel.WARN,
     rule: rules.opensearch.OpenSearchDedicatedMasterNode,
   },
@@ -681,7 +681,7 @@ export let RuleMetadata = [
   {
     info: "The OpenSearch Service domain is not provisioned inside a VPC.",
     explanation:
-      "Provisioning the domain within a VPC enables better flexibility and control over the clusters access and security as this feature keeps all traffic between the VPC and OpenSearch domains within the AWS network instead of going over the public Internet.\n\nExample threat: A global internet-based actor  can discover the OpenSearch Service domain that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data with the cluster used within the prototype",
+      "Provisioning the domain within a VPC enables better flexibility and control over the clusters access and security as this feature keeps all traffic between the VPC and OpenSearch domains within the AWS network instead of going over the public Internet.\n\nExample threat: A global internet-based actor can discover the OpenSearch Service domain that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data with the cluster used within the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.opensearch.OpenSearchInVPCOnly,
   },
@@ -730,7 +730,7 @@ export let RuleMetadata = [
   {
     info: "The RDS DB instance allows public access.",
     explanation:
-      "Amazon RDS database instances can contain sensitive information, and principles and access control is required for such accounts.\n\nExample threat: A global internet-based actor who has discovered the RDS DB instance endpoint can perform reconnaissance and intrusion activities (e.g. brute force/dictionary attack to authenticate as a valid user) against the exposed attack surface, which may lead to  possibly impacting the confidentiality, integrity and availability of the data assets hosted on the RDS Cluster or instance for the prototype",
+      "Amazon RDS database instances can contain sensitive information, hence appropriate access control and principles of least privilege should be applied.\n\nExample threat: A global internet-based actor who has discovered the RDS DB instance endpoint can perform reconnaissance and intrusion activities (e.g. brute force/dictionary attack to authenticate as a valid user) against the exposed attack surface, which may lead to possibly impacting the confidentiality, integrity and availability of the data assets hosted on the RDS Cluster or instance for the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.rds.RDSInstancePublicAccess,
   },
@@ -744,12 +744,12 @@ export let RuleMetadata = [
   {
     info: "The RDS DB Security Group allows for 0.0.0.0/0 inbound access.",
     explanation:
-      "RDS DB security groups should not allow access from 0.0.0.0/0 (i.e. anywhere, every machine that has the ability to establish a connection) in order to reduce the risk of unauthorized access.\n\nExample threat: A global internet-based actor  can discover RDS DB instances that have public IP addresses and allow ingress to all internet address or move laterally to non-public RDS DB instances, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data assets hosted on the RDS Cluster or instance for the prototype",
+      "RDS DB security groups should not allow access from 0.0.0.0/0 (i.e. anywhere, every machine that has the ability to establish a connection) in order to reduce the risk of unauthorized access.\n\nExample threat: A global internet-based actor can discover RDS DB instances that have public IP addresses and allow ingress to all internet address or move laterally to non-public RDS DB instances, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data assets hosted on the RDS Cluster or instance for the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.rds.RDSRestrictedInbound,
   },
   {
-    info: "The RDS DB instance or Aurora DB cluster does not have storage encrypted.",
+    info: "The RDS DB instance or Aurora DB cluster does not have encryption at rest enabled.",
     explanation:
       "Because sensitive data can exist at rest in Amazon RDS DB instances, enable encryption at rest to help protect that data.",
     level: NagMessageLevel.WARN,
@@ -778,7 +778,7 @@ export let RuleMetadata = [
   {
     info: "The Redshift cluster is not provisioned in a VPC.",
     explanation:
-      "Provisioning the cluster within a VPC allows for better flexibility and control over the Redshift clusters security, availability, traffic routing and more.\n\nExample threat: A global internet-based actor  can discover a RedShift cluster that have public IP addresses, which may lead to reconnaissance and intrusion activities (e.g. brute force/dictionary attack to authenticate as a valid user) being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data with the cluster used within the prototype",
+      "Provisioning the cluster within a VPC allows for better flexibility and control over the Redshift clusters security, availability, traffic routing and more.\n\nExample threat: A global internet-based actor can discover a RedShift cluster that have public IP addresses, which may lead to reconnaissance and intrusion activities (e.g. brute force/dictionary attack to authenticate as a valid user) being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data with the cluster used within the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.redshift.RedshiftClusterInVPC,
   },
@@ -799,21 +799,21 @@ export let RuleMetadata = [
   {
     info: 'The Redshift cluster uses the default "awsuser" username.',
     explanation:
-      'Using a custom master user name instead of the default master user name (i.e. "awsuser") provides an additional layer of defense against non-targeted attacks.',
+      'Using a custom user name instead of the default master user name (i.e. "awsuser") provides an additional layer of defense against non-targeted attacks.',
     level: NagMessageLevel.WARN,
     rule: rules.redshift.RedshiftClusterNonDefaultUsername,
   },
   {
     info: "The Redshift cluster allows public access.",
     explanation:
-      "Amazon Redshift clusters can contain sensitive information and principles and access control is required for such accounts.\n\nExample threat: A global internet-based actor who has discovered the Redshift cluster endpoint can perform reconnaissance and intrusion activities (e.g. brute force/dictionary attack to authenticate as a valid user) against the exposed attack surface, which may lead to  possibly impacting the confidentiality, integrity and availability of the data assets hosted on the Redshift cluster for the prototype",
+      "Amazon Redshift clusters can contain sensitive information, hence appropriate access control and principles of least privilege should be applied.\n\nExample threat: A global internet-based actor who has discovered the Redshift cluster endpoint can perform reconnaissance and intrusion activities (e.g. brute force/dictionary attack to authenticate as a valid user) against the exposed attack surface, which may lead to possibly impacting the confidentiality, integrity and availability of the data assets hosted on the Redshift cluster for the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.redshift.RedshiftClusterPublicAccess,
   },
   {
     info: "The Redshift cluster does not have version upgrade enabled.",
     explanation:
-      "Version Upgrade must enabled to enable the cluster to automatically receive upgrades during the maintenance window.\n\nExample threat: An actor with a network path to the Redshift cluster can attempt to take advantage of a known vulnerability in a component exposed by Redshift, which may lead to unknown impacts possibly impacting the confidentiality, integrity and availability of the data assets hosted on the Redshift cluster for the prototype",
+      "Version Upgrade must enabled on the cluster in order to automatically receive upgrades during the maintenance window.\n\nExample threat: An actor with a network path to the Redshift cluster can attempt to take advantage of a known vulnerability in a component exposed by Redshift, which may lead to unknown impacts possibly impacting the confidentiality, integrity and availability of the data assets hosted on the Redshift cluster for the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.redshift.RedshiftClusterVersionUpgrade,
   },
@@ -834,12 +834,12 @@ export let RuleMetadata = [
   {
     info: "The S3 bucket does not prohibit public access through bucket level settings.",
     explanation:
-      "Keep sensitive data safe from unauthorized remote users by preventing public access at the bucket level.\n\nExample threat: A global internet-based actor who has discovered a S3 bucket configured for public read or write can read or write data to or from the S3 bucket, which may lead to  possibly impacting the confidentiality, integrity and availability of the data assets hosted on the S3 bucket for the prototype",
+      "Keep sensitive data safe from unauthorized remote users by preventing public access at the bucket level.\n\nExample threat: A global internet-based actor who has discovered a S3 bucket configured for public read or write can read or write data to or from the S3 bucket, which may lead to possibly impacting the confidentiality, integrity and availability of the data assets hosted on the S3 bucket for the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.s3.S3BucketLevelPublicAccessProhibited,
   },
   {
-    info: "The S3 Buckets does not have server access logs enabled.",
+    info: "The S3 Bucket does not have server access logs enabled.",
     explanation:
       "Amazon Simple Storage Service (Amazon S3) server access logging provides a method to monitor the network for potential cybersecurity events. The events are monitored by capturing detailed records for the requests that are made to an Amazon S3 bucket. Each access log record provides details about a single access request. The details include the requester, bucket name, request time, request action, response status, and an error code, if relevant.",
     level: NagMessageLevel.WARN,
@@ -848,14 +848,14 @@ export let RuleMetadata = [
   {
     info: "The S3 Bucket does not prohibit public read access through its Block Public Access configurations and bucket ACLs.",
     explanation:
-      "The management of access should be consistent with the classification of the data.\n\nExample threat: A global internet-based actor who has discovered a S3 bucket configured for public read can read data from the S3 bucket, which may lead to  possibly impacting the confidentiality of the data assets hosted on the S3 bucket for the prototype",
+      "The management of access should be consistent with the classification of the data.\n\nExample threat: A global internet-based actor who has discovered a S3 bucket configured for public read can read data from the S3 bucket, which may lead to possibly impacting the confidentiality of the data assets hosted on the S3 bucket for the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.s3.S3BucketPublicReadProhibited,
   },
   {
     info: "The S3 Bucket does not prohibit public write access through its Block Public Access configurations and bucket ACLs.",
     explanation:
-      "The management of access should be consistent with the classification of the data.\n\nExample threat: A global internet-based actor who has discovered a S3 bucket configured for public write can write data to, or overwrite data within the S3 bucket, which may lead to  possibly impacting the integrity and availability of the data assets hosted on the S3 bucket for the prototype",
+      "The management of access should be consistent with the classification of the data.\n\nExample threat: A global internet-based actor who has discovered a S3 bucket configured for public write can write data to, or overwrite data within the S3 bucket, which may lead to possibly impacting the integrity and availability of the data assets hosted on the S3 bucket for the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.s3.S3BucketPublicWriteProhibited,
   },
@@ -867,7 +867,7 @@ export let RuleMetadata = [
     rule: rules.s3.S3BucketServerSideEncryptionEnabled,
   },
   {
-    info: "The S3 Bucket or bucket policy does not require requests to use SSL.",
+    info: "The S3 Bucket or bucket policy does not require requests to use SSL/TLS.",
     explanation:
       "You can use HTTPS (TLS) to help prevent potential attackers from eavesdropping on or manipulating network traffic using person-in-the-middle or similar attacks. You should allow only encrypted connections over HTTPS (TLS) using the aws:SecureTransport condition on Amazon S3 bucket policies.",
     level: NagMessageLevel.WARN,
@@ -932,7 +932,7 @@ export let RuleMetadata = [
   {
     info: "The SNS topic does not have KMS encryption enabled.",
     explanation:
-      "To help protect data at rest, ensure that your Amazon Simple Notification Service (Amazon SNS) topics require encryption using AWS Key Management Service (AWS KMS) Because sensitive data can exist at rest in published messages, enable encryption at rest to help protect that data.",
+      "To help protect data at rest, ensure that your Amazon Simple Notification Service (Amazon SNS) topics require encryption using AWS Key Management Service (AWS KMS). Because sensitive data can exist at rest in published messages, enable encryption at rest to help protect that data.",
     level: NagMessageLevel.WARN,
     rule: rules.sns.SNSEncryptedKMS,
   },
@@ -967,14 +967,14 @@ export let RuleMetadata = [
   {
     info: "The Timestream database does not use a Customer Managed KMS Key for at rest encryption.",
     explanation:
-      "All Timestream tables in a database are encrypted at rest by default using AWS Managed Key. These keys are rotated every three years. Data at rest must be encrypted using CMKs if you require more control over the permissions and lifecycle of your keys, including the ability to have them automatically rotated on an annual basis.",
+      "All Timestream tables in a database are encrypted at rest by default using an AWS Managed Key. These keys are rotated every three years. Data at rest must be encrypted using CMKs if you require more control over the permissions and lifecycle of your keys, including the ability to have them automatically rotated on an periodic basis.",
     level: NagMessageLevel.WARN,
     rule: rules.timestream.TimestreamDatabaseCustomerManagedKey,
   },
   {
     info: "The VPC's default security group allows inbound or outbound traffic.",
     explanation:
-      "When creating a VPC through CloudFormation, the default security group will always be open. Therefore it is important to always close the default security group after stack creation whenever a VPC is created. Restricting all the traffic on the default security group helps in restricting remote access to your AWS resources.\n\nExample threat: A global internet-based actor  can discover VPC-attached resources (e.g. EC2 instances) that have public IP addresses and allow ingress to all internet address or move laterally to non-public VPC-attached instances, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "When creating a VPC through CloudFormation, the default security group will always be open. Therefore it is important to always close the default security group after stack creation whenever a VPC is created. Restricting all the traffic on the default security group helps in restricting remote access to your AWS resources.\n\nExample threat: A global internet-based actor can discover VPC-attached resources (e.g. EC2 instances) that have public IP addresses and allow ingress to all internet address or move laterally to non-public VPC-attached instances, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.vpc.VPCDefaultSecurityGroupClosed,
   },
@@ -995,7 +995,7 @@ export let RuleMetadata = [
   {
     info: "The subnet auto-assigns public IP addresses.",
     explanation:
-      "Manage access to the AWS Cloud by ensuring Amazon Virtual Private Cloud (VPC) subnets are not automatically assigned a public IP address. Amazon Elastic Compute Cloud (EC2) instances that are launched into subnets that have this attribute enabled have a public IP address assigned to their primary network interface.\n\nExample threat: A global internet-based actor  can discover VPC-attached resources (e.g. EC2 instances) within the subnet in question that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "Manage access to the AWS Cloud by ensuring Amazon Virtual Private Cloud (VPC) subnets are not automatically assigned a public IP address. Amazon Elastic Compute Cloud (EC2) instances that are launched into subnets that have this attribute enabled have a public IP address assigned to their primary network interface.\n\nExample threat: A global internet-based actor can discover VPC-attached resources (e.g. EC2 instances) within the subnet in question that have public IP addresses, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.vpc.VPCSubnetAutoAssignPublicIpDisabled,
   },
