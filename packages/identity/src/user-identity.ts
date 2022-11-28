@@ -66,17 +66,22 @@ export class UserIdentity extends Construct {
       };
 
       const stack = Stack.of(this);
-      PDKNag.addResourceSuppressionsByPathNoThrow(
-        stack,
-        `${PDKNag.getStackPrefix(stack)}${id}/UserPool/smsRole/Resource`,
-        [
-          {
-            id: "AwsSolutions-IAM5",
-            reason:
-              "MFA requires sending a text to a users phone number which cannot be known at deployment time.",
-            appliesTo: ["Resource::*"],
-          },
-        ]
+
+      ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+        (RuleId) => {
+          PDKNag.addResourceSuppressionsByPathNoThrow(
+            stack,
+            `${PDKNag.getStackPrefix(stack)}${id}/UserPool/smsRole/Resource`,
+            [
+              {
+                id: RuleId,
+                reason:
+                  "MFA requires sending a text to a users phone number which cannot be known at deployment time.",
+                appliesTo: ["Resource::*"],
+              },
+            ]
+          );
+        }
       );
 
       this.userPoolClient = this.userPool.addClient("WebClient", {
