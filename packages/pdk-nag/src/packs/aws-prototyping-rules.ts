@@ -14,6 +14,13 @@ export let PackName = "AwsPrototyping";
  */
 export let RuleMetadata = [
   {
+    info: "The API does not have access logging enabled.",
+    explanation:
+      "Enabling access logs helps operators view who accessed an API and how the caller accessed the API.",
+    level: NagMessageLevel.WARN,
+    rule: rules.apigw.APIGWAccessLogging,
+  },
+  {
     info: "The REST API stage is not associated with AWS WAFv2 web ACL.",
     explanation:
       "AWS WAFv2 is a web application firewall that helps protect web applications and APIs from attacks by allowing configured rules to allow, block, or monitor (count) web requests based on customizable rules and conditions that are defined.",
@@ -28,11 +35,11 @@ export let RuleMetadata = [
     rule: rules.apigw.APIGWAuthorization,
   },
   {
-    info: "The API Gateway stage does not does not have caching and encryption enabled for all methods.",
+    info: "The API Gateway stage does not have execution logging enabled for all methods.",
     explanation:
-      "To help protect data at rest, ensure encryption is enabled for your API Gateway stage's cache. Because sensitive data can be captured for the API method, enable encryption at rest to help protect that data.",
+      "API Gateway logging displays detailed views of users who accessed the API and the way they accessed the API. This insight enables visibility of user activities.",
     level: NagMessageLevel.WARN,
-    rule: rules.apigw.APIGWCacheEnabledAndEncrypted,
+    rule: rules.apigw.APIGWExecutionLoggingEnabled,
   },
   {
     info: "The REST API does not have request validation enabled.",
@@ -40,13 +47,6 @@ export let RuleMetadata = [
       "The API should have basic request validation enabled. If the API is integrated with a custom source (Lambda, ECS, etc..) in the backend, deeper input validation should be considered for implementation.",
     level: NagMessageLevel.WARN,
     rule: rules.apigw.APIGWRequestValidation,
-  },
-  {
-    info: "The API Gateway REST API stage is not configured with SSL certificates.",
-    explanation:
-      "Ensure Amazon API Gateway REST API stages are configured with SSL certificates to allow backend systems to authenticate that requests originate from API Gateway.",
-    level: NagMessageLevel.WARN,
-    rule: rules.apigw.APIGWSSLEnabled,
   },
   {
     info: "The GraphQL API does not have request level logging enabled.",
@@ -84,9 +84,16 @@ export let RuleMetadata = [
     rule: rules.cloud9.Cloud9InstanceNoIngressSystemsManager,
   },
   {
-    info: "The CloudFront distribution may require Geo restrictions.",
+    info: "The CloudFront distribution does not have access logging enabled.",
     explanation:
-      "Geo restriction may need to be enabled for the distribution in order to allow or deny a country in order to allow or restrict users in specific locations from accessing content.\n\nExample threat: A global internet-based actor can discover prototype web assets that are exposed via CloudFront distributions, which may lead to recon and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
+      "Enabling access logs helps operators track all viewer requests for the content delivered through the Content Delivery Network.",
+    level: NagMessageLevel.WARN,
+    rule: rules.cloudfront.CloudFrontDistributionAccessLogging,
+  },
+  {
+    info: "The prototypes CloudFront distribution has not been configured with geographic restrictions (GeoRestriction)",
+    explanation:
+      "Geo restriction should be enabled for the distribution in order to limit the surface area exposed to expected geographies\n\nExample threat: A global internet-based actor can discover prototype web assets that are exposed via CloudFront distributions, which may lead to recon and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.cloudfront.CloudFrontDistributionGeoRestrictions,
   },
@@ -119,20 +126,6 @@ export let RuleMetadata = [
     rule: rules.cloudfront.CloudFrontDistributionWAFIntegration,
   },
   {
-    info: "The trail does not have encryption enabled.",
-    explanation:
-      "Because sensitive data may exist and to help protect data at rest, ensure encryption is enabled for your AWS CloudTrail trails.",
-    level: NagMessageLevel.WARN,
-    rule: rules.cloudtrail.CloudTrailEncryptionEnabled,
-  },
-  {
-    info: "The CloudWatch Log Group is not encrypted with an AWS KMS key.",
-    explanation:
-      "To help protect sensitive data at rest, ensure encryption is enabled for your Amazon CloudWatch Log Groups.",
-    level: NagMessageLevel.WARN,
-    rule: rules.cloudwatch.CloudWatchLogGroupEncrypted,
-  },
-  {
     info: "The CodeBuild environment stores sensitive credentials (such as AWS_ACCESS_KEY_ID and/or AWS_SECRET_ACCESS_KEY) as plaintext environment variables.",
     explanation:
       "Do not store these variables in clear text. Storing these variables in clear text leads to unintended data exposure and unauthorized access.\n\nExample threat: An actor who can view the CodeBuild environment variables can obtain the AWS Access Key and Secret Access Key, which may lead to the actor being able to do anything the AWS keys are authorised to do possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
@@ -159,13 +152,6 @@ export let RuleMetadata = [
       "Privileged grants elevated rights to the system, which introduces additional risk. Privileged mode should only be set to true only if the build project is used to build Docker images. Otherwise, a build that attempts to interact with the Docker daemon fails.",
     level: NagMessageLevel.WARN,
     rule: rules.codebuild.CodeBuildProjectPrivilegedModeDisabled,
-  },
-  {
-    info: "The CodeBuild project which utilizes either a GitHub or BitBucket repository does not utilize OAUTH.",
-    explanation:
-      "OAUTH is the most secure method of authenticating your Codebuild application. Use OAuth instead of personal access tokens or a user name and password to grant authorization for accessing GitHub or Bitbucket repositories.",
-    level: NagMessageLevel.WARN,
-    rule: rules.codebuild.CodeBuildProjectSourceRepoUrl,
   },
   {
     info: "The Cognito user pool does not have AdvancedSecurityMode set to ENFORCED.",
@@ -329,13 +315,6 @@ export let RuleMetadata = [
     rule: rules.ecs.ECSTaskDefinitionNoEnvironmentVariables,
   },
   {
-    info: "The ECS task definition is configured for host networking and has at least one container with definitions with 'privileged' set to false or empty or 'user' set to root or empty.",
-    explanation:
-      "If a task definition has elevated privileges it is because you have specifically opted-in to those configurations. This rule checks for unexpected privilege escalation when a task definition has host networking enabled but the customer has not opted-in to elevated privileges.",
-    level: NagMessageLevel.WARN,
-    rule: rules.ecs.ECSTaskDefinitionUserForHostMode,
-  },
-  {
     info: "The EFS does not have encryption at rest enabled.",
     explanation:
       "Because sensitive data can exist and to help protect data at rest, ensure encryption is enabled for your Amazon Elastic File System (EFS).",
@@ -406,25 +385,11 @@ export let RuleMetadata = [
     rule: rules.elasticbeanstalk.ElasticBeanstalkVPCSpecified,
   },
   {
-    info: "The ALB does not have invalid HTTP header dropping enabled.",
-    explanation:
-      "Ensure that your Application Load Balancers (ALB) are configured to drop http headers. Because sensitive data can exist in these headers.",
-    level: NagMessageLevel.WARN,
-    rule: rules.elb.ALBHttpDropInvalidHeaderEnabled,
-  },
-  {
     info: "The ALB's HTTP listeners are not configured to redirect to HTTPS.",
     explanation:
       "To help protect data in transit, ensure that your Application Load Balancer automatically redirects unencrypted HTTP requests to HTTPS. Because sensitive data can exist, enable encryption in transit to help protect that data.",
     level: NagMessageLevel.WARN,
     rule: rules.elb.ALBHttpToHttpsRedirection,
-  },
-  {
-    info: "The ALB is not associated with AWS WAFv2 web ACL.",
-    explanation:
-      "A WAF helps to protect your web applications or APIs against common web exploits. These web exploits may affect availability, compromise security, or consume excessive resources within your environment.",
-    level: NagMessageLevel.WARN,
-    rule: rules.elb.ALBWAFEnabled,
   },
   {
     info: "The CLB does not have connection draining enabled.",
@@ -434,11 +399,11 @@ export let RuleMetadata = [
     rule: rules.elb.CLBConnectionDraining,
   },
   {
-    info: "The CLB does not utilize an SSL certificate provided by ACM (Amazon Certificate Manager).",
+    info: "The ELB does not have logging enabled.",
     explanation:
-      "Because sensitive data can exist and to help protect data at transit, ensure encryption is enabled for your Elastic Load Balancing. Use AWS Certificate Manager to manage, provision and deploy public and private SSL/TLS certificates with AWS services and internal resources.",
+      "Elastic Load Balancing activity is a central point of communication within an environment. Ensure ELB logging is enabled. The collected data provides detailed information about requests sent to The ELB. Each log contains information such as the time the request was received, the client's IP address, latencies, request paths, and server responses.",
     level: NagMessageLevel.WARN,
-    rule: rules.elb.ELBACMCertificateRequired,
+    rule: rules.elb.ELBLoggingEnabled,
   },
   {
     info: "The CLB does not restrict its listeners to only the SSL and HTTPS protocols.",
@@ -446,13 +411,6 @@ export let RuleMetadata = [
       "Ensure that your Classic Load Balancers (CLBs) are configured with SSL or HTTPS listeners. Because sensitive data can exist, enable encryption in transit to help protect that data.",
     level: NagMessageLevel.WARN,
     rule: rules.elb.ELBTlsHttpsListenersOnly,
-  },
-  {
-    info: "The ALB, NLB, or GLB listener do not utilize an SSL certificate provided by ACM (Amazon Certificate Manager).",
-    explanation:
-      "Because sensitive data can exist and to help protect data at transit, ensure encryption is enabled for your Elastic Load Balancing. Use AWS Certificate Manager to manage, provision and deploy public and private SSL/TLS certificates with AWS services and internal resources.",
-    level: NagMessageLevel.WARN,
-    rule: rules.elb.ELBv2ACMCertificateRequired,
   },
   {
     info: "The EMR cluster does not implement authentication via an EC2 Key Pair or Kerberos.",
@@ -469,18 +427,18 @@ export let RuleMetadata = [
     rule: rules.emr.EMREncryptionInTransit,
   },
   {
-    info: "The EMR cluster does not have Kerberos enabled.",
-    explanation:
-      "The access permissions and authorizations can be managed and incorporated with the principles of least privilege and separation of duties, by enabling Kerberos for Amazon EMR clusters.",
-    level: NagMessageLevel.WARN,
-    rule: rules.emr.EMRKerberosEnabled,
-  },
-  {
     info: "The EMR cluster does not use a security configuration with local disk encryption enabled.",
     explanation:
       "Local disk encryption uses a combination of open-source HDFS encryption and LUKS encryption to secure data at rest.",
     level: NagMessageLevel.WARN,
     rule: rules.emr.EMRLocalDiskEncryption,
+  },
+  {
+    info: "The EMR cluster does not have S3 logging enabled.",
+    explanation:
+      "Uploading logs to S3 enables the system to keep the logging data for historical purposes or to track and analyze the clusters behavior.",
+    level: NagMessageLevel.WARN,
+    rule: rules.emr.EMRS3AccessLogging,
   },
   {
     info: "The event bus policy allows for open access.",
@@ -574,13 +532,6 @@ export let RuleMetadata = [
     rule: rules.lambda.LambdaFunctionUrlAuth,
   },
   {
-    info: "The Lambda function is not VPC enabled.",
-    explanation:
-      "Because of their logical isolation, domains that reside within an Amazon VPC have an extra layer of security when compared to domains that use public endpoints.",
-    level: NagMessageLevel.WARN,
-    rule: rules.lambda.LambdaInsideVPC,
-  },
-  {
     info: "The non-container Lambda function is not configured to use the latest runtime version.",
     explanation:
       "Use the latest available runtime for the targeted language to avoid technical debt. Runtimes specific to a language or framework version are deprecated when the version reaches end of life. This rule only applies to non-container Lambda functions.",
@@ -593,6 +544,13 @@ export let RuleMetadata = [
       "Using a combination of MediaStore metrics and CloudWatch alarms helps operators gain better insights into container operations.",
     level: NagMessageLevel.WARN,
     rule: rules.mediastore.MediaStoreCloudWatchMetricPolicy,
+  },
+  {
+    info: "The MediaStore container does not have container access logging enabled.",
+    explanation:
+      "The container should have access logging enabled to provide detailed records for the requests that are made to the container.",
+    level: NagMessageLevel.WARN,
+    rule: rules.mediastore.MediaStoreContainerAccessLogging,
   },
   {
     info: "The MediaStore container does not define a CORS policy.",
@@ -707,6 +665,13 @@ export let RuleMetadata = [
     rule: rules.quicksight.QuicksightSSLConnections,
   },
   {
+    info: "The RDS Aurora MySQL serverless cluster does not have audit, error, general, and slowquery Log Exports enabled.",
+    explanation:
+      "This allows operators to use CloudWatch to view logs to help diagnose problems in the database. This is a granular rule that returns individual findings that can be suppressed with appliesTo. The findings are in the format LogExport::<log> for exported logs. Example: appliesTo: ['LogExport::audit'].",
+    level: NagMessageLevel.WARN,
+    rule: rules.rds.AuroraMySQLLogging,
+  },
+  {
     info: "The RDS Aurora MySQL/PostgresSQL cluster does not have IAM Database Authentication enabled.",
     explanation:
       "With IAM Database Authentication enabled, the system doesn't have to use a password when connecting to the MySQL/PostgreSQL database instances, instead it uses an authentication token.",
@@ -763,13 +728,6 @@ export let RuleMetadata = [
     rule: rules.redshift.RedshiftClusterAuditLogging,
   },
   {
-    info: "The Redshift cluster does not have encryption or audit logging enabled.",
-    explanation:
-      "To protect data at rest, ensure that encryption is enabled for your Amazon Redshift clusters. You must also ensure that required configurations are deployed on Amazon Redshift clusters. The audit logging should be enabled to provide information about connections and user activities in the database.",
-    level: NagMessageLevel.WARN,
-    rule: rules.redshift.RedshiftClusterConfiguration,
-  },
-  {
     info: "The Redshift cluster does not have encryption at rest enabled.",
     explanation: "Encrypting data-at-rest protects data confidentiality.",
     level: NagMessageLevel.WARN,
@@ -781,13 +739,6 @@ export let RuleMetadata = [
       "Provisioning the cluster within a VPC allows for better flexibility and control over the Redshift clusters security, availability, traffic routing and more.\n\nExample threat: A global internet-based actor can discover a RedShift cluster that have public IP addresses, which may lead to reconnaissance and intrusion activities (e.g. brute force/dictionary attack to authenticate as a valid user) being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data with the cluster used within the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.redshift.RedshiftClusterInVPC,
-  },
-  {
-    info: "The Redshift cluster does not have version upgrades enabled, automated snapshot retention periods enabled, and an explicit maintenance window configured.",
-    explanation:
-      "Ensure that Amazon Redshift clusters have the preferred settings for your organization. Specifically, that they have preferred maintenance windows and automated snapshot retention periods for the database.",
-    level: NagMessageLevel.WARN,
-    rule: rules.redshift.RedshiftClusterMaintenanceSettings,
   },
   {
     info: "The Redshift cluster uses the default endpoint port.",
@@ -811,18 +762,18 @@ export let RuleMetadata = [
     rule: rules.redshift.RedshiftClusterPublicAccess,
   },
   {
+    info: "The Redshift cluster does not have user activity logging enabled.",
+    explanation:
+      'User activity logging logs each query before it is performed on the clusters database. To enable this feature associate a Redshift Cluster Parameter Group with the "enable_user_activity_logging" parameter set to "true".',
+    level: NagMessageLevel.WARN,
+    rule: rules.redshift.RedshiftClusterUserActivityLogging,
+  },
+  {
     info: "The Redshift cluster does not have version upgrade enabled.",
     explanation:
       "Version Upgrade must enabled on the cluster in order to automatically receive upgrades during the maintenance window.\n\nExample threat: An actor with a network path to the Redshift cluster can attempt to take advantage of a known vulnerability in a component exposed by Redshift, which may lead to unknown impacts possibly impacting the confidentiality, integrity and availability of the data assets hosted on the Redshift cluster for the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.redshift.RedshiftClusterVersionUpgrade,
-  },
-  {
-    info: "The Redshift cluster does not have enhanced VPC routing enabled.",
-    explanation:
-      "Enhanced VPC routing forces all COPY and UNLOAD traffic between the cluster and data repositories to go through your Amazon VPC. You can then use VPC features such as security groups and network access control lists to secure network traffic. You can also use VPC flow logs to monitor network traffic.",
-    level: NagMessageLevel.WARN,
-    rule: rules.redshift.RedshiftEnhancedVPCRoutingEnabled,
   },
   {
     info: "The Redshift cluster does not require TLS/SSL encryption.",
@@ -874,25 +825,11 @@ export let RuleMetadata = [
     rule: rules.s3.S3BucketSSLRequestsOnly,
   },
   {
-    info: "The S3 Bucket is not encrypted with a KMS Key by default.",
-    explanation:
-      "Ensure that encryption is enabled for your Amazon Simple Storage Service (Amazon S3) buckets. Because sensitive data can exist at rest in an Amazon S3 bucket, enable encryption at rest to help protect that data",
-    level: NagMessageLevel.WARN,
-    rule: rules.s3.S3DefaultEncryptionKMS,
-  },
-  {
     info: "The S3 static website bucket either has an open world bucket policy or does not use a CloudFront Origin Access Identity (OAI) in the bucket policy for limited getObject and/or putObject permissions.",
     explanation:
       "An OAI allows you to provide access to content in your S3 static website bucket through CloudFront URLs without enabling public access through an open bucket policy, disabling S3 Block Public Access settings, and/or through object ACLs.\n\nExample threat: A global internet-based actor who has discovered a S3 hosted website can discover prototype web assets that are hosted on the website, which may lead to recon and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
     level: NagMessageLevel.ERROR,
     rule: rules.s3.S3WebBucketOAIAccess,
-  },
-  {
-    info: "The SageMaker resource endpoint is not encrypted with a KMS key.",
-    explanation:
-      "Because sensitive data can exist at rest in SageMaker endpoint, enable encryption at rest to help protect that data.",
-    level: NagMessageLevel.WARN,
-    rule: rules.sagemaker.SageMakerEndpointConfigurationKMSKeyConfigured,
   },
   {
     info: "The SageMaker notebook instance does not have an encrypted storage volume.",
@@ -921,13 +858,6 @@ export let RuleMetadata = [
       "Rotating secrets on a regular schedule can shorten the period a secret is active, and potentially reduce the business impact if the secret is compromised.",
     level: NagMessageLevel.WARN,
     rule: rules.secretsmanager.SecretsManagerRotationEnabled,
-  },
-  {
-    info: "The secret is not encrypted with a KMS Customer managed key.",
-    explanation:
-      "To help protect data at rest, ensure encryption with AWS Key Management Service (AWS KMS) is enabled for AWS Secrets Manager secrets. Because sensitive data can exist at rest in Secrets Manager secrets, enable encryption at rest to help protect that data.",
-    level: NagMessageLevel.WARN,
-    rule: rules.secretsmanager.SecretsManagerUsingKMSKey,
   },
   {
     info: "The SNS topic does not have KMS encryption enabled.",
@@ -965,6 +895,20 @@ export let RuleMetadata = [
     rule: rules.sqs.SQSQueueSSLRequestsOnly,
   },
   {
+    info: 'The Step Function does not log "ALL" events to CloudWatch Logs.',
+    explanation:
+      'Logging "ALL" events to CloudWatch logs help operators troubleshoot and audit systems.',
+    level: NagMessageLevel.WARN,
+    rule: rules.stepfunctions.StepFunctionStateMachineAllLogsToCloudWatch,
+  },
+  {
+    info: "The Step Function does not have X-Ray tracing enabled.",
+    explanation:
+      "X-ray provides an end-to-end view of how an application is performing. This helps operators to discover performance issues, detect permission problems, and track requests made to and from other AWS services.",
+    level: NagMessageLevel.WARN,
+    rule: rules.stepfunctions.StepFunctionStateMachineXray,
+  },
+  {
     info: "The Timestream database does not use a Customer Managed KMS Key for at rest encryption.",
     explanation:
       "All Timestream tables in a database are encrypted at rest by default using an AWS Managed Key. These keys are rotated every three years. Data at rest must be encrypted using CMKs if you require more control over the permissions and lifecycle of your keys, including the ability to have them automatically rotated on an periodic basis.",
@@ -979,18 +923,18 @@ export let RuleMetadata = [
     rule: rules.vpc.VPCDefaultSecurityGroupClosed,
   },
   {
+    info: "The VPC does not have an associated Flow Log.",
+    explanation:
+      "The VPC flow logs provide detailed records for information about the IP traffic going to and from network interfaces in your Amazon Virtual Private Cloud (Amazon VPC). By default, the flow log record includes values for the different components of the IP flow, including the source, destination, and protocol.",
+    level: NagMessageLevel.WARN,
+    rule: rules.vpc.VPCFlowLogsEnabled,
+  },
+  {
     info: "A Network ACL or Network ACL entry has been implemented.",
     explanation:
       "Network ACLs should be used sparingly for the following reasons: they can be complex to manage, they are stateless, every IP address must be explicitly opened in each (inbound/outbound) direction, and they affect a complete subnet. Use security groups when possible as they are stateful and easier to manage.",
     level: NagMessageLevel.WARN,
     rule: rules.vpc.VPCNoNACLs,
-  },
-  {
-    info: "The route table may contain one or more unrestricted route(s) to an IGW ('0.0.0.0/0' or '::/0').",
-    explanation:
-      "Ensure Amazon EC2 route tables do not have unrestricted routes to an internet gateway. Removing or limiting the access to the internet for workloads within Amazon VPCs can reduce unintended access within your environment.",
-    level: NagMessageLevel.WARN,
-    rule: rules.vpc.VPCNoUnrestrictedRouteToIGW,
   },
   {
     info: "The subnet auto-assigns public IP addresses.",
