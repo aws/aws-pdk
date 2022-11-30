@@ -134,15 +134,19 @@ describe("OpenAPI Gateway Rest Api Construct Unit Tests", () => {
           },
         },
       });
-      NagSuppressions.addResourceSuppressions(
-        func,
-        [
-          {
-            id: "AwsSolutions-IAM4",
-            reason: "This is a test construct.",
-          },
-        ],
-        true
+      ["AwsSolutions-IAM4", "AwsPrototyping-IAMNoManagedPolicies"].forEach(
+        (RuleId) => {
+          NagSuppressions.addResourceSuppressions(
+            func,
+            [
+              {
+                id: RuleId,
+                reason: "This is a test construct.",
+              },
+            ],
+            true
+          );
+        }
       );
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     });

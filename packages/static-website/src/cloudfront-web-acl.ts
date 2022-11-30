@@ -180,37 +180,41 @@ export class CloudfrontWebAcl extends Construct {
       }
     );
 
-    NagSuppressions.addResourceSuppressions(
-      onEventHandlerRole,
-      [
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
-            "WafV2 resources have been scoped down to the ACL/IPSet level, however * is still needed as resource id's are created just in time.",
-          appliesTo: [
+    ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          onEventHandlerRole,
+          [
             {
-              regex: `/^Resource::arn:aws:wafv2:us-east-1:${PDKNag.getStackAccountRegex(
-                stack
-              )}:global/(.*)$/g`,
+              id: RuleId,
+              reason:
+                "WafV2 resources have been scoped down to the ACL/IPSet level, however * is still needed as resource id's are created just in time.",
+              appliesTo: [
+                {
+                  regex: `/^Resource::arn:aws:wafv2:us-east-1:${PDKNag.getStackAccountRegex(
+                    stack
+                  )}:global/(.*)$/g`,
+                },
+              ],
+            },
+            {
+              id: RuleId,
+              reason:
+                "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              appliesTo: [
+                {
+                  regex: `/^Resource::arn:aws:logs:${PDKNag.getStackRegionRegex(
+                    stack
+                  )}:${PDKNag.getStackAccountRegex(
+                    stack
+                  )}:log-group:/aws/lambda/${onEventHandlerName}:\*/g`,
+                },
+              ],
             },
           ],
-        },
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
-            "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
-          appliesTo: [
-            {
-              regex: `/^Resource::arn:aws:logs:${PDKNag.getStackRegionRegex(
-                stack
-              )}:${PDKNag.getStackAccountRegex(
-                stack
-              )}:log-group:/aws/lambda/${onEventHandlerName}:\*/g`,
-            },
-          ],
-        },
-      ],
-      true
+          true
+        );
+      }
     );
 
     return onEventHandler;
@@ -259,27 +263,36 @@ export class CloudfrontWebAcl extends Construct {
       providerFunctionName,
     });
 
-    NagSuppressions.addResourceSuppressions(
-      providerRole,
-      [
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
-            "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
-        },
-      ],
-      true
+    ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          providerRole,
+          [
+            {
+              id: RuleId,
+              reason:
+                "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+          ],
+          true
+        );
+      }
     );
-    NagSuppressions.addResourceSuppressions(
-      provider,
-      [
-        {
-          id: "AwsSolutions-L1",
-          reason:
-            "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-        },
-      ],
-      true
+
+    ["AwsSolutions-L1", "AwsPrototyping-LambdaLatestVersion"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          provider,
+          [
+            {
+              id: RuleId,
+              reason:
+                "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+          ],
+          true
+        );
+      }
     );
 
     return new CustomResource(this, "CFWebAclCustomResource", {

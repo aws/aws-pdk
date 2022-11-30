@@ -279,49 +279,69 @@ export class StaticWebsite extends Construct {
   private suppressCDKNagViolations = (props: StaticWebsiteProps) => {
     const stack = Stack.of(this);
     !props.distributionProps?.certificate &&
-      NagSuppressions.addResourceSuppressions(this.cloudFrontDistribution, [
-        {
-          id: "AwsSolutions-CFR4",
-          reason:
-            "Certificate is not mandatory therefore the Cloudfront certificate will be used.",
-        },
-      ]);
-    NagSuppressions.addStackSuppressions(stack, [
-      {
-        id: "AwsSolutions-L1",
-        reason:
-          "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-      },
-    ]);
-    NagSuppressions.addStackSuppressions(stack, [
-      {
-        id: "AwsSolutions-IAM5",
-        reason:
-          "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-        appliesTo: [
+      [
+        "AwsSolutions-CFR4",
+        "AwsPrototyping-CloudFrontDistributionHttpsViewerNoOutdatedSSL",
+      ].forEach((RuleId) => {
+        NagSuppressions.addResourceSuppressions(this.cloudFrontDistribution, [
           {
-            regex: "/^Action::s3:.*$/g",
+            id: RuleId,
+            reason:
+              "Certificate is not mandatory therefore the Cloudfront certificate will be used.",
           },
+        ]);
+      });
+
+    ["AwsSolutions-L1", "AwsPrototyping-LambdaLatestVersion"].forEach(
+      (RuleId) => {
+        NagSuppressions.addStackSuppressions(stack, [
           {
-            regex: `/^Resource::.*$/g`,
+            id: RuleId,
+            reason:
+              "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
           },
-        ],
-      },
-    ]);
-    NagSuppressions.addStackSuppressions(stack, [
-      {
-        id: "AwsSolutions-IAM4",
-        reason:
-          "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-        appliesTo: [
+        ]);
+      }
+    );
+
+    ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+      (RuleId) => {
+        NagSuppressions.addStackSuppressions(stack, [
           {
-            regex: `/^Policy::arn:${PDKNag.getStackPartitionRegex(
-              stack
-            )}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g`,
+            id: RuleId,
+            reason:
+              "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            appliesTo: [
+              {
+                regex: "/^Action::s3:.*$/g",
+              },
+              {
+                regex: `/^Resource::.*$/g`,
+              },
+            ],
           },
-        ],
-      },
-    ]);
+        ]);
+      }
+    );
+
+    ["AwsSolutions-IAM4", "AwsPrototyping-IAMNoManagedPolicies"].forEach(
+      (RuleId) => {
+        NagSuppressions.addStackSuppressions(stack, [
+          {
+            id: RuleId,
+            reason:
+              "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            appliesTo: [
+              {
+                regex: `/^Policy::arn:${PDKNag.getStackPartitionRegex(
+                  stack
+                )}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g`,
+              },
+            ],
+          },
+        ]);
+      }
+    );
   };
 }
 
