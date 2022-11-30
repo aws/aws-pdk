@@ -9,6 +9,10 @@ Object {
           "id": "AwsSolutions-CB4",
           "reason": "Encryption of Codebuild is not required.",
         },
+        Object {
+          "id": "AwsPrototyping-CodeBuildProjectKMSEncryptedArtifacts",
+          "reason": "Encryption of Codebuild is not required.",
+        },
       ],
     },
   },
@@ -283,6 +287,95 @@ Object {
                 },
               ],
               "id": "AwsSolutions-IAM5",
+              "reason": "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::arn:<AWS::Partition>:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/codebuild/<ApplicationPipelineUpdatePipelineSelfMutation.*>:\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "CodePipeline requires access to manage logs and streams whose names are dynamically determined.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::arn:<AWS::Partition>:codebuild:<AWS::Region>:<AWS::AccountId>:report-group/<ApplicationPipelineUpdatePipelineSelfMutation.*>-\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "CodePipeline requires access to create report groups that are dynamically determined.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::arn:\\\\*:iam::<AWS::AccountId>:role/\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "CodePipeline requires access to assume a role from within the current account in order to deploy.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::<ArtifactsBucket.*.Arn>/\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "CodePipeline requires access to list all buckets and stacks.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "/^Resource::arn:<AWS::Partition>:logs:<AWS::Region>:(<AWS::AccountId>|",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "):log-group:/aws/codebuild/<ApplicationPipelineUpdatePipelineSelfMutation.*>:\\\\*$/g",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "CodePipeline requires access to manage logs and streams whose names are dynamically determined.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::<ArtifactsBucket.*.Arn>/\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Action::kms:ReEncrypt\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Action::kms:GenerateDataKey\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
               "reason": "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
             },
           ],
@@ -935,6 +1028,48 @@ Object {
               "id": "AwsSolutions-IAM5",
               "reason": "CodePipeline requires access to create report groups that are dynamically determined.",
             },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::<ArtifactsBucket.*.Arn>/\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Action::kms:ReEncrypt\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Action::kms:GenerateDataKey\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::arn:<AWS::Partition>:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/codebuild/<CodePipelineBuildSynthCdkBuildProject.*>:\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "CodePipeline requires access to manage logs and streams whose names are dynamically determined.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::arn:<AWS::Partition>:codebuild:<AWS::Region>:<AWS::AccountId>:report-group/<CodePipelineBuildSynthCdkBuildProject.*>-\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "CodePipeline requires access to create report groups that are dynamically determined.",
+            },
           ],
         },
       },
@@ -1226,6 +1361,39 @@ Object {
               "id": "AwsSolutions-IAM5",
               "reason": "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
             },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::<ArtifactsBucket.*.Arn>/\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Action::kms:ReEncrypt\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Action::kms:GenerateDataKey\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::<ArtifactsBucket.*.Arn>/\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+            },
           ],
         },
       },
@@ -1375,6 +1543,30 @@ Object {
                 },
               ],
               "id": "AwsSolutions-IAM5",
+              "reason": "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Actions contain wildcards which are valid for CodePipeline as all of these operations are required.",
+            },
+            Object {
+              "applies_to": Array [
+                Object {
+                  "regex": "/^Resource::<ArtifactsBucket.*.Arn>/\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Action::kms:ReEncrypt\\\\*$/g",
+                },
+                Object {
+                  "regex": "/^Action::kms:GenerateDataKey\\\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
               "reason": "CodePipeline requires access to any and all artifacts in the ArtifactsBucket.",
             },
           ],

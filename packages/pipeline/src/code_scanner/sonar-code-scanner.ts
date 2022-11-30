@@ -229,51 +229,61 @@ export class SonarCodeScanner extends Construct {
       value: sonarQubeToken.secretArn,
     });
 
-    NagSuppressions.addResourceSuppressions(sonarQubeToken, [
-      {
-        id: "AwsSolutions-SMG4",
-        reason:
-          "Key rotation is not possible as a user token needs to be generated from Sonarqube",
-      },
-    ]);
+    [
+      "AwsSolutions-SMG4",
+      "AwsPrototyping-SecretsManagerRotationEnabled",
+    ].forEach((RuleId) => {
+      NagSuppressions.addResourceSuppressions(sonarQubeToken, [
+        {
+          id: RuleId,
+          reason:
+            "Key rotation is not possible as a user token needs to be generated from Sonarqube",
+        },
+      ]);
+    });
 
     const stack = Stack.of(this);
-    NagSuppressions.addResourceSuppressions(
-      validationProject.role!,
-      [
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
-            "Validation CodeBuild project requires access to the ArtifactsBucket and ability to create logs.",
-          appliesTo: [
+
+    ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          validationProject.role!,
+          [
             {
-              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
-                stack
-              )}:logs:${PDKNag.getStackRegionRegex(
-                stack
-              )}:${PDKNag.getStackAccountRegex(
-                stack
-              )}:log-group:/aws/codebuild/<.*SonarCodeScannerValidationProject.*>:\\*$/g`,
-            },
-            {
-              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
-                stack
-              )}:codebuild:${PDKNag.getStackRegionRegex(
-                stack
-              )}:${PDKNag.getStackAccountRegex(
-                stack
-              )}:report-group/<.*SonarCodeScannerValidationProject.*>-\\*$/g`,
-            },
-            {
-              regex: `/^Action::s3:GetObject\\*$/g`,
-            },
-            {
-              regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*\\*$/g",
+              id: RuleId,
+              reason:
+                "Validation CodeBuild project requires access to the ArtifactsBucket and ability to create logs.",
+              appliesTo: [
+                {
+                  regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                    stack
+                  )}:logs:${PDKNag.getStackRegionRegex(
+                    stack
+                  )}:${PDKNag.getStackAccountRegex(
+                    stack
+                  )}:log-group:/aws/codebuild/<.*SonarCodeScannerValidationProject.*>:\\*$/g`,
+                },
+                {
+                  regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                    stack
+                  )}:codebuild:${PDKNag.getStackRegionRegex(
+                    stack
+                  )}:${PDKNag.getStackAccountRegex(
+                    stack
+                  )}:report-group/<.*SonarCodeScannerValidationProject.*>-\\*$/g`,
+                },
+                {
+                  regex: `/^Action::s3:GetObject\\*$/g`,
+                },
+                {
+                  regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*\\*$/g",
+                },
+              ],
             },
           ],
-        },
-      ],
-      true
+          true
+        );
+      }
     );
   }
 }
