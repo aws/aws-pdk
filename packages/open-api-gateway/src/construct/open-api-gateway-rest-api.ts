@@ -148,25 +148,29 @@ export class OpenApiGatewayRestApi extends Construct {
       },
     });
 
-    NagSuppressions.addResourceSuppressions(
-      prepareSpecRole,
-      [
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
-            "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
-          appliesTo: [
+    ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          prepareSpecRole,
+          [
             {
-              regex: `/^Resource::arn:aws:logs:${PDKNag.getStackRegionRegex(
-                stack
-              )}:${PDKNag.getStackAccountRegex(
-                stack
-              )}:log-group:/aws/lambda/${prepareSpecLambdaName}:\*/g`,
+              id: RuleId,
+              reason:
+                "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              appliesTo: [
+                {
+                  regex: `/^Resource::arn:aws:logs:${PDKNag.getStackRegionRegex(
+                    stack
+                  )}:${PDKNag.getStackAccountRegex(
+                    stack
+                  )}:log-group:/aws/lambda/${prepareSpecLambdaName}:\*/g`,
+                },
+              ],
             },
           ],
-        },
-      ],
-      true
+          true
+        );
+      }
     );
 
     // Create a custom resource for preparing the spec for deployment (adding integrations, authorizers, etc)
@@ -210,27 +214,36 @@ export class OpenApiGatewayRestApi extends Construct {
       providerFunctionName,
     });
 
-    NagSuppressions.addResourceSuppressions(
-      providerRole,
-      [
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
-            "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
-        },
-      ],
-      true
+    ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          providerRole,
+          [
+            {
+              id: RuleId,
+              reason:
+                "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+          ],
+          true
+        );
+      }
     );
-    NagSuppressions.addResourceSuppressions(
-      provider,
-      [
-        {
-          id: "AwsSolutions-L1",
-          reason:
-            "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-        },
-      ],
-      true
+
+    ["AwsSolutions-L1", "AwsPrototyping-LambdaLatestVersion"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          provider,
+          [
+            {
+              id: RuleId,
+              reason:
+                "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+          ],
+          true
+        );
+      }
     );
 
     const prepareSpecOptions: PrepareApiSpecOptions = {
@@ -351,35 +364,43 @@ export class OpenApiGatewayRestApi extends Construct {
       this.webAclAssociation = acl.webAclAssociation;
     }
 
-    NagSuppressions.addResourceSuppressions(
-      this,
-      [
-        {
-          id: "AwsSolutions-IAM4",
-          reason:
-            "Cloudwatch Role requires access to create/read groups at the root level.",
-          appliesTo: [
+    ["AwsSolutions-IAM4", "AwsPrototyping-IAMNoManagedPolicies"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          this,
+          [
             {
-              regex: `/^Policy::arn:${PDKNag.getStackPartitionRegex(
-                stack
-              )}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g`,
+              id: RuleId,
+              reason:
+                "Cloudwatch Role requires access to create/read groups at the root level.",
+              appliesTo: [
+                {
+                  regex: `/^Policy::arn:${PDKNag.getStackPartitionRegex(
+                    stack
+                  )}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g`,
+                },
+              ],
             },
           ],
-        },
-      ],
-      true
+          true
+        );
+      }
     );
 
-    NagSuppressions.addResourceSuppressions(
-      this,
-      [
-        {
-          id: "AwsSolutions-APIG2",
-          reason:
-            "This construct implements fine grained validation via OpenApi.",
-        },
-      ],
-      true
+    ["AwsSolutions-APIG2", "AwsPrototyping-APIGWRequestValidation"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          this,
+          [
+            {
+              id: RuleId,
+              reason:
+                "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+          true
+        );
+      }
     );
   }
 }
