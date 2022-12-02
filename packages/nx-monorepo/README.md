@@ -1,6 +1,9 @@
-The nx-monorepo package vends a NxMonorepoProject Projen construct that adds [NX](https://nx.dev/getting-started/intro) monorepo support and manages your yarn/npm/pnpm workspaces on your behalf. This construct enables polygot builds (and inter language build dependencies), build caching, dependency visualization and much, much more.
+The nx-monorepo package vends a NxMonorepoProject Projen construct that adds [NX](https://nx.dev/getting-started/intro) monorepo support and manages your yarn/npm/pnpm workspaces on your behalf. This construct enables polyglot builds (and inter language build dependencies), build caching, dependency visualization and much, much more.
 
-The PDK itself uses the nx-monorepo project itself and is a good reference for seeing how a complex, polygot monorepo can be set up.
+The PDK itself uses the nx-monorepo project itself and is a good reference for seeing how a complex, polyglot monorepo can be set up.
+
+> **BREAKING CHANGES** (pre-release)
+> - v0.13.0: `WorkspaceConfig.nxConfig` type `NxConfig => Nx.WorkspaceConfig`, and `overrideProjectTargets` removed in favor of `PDKProject.nx` config to manage Nx project configurations. See [PR 231](https://github.com/aws/aws-prototyping-sdk/pull/231).
 
 To get started simply run the following command in an empty directory:
 
@@ -8,7 +11,7 @@ To get started simply run the following command in an empty directory:
 npx projen new --from aws-prototyping-sdk nx-monorepo
 ```
 
-This will boostrap a new Projen monorepo and contain the following in the .projenrc.ts:
+This will bootstrap a new Projen monorepo and contain the following in the .projenrc.ts:
 
 ```ts
 import { nx_monorepo } from "aws-prototyping-sdk";

@@ -2,11 +2,11 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { Project, TaskStep } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { ProjectTargets } from "../../packages/nx-monorepo/src";
+import { Nx } from "../../packages/nx-monorepo/src/nx-types";
 import { PDKProject } from "../pdk-project";
 
 /**
- * Contains configuration for the BarneoProject.
+ * Contains configuration for the aws-arch project.
  */
 export class AwsArchProject extends PDKProject {
   constructor(parent: Project) {
@@ -74,7 +74,7 @@ export class AwsArchProject extends PDKProject {
       }),
     ];
 
-    const generateTask = this.addTask("generate", {
+    this.addTask("generate", {
       steps: generateTasks.map(
         (task): TaskStep => ({
           spawn: task.name,
@@ -82,24 +82,26 @@ export class AwsArchProject extends PDKProject {
       ),
     });
 
-    this.preCompileTask.spawn(generateTask);
-  }
+    // Invoke with nx to support caching
+    this.preCompileTask.prependExec("npx nx run generate");
 
-  /**
-   * @inheritDoc
-   */
-  public getNxProjectTargets(): ProjectTargets {
-    const projectTargets = super.getNxProjectTargets();
-
-    return {
-      build: {
-        outputs: [
-          ...projectTargets.build.outputs!,
-          "{projectRoot}/assets",
-          "{projectRoot}/src/generated",
-        ],
-        dependsOn: projectTargets.build.dependsOn,
-      },
-    };
+    this.nxOverride("targets.generate", {
+      inputs: [
+        "{projectRoot}/scripts/**",
+        "!{projectRoot}/src/*",
+        "{projectRoot}/src/!(generated)/**",
+      ],
+      outputs: ["{projectRoot}/assets", "{projectRoot}/src/generated"],
+    });
+    this.nxOverride(
+      "targets.build.dependsOn",
+      [
+        {
+          target: "generate",
+          projects: Nx.TargetDependencyProject.DEPENDENCIES,
+        },
+      ],
+      true
+    );
   }
 }
