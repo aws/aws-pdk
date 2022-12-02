@@ -13,17 +13,20 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
+import * as os from 'node:os';
 import * as fs from 'fs-extra';
-import * as path from 'path';
+import * as path from 'node:path';
+import execa = require('execa'); // eslint-disable-line @typescript-eslint/no-require-imports
 
 /** Directory where generated files are output */
 export const GENERATED_DIR = path.resolve(__dirname, '..', 'src', 'generated');
 fs.ensureDirSync(GENERATED_DIR);
 
-/** Directory where this package caches external resources */
-export const CACHE_DIR = path.join(process.cwd(), 'node_modules', '.cache', '@aws-prototyping-sdk', 'aws-arch');
-fs.ensureDirSync(CACHE_DIR);
-fs.emptyDirSync(CACHE_DIR);
+// use current head hash to enable reuse of downloaded files
+const BASE_TMP_DIR = path.join(os.tmpdir(), '@aws-prototyping-sdk', execa.commandSync('git rev-parse --short HEAD').stdout);
+/** Directory where this package stores external resources */
+export const TMP_DIR = path.join(BASE_TMP_DIR, 'aws-arch');
+fs.ensureDirSync(TMP_DIR);
 
 /** Countable type that can be counted */
 export type TCountable = number | object | any[] | Set<any>;
