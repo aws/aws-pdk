@@ -19,7 +19,7 @@ import * as util from 'util';
 import * as stream from 'stream';
 import * as fs from 'fs-extra';
 import fetch from 'node-fetch';
-import { CACHE_DIR, GENERATED_DIR, logCount } from './common';
+import { TMP_DIR, GENERATED_DIR, logCount } from './common';
 import { normalizeComparisonString, parseAwsUrl } from "../src/utils";
 import { sortedUniq } from "lodash";
 
@@ -29,7 +29,7 @@ const PRICING_MANIFEST_TS = path.join(GENERATED_DIR, 'pricing-manifest.ts');
 
 /** Generates `generated/pricing-manifest.ts` file. */
 export async function generate () {
-  const manifestJsonPath = path.join(CACHE_DIR, 'pricing-manifest.json');
+  const manifestJsonPath = path.join(TMP_DIR, 'pricing-manifest.json');
 
   if (!await fs.pathExists(manifestJsonPath)) {
     const response = await fetch(PRICING_MANIFEST_URL);
