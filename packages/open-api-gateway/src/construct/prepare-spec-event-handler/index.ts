@@ -1,7 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as crypto from "crypto";
-import { S3 } from "aws-sdk"; // eslint-disable-line
+import { // eslint-disable-line
+  S3Client,
+  GetObjectCommand,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
 import { prepareApiSpec, PrepareApiSpecOptions } from "./prepare-spec";
 
 /**
@@ -75,7 +79,7 @@ interface OnEventResponse {
   };
 }
 
-const s3 = new S3();
+const s3 = new S3Client({});
 
 /**
  * Prepare the api spec for API Gateway
@@ -91,14 +95,14 @@ const prepare = async ({
 }: PrepareApiSpecCustomResourceProperties): Promise<S3Location> => {
   // Read the spec from the s3 input location
   const inputSpec = JSON.parse(
-    (
-      await s3
-        .getObject({
+    await (
+      await s3.send(
+        new GetObjectCommand({
           Bucket: inputSpecLocation.bucket,
           Key: inputSpecLocation.key,
         })
-        .promise()
-    ).Body!.toString("utf-8")
+      )
+    ).Body!.transformToString("utf-8")
   );
 
   // Prepare the spec
@@ -114,13 +118,13 @@ const prepare = async ({
   };
 
   // Write the spec to the s3 output location
-  await s3
-    .putObject({
+  await s3.send(
+    new PutObjectCommand({
       Bucket: outputLocation.bucket,
       Key: outputLocation.key,
       Body: JSON.stringify(preparedSpec),
     })
-    .promise();
+  );
 
   return outputLocation;
 };

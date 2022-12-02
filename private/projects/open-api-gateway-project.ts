@@ -25,6 +25,7 @@ export class OpenApiGatewayProject extends PDKProject {
         "cdk-nag",
         "constructs",
         "projen",
+        "@aws-sdk/client-s3",
       ],
       deps: ["@aws-prototyping-sdk/pdk-nag", "fs-extra"],
       bundledDeps: ["fs-extra", "lodash", "log4js", "openapi-types"],

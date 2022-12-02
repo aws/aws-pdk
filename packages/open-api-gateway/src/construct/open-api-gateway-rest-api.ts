@@ -167,6 +167,18 @@ export class OpenApiGatewayRestApi extends Construct {
                 },
               ],
             },
+            {
+              id: RuleId,
+              reason:
+                "S3 resources have been scoped down to the appropriate prefix in the CDK asset bucket, however * is still needed as since the prepared spec hash is not known until deploy time.",
+              appliesTo: [
+                {
+                  regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                    stack
+                  )}:s3:.*/${preparedSpecOutputKeyPrefix}/\*/g`,
+                },
+              ],
+            },
           ],
           true
         );
@@ -176,7 +188,7 @@ export class OpenApiGatewayRestApi extends Construct {
     // Create a custom resource for preparing the spec for deployment (adding integrations, authorizers, etc)
     const prepareSpec = new LambdaFunction(this, "PrepareSpec", {
       handler: "index.handler",
-      runtime: Runtime.NODEJS_16_X,
+      runtime: Runtime.NODEJS_18_X,
       code: Code.fromAsset(
         path.join(__dirname, "../../lib/construct/prepare-spec-event-handler")
       ),
