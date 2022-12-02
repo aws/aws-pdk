@@ -23,6 +23,7 @@ fs.ensureDirSync(GENERATED_DIR);
 /** Directory where this package caches external resources */
 export const CACHE_DIR = path.join(process.cwd(), 'node_modules', '.cache', '@aws-prototyping-sdk', 'aws-arch');
 fs.ensureDirSync(CACHE_DIR);
+fs.emptyDirSync(CACHE_DIR);
 
 /** Countable type that can be counted */
 export type TCountable = number | object | any[] | Set<any>;
