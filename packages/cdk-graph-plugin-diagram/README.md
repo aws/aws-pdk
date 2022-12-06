@@ -1,5 +1,5 @@
 ## Diagram Plugin - Cdk Graph
-`@aws-prototyping-skd/cdk-graph-plugin-diagram`
+`@aws-prototyping-sdk/cdk-graph-plugin-diagram`
 
 ![experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
 ![alpha](https://img.shields.io/badge/version-alpha-red.svg) \
