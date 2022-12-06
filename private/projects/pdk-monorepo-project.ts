@@ -41,6 +41,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       eslint: true,
       eslintOptions: {
         dirs: ["projects", "private"],
+        ignorePatterns: ["packages/**/*.*"],
       },
       depsUpgrade: false,
       name: "aws-prototyping-sdk-monorepo",
@@ -61,12 +62,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       ],
       monorepoUpgradeDepsOptions: {
         syncpackConfig: { ...DEFAULT_CONFIG, workspace: false },
-      },
-      tsconfig: {
-        compilerOptions: {
-          rootDir: ".",
-        },
-        include: ["**/*.ts"],
       },
       deps: ["fast-xml-parser", "projen"],
       nxConfig: {
@@ -117,9 +112,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
 
     this.eslint?.addPlugins("header");
     this.eslint?.addRules(HEADER_RULE);
-
-    // Do NOT lint packages files as they get linted by the package
-    this.eslint?.addIgnorePattern("packages/**/*.*");
 
     this.addTask("eslint-staged", {
       description:

@@ -233,6 +233,16 @@ export class NxMonorepoProject extends TypeScriptProject {
       jest: options.jest ?? false,
       defaultReleaseBranch: options.defaultReleaseBranch ?? "mainline",
       sampleCode: false, // root should never have sample code,
+      eslintOptions: options.eslintOptions ?? {
+        dirs: ["."],
+        ignorePatterns: ["packages/**/*.*"],
+      },
+      tsconfig: options.tsconfig ?? {
+        compilerOptions: {
+          rootDir: ".",
+        },
+        include: ["**/*.ts"],
+      },
     });
 
     this.nxConfig = options.nxConfig;
