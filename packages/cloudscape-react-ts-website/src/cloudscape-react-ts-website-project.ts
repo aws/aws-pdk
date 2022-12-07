@@ -57,6 +57,8 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       "@cloudscape-design/collection-hooks",
       "react-router-dom",
       "aws-amplify",
+      "@aws-amplify/auth",
+      "@aws-amplify/core",
       "@aws-amplify/ui-react",
       "aws4fetch"
     );
