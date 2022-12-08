@@ -2419,7 +2419,7 @@ class DefaultApi(
 import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from test.model.api_error import ApiError
 from test.model.test_request import TestRequest
@@ -2448,6 +2448,14 @@ OperationLookup = {
         \\"method\\": \\"post\\",
     },
 }
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        \\"\\"\\"
+        Returns an OperationConfig with the same value for every operation
+        \\"\\"\\"
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
 
 def uri_decode(value):
     \\"\\"\\"
@@ -2560,7 +2568,7 @@ def some_test_operation_handler(_handler: SomeTestOperationHandlerFunction = Non
     \\"\\"\\"
     def _handler_wrapper(handler: SomeTestOperationHandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -2572,7 +2580,7 @@ def some_test_operation_handler(_handler: SomeTestOperationHandlerFunction = Non
             body = parse_body(event['body'], ['application/json',], SomeTestOperationRequestBody)
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -2604,6 +2612,29 @@ def some_test_operation_handler(_handler: SomeTestOperationHandlerFunction = Non
         return _handler_wrapper
     else:
         raise Exception(\\"Positional arguments are not supported by some_test_operation_handler.\\")
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return \\"{}||{}\\".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path[\\"method\\"], method_and_path[\\"path\\"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+  some_test_operation: Callable[[Dict, Any], Dict]
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    \\"\\"\\"
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    \\"\\"\\"
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper
 ",
   "test/configuration.py": "# coding: utf-8
 
@@ -9843,7 +9874,7 @@ class DefaultApi(
 import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from test.model.api_error import ApiError
 from test.model.test_request import TestRequest
@@ -9892,6 +9923,14 @@ OperationLookup = {
         \\"method\\": \\"delete\\",
     },
 }
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        \\"\\"\\"
+        Returns an OperationConfig with the same value for every operation
+        \\"\\"\\"
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
 
 def uri_decode(value):
     \\"\\"\\"
@@ -10002,7 +10041,7 @@ def any_request_response_handler(_handler: AnyRequestResponseHandlerFunction = N
     \\"\\"\\"
     def _handler_wrapper(handler: AnyRequestResponseHandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -10014,7 +10053,7 @@ def any_request_response_handler(_handler: AnyRequestResponseHandlerFunction = N
             body = event['body']
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -10075,7 +10114,7 @@ def empty_handler(_handler: EmptyHandlerFunction = None, interceptors: List[Empt
     \\"\\"\\"
     def _handler_wrapper(handler: EmptyHandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -10086,7 +10125,7 @@ def empty_handler(_handler: EmptyHandlerFunction = None, interceptors: List[Empt
             body = {}
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -10147,7 +10186,7 @@ def media_types_handler(_handler: MediaTypesHandlerFunction = None, interceptors
     \\"\\"\\"
     def _handler_wrapper(handler: MediaTypesHandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -10159,7 +10198,7 @@ def media_types_handler(_handler: MediaTypesHandlerFunction = None, interceptors
             body = event['body']
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -10226,7 +10265,7 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
     \\"\\"\\"
     def _handler_wrapper(handler: OperationOneHandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -10238,7 +10277,7 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
             body = parse_body(event['body'], ['application/json',], OperationOneRequestBody)
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -10301,7 +10340,7 @@ def without_operation_id_delete_handler(_handler: WithoutOperationIdDeleteHandle
     \\"\\"\\"
     def _handler_wrapper(handler: WithoutOperationIdDeleteHandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -10312,7 +10351,7 @@ def without_operation_id_delete_handler(_handler: WithoutOperationIdDeleteHandle
             body = {}
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -10342,6 +10381,33 @@ def without_operation_id_delete_handler(_handler: WithoutOperationIdDeleteHandle
         return _handler_wrapper
     else:
         raise Exception(\\"Positional arguments are not supported by without_operation_id_delete_handler.\\")
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return \\"{}||{}\\".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path[\\"method\\"], method_and_path[\\"path\\"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+  any_request_response: Callable[[Dict, Any], Dict]
+  empty: Callable[[Dict, Any], Dict]
+  media_types: Callable[[Dict, Any], Dict]
+  operation_one: Callable[[Dict, Any], Dict]
+  without_operation_id_delete: Callable[[Dict, Any], Dict]
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    \\"\\"\\"
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    \\"\\"\\"
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper
 ",
   "test/configuration.py": "# coding: utf-8
 

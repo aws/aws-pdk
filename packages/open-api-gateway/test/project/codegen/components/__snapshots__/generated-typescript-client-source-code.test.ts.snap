@@ -1324,6 +1324,15 @@ export const OperationLookup = {
     },
 };
 
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
 // Standard apigateway request parameters (query parameters or path parameters, multi or single value)
 type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
 
@@ -1349,8 +1358,11 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
+type OperationIds = | 'someTestOperation';
+type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
 // Api gateway lambda handler type
-type ApiGatewayLambdaHandler = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>;
+type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
 
 // Type of the response to be returned by an operation lambda handler
 export interface OperationResponse<StatusCode extends number, Body> {
@@ -1454,7 +1466,7 @@ export type SomeTestOperationChainedHandlerFunction = ChainedLambdaHandlerFuncti
 export const someTestOperationHandler = (
     firstHandler: SomeTestOperationChainedHandlerFunction,
     ...remainingHandlers: SomeTestOperationChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'someTestOperation'> => async (event: any, context: any, additionalInterceptors: SomeTestOperationChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -1469,7 +1481,7 @@ export const someTestOperationHandler = (
     };
     const body = parseBody(event.body, demarshal, ['application/json',]) as SomeTestOperationRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -1501,6 +1513,57 @@ export const someTestOperationHandler = (
         ...response,
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
+};
+
+export interface HandlerRouterHandlers {
+  readonly someTestOperation: OperationApiGatewayLambdaHandler<'someTestOperation'>;
+}
+
+export type AnyOperationRequestParameters = | SomeTestOperationRequestParameters;
+export type AnyOperationRequestArrayParameters = | SomeTestOperationRequestArrayParameters;
+export type AnyOperationRequestBodies = | SomeTestOperationRequestBody;
+export type AnyOperationResponses = | SomeTestOperationOperationResponses;
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => \`\${method.toLowerCase()}||\${path}\`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestArrayParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, props.interceptors);
 };
 ",
   "src/apis/index.ts": "/* tslint:disable */
@@ -3697,6 +3760,15 @@ export const OperationLookup = {
     },
 };
 
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
 // Standard apigateway request parameters (query parameters or path parameters, multi or single value)
 type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
 
@@ -3722,8 +3794,11 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
+type OperationIds = | 'anyRequestResponse' | 'empty' | 'mediaTypes' | 'operationOne' | 'withoutOperationIdDelete';
+type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
 // Api gateway lambda handler type
-type ApiGatewayLambdaHandler = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>;
+type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
 
 // Type of the response to be returned by an operation lambda handler
 export interface OperationResponse<StatusCode extends number, Body> {
@@ -3825,7 +3900,7 @@ export type AnyRequestResponseChainedHandlerFunction = ChainedLambdaHandlerFunct
 export const anyRequestResponseHandler = (
     firstHandler: AnyRequestResponseChainedHandlerFunction,
     ...remainingHandlers: AnyRequestResponseChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'anyRequestResponse'> => async (event: any, context: any, additionalInterceptors: AnyRequestResponseChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -3840,7 +3915,7 @@ export const anyRequestResponseHandler = (
     };
     const body = parseBody(event.body, demarshal, ['application/json',]) as AnyRequestResponseRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -3899,7 +3974,7 @@ export type EmptyChainedHandlerFunction = ChainedLambdaHandlerFunction<EmptyRequ
 export const emptyHandler = (
     firstHandler: EmptyChainedHandlerFunction,
     ...remainingHandlers: EmptyChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'empty'> => async (event: any, context: any, additionalInterceptors: EmptyChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -3914,7 +3989,7 @@ export const emptyHandler = (
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as EmptyRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -3973,7 +4048,7 @@ export type MediaTypesChainedHandlerFunction = ChainedLambdaHandlerFunction<Medi
 export const mediaTypesHandler = (
     firstHandler: MediaTypesChainedHandlerFunction,
     ...remainingHandlers: MediaTypesChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'mediaTypes'> => async (event: any, context: any, additionalInterceptors: MediaTypesChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -3988,7 +4063,7 @@ export const mediaTypesHandler = (
     };
     const body = parseBody(event.body, demarshal, ['application/pdf',]) as MediaTypesRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -4053,7 +4128,7 @@ export type OperationOneChainedHandlerFunction = ChainedLambdaHandlerFunction<Op
 export const operationOneHandler = (
     firstHandler: OperationOneChainedHandlerFunction,
     ...remainingHandlers: OperationOneChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'operationOne'> => async (event: any, context: any, additionalInterceptors: OperationOneChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -4068,7 +4143,7 @@ export const operationOneHandler = (
     };
     const body = parseBody(event.body, demarshal, ['application/json',]) as OperationOneRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -4131,7 +4206,7 @@ export type WithoutOperationIdDeleteChainedHandlerFunction = ChainedLambdaHandle
 export const withoutOperationIdDeleteHandler = (
     firstHandler: WithoutOperationIdDeleteChainedHandlerFunction,
     ...remainingHandlers: WithoutOperationIdDeleteChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'withoutOperationIdDelete'> => async (event: any, context: any, additionalInterceptors: WithoutOperationIdDeleteChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -4146,7 +4221,7 @@ export const withoutOperationIdDeleteHandler = (
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as WithoutOperationIdDeleteRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -4175,6 +4250,61 @@ export const withoutOperationIdDeleteHandler = (
         ...response,
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
+};
+
+export interface HandlerRouterHandlers {
+  readonly anyRequestResponse: OperationApiGatewayLambdaHandler<'anyRequestResponse'>;
+  readonly empty: OperationApiGatewayLambdaHandler<'empty'>;
+  readonly mediaTypes: OperationApiGatewayLambdaHandler<'mediaTypes'>;
+  readonly operationOne: OperationApiGatewayLambdaHandler<'operationOne'>;
+  readonly withoutOperationIdDelete: OperationApiGatewayLambdaHandler<'withoutOperationIdDelete'>;
+}
+
+export type AnyOperationRequestParameters = | AnyRequestResponseRequestParameters| EmptyRequestParameters| MediaTypesRequestParameters| OperationOneRequestParameters| WithoutOperationIdDeleteRequestParameters;
+export type AnyOperationRequestArrayParameters = | AnyRequestResponseRequestArrayParameters| EmptyRequestArrayParameters| MediaTypesRequestArrayParameters| OperationOneRequestArrayParameters| WithoutOperationIdDeleteRequestArrayParameters;
+export type AnyOperationRequestBodies = | AnyRequestResponseRequestBody| EmptyRequestBody| MediaTypesRequestBody| OperationOneRequestBody| WithoutOperationIdDeleteRequestBody;
+export type AnyOperationResponses = | AnyRequestResponseOperationResponses| EmptyOperationResponses| MediaTypesOperationResponses| OperationOneOperationResponses| WithoutOperationIdDeleteOperationResponses;
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => \`\${method.toLowerCase()}||\${path}\`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestArrayParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, props.interceptors);
 };
 ",
   "src/apis/index.ts": "/* tslint:disable */

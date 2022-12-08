@@ -2,7 +2,7 @@ import urllib.parse
 import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 {{#imports}}
 {{{import}}}
@@ -39,6 +39,14 @@ OperationLookup = {
 {{/operation}}
 {{/operations}}
 }
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        """
+        Returns an OperationConfig with the same value for every operation
+        """
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
 
 def uri_decode(value):
     """
@@ -167,7 +175,7 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
     """
     def _handler_wrapper(handler: {{operationIdCamelCase}}HandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -192,7 +200,7 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
             {{/bodyParams.isEmpty}}
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -231,3 +239,30 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
         raise Exception("Positional arguments are not supported by {{operationId}}_handler.")
 {{/operation}}
 {{/operations}}
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return "{}||{}".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path["method"], method_and_path["path"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+{{#operations}}
+{{#operation}}
+  {{operationId}}: Callable[[Dict, Any], Dict]
+{{/operation}}
+{{/operations}}
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    """
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    """
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper
