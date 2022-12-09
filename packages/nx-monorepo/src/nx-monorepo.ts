@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import {
+  DependencyType,
   IgnoreFile,
   JsonFile,
   Project,
@@ -143,6 +144,14 @@ export interface WorkspaceConfig {
    * @link https://classic.yarnpkg.com/blog/2018/02/15/nohoist/
    */
   readonly noHoist?: string[];
+
+  /**
+   * Disable automatically applying `noHoist` logic for all sub-project "bundledDependencies".
+   *
+   * @default false
+   */
+  readonly disableNoHoistBundled?: boolean;
+
   /**
    * List of additional package globs to include in the workspace.
    *
@@ -488,6 +497,26 @@ export class NxMonorepoProject extends TypeScriptProject {
     // not yet been added, in the correct order
     this.addWorkspacePackages();
 
+    let noHoist = this.workspaceConfig?.noHoist;
+    // Automatically add all sub-project "bundledDependencies" to workspace "hohoist", otherwise they are not bundled in npm package
+    if (this.workspaceConfig?.disableNoHoistBundled !== true) {
+      const noHoistBundled = this.subProjects.flatMap((sub) => {
+        if (sub instanceof NodeProject) {
+          return sub.deps.all
+            .filter((dep) => dep.type === DependencyType.BUNDLED)
+            .flatMap((dep) => [
+              `${sub.name}/${dep.name}`,
+              `${sub.name}/${dep.name}/*`,
+            ]);
+        }
+        return [];
+      });
+
+      if (noHoistBundled.length) {
+        noHoist = [...(noHoist || []), ...noHoistBundled];
+      }
+    }
+
     // Add workspaces for each subproject
     if (this.package.packageManager === NodePackageManager.PNPM) {
       new YamlFile(this, "pnpm-workspace.yaml", {
@@ -499,7 +528,7 @@ export class NxMonorepoProject extends TypeScriptProject {
     } else {
       this.package.addField("workspaces", {
         packages: this.workspacePackages,
-        nohoist: this.workspaceConfig?.noHoist,
+        nohoist: noHoist,
       });
     }
   }
