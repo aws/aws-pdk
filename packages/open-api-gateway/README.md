@@ -834,6 +834,35 @@ public class SayHelloHandler extends SayHello {
 }
 ```
 
+##### Handler Router
+
+The lambda handler wrappers can be used in isolation as handler methods for separate lambdas. If you would like to use a single lambda function to serve all requests, you can do so by extending the `HandlerRouter` class.
+
+```java
+import com.generated.api.myapijava.client.api.Handlers.SayGoodbye;
+import com.generated.api.myapijava.client.api.Handlers.HandlerRouter;
+import com.generated.api.myapijava.client.api.Handlers.Interceptors;
+import com.generated.api.myapijava.client.api.Handlers.SayHello;
+
+import java.util.Arrays;
+import java.util.List;
+
+// Interceptors defined here apply to all operations
+@Interceptors({ TimingInterceptor.class })
+public class ApiHandlerRouter extends HandlerRouter {
+    // You must implement a method to return a handler for every operation
+    @Override
+    public SayHello sayHello() {
+        return new SayHelloHandler();
+    }
+
+    @Override
+    public SayGoodbye sayGoodbye() {
+        return new SayGoodbyeHandler();
+    }
+}
+```
+
 ### Interceptors
 
 The lambda handler wrappers allow you to pass in a _chain_ of handler functions to handle the request. This allows you to implement middleware / interceptors for handling requests. Each handler function may choose whether or not to continue the handler chain by invoking `chain.next`.
