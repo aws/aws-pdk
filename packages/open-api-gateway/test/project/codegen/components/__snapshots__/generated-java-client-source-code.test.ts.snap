@@ -157,6 +157,7 @@ src/main/java/test/test/client/api/DefaultApi.java
 src/main/java/test/test/client/api/DefaultApi/Handlers.java
 src/main/java/test/test/client/api/DefaultApi/OperationConfig.java
 src/main/java/test/test/client/api/DefaultApi/OperationLookup.java
+src/main/java/test/test/client/api/DefaultApi/Operations.java
 src/main/java/test/test/client/auth/ApiKeyAuth.java
 src/main/java/test/test/client/auth/Authentication.java
 src/main/java/test/test/client/auth/HttpBasicAuth.java
@@ -5304,6 +5305,25 @@ public class Handlers {
         }
     }
 
+    private static String concatMethodAndPath(final String method, final String path) {
+        return String.format(\\"%s||%s\\", method.toLowerCase(), path);
+    }
+
+    private static <T, I> List<Interceptor<I>> getAnnotationInterceptors(Class<T> clazz) {
+        // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
+        return clazz.isAnnotationPresent(Interceptors.class)
+                ? Arrays.stream(clazz.getAnnotation(Interceptors.class).value()).map(c -> {
+            try {
+                return (Interceptor<I>) c.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(String.format(
+                        \\"Cannot create instance of interceptor %s. Please ensure it has a public constructor \\" +
+                                \\"with no arguments, or override the getInterceptors method instead of using the annotation\\", c.getSimpleName()), e);
+            }
+        }).collect(Collectors.toList())
+                : new ArrayList<>();
+    }
+
     /**
      * Represents an HTTP response from an api operation
      */
@@ -5656,21 +5676,18 @@ public class Handlers {
 
         @Override
         public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+        }
+
+        public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<SomeTestOperationInput>> additionalInterceptors) {
             final Map<String, Object> interceptorContext = new HashMap<>();
 
-            // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
-            List<Interceptor<SomeTestOperationInput>> interceptors = this.getClass().isAnnotationPresent(Interceptors.class)
-                    ? Arrays.stream(this.getClass().getAnnotation(Interceptors.class).value()).map(clazz -> {
-                        try {
-                            return (Interceptor<SomeTestOperationInput>) clazz.getDeclaredConstructor().newInstance();
-                        } catch (Exception e) {
-                            throw new RuntimeException(String.format(
-                                    \\"Cannot create instance of interceptor %s. Please ensure it has a public constructor \\" +
-                                            \\"with no arguments, or override the getInterceptors method instead of using the annotation\\", clazz.getSimpleName()), e);
-                        }
-                     }).collect(Collectors.toList())
-                    : new ArrayList<>();
+            List<Interceptor<SomeTestOperationInput>> interceptors = new ArrayList<>();
+            interceptors.addAll(additionalInterceptors);
 
+            List<Interceptor<SomeTestOperationInput>> annotationInterceptors = getAnnotationInterceptors(this.getClass());
+
+            interceptors.addAll(annotationInterceptors);
             interceptors.addAll(this.getInterceptors());
 
             final HandlerChain chain = buildHandlerChain(interceptors, new HandlerChain<SomeTestOperationInput>() {
@@ -5716,6 +5733,59 @@ public class Handlers {
         }
     }
 
+    public static abstract class HandlerRouter implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+        private static final String someTestOperationMethodAndPath = concatMethodAndPath(\\"POST\\", \\"/operation/{pathParam}\\");
+
+        private final SomeTestOperation constructedSomeTestOperation;
+
+        /**
+         * This method must return your implementation of the SomeTestOperation operation
+         */
+        public abstract SomeTestOperation someTestOperation();
+
+        private static enum Route {
+            someTestOperationRoute,
+        }
+
+        /**
+         * Map of method and path to the route to map to
+         */
+        private final Map<String, Route> routes = new HashMap<>();
+
+        public HandlerRouter() {
+            this.routes.put(someTestOperationMethodAndPath, Route.someTestOperationRoute);
+            // Handlers are all constructed in the router's constructor such that lambda behaviour remains consistent;
+            // ie resources created in the constructor remain in memory between invocations.
+            // https://docs.aws.amazon.com/lambda/latest/dg/java-handler.html
+            this.constructedSomeTestOperation = this.someTestOperation();
+        }
+
+        /**
+         * For more complex interceptors that require instantiation with parameters, you may override this method to
+         * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+         * prefer the @Interceptors annotation.
+         */
+        public <T> List<Interceptor<T>> getInterceptors() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            String method = event.getRequestContext().getHttpMethod();
+            String path = event.getRequestContext().getResourcePath();
+            String methodAndPath = concatMethodAndPath(method, path);
+            Route route = this.routes.get(methodAndPath);
+
+            switch (route) {
+                case someTestOperationRoute:
+                    List<Interceptor<SomeTestOperationInput>> someTestOperationInterceptors = getAnnotationInterceptors(this.getClass());
+                    someTestOperationInterceptors.addAll(this.getInterceptors());
+                    return this.constructedSomeTestOperation.handleRequestWithAdditionalInterceptors(event, context, someTestOperationInterceptors);
+                default:
+                    throw new RuntimeException(String.format(\\"No registered handler for method {} and path {}\\", method, path));
+            }
+        }
+    }
 }",
   "src/main/java/test/test/client/api/DefaultApi/OperationConfig.java": "package test.test.client.api;
 
@@ -5765,6 +5835,22 @@ public class OperationLookup {
         config.put(\\"someTestOperation\\", new HashMap<String, String>() { { put(\\"path\\", \\"/operation/{pathParam}\\"); put(\\"method\\", \\"POST\\"); } });
 
         return config;
+    }
+}
+",
+  "src/main/java/test/test/client/api/DefaultApi/Operations.java": "package test.test.client.api;
+
+@javax.annotation.Generated(value = \\"org.openapitools.codegen.languages.JavaClientCodegen\\")
+public class Operations {
+    /**
+     * Returns an OperationConfig Builder with all values populated with the given value.
+     * You can override specific values on the builder if you like.
+     * Make sure you call \`.build()\` at the end to construct the OperationConfig.
+     */
+    public static <T> OperationConfig.OperationConfigBuilder<T> all(final T value) {
+        return OperationConfig.<T>builder()
+                .someTestOperation(value)
+                ;
     }
 }
 ",
@@ -7507,6 +7593,7 @@ src/main/java/test/test/client/api/DefaultApi.java
 src/main/java/test/test/client/api/DefaultApi/Handlers.java
 src/main/java/test/test/client/api/DefaultApi/OperationConfig.java
 src/main/java/test/test/client/api/DefaultApi/OperationLookup.java
+src/main/java/test/test/client/api/DefaultApi/Operations.java
 src/main/java/test/test/client/auth/ApiKeyAuth.java
 src/main/java/test/test/client/auth/Authentication.java
 src/main/java/test/test/client/auth/HttpBasicAuth.java
@@ -13646,6 +13733,25 @@ public class Handlers {
         }
     }
 
+    private static String concatMethodAndPath(final String method, final String path) {
+        return String.format(\\"%s||%s\\", method.toLowerCase(), path);
+    }
+
+    private static <T, I> List<Interceptor<I>> getAnnotationInterceptors(Class<T> clazz) {
+        // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
+        return clazz.isAnnotationPresent(Interceptors.class)
+                ? Arrays.stream(clazz.getAnnotation(Interceptors.class).value()).map(c -> {
+            try {
+                return (Interceptor<I>) c.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(String.format(
+                        \\"Cannot create instance of interceptor %s. Please ensure it has a public constructor \\" +
+                                \\"with no arguments, or override the getInterceptors method instead of using the annotation\\", c.getSimpleName()), e);
+            }
+        }).collect(Collectors.toList())
+                : new ArrayList<>();
+    }
+
     /**
      * Represents an HTTP response from an api operation
      */
@@ -13947,21 +14053,18 @@ public class Handlers {
 
         @Override
         public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+        }
+
+        public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<AnyRequestResponseInput>> additionalInterceptors) {
             final Map<String, Object> interceptorContext = new HashMap<>();
 
-            // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
-            List<Interceptor<AnyRequestResponseInput>> interceptors = this.getClass().isAnnotationPresent(Interceptors.class)
-                    ? Arrays.stream(this.getClass().getAnnotation(Interceptors.class).value()).map(clazz -> {
-                        try {
-                            return (Interceptor<AnyRequestResponseInput>) clazz.getDeclaredConstructor().newInstance();
-                        } catch (Exception e) {
-                            throw new RuntimeException(String.format(
-                                    \\"Cannot create instance of interceptor %s. Please ensure it has a public constructor \\" +
-                                            \\"with no arguments, or override the getInterceptors method instead of using the annotation\\", clazz.getSimpleName()), e);
-                        }
-                     }).collect(Collectors.toList())
-                    : new ArrayList<>();
+            List<Interceptor<AnyRequestResponseInput>> interceptors = new ArrayList<>();
+            interceptors.addAll(additionalInterceptors);
 
+            List<Interceptor<AnyRequestResponseInput>> annotationInterceptors = getAnnotationInterceptors(this.getClass());
+
+            interceptors.addAll(annotationInterceptors);
             interceptors.addAll(this.getInterceptors());
 
             final HandlerChain chain = buildHandlerChain(interceptors, new HandlerChain<AnyRequestResponseInput>() {
@@ -14170,21 +14273,18 @@ public class Handlers {
 
         @Override
         public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+        }
+
+        public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<EmptyInput>> additionalInterceptors) {
             final Map<String, Object> interceptorContext = new HashMap<>();
 
-            // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
-            List<Interceptor<EmptyInput>> interceptors = this.getClass().isAnnotationPresent(Interceptors.class)
-                    ? Arrays.stream(this.getClass().getAnnotation(Interceptors.class).value()).map(clazz -> {
-                        try {
-                            return (Interceptor<EmptyInput>) clazz.getDeclaredConstructor().newInstance();
-                        } catch (Exception e) {
-                            throw new RuntimeException(String.format(
-                                    \\"Cannot create instance of interceptor %s. Please ensure it has a public constructor \\" +
-                                            \\"with no arguments, or override the getInterceptors method instead of using the annotation\\", clazz.getSimpleName()), e);
-                        }
-                     }).collect(Collectors.toList())
-                    : new ArrayList<>();
+            List<Interceptor<EmptyInput>> interceptors = new ArrayList<>();
+            interceptors.addAll(additionalInterceptors);
 
+            List<Interceptor<EmptyInput>> annotationInterceptors = getAnnotationInterceptors(this.getClass());
+
+            interceptors.addAll(annotationInterceptors);
             interceptors.addAll(this.getInterceptors());
 
             final HandlerChain chain = buildHandlerChain(interceptors, new HandlerChain<EmptyInput>() {
@@ -14398,21 +14498,18 @@ public class Handlers {
 
         @Override
         public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+        }
+
+        public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<MediaTypesInput>> additionalInterceptors) {
             final Map<String, Object> interceptorContext = new HashMap<>();
 
-            // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
-            List<Interceptor<MediaTypesInput>> interceptors = this.getClass().isAnnotationPresent(Interceptors.class)
-                    ? Arrays.stream(this.getClass().getAnnotation(Interceptors.class).value()).map(clazz -> {
-                        try {
-                            return (Interceptor<MediaTypesInput>) clazz.getDeclaredConstructor().newInstance();
-                        } catch (Exception e) {
-                            throw new RuntimeException(String.format(
-                                    \\"Cannot create instance of interceptor %s. Please ensure it has a public constructor \\" +
-                                            \\"with no arguments, or override the getInterceptors method instead of using the annotation\\", clazz.getSimpleName()), e);
-                        }
-                     }).collect(Collectors.toList())
-                    : new ArrayList<>();
+            List<Interceptor<MediaTypesInput>> interceptors = new ArrayList<>();
+            interceptors.addAll(additionalInterceptors);
 
+            List<Interceptor<MediaTypesInput>> annotationInterceptors = getAnnotationInterceptors(this.getClass());
+
+            interceptors.addAll(annotationInterceptors);
             interceptors.addAll(this.getInterceptors());
 
             final HandlerChain chain = buildHandlerChain(interceptors, new HandlerChain<MediaTypesInput>() {
@@ -14697,21 +14794,18 @@ public class Handlers {
 
         @Override
         public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+        }
+
+        public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<OperationOneInput>> additionalInterceptors) {
             final Map<String, Object> interceptorContext = new HashMap<>();
 
-            // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
-            List<Interceptor<OperationOneInput>> interceptors = this.getClass().isAnnotationPresent(Interceptors.class)
-                    ? Arrays.stream(this.getClass().getAnnotation(Interceptors.class).value()).map(clazz -> {
-                        try {
-                            return (Interceptor<OperationOneInput>) clazz.getDeclaredConstructor().newInstance();
-                        } catch (Exception e) {
-                            throw new RuntimeException(String.format(
-                                    \\"Cannot create instance of interceptor %s. Please ensure it has a public constructor \\" +
-                                            \\"with no arguments, or override the getInterceptors method instead of using the annotation\\", clazz.getSimpleName()), e);
-                        }
-                     }).collect(Collectors.toList())
-                    : new ArrayList<>();
+            List<Interceptor<OperationOneInput>> interceptors = new ArrayList<>();
+            interceptors.addAll(additionalInterceptors);
 
+            List<Interceptor<OperationOneInput>> annotationInterceptors = getAnnotationInterceptors(this.getClass());
+
+            interceptors.addAll(annotationInterceptors);
             interceptors.addAll(this.getInterceptors());
 
             final HandlerChain chain = buildHandlerChain(interceptors, new HandlerChain<OperationOneInput>() {
@@ -14920,21 +15014,18 @@ public class Handlers {
 
         @Override
         public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+        }
+
+        public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<WithoutOperationIdDeleteInput>> additionalInterceptors) {
             final Map<String, Object> interceptorContext = new HashMap<>();
 
-            // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
-            List<Interceptor<WithoutOperationIdDeleteInput>> interceptors = this.getClass().isAnnotationPresent(Interceptors.class)
-                    ? Arrays.stream(this.getClass().getAnnotation(Interceptors.class).value()).map(clazz -> {
-                        try {
-                            return (Interceptor<WithoutOperationIdDeleteInput>) clazz.getDeclaredConstructor().newInstance();
-                        } catch (Exception e) {
-                            throw new RuntimeException(String.format(
-                                    \\"Cannot create instance of interceptor %s. Please ensure it has a public constructor \\" +
-                                            \\"with no arguments, or override the getInterceptors method instead of using the annotation\\", clazz.getSimpleName()), e);
-                        }
-                     }).collect(Collectors.toList())
-                    : new ArrayList<>();
+            List<Interceptor<WithoutOperationIdDeleteInput>> interceptors = new ArrayList<>();
+            interceptors.addAll(additionalInterceptors);
 
+            List<Interceptor<WithoutOperationIdDeleteInput>> annotationInterceptors = getAnnotationInterceptors(this.getClass());
+
+            interceptors.addAll(annotationInterceptors);
             interceptors.addAll(this.getInterceptors());
 
             final HandlerChain chain = buildHandlerChain(interceptors, new HandlerChain<WithoutOperationIdDeleteInput>() {
@@ -14980,6 +15071,111 @@ public class Handlers {
         }
     }
 
+    public static abstract class HandlerRouter implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+        private static final String anyRequestResponseMethodAndPath = concatMethodAndPath(\\"PUT\\", \\"/any-request-response\\");
+        private static final String emptyMethodAndPath = concatMethodAndPath(\\"PUT\\", \\"/empty-response\\");
+        private static final String mediaTypesMethodAndPath = concatMethodAndPath(\\"POST\\", \\"/different-media-type\\");
+        private static final String operationOneMethodAndPath = concatMethodAndPath(\\"POST\\", \\"/path/{pathParam}\\");
+        private static final String withoutOperationIdDeleteMethodAndPath = concatMethodAndPath(\\"DELETE\\", \\"/without-operation-id\\");
+
+        private final AnyRequestResponse constructedAnyRequestResponse;
+        private final Empty constructedEmpty;
+        private final MediaTypes constructedMediaTypes;
+        private final OperationOne constructedOperationOne;
+        private final WithoutOperationIdDelete constructedWithoutOperationIdDelete;
+
+        /**
+         * This method must return your implementation of the AnyRequestResponse operation
+         */
+        public abstract AnyRequestResponse anyRequestResponse();
+        /**
+         * This method must return your implementation of the Empty operation
+         */
+        public abstract Empty empty();
+        /**
+         * This method must return your implementation of the MediaTypes operation
+         */
+        public abstract MediaTypes mediaTypes();
+        /**
+         * This method must return your implementation of the OperationOne operation
+         */
+        public abstract OperationOne operationOne();
+        /**
+         * This method must return your implementation of the WithoutOperationIdDelete operation
+         */
+        public abstract WithoutOperationIdDelete withoutOperationIdDelete();
+
+        private static enum Route {
+            anyRequestResponseRoute,
+            emptyRoute,
+            mediaTypesRoute,
+            operationOneRoute,
+            withoutOperationIdDeleteRoute,
+        }
+
+        /**
+         * Map of method and path to the route to map to
+         */
+        private final Map<String, Route> routes = new HashMap<>();
+
+        public HandlerRouter() {
+            this.routes.put(anyRequestResponseMethodAndPath, Route.anyRequestResponseRoute);
+            this.routes.put(emptyMethodAndPath, Route.emptyRoute);
+            this.routes.put(mediaTypesMethodAndPath, Route.mediaTypesRoute);
+            this.routes.put(operationOneMethodAndPath, Route.operationOneRoute);
+            this.routes.put(withoutOperationIdDeleteMethodAndPath, Route.withoutOperationIdDeleteRoute);
+            // Handlers are all constructed in the router's constructor such that lambda behaviour remains consistent;
+            // ie resources created in the constructor remain in memory between invocations.
+            // https://docs.aws.amazon.com/lambda/latest/dg/java-handler.html
+            this.constructedAnyRequestResponse = this.anyRequestResponse();
+            this.constructedEmpty = this.empty();
+            this.constructedMediaTypes = this.mediaTypes();
+            this.constructedOperationOne = this.operationOne();
+            this.constructedWithoutOperationIdDelete = this.withoutOperationIdDelete();
+        }
+
+        /**
+         * For more complex interceptors that require instantiation with parameters, you may override this method to
+         * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+         * prefer the @Interceptors annotation.
+         */
+        public <T> List<Interceptor<T>> getInterceptors() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            String method = event.getRequestContext().getHttpMethod();
+            String path = event.getRequestContext().getResourcePath();
+            String methodAndPath = concatMethodAndPath(method, path);
+            Route route = this.routes.get(methodAndPath);
+
+            switch (route) {
+                case anyRequestResponseRoute:
+                    List<Interceptor<AnyRequestResponseInput>> anyRequestResponseInterceptors = getAnnotationInterceptors(this.getClass());
+                    anyRequestResponseInterceptors.addAll(this.getInterceptors());
+                    return this.constructedAnyRequestResponse.handleRequestWithAdditionalInterceptors(event, context, anyRequestResponseInterceptors);
+                case emptyRoute:
+                    List<Interceptor<EmptyInput>> emptyInterceptors = getAnnotationInterceptors(this.getClass());
+                    emptyInterceptors.addAll(this.getInterceptors());
+                    return this.constructedEmpty.handleRequestWithAdditionalInterceptors(event, context, emptyInterceptors);
+                case mediaTypesRoute:
+                    List<Interceptor<MediaTypesInput>> mediaTypesInterceptors = getAnnotationInterceptors(this.getClass());
+                    mediaTypesInterceptors.addAll(this.getInterceptors());
+                    return this.constructedMediaTypes.handleRequestWithAdditionalInterceptors(event, context, mediaTypesInterceptors);
+                case operationOneRoute:
+                    List<Interceptor<OperationOneInput>> operationOneInterceptors = getAnnotationInterceptors(this.getClass());
+                    operationOneInterceptors.addAll(this.getInterceptors());
+                    return this.constructedOperationOne.handleRequestWithAdditionalInterceptors(event, context, operationOneInterceptors);
+                case withoutOperationIdDeleteRoute:
+                    List<Interceptor<WithoutOperationIdDeleteInput>> withoutOperationIdDeleteInterceptors = getAnnotationInterceptors(this.getClass());
+                    withoutOperationIdDeleteInterceptors.addAll(this.getInterceptors());
+                    return this.constructedWithoutOperationIdDelete.handleRequestWithAdditionalInterceptors(event, context, withoutOperationIdDeleteInterceptors);
+                default:
+                    throw new RuntimeException(String.format(\\"No registered handler for method {} and path {}\\", method, path));
+            }
+        }
+    }
 }",
   "src/main/java/test/test/client/api/DefaultApi/OperationConfig.java": "package test.test.client.api;
 
@@ -15045,6 +15241,26 @@ public class OperationLookup {
         config.put(\\"withoutOperationIdDelete\\", new HashMap<String, String>() { { put(\\"path\\", \\"/without-operation-id\\"); put(\\"method\\", \\"DELETE\\"); } });
 
         return config;
+    }
+}
+",
+  "src/main/java/test/test/client/api/DefaultApi/Operations.java": "package test.test.client.api;
+
+@javax.annotation.Generated(value = \\"org.openapitools.codegen.languages.JavaClientCodegen\\")
+public class Operations {
+    /**
+     * Returns an OperationConfig Builder with all values populated with the given value.
+     * You can override specific values on the builder if you like.
+     * Make sure you call \`.build()\` at the end to construct the OperationConfig.
+     */
+    public static <T> OperationConfig.OperationConfigBuilder<T> all(final T value) {
+        return OperationConfig.<T>builder()
+                .anyRequestResponse(value)
+                .empty(value)
+                .mediaTypes(value)
+                .operationOne(value)
+                .withoutOperationIdDelete(value)
+                ;
     }
 }
 ",
