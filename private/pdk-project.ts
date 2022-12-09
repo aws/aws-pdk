@@ -28,14 +28,14 @@ export interface PDKProjectOptions extends JsiiProjectOptions {
    *
    * @default - package will be published with module name: aws_prototyping_sdk.<your_package_name>
    */
-  readonly publishToPypiConfig?: JsiiPythonTarget;
+  readonly publishToPypiConfig?: JsiiPythonTarget | false;
 
   /**
    * Publish to maven
    *
    * @default - package will be published with package name: software.aws.awsprototypingsdk.<yourpackagename>
    */
-  readonly publishToMavenConfig?: JsiiJavaTarget;
+  readonly publishToMavenConfig?: JsiiJavaTarget | false;
 }
 
 /**
@@ -76,16 +76,20 @@ export abstract class PDKProject extends JsiiProject {
       name,
       packageName: name,
       outdir: `packages/${options.name}`,
-      publishToPypi: options.publishToPypiConfig || {
-        distName: `aws_prototyping_sdk.${nameWithUnderscore}`,
-        module: `aws_prototyping_sdk.${nameWithUnderscore}`,
-      },
-      publishToMaven: options.publishToMavenConfig || {
-        mavenEndpoint: "https://aws.oss.sonatype.org",
-        mavenGroupId: "software.aws.awsprototypingsdk",
-        mavenArtifactId: `${options.name}`,
-        javaPackage: `software.aws.awsprototypingsdk.${condensedName}`,
-      },
+      publishToPypi:
+        (options.publishToPypiConfig ?? {
+          distName: `aws_prototyping_sdk.${nameWithUnderscore}`,
+          module: `aws_prototyping_sdk.${nameWithUnderscore}`,
+        }) ||
+        undefined,
+      publishToMaven:
+        (options.publishToMavenConfig ?? {
+          mavenEndpoint: "https://aws.oss.sonatype.org",
+          mavenGroupId: "software.aws.awsprototypingsdk",
+          mavenArtifactId: `${options.name}`,
+          javaPackage: `software.aws.awsprototypingsdk.${condensedName}`,
+        }) ||
+        undefined,
       gitignore: [...(options.gitignore || []), "LICENSE_THIRD_PARTY"],
     });
 
