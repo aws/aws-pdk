@@ -62,6 +62,9 @@ export class CdkGraphProject extends PDKProject {
           noUnusedParameters: false,
         },
       },
+      // Only publish to NPM until more stable - currently very experimental and need to test Typescript version more extensively
+      publishToPypiConfig: false,
+      publishToMavenConfig: false,
     });
 
     this.addPackageIgnore("**/node_modules");
