@@ -3036,7 +3036,6 @@ aws-prototyping-sdk library.</p>
 <h3 id="construct">Construct</h3>
 <p>A sample construct is generated which provides a type-safe interface for creating an API Gateway API based on your OpenAPI specification. You'll get a type error if you forget to define an integration for an operation defined in your api.</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span><span class="w"></span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">path.*</span><span class="p">;</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.Authorizers</span><span class="p">;</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.Integrations</span><span class="p">;</span><span class="w"></span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">software.amazon.awscdk.services.lambda.nodejs.NodejsFunction</span><span class="p">;</span><span class="w"></span>
@@ -3054,6 +3053,26 @@ aws-prototyping-sdk library.</p>
 <span class="w">                        </span><span class="c1">// Every operation defined in your API must have an integration defined!</span><span class="w"></span>
 <span class="w">                        </span><span class="s">&quot;sayHello&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
 <span class="w">                                </span><span class="s">&quot;integration&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Integrations</span><span class="p">.</span><span class="na">lambda</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;say-hello&quot;</span><span class="p">))))));</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h4 id="sharing-integrations">Sharing Integrations</h4>
+<p>If you would like to use the same integration for every operation, you can use the <code>Operations.all</code> method from your generated client to save repeating yourself, for example:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.Operations</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.Authorizers</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.Integrations</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.amazon.awscdk.services.lambda.nodejs.NodejsFunction</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.constructs.Construct</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">api.Api</span><span class="p">;</span><span class="w"></span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SampleApi</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">Api</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">SampleApi</span><span class="p">(</span><span class="n">Construct</span><span class="w"> </span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="kd">super</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
+<span class="w">                </span><span class="s">&quot;defaultAuthorizer&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Authorizers</span><span class="p">.</span><span class="na">iam</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                </span><span class="c1">// Use the same integration for every operation.</span><span class="w"></span>
+<span class="w">                </span><span class="s">&quot;integrations&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Operations</span><span class="p">.</span><span class="na">all</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
+<span class="w">                        </span><span class="s">&quot;integration&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Integrations</span><span class="p">.</span><span class="na">lambda</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;say-hello&quot;</span><span class="p">))))));</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
@@ -3176,6 +3195,32 @@ aws-prototyping-sdk library.</p>
 <span class="w">  </span><span class="p">};</span><span class="w"></span>
 <span class="p">});</span><span class="w"></span>
 </code></pre></div>
+<h5 id="handler-router">Handler Router</h5>
+<p>The lambda handler wrappers can be used in isolation as handler methods for separate lambdas. If you would like to use a single lambda function to serve all requests, you can do so with the <code>handlerRouter</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.handlerRouter</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.sayHelloHandler</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">my.api.typescript.client.sayGoodbyeHandler</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">interceptors.corsInterceptor</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">handlers.say.goodbye.sayGoodbye</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">Object</span><span class="w"> </span><span class="n">sayHello</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sayHelloHandler</span><span class="p">(</span><span class="n">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">statusCode</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">body</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">message</span><span class="p">:</span><span class="w"> </span><span class="err">`</span><span class="n">Hello</span><span class="w"> </span><span class="n">$</span><span class="p">{</span><span class="n">input</span><span class="p">.</span><span class="na">requestParameters</span><span class="p">.</span><span class="na">name</span><span class="p">}</span><span class="o">!</span><span class="err">`</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">  </span><span class="p">};</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="n">Object</span><span class="w"> </span><span class="n">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">handlerRouter</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Interceptors declared in this list will apply to all operations</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;interceptors&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">corsInterceptor</span><span class="p">),</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Assign handlers to each operation here</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;handlers&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"></span>
+<span class="w">                </span><span class="s">&quot;sayHello&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sayHello</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="s">&quot;sayGoodbye&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sayGoodbye</span><span class="p">)));</span><span class="w"></span>
+</code></pre></div>
 <h4 id="python_2">Python</h4>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python.apis.tags.default_api_operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">ApiResponse</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span>
 <span class="kn">from</span> <span class="nn">myapi_python.model.api_error</span> <span class="kn">import</span> <span class="n">ApiError</span>
@@ -3188,6 +3233,31 @@ aws-prototyping-sdk library.</p>
         <span class="n">body</span><span class="o">=</span><span class="n">HelloResponse</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Hello </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">request_parameters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])),</span>
         <span class="n">headers</span><span class="o">=</span><span class="p">{}</span>
     <span class="p">)</span>
+</code></pre></div>
+<h5 id="handler-router_1">Handler Router</h5>
+<p>The lambda handler wrappers can be used in isolation as handler methods for separate lambdas. If you would like to use a single lambda function to serve all requests, you can do so with the <code>handler_router</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python.apis.tags.default_api_operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">ApiResponse</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span><span class="p">,</span> <span class="n">handler_router</span><span class="p">,</span> <span class="n">HandlerRouterHandlers</span>
+<span class="kn">from</span> <span class="nn">myapi_python.model.api_error</span> <span class="kn">import</span> <span class="n">ApiError</span>
+<span class="kn">from</span> <span class="nn">myapi_python.model.hello_response</span> <span class="kn">import</span> <span class="n">HelloResponse</span>
+<span class="kn">from</span> <span class="nn">other_handlers</span> <span class="kn">import</span> <span class="n">say_goodbye</span>
+<span class="kn">from</span> <span class="nn">my_interceptors</span> <span class="kn">import</span> <span class="n">cors_interceptor</span>
+
+<span class="nd">@say_hello_handler</span>
+<span class="k">def</span> <span class="nf">say_hello</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">ApiResponse</span><span class="p">(</span>
+        <span class="n">status_code</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">body</span><span class="o">=</span><span class="n">HelloResponse</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Hello </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">request_parameters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])),</span>
+        <span class="n">headers</span><span class="o">=</span><span class="p">{}</span>
+    <span class="p">)</span>
+
+<span class="n">handler</span> <span class="o">=</span> <span class="n">handler_router</span><span class="p">(</span>
+  <span class="c1"># Interceptors defined here will apply to all operations</span>
+  <span class="n">interceptors</span><span class="o">=</span><span class="p">[</span><span class="n">cors_interceptor</span><span class="p">],</span>
+  <span class="n">handlers</span><span class="o">=</span><span class="n">HandlerRouterHandlers</span><span class="p">(</span>
+    <span class="n">say_hello</span><span class="o">=</span><span class="n">say_hello</span><span class="p">,</span>
+    <span class="n">say_goodbye</span><span class="o">=</span><span class="n">say_goodbye</span>
+  <span class="p">)</span>
+<span class="p">)</span>
 </code></pre></div>
 <h4 id="java_2">Java</h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijava.client.api.Handlers.SayHello</span><span class="p">;</span><span class="w"></span>
@@ -29632,7 +29702,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2022-12-07
+      2022-12-08
     
   </small>
 </div>
