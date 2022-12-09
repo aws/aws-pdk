@@ -10771,7 +10771,7 @@ class DefaultApi(
 import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from test_my_api_python.model.api_error_response_content import ApiErrorResponseContent
 from test_my_api_python.model.say_hello_response_content import SayHelloResponseContent
@@ -10799,6 +10799,14 @@ OperationLookup = {
         \\"method\\": \\"get\\",
     },
 }
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        \\"\\"\\"
+        Returns an OperationConfig with the same value for every operation
+        \\"\\"\\"
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
 
 def uri_decode(value):
     \\"\\"\\"
@@ -10911,7 +10919,7 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
     \\"\\"\\"
     def _handler_wrapper(handler: SayHelloHandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -10922,7 +10930,7 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
             body = {}
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -10954,6 +10962,29 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
         return _handler_wrapper
     else:
         raise Exception(\\"Positional arguments are not supported by say_hello_handler.\\")
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return \\"{}||{}\\".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path[\\"method\\"], method_and_path[\\"path\\"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+  say_hello: Callable[[Dict, Any], Dict]
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    \\"\\"\\"
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    \\"\\"\\"
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper
 ",
   "packages/api/generated/python/test_my_api_python/configuration.py": "# coding: utf-8
 
@@ -15497,6 +15528,15 @@ export const OperationLookup = {
     },
 };
 
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
 // Standard apigateway request parameters (query parameters or path parameters, multi or single value)
 type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
 
@@ -15522,8 +15562,11 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
+type OperationIds = | 'sayHello';
+type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
 // Api gateway lambda handler type
-type ApiGatewayLambdaHandler = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>;
+type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
 
 // Type of the response to be returned by an operation lambda handler
 export interface OperationResponse<StatusCode extends number, Body> {
@@ -15627,7 +15670,7 @@ export type SayHelloChainedHandlerFunction = ChainedLambdaHandlerFunction<SayHel
 export const sayHelloHandler = (
     firstHandler: SayHelloChainedHandlerFunction,
     ...remainingHandlers: SayHelloChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'sayHello'> => async (event: any, context: any, additionalInterceptors: SayHelloChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -15642,7 +15685,7 @@ export const sayHelloHandler = (
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -15674,6 +15717,57 @@ export const sayHelloHandler = (
         ...response,
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
+};
+
+export interface HandlerRouterHandlers {
+  readonly sayHello: OperationApiGatewayLambdaHandler<'sayHello'>;
+}
+
+export type AnyOperationRequestParameters = | SayHelloRequestParameters;
+export type AnyOperationRequestArrayParameters = | SayHelloRequestArrayParameters;
+export type AnyOperationRequestBodies = | SayHelloRequestBody;
+export type AnyOperationResponses = | SayHelloOperationResponses;
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => \`\${method.toLowerCase()}||\${path}\`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestArrayParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, props.interceptors);
 };
 ",
   "packages/api/generated/typescript/src/apis/index.ts": "/* tslint:disable */
@@ -27484,7 +27578,7 @@ class DefaultApi(
 import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from test_my_api_python.model.api_error_response_content import ApiErrorResponseContent
 from test_my_api_python.model.say_hello_response_content import SayHelloResponseContent
@@ -27512,6 +27606,14 @@ OperationLookup = {
         \\"method\\": \\"get\\",
     },
 }
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        \\"\\"\\"
+        Returns an OperationConfig with the same value for every operation
+        \\"\\"\\"
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
 
 def uri_decode(value):
     \\"\\"\\"
@@ -27624,7 +27726,7 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
     \\"\\"\\"
     def _handler_wrapper(handler: SayHelloHandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -27635,7 +27737,7 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
             body = {}
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -27667,6 +27769,29 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
         return _handler_wrapper
     else:
         raise Exception(\\"Positional arguments are not supported by say_hello_handler.\\")
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return \\"{}||{}\\".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path[\\"method\\"], method_and_path[\\"path\\"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+  say_hello: Callable[[Dict, Any], Dict]
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    \\"\\"\\"
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    \\"\\"\\"
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper
 ",
   "packages/api/generated/python/test_my_api_python/configuration.py": "# coding: utf-8
 
@@ -32216,6 +32341,15 @@ export const OperationLookup = {
     },
 };
 
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
 // Standard apigateway request parameters (query parameters or path parameters, multi or single value)
 type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
 
@@ -32241,8 +32375,11 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
+type OperationIds = | 'sayHello';
+type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
 // Api gateway lambda handler type
-type ApiGatewayLambdaHandler = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>;
+type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
 
 // Type of the response to be returned by an operation lambda handler
 export interface OperationResponse<StatusCode extends number, Body> {
@@ -32346,7 +32483,7 @@ export type SayHelloChainedHandlerFunction = ChainedLambdaHandlerFunction<SayHel
 export const sayHelloHandler = (
     firstHandler: SayHelloChainedHandlerFunction,
     ...remainingHandlers: SayHelloChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'sayHello'> => async (event: any, context: any, additionalInterceptors: SayHelloChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -32361,7 +32498,7 @@ export const sayHelloHandler = (
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -32393,6 +32530,57 @@ export const sayHelloHandler = (
         ...response,
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
+};
+
+export interface HandlerRouterHandlers {
+  readonly sayHello: OperationApiGatewayLambdaHandler<'sayHello'>;
+}
+
+export type AnyOperationRequestParameters = | SayHelloRequestParameters;
+export type AnyOperationRequestArrayParameters = | SayHelloRequestArrayParameters;
+export type AnyOperationRequestBodies = | SayHelloRequestBody;
+export type AnyOperationResponses = | SayHelloOperationResponses;
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => \`\${method.toLowerCase()}||\${path}\`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestArrayParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, props.interceptors);
 };
 ",
   "packages/api/generated/typescript/src/apis/index.ts": "/* tslint:disable */
@@ -44211,7 +44399,7 @@ class DefaultApi(
 import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from test_my_api_python.model.api_error_response_content import ApiErrorResponseContent
 from test_my_api_python.model.say_hello_response_content import SayHelloResponseContent
@@ -44239,6 +44427,14 @@ OperationLookup = {
         \\"method\\": \\"get\\",
     },
 }
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        \\"\\"\\"
+        Returns an OperationConfig with the same value for every operation
+        \\"\\"\\"
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
 
 def uri_decode(value):
     \\"\\"\\"
@@ -44351,7 +44547,7 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
     \\"\\"\\"
     def _handler_wrapper(handler: SayHelloHandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -44362,7 +44558,7 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
             body = {}
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -44394,6 +44590,29 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
         return _handler_wrapper
     else:
         raise Exception(\\"Positional arguments are not supported by say_hello_handler.\\")
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return \\"{}||{}\\".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path[\\"method\\"], method_and_path[\\"path\\"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+  say_hello: Callable[[Dict, Any], Dict]
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    \\"\\"\\"
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    \\"\\"\\"
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper
 ",
   "packages/api/generated/python/test_my_api_python/configuration.py": "# coding: utf-8
 
@@ -48937,6 +49156,15 @@ export const OperationLookup = {
     },
 };
 
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
 // Standard apigateway request parameters (query parameters or path parameters, multi or single value)
 type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
 
@@ -48962,8 +49190,11 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
+type OperationIds = | 'sayHello';
+type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
 // Api gateway lambda handler type
-type ApiGatewayLambdaHandler = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>;
+type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
 
 // Type of the response to be returned by an operation lambda handler
 export interface OperationResponse<StatusCode extends number, Body> {
@@ -49067,7 +49298,7 @@ export type SayHelloChainedHandlerFunction = ChainedLambdaHandlerFunction<SayHel
 export const sayHelloHandler = (
     firstHandler: SayHelloChainedHandlerFunction,
     ...remainingHandlers: SayHelloChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'sayHello'> => async (event: any, context: any, additionalInterceptors: SayHelloChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -49082,7 +49313,7 @@ export const sayHelloHandler = (
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -49114,6 +49345,57 @@ export const sayHelloHandler = (
         ...response,
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
+};
+
+export interface HandlerRouterHandlers {
+  readonly sayHello: OperationApiGatewayLambdaHandler<'sayHello'>;
+}
+
+export type AnyOperationRequestParameters = | SayHelloRequestParameters;
+export type AnyOperationRequestArrayParameters = | SayHelloRequestArrayParameters;
+export type AnyOperationRequestBodies = | SayHelloRequestBody;
+export type AnyOperationResponses = | SayHelloOperationResponses;
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => \`\${method.toLowerCase()}||\${path}\`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestArrayParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, props.interceptors);
 };
 ",
   "packages/api/generated/typescript/src/apis/index.ts": "/* tslint:disable */

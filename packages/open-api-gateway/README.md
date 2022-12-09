@@ -529,7 +529,6 @@ required:
 A sample construct is generated which provides a type-safe interface for creating an API Gateway API based on your OpenAPI specification. You'll get a type error if you forget to define an integration for an operation defined in your api.
 
 ```ts
-import * as path from 'path';
 import { Authorizers, Integrations } from '@aws-prototyping-sdk/open-api-gateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
@@ -548,6 +547,30 @@ export class SampleApi extends Api {
           integration: Integrations.lambda(new NodejsFunction(scope, 'say-hello')),
         },
       },
+    });
+  }
+}
+```
+
+#### Sharing Integrations
+
+If you would like to use the same integration for every operation, you can use the `Operations.all` method from your generated client to save repeating yourself, for example:
+
+```ts
+import { Operations } from 'my-api-typescript-client';
+import { Authorizers, Integrations } from '@aws-prototyping-sdk/open-api-gateway';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Construct } from 'constructs';
+import { Api } from './api';
+
+export class SampleApi extends Api {
+  constructor(scope: Construct, id: string) {
+    super(scope, id, {
+      defaultAuthorizer: Authorizers.iam(),
+      // Use the same integration for every operation.
+      integrations: Operations.all({
+        integration: Integrations.lambda(new NodejsFunction(scope, 'say-hello')),
+      }),
     });
   }
 }
@@ -717,6 +740,35 @@ export const handler = sayHelloHandler(async ({ input }) => {
 });
 ```
 
+##### Handler Router
+
+The lambda handler wrappers can be used in isolation as handler methods for separate lambdas. If you would like to use a single lambda function to serve all requests, you can do so with the `handlerRouter`.
+
+```ts
+import { handlerRouter, sayHelloHandler, sayGoodbyeHandler } from "my-api-typescript-client";
+import { corsInterceptor } from "./interceptors";
+import { sayGoodbye } from "./handlers/say-goodbye";
+
+const sayHello = sayHelloHandler(async ({ input }) => {
+  return {
+    statusCode: 200,
+    body: {
+      message: `Hello ${input.requestParameters.name}!`,
+    },
+  };
+});
+
+export const handler = handlerRouter({
+  // Interceptors declared in this list will apply to all operations
+  interceptors: [corsInterceptor],
+  // Assign handlers to each operation here
+  handlers: {
+    sayHello,
+    sayGoodbye,
+  },
+});
+```
+
 #### Python
 
 ```python
@@ -731,6 +783,35 @@ def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
         body=HelloResponse(message="Hello {}!".format(input.request_parameters["name"])),
         headers={}
     )
+```
+
+##### Handler Router
+
+The lambda handler wrappers can be used in isolation as handler methods for separate lambdas. If you would like to use a single lambda function to serve all requests, you can do so with the `handler_router`.
+
+```python
+from myapi_python.apis.tags.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses, handler_router, HandlerRouterHandlers
+from myapi_python.model.api_error import ApiError
+from myapi_python.model.hello_response import HelloResponse
+from other_handlers import say_goodbye
+from my_interceptors import cors_interceptor
+
+@say_hello_handler
+def say_hello(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
+    return ApiResponse(
+        status_code=200,
+        body=HelloResponse(message="Hello {}!".format(input.request_parameters["name"])),
+        headers={}
+    )
+
+handler = handler_router(
+  # Interceptors defined here will apply to all operations
+  interceptors=[cors_interceptor],
+  handlers=HandlerRouterHandlers(
+    say_hello=say_hello,
+    say_goodbye=say_goodbye
+  )
+)
 ```
 
 #### Java
