@@ -1,18 +1,5 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { mergeTsconfigOptions } from "projen/lib/typescript";
@@ -44,6 +31,9 @@ export abstract class CdkGraphPluginProject extends PDKProject {
       defaultReleaseBranch: "mainline",
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       stability: Stability.EXPERIMENTAL,
+      // Only publish to NPM until more stable - currently very experimental and need to test Typescript version more extensively
+      publishToPypiConfig: false,
+      publishToMavenConfig: false,
       // explicit/overrides
       ...props,
       // merged/managed
