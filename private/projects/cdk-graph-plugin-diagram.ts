@@ -51,6 +51,7 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
         "to-px",
         "traverse",
         "ts-graphviz",
+        "ts-node",
         "word-wrap",
       ],
       stability: Stability.EXPERIMENTAL,
@@ -62,9 +63,7 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
 
     // ts-graphviz compiled to typescript >4.1 which includes TemplateLiterals+NamedTuples
     // since jsii requires 3.9 we need to downlevel ts-graphviz
-    this.addTask("postinstall", {
-      exec: "ts-node ./scripts/patch-ts-graphvis.ts",
-    });
+    this.preCompileTask.prependExec("ts-node ./scripts/patch-ts-graphvis.ts");
 
     const copyFilesTask = this.addTask("copy-files", {
       exec: "cp src/internal/graphviz/dot-wasm/dot-wasm-invoker.mjs lib/internal/graphviz/dot-wasm/dot-wasm-invoker.mjs",
