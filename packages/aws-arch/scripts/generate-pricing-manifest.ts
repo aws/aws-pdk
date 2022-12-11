@@ -53,9 +53,10 @@ export async function generate () {
   const manifest = (require(manifestJsonPath).awsServices as any[]).reduce((dict, service) => {
     service = transformServiceForJsii(service);
     const serviceCode: string = service.serviceCode;
+    const isSubFor = isSubServiceForDefinition(service);
     const comparableTerms: string[] = [
       normalizeComparisonString(service.serviceCode),
-      normalizeComparisonString(service.name),
+      normalizeComparisonString(isSubFor ? service.description : service.name),
     ];
 
     // Extract common name from name with parens: DynamoDB Accelerator (DAX) clusters => DAX
@@ -82,7 +83,7 @@ export async function generate () {
     if (service.linkUrl) {
       try {
         const url = parseAwsUrl(service.linkUrl);
-        if (subType !== "subService" && !url.code.startsWith("ec2_pricing")) {
+        if (["subServiceSelector", undefined].includes(subType) && !url.code.startsWith("ec2_pricing")) {
           comparableTerms.push(normalizeComparisonString(url.code));
         }
       } catch {
@@ -127,6 +128,16 @@ function transformServiceForJsii(service: any): any {
     ...rest,
     mvpSupport: MVPSupport,
   }
+}
+
+// Some service "name" props are scoped to parent service and collide with actual service.
+// eg: amazonDocumentDbBackup.name = DocumentDB, collides with actual DocumentDB service.
+// In this case we ensure comparables are scoped to parent service - "Backup DocumentDB" instead of "DocumentDB"
+function isSubServiceForDefinition(service: any): boolean {
+  if (service.description?.endsWith(` for ${service.name}`)) {
+    return true;
+  }
+  return false;
 }
 
 if (require.main === module) {
