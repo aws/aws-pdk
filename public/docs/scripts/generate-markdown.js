@@ -9,10 +9,10 @@ const generateExperimentalBanner = (pkg) => `
 :octicons-beaker-24: Experimental\n
 !!! warning\n
 \tThis is packaged in a separate module while the API is being stabilized.
-\tThis package is subject to non-backward compatible changes or removal in any future version. Breaking changes 
+\tThis package is subject to non-backward compatible changes or removal in any future version. Breaking changes
 \twill be announced in the release notes.
-\n\tWhilst you may use this package, you may need to update your 
-\tsource code when upgrading to a newer version. Once we stabilize the module, it will be included into the stable 
+\n\tWhilst you may use this package, you may need to update your
+\tsource code when upgrading to a newer version. Once we stabilize the module, it will be included into the stable
 \taws-prototyping-sdk library.\n\n
 !!! example "Experimental Usage"\n
 \tTo use this package, add a dependency on: \`${pkg}\`
@@ -31,6 +31,19 @@ function generateNavEntry(name, path) {
 
 function includeBanner(pkg, markdown, stability) {
   return stability !== 'stable' ? `${generateExperimentalBanner(pkg)}\n${markdown}`: markdown;
+}
+
+function isPkgLanguageTarget(language, jsii) {
+  let target = docgen.Language.fromString(language).targetName;
+  if (target === docgen.Language.TYPESCRIPT.targetName) {
+    target = "js";
+  }
+
+  if (jsii.targets) {
+    jsii = jsii.targets;
+  }
+
+  return target in jsii;
 }
 
 function getArtifact(language, jsiiManifest) {
@@ -64,8 +77,7 @@ async function main() {
         .concat('  - troubleshooting')
       .join('\n')}`);
 
-  const languages = SUPPORTED_LANGUAGES.map((l) => l.name);
-  for (const language of languages) {
+  for (const language of SUPPORTED_LANGUAGES.map((l) => l.name)) {
     fs.mkdirSync(`${cwd}/build/docs/content/${language}`, { recursive: true });
 
     const pkgs = fs.readdirSync(RELATIVE_PKG_ROOT)
@@ -75,6 +87,11 @@ async function main() {
     for (const pkg of pkgs) {
         const pkgJsii = JSON.parse(fs.readFileSync(`${RELATIVE_PKG_ROOT}/${pkg}/.jsii`).toString());
         const stability = pkgJsii.docs.stability;
+
+        // Ignore unsupported target languages in packages
+        if (!isPkgLanguageTarget(language, pkgJsii)) {
+          continue;
+        }
 
         fs.mkdirSync(`${cwd}/build/docs/content/${language}/${pkg}`, {
           recursive: true,
@@ -119,6 +136,11 @@ async function main() {
           .map(pkg => {
             const jsiiTargets = JSON.parse(fs.readFileSync(`${RELATIVE_PKG_ROOT}/${pkg}/.jsii`).toString()).targets;
 
+            // Ignore unsupported target languages in packages
+            if (!isPkgLanguageTarget(language, jsiiTargets)) {
+              return;
+            }
+
             switch(language) {
               case docgen.Language.TYPESCRIPT.name:
                 return generateNavEntry(pkg, pkg);
@@ -130,6 +152,7 @@ async function main() {
                 throw new Error(`Unknown language ${language}`);
             }
           })
+          .filter(v => v != null)
           .join('\n')}`,
       );
 
