@@ -65,6 +65,15 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
     // since jsii requires 3.9 we need to downlevel ts-graphviz
     this.preCompileTask.prependExec("ts-node ./scripts/patch-ts-graphvis.ts");
 
+    // Ensure sharp has cross-platform prebuilds included in bundled dependency
+    // https://sharp.pixelplumbing.com/install#cross-platform
+    const sharpPrebuildTask = this.addTask("sharp:prebuild", {
+      condition: '[ -n "$CI" ]',
+      exec: "ts-node ./scripts/sharp-prebuild.ts",
+    });
+
+    this.packageTask.prependSpawn(sharpPrebuildTask);
+
     const copyFilesTask = this.addTask("copy-files", {
       exec: "cp src/internal/graphviz/dot-wasm/dot-wasm-invoker.mjs lib/internal/graphviz/dot-wasm/dot-wasm-invoker.mjs",
     });
