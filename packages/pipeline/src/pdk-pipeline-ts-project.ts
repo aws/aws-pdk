@@ -33,6 +33,10 @@ export class PDKPipelineTsProject extends AwsCdkTypeScriptApp {
 
     this.addDeps("aws-prototyping-sdk", "cdk-nag");
 
+    // AwsCdkTypeScriptApp removes ts compilation - add back to err on the side of caution should infrastructure
+    // include NodejsFunctions that won't be type-checked during CDK synthesis
+    this.compileTask.reset("tsc --build");
+
     new SampleDir(this, this.srcdir, {
       sourceDir: path.join(__dirname, "..", "samples", "typescript", "src"),
     });
