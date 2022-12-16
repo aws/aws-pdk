@@ -26,7 +26,7 @@ export class AwsArchProject extends PDKProject {
         "@types/xml-flow",
         "fs-extra",
         "lodash",
-        "node-fetch@2",
+        "node-fetch@^2.6.7",
         "projen",
         "sharp",
         "tree-cli",

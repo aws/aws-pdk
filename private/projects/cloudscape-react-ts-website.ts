@@ -62,6 +62,12 @@ class CloudscapeReactTsSampleWebsiteProject extends ReactTypeScriptProject {
       gitignore: ["runtime-config.json"],
     });
 
+    // For dependabot security alerts
+    this.package.addPackageResolutions(
+      "**/loader-utils@^3.2.0",
+      "react-scripts/minimatch@^3.0.5"
+    );
+
     this.npmignore?.include("src", "public");
     this.package.addField("private", true);
     this.testTask.reset(
