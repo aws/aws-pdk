@@ -156,6 +156,12 @@ export class PDKMonorepoProject extends NxMonorepoProject {
 
     resolveDependencies(this);
 
+    // For dependabot alerts
+    this.package.addPackageResolutions(
+      "**/react-dev-utils/**/loader-utils@^3.2.1",
+      "**/recursive-readdir/**/minimatch@^3.0.5"
+    );
+
     this.testTask.spawn(gitSecretsScanTask);
   }
 
