@@ -15255,7 +15255,7 @@ export type SayHelloChainedHandlerFunction = ChainedLambdaHandlerFunction<SayHel
 export const sayHelloHandler = (
     firstHandler: SayHelloChainedHandlerFunction,
     ...remainingHandlers: SayHelloChainedHandlerFunction[]
-): OperationApiGatewayLambdaHandler<'sayHello'> => async (event: any, context: any, additionalInterceptors: SayHelloChainedHandlerFunction[] = []): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'sayHello'> => async (event: any, context: any, _callback?: any, additionalInterceptors: SayHelloChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -15352,7 +15352,7 @@ export const handlerRouter = (props: HandlerRouterProps<
 >): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
   const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
   const handler = props.handlers[operationId];
-  return handler(event, context, props.interceptors);
+  return handler(event, context, undefined, props.interceptors);
 };
 ",
   "packages/my_api/generated/typescript/src/apis/index.ts": "/* tslint:disable */
