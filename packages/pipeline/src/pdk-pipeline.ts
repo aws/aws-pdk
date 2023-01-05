@@ -99,6 +99,16 @@ export class PDKPipeline extends CodePipeline {
       props.codeCommitRemovalPolicy ?? RemovalPolicy.RETAIN
     );
 
+    const accessLogsBucket = new Bucket(scope, "AccessLogsBucket", {
+      versioned: false,
+      enforceSSL: true,
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      encryption: BucketEncryption.S3_MANAGED,
+      publicReadAccess: false,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+    });
+
     const artifactBucket = new Bucket(scope, "ArtifactsBucket", {
       enforceSSL: true,
       autoDeleteObjects: true,
@@ -115,6 +125,7 @@ export class PDKPipeline extends CodePipeline {
       publicReadAccess: false,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       serverAccessLogsPrefix: "access-logs",
+      serverAccessLogsBucket: accessLogsBucket,
     });
 
     const codePipeline = new Pipeline(scope, "CodePipeline", {
@@ -564,5 +575,16 @@ export class PDKPipeline extends CodePipeline {
         },
       ]);
     });
+
+    ["AwsSolutions-S1", "AwsPrototyping-S3BucketLoggingEnabled"].forEach(
+      (RuleId) => {
+        NagSuppressions.addStackSuppressions(stack, [
+          {
+            id: RuleId,
+            reason: "Access Log buckets should not have s3 bucket logging",
+          },
+        ]);
+      }
+    );
   }
 }
