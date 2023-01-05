@@ -1924,24 +1924,24 @@
 
 
 <h1 id="how-do-i-setup-a-cognito-auth-middleware-for-a-generated-smithyopen-api-client">How do I setup a Cognito Auth Middleware for a generated Smithy/Open API client?</h1>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Middleware</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@myProject/my-openapi-project-generated-typescript&quot;</span><span class="p">;</span><span class="w"></span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Auth</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">AmplifyAuth</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-amplify&quot;</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Middleware</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@myProject/my-openapi-project-generated-typescript&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Auth</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">AmplifyAuth</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-amplify&quot;</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">cognitoAuthMiddleware</span><span class="o">:</span><span class="w"> </span><span class="kt">Middleware</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">pre</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">init</span><span class="p">,</span><span class="w"> </span><span class="nx">url</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="w"></span>
-<span class="w">    </span><span class="nx">url</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nx">init</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="p">...</span><span class="nx">init</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="p">...</span><span class="nx">init</span><span class="p">.</span><span class="nx">headers</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="s2">&quot;Content-Type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;application/json&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nx">Authorization</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">AmplifyAuth</span><span class="p">.</span><span class="nx">currentSession</span><span class="p">())</span><span class="w"></span>
-<span class="w">          </span><span class="p">.</span><span class="nx">getIdToken</span><span class="p">()</span><span class="w"></span>
-<span class="w">          </span><span class="p">.</span><span class="nx">getJwtToken</span><span class="p">(),</span><span class="w"></span>
-<span class="w">      </span><span class="p">},</span><span class="w"></span>
-<span class="w">    </span><span class="p">},</span><span class="w"></span>
-<span class="w">  </span><span class="p">}),</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">cognitoAuthMiddleware</span><span class="o">:</span><span class="w"> </span><span class="kt">Middleware</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">pre</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">init</span><span class="p">,</span><span class="w"> </span><span class="nx">url</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+<span class="w">    </span><span class="nx">url</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">init</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="p">...</span><span class="nx">init</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span><span class="nx">init</span><span class="p">.</span><span class="nx">headers</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;Content-Type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">Authorization</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">AmplifyAuth</span><span class="p">.</span><span class="nx">currentSession</span><span class="p">())</span>
+<span class="w">          </span><span class="p">.</span><span class="nx">getIdToken</span><span class="p">()</span>
+<span class="w">          </span><span class="p">.</span><span class="nx">getJwtToken</span><span class="p">(),</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">}),</span>
+<span class="p">};</span>
 </code></pre></div>
 
   <hr>
@@ -1949,7 +1949,7 @@
   <small>
     
       Last update:
-      2022-12-22
+      2023-01-05
     
   </small>
 </div>

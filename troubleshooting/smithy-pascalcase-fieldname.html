@@ -1987,31 +1987,31 @@
 <p>In general, generated code is making all field names of Smithy models <code>camelCase</code> and it takes care of marshalling/unmarshalling those models from/to JSON.
 When you’re using your generated handler code and/or trying to feed your data into your services, use the generated xxxFromJSON functions <em>ON THE TOP LEVEL</em>.</p>
 <h2 id="example">Example</h2>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">resp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">ddbClient</span><span class="p">.</span><span class="nx">query</span><span class="p">(...).</span><span class="nx">promise</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">resp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">ddbClient</span><span class="p">.</span><span class="nx">query</span><span class="p">(...).</span><span class="nx">promise</span><span class="p">();</span>
 
-<span class="p">...</span><span class="w"></span>
+<span class="p">...</span>
 
-<span class="c1">// wrong - will fail - if you have any PascalCase attribute names in any of the &quot;item&quot;s</span><span class="w"></span>
-<span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">statusCode</span><span class="o">:</span><span class="w"> </span><span class="kt">200</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="kt">corsHeaders</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="kt">ListMyEntityResponseContentFromJSON</span><span class="p">({</span><span class="w"></span>
-<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">resp.Items.map</span><span class="p">((</span><span class="nx">item</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">MyEntityFromJSON</span><span class="p">(</span><span class="nx">item</span><span class="p">)),</span><span class="w"></span>
-<span class="w">  </span><span class="p">}),</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="c1">// wrong - will fail - if you have any PascalCase attribute names in any of the &quot;item&quot;s</span>
+<span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">statusCode</span><span class="o">:</span><span class="w"> </span><span class="kt">200</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="kt">corsHeaders</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="kt">ListMyEntityResponseContentFromJSON</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">resp.Items.map</span><span class="p">((</span><span class="nx">item</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">MyEntityFromJSON</span><span class="p">(</span><span class="nx">item</span><span class="p">)),</span>
+<span class="w">  </span><span class="p">}),</span>
+<span class="p">};</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">resp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">ddbClient</span><span class="p">.</span><span class="nx">query</span><span class="p">(...).</span><span class="nx">promise</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">resp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">ddbClient</span><span class="p">.</span><span class="nx">query</span><span class="p">(...).</span><span class="nx">promise</span><span class="p">();</span>
 
-<span class="p">...</span><span class="w"></span>
+<span class="p">...</span>
 
-<span class="c1">// right - only use &quot;top level&quot; &lt;EntityName&gt;FromJSON method</span><span class="w"></span>
-<span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">statusCode</span><span class="o">:</span><span class="w"> </span><span class="kt">200</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="kt">corsHeaders</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="kt">ListMyEntityResponseContentFromJSON</span><span class="p">({</span><span class="w"></span>
-<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">resp.Items</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="p">}),</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="c1">// right - only use &quot;top level&quot; &lt;EntityName&gt;FromJSON method</span>
+<span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">statusCode</span><span class="o">:</span><span class="w"> </span><span class="kt">200</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="kt">corsHeaders</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="kt">ListMyEntityResponseContentFromJSON</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">resp.Items</span><span class="p">,</span>
+<span class="w">  </span><span class="p">}),</span>
+<span class="p">};</span>
 </code></pre></div>
 <h2 id="note">Note</h2>
 <p>In general, when it comes to generated code, the following rules apply:</p>
@@ -2029,7 +2029,7 @@ When you’re using your generated handler code and/or trying to feed your data 
   <small>
     
       Last update:
-      2022-12-22
+      2023-01-05
     
   </small>
 </div>

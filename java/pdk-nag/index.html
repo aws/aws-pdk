@@ -2037,44 +2037,44 @@
 
 <h2 id="pdk-nag">PDK Nag</h2>
 <p>PDKNag ships with a helper utility that automatically configures CDKNag within your application.</p>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">PDKNag</span><span class="p">.</span><span class="nx">app</span><span class="p">();</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Stack</span><span class="p">(</span><span class="nx">app</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MyStack&#39;</span><span class="p">);</span><span class="w"></span>
-<span class="p">...</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">PDKNag</span><span class="p">.</span><span class="nx">app</span><span class="p">();</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Stack</span><span class="p">(</span><span class="nx">app</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MyStack&#39;</span><span class="p">);</span>
+<span class="p">...</span>
 </code></pre></div>
 <p>As shown above, this will configure your application to have CDKNag run on synthesis.</p>
 <p>By default, CDK will trigger a failure on <code>synth</code> if any errors are encountered. To relax these, run the following:</p>
-<div class="highlight"><pre><span></span><code>cdk synth --ignore-errors
+<div class="highlight"><pre><span></span><code>cdk<span class="w"> </span>synth<span class="w"> </span>--ignore-errors
 </code></pre></div>
 <p>Conversely, CDK will not fail on synth if warnings are detected. To enforce that all warnings are resolved, run the following command:</p>
-<div class="highlight"><pre><span></span><code>cdk synth --strict
+<div class="highlight"><pre><span></span><code>cdk<span class="w"> </span>synth<span class="w"> </span>--strict
 </code></pre></div>
 <h3 id="instrumenting-custom-nagpacks">Instrumenting custom NagPacks</h3>
 <p>By default, when creating a PDKNag application the <a href="https://github.com/cdklabs/cdk-nag/blob/main/RULES.md">AwsSolutions</a> NagPack is instrumented. In order to specify custom NagPacks to instrument, you can configure the PDKApp as follows:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PDKNag</span><span class="p">,</span><span class="w"> </span><span class="nx">AwsPrototypingChecks</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/pdk-nag&quot;</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PDKNag</span><span class="p">,</span><span class="w"> </span><span class="nx">AwsPrototypingChecks</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/pdk-nag&quot;</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">PDKNag</span><span class="p">.</span><span class="nx">app</span><span class="p">({</span><span class="w"></span>
-<span class="w">    </span><span class="nx">nagPacks</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="ow">new</span><span class="w"> </span><span class="nx">AwsPrototypingChecks</span><span class="p">()]</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">PDKNag</span><span class="p">.</span><span class="nx">app</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">nagPacks</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="ow">new</span><span class="w"> </span><span class="nx">AwsPrototypingChecks</span><span class="p">()]</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>In this example, the <a href="https://github.com/aws/aws-prototyping-sdk/blob/mainline/packages/pdk-nag/src/packs/README.md">AwsPrototypingChecks</a> NagPack has been configured to run instead of the default. Multiple NagPacks can also be instrumented by adding NagPack instances to the <code>nagPacks</code> array;</p>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="constructs">Constructs <a name="Constructs" id="Constructs"></a></h2>
 <h3 id="pdknagapp">PDKNagApp <a name="PDKNagApp" id="aws-prototyping-sdk.pdk_nag.PDKNagApp"></a></h3>
 <h4 id="initializers">Initializers <a name="Initializers" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.Initializer"></a></h4>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagApp</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagApp</span><span class="p">;</span>
 
-<span class="n">PDKNagApp</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span><span class="w"></span>
-<span class="c1">//  .analyticsReporting(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .autoSynth(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .context(java.util.Map&lt;java.lang.String, java.lang.Object&gt;)</span><span class="w"></span>
-<span class="c1">//  .outdir(java.lang.String)</span><span class="w"></span>
-<span class="c1">//  .postCliContext(java.util.Map&lt;java.lang.String, java.lang.Object&gt;)</span><span class="w"></span>
-<span class="c1">//  .stackTraces(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .treeMetadata(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .failOnError(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .failOnWarning(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .nagPacks(java.util.List&lt;NagPack&gt;)</span><span class="w"></span>
-<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
+<span class="n">PDKNagApp</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span>
+<span class="c1">//  .analyticsReporting(java.lang.Boolean)</span>
+<span class="c1">//  .autoSynth(java.lang.Boolean)</span>
+<span class="c1">//  .context(java.util.Map&lt;java.lang.String, java.lang.Object&gt;)</span>
+<span class="c1">//  .outdir(java.lang.String)</span>
+<span class="c1">//  .postCliContext(java.util.Map&lt;java.lang.String, java.lang.Object&gt;)</span>
+<span class="c1">//  .stackTraces(java.lang.Boolean)</span>
+<span class="c1">//  .treeMetadata(java.lang.Boolean)</span>
+<span class="c1">//  .failOnError(java.lang.Boolean)</span>
+<span class="c1">//  .failOnWarning(java.lang.Boolean)</span>
+<span class="c1">//  .nagPacks(java.util.List&lt;NagPack&gt;)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <table>
 <thead>
@@ -2192,17 +2192,17 @@ can make final decision over which context value to take in your app.</p>
 <p>Context can be read from any construct using <code>node.getContext(key)</code>.</p>
 <hr />
 <p><em>Example</em></p>
-<div class="highlight"><pre><span></span><code><span class="c1">// context from the CLI and from `cdk.json` are stored in the</span><span class="w"></span>
-<span class="c1">// CDK_CONTEXT env variable</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="n">cliContext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JSON</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">process</span><span class="p">.</span><span class="na">env</span><span class="p">.</span><span class="na">CDK_CONTEXT</span><span class="o">!</span><span class="p">);</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="c1">// context from the CLI and from `cdk.json` are stored in the</span>
+<span class="c1">// CDK_CONTEXT env variable</span>
+<span class="kd">const</span><span class="w"> </span><span class="n">cliContext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JSON</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">process</span><span class="p">.</span><span class="na">env</span><span class="p">.</span><span class="na">CDK_CONTEXT</span><span class="o">!</span><span class="p">);</span>
 
-<span class="c1">// determine whether to take the context passed in the CLI or not</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="n">determineValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">process</span><span class="p">.</span><span class="na">env</span><span class="p">.</span><span class="na">PROD</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">cliContext</span><span class="p">.</span><span class="na">SOMEKEY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="err">&#39;</span><span class="n">my</span><span class="o">-</span><span class="n">prod</span><span class="o">-</span><span class="n">value</span><span class="err">&#39;</span><span class="p">;</span><span class="w"></span>
-<span class="k">new</span><span class="w"> </span><span class="n">App</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="n">postCliContext</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">SOMEKEY</span><span class="p">:</span><span class="w"> </span><span class="n">determineValue</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="c1">// determine whether to take the context passed in the CLI or not</span>
+<span class="kd">const</span><span class="w"> </span><span class="n">determineValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">process</span><span class="p">.</span><span class="na">env</span><span class="p">.</span><span class="na">PROD</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">cliContext</span><span class="p">.</span><span class="na">SOMEKEY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="err">&#39;</span><span class="n">my</span><span class="o">-</span><span class="n">prod</span><span class="o">-</span><span class="n">value</span><span class="err">&#39;</span><span class="p">;</span>
+<span class="k">new</span><span class="w"> </span><span class="n">App</span><span class="p">({</span>
+<span class="w">  </span><span class="n">postCliContext</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">SOMEKEY</span><span class="p">:</span><span class="w"> </span><span class="n">determineValue</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
 </code></pre></div>
 <h5 id="stacktracesoptional"><code>stackTraces</code><sup>Optional</sup> <a name="stackTraces" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.Initializer.parameter.stackTraces"></a></h5>
 <ul>
@@ -2268,12 +2268,12 @@ can make final decision over which context value to take in your app.</p>
 </table>
 <hr />
 <h5 id="tostring"><code>toString</code> <a name="toString" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.toString"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">toString</span><span class="p">()</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">toString</span><span class="p">()</span>
 </code></pre></div>
 <p>Returns a string representation of this construct.</p>
 <h5 id="synth"><code>synth</code> <a name="synth" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.synth"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">CloudAssembly</span><span class="w"> </span><span class="nf">synth</span><span class="p">()</span><span class="w"></span>
-<span class="kd">public</span><span class="w"> </span><span class="n">CloudAssembly</span><span class="w"> </span><span class="nf">synth</span><span class="p">(</span><span class="n">StageSynthesisOptions</span><span class="w"> </span><span class="n">options</span><span class="p">)</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">CloudAssembly</span><span class="w"> </span><span class="nf">synth</span><span class="p">()</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">CloudAssembly</span><span class="w"> </span><span class="nf">synth</span><span class="p">(</span><span class="n">StageSynthesisOptions</span><span class="w"> </span><span class="n">options</span><span class="p">)</span>
 </code></pre></div>
 <p>Synthesize this stage into a cloud assembly.</p>
 <p>Once an assembly has been synthesized, it cannot be modified. Subsequent
@@ -2284,7 +2284,7 @@ calls will return the same assembly.</p>
 </ul>
 <hr />
 <h5 id="addnagresult"><code>addNagResult</code> <a name="addNagResult" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.addNagResult"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">addNagResult</span><span class="p">(</span><span class="n">NagResult</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">addNagResult</span><span class="p">(</span><span class="n">NagResult</span><span class="w"> </span><span class="n">result</span><span class="p">)</span>
 </code></pre></div>
 <h6 id="resultrequired"><code>result</code><sup>Required</sup> <a name="result" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.addNagResult.parameter.result"></a></h6>
 <ul>
@@ -2292,7 +2292,7 @@ calls will return the same assembly.</p>
 </ul>
 <hr />
 <h5 id="nagresults"><code>nagResults</code> <a name="nagResults" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.nagResults"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">NagResult</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">nagResults</span><span class="p">()</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">NagResult</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">nagResults</span><span class="p">()</span>
 </code></pre></div>
 <p>Returns a list of NagResult.</p>
 <p>Note: app.synth() must be called before this to retrieve results.</p>
@@ -2325,9 +2325,9 @@ calls will return the same assembly.</p>
 </table>
 <hr />
 <h5 id="isconstruct"><code>isConstruct</code> <a name="isConstruct" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.isConstruct"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagApp</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagApp</span><span class="p">;</span>
 
-<span class="n">PDKNagApp</span><span class="p">.</span><span class="na">isConstruct</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"></span>
+<span class="n">PDKNagApp</span><span class="p">.</span><span class="na">isConstruct</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="w"> </span><span class="n">x</span><span class="p">)</span>
 </code></pre></div>
 <p>Checks if <code>x</code> is a construct.</p>
 <p>Use this method instead of <code>instanceof</code> to properly detect <code>Construct</code>
@@ -2349,9 +2349,9 @@ this type-testing method instead.</p>
 <p>Any object.</p>
 <hr />
 <h5 id="isstage"><code>isStage</code> <a name="isStage" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.isStage"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagApp</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagApp</span><span class="p">;</span>
 
-<span class="n">PDKNagApp</span><span class="p">.</span><span class="na">isStage</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"></span>
+<span class="n">PDKNagApp</span><span class="p">.</span><span class="na">isStage</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="w"> </span><span class="n">x</span><span class="p">)</span>
 </code></pre></div>
 <p>Test whether the given construct is a stage.</p>
 <h6 id="xrequired_1"><code>x</code><sup>Required</sup> <a name="x" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.isStage.parameter.x"></a></h6>
@@ -2360,9 +2360,9 @@ this type-testing method instead.</p>
 </ul>
 <hr />
 <h5 id="of"><code>of</code> <a name="of" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.of"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagApp</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagApp</span><span class="p">;</span>
 
-<span class="n">PDKNagApp</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">IConstruct</span><span class="w"> </span><span class="n">construct</span><span class="p">)</span><span class="w"></span>
+<span class="n">PDKNagApp</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">IConstruct</span><span class="w"> </span><span class="n">construct</span><span class="p">)</span>
 </code></pre></div>
 <p>Return the stage this construct is contained with, if available.</p>
 <p>If called
@@ -2373,9 +2373,9 @@ on a nested stage, returns its parent.</p>
 </ul>
 <hr />
 <h5 id="isapp"><code>isApp</code> <a name="isApp" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.isApp"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagApp</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagApp</span><span class="p">;</span>
 
-<span class="n">PDKNagApp</span><span class="p">.</span><span class="na">isApp</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="w"> </span><span class="n">obj</span><span class="p">)</span><span class="w"></span>
+<span class="n">PDKNagApp</span><span class="p">.</span><span class="na">isApp</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="w"> </span><span class="n">obj</span><span class="p">)</span>
 </code></pre></div>
 <p>Checks if an object is an instance of the <code>App</code> class.</p>
 <h6 id="objrequired"><code>obj</code><sup>Required</sup> <a name="obj" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.isApp.parameter.obj"></a></h6>
@@ -2443,7 +2443,7 @@ on a nested stage, returns its parent.</p>
 </table>
 <hr />
 <h5 id="noderequired"><code>node</code><sup>Required</sup> <a name="node" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.property.node"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Node</span><span class="w"> </span><span class="nf">getNode</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Node</span><span class="w"> </span><span class="nf">getNode</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> software.constructs.Node</li>
@@ -2451,7 +2451,7 @@ on a nested stage, returns its parent.</p>
 <p>The tree node.</p>
 <hr />
 <h5 id="artifactidrequired"><code>artifactId</code><sup>Required</sup> <a name="artifactId" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.property.artifactId"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getArtifactId</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getArtifactId</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
@@ -2460,7 +2460,7 @@ on a nested stage, returns its parent.</p>
 <p>Derived from the construct path.</p>
 <hr />
 <h5 id="assetoutdirrequired"><code>assetOutdir</code><sup>Required</sup> <a name="assetOutdir" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.property.assetOutdir"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAssetOutdir</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAssetOutdir</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
@@ -2468,7 +2468,7 @@ on a nested stage, returns its parent.</p>
 <p>The cloud assembly asset output directory.</p>
 <hr />
 <h5 id="outdirrequired"><code>outdir</code><sup>Required</sup> <a name="outdir" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.property.outdir"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getOutdir</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getOutdir</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
@@ -2476,7 +2476,7 @@ on a nested stage, returns its parent.</p>
 <p>The cloud assembly output directory.</p>
 <hr />
 <h5 id="stagenamerequired"><code>stageName</code><sup>Required</sup> <a name="stageName" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.property.stageName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getStageName</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getStageName</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
@@ -2486,7 +2486,7 @@ on a nested stage, returns its parent.</p>
 hypens.</p>
 <hr />
 <h5 id="accountoptional"><code>account</code><sup>Optional</sup> <a name="account" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.property.account"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAccount</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getAccount</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
@@ -2494,7 +2494,7 @@ hypens.</p>
 <p>The default account for all resources defined within this stage.</p>
 <hr />
 <h5 id="parentstageoptional"><code>parentStage</code><sup>Optional</sup> <a name="parentStage" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.property.parentStage"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Stage</span><span class="w"> </span><span class="nf">getParentStage</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Stage</span><span class="w"> </span><span class="nf">getParentStage</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> software.amazon.awscdk.Stage</li>
@@ -2503,7 +2503,7 @@ hypens.</p>
 <p>*</p>
 <hr />
 <h5 id="regionoptional"><code>region</code><sup>Optional</sup> <a name="region" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.property.region"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getRegion</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getRegion</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
@@ -2511,7 +2511,7 @@ hypens.</p>
 <p>The default region for all resources defined within this stage.</p>
 <hr />
 <h5 id="nagpacksrequired"><code>nagPacks</code><sup>Required</sup> <a name="nagPacks" id="aws-prototyping-sdk.pdk_nag.PDKNagApp.property.nagPacks"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">NagPack</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getNagPacks</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">NagPack</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getNagPacks</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.util.List<io.github.cdklabs.cdknag.NagPack></li>
@@ -2521,12 +2521,12 @@ hypens.</p>
 <h3 id="message">Message <a name="Message" id="aws-prototyping-sdk.pdk_nag.Message"></a></h3>
 <p>Message instance.</p>
 <h4 id="initializer">Initializer <a name="Initializer" id="aws-prototyping-sdk.pdk_nag.Message.Initializer"></a></h4>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.Message</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.Message</span><span class="p">;</span>
 
-<span class="n">Message</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
-<span class="w">    </span><span class="p">.</span><span class="na">messageDescription</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="p">.</span><span class="na">messageType</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
+<span class="n">Message</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="na">messageDescription</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">messageType</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <h4 id="properties_1">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
@@ -2552,7 +2552,7 @@ hypens.</p>
 </table>
 <hr />
 <h5 id="messagedescriptionrequired"><code>messageDescription</code><sup>Required</sup> <a name="messageDescription" id="aws-prototyping-sdk.pdk_nag.Message.property.messageDescription"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getMessageDescription</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getMessageDescription</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
@@ -2560,7 +2560,7 @@ hypens.</p>
 <p>Message description.</p>
 <hr />
 <h5 id="messagetyperequired"><code>messageType</code><sup>Required</sup> <a name="messageType" id="aws-prototyping-sdk.pdk_nag.Message.property.messageType"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getMessageType</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getMessageType</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
@@ -2570,12 +2570,12 @@ hypens.</p>
 <h3 id="nagresult">NagResult <a name="NagResult" id="aws-prototyping-sdk.pdk_nag.NagResult"></a></h3>
 <p>Nag result.</p>
 <h4 id="initializer_1">Initializer <a name="Initializer" id="aws-prototyping-sdk.pdk_nag.NagResult.Initializer"></a></h4>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.NagResult</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.NagResult</span><span class="p">;</span>
 
-<span class="n">NagResult</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
-<span class="w">    </span><span class="p">.</span><span class="na">messages</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="p">.</span><span class="na">resource</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
+<span class="n">NagResult</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="na">messages</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">resource</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
@@ -2601,7 +2601,7 @@ hypens.</p>
 </table>
 <hr />
 <h5 id="messagesrequired"><code>messages</code><sup>Required</sup> <a name="messages" id="aws-prototyping-sdk.pdk_nag.NagResult.property.messages"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getMessages</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getMessages</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.util.List&lt;<a href="#aws-prototyping-sdk.pdk_nag.Message">Message</a>&gt;</li>
@@ -2609,7 +2609,7 @@ hypens.</p>
 <p>List of messages.</p>
 <hr />
 <h5 id="resourcerequired"><code>resource</code><sup>Required</sup> <a name="resource" id="aws-prototyping-sdk.pdk_nag.NagResult.property.resource"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getResource</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getResource</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
@@ -2618,20 +2618,20 @@ hypens.</p>
 <hr />
 <h3 id="pdknagappprops">PDKNagAppProps <a name="PDKNagAppProps" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps"></a></h3>
 <h4 id="initializer_2">Initializer <a name="Initializer" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.Initializer"></a></h4>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagAppProps</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNagAppProps</span><span class="p">;</span>
 
-<span class="n">PDKNagAppProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w"></span>
-<span class="c1">//  .analyticsReporting(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .autoSynth(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .context(java.util.Map&lt;java.lang.String, java.lang.Object&gt;)</span><span class="w"></span>
-<span class="c1">//  .outdir(java.lang.String)</span><span class="w"></span>
-<span class="c1">//  .postCliContext(java.util.Map&lt;java.lang.String, java.lang.Object&gt;)</span><span class="w"></span>
-<span class="c1">//  .stackTraces(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .treeMetadata(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .failOnError(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .failOnWarning(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .nagPacks(java.util.List&lt;NagPack&gt;)</span><span class="w"></span>
-<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
+<span class="n">PDKNagAppProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="c1">//  .analyticsReporting(java.lang.Boolean)</span>
+<span class="c1">//  .autoSynth(java.lang.Boolean)</span>
+<span class="c1">//  .context(java.util.Map&lt;java.lang.String, java.lang.Object&gt;)</span>
+<span class="c1">//  .outdir(java.lang.String)</span>
+<span class="c1">//  .postCliContext(java.util.Map&lt;java.lang.String, java.lang.Object&gt;)</span>
+<span class="c1">//  .stackTraces(java.lang.Boolean)</span>
+<span class="c1">//  .treeMetadata(java.lang.Boolean)</span>
+<span class="c1">//  .failOnError(java.lang.Boolean)</span>
+<span class="c1">//  .failOnWarning(java.lang.Boolean)</span>
+<span class="c1">//  .nagPacks(java.util.List&lt;NagPack&gt;)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
@@ -2697,7 +2697,7 @@ hypens.</p>
 </table>
 <hr />
 <h5 id="analyticsreportingoptional_1"><code>analyticsReporting</code><sup>Optional</sup> <a name="analyticsReporting" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.analyticsReporting"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getAnalyticsReporting</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getAnalyticsReporting</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
@@ -2706,7 +2706,7 @@ hypens.</p>
 <p>Include runtime versioning information in the Stacks of this app.</p>
 <hr />
 <h5 id="autosynthoptional_1"><code>autoSynth</code><sup>Optional</sup> <a name="autoSynth" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.autoSynth"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getAutoSynth</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getAutoSynth</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
@@ -2718,7 +2718,7 @@ this feature is only available for certain programming languages, and
 calling <code>synth()</code> is still recommended.</p>
 <hr />
 <h5 id="contextoptional_1"><code>context</code><sup>Optional</sup> <a name="context" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.context"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getContext</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getContext</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.util.Map<java.lang.String, java.lang.Object></li>
@@ -2729,7 +2729,7 @@ calling <code>synth()</code> is still recommended.</p>
 <p>Context can be read from any construct using <code>node.getContext(key)</code>.</p>
 <hr />
 <h5 id="outdiroptional_1"><code>outdir</code><sup>Optional</sup> <a name="outdir" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.outdir"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getOutdir</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getOutdir</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
@@ -2742,7 +2742,7 @@ directory the CLI will fail to pick up the generated Cloud Assembly.</p>
 <p>This property is intended for internal and testing use.</p>
 <hr />
 <h5 id="postclicontextoptional_1"><code>postCliContext</code><sup>Optional</sup> <a name="postCliContext" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.postCliContext"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getPostCliContext</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getPostCliContext</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.util.Map<java.lang.String, java.lang.Object></li>
@@ -2760,20 +2760,20 @@ can make final decision over which context value to take in your app.</p>
 <p>Context can be read from any construct using <code>node.getContext(key)</code>.</p>
 <hr />
 <p><em>Example</em></p>
-<div class="highlight"><pre><span></span><code><span class="c1">// context from the CLI and from `cdk.json` are stored in the</span><span class="w"></span>
-<span class="c1">// CDK_CONTEXT env variable</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="n">cliContext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JSON</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">process</span><span class="p">.</span><span class="na">env</span><span class="p">.</span><span class="na">CDK_CONTEXT</span><span class="o">!</span><span class="p">);</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="c1">// context from the CLI and from `cdk.json` are stored in the</span>
+<span class="c1">// CDK_CONTEXT env variable</span>
+<span class="kd">const</span><span class="w"> </span><span class="n">cliContext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JSON</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">process</span><span class="p">.</span><span class="na">env</span><span class="p">.</span><span class="na">CDK_CONTEXT</span><span class="o">!</span><span class="p">);</span>
 
-<span class="c1">// determine whether to take the context passed in the CLI or not</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="n">determineValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">process</span><span class="p">.</span><span class="na">env</span><span class="p">.</span><span class="na">PROD</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">cliContext</span><span class="p">.</span><span class="na">SOMEKEY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="err">&#39;</span><span class="n">my</span><span class="o">-</span><span class="n">prod</span><span class="o">-</span><span class="n">value</span><span class="err">&#39;</span><span class="p">;</span><span class="w"></span>
-<span class="k">new</span><span class="w"> </span><span class="n">App</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="n">postCliContext</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">SOMEKEY</span><span class="p">:</span><span class="w"> </span><span class="n">determineValue</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="c1">// determine whether to take the context passed in the CLI or not</span>
+<span class="kd">const</span><span class="w"> </span><span class="n">determineValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">process</span><span class="p">.</span><span class="na">env</span><span class="p">.</span><span class="na">PROD</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">cliContext</span><span class="p">.</span><span class="na">SOMEKEY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="err">&#39;</span><span class="n">my</span><span class="o">-</span><span class="n">prod</span><span class="o">-</span><span class="n">value</span><span class="err">&#39;</span><span class="p">;</span>
+<span class="k">new</span><span class="w"> </span><span class="n">App</span><span class="p">({</span>
+<span class="w">  </span><span class="n">postCliContext</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">SOMEKEY</span><span class="p">:</span><span class="w"> </span><span class="n">determineValue</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
 </code></pre></div>
 <h5 id="stacktracesoptional_1"><code>stackTraces</code><sup>Optional</sup> <a name="stackTraces" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.stackTraces"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getStackTraces</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getStackTraces</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
@@ -2782,7 +2782,7 @@ can make final decision over which context value to take in your app.</p>
 <p>Include construct creation stack trace in the <code>aws:cdk:trace</code> metadata key of all constructs.</p>
 <hr />
 <h5 id="treemetadataoptional_1"><code>treeMetadata</code><sup>Optional</sup> <a name="treeMetadata" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.treeMetadata"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getTreeMetadata</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getTreeMetadata</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
@@ -2791,7 +2791,7 @@ can make final decision over which context value to take in your app.</p>
 <p>Include construct tree metadata as part of the Cloud Assembly.</p>
 <hr />
 <h5 id="failonerroroptional_1"><code>failOnError</code><sup>Optional</sup> <a name="failOnError" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.failOnError"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getFailOnError</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getFailOnError</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
@@ -2800,7 +2800,7 @@ can make final decision over which context value to take in your app.</p>
 <p>Determines whether any errors encountered should trigger a test failure.</p>
 <hr />
 <h5 id="failonwarningoptional_1"><code>failOnWarning</code><sup>Optional</sup> <a name="failOnWarning" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.failOnWarning"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getFailOnWarning</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getFailOnWarning</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
@@ -2809,7 +2809,7 @@ can make final decision over which context value to take in your app.</p>
 <p>Determines whether any warnings encountered should trigger a test failure.</p>
 <hr />
 <h5 id="nagpacksoptional_1"><code>nagPacks</code><sup>Optional</sup> <a name="nagPacks" id="aws-prototyping-sdk.pdk_nag.PDKNagAppProps.property.nagPacks"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">NagPack</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getNagPacks</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">NagPack</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getNagPacks</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.util.List<io.github.cdklabs.cdknag.NagPack></li>
@@ -2821,13 +2821,13 @@ can make final decision over which context value to take in your app.</p>
 <h3 id="awsprototypingchecks">AwsPrototypingChecks <a name="AwsPrototypingChecks" id="aws-prototyping-sdk.pdk_nag.AwsPrototypingChecks"></a></h3>
 <p>Check best practices for prototypes.</p>
 <h4 id="initializers_1">Initializers <a name="Initializers" id="aws-prototyping-sdk.pdk_nag.AwsPrototypingChecks.Initializer"></a></h4>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.AwsPrototypingChecks</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.AwsPrototypingChecks</span><span class="p">;</span>
 
-<span class="n">AwsPrototypingChecks</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span><span class="w"></span>
-<span class="c1">//  .logIgnores(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .reports(java.lang.Boolean)</span><span class="w"></span>
-<span class="c1">//  .verbose(java.lang.Boolean)</span><span class="w"></span>
-<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w"></span>
+<span class="n">AwsPrototypingChecks</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span>
+<span class="c1">//  .logIgnores(java.lang.Boolean)</span>
+<span class="c1">//  .reports(java.lang.Boolean)</span>
+<span class="c1">//  .verbose(java.lang.Boolean)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <table>
 <thead>
@@ -2891,7 +2891,7 @@ can make final decision over which context value to take in your app.</p>
 </table>
 <hr />
 <h5 id="visit"><code>visit</code> <a name="visit" id="aws-prototyping-sdk.pdk_nag.AwsPrototypingChecks.visit"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">visit</span><span class="p">(</span><span class="n">IConstruct</span><span class="w"> </span><span class="n">node</span><span class="p">)</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">visit</span><span class="p">(</span><span class="n">IConstruct</span><span class="w"> </span><span class="n">node</span><span class="p">)</span>
 </code></pre></div>
 <p>Check if CfnResource and apply rules.</p>
 <h6 id="noderequired_1"><code>node</code><sup>Required</sup> <a name="node" id="aws-prototyping-sdk.pdk_nag.AwsPrototypingChecks.visit.parameter.node"></a></h6>
@@ -2923,14 +2923,14 @@ can make final decision over which context value to take in your app.</p>
 </table>
 <hr />
 <h5 id="readpacknamerequired"><code>readPackName</code><sup>Required</sup> <a name="readPackName" id="aws-prototyping-sdk.pdk_nag.AwsPrototypingChecks.property.readPackName"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getReadPackName</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getReadPackName</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
 </ul>
 <hr />
 <h5 id="readreportstacksrequired"><code>readReportStacks</code><sup>Required</sup> <a name="readReportStacks" id="aws-prototyping-sdk.pdk_nag.AwsPrototypingChecks.property.readReportStacks"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getReadReportStacks</span><span class="p">();</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getReadReportStacks</span><span class="p">();</span>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.util.List<java.lang.String></li>
@@ -2939,9 +2939,9 @@ can make final decision over which context value to take in your app.</p>
 <h3 id="pdknag">PDKNag <a name="PDKNag" id="aws-prototyping-sdk.pdk_nag.PDKNag"></a></h3>
 <p>Helper for create a Nag Enabled App.</p>
 <h4 id="initializers_2">Initializers <a name="Initializers" id="aws-prototyping-sdk.pdk_nag.PDKNag.Initializer"></a></h4>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span>
 
-<span class="k">new</span><span class="w"> </span><span class="n">PDKNag</span><span class="p">();</span><span class="w"></span>
+<span class="k">new</span><span class="w"> </span><span class="n">PDKNag</span><span class="p">();</span>
 </code></pre></div>
 <table>
 <thead>
@@ -2997,9 +2997,9 @@ can make final decision over which context value to take in your app.</p>
 </table>
 <hr />
 <h5 id="addresourcesuppressionsbypathnothrow"><code>addResourceSuppressionsByPathNoThrow</code> <a name="addResourceSuppressionsByPathNoThrow" id="aws-prototyping-sdk.pdk_nag.PDKNag.addResourceSuppressionsByPathNoThrow"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span>
 
-<span class="n">PDKNag</span><span class="p">.</span><span class="na">addResourceSuppressionsByPathNoThrow</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">NagPackSuppression</span><span class="o">&gt;</span><span class="w"> </span><span class="n">suppressions</span><span class="p">),</span><span class="n">PDKNag</span><span class="p">.</span><span class="na">addResourceSuppressionsByPathNoThrow</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">NagPackSuppression</span><span class="o">&gt;</span><span class="w"> </span><span class="n">suppressions</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="n">applyToChildren</span><span class="p">)</span><span class="w"></span>
+<span class="n">PDKNag</span><span class="p">.</span><span class="na">addResourceSuppressionsByPathNoThrow</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">NagPackSuppression</span><span class="o">&gt;</span><span class="w"> </span><span class="n">suppressions</span><span class="p">),</span><span class="n">PDKNag</span><span class="p">.</span><span class="na">addResourceSuppressionsByPathNoThrow</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">NagPackSuppression</span><span class="o">&gt;</span><span class="w"> </span><span class="n">suppressions</span><span class="p">,</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="n">applyToChildren</span><span class="p">)</span>
 </code></pre></div>
 <p>Wrapper around NagSuppressions which does not throw.</p>
 <h6 id="stackrequired"><code>stack</code><sup>Required</sup> <a name="stack" id="aws-prototyping-sdk.pdk_nag.PDKNag.addResourceSuppressionsByPathNoThrow.parameter.stack"></a></h6>
@@ -3027,9 +3027,9 @@ can make final decision over which context value to take in your app.</p>
 <p>whether to apply to children.</p>
 <hr />
 <h5 id="app"><code>app</code> <a name="app" id="aws-prototyping-sdk.pdk_nag.PDKNag.app"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span>
 
-<span class="n">PDKNag</span><span class="p">.</span><span class="na">app</span><span class="p">(),</span><span class="n">PDKNag</span><span class="p">.</span><span class="na">app</span><span class="p">(</span><span class="n">PDKNagAppProps</span><span class="w"> </span><span class="n">props</span><span class="p">)</span><span class="w"></span>
+<span class="n">PDKNag</span><span class="p">.</span><span class="na">app</span><span class="p">(),</span><span class="n">PDKNag</span><span class="p">.</span><span class="na">app</span><span class="p">(</span><span class="n">PDKNagAppProps</span><span class="w"> </span><span class="n">props</span><span class="p">)</span>
 </code></pre></div>
 <p>Returns an instance of an App with Nag enabled.</p>
 <h6 id="propsoptional"><code>props</code><sup>Optional</sup> <a name="props" id="aws-prototyping-sdk.pdk_nag.PDKNag.app.parameter.props"></a></h6>
@@ -3039,9 +3039,9 @@ can make final decision over which context value to take in your app.</p>
 <p>props to initialize the app with.</p>
 <hr />
 <h5 id="getstackaccountregex"><code>getStackAccountRegex</code> <a name="getStackAccountRegex" id="aws-prototyping-sdk.pdk_nag.PDKNag.getStackAccountRegex"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span>
 
-<span class="n">PDKNag</span><span class="p">.</span><span class="na">getStackAccountRegex</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">)</span><span class="w"></span>
+<span class="n">PDKNag</span><span class="p">.</span><span class="na">getStackAccountRegex</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">)</span>
 </code></pre></div>
 <p>Returns a stack account regex.</p>
 <h6 id="stackrequired_1"><code>stack</code><sup>Required</sup> <a name="stack" id="aws-prototyping-sdk.pdk_nag.PDKNag.getStackAccountRegex.parameter.stack"></a></h6>
@@ -3051,9 +3051,9 @@ can make final decision over which context value to take in your app.</p>
 <p>stack instance.</p>
 <hr />
 <h5 id="getstackpartitionregex"><code>getStackPartitionRegex</code> <a name="getStackPartitionRegex" id="aws-prototyping-sdk.pdk_nag.PDKNag.getStackPartitionRegex"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span>
 
-<span class="n">PDKNag</span><span class="p">.</span><span class="na">getStackPartitionRegex</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">)</span><span class="w"></span>
+<span class="n">PDKNag</span><span class="p">.</span><span class="na">getStackPartitionRegex</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">)</span>
 </code></pre></div>
 <p>Returns a stack partition regex.</p>
 <h6 id="stackrequired_2"><code>stack</code><sup>Required</sup> <a name="stack" id="aws-prototyping-sdk.pdk_nag.PDKNag.getStackPartitionRegex.parameter.stack"></a></h6>
@@ -3063,9 +3063,9 @@ can make final decision over which context value to take in your app.</p>
 <p>stack instance.</p>
 <hr />
 <h5 id="getstackprefix"><code>getStackPrefix</code> <a name="getStackPrefix" id="aws-prototyping-sdk.pdk_nag.PDKNag.getStackPrefix"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span>
 
-<span class="n">PDKNag</span><span class="p">.</span><span class="na">getStackPrefix</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">)</span><span class="w"></span>
+<span class="n">PDKNag</span><span class="p">.</span><span class="na">getStackPrefix</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">)</span>
 </code></pre></div>
 <p>Returns a prefix comprising of a delimited set of Stack Ids.</p>
 <p>For example: StackA/NestedStackB/</p>
@@ -3076,9 +3076,9 @@ can make final decision over which context value to take in your app.</p>
 <p>stack instance.</p>
 <hr />
 <h5 id="getstackregionregex"><code>getStackRegionRegex</code> <a name="getStackRegionRegex" id="aws-prototyping-sdk.pdk_nag.PDKNag.getStackRegionRegex"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pdknag.PDKNag</span><span class="p">;</span>
 
-<span class="n">PDKNag</span><span class="p">.</span><span class="na">getStackRegionRegex</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">)</span><span class="w"></span>
+<span class="n">PDKNag</span><span class="p">.</span><span class="na">getStackRegionRegex</span><span class="p">(</span><span class="n">Stack</span><span class="w"> </span><span class="n">stack</span><span class="p">)</span>
 </code></pre></div>
 <p>Returns a stack region regex.</p>
 <h6 id="stackrequired_4"><code>stack</code><sup>Required</sup> <a name="stack" id="aws-prototyping-sdk.pdk_nag.PDKNag.getStackRegionRegex.parameter.stack"></a></h6>
@@ -3093,7 +3093,7 @@ can make final decision over which context value to take in your app.</p>
   <small>
     
       Last update:
-      2022-12-22
+      2023-01-05
     
   </small>
 </div>

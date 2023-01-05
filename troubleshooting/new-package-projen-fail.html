@@ -2016,50 +2016,50 @@
 Dependencies accessible from npm repo are ok.
 Otherwise, you get an error message that some dependencies are not available.</p>
 <h2 id="1-create-the-package">1 - Create the package</h2>
-<div class="highlight"><pre><span></span><code><span class="c1">// STEP 1 -- create the package</span><span class="w"></span>
-<span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">this.monorepoProject</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/my-package&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="kt">this.defaultReleaseBranch</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-package&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">    </span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// &lt;-- this is ok</span><span class="w"></span>
-<span class="w">    </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nx">myOtherPackage</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="w"> </span><span class="c1">// &lt;-- DON&#39;T ADD dependency to other package</span><span class="w"></span>
-<span class="w">    </span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="c1">// STEP 1 -- create the package</span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">this.monorepoProject</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/my-package&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="kt">this.defaultReleaseBranch</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-package&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// &lt;-- this is ok</span>
+<span class="w">    </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">myOtherPackage</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="w"> </span><span class="c1">// &lt;-- DON&#39;T ADD dependency to other package</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="p">});</span>
 </code></pre></div>
 <h2 id="2-run-npx-projen">2 - run <code>npx projen</code></h2>
 <div class="highlight"><pre><span></span><code><span class="c1"># Step 2 -- run `npx projen`</span>
-npx projen
+npx<span class="w"> </span>projen
 </code></pre></div>
 <h2 id="3-assign-to-variable">3 - Assign to variable</h2>
-<div class="highlight"><pre><span></span><code><span class="c1">// STEP 3 - Assign to variable</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">myPackage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"> </span><span class="c1">// &lt;--- you can assign to a variable now</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">this.monorepoProject</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/my-package&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="kt">this.defaultReleaseBranch</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-package&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">    </span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nx">myOtherPackage</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="w"> </span><span class="c1">// &lt;-- you can add a dependency now</span><span class="w"></span>
-<span class="w">    </span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="c1">// STEP 3 - Assign to variable</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">myPackage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"> </span><span class="c1">// &lt;--- you can assign to a variable now</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">this.monorepoProject</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/my-package&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="kt">this.defaultReleaseBranch</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-package&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">myOtherPackage</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="w"> </span><span class="c1">// &lt;-- you can add a dependency now</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="p">});</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">myOtherPackage2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="p">...,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">    </span><span class="p">...,</span><span class="w"></span>
-<span class="w">    </span><span class="nx">myPackage</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="w"> </span><span class="c1">// &lt;-- you can add dependency to your new package in another package</span><span class="w"></span>
-<span class="w">  </span><span class="p">]</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">myOtherPackage2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span>
+<span class="w">  </span><span class="p">...,</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">...,</span>
+<span class="w">    </span><span class="nx">myPackage</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="w"> </span><span class="c1">// &lt;-- you can add dependency to your new package in another package</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">});</span>
 </code></pre></div>
 <h2 id="4-run-npx-projen-again">4 - run <code>npx projen</code> again</h2>
 <div class="highlight"><pre><span></span><code><span class="c1"># STEP 4 -- run &quot;npx projen&quot; again</span>
-npx projen
+npx<span class="w"> </span>projen
 </code></pre></div>
 
   <hr>
@@ -2067,7 +2067,7 @@ npx projen
   <small>
     
       Last update:
-      2022-12-22
+      2023-01-05
     
   </small>
 </div>

@@ -2065,23 +2065,23 @@
 </code></pre></div>
 <p>This module additionally vends multiple Projen Projects, one for each of the supported languages. These projects aim to bootstrap your project by providing sample code which uses the PDKPipeline construct.</p>
 <p>For example, in .projenrc.ts:</p>
-<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">PDKPipelineTsProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">    </span><span class="nx">cdkVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span><span class="w"></span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-pipeline&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">PDKPipelineTsProject</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">cdkVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-pipeline&quot;</span><span class="p">,</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>This will generate a package in typescript containing CDK boilerplate for a pipeline stack (which instantiates PDKPipeline), sets up a Dev stage with an Application Stage containing an empty ApplicationStack (to be implemented). Once this package is synthesized, you can run <code>npx projen</code> and projen will synthesize your cloudformation.</p>
 <p>Alternatively, you can initialize a project using the cli (in an empty directory) for each of the supported languages as follows:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Typescript</span>
-npx projen new --from aws-prototyping-sdk pdk-pipeline-ts
+npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>aws-prototyping-sdk<span class="w"> </span>pdk-pipeline-ts
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># Python</span>
-npx projen new --from aws-prototyping-sdk pdk-pipeline-py
+npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>aws-prototyping-sdk<span class="w"> </span>pdk-pipeline-py
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># Java</span>
-npx projen new --from aws-prototyping-sdk pdk-pipeline-java
+npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>aws-prototyping-sdk<span class="w"> </span>pdk-pipeline-java
 </code></pre></div>
 <h3 id="cdk-nag">CDK Nag</h3>
 <p>In order to keep CDK Nag happy, make sure you build the pipeline before synth as per <a class="magiclink magiclink-github magiclink-issue" href="https://github.com/aws/aws-cdk/issues/18440" title="GitHub Issue: aws/aws-cdk #18440">aws-cdk#18440</a>.</p>
@@ -2567,11 +2567,11 @@ in an order automatically determined by their relative dependencies.</p>
 <p>Add a Wave to the pipeline, for deploying multiple Stages in parallel.</p>
 <p>Use the return object of this method to deploy multiple stages in parallel.</p>
 <p>Example:</p>
-<div class="highlight"><pre><span></span><code><span class="kr">declare</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">pipeline</span><span class="o">:</span><span class="w"> </span><span class="kt">pipelines.CodePipeline</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kr">declare</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">pipeline</span><span class="o">:</span><span class="w"> </span><span class="kt">pipelines.CodePipeline</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">wave</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pipeline</span><span class="p">.</span><span class="nx">addWave</span><span class="p">(</span><span class="s1">&#39;MyWave&#39;</span><span class="p">);</span><span class="w"></span>
-<span class="nx">wave</span><span class="p">.</span><span class="nx">addStage</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApplicationStage</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Stage1&#39;</span><span class="p">));</span><span class="w"></span>
-<span class="nx">wave</span><span class="p">.</span><span class="nx">addStage</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApplicationStage</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Stage2&#39;</span><span class="p">));</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">wave</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pipeline</span><span class="p">.</span><span class="nx">addWave</span><span class="p">(</span><span class="s1">&#39;MyWave&#39;</span><span class="p">);</span>
+<span class="nx">wave</span><span class="p">.</span><span class="nx">addStage</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApplicationStage</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Stage1&#39;</span><span class="p">));</span>
+<span class="nx">wave</span><span class="p">.</span><span class="nx">addStage</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApplicationStage</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Stage2&#39;</span><span class="p">));</span>
 </code></pre></div>
 <h6 id="idrequired_1"><code>id</code><sup>Required</sup> <a name="id" id="aws-prototyping-sdk.pipeline.PDKPipeline.addWave.parameter.id"></a></h6>
 <ul>
@@ -15892,7 +15892,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2022-12-22
+      2023-01-05
     
   </small>
 </div>

@@ -1993,36 +1993,36 @@
 <ol>
 <li>
 <p>Create SSM Parameters in the stack where you create e.g.: a <code>userPool</code></p>
-<div class="highlight"><pre><span></span><code><span class="c1">// in UserIdentityStack</span><span class="w"></span>
-<span class="k">this</span><span class="p">.</span><span class="nx">userIdentity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UserIdentity</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;UserIdentity&quot;</span><span class="p">);</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="c1">// in UserIdentityStack</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">userIdentity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UserIdentity</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;UserIdentity&quot;</span><span class="p">);</span>
 
-<span class="ow">new</span><span class="w"> </span><span class="nx">StringParameter</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;userPoolIdSsmParam&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parameterName</span><span class="o">:</span><span class="w"> </span><span class="kt">ssmParamNames.userPoolId</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">stringValue</span><span class="o">:</span><span class="w"> </span><span class="kt">this.userIdentity.userPool.userPoolId</span><span class="p">,</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">StringParameter</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;userPoolIdSsmParam&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">parameterName</span><span class="o">:</span><span class="w"> </span><span class="kt">ssmParamNames.userPoolId</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">stringValue</span><span class="o">:</span><span class="w"> </span><span class="kt">this.userIdentity.userPool.userPoolId</span><span class="p">,</span>
+<span class="p">});</span>
 </code></pre></div>
 </li>
 <li>
 <p>Setup explicit dependencies between stacks/constructs</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// in ApplicationStack</span><span class="w"></span>
-<span class="nx">websiteStack</span><span class="p">.</span><span class="nx">node</span><span class="p">.</span><span class="nx">addDependency</span><span class="p">(</span><span class="nx">userIdentityStack</span><span class="p">);</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="c1">// in ApplicationStack</span>
+<span class="nx">websiteStack</span><span class="p">.</span><span class="nx">node</span><span class="p">.</span><span class="nx">addDependency</span><span class="p">(</span><span class="nx">userIdentityStack</span><span class="p">);</span>
 </code></pre></div>
 </li>
 <li>
 <p>Use already created SSM Parameters in the dependent stack</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// in WebsiteStack</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">userPoolIdParam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">StringParameter</span><span class="p">.</span><span class="nx">fromStringParameterName</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;userPoolIdSsmParam&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ssmParamNames</span><span class="p">.</span><span class="nx">userPoolId</span><span class="p">);</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="c1">// in WebsiteStack</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">userPoolIdParam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">StringParameter</span><span class="p">.</span><span class="nx">fromStringParameterName</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;userPoolIdSsmParam&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ssmParamNames</span><span class="p">.</span><span class="nx">userPoolId</span><span class="p">);</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">website</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">StaticWebsite</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Website&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">websiteContentPath</span><span class="o">:</span><span class="w"> </span><span class="kt">...</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">runtimeOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">jsonPayload</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="p">...,</span><span class="w"></span>
-<span class="w">      </span><span class="nx">userPoolId</span><span class="o">:</span><span class="w"> </span><span class="kt">userPoolIdParam.stringValue</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="p">...,</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="p">})</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">website</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">StaticWebsite</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Website&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">websiteContentPath</span><span class="o">:</span><span class="w"> </span><span class="kt">...</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">runtimeOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">jsonPayload</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="p">...,</span>
+<span class="w">      </span><span class="nx">userPoolId</span><span class="o">:</span><span class="w"> </span><span class="kt">userPoolIdParam.stringValue</span><span class="p">,</span>
+<span class="w">      </span><span class="p">...,</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">})</span>
 </code></pre></div>
 </li>
 </ol>
@@ -2032,7 +2032,7 @@
   <small>
     
       Last update:
-      2022-12-22
+      2023-01-05
     
   </small>
 </div>

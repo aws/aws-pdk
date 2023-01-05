@@ -1985,29 +1985,29 @@
 
 <h1 id="how-do-i-include-js-files-in-my-project">How do I include <code>js</code> files in my project?</h1>
 <h2 id="option-1-via-tsconfig">Option <a class="magiclink magiclink-github magiclink-issue" href="https://github.com/aws/pdk/issues/1" title="GitHub Issue: aws/pdk #1">#1</a> - via <code>tsconfig</code></h2>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">myPackage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="c1">// ...</span><span class="w"></span>
-<span class="w">  </span><span class="nx">tsconfig</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">compilerOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nx">allowJs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// &lt;--------</span><span class="w"></span>
-<span class="w">    </span><span class="p">},</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="w">  </span><span class="nx">tsconfigDev</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">compilerOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nx">allowJs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// &lt;---------</span><span class="w"></span>
-<span class="w">    </span><span class="p">},</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">myPackage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span>
+<span class="w">  </span><span class="c1">// ...</span>
+<span class="w">  </span><span class="nx">tsconfig</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">compilerOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">allowJs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// &lt;--------</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">tsconfigDev</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">compilerOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">allowJs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// &lt;---------</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
 
-<span class="nx">myPackage</span><span class="p">.</span><span class="nx">tsconfig</span><span class="o">?</span><span class="p">.</span><span class="nx">addInclude</span><span class="p">(</span><span class="s2">&quot;src/**/*.js&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="nx">myPackage</span><span class="p">.</span><span class="nx">tsconfig</span><span class="o">?</span><span class="p">.</span><span class="nx">addInclude</span><span class="p">(</span><span class="s2">&quot;src/**/*.js&quot;</span><span class="p">);</span>
 
-<span class="c1">// OR more specific path:</span><span class="w"></span>
-<span class="c1">// myPackage.tsconfig?.addInclude(&quot;src/**/@lambda/**/*.js&quot;);</span><span class="w"></span>
+<span class="c1">// OR more specific path:</span>
+<span class="c1">// myPackage.tsconfig?.addInclude(&quot;src/**/@lambda/**/*.js&quot;);</span>
 </code></pre></div>
 <h2 id="option-2-with-rsync-example">Option <a class="magiclink magiclink-github magiclink-issue" href="https://github.com/aws/pdk/issues/2" title="GitHub Issue: aws/pdk #2">#2</a> - with <code>rsync</code> (<a href="https://github.com/aws/aws-prototyping-sdk/blob/392fb8c483a99123d4e8a8b6b95b5aa7ecb014b8/private/projects/nx-monorepo-project.ts#L39">example</a>)</h2>
-<div class="highlight"><pre><span></span><code><span class="k">this</span><span class="p">.</span><span class="nx">compileTask</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="w"></span>
-<span class="w">  </span><span class="s1">&#39;rsync -a ./src/** ./lib --include=&quot;*/&quot; --include=&quot;**/*.js&quot; --exclude=&quot;*&quot; --prune-empty-dirs&#39;</span><span class="w"></span>
-<span class="p">);</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="k">this</span><span class="p">.</span><span class="nx">compileTask</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span>
+<span class="w">  </span><span class="s1">&#39;rsync -a ./src/** ./lib --include=&quot;*/&quot; --include=&quot;**/*.js&quot; --exclude=&quot;*&quot; --prune-empty-dirs&#39;</span>
+<span class="p">);</span>
 </code></pre></div>
 
   <hr>
@@ -2015,7 +2015,7 @@
   <small>
     
       Last update:
-      2022-12-22
+      2023-01-05
     
   </small>
 </div>

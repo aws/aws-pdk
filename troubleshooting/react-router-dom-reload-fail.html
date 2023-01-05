@@ -1926,37 +1926,37 @@
 <h1 id="my-react-router-dom-router-doesnt-work-when-reloading-the-page-or-loading-with-a-non-root-url">My <code>react-router-dom</code> router doesn’t work when reloading the page or loading with a non-root URL</h1>
 <p>Reference link: <a class="magiclink magiclink-github magiclink-issue" href="https://github.com/aws/aws-prototyping-sdk/issues/69" title="GitHub Issue: aws/aws-prototyping-sdk #69">aws-prototyping-sdk#69</a></p>
 <p>Add distributionProps to your <code>StaticWebsite</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">StaticWebsite</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">StaticWebsiteOrigin</span><span class="p">,</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/static-website&quot;</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">StaticWebsite</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">StaticWebsiteOrigin</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/static-website&quot;</span><span class="p">;</span>
 
-<span class="p">...</span><span class="w"></span>
+<span class="p">...</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">adminWebsite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">StaticWebsite</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Website&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">websiteContentPath</span><span class="o">:</span><span class="w"> </span><span class="kt">path.join</span><span class="p">(</span><span class="nx">appsDir</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;website&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;build&quot;</span><span class="p">),</span><span class="w"></span>
-<span class="w">  </span><span class="nx">runtimeOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">jsonPayload</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nx">region</span><span class="o">:</span><span class="w"> </span><span class="kt">Stack.of</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">region</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nx">identityPoolId</span><span class="o">:</span><span class="w"> </span><span class="kt">identityPoolIdParam.stringValue</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nx">userPoolId</span><span class="o">:</span><span class="w"> </span><span class="kt">userPoolIdParam.stringValue</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nx">userPoolWebClientId</span><span class="o">:</span><span class="w"> </span><span class="kt">userPoolClientIdParam.stringValue</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nx">apiUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">webApiUrlParam.stringValue</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="p">},</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="w">  </span><span class="nx">distributionProps</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">defaultBehavior</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nx">origin</span><span class="o">:</span><span class="w"> </span><span class="kt">StaticWebsiteOrigin</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="p">},</span><span class="w"></span>
-<span class="w">    </span><span class="nx">errorResponses</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">      </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nx">httpStatus</span><span class="o">:</span><span class="w"> </span><span class="kt">404</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nx">responseHttpStatus</span><span class="o">:</span><span class="w"> </span><span class="kt">404</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nx">responsePagePath</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="p">},</span><span class="w"></span>
-<span class="w">    </span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">adminWebsite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">StaticWebsite</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Website&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">websiteContentPath</span><span class="o">:</span><span class="w"> </span><span class="kt">path.join</span><span class="p">(</span><span class="nx">appsDir</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;website&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;build&quot;</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">runtimeOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">jsonPayload</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">region</span><span class="o">:</span><span class="w"> </span><span class="kt">Stack.of</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">region</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">identityPoolId</span><span class="o">:</span><span class="w"> </span><span class="kt">identityPoolIdParam.stringValue</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">userPoolId</span><span class="o">:</span><span class="w"> </span><span class="kt">userPoolIdParam.stringValue</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">userPoolWebClientId</span><span class="o">:</span><span class="w"> </span><span class="kt">userPoolClientIdParam.stringValue</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">apiUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">webApiUrlParam.stringValue</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">distributionProps</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">defaultBehavior</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">origin</span><span class="o">:</span><span class="w"> </span><span class="kt">StaticWebsiteOrigin</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nx">errorResponses</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">httpStatus</span><span class="o">:</span><span class="w"> </span><span class="kt">404</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">responseHttpStatus</span><span class="o">:</span><span class="w"> </span><span class="kt">404</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">responsePagePath</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
 </code></pre></div>
 
   <hr>
@@ -1964,7 +1964,7 @@
   <small>
     
       Last update:
-      2022-12-22
+      2023-01-05
     
   </small>
 </div>

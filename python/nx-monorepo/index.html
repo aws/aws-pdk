@@ -2060,76 +2060,76 @@
 <p>The nx-monorepo package vends a NxMonorepoProject Projen construct that adds <a href="https://nx.dev/getting-started/intro">NX</a> monorepo support and manages your yarn/npm/pnpm workspaces on your behalf. This construct enables polygot builds (and inter language build dependencies), build caching, dependency visualization and much, much more.</p>
 <p>The PDK itself uses the nx-monorepo project itself and is a good reference for seeing how a complex, polygot monorepo can be set up.</p>
 <p>To get started simply run the following command in an empty directory:</p>
-<div class="highlight"><pre><span></span><code>npx projen new --from aws-prototyping-sdk nx-monorepo
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>aws-prototyping-sdk<span class="w"> </span>nx-monorepo
 </code></pre></div>
 <p>This will boostrap a new Projen monorepo and contain the following in the .projenrc.ts:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="p">.</span><span class="nx">NxMonorepoProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cdk-nag&quot;</span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-package&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="p">.</span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cdk-nag&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-package&quot;</span><span class="p">,</span>
+<span class="p">});</span>
 
-<span class="nx">project</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span><span class="w"></span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
 </code></pre></div>
 <p>To add new packages to the monorepo, you can simply add them as a child to the monorepo. To demonstrate, lets add a PDK Pipeline TS Project as a child as follows:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="p">.</span><span class="nx">NxMonorepoProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cdk-nag&quot;</span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-package&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="p">.</span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cdk-nag&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-package&quot;</span><span class="p">,</span>
+<span class="p">});</span>
 
-<span class="ow">new</span><span class="w"> </span><span class="nx">PDKPipelineTsProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">project</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/cicd&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;cicd&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">cdkVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2.1.0&quot;</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">PDKPipelineTsProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">project</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/cicd&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;cicd&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">cdkVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2.1.0&quot;</span>
+<span class="p">});</span>
 
-<span class="nx">project</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span><span class="w"></span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
 </code></pre></div>
 <p>Once added, run <code>npx projen</code> from the root directory. You will now notice a new TS package has been created under the packages/cicd path.</p>
 <p>Now let's add a python project to the monorepo and add an inter-language build dependency.</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">;</span><span class="w"></span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PDKPipelineTsProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk/pipeline&quot;</span><span class="p">;</span><span class="w"></span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PythonProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen/lib/python&quot;</span><span class="p">;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PDKPipelineTsProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk/pipeline&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PythonProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen/lib/python&quot;</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="p">.</span><span class="nx">NxMonorepoProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cdk-nag&quot;</span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="p">.</span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cdk-nag&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+<span class="p">});</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">pipelineProject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PDKPipelineTsProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">project</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/cicd&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;cicd&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">cdkVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2.1.0&quot;</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">pipelineProject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PDKPipelineTsProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">project</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/cicd&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;cicd&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">cdkVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2.1.0&quot;</span>
+<span class="p">});</span>
 
-<span class="c1">// Standard Projen projects also work here</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">pythonlib</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">project</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/pythonlib&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pythonlib&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pythonlib&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;0.0.0&quot;</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="c1">// Standard Projen projects also work here</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">pythonlib</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">project</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/pythonlib&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pythonlib&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pythonlib&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;0.0.0&quot;</span>
+<span class="p">});</span>
 
-<span class="c1">// Pipeline project depends on pythonlib to build first</span><span class="w"></span>
-<span class="nx">project</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">pipelineProject</span><span class="p">,</span><span class="w"> </span><span class="nx">pythonlib</span><span class="p">);</span><span class="w"></span>
+<span class="c1">// Pipeline project depends on pythonlib to build first</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">pipelineProject</span><span class="p">,</span><span class="w"> </span><span class="nx">pythonlib</span><span class="p">);</span>
 
-<span class="nx">project</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span><span class="w"></span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
 </code></pre></div>
 <p>Run <code>npx projen</code> from the root directory. You will now notice a new Python package has been created under packages/pythonlib.</p>
 <p>To visualize our dependency graph, run the following command from the root directory: <code>npx nx graph</code>.</p>
@@ -2143,106 +2143,106 @@
 <p>Note that dependencies cannot be added in the same project synthesis (<code>npx projen</code>) as when projects are created. This means a two-pass approach is recommended, first to create your new projects, and then to add the dependencies.</p>
 <p>For example:</p>
 <p>First add your new projects:</p>
-<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/a&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-a&quot;</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/a&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-a&quot;</span>
+<span class="p">});</span>
 
-<span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/b&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-b&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/b&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-b&quot;</span><span class="p">,</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>Synthesise, then you can set up your dependency:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/a&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-a&quot;</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/a&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-a&quot;</span>
+<span class="p">});</span>
 
-<span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/b&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-b&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="c1">// B depends on A</span><span class="w"></span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">a</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">],</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/b&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-b&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// B depends on A</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">a</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">],</span>
+<span class="p">});</span>
 </code></pre></div>
 <h4 id="python">Python</h4>
 <p>The recommended way to configure dependencies between python projects within your monorepo is to use a single shared virtual environment. You can then install packages you wish to depend on into that environment using pip's <a href="https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs">Editable Installs</a>.</p>
 <p>You will also need to add an implicit dependency to tell the monorepo the correct build order for your packages.</p>
 <p>For example:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">sharedEnv</span><span class="o">:</span><span class="w"> </span><span class="kt">VenvOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">envdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;../../.env&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">sharedEnv</span><span class="o">:</span><span class="w"> </span><span class="kt">VenvOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">envdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;../../.env&#39;</span><span class="p">,</span>
+<span class="p">};</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/a&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;jack&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;me@example.com&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">venvOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">sharedEnv</span><span class="p">,</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/a&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;jack&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;me@example.com&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">venvOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">sharedEnv</span><span class="p">,</span>
+<span class="p">});</span>
 
-<span class="c1">// Install A into the virtual env since it is consumed by B</span><span class="w"></span>
-<span class="nx">a</span><span class="p">.</span><span class="nx">tasks</span><span class="p">.</span><span class="nx">tryFind</span><span class="p">(</span><span class="s1">&#39;install&#39;</span><span class="p">)</span><span class="o">!</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s1">&#39;pip install --editable .&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="c1">// Install A into the virtual env since it is consumed by B</span>
+<span class="nx">a</span><span class="p">.</span><span class="nx">tasks</span><span class="p">.</span><span class="nx">tryFind</span><span class="p">(</span><span class="s1">&#39;install&#39;</span><span class="p">)</span><span class="o">!</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s1">&#39;pip install --editable .&#39;</span><span class="p">);</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/b&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;jack&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;me@example.com&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">venvOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">sharedEnv</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="c1">// B depends on A</span><span class="w"></span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">a</span><span class="p">.</span><span class="kr">module</span><span class="nx">Name</span><span class="p">],</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/b&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;jack&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;me@example.com&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">venvOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">sharedEnv</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// B depends on A</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">a</span><span class="p">.</span><span class="kr">module</span><span class="nx">Name</span><span class="p">],</span>
+<span class="p">});</span>
 
-<span class="c1">// Add the implicit dependency so that the monorepo will build A before B</span><span class="w"></span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span><span class="w"></span>
+<span class="c1">// Add the implicit dependency so that the monorepo will build A before B</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span>
 </code></pre></div>
 <h4 id="java">Java</h4>
 <p>The recommended way to configure dependencies between java projects within your monorepo is to use shared maven repositories. The default java project build will already create a distributable in the correct format for a maven repository in its <code>dist/java</code> folder, so you can use this as a repository.</p>
 <p>For example:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">JavaProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/a&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">groupId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;com.mycompany&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">artifactId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">JavaProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/a&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">groupId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;com.mycompany&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">artifactId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span>
+<span class="p">});</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">JavaProject</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/b&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">groupId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;com.mycompany&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">artifactId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="c1">// Declare the dependency on A</span><span class="w"></span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="sb">`</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">groupId</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">artifactId</span><span class="si">}</span><span class="sb">@</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">version</span><span class="si">}</span><span class="sb">`</span><span class="p">],</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">JavaProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/b&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">groupId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;com.mycompany&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">artifactId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// Declare the dependency on A</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="sb">`</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">groupId</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">artifactId</span><span class="si">}</span><span class="sb">@</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">version</span><span class="si">}</span><span class="sb">`</span><span class="p">],</span>
+<span class="p">});</span>
 
-<span class="c1">// Add the repository</span><span class="w"></span>
-<span class="nx">b</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">addRepository</span><span class="p">({</span><span class="w"></span>
-<span class="w">  </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;file://../a/dist/java&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;dependency-on-a&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<span class="c1">// Add the repository</span>
+<span class="nx">b</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">addRepository</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;file://../a/dist/java&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;dependency-on-a&#39;</span><span class="p">,</span>
+<span class="p">});</span>
 
-<span class="c1">// Add the implicit dependency to control build order</span><span class="w"></span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span><span class="w"></span>
+<span class="c1">// Add the implicit dependency to control build order</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span>
 </code></pre></div>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
@@ -8562,7 +8562,7 @@ dependant projects first.</p>
   <small>
     
       Last update:
-      2022-12-22
+      2023-01-05
     
   </small>
 </div>

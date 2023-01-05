@@ -1985,24 +1985,24 @@
 
 <h1 id="i-get-random-build-failures-in-codepipeline-even-though-my-project-builds-on-my-dev-machine">I get random build failures in <code>CodePipeline</code> even though my project builds on my dev machine</h1>
 <h2 id="error">Error</h2>
-<div class="highlight"><pre><span></span><code><span class="o">[</span>yarn run v1.22.19
-<span class="o">[</span>$ npx projen build
-build » pre-compile <span class="p">|</span> rm -rf lib
-build » compile <span class="p">|</span> tsc —build
+<div class="highlight"><pre><span></span><code><span class="o">[</span>yarn<span class="w"> </span>run<span class="w"> </span>v1.22.19
+<span class="o">[</span>$<span class="w"> </span>npx<span class="w"> </span>projen<span class="w"> </span>build
+build<span class="w"> </span>»<span class="w"> </span>pre-compile<span class="w"> </span><span class="p">|</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>lib
+build<span class="w"> </span>»<span class="w"> </span>compile<span class="w"> </span><span class="p">|</span><span class="w"> </span>tsc<span class="w"> </span>—build
 Killed
-Task <span class="s2">&quot;build » compile&quot;</span> failed when executing <span class="s2">&quot;tsc —build&quot;</span> <span class="o">(</span>cwd: /codebuild/output/src728343998/src/packages/myPackage<span class="o">)</span>
+Task<span class="w"> </span><span class="s2">&quot;build » compile&quot;</span><span class="w"> </span>failed<span class="w"> </span>when<span class="w"> </span>executing<span class="w"> </span><span class="s2">&quot;tsc —build&quot;</span><span class="w"> </span><span class="o">(</span>cwd:<span class="w"> </span>/codebuild/output/src728343998/src/packages/myPackage<span class="o">)</span>
 </code></pre></div>
 <p>First, add <code>--verbose</code> to your package’s <code>compileTask</code> to see what is the error. You may see a little bit more:</p>
-<div class="highlight"><pre><span></span><code><span class="o">[</span>yarn run v1.22.19
-<span class="o">[</span>$ npx projen build
-build » pre-compile <span class="p">|</span> rm -rf lib
-build » compile <span class="p">|</span> tsc —build —verbose
-<span class="m">3</span>:18:29 AM - Projects <span class="k">in</span> this build:
+<div class="highlight"><pre><span></span><code><span class="o">[</span>yarn<span class="w"> </span>run<span class="w"> </span>v1.22.19
+<span class="o">[</span>$<span class="w"> </span>npx<span class="w"> </span>projen<span class="w"> </span>build
+build<span class="w"> </span>»<span class="w"> </span>pre-compile<span class="w"> </span><span class="p">|</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>lib
+build<span class="w"> </span>»<span class="w"> </span>compile<span class="w"> </span><span class="p">|</span><span class="w"> </span>tsc<span class="w"> </span>—build<span class="w"> </span>—verbose
+<span class="m">3</span>:18:29<span class="w"> </span>AM<span class="w"> </span>-<span class="w"> </span>Projects<span class="w"> </span><span class="k">in</span><span class="w"> </span>this<span class="w"> </span>build:
 tsconfig.json
-<span class="m">3</span>:18:30 AM - Project <span class="s1">&#39;tsconfig.json&#39;</span> is out of date because output file <span class="s1">&#39;lib/index.js&#39;</span> does not exist <span class="c1"># &lt;-- this is something new</span>
-<span class="m">3</span>:18:30 AM - Building project <span class="s1">&#39;/codebuild/output/src728343998/src/packages/myPackage/tsconfig.json&#39;</span>...
+<span class="m">3</span>:18:30<span class="w"> </span>AM<span class="w"> </span>-<span class="w"> </span>Project<span class="w"> </span><span class="s1">&#39;tsconfig.json&#39;</span><span class="w"> </span>is<span class="w"> </span>out<span class="w"> </span>of<span class="w"> </span>date<span class="w"> </span>because<span class="w"> </span>output<span class="w"> </span>file<span class="w"> </span><span class="s1">&#39;lib/index.js&#39;</span><span class="w"> </span>does<span class="w"> </span>not<span class="w"> </span>exist<span class="w"> </span><span class="c1"># &lt;-- this is something new</span>
+<span class="m">3</span>:18:30<span class="w"> </span>AM<span class="w"> </span>-<span class="w"> </span>Building<span class="w"> </span>project<span class="w"> </span><span class="s1">&#39;/codebuild/output/src728343998/src/packages/myPackage/tsconfig.json&#39;</span>...
 Killed
-Task <span class="s2">&quot;build » compile&quot;</span> failed when executing <span class="s2">&quot;tsc —build —verbose&quot;</span> <span class="o">(</span>cwd: /codebuild/output/src728343998/src/packages/myPackage<span class="o">)</span>
+Task<span class="w"> </span><span class="s2">&quot;build » compile&quot;</span><span class="w"> </span>failed<span class="w"> </span>when<span class="w"> </span>executing<span class="w"> </span><span class="s2">&quot;tsc —build —verbose&quot;</span><span class="w"> </span><span class="o">(</span>cwd:<span class="w"> </span>/codebuild/output/src728343998/src/packages/myPackage<span class="o">)</span>
 </code></pre></div>
 <h2 id="possible-solutions">Possible solutions</h2>
 <ol>
@@ -2013,14 +2013,14 @@ Task <span class="s2">&quot;build » compile&quot;</span> failed when executing 
 <p>Try to upsize the pipeline’s <code>codeBuild</code> build environment. The default environment has only <strong>3GB of RAM and 2vCPUs</strong> which may <strong>not</strong> be sufficient to handle large projects:</p>
 </li>
 </ol>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">pipeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PDKPipeline</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;AppPipeline&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="p">...,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">codeBuildDefaults</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">buildEnvironment</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nx">computeType</span><span class="o">:</span><span class="w"> </span><span class="kt">ComputeType.LARGE</span><span class="p">,</span><span class="w"> </span><span class="c1">// or MEDIUM or X2_LARGE</span><span class="w"></span>
-<span class="w">    </span><span class="p">},</span><span class="w"></span>
-<span class="w">   </span><span class="p">},</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">pipeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PDKPipeline</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;AppPipeline&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">...,</span>
+<span class="w">  </span><span class="nx">codeBuildDefaults</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">buildEnvironment</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">computeType</span><span class="o">:</span><span class="w"> </span><span class="kt">ComputeType.LARGE</span><span class="p">,</span><span class="w"> </span><span class="c1">// or MEDIUM or X2_LARGE</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>After the change, deploy your pipeline <strong>manually</strong> because self-mutation won’t be in effect until the code builds.</p>
 
@@ -2029,7 +2029,7 @@ Task <span class="s2">&quot;build » compile&quot;</span> failed when executing 
   <small>
     
       Last update:
-      2022-12-22
+      2023-01-05
     
   </small>
 </div>
