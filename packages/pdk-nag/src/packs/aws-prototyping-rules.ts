@@ -769,13 +769,6 @@ export let RuleMetadata = [
     rule: rules.timestream.TimestreamDatabaseCustomerManagedKey,
   },
   {
-    info: "The VPC's default security group allows inbound or outbound traffic.",
-    explanation:
-      "When creating a VPC through CloudFormation, the default security group will always be open. Therefore it is important to always close the default security group after stack creation whenever a VPC is created. Restricting all the traffic on the default security group helps in restricting remote access to your AWS resources.\n\nExample threat: A global internet-based actor can discover VPC-attached resources (e.g. EC2 instances) that have public IP addresses and allow ingress to all internet address or move laterally to non-public VPC-attached instances, which may lead to reconnaissance and intrusion activities being performed against the exposed attack surface possibly impacting the confidentiality, integrity and availability of the data and resource assets associated with the prototype",
-    level: NagMessageLevel.ERROR,
-    rule: rules.vpc.VPCDefaultSecurityGroupClosed,
-  },
-  {
     info: "A Network ACL or Network ACL entry has been implemented.",
     explanation:
       "Network ACLs should be used sparingly for the following reasons: they can be complex to manage, they are stateless, every IP address must be explicitly opened in each (inbound/outbound) direction, and they affect a complete subnet. Use security groups when possible as they are stateful and easier to manage.",

@@ -41,7 +41,6 @@ const expectedErrors = [
   "AwsPrototyping-S3BucketPublicReadProhibited",
   "AwsPrototyping-S3BucketPublicWriteProhibited",
   "AwsPrototyping-S3WebBucketOAIAccess",
-  "AwsPrototyping-VPCDefaultSecurityGroupClosed",
   "AwsPrototyping-VPCSubnetAutoAssignPublicIpDisabled",
 ];
 
