@@ -13,6 +13,14 @@ Object {
           "id": "AwsPrototyping-CodeBuildProjectKMSEncryptedArtifacts",
           "reason": "Encryption of Codebuild is not required.",
         },
+        Object {
+          "id": "AwsSolutions-S1",
+          "reason": "Access Log buckets should not have s3 bucket logging",
+        },
+        Object {
+          "id": "AwsPrototyping-S3BucketLoggingEnabled",
+          "reason": "Access Log buckets should not have s3 bucket logging",
+        },
       ],
     },
   },
@@ -49,6 +57,139 @@ Object {
     },
   },
   "Resources": Object {
+    "AccessLogsBucket83982689": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "AccessControl": "LogDeliveryWrite",
+        "BucketEncryption": Object {
+          "ServerSideEncryptionConfiguration": Array [
+            Object {
+              "ServerSideEncryptionByDefault": Object {
+                "SSEAlgorithm": "AES256",
+              },
+            },
+          ],
+        },
+        "PublicAccessBlockConfiguration": Object {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": Array [
+          Object {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AccessLogsBucketAutoDeleteObjectsCustomResource93F9213A": Object {
+      "DeletionPolicy": "Delete",
+      "DependsOn": Array [
+        "AccessLogsBucketPolicy7F77476F",
+      ],
+      "Properties": Object {
+        "BucketName": Object {
+          "Ref": "AccessLogsBucket83982689",
+        },
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AccessLogsBucketPolicy7F77476F": Object {
+      "Properties": Object {
+        "Bucket": Object {
+          "Ref": "AccessLogsBucket83982689",
+        },
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:*",
+              "Condition": Object {
+                "Bool": Object {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": Object {
+                "AWS": "*",
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "AccessLogsBucket83982689",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "AccessLogsBucket83982689",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::GetAtt": Array [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "AccessLogsBucket83982689",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "AccessLogsBucket83982689",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
     "ApplicationPipelineCodeBuildActionRole155C9984": Object {
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
@@ -635,6 +776,9 @@ Object {
           ],
         },
         "LoggingConfiguration": Object {
+          "DestinationBucketName": Object {
+            "Ref": "AccessLogsBucket83982689",
+          },
           "LogFilePrefix": "access-logs",
         },
         "PublicAccessBlockConfiguration": Object {
@@ -1746,7 +1890,7 @@ Object {
             Array [
               "Lambda function for auto-deleting objects in ",
               Object {
-                "Ref": "ArtifactsBucket2AAC5544",
+                "Ref": "AccessLogsBucket83982689",
               },
               " S3 bucket.",
             ],
