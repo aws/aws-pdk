@@ -124,6 +124,8 @@ export function computeGraph(root: IConstruct): Graph.Store {
 
     let node: Graph.Node;
     switch (constructInfo?.fqn as ConstructInfoFqnEnum) {
+      case ConstructInfoFqnEnum.PDKAPP_MONO:
+      case ConstructInfoFqnEnum.PDKAPP:
       case ConstructInfoFqnEnum.APP: {
         node = new Graph.AppNode({
           store,
