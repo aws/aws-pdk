@@ -1,0 +1,84 @@
+name: aws-arch-pricing
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: 0 0 * * 1
+jobs:
+  update:
+    name: Update Pricing
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      patch_created: ${{ steps.create_patch.outputs.patch_created }}
+    env:
+      CI: "false"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: mainline
+      - name: Install dependencies
+        run: yarn install --check-files --frozen-lockfile
+      - name: Fetch Pricing Manifest
+        working-directory: packages/aws-arch
+        run: npx projen fetch-pricing-manifest
+      - name: Build
+        working-directory: packages/aws-arch
+        run: npx nx run build
+      - id: create_patch
+        name: Find mutations
+        run: |-
+          git add .
+          git diff --staged --patch --exit-code > .repo.patch || echo "::set-output name=patch_created::true"
+      - if: steps.create_patch.outputs.patch_created
+        name: Upload patch
+        uses: actions/upload-artifact@v2
+        with:
+          name: .repo.patch
+          path: .repo.patch
+  pr:
+    name: Create Pull Request
+    needs: update
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    if: ${{ needs.upgrade.outputs.patch_created }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.PROJEN_GITHUB_TOKEN }}
+          ref: mainline
+      - name: Download patch
+        uses: actions/download-artifact@v2
+        with:
+          name: .repo.patch
+          path: ${{ runner.temp }}
+      - name: Apply patch
+        run: '[ -s ${{ runner.temp }}/.repo.patch ] && git apply ${{ runner.temp }}/.repo.patch || echo "Empty patch. Skipping."'
+      - name: Set git identity
+        run: |-
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+      - name: Create Pull Request
+        id: create-pr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.PROJEN_GITHUB_TOKEN }}
+          commit-message: |-
+            chore(aws-arch): update pricing manifest
+
+            Update aws pricing manifest and snapshots for aws-arch package. See details in [workflow run].
+
+            [Workflow Run]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          branch: github-actions/aws-arch-pricing
+          title: "chore(aws-arch): update pricing manifest"
+          body: |-
+            Update aws pricing manifest and snapshots for aws-arch package. See details in [workflow run].
+
+            [Workflow Run]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          author: github-actions <github-actions@github.com>
+          committer: github-actions <github-actions@github.com>
+          signoff: false
