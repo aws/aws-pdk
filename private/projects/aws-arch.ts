@@ -53,6 +53,10 @@ export class AwsArchProject extends PDKProject {
       "jsii",
     ]);
 
+    this.addTask("fetch-pricing-manifest", {
+      exec: "ts-node ./scripts/fetch-pricing-manifest.ts",
+    });
+
     const generateTasks = [
       this.addTask("clean", {
         exec: "rm -rf assets src/generated",
