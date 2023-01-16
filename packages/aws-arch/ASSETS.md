@@ -223,6 +223,7 @@ The _default theme_ is **light**.
 |  └── step_functions/
 |     ├── service_icon.png
 |     └── service_icon.svg
+├── aws-pricing-manifest.json
 ├── blockchain/
 |  ├── category_icon.png
 |  ├── category_icon.svg
@@ -2882,7 +2883,7 @@ The _default theme_ is **light**.
       ├── service_icon.png
       └── service_icon.svg
 
-directory: 329 file: 2529
+directory: 329 file: 2530
 
 
 ```

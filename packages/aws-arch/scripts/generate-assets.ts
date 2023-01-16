@@ -22,7 +22,7 @@ import fetch from 'node-fetch';
 import { Parse as ZipParse } from 'unzipper';
 import sharp = require('sharp'); // eslint-disable-line @typescript-eslint/no-require-imports
 import tree = require('tree-cli'); // eslint-disable-line @typescript-eslint/no-require-imports
-import { CACHE_DIR, GENERATED_DIR, listDirFiles } from './common';
+import { TMP_DIR, GENERATED_DIR, listDirFiles } from './common';
 import { normalizeIdentifier } from "../src/utils";
 import { GENERAL_CATEGORY_ID, findAwsCategoryDefinition } from "../src/internal/categories/definitions";
 import { NORMALIZED_SERVICE_VARIANTS } from "../src/internal/services/variants";
@@ -101,7 +101,7 @@ export async function generate () {
   }
   await fs.copy(STATIC_ASSETS, ASSET_PACKAGE_DIR, { overwrite: true, recursive: true });
 
-  const downloadPath = path.join(CACHE_DIR, ASSET_PACKAGE_ZIP_FILENAME);
+  const downloadPath = path.join(TMP_DIR, ASSET_PACKAGE_ZIP_FILENAME);
 
   if (!await fs.pathExists(downloadPath)) {
     const response = await fetch(ASSET_PACKAGE_ZIP_URL);

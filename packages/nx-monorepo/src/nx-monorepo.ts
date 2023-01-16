@@ -22,126 +22,21 @@ import {
   TypeScriptProject,
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
+import { Nx } from "./nx-types";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
 
 const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 
 /**
- * Configuration for nx targetDependencies.
- */
-export type TargetDependencies = { [target: string]: TargetDependency[] };
-
-/**
- * Configuration for project specific targets.
- */
-export type ProjectTargets = { [target: string]: ProjectTarget };
-
-/**
- * Project Target.
- */
-export interface ProjectTarget {
-  /**
-   * List of outputs to cache, relative to the root of the monorepo.
-   *
-   * note: must start with leading /
-   */
-  readonly outputs?: string[];
-
-  /**
-   * List of Target Dependencies.
-   */
-  readonly dependsOn: TargetDependency[];
-}
-
-/**
- * Implicit Dependencies map.
- */
-export type ImplicitDependencies = { [pkg: string]: string[] };
-
-/**
- * Supported enums for a TargetDependency.
- */
-export enum TargetDependencyProject {
-  /**
-   * Only rely on the package where the target is called.
-   *
-   * This is usually done for test like targets where you only want to run unit
-   * tests on the target packages without testing all dependent packages.
-   */
-  SELF = "self",
-  /**
-   * Target relies on executing the target against all dependencies first.
-   *
-   * This is usually done for build like targets where you want to build all
-   * dependant projects first.
-   */
-  DEPENDENCIES = "dependencies",
-}
-
-/**
- * Represents an NX Target Dependency.
- */
-export interface TargetDependency {
-  /**
-   * Projen target i.e: build, test, etc
-   */
-  readonly target: string;
-
-  /**
-   * Target dependencies.
-   */
-  readonly projects: TargetDependencyProject;
-}
-
-/**
- * NX configurations.
- *
- * @link https://nx.dev/configuration/packagejson
- */
-export interface NXConfig {
-  /**
-   * Affected branch.
-   *
-   * @default mainline
-   */
-  readonly affectedBranch?: string;
-  /**
-   * Configuration for Implicit Dependnecies.
-   *
-   * @link https://nx.dev/configuration/packagejson#implicitdependencies
-   */
-  readonly implicitDependencies?: ImplicitDependencies;
-
-  /**
-   * Configuration for TargetDependencies.
-   *
-   * @link https://nx.dev/configuration/packagejson#target-dependencies
-   */
-  readonly targetDependencies?: TargetDependencies;
-
-  /**
-   * List of patterns to include in the .nxignore file.
-   *
-   * @link https://nx.dev/configuration/packagejson#nxignore
-   */
-  readonly nxIgnore?: string[];
-
-  /**
-   * Read only access token if enabling nx cloud.
-   */
-  readonly nxCloudReadOnlyAccessToken?: string;
-}
-
-/**
  * Workspace configurations.
  *
- * @link https://classic.yarnpkg.com/lang/en/docs/workspaces/
+ * @see https://classic.yarnpkg.com/lang/en/docs/workspaces/
  */
 export interface WorkspaceConfig {
   /**
    * List of package globs to exclude from hoisting in the workspace.
    *
-   * @link https://classic.yarnpkg.com/blog/2018/02/15/nohoist/
+   * @see https://classic.yarnpkg.com/blog/2018/02/15/nohoist/
    */
   readonly noHoist?: string[];
 
@@ -189,7 +84,7 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
   /**
    * Configuration for NX.
    */
-  readonly nxConfig?: NXConfig;
+  readonly nxConfig?: Nx.WorkspaceConfig;
 
   /**
    * Configuration for workspace.
@@ -221,11 +116,10 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
  */
 export class NxMonorepoProject extends TypeScriptProject {
   // mutable data structures
-  private readonly implicitDependencies: ImplicitDependencies;
-  private readonly targetOverrides: { [pkg: string]: ProjectTargets } = {};
+  private readonly implicitDependencies: Nx.ImplicitDependencies;
 
   // immutable data structures
-  private readonly nxConfig?: NXConfig;
+  private readonly nxConfig?: Nx.WorkspaceConfig;
   private readonly workspaceConfig?: WorkspaceConfig;
   private readonly workspacePackages: string[];
 
@@ -318,11 +212,16 @@ export class NxMonorepoProject extends TypeScriptProject {
               : "@nrwl/workspace/tasks-runners/default",
             options: {
               useDaemonProcess: false,
-              cacheableOperations: ["build", "test"],
+              cacheableOperations: options.nxConfig?.cacheableOperations || [
+                "build",
+                "test",
+              ],
               accessToken: options.nxConfig?.nxCloudReadOnlyAccessToken,
             },
           },
         },
+        namedInputs: options.nxConfig?.namedInputs,
+        targetDefaults: options.nxConfig?.targetDefaults,
         implicitDependencies: this.implicitDependencies,
         targetDependencies: {
           build: [
@@ -376,18 +275,6 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     // Add the additional packages next
     this.workspacePackages.push(...packageGlobs);
-  }
-
-  /**
-   * Allow project specific target overrides.
-   */
-  public overrideProjectTargets(project: Project, targets: ProjectTargets) {
-    const _package = project.tryFindObjectFile("package.json");
-    _package?.addOverride("nx", {
-      targets: targets,
-    });
-
-    !_package && (this.targetOverrides[project.outdir] = targets);
   }
 
   // Remove this hack once subProjects is made public in Projen
@@ -466,21 +353,19 @@ export class NxMonorepoProject extends TypeScriptProject {
       .filter((subProject: Project) => !subProject.tryFindFile("package.json"))
       .forEach((subProject: Project) => {
         // generate a package.json if not found
-        const manifest: any = {};
-        (manifest.nx = this.targetOverrides[subProject.outdir]
-          ? { targets: this.targetOverrides[subProject.outdir] }
-          : undefined),
-          (manifest.name = subProject.name);
-        manifest.private = true;
-        manifest.__pdk__ = true;
-        manifest.scripts = subProject.tasks.all.reduce(
-          (p, c) => ({
-            [c.name]: `npx projen ${c.name}`,
-            ...p,
-          }),
-          {}
-        );
-        manifest.version = "0.0.0";
+        const manifest: any = {
+          name: subProject.name,
+          private: true,
+          __pdk__: true,
+          scripts: subProject.tasks.all.reduce(
+            (p, c) => ({
+              [c.name]: `npx projen ${c.name}`,
+              ...p,
+            }),
+            {}
+          ),
+          version: "0.0.0",
+        };
 
         new JsonFile(subProject, "package.json", {
           obj: manifest,
