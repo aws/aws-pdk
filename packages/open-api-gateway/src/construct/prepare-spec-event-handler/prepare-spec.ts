@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import type { OpenAPIV3 } from "openapi-types";
+import { DefaultAuthorizerIds, HttpMethods } from "./constants";
 import { ApiGatewayIntegration } from "../integrations";
 import type {
   Method,
@@ -9,7 +10,6 @@ import type {
   OperationLookup,
 } from "../spec";
 import { SerialisedAuthorizerReference } from "../spec/api-gateway-auth";
-import { DefaultAuthorizerIds, HttpMethods } from "./constants";
 
 /**
  * Serialise a method and path into a single string

@@ -3,8 +3,6 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { getLogger } from "log4js";
 import { Project, TextFile } from "projen";
-import { ClientLanguageConfig } from "../client-config";
-import { ClientLanguage } from "../languages";
 import {
   GeneratedJavaClientProject,
   GeneratedJavaClientProjectOptions,
@@ -17,6 +15,8 @@ import {
   GeneratedTypescriptClientProject,
   GeneratedTypescriptClientProjectOptions,
 } from "./generated-typescript-client-project";
+import { ClientLanguageConfig } from "../client-config";
+import { ClientLanguage } from "../languages";
 
 const logger = getLogger();
 

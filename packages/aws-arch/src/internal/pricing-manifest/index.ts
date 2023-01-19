@@ -12,7 +12,7 @@ export namespace PricingManifest {
   export type ServiceCode = keyof typeof PRICING_MANIFEST;
 
   /** Literal union of all service slug values */
-  export type Slug = typeof PRICING_SLUGS[number];
+  export type Slug = (typeof PRICING_SLUGS)[number];
 
   /** Set of service slugs */
   export const Slugs = new Set<Slug>(PRICING_SLUGS);

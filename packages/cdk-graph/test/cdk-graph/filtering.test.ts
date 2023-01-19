@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { CfnRole } from "aws-cdk-lib/aws-iam";
 import { CfnFunction } from "aws-cdk-lib/aws-lambda";
+import * as testUtils from "./test-utils";
 import {
   CdkGraph,
   FilterPreset,
@@ -12,7 +13,6 @@ import {
 } from "../../src";
 import { Filters } from "../../src/filtering/filters";
 import { MultiFixtureApp } from "../__fixtures__/apps";
-import * as testUtils from "./test-utils";
 
 const makeCdkOutdir = async (name: string) =>
   testUtils.makeCdkOutDir("filtering", name);

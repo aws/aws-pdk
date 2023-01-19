@@ -2,11 +2,11 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { getLogger } from "log4js";
 import { Project, ProjectOptions } from "projen";
-import { DocumentationFormatConfig } from "../client-config";
-import { DocumentationFormat } from "../languages";
 import { GeneratedHtml2Docs } from "./components/docs/generated-html2-docs";
 import { GeneratedMarkdownDocs } from "./components/docs/generated-markdown-docs";
 import { GeneratedPlantUmlDocs } from "./components/docs/generated-plantuml-docs";
+import { DocumentationFormatConfig } from "../client-config";
+import { DocumentationFormat } from "../languages";
 
 const logger = getLogger();
 

@@ -2,9 +2,9 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Project } from "projen";
-import { SmithyApiGatewayProjectOptions } from "../types";
 import { SmithyBuildProject } from "./smithy-build-project";
 import { SmithyModelProject } from "./smithy-model-project";
+import { SmithyApiGatewayProjectOptions } from "../types";
 
 /**
  * Result from setting up a smithy based project

@@ -5,8 +5,8 @@ import { writeFileSync } from "fs-extra";
 import { getLogger } from "log4js";
 import { Component } from "projen";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { ClientLanguage } from "../../languages";
 import { invokeOpenApiGenerator } from "./utils";
+import { ClientLanguage } from "../../languages";
 
 const logger = getLogger();
 
