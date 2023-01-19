@@ -6,7 +6,6 @@ import cloneDeep = require("lodash.clonedeep"); // eslint-disable-line @typescri
 import isEmpty = require("lodash.isempty"); // eslint-disable-line @typescript-eslint/no-require-imports
 import omit = require("lodash.omit"); // eslint-disable-line @typescript-eslint/no-require-imports
 import uniq = require("lodash.uniq"); // eslint-disable-line @typescript-eslint/no-require-imports
-import { ConstructInfo } from "../cdk-internals";
 import { Counter, ICounterRecord } from "./counter";
 import {
   NodeTypeEnum,
@@ -22,6 +21,7 @@ import {
   EdgeDirectionEnum,
   CdkConstructIds,
 } from "./types";
+import { ConstructInfo } from "../cdk-internals";
 
 /** Public cdk-graph interface */
 export namespace Graph {

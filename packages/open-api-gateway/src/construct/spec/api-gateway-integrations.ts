@@ -1,10 +1,10 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { IFunction } from "aws-cdk-lib/aws-lambda";
-import { CustomAuthorizer } from "../authorizers";
-import { isCustomAuthorizer } from "../authorizers/predicates";
 import { getAllAuthorizers } from "./api-gateway-auth";
 import { OpenApiOptions } from "./api-gateway-integrations-types";
+import { CustomAuthorizer } from "../authorizers";
+import { isCustomAuthorizer } from "../authorizers/predicates";
 
 /**
  * A lambda function with a label to identify it

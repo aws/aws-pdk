@@ -5,6 +5,7 @@ import * as fs from "node:fs";
 import { promisify } from "node:util";
 import { AwsArchitecture } from "@aws-prototyping-sdk/aws-arch";
 import * as svgson from "svgson";
+import { Image } from "./types";
 import {
   addGraphFontCssStyles,
   extractSvgDimensions,
@@ -12,7 +13,6 @@ import {
   resolveSvgAwsArchAssetImagesInline,
   unescapeSvgTextValues,
 } from "../../utils/svg";
-import { Image } from "./types";
 
 const readFile = promisify(fs.readFile);
 

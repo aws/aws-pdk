@@ -11,7 +11,6 @@ import { Construct, IConstruct } from "constructs";
 import cloneDeep = require("lodash.clonedeep"); // eslint-disable-line @typescript-eslint/no-require-imports
 import shorthash = require("shorthash2"); // eslint-disable-line @typescript-eslint/no-require-imports
 import traverse = require("traverse"); // eslint-disable-line @typescript-eslint/no-require-imports
-import { ConstructInfo, constructInfoFromConstruct } from "../cdk-internals";
 import {
   AssetFqnEnum,
   CdkConstructIds,
@@ -24,6 +23,7 @@ import {
   UnresolvedReference,
   UUID,
 } from "./types";
+import { ConstructInfo, constructInfoFromConstruct } from "../cdk-internals";
 
 /**
  * Generate deterministic UUID based on given value and prefix.

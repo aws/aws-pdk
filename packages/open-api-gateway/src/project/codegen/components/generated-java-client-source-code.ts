@@ -3,8 +3,8 @@ SPDX-License-Identifier: Apache-2.0 */
 import { getLogger } from "log4js";
 import { Component } from "projen";
 import { JavaProject } from "projen/lib/java";
-import { ClientLanguage } from "../../languages";
 import { invokeOpenApiGenerator } from "./utils";
+import { ClientLanguage } from "../../languages";
 
 const logger = getLogger();
 

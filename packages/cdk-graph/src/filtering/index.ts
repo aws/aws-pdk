@@ -1,10 +1,10 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { ConstructOrder } from "constructs";
-import { Graph } from "../core";
 import { verifyFilterable } from "./filters";
 import * as presets from "./presets";
 import { FilterPreset, FilterStrategy, IGraphFilterPlan } from "./types";
+import { Graph } from "../core";
 
 export * from "./types";
 export * from "./filters";

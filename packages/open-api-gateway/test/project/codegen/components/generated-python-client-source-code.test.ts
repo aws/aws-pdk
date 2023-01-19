@@ -2,8 +2,8 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { PythonProject } from "projen/lib/python";
 import { SynthOutput } from "projen/lib/util/synth";
-import { GeneratedPythonClientSourceCode } from "../../../../lib/project/codegen/components/generated-python-client-source-code";
 import { synthGeneratedCodeProject } from "./utils";
+import { GeneratedPythonClientSourceCode } from "../../../../lib/project/codegen/components/generated-python-client-source-code";
 
 const synthGeneratedCode = (specFileName: string): SynthOutput => {
   const project = new PythonProject({

@@ -1,8 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { Graph } from "../core";
 import { Filters, verifyFilterable } from "./filters";
 import { IGraphFilterPlan, IGraphFilterPlanFocusConfig } from "./types";
+import { Graph } from "../core";
 
 /**
  * Focus the graph on a specific node.

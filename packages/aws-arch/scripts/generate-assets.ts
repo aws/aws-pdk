@@ -99,7 +99,7 @@ export async function generate () {
     }
     assetFiles.push(staticFile.replace(STATIC_ASSETS + '/', ''));
   }
-  await fs.copy(STATIC_ASSETS, ASSET_PACKAGE_DIR, { overwrite: true, recursive: true });
+  await fs.copy(STATIC_ASSETS, ASSET_PACKAGE_DIR, { overwrite: true });
 
   const downloadPath = path.join(TMP_DIR, ASSET_PACKAGE_ZIP_FILENAME);
 

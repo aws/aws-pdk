@@ -2,8 +2,8 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { JavaProject } from "projen/lib/java";
 import { SynthOutput } from "projen/lib/util/synth";
-import { GeneratedJavaClientSourceCode } from "../../../../lib/project/codegen/components/generated-java-client-source-code";
 import { synthGeneratedCodeProject } from "./utils";
+import { GeneratedJavaClientSourceCode } from "../../../../lib/project/codegen/components/generated-java-client-source-code";
 
 const synthGeneratedCode = (specFileName: string): SynthOutput => {
   const project = new JavaProject({
