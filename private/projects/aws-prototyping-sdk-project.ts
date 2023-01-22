@@ -3,9 +3,9 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Dependency, DependencyType, Project } from "projen";
 import { Stability } from "projen/lib/cdk";
+import { PDKMonorepoProject } from "./pdk-monorepo-project";
 import { NxMonorepoProject } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
-import { PDKMonorepoProject } from "./pdk-monorepo-project";
 
 /**
  * File patterns to keep in the .gitignore. Also used to determine which files to keep when cleaning.
@@ -42,7 +42,7 @@ export class AwsPrototypingSdkProject extends PDKProject {
       eslint: false,
       prettier: false,
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: ["ts-node", "fs-extra"],
+      devDeps: ["ts-node", "fs-extra", "@types/fs-extra@9.0.13"],
       stability: Stability.STABLE,
       sampleCode: false,
       excludeTypescript: ["**/samples/**"],

@@ -20,6 +20,7 @@ export class AwsArchProject extends PDKProject {
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: [
         "@aws-cdk/cfnspec",
+        "@types/fs-extra@9.0.13",
         "@types/node-fetch@2",
         "@types/sharp",
         "@types/unzipper",
