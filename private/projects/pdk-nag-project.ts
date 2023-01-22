@@ -7,7 +7,7 @@ import { PDKProject } from "../pdk-project";
 /**
  * Contains utils for testing CDK based constructs.
  */
- export class PDKNagProject extends PDKProject {
+export class PDKNagProject extends PDKProject {
   constructor(parent: Project) {
     super({
       parent,
@@ -23,9 +23,8 @@ import { PDKProject } from "../pdk-project";
         "@aws-cdk/assert",
         "@types/mustache",
         "mustache",
-        "@types/fs-extra",
         "fs-extra",
-        "ts-node"
+        "ts-node",
       ],
       author: "AWS APJ COPE",
       authorAddress: "apj-cope@amazon.com",
