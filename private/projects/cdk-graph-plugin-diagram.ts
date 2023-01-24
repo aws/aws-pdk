@@ -80,15 +80,23 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
 
     this.postCompileTask.prependSpawn(copyFilesTask);
 
-    this.jest?.addIgnorePattern("/\\.tmp/");
-    this.jest?.addIgnorePattern("/__\\w+__/");
-    this.jest?.addWatchIgnorePattern("/\\.tmp/");
+    if (this.jest) {
+      this.jest.addIgnorePattern("/\\.tmp/");
+      this.jest.addIgnorePattern("/__\\w+__/");
+      this.jest.addWatchIgnorePattern("/\\.tmp/");
 
-    // https://www.npmjs.com/package/jest-image-snapshot
-    this.jest?.addReporter(
-      "jest-image-snapshot/src/outdated-snapshot-reporter.js"
-    );
-    this.testTask.env("JEST_IMAGE_SNAPSHOT_TRACK_OBSOLETE", "1");
-    this.addGitIgnore(".jest-image-snapshot-touched-files");
+      // Tests in this package consume a lot of memory and compute; reducing concurrency to limit effects
+      // https://jestjs.io/docs/27.x/configuration#maxworkers-number--string
+      this.jest.config.maxWorkers = "25%";
+      // https://jestjs.io/docs/27.x/configuration#maxconcurrency-number
+      this.jest.config.maxConcurrency = 2;
+
+      // https://www.npmjs.com/package/jest-image-snapshot
+      this.jest.addReporter(
+        "jest-image-snapshot/src/outdated-snapshot-reporter.js"
+      );
+      this.testTask.env("JEST_IMAGE_SNAPSHOT_TRACK_OBSOLETE", "1");
+      this.addGitIgnore(".jest-image-snapshot-touched-files");
+    }
   }
 }
