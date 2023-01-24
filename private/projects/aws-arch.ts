@@ -2,7 +2,6 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { Project, TaskStep } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { Nx } from "../../packages/nx-monorepo/src/nx-types";
 import { PDKProject } from "../pdk-project";
 
 /**
@@ -90,6 +89,11 @@ export class AwsArchProject extends PDKProject {
     // Invoke with nx to support caching
     this.preCompileTask.prependExec("npx nx run generate");
 
+    const generateOutputs = [
+      "{projectRoot}/assets",
+      "{projectRoot}/src/generated",
+    ];
+
     this.nxOverride("targets.generate", {
       inputs: [
         "{projectRoot}/scripts/**",
@@ -97,17 +101,8 @@ export class AwsArchProject extends PDKProject {
         "!{projectRoot}/src/*",
         "{projectRoot}/src/!(generated)/**",
       ],
-      outputs: ["{projectRoot}/assets", "{projectRoot}/src/generated"],
+      outputs: generateOutputs,
     });
-    this.nxOverride(
-      "targets.build.dependsOn",
-      [
-        {
-          target: "generate",
-          projects: Nx.TargetDependencyProject.DEPENDENCIES,
-        },
-      ],
-      true
-    );
+    this.nxOverride("targets.build.outputs", generateOutputs, true);
   }
 }
