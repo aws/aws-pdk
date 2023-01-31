@@ -97,7 +97,7 @@ export class FixtureStack extends Stack {
     });
 
     const vpc = new ec2.Vpc(this, "VPC", {
-      cidr: "10.0.0.0/16",
+      ipAddresses: ec2.IpAddresses.cidr("10.0.0.0/16"),
       natGateways: 1,
       maxAzs: 3,
       subnetConfiguration: [
