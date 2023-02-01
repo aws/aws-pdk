@@ -3539,6 +3539,11 @@ if you pass in [] the default commands of this construct will be retained.</p>
 <td>Enable Docker for the 'synth' step.</td>
 </tr>
 <tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineProps.property.enableKeyRotation">enableKeyRotation</a></code></td>
+<td><code>boolean</code></td>
+<td>Enable KMS key rotation for the generated KMS keys.</td>
+</tr>
+<tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineProps.property.pipelineName">pipelineName</a></code></td>
 <td><code>string</code></td>
 <td>The name of the CodePipeline pipeline.</td>
@@ -3733,6 +3738,17 @@ using the <code>@aws-cdk/aws-lambda-nodejs</code> library.</p>
 <p>If you are about to turn this on in an already-deployed Pipeline,
 set the value to <code>true</code> first, commit and allow the pipeline to
 self-update, and only then use the bundled asset.</p>
+<hr />
+<h5 id="enablekeyrotationoptional"><code>enableKeyRotation</code><sup>Optional</sup> <a name="enableKeyRotation" id="aws-prototyping-sdk.pipeline.PDKPipelineProps.property.enableKeyRotation"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">enableKeyRotation</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+<li><em>Default:</em> false (key rotation is disabled)</li>
+</ul>
+<p>Enable KMS key rotation for the generated KMS keys.</p>
+<p>By default KMS key rotation is disabled, but will add
+additional costs when enabled.</p>
 <hr />
 <h5 id="pipelinenameoptional"><code>pipelineName</code><sup>Optional</sup> <a name="pipelineName" id="aws-prototyping-sdk.pipeline.PDKPipelineProps.property.pipelineName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">pipelineName</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -4631,7 +4647,7 @@ and <code>packages</code> scope.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use pip with a requirements.txt file to track project dependencies.</p>
 <hr />
@@ -4643,6 +4659,8 @@ and <code>packages</code> scope.</p>
 <li><em>Default:</em> false</li>
 </ul>
 <p>Use poetry to manage your project dependencies, virtual environment, and (optional) packaging/publishing.</p>
+<p>This feature is incompatible with pip, setuptools, or venv.
+If you set this option to <code>true</code>, then pip, setuptools, and venv must be set to <code>false</code>.</p>
 <hr />
 <h5 id="projenrcjsoptional"><code>projenrcJs</code><sup>Optional</sup> <a name="projenrcJs" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.projenrcJs"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">projenrcJs</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
@@ -4716,7 +4734,7 @@ task which will run <code>.projenrc.py</code>.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> boolean</li>
-<li><em>Default:</em> true if the project type is library</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use setuptools with a setup.py script for packaging and publishing.</p>
 <hr />
@@ -4725,7 +4743,7 @@ task which will run <code>.projenrc.py</code>.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use venv to manage a virtual environment for installing dependencies inside.</p>
 <hr />

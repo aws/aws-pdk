@@ -2104,6 +2104,7 @@ automated PR builds and approvals.</p>
 <span class="c1">//  .dockerCredentials(java.util.List&lt;DockerCredential&gt;)</span>
 <span class="c1">//  .dockerEnabledForSelfMutation(java.lang.Boolean)</span>
 <span class="c1">//  .dockerEnabledForSynth(java.lang.Boolean)</span>
+<span class="c1">//  .enableKeyRotation(java.lang.Boolean)</span>
 <span class="c1">//  .pipelineName(java.lang.String)</span>
 <span class="c1">//  .publishAssetsInParallel(java.lang.Boolean)</span>
 <span class="c1">//  .reuseCrossRegionSupportStacks(java.lang.Boolean)</span>
@@ -2183,6 +2184,11 @@ automated PR builds and approvals.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipeline.Initializer.parameter.dockerEnabledForSynth">dockerEnabledForSynth</a></code></td>
 <td><code>java.lang.Boolean</code></td>
 <td>Enable Docker for the 'synth' step.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipeline.Initializer.parameter.enableKeyRotation">enableKeyRotation</a></code></td>
+<td><code>java.lang.Boolean</code></td>
+<td>Enable KMS key rotation for the generated KMS keys.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipeline.Initializer.parameter.pipelineName">pipelineName</a></code></td>
@@ -2371,6 +2377,15 @@ using the <code>@aws-cdk/aws-lambda-nodejs</code> library.</p>
 <p>If you are about to turn this on in an already-deployed Pipeline,
 set the value to <code>true</code> first, commit and allow the pipeline to
 self-update, and only then use the bundled asset.</p>
+<hr />
+<h5 id="enablekeyrotationoptional"><code>enableKeyRotation</code><sup>Optional</sup> <a name="enableKeyRotation" id="aws-prototyping-sdk.pipeline.PDKPipeline.Initializer.parameter.enableKeyRotation"></a></h5>
+<ul>
+<li><em>Type:</em> java.lang.Boolean</li>
+<li><em>Default:</em> false (key rotation is disabled)</li>
+</ul>
+<p>Enable KMS key rotation for the generated KMS keys.</p>
+<p>By default KMS key rotation is disabled, but will add
+additional costs when enabled.</p>
 <hr />
 <h5 id="pipelinenameoptional"><code>pipelineName</code><sup>Optional</sup> <a name="pipelineName" id="aws-prototyping-sdk.pipeline.PDKPipeline.Initializer.parameter.pipelineName"></a></h5>
 <ul>
@@ -4059,6 +4074,7 @@ if you pass in [] the default commands of this construct will be retained.</p>
 <span class="c1">//  .dockerCredentials(java.util.List&lt;DockerCredential&gt;)</span>
 <span class="c1">//  .dockerEnabledForSelfMutation(java.lang.Boolean)</span>
 <span class="c1">//  .dockerEnabledForSynth(java.lang.Boolean)</span>
+<span class="c1">//  .enableKeyRotation(java.lang.Boolean)</span>
 <span class="c1">//  .pipelineName(java.lang.String)</span>
 <span class="c1">//  .publishAssetsInParallel(java.lang.Boolean)</span>
 <span class="c1">//  .reuseCrossRegionSupportStacks(java.lang.Boolean)</span>
@@ -4129,6 +4145,11 @@ if you pass in [] the default commands of this construct will be retained.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineProps.property.dockerEnabledForSynth">dockerEnabledForSynth</a></code></td>
 <td><code>java.lang.Boolean</code></td>
 <td>Enable Docker for the 'synth' step.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineProps.property.enableKeyRotation">enableKeyRotation</a></code></td>
+<td><code>java.lang.Boolean</code></td>
+<td>Enable KMS key rotation for the generated KMS keys.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineProps.property.pipelineName">pipelineName</a></code></td>
@@ -4325,6 +4346,17 @@ using the <code>@aws-cdk/aws-lambda-nodejs</code> library.</p>
 <p>If you are about to turn this on in an already-deployed Pipeline,
 set the value to <code>true</code> first, commit and allow the pipeline to
 self-update, and only then use the bundled asset.</p>
+<hr />
+<h5 id="enablekeyrotationoptional_1"><code>enableKeyRotation</code><sup>Optional</sup> <a name="enableKeyRotation" id="aws-prototyping-sdk.pipeline.PDKPipelineProps.property.enableKeyRotation"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getEnableKeyRotation</span><span class="p">();</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> java.lang.Boolean</li>
+<li><em>Default:</em> false (key rotation is disabled)</li>
+</ul>
+<p>Enable KMS key rotation for the generated KMS keys.</p>
+<p>By default KMS key rotation is disabled, but will add
+additional costs when enabled.</p>
 <hr />
 <h5 id="pipelinenameoptional_1"><code>pipelineName</code><sup>Optional</sup> <a name="pipelineName" id="aws-prototyping-sdk.pipeline.PDKPipelineProps.property.pipelineName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="nf">getPipelineName</span><span class="p">();</span>
@@ -5293,7 +5325,7 @@ and <code>packages</code> scope.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use pip with a requirements.txt file to track project dependencies.</p>
 <hr />
@@ -5305,6 +5337,8 @@ and <code>packages</code> scope.</p>
 <li><em>Default:</em> false</li>
 </ul>
 <p>Use poetry to manage your project dependencies, virtual environment, and (optional) packaging/publishing.</p>
+<p>This feature is incompatible with pip, setuptools, or venv.
+If you set this option to <code>true</code>, then pip, setuptools, and venv must be set to <code>false</code>.</p>
 <hr />
 <h5 id="projenrcjsoptional"><code>projenrcJs</code><sup>Optional</sup> <a name="projenrcJs" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.projenrcJs"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getProjenrcJs</span><span class="p">();</span>
@@ -5378,7 +5412,7 @@ task which will run <code>.projenrc.py</code>.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true if the project type is library</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use setuptools with a setup.py script for packaging and publishing.</p>
 <hr />
@@ -5387,7 +5421,7 @@ task which will run <code>.projenrc.py</code>.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use venv to manage a virtual environment for installing dependencies inside.</p>
 <hr />
@@ -10966,7 +11000,7 @@ and <code>packages</code> scope.</p>
 <h5 id="pipoptional_1"><code>pip</code><sup>Optional</sup> <a name="pip" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.pip"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use pip with a requirements.txt file to track project dependencies.</p>
 <hr />
@@ -10976,6 +11010,8 @@ and <code>packages</code> scope.</p>
 <li><em>Default:</em> false</li>
 </ul>
 <p>Use poetry to manage your project dependencies, virtual environment, and (optional) packaging/publishing.</p>
+<p>This feature is incompatible with pip, setuptools, or venv.
+If you set this option to <code>true</code>, then pip, setuptools, and venv must be set to <code>false</code>.</p>
 <hr />
 <h5 id="projenrcjsoptional_2"><code>projenrcJs</code><sup>Optional</sup> <a name="projenrcJs" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.projenrcJs"></a></h5>
 <ul>
@@ -11033,14 +11069,14 @@ task which will run <code>.projenrc.py</code>.</p>
 <h5 id="setuptoolsoptional_1"><code>setuptools</code><sup>Optional</sup> <a name="setuptools" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.setuptools"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true if the project type is library</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use setuptools with a setup.py script for packaging and publishing.</p>
 <hr />
 <h5 id="venvoptional_1"><code>venv</code><sup>Optional</sup> <a name="venv" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProject.Initializer.parameter.venv"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use venv to manage a virtual environment for installing dependencies inside.</p>
 <hr />

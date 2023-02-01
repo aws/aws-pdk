@@ -2598,13 +2598,12 @@ aws-prototyping-sdk library.</p>
 <span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <p>You will need to set up a shared virtual environment and configure dependencies via the monorepo (see README.md for the nx-monorepo package). An example of a full <code>.projenrc.ts</code> might be:</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">aws.prototyping.sdk.nx_monorepo</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.nxmonorepo.*</span><span class="p">;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.ClientLanguage</span><span class="p">;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.openapigateway.OpenApiGatewayPythonProject</span><span class="p">;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io.github.cdklabs.projen.AwsCdkPythonApp.AwsCdkPythonApp</span><span class="p">;</span>
 
-<span class="n">Object</span><span class="w"> </span><span class="n">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NxMonorepoProject</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span>
+<span class="n">NxMonorepoProject</span><span class="w"> </span><span class="n">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NxMonorepoProject</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span>
 <span class="w">        </span><span class="p">.</span><span class="na">defaultReleaseBranch</span><span class="p">(</span><span class="s">&quot;main&quot;</span><span class="p">)</span>
 <span class="w">        </span><span class="p">.</span><span class="na">devDeps</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;aws-prototyping-sdk&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;@aws-prototyping-sdk/open-api-gateway&quot;</span><span class="p">))</span>
 <span class="w">        </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;open-api-test&quot;</span><span class="p">)</span>
@@ -2963,7 +2962,7 @@ aws-prototyping-sdk library.</p>
 <span class="w">        </span><span class="p">.</span><span class="na">fetchApi</span><span class="p">(</span><span class="n">window</span><span class="p">.</span><span class="na">fetch</span><span class="p">.</span><span class="na">bind</span><span class="p">(</span><span class="n">window</span><span class="p">))</span>
 <span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
 
-<span class="n">await</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">sayHello</span><span class="p">({</span><span class="w"> </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Jack&quot;</span><span class="w"> </span><span class="p">});</span>
+<span class="n">client</span><span class="p">.</span><span class="na">sayHello</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Jack&quot;</span><span class="p">));</span>
 </code></pre></div>
 <h4 id="python_1">Python</h4>
 <p>The <a href="https://openapi-generator.tech/docs/generators/python-experimental">python-experimental</a> OpenAPI generator is used to generate OpenAPI clients for python.</p>
@@ -6878,7 +6877,7 @@ and <code>packages</code> scope.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use pip with a requirements.txt file to track project dependencies.</p>
 <hr />
@@ -6890,6 +6889,8 @@ and <code>packages</code> scope.</p>
 <li><em>Default:</em> false</li>
 </ul>
 <p>Use poetry to manage your project dependencies, virtual environment, and (optional) packaging/publishing.</p>
+<p>This feature is incompatible with pip, setuptools, or venv.
+If you set this option to <code>true</code>, then pip, setuptools, and venv must be set to <code>false</code>.</p>
 <hr />
 <h5 id="projenrcjsoptional"><code>projenrcJs</code><sup>Optional</sup> <a name="projenrcJs" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProjectOptions.property.projenrcJs"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getProjenrcJs</span><span class="p">();</span>
@@ -6963,7 +6964,7 @@ task which will run <code>.projenrc.py</code>.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true if the project type is library</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use setuptools with a setup.py script for packaging and publishing.</p>
 <hr />
@@ -6972,7 +6973,7 @@ task which will run <code>.projenrc.py</code>.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use venv to manage a virtual environment for installing dependencies inside.</p>
 <hr />
@@ -11891,7 +11892,7 @@ and <code>packages</code> scope.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use pip with a requirements.txt file to track project dependencies.</p>
 <hr />
@@ -11903,6 +11904,8 @@ and <code>packages</code> scope.</p>
 <li><em>Default:</em> false</li>
 </ul>
 <p>Use poetry to manage your project dependencies, virtual environment, and (optional) packaging/publishing.</p>
+<p>This feature is incompatible with pip, setuptools, or venv.
+If you set this option to <code>true</code>, then pip, setuptools, and venv must be set to <code>false</code>.</p>
 <hr />
 <h5 id="projenrcjsoptional_2"><code>projenrcJs</code><sup>Optional</sup> <a name="projenrcJs" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProjectOptions.property.projenrcJs"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getProjenrcJs</span><span class="p">();</span>
@@ -11976,7 +11979,7 @@ task which will run <code>.projenrc.py</code>.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true if the project type is library</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use setuptools with a setup.py script for packaging and publishing.</p>
 <hr />
@@ -11985,7 +11988,7 @@ task which will run <code>.projenrc.py</code>.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use venv to manage a virtual environment for installing dependencies inside.</p>
 <hr />
@@ -18083,7 +18086,7 @@ and <code>packages</code> scope.</p>
 <h5 id="pipoptional_2"><code>pip</code><sup>Optional</sup> <a name="pip" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.pip"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use pip with a requirements.txt file to track project dependencies.</p>
 <hr />
@@ -18093,6 +18096,8 @@ and <code>packages</code> scope.</p>
 <li><em>Default:</em> false</li>
 </ul>
 <p>Use poetry to manage your project dependencies, virtual environment, and (optional) packaging/publishing.</p>
+<p>This feature is incompatible with pip, setuptools, or venv.
+If you set this option to <code>true</code>, then pip, setuptools, and venv must be set to <code>false</code>.</p>
 <hr />
 <h5 id="projenrcjsoptional_4"><code>projenrcJs</code><sup>Optional</sup> <a name="projenrcJs" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.projenrcJs"></a></h5>
 <ul>
@@ -18150,14 +18155,14 @@ task which will run <code>.projenrc.py</code>.</p>
 <h5 id="setuptoolsoptional_2"><code>setuptools</code><sup>Optional</sup> <a name="setuptools" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.setuptools"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true if the project type is library</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use setuptools with a setup.py script for packaging and publishing.</p>
 <hr />
 <h5 id="venvoptional_2"><code>venv</code><sup>Optional</sup> <a name="venv" id="@aws-prototyping-sdk/open-api-gateway.OpenApiGatewayPythonProject.Initializer.parameter.venv"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use venv to manage a virtual environment for installing dependencies inside.</p>
 <hr />
@@ -24947,7 +24952,7 @@ and <code>packages</code> scope.</p>
 <h5 id="pipoptional_3"><code>pip</code><sup>Optional</sup> <a name="pip" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProject.Initializer.parameter.pip"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use pip with a requirements.txt file to track project dependencies.</p>
 <hr />
@@ -24957,6 +24962,8 @@ and <code>packages</code> scope.</p>
 <li><em>Default:</em> false</li>
 </ul>
 <p>Use poetry to manage your project dependencies, virtual environment, and (optional) packaging/publishing.</p>
+<p>This feature is incompatible with pip, setuptools, or venv.
+If you set this option to <code>true</code>, then pip, setuptools, and venv must be set to <code>false</code>.</p>
 <hr />
 <h5 id="projenrcjsoptional_6"><code>projenrcJs</code><sup>Optional</sup> <a name="projenrcJs" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProject.Initializer.parameter.projenrcJs"></a></h5>
 <ul>
@@ -25014,14 +25021,14 @@ task which will run <code>.projenrc.py</code>.</p>
 <h5 id="setuptoolsoptional_3"><code>setuptools</code><sup>Optional</sup> <a name="setuptools" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProject.Initializer.parameter.setuptools"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true if the project type is library</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use setuptools with a setup.py script for packaging and publishing.</p>
 <hr />
 <h5 id="venvoptional_3"><code>venv</code><sup>Optional</sup> <a name="venv" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProject.Initializer.parameter.venv"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.Boolean</li>
-<li><em>Default:</em> true</li>
+<li><em>Default:</em> true, unless poetry is true, then false</li>
 </ul>
 <p>Use venv to manage a virtual environment for installing dependencies inside.</p>
 <hr />
