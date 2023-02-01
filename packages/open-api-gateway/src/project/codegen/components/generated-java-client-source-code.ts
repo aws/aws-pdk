@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import * as path from "path";
 import { getLogger } from "log4js";
 import { Component } from "projen";
 import { JavaProject } from "projen/lib/java";
@@ -69,6 +70,7 @@ export class GeneratedJavaClientSourceCode extends Component {
             "@lombok.experimental.SuperBuilder",
           ].join("\\ "),
         },
+        srcDir: path.join("src", "main", "java", ...invokerPackage.split(".")),
       });
     }
   }

@@ -55,6 +55,8 @@ export class GeneratedPythonClientSourceCode extends Component {
           packageName: (this.project as PythonProject).moduleName,
           projectName: this.project.name,
         },
+        // Tell the generator where python source files live
+        srcDir: (this.project as PythonProject).moduleName,
       });
     }
   }

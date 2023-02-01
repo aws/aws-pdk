@@ -1,4 +1,8 @@
+{{#apiInfo}}
+{{#apis.0}}
 package {{package}};
+{{/apis.0}}
+{{/apiInfo}}
 
 {{>generatedAnnotation}}
 public class Operations {
@@ -9,11 +13,15 @@ public class Operations {
      */
     public static <T> OperationConfig.OperationConfigBuilder<T> all(final T value) {
         return OperationConfig.<T>builder()
+                {{#apiInfo}}
+                {{#apis}}
                 {{#operations}}
                 {{#operation}}
                 .{{nickname}}(value)
                 {{/operation}}
                 {{/operations}}
+                {{/apis}}
+                {{/apiInfo}}
                 ;
     }
 }

@@ -4,10 +4,16 @@ from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Unio
 from functools import wraps
 from dataclasses import dataclass, fields
 
+{{#apiInfo}}
+{{#apis}}
 {{#imports}}
 {{{import}}}
 {{/imports}}
+{{/apis}}
+{{/apiInfo}}
 
+{{#apiInfo}}
+{{#apis.0}}
 from {{packageName}}.schemas import (
     date,
     datetime,
@@ -15,21 +21,29 @@ from {{packageName}}.schemas import (
     none_type,
 )
 from {{packageName}}.api_client import JSONEncoder
+{{/apis.0}}
+{{/apiInfo}}
 
 T = TypeVar('T')
 
 # Generic type for object keyed by operation names
 @dataclass
 class OperationConfig(Generic[T]):
+{{#apiInfo}}
+{{#apis}}
 {{#operations}}
 {{#operation}}
     {{operationId}}: T
 {{/operation}}
 {{/operations}}
+{{/apis}}
+{{/apiInfo}}
     ...
 
 # Look up path and http method for a given operation name
 OperationLookup = {
+{{#apiInfo}}
+{{#apis}}
 {{#operations}}
 {{#operation}}
     "{{operationId}}": {
@@ -38,6 +52,8 @@ OperationLookup = {
     },
 {{/operation}}
 {{/operations}}
+{{/apis}}
+{{/apiInfo}}
 }
 
 class Operations:
@@ -126,6 +142,8 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
                 ))
         return RemainingHandlerChain()
 
+{{#apiInfo}}
+{{#apis}}
 {{#operations}}
 {{#operation}}
 
@@ -239,6 +257,8 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
         raise Exception("Positional arguments are not supported by {{operationId}}_handler.")
 {{/operation}}
 {{/operations}}
+{{/apis}}
+{{/apiInfo}}
 
 Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
 
@@ -249,11 +269,15 @@ OperationIdByMethodAndPath = { concat_method_and_path(method_and_path["method"],
 
 @dataclass
 class HandlerRouterHandlers:
+{{#apiInfo}}
+{{#apis}}
 {{#operations}}
 {{#operation}}
   {{operationId}}: Callable[[Dict, Any], Dict]
 {{/operation}}
 {{/operations}}
+{{/apis}}
+{{/apiInfo}}
 
 def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
     """
