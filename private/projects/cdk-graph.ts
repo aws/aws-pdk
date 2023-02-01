@@ -18,6 +18,8 @@ export class CdkGraphProject extends PDKProject {
       keywords: ["aws", "pdk", "jsii", "projen", "cdk", "graph", "cdk-graph"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: [
+        "@aws-prototyping-sdk/pdk-nag",
+        "@aws-prototyping-sdk/pipeline",
         "@aws-cdk/cfnspec",
         "@types/lodash.clonedeep",
         "@types/lodash.isempty",
