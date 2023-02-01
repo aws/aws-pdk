@@ -261,8 +261,7 @@ const resolveDependencies = (project: any): void => {
       "async@^2.6.4",
       "nth-check@^2.0.1",
       "got@^11.8.5",
-      "@types/yargs@17.0.10",
-      "execa@^5.1.1"
+      "@types/yargs@17.0.10"
     );
   }
 };
