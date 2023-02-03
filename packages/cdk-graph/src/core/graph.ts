@@ -21,6 +21,7 @@ import {
   EdgeDirectionEnum,
   CdkConstructIds,
 } from "./types";
+import { tokenizeImportArn } from "./utils";
 import { ConstructInfo } from "../cdk-internals";
 
 /** Public cdk-graph interface */
@@ -78,6 +79,8 @@ export namespace Graph {
     private _stages: Map<UUID, StageNode> = new Map();
     /** @internal */
     private _logicalIdLookup: Map<LOGICAL_UNIVERSAL_ID, UUID> = new Map();
+    /** @internal */
+    private _importArnTokenLookup: Map<string, UUID> = new Map();
 
     /** @internal */
     private _counters: IStoreCounters = {
@@ -285,6 +288,31 @@ export namespace Graph {
     recordLogicalId(stack: StackNode, logicalId: string, resource: Node): void {
       const uid = this.computeLogicalUniversalId(stack, logicalId);
       this._logicalIdLookup.set(uid, resource.uuid);
+    }
+
+    /**
+     * Records arn tokens from imported resources (eg: `s3.Bucket.fromBucketAr()`)
+     * that are used for resolving references.
+     */
+    recordImportArn(arnToken: string, resource: Node): void {
+      this._importArnTokenLookup.set(arnToken, resource.uuid);
+    }
+
+    /**
+     * Attempts to lookup the {@link Node} associated with a given *import arn token*.
+     * @param value Import arn value, which is either object to tokenize or already tokenized string.
+     * @returns Returns matching {@link Node} if found, otherwise undefined.
+     */
+    findNodeByImportArn(value: any): Node | undefined {
+      if (typeof value !== "string") {
+        value = tokenizeImportArn(value);
+      }
+
+      const nodeUUID = this._importArnTokenLookup.get(value);
+      if (nodeUUID) {
+        return this._nodes.get(nodeUUID);
+      }
+      return undefined;
     }
 
     /** Serialize the store */
@@ -1972,10 +2000,15 @@ export namespace Graph {
   /** CfnResourceNode props */
   export interface ICfnResourceNodeProps extends ITypedNodeProps {
     nodeType?: NodeTypeEnum;
+    importArnToken?: string;
   }
 
   /** CfnResourceNode defines an L1 cdk resource */
   export class CfnResourceNode extends Node {
+    /** Normalized CfnReference attribute */
+    static readonly ATT_IMPORT_ARN_TOKEN =
+      "graph:cfn-resource:import-arn-token";
+
     /** Indicates if a node is a {@link CfnResourceNode} */
     static isCfnResourceNode(node: Node): node is CfnResourceNode {
       return node.nodeType === NodeTypeEnum.CFN_RESOURCE;
@@ -1987,9 +2020,45 @@ export namespace Graph {
         ...props,
       });
 
-      if (this.cfnType == null) {
+      // All cfn resource must have cfnType, but imported cfnType is inferred so might be missing
+      if (this.cfnType == null && !this.hasFlag(FlagEnum.IMPORT)) {
         throw new Error("CfnResourceNode requires `cfnType` property");
       }
+
+      if (props.importArnToken) {
+        this.setAttribute(
+          CfnResourceNode.ATT_IMPORT_ARN_TOKEN,
+          props.importArnToken
+        );
+      }
+
+      if (this.hasAttribute(CfnResourceNode.ATT_IMPORT_ARN_TOKEN)) {
+        this.store.recordImportArn(
+          this.getAttribute(CfnResourceNode.ATT_IMPORT_ARN_TOKEN),
+          this
+        );
+      }
+    }
+
+    /**
+     * Gets the ResourceNode (L2) that wraps this CfnResourceNode (L1)
+     */
+    get wrapper(): ResourceNode | undefined {
+      const resource = this.findNearestResource();
+      if (resource?.cfnResource === this) {
+        return resource;
+      }
+      return undefined;
+    }
+
+    /** Indicates if this CfnResource is wrapped by L2 ResourceNode */
+    get isWrapped(): boolean {
+      return !!this.wrapper;
+    }
+
+    /** Indicates if this CfnResource is imported (eg: `s3.Bucket.fromBucketArn`) */
+    get isImport(): boolean {
+      return this.hasFlag(FlagEnum.IMPORT);
     }
 
     /**
@@ -2029,14 +2098,14 @@ export namespace Graph {
      * @inheritdoc
      */
     mutateDestroy(strict?: boolean): void {
-      const resource = this.findNearestResource();
-      if (resource?.cfnResource === this) {
-        resource.setAttribute(ResourceNode.ATT_WRAPPED_CFN_TYPE, this.cfnType);
-        resource.setAttribute(
+      const _wrapper = this.wrapper;
+      if (_wrapper) {
+        _wrapper.setAttribute(ResourceNode.ATT_WRAPPED_CFN_TYPE, this.cfnType);
+        _wrapper.setAttribute(
           ResourceNode.ATT_WRAPPED_CFN_PROPS,
           this.cfnProps
         );
-        resource.mutateCfnResource(undefined);
+        _wrapper.mutateCfnResource(undefined);
       }
 
       super.mutateDestroy(strict);
@@ -2549,6 +2618,18 @@ export namespace Graph {
       throw new Error("Root node can not be hoisted");
     }
   }
+
+  export function isResourceLike(node: Node): boolean {
+    switch (node.nodeType) {
+      case NodeTypeEnum.RESOURCE:
+      case NodeTypeEnum.CFN_RESOURCE: {
+        return true;
+      }
+      default: {
+        return false;
+      }
+    }
+  }
 }
 
 /**
@@ -2587,7 +2668,7 @@ export function deserializeStore(
       store,
     };
 
-    if (nodeProps.parent !== parent) {
+    if (nodeProps.parent?.uuid !== parent.uuid) {
       throw new Error(
         `SerializedNode parent ${sNode.parent} does not match visitor parent ${parent.uuid}`
       );
