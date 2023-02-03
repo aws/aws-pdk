@@ -104,3 +104,37 @@ export const invokeOpenApiGenerator = (options: GenerationOptions) => {
     }
   );
 };
+
+/**
+ * Options for generating documentation via a custom generator script
+ */
+export interface CustomDocsGenerationOptions {
+  /**
+   * Name of the generator script which exists in scripts/custom/docs
+   */
+  readonly generator: string;
+  /**
+   * Any arguments to pass to the script
+   */
+  readonly args?: string;
+}
+
+/**
+ * Invoke a custom documentation generator script
+ */
+export const invokeCustomDocsGenerator = (
+  options: CustomDocsGenerationOptions
+) => {
+  exec(`./${options.generator}${options.args ? ` ${options.args}` : ""}`, {
+    cwd: path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "..",
+      "scripts",
+      "custom",
+      "docs"
+    ),
+  });
+};
