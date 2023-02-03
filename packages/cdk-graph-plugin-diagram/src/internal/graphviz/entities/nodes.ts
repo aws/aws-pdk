@@ -143,6 +143,19 @@ export class CfnResourceNode extends ImageNode {
     this.attributes.apply(GraphTheme.instance.cfnResourceNode);
 
     this.resize(GraphTheme.instance.cfnResourceNode.height);
+
+    if (node.isImport) {
+      this.attributes.apply({
+        style: "filled,dotted",
+        penwidth: 1,
+        fontcolor: (GraphTheme.instance.awsTheme?.text.tertiary ||
+          "#55555") as Dot.Color,
+        color: ((GraphTheme.instance.awsTheme?.text.tertiary || "#55555") +
+          "33") as Dot.Color, // 20%
+        fillcolor: ((GraphTheme.instance.awsTheme?.text.tertiary || "#55555") +
+          "1A") as Dot.Color, // 10%
+      });
+    }
   }
 }
 
