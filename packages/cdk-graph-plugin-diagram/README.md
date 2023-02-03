@@ -33,7 +33,7 @@ This plugin generates diagrams utilizing the [cdk-graph](https://aws.github.io/a
 
   // async cdk-graph reporting hook
   await graph.report();
-})
+})()
 
 // => cdk.out/diagram.dot
 // => cdk.out/diagram.svg
@@ -61,9 +61,72 @@ This plugin generates diagrams utilizing the [cdk-graph](https://aws.github.io/a
 
 ### Configuration
 
-See [API Documentation](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html) for details, and look in [unit tests](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/cdk-graph-plugin-diagram/test/graphviz) for more examples.
+See [IPluginConfig](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html#ipluginconfig) interface for details, and look in [unit tests](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/cdk-graph-plugin-diagram/test/graphviz) for additional examples.
 
-#### Example Configurations (expand below)
+By default the diagram plugin will generate a single "compact" preset diagram.
+It is capable of creating multiple diagrams each with different configurations, as well as defining the defaults to use.
+
+**Defaults Option**
+
+Changing the `defaults` option will modify default options for all diagrams, including the default diagram.
+
+> See [IDiagramConfigBase](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html#idiagramconfigbase) interface for `plugin.defaults` options.
+
+```ts
+new CdkGraphDiagramPlugin({
+  defaults: {
+    theme: "dark",
+    filterPlan: {
+      preset: FilterPreset.NONE,
+    }
+  }
+});
+
+// => results in a single diagram that is "verbose" and "dark", since no resources are filtered
+```
+
+**Diagrams Option**
+
+By modifying the `diagrams` option of the plugin you have full control over the rendering of diagrams, and can render **multiple** diagrams.
+
+> See [IDiagramConfig](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html#idiagramconfig) interface for diagram config options.
+
+```ts
+new CdkGraphDiagramPlugin({
+  diagrams: [
+    {
+      name: "diagram-1",
+      title: "Diagram 1 (dark + compact)",
+      theme: "dark",
+      // the default `filterPlan: { preset: FilterPreset.COMPACT }` will still apply
+    },
+    {
+      name: "diagram-2",
+      title: "Diagram 2 (dark + verbose)",
+      theme: "dark",
+      filterPlan: {
+        preset: FilterPreset.NONE,
+      },
+    },
+    {
+      name: "diagram-3",
+      title: "Diagram 3 (no defaults)",
+      ignoreDefaults: true, // default options will not be applied (theme, filterPlan, etc)
+    },
+  ],
+});
+```
+
+#### Example Diagram Configs (expand below)
+The below examples define individual diagram configs in the `diagrams` options of the plugin as described above.
+
+```ts
+new CdkGraphDiagramPlugin({
+  diagrams: [
+    // ... insert diagram  config(s) here - see below for examples
+  ],
+});
+```
 
 ##### **Presets**
 
