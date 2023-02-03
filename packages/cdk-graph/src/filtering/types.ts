@@ -17,6 +17,10 @@ export enum FilterPreset {
    * Collapses extraneous nodes to parent and prunes extraneous edges.
    */
   NON_EXTRANEOUS = "non-extraneous",
+  /**
+   * No filtering is performed which will output **verbose** graph.
+   */
+  NONE = "none",
 }
 
 /**
