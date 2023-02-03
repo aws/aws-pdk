@@ -291,7 +291,7 @@ export namespace Graph {
     }
 
     /**
-     * Records arn tokens from imported resources (eg: `s3.Bucket.fromBucketAr()`)
+     * Records arn tokens from imported resources (eg: `s3.Bucket.fromBucketArn()`)
      * that are used for resolving references.
      */
     recordImportArn(arnToken: string, resource: Node): void {
