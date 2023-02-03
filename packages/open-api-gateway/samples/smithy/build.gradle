@@ -1,31 +1,41 @@
+plugins {
+    id "software.amazon.smithy" version "0.6.0"
+    id "idea"
+}
+
+idea {
+    module {
+        sourceDirs += file("src/main/smithy")
+    }
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
 }
 
-configurations {
-    smithy
-}
-
-// Add more dependencies here if you'd like to reference them in smithy-build.json
-// Feel free to upgrade versions as appropriate
+// Additional Smithy dependencies can be added here
 dependencies {
-    smithy("software.amazon.smithy:smithy-cli:1.24.0")
-    smithy("software.amazon.smithy:smithy-model:1.24.0")
-    smithy("software.amazon.smithy:smithy-openapi:1.24.0")
-    smithy("software.amazon.smithy:smithy-aws-traits:1.24.0")
+    implementation "software.amazon.smithy:smithy-cli:1.27.2"
+    implementation "software.amazon.smithy:smithy-model:1.27.2"
+    implementation "software.amazon.smithy:smithy-openapi:1.27.2"
+    implementation "software.amazon.smithy:smithy-aws-traits:1.27.2"
 }
 
-// This task is called by the SmithyApiGateway project during project synthesis, modify at your own risk!
+// This task is called by the SmithyApiGateway project and should not be removed!
 task generate(type: JavaExec) {
-    classpath configurations.smithy
-            main = "software.amazon.smithy.cli.SmithyCli"
+    configurations.implementation.setCanBeResolved(true)
 
-    args("build",
-            "--config",
-            file(config).toString(),
-            "--output",
-            file(output).toString(),
-            "--discover",
-            file(discover).toString())
+    classpath = configurations.implementation
+    mainClass.set('software.amazon.smithy.cli.SmithyCli')
+
+    if (project.hasProperty("config") && project.hasProperty("output") && project.hasProperty("discover")) {
+        args("build",
+                "--config",
+                file(project.getProperty("config")).toString(),
+                "--output",
+                file(project.getProperty("output")).toString(),
+                "--discover",
+                file(project.getProperty("discover")).toString())
+    }
 }

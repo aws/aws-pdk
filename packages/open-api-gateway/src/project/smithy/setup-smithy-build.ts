@@ -3,7 +3,6 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Project } from "projen";
 import { SmithyBuildProject } from "./smithy-build-project";
-import { SmithyModelProject } from "./smithy-model-project";
 import { SmithyApiGatewayProjectOptions } from "../types";
 
 /**
@@ -28,21 +27,9 @@ export const setupSmithyBuild = (
   options: SmithyApiGatewayProjectOptions
 ): SmithyBuildProjectResult => {
   const modelDir = options.modelDir ?? "model";
-  const { namespace: serviceNamespace, serviceName } = options.serviceName;
-  const fullyQualifiedServiceName = `${serviceNamespace}#${serviceName}`;
+  const { serviceName } = options.serviceName;
 
-  const smithyBuildDir = "smithy-build";
-
-  // Create a smithy model (eg main.smithy)
-  const smithyModel = new SmithyModelProject({
-    name: `${project.name}-smithy`,
-    outdir: modelDir,
-    parent: project,
-    serviceNamespace,
-    serviceName,
-  });
-  smithyModel.synth();
-
+  const smithyBuildDir = "smithy";
   const smithyBuildOutputSubDir = "output";
 
   // Create the smithy build project, responsible for transforming the model into an OpenAPI spec
@@ -50,13 +37,9 @@ export const setupSmithyBuild = (
     name: `${project.name}-smithy-build`,
     parent: project,
     outdir: smithyBuildDir,
-    fullyQualifiedServiceName,
+    serviceName: options.serviceName,
     smithyBuildOptions: options.smithyBuildOptions,
-    modelPath: path.join(project.outdir, modelDir),
     buildOutputDir: smithyBuildOutputSubDir,
-    gradleWrapperPath: options.gradleWrapperPath
-      ? path.resolve(project.outdir, options.gradleWrapperPath)
-      : undefined,
   });
   smithyBuild.synth();
 
@@ -69,8 +52,15 @@ export const setupSmithyBuild = (
   if (options.ignoreSmithyBuildOutput ?? true) {
     project.gitignore.addPatterns(smithyBuildOutputDir);
   }
+  // Ignore gradle wrapper by default
+  if (options.ignoreGradleWrapper ?? true) {
+    project.gitignore.addPatterns(path.join(smithyBuildDir, "gradle"));
+    project.gitignore.addPatterns(path.join(smithyBuildDir, "gradlew"));
+    project.gitignore.addPatterns(path.join(smithyBuildDir, "gradlew.bat"));
+  }
   // Ignore the .gradle directory
   project.gitignore.addPatterns(path.join(smithyBuildDir, ".gradle"));
+  project.gitignore.addPatterns(path.join(smithyBuildDir, "build"));
 
   return {
     modelDir,
