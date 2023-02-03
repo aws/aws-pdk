@@ -19,7 +19,7 @@ import {
   UserPoolAuthenticationProvider,
 } from "@aws-cdk/aws-cognito-identitypool-alpha";
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
-import { Stack } from "aws-cdk-lib";
+import { Stack, Duration } from "aws-cdk-lib";
 import {
   AccountRecovery,
   CfnUserPool,
@@ -66,6 +66,7 @@ export class UserIdentity extends Construct {
           requireUppercase: true,
           requireDigits: true,
           requireSymbols: true,
+          tempPasswordValidity: Duration.days(3),
         },
         mfa: Mfa.REQUIRED,
         accountRecovery: AccountRecovery.EMAIL_ONLY,
