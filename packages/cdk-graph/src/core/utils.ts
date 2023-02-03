@@ -2,8 +2,10 @@
 SPDX-License-Identifier: Apache-2.0 */
 import {
   CfnElement,
+  CfnResource,
   IInspectable,
   Names,
+  Resource,
   Stack,
   TreeInspector,
 } from "aws-cdk-lib";
@@ -113,10 +115,18 @@ export function inferNodeProps(construct: Construct): InferredNodeProps {
     logicalId,
     cfnType,
     constructInfo,
-    dependencies: construct.node.dependencies.map(getConstructUUID),
+    dependencies: obtainDependencies(construct),
     unresolvedReferences: extractUnresolvedReferences(uuid, attributes),
     flags,
   };
+}
+
+function obtainDependencies(construct: Construct): string[] {
+  if (CfnResource.isCfnResource(construct)) {
+    return construct.obtainDependencies().map(getConstructUUID);
+  }
+
+  return construct.node.dependencies.map(getConstructUUID);
 }
 
 type CfnAttributesTags =
@@ -162,6 +172,7 @@ export function extractUnresolvedReferences(
           target: logicalId,
           value: attribute,
         });
+        this.block();
         break;
       }
       case ReferenceTypeEnum.REF: {
@@ -176,6 +187,7 @@ export function extractUnresolvedReferences(
         } else {
           console.warn(`Found non-string "Ref"`, this.node);
         }
+        this.block();
         break;
       }
       case ReferenceTypeEnum.IMPORT: {
@@ -187,6 +199,23 @@ export function extractUnresolvedReferences(
           // NB: remove stage - separator
           target: (this.node as string).replace("-", ""),
         });
+        this.block();
+        break;
+      }
+      case "Fn::Join": {
+        if (
+          Array.isArray(this.node) &&
+          this.node.flatMap(String).join("").startsWith("arn:")
+        ) {
+          const potentialImportArn = {
+            "Fn::Join": this.node,
+          };
+          references.push({
+            source,
+            referenceType: ReferenceTypeEnum.IMPORT_ARN,
+            target: tokenizeImportArn(potentialImportArn),
+          });
+        }
         break;
       }
     }
@@ -202,14 +231,18 @@ export function inferFlags(
 ): FlagEnum[] {
   const flags: Set<FlagEnum> = new Set();
 
-  const fqn = constructInfo?.fqn;
+  if (isImportConstruct(construct)) {
+    flags.add(FlagEnum.IMPORT);
+  } else {
+    const fqn = constructInfo?.fqn;
 
-  if (fqn && ExtraneousFqnEnum.includes(fqn as any)) {
-    flags.add(FlagEnum.EXTRANEOUS);
-  }
+    if (fqn && ExtraneousFqnEnum.includes(fqn as any)) {
+      flags.add(FlagEnum.EXTRANEOUS);
+    }
 
-  if (fqn && AssetFqnEnum.includes(fqn as any)) {
-    flags.add(FlagEnum.ASSET);
+    if (fqn && AssetFqnEnum.includes(fqn as any)) {
+      flags.add(FlagEnum.ASSET);
+    }
   }
 
   if (construct.node.children.length === 1) {
@@ -232,4 +265,97 @@ export function inferFlags(
   }
 
   return Array.from(flags.values());
+}
+
+/**
+ * Indicates if given construct is an import (eg: `s3.Bucket.fromBucketArn()`)
+ */
+export function isImportConstruct(construct: Construct): boolean {
+  if (!Resource.isResource(construct)) {
+    return false;
+  }
+
+  // CDK import constructs extend based resource classes via `class Import extends XXXBase` syntax.
+  // https://github.com/aws/aws-cdk/blob/main/packages/%40aws-cdk/aws-s3/lib/bucket.ts#L1621
+  return construct.constructor.name === "Import";
+}
+
+/**
+ * Resolve an imported resources arn to tokenized hash value of arn.
+ * @see {@link tokenizeImportArn}
+ * @param construct {Construct} Imported resource to resolve arn for.
+ * @returns If construct is an imported resource and able to infer the arn for it then the tokenized arn value is returned, otherwise undefined
+ */
+export function resolveImportedConstructArnToken(
+  construct: Construct
+): string | undefined {
+  if (!isImportConstruct(construct)) {
+    return undefined;
+  }
+
+  for (const [key, desc] of Object.entries(
+    Object.getOwnPropertyDescriptors(construct)
+  )) {
+    if (
+      key.endsWith("Arn") &&
+      typeof desc.value === "string" &&
+      desc.value.startsWith("arn:")
+    ) {
+      return tokenizeImportArn(Stack.of(construct).resolve(desc.value));
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Generate token for imported resource arn used to resolve references.
+ *
+ * Imported resources are CDK `s3.Bucket.fromBucketArn()` like resources
+ * that are external from the application.
+ * @param value The value to tokenize, which is usually an object with nested `Fn:Join: ...["arn:", ...]` format.
+ * @returns Consistent string hash prefixed with `ImportArn-` prefix.
+ */
+export function tokenizeImportArn(value: any): string {
+  return generateConsistentUUID(value, "ImportArn-");
+}
+
+/**
+ * Infers CloudFormation Type for a given import resource.
+ * @param construct {Construct} Import construct such as `s3.Bucket.fromBucketArn()`.
+ * @param constructInfo {ConstructInfo} Construct info like fqn
+ * @returns Returns Cloudformation Type is can infer, otherwise undefined.
+ */
+export function inferImportCfnType(
+  construct: Construct,
+  constructInfo?: ConstructInfo
+): string | undefined {
+  if (!isImportConstruct(construct) || !constructInfo) {
+    return undefined;
+  }
+
+  const [source, pkg, resourceBase] = constructInfo.fqn.split(".");
+
+  if (
+    source !== "aws-cdk-lib" ||
+    !pkg.startsWith("aws_") ||
+    !resourceBase ||
+    !resourceBase.endsWith("Base")
+  ) {
+    return undefined;
+  }
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pkgModule = require(`aws-cdk-lib/${pkg.replace("_", "-")}`);
+    const cfnResource = "Cfn" + resourceBase.replace(/Base$/, "");
+
+    if (cfnResource in pkgModule) {
+      return pkgModule[cfnResource].CFN_RESOURCE_TYPE_NAME;
+    }
+  } catch (error) {
+    // ignore
+  }
+
+  return undefined;
 }

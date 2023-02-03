@@ -58,10 +58,7 @@ export function performGraphFilterPlan(
           predicate: (node) => {
             if (allNodes) return true;
             // by default only return Resources and CfnResources
-            return (
-              Graph.ResourceNode.isResourceNode(node) ||
-              Graph.CfnResourceNode.isCfnResourceNode(node)
-            );
+            return Graph.isResourceLike(node);
           },
         });
 

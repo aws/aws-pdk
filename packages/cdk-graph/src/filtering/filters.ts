@@ -177,10 +177,7 @@ export namespace Filters {
       node: (node) => {
         // Preserve container structure (stages, stacks, etc.)
         if (node.isCluster || node.isGraphContainer) return true;
-        if (
-          Graph.CfnResourceNode.isCfnResourceNode(node) ||
-          Graph.ResourceNode.isResourceNode(node)
-        ) {
+        if (Graph.isResourceLike(node)) {
           const match = !!node.cfnType && isMatch(node.cfnType);
           return (match && !exclude) || (!match && exclude);
         }
