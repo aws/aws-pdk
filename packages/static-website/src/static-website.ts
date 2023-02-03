@@ -1,19 +1,5 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { RemovalPolicy, Stack } from "aws-cdk-lib";
 import {
@@ -141,6 +127,16 @@ export class StaticWebsite extends Construct {
 
     this.validateProps(props);
 
+    const accessLogsBucket = new Bucket(this, "AccessLogsBucket", {
+      versioned: false,
+      enforceSSL: true,
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      encryption: BucketEncryption.S3_MANAGED,
+      publicReadAccess: false,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+    });
+
     // S3 Bucket to hold website files
     this.websiteBucket =
       props.websiteBucket ??
@@ -154,7 +150,8 @@ export class StaticWebsite extends Construct {
         encryptionKey: props.defaultWebsiteBucketEncryptionKey,
         publicReadAccess: false,
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-        serverAccessLogsPrefix: "access-logs",
+        serverAccessLogsPrefix: "website-access-logs",
+        serverAccessLogsBucket: accessLogsBucket,
       });
 
     // Web ACL
@@ -175,7 +172,8 @@ export class StaticWebsite extends Construct {
         encryptionKey: props.defaultWebsiteBucketEncryptionKey,
         publicReadAccess: false,
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-        serverAccessLogsPrefix: "access-logs",
+        serverAccessLogsPrefix: "distribution-access-logs",
+        serverAccessLogsBucket: accessLogsBucket,
       });
 
     const originAccessIdentity = new OriginAccessIdentity(
@@ -293,49 +291,80 @@ export class StaticWebsite extends Construct {
   private suppressCDKNagViolations = (props: StaticWebsiteProps) => {
     const stack = Stack.of(this);
     !props.distributionProps?.certificate &&
-      NagSuppressions.addResourceSuppressions(this.cloudFrontDistribution, [
-        {
-          id: "AwsSolutions-CFR4",
-          reason:
-            "Certificate is not mandatory therefore the Cloudfront certificate will be used.",
-        },
-      ]);
-    NagSuppressions.addStackSuppressions(stack, [
-      {
-        id: "AwsSolutions-L1",
-        reason:
-          "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-      },
-    ]);
-    NagSuppressions.addStackSuppressions(stack, [
-      {
-        id: "AwsSolutions-IAM5",
-        reason:
-          "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-        appliesTo: [
+      [
+        "AwsSolutions-CFR4",
+        "AwsPrototyping-CloudFrontDistributionHttpsViewerNoOutdatedSSL",
+      ].forEach((RuleId) => {
+        NagSuppressions.addResourceSuppressions(this.cloudFrontDistribution, [
           {
-            regex: "/^Action::s3:.*$/g",
+            id: RuleId,
+            reason:
+              "Certificate is not mandatory therefore the Cloudfront certificate will be used.",
           },
+        ]);
+      });
+
+    ["AwsSolutions-L1", "AwsPrototyping-LambdaLatestVersion"].forEach(
+      (RuleId) => {
+        NagSuppressions.addStackSuppressions(stack, [
           {
-            regex: `/^Resource::.*$/g`,
+            id: RuleId,
+            reason:
+              "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
           },
-        ],
-      },
-    ]);
-    NagSuppressions.addStackSuppressions(stack, [
-      {
-        id: "AwsSolutions-IAM4",
-        reason:
-          "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-        appliesTo: [
+        ]);
+      }
+    );
+
+    ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+      (RuleId) => {
+        NagSuppressions.addStackSuppressions(stack, [
           {
-            regex: `/^Policy::arn:${PDKNag.getStackPartitionRegex(
-              stack
-            )}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g`,
+            id: RuleId,
+            reason:
+              "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            appliesTo: [
+              {
+                regex: "/^Action::s3:.*$/g",
+              },
+              {
+                regex: `/^Resource::.*$/g`,
+              },
+            ],
           },
-        ],
-      },
-    ]);
+        ]);
+      }
+    );
+
+    ["AwsSolutions-IAM4", "AwsPrototyping-IAMNoManagedPolicies"].forEach(
+      (RuleId) => {
+        NagSuppressions.addStackSuppressions(stack, [
+          {
+            id: RuleId,
+            reason:
+              "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            appliesTo: [
+              {
+                regex: `/^Policy::arn:${PDKNag.getStackPartitionRegex(
+                  stack
+                )}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g`,
+              },
+            ],
+          },
+        ]);
+      }
+    );
+
+    ["AwsSolutions-S1", "AwsPrototyping-S3BucketLoggingEnabled"].forEach(
+      (RuleId) => {
+        NagSuppressions.addStackSuppressions(stack, [
+          {
+            id: RuleId,
+            reason: "Access Log buckets should not have s3 bucket logging",
+          },
+        ]);
+      }
+    );
   };
 }
 

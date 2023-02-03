@@ -1,22 +1,9 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import { TypeScriptProject } from "projen/lib/typescript";
 import { SynthOutput } from "projen/lib/util/synth";
-import { GeneratedTypescriptClientSourceCode } from "../../../../src/project/codegen/components/generated-typescript-client-source-code";
 import { synthGeneratedCodeProject } from "./utils";
+import { GeneratedTypescriptClientSourceCode } from "../../../../src/project/codegen/components/generated-typescript-client-source-code";
 
 const synthGeneratedCode = (specFileName: string): SynthOutput => {
   const project = new TypeScriptProject({
@@ -38,5 +25,17 @@ describe("Generated Typescript Client Code Unit Tests", () => {
 
   it("Multi", () => {
     expect(synthGeneratedCode("multi.yaml")).toMatchSnapshot();
+  });
+
+  it("Single Tags", () => {
+    expect(synthGeneratedCode("single-tags.yaml")).toMatchSnapshot();
+  });
+
+  it("Multiple Tags", () => {
+    // TODO: Remove this validation and update mustache templates as appropriate when the following has been addressed:
+    // https://github.com/OpenAPITools/openapi-generator/pull/14568
+    expect(() =>
+      synthGeneratedCode("multiple-tags.yaml")
+    ).toThrowErrorMatchingSnapshot();
   });
 });

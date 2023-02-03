@@ -1,23 +1,13 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import path from "path";
-import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
+//import { SynthUtils } from "@aws-cdk/assert";
+import { PDKNag, AwsPrototypingChecks } from "@aws-prototyping-sdk/pdk-nag";
 import { NestedStack, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
-import { StaticWebsite } from "../src";
+import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
+import { NagSuppressions } from "cdk-nag";
+import { StaticWebsite, StaticWebsiteOrigin } from "../src";
 
 describe("Static Website Unit Tests", () => {
   it("Defaults", () => {
@@ -26,6 +16,84 @@ describe("Static Website Unit Tests", () => {
       websiteContentPath: path.join(__dirname, "./sample-website"),
     });
 
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("Defaults - using AwsPrototyping NagPack", () => {
+    const app = PDKNag.app({ nagPacks: [new AwsPrototypingChecks()] });
+    const stack = new Stack(app);
+
+    new StaticWebsite(stack, "Defaults", {
+      websiteContentPath: path.join(__dirname, "./sample-website"),
+    });
+
+    app.synth();
+
+    const message = app
+      .nagResults()
+      .flatMap((r) => r.messages.map((m) => m.messageDescription))
+      .find((desc) =>
+        desc.startsWith("AwsPrototyping-CloudFrontDistributionGeoRestrictions:")
+      );
+
+    expect(message).toBeTruthy();
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("Defaults with suppression rule - using AwsPrototyping NagPack", () => {
+    const app = PDKNag.app({ nagPacks: [new AwsPrototypingChecks()] });
+    const stack = new Stack(app);
+
+    new StaticWebsite(stack, "Defaults", {
+      websiteContentPath: path.join(__dirname, "./sample-website"),
+    });
+
+    NagSuppressions.addResourceSuppressions(
+      stack,
+      [
+        {
+          id: "AwsPrototyping-CloudFrontDistributionGeoRestrictions",
+          reason: "This is a supression reason",
+        },
+      ],
+      true
+    );
+
+    app.synth();
+
+    const message = app
+      .nagResults()
+      .flatMap((r) => r.messages.map((m) => m.messageDescription))
+      .find((desc) =>
+        desc.startsWith("AwsPrototyping-CloudFrontDistributionGeoRestrictions:")
+      );
+
+    expect(message).not.toBeTruthy();
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("Defaults and Geoblocking - using AwsPrototyping NagPack", () => {
+    const app = PDKNag.app({ nagPacks: [new AwsPrototypingChecks()] });
+    const stack = new Stack(app);
+
+    new StaticWebsite(stack, "Defaults", {
+      websiteContentPath: path.join(__dirname, "./sample-website"),
+      distributionProps: {
+        defaultBehavior: { origin: StaticWebsiteOrigin },
+        geoRestriction: GeoRestriction.allowlist("AU", "SG"),
+      },
+    });
+
+    app.synth();
+
+    const message = app
+      .nagResults()
+      .flatMap((r) => r.messages.map((m) => m.messageDescription))
+      .find((desc) =>
+        desc.startsWith("AwsPrototyping-CloudFrontDistributionGeoRestrictions:")
+      );
+
+    expect(message).not.toBeTruthy();
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
 

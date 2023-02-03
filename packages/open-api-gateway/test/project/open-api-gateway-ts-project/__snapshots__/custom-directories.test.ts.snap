@@ -292,10 +292,10 @@ jobs:
         id: self_mutation
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=self_mutation_happened::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"self_mutation_happened=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.self_mutation.outputs.self_mutation_happened
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -354,7 +354,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: amannn/action-semantic-pull-request@v4.5.0
+      - uses: amannn/action-semantic-pull-request@v5.0.2
         env:
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
         with:
@@ -396,14 +396,14 @@ jobs:
         run: npx projen release:mainline
       - name: Check for new commits
         id: git_remote
-        run: echo ::set-output name=latest_commit::\\"$(git ls-remote origin -h \${{ github.ref }} | cut -f1)\\"
+        run: echo \\"latest_commit=$(git ls-remote origin -h \${{ github.ref }} | cut -f1)\\" >> $GITHUB_OUTPUT
       - name: Backup artifact permissions
         if: \${{ steps.git_remote.outputs.latest_commit == github.sha }}
         run: cd dist && getfacl -R . > permissions-backup.acl
         continue-on-error: true
       - name: Upload artifact
         if: \${{ steps.git_remote.outputs.latest_commit == github.sha }}
-        uses: actions/upload-artifact@v2.1.1
+        uses: actions/upload-artifact@v3
         with:
           name: build-artifact
           path: dist
@@ -461,10 +461,10 @@ jobs:
         id: create_patch
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=patch_created::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"patch_created=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -473,14 +473,12 @@ jobs:
     needs: upgrade
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     if: \${{ needs.upgrade.outputs.patch_created }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          token: \${{ secrets.PROJEN_GITHUB_TOKEN }}
           ref: mainline
       - name: Download patch
         uses: actions/download-artifact@v3
@@ -495,7 +493,7 @@ jobs:
           git config user.email \\"github-actions@github.com\\"
       - name: Create Pull Request
         id: create-pr
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v4
         with:
           token: \${{ secrets.PROJEN_GITHUB_TOKEN }}
           commit-message: |-
@@ -671,13 +669,9 @@ tsconfig.tsbuildinfo
         "version": "^13",
       },
       Object {
-        "name": "json-schema",
-        "type": "build",
-      },
-      Object {
         "name": "npm-check-updates",
         "type": "build",
-        "version": "^15",
+        "version": "^16",
       },
       Object {
         "name": "projen",
@@ -695,16 +689,6 @@ tsconfig.tsbuildinfo
       Object {
         "name": "typescript",
         "type": "build",
-      },
-      Object {
-        "name": "@types/responselike",
-        "type": "override",
-        "version": "1.0.0",
-      },
-      Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
       },
       Object {
         "name": "@aws-prototyping-sdk/open-api-gateway",
@@ -927,7 +911,8 @@ tsconfig.tsbuildinfo
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "jest --passWithNoTests --all --updateSnapshot",
+            "exec": "jest --passWithNoTests --updateSnapshot",
+            "receiveArgs": true,
           },
           Object {
             "spawn": "eslint",
@@ -1320,7 +1305,7 @@ src/runtime.ts
       Object {
         "name": "npm-check-updates",
         "type": "build",
-        "version": "^15",
+        "version": "^16",
       },
       Object {
         "name": "projen",
@@ -1333,16 +1318,6 @@ src/runtime.ts
       Object {
         "name": "typescript",
         "type": "build",
-      },
-      Object {
-        "name": "@types/responselike",
-        "type": "override",
-        "version": "1.0.0",
-      },
-      Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
       },
       Object {
         "name": "@types/aws-lambda",
@@ -1483,7 +1458,8 @@ src/runtime.ts
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "jest --passWithNoTests --all --updateSnapshot",
+            "exec": "jest --passWithNoTests --updateSnapshot",
+            "receiveArgs": true,
           },
         ],
       },
@@ -1805,7 +1781,7 @@ npm install PATH_TO_GENERATED_PACKAGE --save
       "@types/node": "^14",
       "jest": "*",
       "jest-junit": "^13",
-      "npm-check-updates": "^15",
+      "npm-check-updates": "^16",
       "projen": "*",
       "ts-jest": "*",
       "typescript": "*",
@@ -1853,10 +1829,6 @@ npm install PATH_TO_GENERATED_PACKAGE --save
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "@test/my-api-typescript",
-    "resolutions": Object {
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
-    },
     "scripts": Object {
       "build": "npx projen build",
       "clobber": "npx projen clobber",
@@ -1974,6 +1946,15 @@ export const OperationLookup = {
     },
 };
 
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
 // Standard apigateway request parameters (query parameters or path parameters, multi or single value)
 type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
 
@@ -1999,8 +1980,11 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
+type OperationIds = | 'sayHello';
+type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
 // Api gateway lambda handler type
-type ApiGatewayLambdaHandler = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>;
+type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
 
 // Type of the response to be returned by an operation lambda handler
 export interface OperationResponse<StatusCode extends number, Body> {
@@ -2104,7 +2088,7 @@ export type SayHelloChainedHandlerFunction = ChainedLambdaHandlerFunction<SayHel
 export const sayHelloHandler = (
     firstHandler: SayHelloChainedHandlerFunction,
     ...remainingHandlers: SayHelloChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'sayHello'> => async (event: any, context: any, _callback?: any, additionalInterceptors: SayHelloChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -2115,12 +2099,11 @@ export const sayHelloHandler = (
     }) as unknown as SayHelloRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
-        return parsed;
+        return {};
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -2152,6 +2135,57 @@ export const sayHelloHandler = (
         ...response,
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
+};
+
+export interface HandlerRouterHandlers {
+  readonly sayHello: OperationApiGatewayLambdaHandler<'sayHello'>;
+}
+
+export type AnyOperationRequestParameters = | SayHelloRequestParameters;
+export type AnyOperationRequestArrayParameters = | SayHelloRequestArrayParameters;
+export type AnyOperationRequestBodies = | SayHelloRequestBody;
+export type AnyOperationResponses = | SayHelloOperationResponses;
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => \`\${method.toLowerCase()}||\${path}\`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestArrayParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, undefined, props.interceptors);
 };
 ",
   "gen/typescript/src/apis/index.ts": "/* tslint:disable */
@@ -2747,8 +2781,7 @@ export class TextApiResponse {
       "eslint-plugin-import": "*",
       "jest": "*",
       "jest-junit": "^13",
-      "json-schema": "*",
-      "npm-check-updates": "^15",
+      "npm-check-updates": "^16",
       "projen": "*",
       "standard-version": "^9",
       "ts-jest": "*",
@@ -2798,10 +2831,6 @@ export class TextApiResponse {
     "main": "lib/index.js",
     "name": "@test/my-api",
     "private": true,
-    "resolutions": Object {
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
-    },
     "scripts": Object {
       "build": "npx projen build",
       "bump": "npx projen bump",

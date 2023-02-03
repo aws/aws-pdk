@@ -1,22 +1,9 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import {
+  DependencyType,
   IgnoreFile,
   JsonFile,
   Project,
@@ -25,134 +12,41 @@ import {
   TextFile,
   YamlFile,
 } from "projen";
-import { NodePackageManager, NodeProject } from "projen/lib/javascript";
+import {
+  NodePackage,
+  NodePackageManager,
+  NodeProject,
+} from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import {
   TypeScriptProject,
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
+import { Nx } from "./nx-types";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
 
 const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 
 /**
- * Configuration for nx targetDependencies.
- */
-export type TargetDependencies = { [target: string]: TargetDependency[] };
-
-/**
- * Configuration for project specific targets.
- */
-export type ProjectTargets = { [target: string]: ProjectTarget };
-
-/**
- * Project Target.
- */
-export interface ProjectTarget {
-  /**
-   * List of outputs to cache, relative to the root of the monorepo.
-   *
-   * note: must start with leading /
-   */
-  readonly outputs?: string[];
-
-  /**
-   * List of Target Dependencies.
-   */
-  readonly dependsOn: TargetDependency[];
-}
-
-/**
- * Implicit Dependencies map.
- */
-export type ImplicitDependencies = { [pkg: string]: string[] };
-
-/**
- * Supported enums for a TargetDependency.
- */
-export enum TargetDependencyProject {
-  /**
-   * Only rely on the package where the target is called.
-   *
-   * This is usually done for test like targets where you only want to run unit
-   * tests on the target packages without testing all dependent packages.
-   */
-  SELF = "self",
-  /**
-   * Target relies on executing the target against all dependencies first.
-   *
-   * This is usually done for build like targets where you want to build all
-   * dependant projects first.
-   */
-  DEPENDENCIES = "dependencies",
-}
-
-/**
- * Represents an NX Target Dependency.
- */
-export interface TargetDependency {
-  /**
-   * Projen target i.e: build, test, etc
-   */
-  readonly target: string;
-
-  /**
-   * Target dependencies.
-   */
-  readonly projects: TargetDependencyProject;
-}
-
-/**
- * NX configurations.
- *
- * @link https://nx.dev/configuration/packagejson
- */
-export interface NXConfig {
-  /**
-   * Affected branch.
-   *
-   * @default mainline
-   */
-  readonly affectedBranch?: string;
-  /**
-   * Configuration for Implicit Dependnecies.
-   *
-   * @link https://nx.dev/configuration/packagejson#implicitdependencies
-   */
-  readonly implicitDependencies?: ImplicitDependencies;
-
-  /**
-   * Configuration for TargetDependencies.
-   *
-   * @link https://nx.dev/configuration/packagejson#target-dependencies
-   */
-  readonly targetDependencies?: TargetDependencies;
-
-  /**
-   * List of patterns to include in the .nxignore file.
-   *
-   * @link https://nx.dev/configuration/packagejson#nxignore
-   */
-  readonly nxIgnore?: string[];
-
-  /**
-   * Read only access token if enabling nx cloud.
-   */
-  readonly nxCloudReadOnlyAccessToken?: string;
-}
-
-/**
  * Workspace configurations.
  *
- * @link https://classic.yarnpkg.com/lang/en/docs/workspaces/
+ * @see https://classic.yarnpkg.com/lang/en/docs/workspaces/
  */
 export interface WorkspaceConfig {
   /**
    * List of package globs to exclude from hoisting in the workspace.
    *
-   * @link https://classic.yarnpkg.com/blog/2018/02/15/nohoist/
+   * @see https://classic.yarnpkg.com/blog/2018/02/15/nohoist/
    */
   readonly noHoist?: string[];
+
+  /**
+   * Disable automatically applying `noHoist` logic for all sub-project "bundledDependencies".
+   *
+   * @default false
+   */
+  readonly disableNoHoistBundled?: boolean;
+
   /**
    * List of additional package globs to include in the workspace.
    *
@@ -190,7 +84,7 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
   /**
    * Configuration for NX.
    */
-  readonly nxConfig?: NXConfig;
+  readonly nxConfig?: Nx.WorkspaceConfig;
 
   /**
    * Configuration for workspace.
@@ -222,11 +116,10 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
  */
 export class NxMonorepoProject extends TypeScriptProject {
   // mutable data structures
-  private readonly implicitDependencies: ImplicitDependencies;
-  private readonly targetOverrides: { [pkg: string]: ProjectTargets } = {};
+  private readonly implicitDependencies: Nx.ImplicitDependencies;
 
   // immutable data structures
-  private readonly nxConfig?: NXConfig;
+  private readonly nxConfig?: Nx.WorkspaceConfig;
   private readonly workspaceConfig?: WorkspaceConfig;
   private readonly workspacePackages: string[];
 
@@ -242,7 +135,17 @@ export class NxMonorepoProject extends TypeScriptProject {
       release: options.release ?? false,
       jest: options.jest ?? false,
       defaultReleaseBranch: options.defaultReleaseBranch ?? "mainline",
-      sampleCode: false, // root should never have sample code
+      sampleCode: false, // root should never have sample code,
+      eslintOptions: options.eslintOptions ?? {
+        dirs: ["."],
+        ignorePatterns: ["packages/**/*.*"],
+      },
+      tsconfig: options.tsconfig ?? {
+        compilerOptions: {
+          rootDir: ".",
+        },
+        include: ["**/*.ts"],
+      },
     });
 
     this.nxConfig = options.nxConfig;
@@ -259,6 +162,7 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     this.addDevDeps("@nrwl/cli", "@nrwl/workspace");
     this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in aws-prototyping-sdk
+    this.package.addPackageResolutions("@types/babel__traverse@7.18.2");
 
     if (options.monorepoUpgradeDeps !== false) {
       this.addDevDeps("npm-check-updates", "syncpack");
@@ -308,11 +212,16 @@ export class NxMonorepoProject extends TypeScriptProject {
               : "@nrwl/workspace/tasks-runners/default",
             options: {
               useDaemonProcess: false,
-              cacheableOperations: ["build", "test"],
+              cacheableOperations: options.nxConfig?.cacheableOperations || [
+                "build",
+                "test",
+              ],
               accessToken: options.nxConfig?.nxCloudReadOnlyAccessToken,
             },
           },
         },
+        namedInputs: options.nxConfig?.namedInputs,
+        targetDefaults: options.nxConfig?.targetDefaults,
         implicitDependencies: this.implicitDependencies,
         targetDependencies: {
           build: [
@@ -368,18 +277,6 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.workspacePackages.push(...packageGlobs);
   }
 
-  /**
-   * Allow project specific target overrides.
-   */
-  public overrideProjectTargets(project: Project, targets: ProjectTargets) {
-    const _package = project.tryFindObjectFile("package.json");
-    _package?.addOverride("nx", {
-      targets: targets,
-    });
-
-    !_package && (this.targetOverrides[project.outdir] = targets);
-  }
-
   // Remove this hack once subProjects is made public in Projen
   private get instantiationOrderSubProjects(): Project[] {
     // @ts-ignore
@@ -401,7 +298,31 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.updateWorkspace();
     this.wirePythonDependencies();
     this.synthesizeNonNodePackageJson();
+
+    // Prevent sub NodeProject packages from `postSynthesis` which will cause individual/extraneous installs.
+    // The workspace package install will handle all the sub NodeProject packages automatically.
+    const subProjectPackages: NodePackage[] = [];
+    this.subProjects.forEach((subProject) => {
+      if (isNodeProject(subProject)) {
+        const subNodeProject: NodeProject = subProject as NodeProject;
+        subProjectPackages.push(subNodeProject.package);
+        // @ts-ignore - `installDependencies` is private
+        subNodeProject.package.installDependencies = () => {};
+      }
+    });
+
     super.synth();
+
+    // Force workspace install deps if any node subproject package has change, unless the workspace changed
+    if (
+      // @ts-ignore - `file` is private
+      (this.package.file as JsonFile).changed !== true &&
+      // @ts-ignore - `file` is private
+      subProjectPackages.find((pkg) => (pkg.file as JsonFile).changed === true)
+    ) {
+      // @ts-ignore - `installDependencies` is private
+      this.package.installDependencies();
+    }
   }
 
   /**
@@ -432,21 +353,19 @@ export class NxMonorepoProject extends TypeScriptProject {
       .filter((subProject: Project) => !subProject.tryFindFile("package.json"))
       .forEach((subProject: Project) => {
         // generate a package.json if not found
-        const manifest: any = {};
-        (manifest.nx = this.targetOverrides[subProject.outdir]
-          ? { targets: this.targetOverrides[subProject.outdir] }
-          : undefined),
-          (manifest.name = subProject.name);
-        manifest.private = true;
-        manifest.__pdk__ = true;
-        manifest.scripts = subProject.tasks.all.reduce(
-          (p, c) => ({
-            [c.name]: `npx projen ${c.name}`,
-            ...p,
-          }),
-          {}
-        );
-        manifest.version = "0.0.0";
+        const manifest: any = {
+          name: subProject.name,
+          private: true,
+          __pdk__: true,
+          scripts: subProject.tasks.all.reduce(
+            (p, c) => ({
+              [c.name]: `npx projen ${c.name}`,
+              ...p,
+            }),
+            {}
+          ),
+          version: "0.0.0",
+        };
 
         new JsonFile(subProject, "package.json", {
           obj: manifest,
@@ -463,6 +382,26 @@ export class NxMonorepoProject extends TypeScriptProject {
     // not yet been added, in the correct order
     this.addWorkspacePackages();
 
+    let noHoist = this.workspaceConfig?.noHoist;
+    // Automatically add all sub-project "bundledDependencies" to workspace "hohoist", otherwise they are not bundled in npm package
+    if (this.workspaceConfig?.disableNoHoistBundled !== true) {
+      const noHoistBundled = this.subProjects.flatMap((sub) => {
+        if (sub instanceof NodeProject) {
+          return sub.deps.all
+            .filter((dep) => dep.type === DependencyType.BUNDLED)
+            .flatMap((dep) => [
+              `${sub.name}/${dep.name}`,
+              `${sub.name}/${dep.name}/*`,
+            ]);
+        }
+        return [];
+      });
+
+      if (noHoistBundled.length) {
+        noHoist = [...(noHoist || []), ...noHoistBundled];
+      }
+    }
+
     // Add workspaces for each subproject
     if (this.package.packageManager === NodePackageManager.PNPM) {
       new YamlFile(this, "pnpm-workspace.yaml", {
@@ -474,7 +413,7 @@ export class NxMonorepoProject extends TypeScriptProject {
     } else {
       this.package.addField("workspaces", {
         packages: this.workspacePackages,
-        nohoist: this.workspaceConfig?.noHoist,
+        nohoist: noHoist,
       });
     }
   }

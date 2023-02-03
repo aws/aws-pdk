@@ -2,12 +2,18 @@ import urllib.parse
 import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
+{{#apiInfo}}
+{{#apis}}
 {{#imports}}
 {{{import}}}
 {{/imports}}
+{{/apis}}
+{{/apiInfo}}
 
+{{#apiInfo}}
+{{#apis.0}}
 from {{packageName}}.schemas import (
     date,
     datetime,
@@ -15,21 +21,29 @@ from {{packageName}}.schemas import (
     none_type,
 )
 from {{packageName}}.api_client import JSONEncoder
+{{/apis.0}}
+{{/apiInfo}}
 
 T = TypeVar('T')
 
 # Generic type for object keyed by operation names
 @dataclass
 class OperationConfig(Generic[T]):
+{{#apiInfo}}
+{{#apis}}
 {{#operations}}
 {{#operation}}
     {{operationId}}: T
 {{/operation}}
 {{/operations}}
+{{/apis}}
+{{/apiInfo}}
     ...
 
 # Look up path and http method for a given operation name
 OperationLookup = {
+{{#apiInfo}}
+{{#apis}}
 {{#operations}}
 {{#operation}}
     "{{operationId}}": {
@@ -38,7 +52,17 @@ OperationLookup = {
     },
 {{/operation}}
 {{/operations}}
+{{/apis}}
+{{/apiInfo}}
 }
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        """
+        Returns an OperationConfig with the same value for every operation
+        """
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
 
 def uri_decode(value):
     """
@@ -118,6 +142,8 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
                 ))
         return RemainingHandlerChain()
 
+{{#apiInfo}}
+{{#apis}}
 {{#operations}}
 {{#operation}}
 
@@ -143,11 +169,11 @@ class {{operationIdCamelCase}}RequestArrayParameters(TypedDict):
 {{/allParams}}
     ...
 
-# Request body type (default to Any when no body parameters exist)
-{{operationIdCamelCase}}RequestBody = {{^bodyParams.isEmpty}}{{#bodyParams.0}}{{dataType}}{{/bodyParams.0}}{{/bodyParams.isEmpty}}{{#bodyParams.isEmpty}}Any{{/bodyParams.isEmpty}}
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
+{{operationIdCamelCase}}RequestBody = {{^bodyParams.isEmpty}}{{#bodyParams.0}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/bodyParams.0}}{{/bodyParams.isEmpty}}{{#bodyParams.isEmpty}}Any{{/bodyParams.isEmpty}}
 
 {{#responses}}
-{{operationIdCamelCase}}{{code}}OperationResponse = ApiResponse[Literal[{{code}}], {{^simpleType}}{{dataType}}{{/simpleType}}{{#simpleType}}None{{/simpleType}}]
+{{operationIdCamelCase}}{{code}}OperationResponse = ApiResponse[Literal[{{code}}], {{^simpleType}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/simpleType}}{{#simpleType}}None{{/simpleType}}]
 {{/responses}}
 {{operationIdCamelCase}}OperationResponses = Union[{{#responses}}{{operationIdCamelCase}}{{code}}OperationResponse, {{/responses}}]
 
@@ -167,7 +193,7 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
     """
     def _handler_wrapper(handler: {{operationIdCamelCase}}HandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -175,11 +201,24 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
+            {{^bodyParams.isEmpty}}
+            {{#bodyParams.0}}
+            {{^isPrimitiveType}}
+            # Non-primitive type so parse the body into the appropriate model
             body = parse_body(event['body'], [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}], {{operationIdCamelCase}}RequestBody)
-
+            {{/isPrimitiveType}}
+            {{#isPrimitiveType}}
+            # Primitive type so body is passed as the original string
+            body = event['body']
+            {{/isPrimitiveType}}
+            {{/bodyParams.0}}
+            {{/bodyParams.isEmpty}}
+            {{#bodyParams.isEmpty}}
+            body = {}
+            {{/bodyParams.isEmpty}}
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -188,10 +227,24 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            {{#responses}}
+            elif response.status_code == {{code}}:
+                {{^isPrimitiveType}}
+                response_body = json.dumps(JSONEncoder().default(response.body))
+                {{/isPrimitiveType}}
+                {{#isPrimitiveType}}
+                response_body = response.body
+                {{/isPrimitiveType}}
+            {{/responses}}
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 
@@ -204,3 +257,36 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
         raise Exception("Positional arguments are not supported by {{operationId}}_handler.")
 {{/operation}}
 {{/operations}}
+{{/apis}}
+{{/apiInfo}}
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return "{}||{}".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path["method"], method_and_path["path"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+  {{operationId}}: Callable[[Dict, Any], Dict]
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    """
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    """
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper

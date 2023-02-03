@@ -1,22 +1,10 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import {
   App,
   AppProps,
   Aspects,
+  IAspect,
   Stack,
   Stage,
   StageSynthesisOptions,
@@ -24,6 +12,7 @@ import {
 import { CloudAssembly } from "aws-cdk-lib/cx-api";
 import {
   AwsSolutionsChecks,
+  NagPack,
   NagPackSuppression,
   NagSuppressions,
 } from "cdk-nag";
@@ -34,6 +23,12 @@ const CDK_NAG_MESSAGE_TYPES = {
   WARNING: "aws:cdk:warning",
 };
 const CDK_NAG_MESSAGE_TYPES_SET = new Set(Object.values(CDK_NAG_MESSAGE_TYPES));
+const DEFAULT_NAG_PACKS = [
+  new AwsSolutionsChecks({
+    verbose: true,
+    reports: true,
+  }),
+];
 
 /**
  * Message instance.
@@ -82,6 +77,13 @@ export interface PDKNagAppProps extends AppProps {
    * @default false
    */
   readonly failOnWarning?: boolean;
+
+  /**
+   * Custom nag packs to execute.
+   *
+   * @default DEFAULT_NAG_PACKS
+   */
+  readonly nagPacks?: NagPack[];
 }
 
 /**
@@ -91,11 +93,13 @@ export class PDKNagApp extends App {
   private readonly _nagResults: NagResult[] = [];
   private readonly failOnError: boolean;
   private readonly failOnWarning: boolean;
+  public readonly nagPacks: NagPack[];
 
   constructor(props?: PDKNagAppProps) {
     super(props);
     this.failOnError = props?.failOnError ?? false;
     this.failOnWarning = props?.failOnWarning ?? false;
+    this.nagPacks = props?.nagPacks ?? DEFAULT_NAG_PACKS;
   }
 
   synth(options?: StageSynthesisOptions): CloudAssembly {
@@ -132,19 +136,15 @@ export class PDKNagApp extends App {
   }
 }
 
-class PDKNagAspect extends AwsSolutionsChecks {
+class PDKNagAspect implements IAspect {
   private readonly app: PDKNagApp;
 
   constructor(app: PDKNagApp) {
-    super({
-      verbose: true,
-      reports: true,
-    });
     this.app = app;
   }
 
   visit(node: IConstruct): void {
-    super.visit(node);
+    this.app.nagPacks.forEach((nagPack) => nagPack.visit(node));
 
     const results = node.node.metadata.filter((m) =>
       CDK_NAG_MESSAGE_TYPES_SET.has(m.type)

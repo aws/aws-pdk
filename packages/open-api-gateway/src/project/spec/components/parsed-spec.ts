@@ -1,22 +1,9 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
+import type { OpenAPIV3 } from "openapi-types";
 import { Component, Project } from "projen";
-import { exec } from "projen/lib/util";
+import { exec, tryReadFileSync } from "projen/lib/util";
 
 /**
  * Configuration for the ParsedSpec component
@@ -65,5 +52,38 @@ export class ParsedSpec extends Component {
     super.synthesize();
 
     ParsedSpec.parse(this.options.specPath, this.options.outputPath);
+
+    const singleSpecFile = tryReadFileSync(this.options.outputPath);
+    if (!singleSpecFile) {
+      throw new Error(
+        `Failed to parse specification at ${this.options.specPath}`
+      );
+    }
+
+    const parsedSpec: OpenAPIV3.Document = JSON.parse(singleSpecFile);
+
+    // TODO: Remove this validation and update mustache templates as appropriate when the following has been addressed:
+    // https://github.com/OpenAPITools/openapi-generator/pull/14568
+    // Check that each operation has zero or one tags
+    const operationsWithMultipleTags = Object.entries(parsedSpec.paths).flatMap(
+      ([urlPath, methods]) =>
+        Object.entries(methods ?? {})
+          .filter(
+            ([, operation]) =>
+              typeof operation === "object" &&
+              "tags" in operation &&
+              operation.tags &&
+              operation.tags.length > 1
+          )
+          .map(([httpMethod]) => `${httpMethod} ${urlPath}`)
+    );
+
+    if (operationsWithMultipleTags.length > 0) {
+      throw new Error(
+        `Operations with multiple tags are not yet supported, please tag operations with at most one tag. The following operations have multiple tags: ${operationsWithMultipleTags.join(
+          ", "
+        )}`
+      );
+    }
   }
 }

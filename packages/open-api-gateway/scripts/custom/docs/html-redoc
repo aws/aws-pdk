@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+
+# Parse arguments
+spec_path=''
+output_path=''
+while [[ "$#" -gt 0 ]]; do case $1 in
+  --spec-path) spec_path="$2"; shift;;
+  --output-path) output_path="$2"; shift;;
+esac; shift; done
+
+echo "Generating HTML Redoc documentation..."
+
+working_dir=$(pwd)
+
+# Create a temporary directory
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-docs-html-redoc.XXXXXXXXX")
+cd $tmp_dir
+
+# Prefer pnpm if available, otherwise fall back to npm so as not to require it as a system-wide dependency
+pkg_manager=pnpm
+if ! command -v pnpm &> /dev/null; then
+  pkg_manager=npm
+fi
+
+# Install dependencies
+$pkg_manager install --silent --save-dev redoc-cli@0.13.20
+
+# Generate
+npx redoc-cli build $spec_path --output $output_path
+
+echo "HTML Redoc documentation generation done!"
+
+# Clean up
+cd $working_dir
+rm -rf $tmp_dir

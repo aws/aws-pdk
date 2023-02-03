@@ -1,18 +1,5 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import { exec } from "projen/lib/util";
@@ -56,6 +43,11 @@ export interface GenerationOptions {
   readonly additionalProperties?: {
     [key: string]: string;
   };
+  /**
+   * Supply the relative path from the code project root to the source code directory in which custom generated files
+   * (eg. operation config) should be placed.
+   */
+  readonly srcDir?: string;
 }
 
 const serializeProperties = (properties: { [key: string]: string }) =>
@@ -97,13 +89,14 @@ export const invokeOpenApiGenerator = (options: GenerationOptions) => {
   // previous executions.
   cleanPreviouslyGeneratedFiles(options.outputPath);
 
+  const srcDir = options.srcDir ?? "src";
   const additionalProperties = options.additionalProperties
     ? ` --additional-properties "${serializeProperties(
         options.additionalProperties
       )}"`
     : "";
   exec(
-    `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --generator-dir ${options.generatorDirectory}${additionalProperties}`,
+    `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${additionalProperties}`,
     {
       cwd: path.resolve(
         __dirname,
@@ -116,4 +109,38 @@ export const invokeOpenApiGenerator = (options: GenerationOptions) => {
       ),
     }
   );
+};
+
+/**
+ * Options for generating documentation via a custom generator script
+ */
+export interface CustomDocsGenerationOptions {
+  /**
+   * Name of the generator script which exists in scripts/custom/docs
+   */
+  readonly generator: string;
+  /**
+   * Any arguments to pass to the script
+   */
+  readonly args?: string;
+}
+
+/**
+ * Invoke a custom documentation generator script
+ */
+export const invokeCustomDocsGenerator = (
+  options: CustomDocsGenerationOptions
+) => {
+  exec(`./${options.generator}${options.args ? ` ${options.args}` : ""}`, {
+    cwd: path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "..",
+      "scripts",
+      "custom",
+      "docs"
+    ),
+  });
 };

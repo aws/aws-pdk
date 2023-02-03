@@ -13,12 +13,7 @@ Object {
       "plugin:prettier/recommended",
     ],
     "ignorePatterns": Array [
-      "*.js",
-      "!.projenrc.ts",
-      "*.d.ts",
-      "node_modules/",
-      "*.generated.ts",
-      "coverage",
+      "packages/**/*.*",
       "!.projenrc.ts",
       "!projenrc/**/*.ts",
     ],
@@ -338,10 +333,6 @@ target
         "version": "^8",
       },
       Object {
-        "name": "json-schema",
-        "type": "build",
-      },
-      Object {
         "name": "npm-check-updates",
         "type": "build",
       },
@@ -366,14 +357,9 @@ target
         "type": "build",
       },
       Object {
-        "name": "@types/responselike",
+        "name": "@types/babel__traverse",
         "type": "override",
-        "version": "1.0.0",
-      },
-      Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
+        "version": "7.18.2",
       },
       Object {
         "name": "aws-cdk-lib",
@@ -503,7 +489,7 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools projenrc .projenrc.ts",
+            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern . test build-tools projenrc .projenrc.ts",
           },
         ],
       },
@@ -881,7 +867,6 @@ target
       "eslint-import-resolver-typescript": "*",
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
-      "json-schema": "*",
       "npm-check-updates": "*",
       "prettier": "*",
       "projen": "*",
@@ -894,8 +879,7 @@ target
     "name": "@test/monorepo",
     "private": true,
     "resolutions": Object {
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
+      "@types/babel__traverse": "7.18.2",
     },
     "scripts": Object {
       "build": "npx projen build",
@@ -1273,13 +1257,9 @@ tsconfig.tsbuildinfo
         "version": "^13",
       },
       Object {
-        "name": "json-schema",
-        "type": "build",
-      },
-      Object {
         "name": "npm-check-updates",
         "type": "build",
-        "version": "^15",
+        "version": "^16",
       },
       Object {
         "name": "projen",
@@ -1292,16 +1272,6 @@ tsconfig.tsbuildinfo
       Object {
         "name": "typescript",
         "type": "build",
-      },
-      Object {
-        "name": "@types/responselike",
-        "type": "override",
-        "version": "1.0.0",
-      },
-      Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
       },
       Object {
         "name": "@aws-prototyping-sdk/open-api-gateway",
@@ -1467,7 +1437,8 @@ tsconfig.tsbuildinfo
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "jest --passWithNoTests --all --updateSnapshot",
+            "exec": "jest --passWithNoTests --updateSnapshot",
+            "receiveArgs": true,
           },
           Object {
             "spawn": "eslint",
@@ -1844,7 +1815,7 @@ src/runtime.ts
       Object {
         "name": "npm-check-updates",
         "type": "build",
-        "version": "^15",
+        "version": "^16",
       },
       Object {
         "name": "projen",
@@ -1857,16 +1828,6 @@ src/runtime.ts
       Object {
         "name": "typescript",
         "type": "build",
-      },
-      Object {
-        "name": "@types/responselike",
-        "type": "override",
-        "version": "1.0.0",
-      },
-      Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
       },
       Object {
         "name": "@types/aws-lambda",
@@ -2007,7 +1968,8 @@ src/runtime.ts
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "jest --passWithNoTests --all --updateSnapshot",
+            "exec": "jest --passWithNoTests --updateSnapshot",
+            "receiveArgs": true,
           },
         ],
       },
@@ -2329,7 +2291,7 @@ npm install PATH_TO_GENERATED_PACKAGE --save
       "@types/node": "^14",
       "jest": "*",
       "jest-junit": "^13",
-      "npm-check-updates": "^15",
+      "npm-check-updates": "^16",
       "projen": "*",
       "ts-jest": "*",
       "typescript": "*",
@@ -2377,10 +2339,6 @@ npm install PATH_TO_GENERATED_PACKAGE --save
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "@test/my-api-typescript",
-    "resolutions": Object {
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
-    },
     "scripts": Object {
       "build": "npx projen build",
       "clobber": "npx projen clobber",
@@ -2498,6 +2456,15 @@ export const OperationLookup = {
     },
 };
 
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
 // Standard apigateway request parameters (query parameters or path parameters, multi or single value)
 type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
 
@@ -2523,8 +2490,11 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
+type OperationIds = | 'sayHello';
+type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
 // Api gateway lambda handler type
-type ApiGatewayLambdaHandler = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>;
+type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
 
 // Type of the response to be returned by an operation lambda handler
 export interface OperationResponse<StatusCode extends number, Body> {
@@ -2628,7 +2598,7 @@ export type SayHelloChainedHandlerFunction = ChainedLambdaHandlerFunction<SayHel
 export const sayHelloHandler = (
     firstHandler: SayHelloChainedHandlerFunction,
     ...remainingHandlers: SayHelloChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'sayHello'> => async (event: any, context: any, _callback?: any, additionalInterceptors: SayHelloChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -2639,12 +2609,11 @@ export const sayHelloHandler = (
     }) as unknown as SayHelloRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
-        return parsed;
+        return {};
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -2676,6 +2645,57 @@ export const sayHelloHandler = (
         ...response,
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
+};
+
+export interface HandlerRouterHandlers {
+  readonly sayHello: OperationApiGatewayLambdaHandler<'sayHello'>;
+}
+
+export type AnyOperationRequestParameters = | SayHelloRequestParameters;
+export type AnyOperationRequestArrayParameters = | SayHelloRequestArrayParameters;
+export type AnyOperationRequestBodies = | SayHelloRequestBody;
+export type AnyOperationResponses = | SayHelloOperationResponses;
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => \`\${method.toLowerCase()}||\${path}\`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestArrayParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, undefined, props.interceptors);
 };
 ",
   "packages/api/generated/typescript/src/apis/index.ts": "/* tslint:disable */
@@ -3271,8 +3291,7 @@ export class TextApiResponse {
       "eslint-plugin-import": "*",
       "jest": "*",
       "jest-junit": "^13",
-      "json-schema": "*",
-      "npm-check-updates": "^15",
+      "npm-check-updates": "^16",
       "projen": "*",
       "ts-jest": "*",
       "typescript": "*",
@@ -3321,10 +3340,6 @@ export class TextApiResponse {
     "main": "lib/index.js",
     "name": "@test/my-api",
     "private": true,
-    "resolutions": Object {
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
-    },
     "scripts": Object {
       "build": "npx projen build",
       "clobber": "npx projen clobber",
@@ -3439,6 +3454,7 @@ task generate(type: JavaExec) {
           "forbidGreedyLabels": true,
           "ignoreUnsupportedTraits": true,
           "service": "my.test.service#TestService",
+          "tags": true,
         },
       },
       "transforms": Array [],
@@ -5875,6 +5891,7 @@ structure ApiError {
             "forbidGreedyLabels": true,
             "ignoreUnsupportedTraits": true,
             "service": "my.test.service#TestService",
+            "tags": true,
           },
         },
       },
@@ -6149,6 +6166,7 @@ describe(\\"Api\\", () => {
       "noUnusedLocals": true,
       "noUnusedParameters": true,
       "resolveJsonModule": true,
+      "rootDir": ".",
       "strict": true,
       "strictNullChecks": true,
       "strictPropertyInitialization": true,
@@ -6162,6 +6180,7 @@ describe(\\"Api\\", () => {
       ".projenrc.js",
       "src/**/*.ts",
       "test/**/*.ts",
+      "**/*.ts",
       ".projenrc.ts",
       "projenrc/**/*.ts",
     ],
@@ -6188,7 +6207,7 @@ describe(\\"Api\\", () => {
       "noUnusedParameters": true,
       "outDir": "lib",
       "resolveJsonModule": true,
-      "rootDir": "src",
+      "rootDir": ".",
       "strict": true,
       "strictNullChecks": true,
       "strictPropertyInitialization": true,
@@ -6198,6 +6217,7 @@ describe(\\"Api\\", () => {
     "exclude": Array [],
     "include": Array [
       "src/**/*.ts",
+      "**/*.ts",
     ],
   },
 }

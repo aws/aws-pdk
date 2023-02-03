@@ -1,18 +1,5 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { CustomResource, Duration, Stack } from "aws-cdk-lib";
@@ -193,37 +180,41 @@ export class CloudfrontWebAcl extends Construct {
       }
     );
 
-    NagSuppressions.addResourceSuppressions(
-      onEventHandlerRole,
-      [
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
-            "WafV2 resources have been scoped down to the ACL/IPSet level, however * is still needed as resource id's are created just in time.",
-          appliesTo: [
+    ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          onEventHandlerRole,
+          [
             {
-              regex: `/^Resource::arn:aws:wafv2:us-east-1:${PDKNag.getStackAccountRegex(
-                stack
-              )}:global/(.*)$/g`,
+              id: RuleId,
+              reason:
+                "WafV2 resources have been scoped down to the ACL/IPSet level, however * is still needed as resource id's are created just in time.",
+              appliesTo: [
+                {
+                  regex: `/^Resource::arn:aws:wafv2:us-east-1:${PDKNag.getStackAccountRegex(
+                    stack
+                  )}:global/(.*)$/g`,
+                },
+              ],
+            },
+            {
+              id: RuleId,
+              reason:
+                "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              appliesTo: [
+                {
+                  regex: `/^Resource::arn:aws:logs:${PDKNag.getStackRegionRegex(
+                    stack
+                  )}:${PDKNag.getStackAccountRegex(
+                    stack
+                  )}:log-group:/aws/lambda/${onEventHandlerName}:\*/g`,
+                },
+              ],
             },
           ],
-        },
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
-            "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
-          appliesTo: [
-            {
-              regex: `/^Resource::arn:aws:logs:${PDKNag.getStackRegionRegex(
-                stack
-              )}:${PDKNag.getStackAccountRegex(
-                stack
-              )}:log-group:/aws/lambda/${onEventHandlerName}:\*/g`,
-            },
-          ],
-        },
-      ],
-      true
+          true
+        );
+      }
     );
 
     return onEventHandler;
@@ -272,27 +263,36 @@ export class CloudfrontWebAcl extends Construct {
       providerFunctionName,
     });
 
-    NagSuppressions.addResourceSuppressions(
-      providerRole,
-      [
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
-            "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
-        },
-      ],
-      true
+    ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          providerRole,
+          [
+            {
+              id: RuleId,
+              reason:
+                "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+          ],
+          true
+        );
+      }
     );
-    NagSuppressions.addResourceSuppressions(
-      provider,
-      [
-        {
-          id: "AwsSolutions-L1",
-          reason:
-            "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-        },
-      ],
-      true
+
+    ["AwsSolutions-L1", "AwsPrototyping-LambdaLatestVersion"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          provider,
+          [
+            {
+              id: RuleId,
+              reason:
+                "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+          ],
+          true
+        );
+      }
     );
 
     return new CustomResource(this, "CFWebAclCustomResource", {

@@ -283,10 +283,10 @@ jobs:
         id: self_mutation
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=self_mutation_happened::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"self_mutation_happened=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.self_mutation.outputs.self_mutation_happened
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -345,7 +345,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: amannn/action-semantic-pull-request@v4.5.0
+      - uses: amannn/action-semantic-pull-request@v5.0.2
         env:
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
         with:
@@ -381,10 +381,10 @@ jobs:
         id: create_patch
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=patch_created::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"patch_created=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -393,14 +393,12 @@ jobs:
     needs: upgrade
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     if: \${{ needs.upgrade.outputs.patch_created }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          token: \${{ secrets.PROJEN_GITHUB_TOKEN }}
+        with: {}
       - name: Download patch
         uses: actions/download-artifact@v3
         with:
@@ -414,7 +412,7 @@ jobs:
           git config user.email \\"github-actions@github.com\\"
       - name: Create Pull Request
         id: create-pr
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v4
         with:
           token: \${{ secrets.PROJEN_GITHUB_TOKEN }}
           commit-message: |-
@@ -596,13 +594,9 @@ tsconfig.tsbuildinfo
         "version": "^8",
       },
       Object {
-        "name": "json-schema",
-        "type": "build",
-      },
-      Object {
         "name": "npm-check-updates",
         "type": "build",
-        "version": "^15",
+        "version": "^16",
       },
       Object {
         "name": "projen",
@@ -624,14 +618,12 @@ tsconfig.tsbuildinfo
         "version": "4.17.13",
       },
       Object {
-        "name": "@types/responselike",
-        "type": "override",
-        "version": "1.0.0",
+        "name": "@aws-amplify/auth",
+        "type": "runtime",
       },
       Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
+        "name": "@aws-amplify/core",
+        "type": "runtime",
       },
       Object {
         "name": "@aws-amplify/ui-react",
@@ -1171,6 +1163,8 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
       ],
     },
     "dependencies": Object {
+      "@aws-amplify/auth": "*",
+      "@aws-amplify/core": "*",
       "@aws-amplify/ui-react": "*",
       "@cloudscape-design/collection-hooks": "*",
       "@cloudscape-design/components": "*",
@@ -1199,8 +1193,7 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
       "eslint-import-resolver-node": "*",
       "eslint-import-resolver-typescript": "*",
       "eslint-plugin-import": "*",
-      "json-schema": "*",
-      "npm-check-updates": "^15",
+      "npm-check-updates": "^16",
       "projen": "*",
       "typescript": "^4.0.3",
     },
@@ -1215,8 +1208,6 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
     "resolutions": Object {
       "@types/express": "4.17.13",
       "@types/express-serve-static-core": "4.17.30",
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
     },
     "scripts": Object {
       "build": "npx projen build",
@@ -1310,22 +1301,8 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
 User-agent: *
 Disallow:
 ",
-  "src/App.tsx": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/App.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import {
   BreadcrumbGroup,
   BreadcrumbGroupProps,
@@ -1417,24 +1394,11 @@ const App: React.FC = () => {
 };
 
 export default App;",
-  "src/Auth.tsx": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/Auth.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
+import { Auth as AmplifyAuth } from '@aws-amplify/auth';
+import { Amplify, Hub } from '@aws-amplify/core';
 import { Authenticator, ThemeProvider, Theme, useTheme } from '@aws-amplify/ui-react';
-import { Amplify, Auth as AmplifyAuth, Hub } from 'aws-amplify';
 import React, { createContext, useCallback, useEffect, useState, useMemo } from 'react';
 
 /**
@@ -1560,22 +1524,8 @@ const Auth: React.FC<any> = ({ children }) => {
 };
 
 export default Auth;",
-  "src/Home.tsx": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/Home.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import { Container, Header, SpaceBetween } from '@cloudscape-design/components';
 import { useContext, useEffect } from 'react';
 import { AppLayoutContext } from './App';
@@ -1606,26 +1556,13 @@ const Home: React.FC = () => {
 };
 
 export default Home;",
-  "src/NavHeader.tsx": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+  "src/NavHeader.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+import { Auth as AmplifyAuth } from '@aws-amplify/auth';
 import { TopNavigation } from '@cloudscape-design/components';
 import { TopNavigationProps } from '@cloudscape-design/components/top-navigation/1.0-beta';
 import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
-import { Auth as AmplifyAuth } from 'aws-amplify';
 import React, { useContext, useState } from 'react';
 import { RuntimeConfigContext } from './Auth';
 import Config from './config.json';
@@ -1725,22 +1662,8 @@ const NavHeader: React.FC = () => {
 };
 
 export default NavHeader;",
-  "src/api-client-middleware/sigv4-middleware.ts": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/api-client-middleware/sigv4-middleware.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import { Auth } from 'aws-amplify';
 import { AwsV4Signer } from 'aws4fetch';
 
@@ -1822,22 +1745,8 @@ export const addJsonContentTypeHeaderMiddleware: Middleware = {
   "src/config.json": Object {
     "applicationName": "CustomOptions",
   },
-  "src/index.tsx": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -1861,22 +1770,8 @@ createRoot(document.getElementById('root')!)
 reportWebVitals();
 ",
   "src/react-app-env.d.ts": "/// <reference types=\\"react-scripts\\" />",
-  "src/reportWebVitals.ts": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/reportWebVitals.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import { ReportHandler } from 'web-vitals';
 
 const reportWebVitals = (onPerfEntry?: ReportHandler) => {
@@ -1895,22 +1790,8 @@ const reportWebVitals = (onPerfEntry?: ReportHandler) => {
 };
 
 export default reportWebVitals;",
-  "src/setupTests.ts": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/setupTests.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
@@ -2295,10 +2176,10 @@ jobs:
         id: self_mutation
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=self_mutation_happened::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"self_mutation_happened=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.self_mutation.outputs.self_mutation_happened
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -2357,7 +2238,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: amannn/action-semantic-pull-request@v4.5.0
+      - uses: amannn/action-semantic-pull-request@v5.0.2
         env:
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
         with:
@@ -2393,10 +2274,10 @@ jobs:
         id: create_patch
         run: |-
           git add .
-          git diff --staged --patch --exit-code > .repo.patch || echo \\"::set-output name=patch_created::true\\"
+          git diff --staged --patch --exit-code > .repo.patch || echo \\"patch_created=true\\" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.create_patch.outputs.patch_created
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .repo.patch
           path: .repo.patch
@@ -2405,14 +2286,12 @@ jobs:
     needs: upgrade
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     if: \${{ needs.upgrade.outputs.patch_created }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          token: \${{ secrets.PROJEN_GITHUB_TOKEN }}
+        with: {}
       - name: Download patch
         uses: actions/download-artifact@v3
         with:
@@ -2426,7 +2305,7 @@ jobs:
           git config user.email \\"github-actions@github.com\\"
       - name: Create Pull Request
         id: create-pr
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v4
         with:
           token: \${{ secrets.PROJEN_GITHUB_TOKEN }}
           commit-message: |-
@@ -2608,13 +2487,9 @@ tsconfig.tsbuildinfo
         "version": "^8",
       },
       Object {
-        "name": "json-schema",
-        "type": "build",
-      },
-      Object {
         "name": "npm-check-updates",
         "type": "build",
-        "version": "^15",
+        "version": "^16",
       },
       Object {
         "name": "projen",
@@ -2636,14 +2511,12 @@ tsconfig.tsbuildinfo
         "version": "4.17.13",
       },
       Object {
-        "name": "@types/responselike",
-        "type": "override",
-        "version": "1.0.0",
+        "name": "@aws-amplify/auth",
+        "type": "runtime",
       },
       Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
+        "name": "@aws-amplify/core",
+        "type": "runtime",
       },
       Object {
         "name": "@aws-amplify/ui-react",
@@ -3179,6 +3052,8 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
       ],
     },
     "dependencies": Object {
+      "@aws-amplify/auth": "*",
+      "@aws-amplify/core": "*",
       "@aws-amplify/ui-react": "*",
       "@cloudscape-design/collection-hooks": "*",
       "@cloudscape-design/components": "*",
@@ -3206,8 +3081,7 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
       "eslint-import-resolver-node": "*",
       "eslint-import-resolver-typescript": "*",
       "eslint-plugin-import": "*",
-      "json-schema": "*",
-      "npm-check-updates": "^15",
+      "npm-check-updates": "^16",
       "projen": "*",
       "typescript": "^4.0.3",
     },
@@ -3222,8 +3096,6 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
     "resolutions": Object {
       "@types/express": "4.17.13",
       "@types/express-serve-static-core": "4.17.30",
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
     },
     "scripts": Object {
       "build": "npx projen build",
@@ -3317,22 +3189,8 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
 User-agent: *
 Disallow:
 ",
-  "src/App.tsx": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/App.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import {
   BreadcrumbGroup,
   BreadcrumbGroupProps,
@@ -3424,24 +3282,11 @@ const App: React.FC = () => {
 };
 
 export default App;",
-  "src/Auth.tsx": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/Auth.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
+import { Auth as AmplifyAuth } from '@aws-amplify/auth';
+import { Amplify, Hub } from '@aws-amplify/core';
 import { Authenticator, ThemeProvider, Theme, useTheme } from '@aws-amplify/ui-react';
-import { Amplify, Auth as AmplifyAuth, Hub } from 'aws-amplify';
 import React, { createContext, useCallback, useEffect, useState, useMemo } from 'react';
 
 /**
@@ -3567,22 +3412,8 @@ const Auth: React.FC<any> = ({ children }) => {
 };
 
 export default Auth;",
-  "src/Home.tsx": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/Home.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import { Container, Header, SpaceBetween } from '@cloudscape-design/components';
 import { useContext, useEffect } from 'react';
 import { AppLayoutContext } from './App';
@@ -3613,26 +3444,13 @@ const Home: React.FC = () => {
 };
 
 export default Home;",
-  "src/NavHeader.tsx": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+  "src/NavHeader.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+import { Auth as AmplifyAuth } from '@aws-amplify/auth';
 import { TopNavigation } from '@cloudscape-design/components';
 import { TopNavigationProps } from '@cloudscape-design/components/top-navigation/1.0-beta';
 import { applyDensity, applyMode, Density, Mode } from '@cloudscape-design/global-styles';
-import { Auth as AmplifyAuth } from 'aws-amplify';
 import React, { useContext, useState } from 'react';
 import { RuntimeConfigContext } from './Auth';
 import Config from './config.json';
@@ -3732,22 +3550,8 @@ const NavHeader: React.FC = () => {
 };
 
 export default NavHeader;",
-  "src/api-client-middleware/sigv4-middleware.ts": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/api-client-middleware/sigv4-middleware.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import { Auth } from 'aws-amplify';
 import { AwsV4Signer } from 'aws4fetch';
 
@@ -3829,22 +3633,8 @@ export const addJsonContentTypeHeaderMiddleware: Middleware = {
   "src/config.json": Object {
     "applicationName": "Defaults",
   },
-  "src/index.tsx": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -3868,22 +3658,8 @@ createRoot(document.getElementById('root')!)
 reportWebVitals();
 ",
   "src/react-app-env.d.ts": "/// <reference types=\\"react-scripts\\" />",
-  "src/reportWebVitals.ts": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/reportWebVitals.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import { ReportHandler } from 'web-vitals';
 
 const reportWebVitals = (onPerfEntry?: ReportHandler) => {
@@ -3902,22 +3678,8 @@ const reportWebVitals = (onPerfEntry?: ReportHandler) => {
 };
 
 export default reportWebVitals;",
-  "src/setupTests.ts": "/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the \\"License\\").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an \\"AS IS\\" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+  "src/setupTests.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)

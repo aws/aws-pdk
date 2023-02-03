@@ -38,7 +38,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: amannn/action-semantic-pull-request@v4.5.0
+      - uses: amannn/action-semantic-pull-request@v5.0.2
         env:
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
         with:
@@ -2900,7 +2900,7 @@ class DefaultApi(
 import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from test_python.model.api_error_response_content import ApiErrorResponseContent
 from test_python.model.say_hello_response_content import SayHelloResponseContent
@@ -2928,6 +2928,14 @@ OperationLookup = {
         \\"method\\": \\"get\\",
     },
 }
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        \\"\\"\\"
+        Returns an OperationConfig with the same value for every operation
+        \\"\\"\\"
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
 
 def uri_decode(value):
     \\"\\"\\"
@@ -3017,7 +3025,7 @@ class SayHelloRequestParameters(TypedDict):
 class SayHelloRequestArrayParameters(TypedDict):
     ...
 
-# Request body type (default to Any when no body parameters exist)
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 SayHelloRequestBody = Any
 
 SayHello200OperationResponse = ApiResponse[Literal[200], SayHelloResponseContent]
@@ -3040,7 +3048,7 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
     \\"\\"\\"
     def _handler_wrapper(handler: SayHelloHandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -3048,11 +3056,10 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
-            body = parse_body(event['body'], [], SayHelloRequestBody)
-
+            body = {}
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -3061,10 +3068,19 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+            elif response.status_code == 400:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 
@@ -3075,6 +3091,29 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
         return _handler_wrapper
     else:
         raise Exception(\\"Positional arguments are not supported by say_hello_handler.\\")
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return \\"{}||{}\\".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path[\\"method\\"], method_and_path[\\"path\\"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+  say_hello: Callable[[Dict, Any], Dict]
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    \\"\\"\\"
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    \\"\\"\\"
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper
 ",
   "generated/python/test_python/configuration.py": "# coding: utf-8
 
@@ -6948,7 +6987,7 @@ kwargs = json.loads(
     \\"\\"\\"
 {
     \\"name\\": \\"test\\",
-    \\"python_requires\\": \\">=3.6\\",
+    \\"python_requires\\": \\">=3.7\\",
     \\"author\\": \\"test\\",
     \\"author_email\\": \\"test@test.test\\",
     \\"version\\": \\"1.0.0\\"
@@ -7001,6 +7040,7 @@ task generate(type: JavaExec) {
       "plugins": Object {
         "openapi": Object {
           "service": "example.hello#Hello",
+          "tags": true,
         },
       },
       "transforms": Array [],
@@ -9435,6 +9475,7 @@ structure ApiError {
         "plugins": Object {
           "openapi": Object {
             "service": "example.hello#Hello",
+            "tags": true,
           },
         },
       },

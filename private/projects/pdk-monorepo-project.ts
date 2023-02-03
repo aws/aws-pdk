@@ -1,30 +1,60 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import path from "path";
 import { Project } from "projen";
-import { Stability } from "projen/lib/cdk";
 import { NodeProject, NpmConfig } from "projen/lib/javascript";
 import {
   NxMonorepoProject,
-  TargetDependencyProject,
   DEFAULT_CONFIG,
 } from "../../packages/nx-monorepo/src";
+import { Nx } from "../../packages/nx-monorepo/src/nx-types";
+
+// Default NX outputs to cache
+export const NX_DEFAULT_OUTPUTS = [
+  "{projectRoot}/dist",
+  "{projectRoot}/lib",
+  "{projectRoot}/build",
+  "{projectRoot}/coverage",
+  "{projectRoot}/test-reports",
+  "{projectRoot}/target",
+  "{projectRoot}/LICENSE_THIRD_PARTY",
+  "{projectRoot}/.jsii",
+];
+/**
+ * Workspace default NX "build" target
+ *
+ * @see {@link NxTargetDefaults}
+ * @see {@link ProjectTarget}
+ */
+export const NX_BUILD_TARGET_DEFAULT: Nx.ProjectTarget = {
+  outputs: NX_DEFAULT_OUTPUTS,
+  dependsOn: [
+    {
+      target: "build",
+      projects: Nx.TargetDependencyProject.DEPENDENCIES,
+    },
+  ],
+};
+/**
+ * Workspace default NX `targetDefaults`
+ *
+ * @see {@link NxTargetDefaults}
+ */
+export const NX_TARGET_DEFAULTS: Nx.TargetDefaults = {
+  build: NX_BUILD_TARGET_DEFAULT,
+};
 
 export const JEST_VERSION = "^27"; // This is needed due to: https://github.com/aws/jsii/issues/3619
+const HEADER_RULE = {
+  "header/header": [
+    2,
+    "block",
+    [
+      "! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.",
+      "SPDX-License-Identifier: Apache-2.0 ",
+    ],
+  ],
+};
 
 /**
  * Contains configuration for the PDK monorepo (root package).
@@ -36,10 +66,12 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       eslint: true,
       eslintOptions: {
         dirs: ["projects", "private"],
+        ignorePatterns: ["packages/**/*.*"],
       },
       depsUpgrade: false,
       name: "aws-prototyping-sdk-monorepo",
       devDeps: [
+        "lerna",
         "nx",
         "@nrwl/devkit",
         "@aws-prototyping-sdk/nx-monorepo@0.0.0",
@@ -50,32 +82,30 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "eslint-plugin-header",
         "husky",
         "got@^11.8.5",
+        "license-checker",
+        "oss-attribution-generator",
       ],
       monorepoUpgradeDepsOptions: {
         syncpackConfig: { ...DEFAULT_CONFIG, workspace: false },
-      },
-      tsconfig: {
-        compilerOptions: {
-          rootDir: ".",
-        },
-        include: ["**/*.ts"],
       },
       deps: ["fast-xml-parser", "projen"],
       nxConfig: {
         // This is OK to be stored given its read only and the repository is public
         nxCloudReadOnlyAccessToken:
           "OWJmZDJmZmEtNzk5MC00OGJkLTg3YjUtNmNkZDk1MmYxZDZkfHJlYWQ=",
+        cacheableOperations: ["build", "test", "generate"],
+        targetDefaults: NX_TARGET_DEFAULTS,
         targetDependencies: {
           "release:mainline": [
             {
               target: "release:mainline",
-              projects: TargetDependencyProject.DEPENDENCIES,
+              projects: Nx.TargetDependencyProject.DEPENDENCIES,
             },
           ],
           upgrade: [
             {
               target: "upgrade",
-              projects: TargetDependencyProject.DEPENDENCIES,
+              projects: Nx.TargetDependencyProject.DEPENDENCIES,
             },
           ],
         },
@@ -92,22 +122,26 @@ export class PDKMonorepoProject extends NxMonorepoProject {
           "@aws-prototyping-sdk/*/license-checker/*",
           "@aws-prototyping-sdk/*/oss-attribution-generator",
           "@aws-prototyping-sdk/*/oss-attribution-generator/*",
-          "@aws-prototyping-sdk/open-api-gateway/openapi-types",
-          "@aws-prototyping-sdk/open-api-gateway/openapi-types/*",
-          "@aws-prototyping-sdk/open-api-gateway/fs-extra",
-          "@aws-prototyping-sdk/open-api-gateway/fs-extra/*",
-          "@aws-prototyping-sdk/open-api-gateway/lodash",
-          "@aws-prototyping-sdk/open-api-gateway/lodash/*",
-          "@aws-prototyping-sdk/open-api-gateway/log4js",
-          "@aws-prototyping-sdk/open-api-gateway/log4js/*",
           "@aws-prototyping-sdk/cloudscape-react-ts-sample-website",
           "@aws-prototyping-sdk/cloudscape-react-ts-sample-website/**",
+          "@aws-prototyping-sdk/cdk-graph-plugin-diagram/@types/to-px",
         ],
       },
     });
 
     this.eslint?.addPlugins("header");
-    this.eslint?.addRules({ "header/header": [2, "header.js"] });
+    this.eslint?.addRules(HEADER_RULE);
+
+    this.addTask("eslint-staged", {
+      description:
+        "Run eslint against the workspace staged files only; excluding ./packages/ files.",
+      steps: [
+        {
+          // exlcude package files as they are run by the packages directly
+          exec: "eslint --fix --no-error-on-unmatched-pattern $(git diff --name-only --relative --staged HEAD . | grep -E '.(ts|tsx)$' | grep -v -E '^packages/' | xargs)",
+        },
+      ],
+    });
 
     this.addTask("prepare", {
       exec: "husky install",
@@ -149,6 +183,12 @@ export class PDKMonorepoProject extends NxMonorepoProject {
 
     resolveDependencies(this);
 
+    // For dependabot alerts
+    this.package.addPackageResolutions(
+      "**/react-dev-utils/**/loader-utils@^3.2.1",
+      "**/recursive-readdir/**/minimatch@^3.0.5"
+    );
+
     this.testTask.spawn(gitSecretsScanTask);
   }
 
@@ -160,42 +200,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       resolveDependencies(subProject);
       updateJavaPackageTask(subProject);
       this.configureEsLint(subProject);
-
-      const relativeDir = `${
-        subProject.outdir.split(subProject.root.outdir)[1]
-      }`;
-
-      // aws-prototyping-sdk needs the stable folders as cached outputs
-      // TODO: this should live as part of the AwsPrototypingSdk project
-      const additionalOutputs =
-        subProject.name === "aws-prototyping-sdk"
-          ? this.subProjects
-              .filter((s: Project) => s.name !== "aws-prototyping-sdk")
-              .filter(
-                (s: any) => s.package?.manifest?.stability === Stability.STABLE
-              )
-              .map((s) => path.join(relativeDir, path.basename(s.outdir)))
-          : [];
-
-      this.overrideProjectTargets(subProject, {
-        build: {
-          outputs: [
-            `${relativeDir}/dist`,
-            `${relativeDir}/build`,
-            `${relativeDir}/coverage`,
-            `${relativeDir}/lib`,
-            `${relativeDir}/target`,
-            `${relativeDir}/.jsii`,
-            ...additionalOutputs,
-          ],
-          dependsOn: [
-            {
-              target: "build",
-              projects: TargetDependencyProject.DEPENDENCIES,
-            },
-          ],
-        },
-      });
     });
 
     super.synth();
@@ -205,13 +209,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     if (project.eslint) {
       project.addDevDeps("eslint-plugin-header");
       project.eslint.addPlugins("header");
-      const rootHops = (project as Project).outdir
-        .split(this.outdir)[1]
-        .split("/")
-        .splice(1);
-      project.eslint.addRules({
-        "header/header": [2, `${rootHops.map(() => "..").join("/")}/header.js`],
-      });
+      project.eslint.addRules(HEADER_RULE);
     }
   }
 }
@@ -262,7 +260,8 @@ const resolveDependencies = (project: any): void => {
       "ejs@^3.1.7",
       "async@^2.6.4",
       "nth-check@^2.0.1",
-      "got@^11.8.5"
+      "got@^11.8.5",
+      "@types/yargs@17.0.10"
     );
   }
 };

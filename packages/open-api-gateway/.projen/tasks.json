@@ -109,7 +109,24 @@
       "description": "Runs eslint against the codebase",
       "steps": [
         {
-          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src scripts test build-tools .projenrc.js"
+          "exec": "eslint --ext .ts,.tsx ${CI:-'--fix'} --no-error-on-unmatched-pattern src test"
+        }
+      ]
+    },
+    "eslint-staged": {
+      "name": "eslint-staged",
+      "description": "Run eslint against the staged files only",
+      "steps": [
+        {
+          "exec": "eslint --fix --no-error-on-unmatched-pattern $(git diff --name-only --relative --staged HEAD . | grep -E '.(ts|tsx)$' | grep -v 'samples/*' | xargs)"
+        }
+      ]
+    },
+    "jest": {
+      "name": "jest",
+      "steps": [
+        {
+          "exec": "jest --passWithNoTests ${CI:-'--updateSnapshot'}"
         }
       ]
     },
@@ -121,7 +138,7 @@
           "exec": "npx license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
         },
         {
-          "exec": "npx -p oss-attribution-generator@latest generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution"
+          "exec": "npx oss-attribution-generator generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution"
         },
         {
           "spawn": "package-all"
@@ -216,7 +233,7 @@
       "description": "Run tests",
       "steps": [
         {
-          "exec": "jest --passWithNoTests --all --updateSnapshot"
+          "spawn": "jest"
         },
         {
           "spawn": "eslint"

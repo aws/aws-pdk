@@ -1,19 +1,5 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
-
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { CfnOutput, Stack } from "aws-cdk-lib";
 import {
@@ -243,51 +229,61 @@ export class SonarCodeScanner extends Construct {
       value: sonarQubeToken.secretArn,
     });
 
-    NagSuppressions.addResourceSuppressions(sonarQubeToken, [
-      {
-        id: "AwsSolutions-SMG4",
-        reason:
-          "Key rotation is not possible as a user token needs to be generated from Sonarqube",
-      },
-    ]);
+    [
+      "AwsSolutions-SMG4",
+      "AwsPrototyping-SecretsManagerRotationEnabled",
+    ].forEach((RuleId) => {
+      NagSuppressions.addResourceSuppressions(sonarQubeToken, [
+        {
+          id: RuleId,
+          reason:
+            "Key rotation is not possible as a user token needs to be generated from Sonarqube",
+        },
+      ]);
+    });
 
     const stack = Stack.of(this);
-    NagSuppressions.addResourceSuppressions(
-      validationProject.role!,
-      [
-        {
-          id: "AwsSolutions-IAM5",
-          reason:
-            "Validation CodeBuild project requires access to the ArtifactsBucket and ability to create logs.",
-          appliesTo: [
+
+    ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+      (RuleId) => {
+        NagSuppressions.addResourceSuppressions(
+          validationProject.role!,
+          [
             {
-              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
-                stack
-              )}:logs:${PDKNag.getStackRegionRegex(
-                stack
-              )}:${PDKNag.getStackAccountRegex(
-                stack
-              )}:log-group:/aws/codebuild/<.*SonarCodeScannerValidationProject.*>:\\*$/g`,
-            },
-            {
-              regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
-                stack
-              )}:codebuild:${PDKNag.getStackRegionRegex(
-                stack
-              )}:${PDKNag.getStackAccountRegex(
-                stack
-              )}:report-group/<.*SonarCodeScannerValidationProject.*>-\\*$/g`,
-            },
-            {
-              regex: `/^Action::s3:GetObject\\*$/g`,
-            },
-            {
-              regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*\\*$/g",
+              id: RuleId,
+              reason:
+                "Validation CodeBuild project requires access to the ArtifactsBucket and ability to create logs.",
+              appliesTo: [
+                {
+                  regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                    stack
+                  )}:logs:${PDKNag.getStackRegionRegex(
+                    stack
+                  )}:${PDKNag.getStackAccountRegex(
+                    stack
+                  )}:log-group:/aws/codebuild/<.*SonarCodeScannerValidationProject.*>:\\*$/g`,
+                },
+                {
+                  regex: `/^Resource::arn:${PDKNag.getStackPartitionRegex(
+                    stack
+                  )}:codebuild:${PDKNag.getStackRegionRegex(
+                    stack
+                  )}:${PDKNag.getStackAccountRegex(
+                    stack
+                  )}:report-group/<.*SonarCodeScannerValidationProject.*>-\\*$/g`,
+                },
+                {
+                  regex: `/^Action::s3:GetObject\\*$/g`,
+                },
+                {
+                  regex: "/^Resource::<ArtifactsBucket.*.Arn>/\\*\\*$/g",
+                },
+              ],
             },
           ],
-        },
-      ],
-      true
+          true
+        );
+      }
     );
   }
 }

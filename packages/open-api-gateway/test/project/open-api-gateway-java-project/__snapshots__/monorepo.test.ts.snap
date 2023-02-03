@@ -13,12 +13,7 @@ Object {
       "plugin:prettier/recommended",
     ],
     "ignorePatterns": Array [
-      "*.js",
-      "!.projenrc.ts",
-      "*.d.ts",
-      "node_modules/",
-      "*.generated.ts",
-      "coverage",
+      "packages/**/*.*",
       "!.projenrc.ts",
       "!projenrc/**/*.ts",
     ],
@@ -340,10 +335,6 @@ target
         "version": "^8",
       },
       Object {
-        "name": "json-schema",
-        "type": "build",
-      },
-      Object {
         "name": "npm-check-updates",
         "type": "build",
       },
@@ -368,14 +359,9 @@ target
         "type": "build",
       },
       Object {
-        "name": "@types/responselike",
+        "name": "@types/babel__traverse",
         "type": "override",
-        "version": "1.0.0",
-      },
-      Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
+        "version": "7.18.2",
       },
       Object {
         "name": "aws-cdk-lib",
@@ -505,7 +491,7 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools projenrc .projenrc.ts",
+            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern . test build-tools projenrc .projenrc.ts",
           },
         ],
       },
@@ -901,7 +887,6 @@ target
       "eslint-import-resolver-typescript": "*",
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
-      "json-schema": "*",
       "npm-check-updates": "*",
       "prettier": "*",
       "projen": "*",
@@ -914,8 +899,7 @@ target
     "name": "@test/monorepo",
     "private": true,
     "resolutions": Object {
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
+      "@types/babel__traverse": "7.18.2",
     },
     "scripts": Object {
       "build": "npx projen build",
@@ -1368,6 +1352,7 @@ src/main/java/com/generated/api/myapijava/client/api/DefaultApi.java
 src/main/java/com/generated/api/myapijava/client/api/DefaultApi/Handlers.java
 src/main/java/com/generated/api/myapijava/client/api/DefaultApi/OperationConfig.java
 src/main/java/com/generated/api/myapijava/client/api/DefaultApi/OperationLookup.java
+src/main/java/com/generated/api/myapijava/client/api/DefaultApi/Operations.java
 src/main/java/com/generated/api/myapijava/client/auth/ApiKeyAuth.java
 src/main/java/com/generated/api/myapijava/client/auth/Authentication.java
 src/main/java/com/generated/api/myapijava/client/auth/HttpBasicAuth.java
@@ -6308,7 +6293,7 @@ public class Handlers {
 
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
-        // Create an instance here to insure that the static Gson instance is always available.
+        // Create an instance here to ensure that the static Gson instance is always available.
         new JSON();
     }
 
@@ -6340,6 +6325,25 @@ public class Handlers {
         if (source != null) {
             destination.putAll(source);
         }
+    }
+
+    private static String concatMethodAndPath(final String method, final String path) {
+        return String.format(\\"%s||%s\\", method.toLowerCase(), path);
+    }
+
+    private static <T, I> List<Interceptor<I>> getAnnotationInterceptors(Class<T> clazz) {
+        // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
+        return clazz.isAnnotationPresent(Interceptors.class)
+                ? Arrays.stream(clazz.getAnnotation(Interceptors.class).value()).map(c -> {
+            try {
+                return (Interceptor<I>) c.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(String.format(
+                        \\"Cannot create instance of interceptor %s. Please ensure it has a public constructor \\" +
+                                \\"with no arguments, or override the getInterceptors method instead of using the annotation\\", c.getSimpleName()), e);
+            }
+        }).collect(Collectors.toList())
+                : new ArrayList<>();
     }
 
     /**
@@ -6685,21 +6689,18 @@ public class Handlers {
 
         @Override
         public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+        }
+
+        public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<SayHelloInput>> additionalInterceptors) {
             final Map<String, Object> interceptorContext = new HashMap<>();
 
-            // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
-            List<Interceptor<SayHelloInput>> interceptors = this.getClass().isAnnotationPresent(Interceptors.class)
-                    ? Arrays.stream(this.getClass().getAnnotation(Interceptors.class).value()).map(clazz -> {
-                        try {
-                            return (Interceptor<SayHelloInput>) clazz.getDeclaredConstructor().newInstance();
-                        } catch (Exception e) {
-                            throw new RuntimeException(String.format(
-                                    \\"Cannot create instance of interceptor %s. Please ensure it has a public constructor \\" +
-                                            \\"with no arguments, or override the getInterceptors method instead of using the annotation\\", clazz.getSimpleName()), e);
-                        }
-                     }).collect(Collectors.toList())
-                    : new ArrayList<>();
+            List<Interceptor<SayHelloInput>> interceptors = new ArrayList<>();
+            interceptors.addAll(additionalInterceptors);
 
+            List<Interceptor<SayHelloInput>> annotationInterceptors = getAnnotationInterceptors(this.getClass());
+
+            interceptors.addAll(annotationInterceptors);
             interceptors.addAll(this.getInterceptors());
 
             final HandlerChain chain = buildHandlerChain(interceptors, new HandlerChain<SayHelloInput>() {
@@ -6745,6 +6746,59 @@ public class Handlers {
         }
     }
 
+    public static abstract class HandlerRouter implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+        private static final String sayHelloMethodAndPath = concatMethodAndPath(\\"GET\\", \\"/hello\\");
+
+        private final SayHello constructedSayHello;
+
+        /**
+         * This method must return your implementation of the SayHello operation
+         */
+        public abstract SayHello sayHello();
+
+        private static enum Route {
+            sayHelloRoute,
+        }
+
+        /**
+         * Map of method and path to the route to map to
+         */
+        private final Map<String, Route> routes = new HashMap<>();
+
+        public HandlerRouter() {
+            this.routes.put(sayHelloMethodAndPath, Route.sayHelloRoute);
+            // Handlers are all constructed in the router's constructor such that lambda behaviour remains consistent;
+            // ie resources created in the constructor remain in memory between invocations.
+            // https://docs.aws.amazon.com/lambda/latest/dg/java-handler.html
+            this.constructedSayHello = this.sayHello();
+        }
+
+        /**
+         * For more complex interceptors that require instantiation with parameters, you may override this method to
+         * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+         * prefer the @Interceptors annotation.
+         */
+        public <T> List<Interceptor<T>> getInterceptors() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            String method = event.getRequestContext().getHttpMethod();
+            String path = event.getRequestContext().getResourcePath();
+            String methodAndPath = concatMethodAndPath(method, path);
+            Route route = this.routes.get(methodAndPath);
+
+            switch (route) {
+                case sayHelloRoute:
+                    List<Interceptor<SayHelloInput>> sayHelloInterceptors = getAnnotationInterceptors(this.getClass());
+                    sayHelloInterceptors.addAll(this.getInterceptors());
+                    return this.constructedSayHello.handleRequestWithAdditionalInterceptors(event, context, sayHelloInterceptors);
+                default:
+                    throw new RuntimeException(String.format(\\"No registered handler for method {} and path {}\\", method, path));
+            }
+        }
+    }
 }",
   "packages/my-api/generated/java/src/main/java/com/generated/api/myapijava/client/api/DefaultApi/OperationConfig.java": "package com.generated.api.myapijava.client.api;
 
@@ -6792,6 +6846,22 @@ public class OperationLookup {
         config.put(\\"sayHello\\", new HashMap<String, String>() { { put(\\"path\\", \\"/hello\\"); put(\\"method\\", \\"GET\\"); } });
 
         return config;
+    }
+}
+",
+  "packages/my-api/generated/java/src/main/java/com/generated/api/myapijava/client/api/DefaultApi/Operations.java": "package com.generated.api.myapijava.client.api;
+
+@javax.annotation.Generated(value = \\"org.openapitools.codegen.languages.JavaClientCodegen\\")
+public class Operations {
+    /**
+     * Returns an OperationConfig Builder with all values populated with the given value.
+     * You can override specific values on the builder if you like.
+     * Make sure you call \`.build()\` at the end to construct the OperationConfig.
+     */
+    public static <T> OperationConfig.OperationConfigBuilder<T> all(final T value) {
+        return OperationConfig.<T>builder()
+                .sayHello(value)
+                ;
     }
 }
 ",
@@ -10066,7 +10136,7 @@ class DefaultApi(
 import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from myapi_python.model.api_error_response_content import ApiErrorResponseContent
 from myapi_python.model.say_hello_response_content import SayHelloResponseContent
@@ -10094,6 +10164,14 @@ OperationLookup = {
         \\"method\\": \\"get\\",
     },
 }
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        \\"\\"\\"
+        Returns an OperationConfig with the same value for every operation
+        \\"\\"\\"
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
 
 def uri_decode(value):
     \\"\\"\\"
@@ -10183,7 +10261,7 @@ class SayHelloRequestParameters(TypedDict):
 class SayHelloRequestArrayParameters(TypedDict):
     ...
 
-# Request body type (default to Any when no body parameters exist)
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 SayHelloRequestBody = Any
 
 SayHello200OperationResponse = ApiResponse[Literal[200], SayHelloResponseContent]
@@ -10206,7 +10284,7 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
     \\"\\"\\"
     def _handler_wrapper(handler: SayHelloHandlerFunction):
         @wraps(handler)
-        def wrapper(event, context, **kwargs):
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
@@ -10214,11 +10292,10 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
             })
-            body = parse_body(event['body'], [], SayHelloRequestBody)
-
+            body = {}
             interceptor_context = {}
 
-            chain = _build_handler_chain(interceptors, handler)
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
                 request_array_parameters,
@@ -10227,10 +10304,19 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
                 context,
                 interceptor_context,
             ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            elif response.status_code == 200:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+            elif response.status_code == 400:
+                response_body = json.dumps(JSONEncoder().default(response.body))
+
             return {
                 'statusCode': response.status_code,
                 'headers': response.headers,
-                'body': json.dumps(JSONEncoder().default(response.body)) if response.body is not None else '',
+                'body': response_body,
             }
         return wrapper
 
@@ -10241,6 +10327,29 @@ def say_hello_handler(_handler: SayHelloHandlerFunction = None, interceptors: Li
         return _handler_wrapper
     else:
         raise Exception(\\"Positional arguments are not supported by say_hello_handler.\\")
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return \\"{}||{}\\".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path[\\"method\\"], method_and_path[\\"path\\"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+  say_hello: Callable[[Dict, Any], Dict]
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    \\"\\"\\"
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    \\"\\"\\"
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper
 ",
   "packages/my-api/generated/python/myapi_python/configuration.py": "# coding: utf-8
 
@@ -14390,7 +14499,7 @@ src/runtime.ts
       Object {
         "name": "npm-check-updates",
         "type": "build",
-        "version": "^15",
+        "version": "^16",
       },
       Object {
         "name": "projen",
@@ -14403,16 +14512,6 @@ src/runtime.ts
       Object {
         "name": "typescript",
         "type": "build",
-      },
-      Object {
-        "name": "@types/responselike",
-        "type": "override",
-        "version": "1.0.0",
-      },
-      Object {
-        "name": "got",
-        "type": "override",
-        "version": "12.3.1",
       },
       Object {
         "name": "@types/aws-lambda",
@@ -14548,7 +14647,8 @@ src/runtime.ts
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "jest --passWithNoTests --all --updateSnapshot",
+            "exec": "jest --passWithNoTests --updateSnapshot",
+            "receiveArgs": true,
           },
         ],
       },
@@ -14870,7 +14970,7 @@ npm install PATH_TO_GENERATED_PACKAGE --save
       "@types/node": "^14",
       "jest": "*",
       "jest-junit": "^13",
-      "npm-check-updates": "^15",
+      "npm-check-updates": "^16",
       "projen": "*",
       "ts-jest": "*",
       "typescript": "*",
@@ -14918,10 +15018,6 @@ npm install PATH_TO_GENERATED_PACKAGE --save
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "myapi-typescript",
-    "resolutions": Object {
-      "@types/responselike": "1.0.0",
-      "got": "12.3.1",
-    },
     "scripts": Object {
       "build": "npx projen build",
       "clobber": "npx projen clobber",
@@ -15039,6 +15135,15 @@ export const OperationLookup = {
     },
 };
 
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
 // Standard apigateway request parameters (query parameters or path parameters, multi or single value)
 type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
 
@@ -15064,8 +15169,11 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
+type OperationIds = | 'sayHello';
+type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
 // Api gateway lambda handler type
-type ApiGatewayLambdaHandler = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>;
+type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
 
 // Type of the response to be returned by an operation lambda handler
 export interface OperationResponse<StatusCode extends number, Body> {
@@ -15169,7 +15277,7 @@ export type SayHelloChainedHandlerFunction = ChainedLambdaHandlerFunction<SayHel
 export const sayHelloHandler = (
     firstHandler: SayHelloChainedHandlerFunction,
     ...remainingHandlers: SayHelloChainedHandlerFunction[]
-): ApiGatewayLambdaHandler => async (event: any, context: any): Promise<any> => {
+): OperationApiGatewayLambdaHandler<'sayHello'> => async (event: any, context: any, _callback?: any, additionalInterceptors: SayHelloChainedHandlerFunction[] = []): Promise<any> => {
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -15180,12 +15288,11 @@ export const sayHelloHandler = (
     }) as unknown as SayHelloRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
-        let parsed = JSON.parse(bodyString);
-        return parsed;
+        return {};
     };
     const body = parseBody(event.body, demarshal, ['application/json']) as SayHelloRequestBody;
 
-    const chain = buildHandlerChain(firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -15217,6 +15324,57 @@ export const sayHelloHandler = (
         ...response,
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
+};
+
+export interface HandlerRouterHandlers {
+  readonly sayHello: OperationApiGatewayLambdaHandler<'sayHello'>;
+}
+
+export type AnyOperationRequestParameters = | SayHelloRequestParameters;
+export type AnyOperationRequestArrayParameters = | SayHelloRequestArrayParameters;
+export type AnyOperationRequestBodies = | SayHelloRequestBody;
+export type AnyOperationResponses = | SayHelloOperationResponses;
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => \`\${method.toLowerCase()}||\${path}\`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestArrayParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, undefined, props.interceptors);
 };
 ",
   "packages/my-api/generated/typescript/src/apis/index.ts": "/* tslint:disable */
@@ -16331,6 +16489,7 @@ public class MyTest {
       "noUnusedLocals": true,
       "noUnusedParameters": true,
       "resolveJsonModule": true,
+      "rootDir": ".",
       "strict": true,
       "strictNullChecks": true,
       "strictPropertyInitialization": true,
@@ -16344,6 +16503,7 @@ public class MyTest {
       ".projenrc.js",
       "src/**/*.ts",
       "test/**/*.ts",
+      "**/*.ts",
       ".projenrc.ts",
       "projenrc/**/*.ts",
     ],
@@ -16370,7 +16530,7 @@ public class MyTest {
       "noUnusedParameters": true,
       "outDir": "lib",
       "resolveJsonModule": true,
-      "rootDir": "src",
+      "rootDir": ".",
       "strict": true,
       "strictNullChecks": true,
       "strictPropertyInitialization": true,
@@ -16380,6 +16540,7 @@ public class MyTest {
     "exclude": Array [],
     "include": Array [
       "src/**/*.ts",
+      "**/*.ts",
     ],
   },
 }

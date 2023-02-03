@@ -1,22 +1,9 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { PDKProject } from "../pdk-project";
 import { JEST_VERSION } from "./pdk-monorepo-project";
+import { PDKProject } from "../pdk-project";
 
 /**
  * Contains configuration for the OpenApiGateway project.
@@ -32,14 +19,15 @@ export class OpenApiGatewayProject extends PDKProject {
       keywords: ["aws", "pdk", "projen", "openapi"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: [
-        "@aws-prototyping-sdk/nx-monorepo@0.0.0",
+        "@aws-prototyping-sdk/nx-monorepo@^0.x",
         "@types/lodash",
         "aws-cdk-lib",
         "cdk-nag",
         "constructs",
         "projen",
+        "@aws-sdk/client-s3",
       ],
-      deps: ["@aws-prototyping-sdk/pdk-nag", "fs-extra"],
+      deps: ["@aws-prototyping-sdk/pdk-nag@^0.x", "fs-extra"],
       bundledDeps: ["fs-extra", "lodash", "log4js", "openapi-types"],
       peerDeps: ["aws-cdk-lib", "cdk-nag", "constructs", "projen"],
       stability: Stability.EXPERIMENTAL,

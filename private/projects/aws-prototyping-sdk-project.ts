@@ -1,21 +1,9 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Dependency, DependencyType, Project } from "projen";
 import { Stability } from "projen/lib/cdk";
+import { PDKMonorepoProject } from "./pdk-monorepo-project";
 import { NxMonorepoProject } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
@@ -54,7 +42,7 @@ export class AwsPrototypingSdkProject extends PDKProject {
       eslint: false,
       prettier: false,
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: ["ts-node", "fs-extra"],
+      devDeps: ["ts-node", "fs-extra", "@types/fs-extra@9.0.13"],
       stability: Stability.STABLE,
       sampleCode: false,
       excludeTypescript: ["**/samples/**"],
@@ -141,6 +129,13 @@ export class AwsPrototypingSdkProject extends PDKProject {
     this.addBundledDeps(
       ...this.getNonPDKDependenciesByType(stableDeps, DependencyType.BUNDLED)
     );
+
+    // aws-prototyping-sdk needs the stable folders as cached outputs
+    const additionalOutputs = (this.root as PDKMonorepoProject).subProjects
+      .filter((s: Project) => s.name !== "aws-prototyping-sdk")
+      .filter((s: any) => s.package?.manifest?.stability === Stability.STABLE)
+      .map((s) => path.join("{projectRoot}", path.basename(s.outdir)));
+    this.nxOverride("targets.build.outputs", additionalOutputs, true);
 
     this.package.addField("exports", {
       ".": "./index.js",
