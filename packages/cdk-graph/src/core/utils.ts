@@ -324,7 +324,7 @@ export function tokenizeImportArn(value: any): string {
  * Infers CloudFormation Type for a given import resource.
  * @param construct {Construct} Import construct such as `s3.Bucket.fromBucketArn()`.
  * @param constructInfo {ConstructInfo} Construct info like fqn
- * @returns Returns Cloudformation Type is can infer, otherwise undefined.
+ * @returns Returns Cloudformation resource type if it can be inferred, otherwise undefined.
  */
 export function inferImportCfnType(
   construct: Construct,
