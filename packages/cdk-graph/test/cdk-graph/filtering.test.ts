@@ -78,10 +78,11 @@ describe("cdk-graph/filtering", () => {
         ).toBe(0);
       });
 
-      it("should collapse all CfnResourceNodes to parent", () => {
+      it("should collapse all CfnResourceNodes that are wrapped to parent", () => {
         expect(
           store.root.findAll({
-            predicate: (node) => Graph.CfnResourceNode.isCfnResourceNode(node),
+            predicate: (node) =>
+              Graph.CfnResourceNode.isCfnResourceNode(node) && node.isWrapped,
           }).length
         ).toBe(0);
       });

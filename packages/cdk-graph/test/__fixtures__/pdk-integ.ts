@@ -2,8 +2,9 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { PDKNagApp } from "@aws-prototyping-sdk/pdk-nag";
 import { PDKPipeline } from "@aws-prototyping-sdk/pipeline";
-import { AppProps, Stack } from "aws-cdk-lib";
-import { ENVIRONMENTS, TestStage } from "./apps";
+import { Stack } from "aws-cdk-lib";
+import { TestStage } from "./apps";
+import { ENVIRONMENTS } from "./common";
 
 export interface PDKIntegAppProps {
   outdir: string;

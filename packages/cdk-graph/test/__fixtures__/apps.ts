@@ -4,7 +4,6 @@ import {
   App,
   AppProps,
   CfnOutput,
-  Environment,
   NestedStack,
   Stack,
   StackProps,
@@ -17,29 +16,13 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
-
-export const ENVIRONMENTS = {
-  DEFAULT: {
-    account: "000000000000",
-    region: "us-east-1",
-  } as Required<Environment>,
-  DEV: {
-    account: "111111111111",
-    region: "us-west-1",
-  } as Required<Environment>,
-  STAGING: {
-    account: "222222222222",
-    region: "us-west-2",
-  } as Required<Environment>,
-  PROD: {
-    account: "333333333333",
-    region: "us-east-1",
-  } as Required<Environment>,
-} as const;
+import { ENVIRONMENTS } from "./common";
 
 export class FixtureStack extends Stack {
   readonly bucket: s3.IBucket;
+  readonly importedBucket: s3.IBucket;
   readonly lambda: lambda.IFunction;
+  readonly importedLambda: lambda.IFunction;
   readonly db: rds.IDatabaseInstance;
   readonly role: iam.IRole;
   readonly vpc: ec2.Vpc;
@@ -54,6 +37,12 @@ export class FixtureStack extends Stack {
 
     this.bucket = new s3.Bucket(this, "Bucket");
 
+    this.importedBucket = s3.Bucket.fromBucketName(
+      this,
+      "ImportedBucket",
+      `imported-bucket-${ENVIRONMENTS.DEFAULT.account}-${ENVIRONMENTS.DEFAULT.region}`
+    );
+
     this.lambda = new lambda.Function(this, "LambdaFunction", {
       code: lambda.Code.fromInline('module.console.log("test")'),
       handler: "index.handler",
@@ -63,6 +52,12 @@ export class FixtureStack extends Stack {
         BUCKET_NAME: this.bucket.bucketName,
       },
     });
+
+    this.importedLambda = lambda.Function.fromFunctionName(
+      this,
+      "ImportedLambda",
+      "imported-lambda"
+    );
 
     new lambda.Alias(this, "LambdaAlias", {
       aliasName: "Test",
@@ -80,6 +75,8 @@ export class FixtureStack extends Stack {
               resources: [
                 this.bucket.bucketArn,
                 this.bucket.arnForObjects("*"),
+                this.importedBucket.bucketArn,
+                this.importedBucket.arnForObjects("*"),
               ],
             }),
           ],
@@ -89,7 +86,10 @@ export class FixtureStack extends Stack {
             new iam.PolicyStatement({
               effect: iam.Effect.ALLOW,
               actions: ["*"],
-              resources: [this.lambda.functionArn],
+              resources: [
+                this.lambda.functionArn,
+                this.importedLambda.functionArn,
+              ],
             }),
           ],
         }),
