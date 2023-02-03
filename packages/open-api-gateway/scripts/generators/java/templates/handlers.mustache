@@ -1,6 +1,14 @@
+{{#apiInfo}}
+{{#apis.0}}
 package {{package}};
+{{/apis.0}}
+{{/apiInfo}}
 
+{{#apiInfo}}
+{{#apis.0}}
 import {{modelPackage}}.*;
+{{/apis.0}}
+{{/apiInfo}}
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -25,17 +33,25 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 
+{{#apiInfo}}
+{{#apis}}
 {{#imports}}import {{import}};
 {{/imports}}
+{{/apis}}
+{{/apiInfo}}
 
+{{#apiInfo}}
+{{#apis.0}}
 import {{invokerPackage}}.JSON;
+{{/apis.0}}
+{{/apiInfo}}
 
 {{>generatedAnnotation}}
 public class Handlers {
 
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
-        // Create an instance here to insure that the static Gson instance is always available.
+        // Create an instance here to ensure that the static Gson instance is always available.
         new JSON();
     }
 
@@ -221,6 +237,8 @@ public class Handlers {
         }
     }
 
+{{#apiInfo}}
+{{#apis}}
 {{#operations}}
 {{#operation}}
     /**
@@ -513,19 +531,31 @@ public class Handlers {
 
 {{/operation}}
 {{/operations}}
+{{/apis}}
+{{/apiInfo}}
     public static abstract class HandlerRouter implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+        {{#apiInfo}}
+        {{#apis}}
         {{#operations}}
         {{#operation}}
         private static final String {{nickname}}MethodAndPath = concatMethodAndPath("{{httpMethod}}", "{{path}}");
         {{/operation}}
         {{/operations}}
+        {{/apis}}
+        {{/apiInfo}}
 
+        {{#apiInfo}}
+        {{#apis}}
         {{#operations}}
         {{#operation}}
         private final {{operationIdCamelCase}} constructed{{operationIdCamelCase}};
         {{/operation}}
         {{/operations}}
+        {{/apis}}
+        {{/apiInfo}}
 
+        {{#apiInfo}}
+        {{#apis}}
         {{#operations}}
         {{#operation}}
         /**
@@ -534,13 +564,19 @@ public class Handlers {
         public abstract {{operationIdCamelCase}} {{nickname}}();
         {{/operation}}
         {{/operations}}
+        {{/apis}}
+        {{/apiInfo}}
 
         private static enum Route {
+            {{#apiInfo}}
+            {{#apis}}
             {{#operations}}
             {{#operation}}
             {{nickname}}Route,
             {{/operation}}
             {{/operations}}
+            {{/apis}}
+            {{/apiInfo}}
         }
 
         /**
@@ -549,19 +585,27 @@ public class Handlers {
         private final Map<String, Route> routes = new HashMap<>();
 
         public HandlerRouter() {
+            {{#apiInfo}}
+            {{#apis}}
             {{#operations}}
             {{#operation}}
             this.routes.put({{nickname}}MethodAndPath, Route.{{nickname}}Route);
             {{/operation}}
             {{/operations}}
+            {{/apis}}
+            {{/apiInfo}}
             // Handlers are all constructed in the router's constructor such that lambda behaviour remains consistent;
             // ie resources created in the constructor remain in memory between invocations.
             // https://docs.aws.amazon.com/lambda/latest/dg/java-handler.html
+            {{#apiInfo}}
+            {{#apis}}
             {{#operations}}
             {{#operation}}
             this.constructed{{operationIdCamelCase}} = this.{{nickname}}();
             {{/operation}}
             {{/operations}}
+            {{/apis}}
+            {{/apiInfo}}
         }
 
         /**
@@ -581,6 +625,8 @@ public class Handlers {
             Route route = this.routes.get(methodAndPath);
 
             switch (route) {
+                {{#apiInfo}}
+                {{#apis}}
                 {{#operations}}
                 {{#operation}}
                 case {{nickname}}Route:
@@ -589,6 +635,8 @@ public class Handlers {
                     return this.constructed{{operationIdCamelCase}}.handleRequestWithAdditionalInterceptors(event, context, {{nickname}}Interceptors);
                 {{/operation}}
                 {{/operations}}
+                {{/apis}}
+                {{/apiInfo}}
                 default:
                     throw new RuntimeException(String.format("No registered handler for method {} and path {}", method, path));
             }

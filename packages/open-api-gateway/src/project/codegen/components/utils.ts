@@ -43,6 +43,11 @@ export interface GenerationOptions {
   readonly additionalProperties?: {
     [key: string]: string;
   };
+  /**
+   * Supply the relative path from the code project root to the source code directory in which custom generated files
+   * (eg. operation config) should be placed.
+   */
+  readonly srcDir?: string;
 }
 
 const serializeProperties = (properties: { [key: string]: string }) =>
@@ -84,13 +89,14 @@ export const invokeOpenApiGenerator = (options: GenerationOptions) => {
   // previous executions.
   cleanPreviouslyGeneratedFiles(options.outputPath);
 
+  const srcDir = options.srcDir ?? "src";
   const additionalProperties = options.additionalProperties
     ? ` --additional-properties "${serializeProperties(
         options.additionalProperties
       )}"`
     : "";
   exec(
-    `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --generator-dir ${options.generatorDirectory}${additionalProperties}`,
+    `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${additionalProperties}`,
     {
       cwd: path.resolve(
         __dirname,

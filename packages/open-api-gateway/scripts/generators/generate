@@ -8,12 +8,14 @@ output_path=''
 generator=''
 generator_dir=''
 additional_properties=''
+src_dir='src'
 while [[ "$#" -gt 0 ]]; do case $1 in
   --spec-path) spec_path="$2"; shift;;
   --output-path) output_path="$2"; shift;;
   --generator) generator="$2"; shift;;
   --generator-dir) generator_dir="$2"; shift;;
   --additional-properties) additional_properties="$2"; shift;;
+  --src-dir) src_dir="$2"; shift;;
 esac; shift; done
 
 echo "Generating OpenAPI $generator_dir ($generator)..."
@@ -38,6 +40,9 @@ fi
 # Install dependencies
 $pkg_manager install --silent --save-dev @openapitools/openapi-generator-cli@2.5.1
 
+# Support a special placeholder of {{src}} in config.yaml to ensure our custom templates get written to the correct folder
+sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
+
 # Generate the client
 npx openapi-generator-cli generate \
   --log-to-stderr \
@@ -46,7 +51,7 @@ npx openapi-generator-cli generate \
   --generate-alias-as-model \
   --minimal-update \
   --template-dir templates \
-  --config config.yaml \
+  --config config.final.yaml \
   --additional-properties="$additional_properties" \
   --input-spec $spec_path \
   --output $output_path

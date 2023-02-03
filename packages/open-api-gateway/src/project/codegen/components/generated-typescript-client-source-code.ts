@@ -59,6 +59,7 @@ export class GeneratedTypescriptClientSourceCode extends Component {
           useSingleParameter: "true",
           supportsES6: "true",
         },
+        srcDir: (this.project as TypeScriptProject).srcdir,
       });
 
       // Write an index.ts which exposes the additional generated file OperationConfig.ts, which contains handler wrappers

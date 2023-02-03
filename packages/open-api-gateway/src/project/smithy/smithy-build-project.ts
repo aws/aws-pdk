@@ -90,6 +90,8 @@ export class SmithyBuildProject extends Project {
           plugins: {
             openapi: {
               service: options.fullyQualifiedServiceName,
+              // By default, preserve tags in the generated spec, but allow users to explicitly overwrite this
+              tags: true,
               ...options.smithyBuildOptions?.projections?.openapi?.plugins
                 ?.openapi,
             },
