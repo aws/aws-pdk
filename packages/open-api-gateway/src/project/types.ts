@@ -67,11 +67,11 @@ export interface SmithyApiGatewayProjectOptions
    */
   readonly ignoreSmithyBuildOutput?: boolean;
   /**
-   * Path to a directory containing a custom gradle wrapper (gradlew) to use instead of the one provided by the PDK,
-   * relative to the project outdir.
-   * Use this if you would like to own and check in the gradle wrapper instead of using the provided one.
+   * Set to false if you would like to check in your gradle wrapper. Do so if you would like to use a different version
+   * of gradle to the one provided by default
+   * @default true
    */
-  readonly gradleWrapperPath?: string;
+  readonly ignoreGradleWrapper?: boolean;
 }
 
 export interface CommonApiProjectOptions {
