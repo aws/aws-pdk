@@ -6,7 +6,7 @@ import {
   UserPoolAuthenticationProvider,
 } from "@aws-cdk/aws-cognito-identitypool-alpha";
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
-import { Stack } from "aws-cdk-lib";
+import { Stack, Duration } from "aws-cdk-lib";
 import {
   AccountRecovery,
   CfnUserPool,
@@ -47,12 +47,14 @@ export class UserIdentity extends Construct {
     // Unless explicitly stated, created a default Cognito User Pool and Web Client.
     if (!props?.userPool) {
       this.userPool = new UserPool(this, "UserPool", {
+        deletionProtection: true,
         passwordPolicy: {
           minLength: 8,
           requireLowercase: true,
           requireUppercase: true,
           requireDigits: true,
           requireSymbols: true,
+          tempPasswordValidity: Duration.days(3),
         },
         mfa: Mfa.REQUIRED,
         accountRecovery: AccountRecovery.EMAIL_ONLY,
