@@ -2151,7 +2151,7 @@ aws-prototyping-sdk library.</p>
 
 <span class="w">  </span><span class="c1">// async cdk-graph reporting hook</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">graph</span><span class="p">.</span><span class="nx">report</span><span class="p">();</span>
-<span class="p">})</span>
+<span class="p">})()</span>
 
 <span class="c1">// =&gt; cdk.out/diagram.dot</span>
 <span class="c1">// =&gt; cdk.out/diagram.svg</span>
@@ -2216,8 +2216,62 @@ aws-prototyping-sdk library.</p>
 </table>
 <hr />
 <h3 id="configuration">Configuration</h3>
-<p>See <a href="https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html">API Documentation</a> for details, and look in <a href="https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/cdk-graph-plugin-diagram/test/graphviz">unit tests</a> for more examples.</p>
-<h4 id="example-configurations-expand-below">Example Configurations (expand below)</h4>
+<p>See <a href="https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html#ipluginconfig">IPluginConfig</a> interface for details, and look in <a href="https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/cdk-graph-plugin-diagram/test/graphviz">unit tests</a> for additional examples.</p>
+<p>By default the diagram plugin will generate a single "compact" preset diagram.
+It is capable of creating multiple diagrams each with different configurations, as well as defining the defaults to use.</p>
+<p><strong>Defaults Option</strong></p>
+<p>Changing the <code>defaults</code> option will modify default options for all diagrams, including the default diagram.</p>
+<blockquote>
+<p>See <a href="https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html#idiagramconfigbase">IDiagramConfigBase</a> interface for <code>plugin.defaults</code> options.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">CdkGraphDiagramPlugin</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">defaults</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;dark&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">filterPlan</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">preset</span><span class="o">:</span><span class="w"> </span><span class="kt">FilterPreset.NONE</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
+
+<span class="c1">// =&gt; results in a single diagram that is &quot;verbose&quot; and &quot;dark&quot;, since no resources are filtered</span>
+</code></pre></div>
+<p><strong>Diagrams Option</strong></p>
+<p>By modifying the <code>diagrams</code> option of the plugin you have full control over the rendering of diagrams, and can render <strong>multiple</strong> diagrams.</p>
+<blockquote>
+<p>See <a href="https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html#idiagramconfig">IDiagramConfig</a> interface for diagram config options.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">CdkGraphDiagramPlugin</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">diagrams</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;diagram-1&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Diagram 1 (dark + compact)&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;dark&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="c1">// the default `filterPlan: { preset: FilterPreset.COMPACT }` will still apply</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;diagram-2&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Diagram 2 (dark + verbose)&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;dark&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">filterPlan</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">preset</span><span class="o">:</span><span class="w"> </span><span class="kt">FilterPreset.NONE</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;diagram-3&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Diagram 3 (no defaults)&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">ignoreDefaults</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// default options will not be applied (theme, filterPlan, etc)</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="p">});</span>
+</code></pre></div>
+<h4 id="example-diagram-configs-expand-below">Example Diagram Configs (expand below)</h4>
+<p>The below examples define individual diagram configs in the <code>diagrams</code> options of the plugin as described above.</p>
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">CdkGraphDiagramPlugin</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">diagrams</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="c1">// ... insert diagram  config(s) here - see below for examples</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="p">});</span>
+</code></pre></div>
 <h5 id="presets"><strong>Presets</strong></h5>
 <details>
 <summary>Preset: compact</summary>
