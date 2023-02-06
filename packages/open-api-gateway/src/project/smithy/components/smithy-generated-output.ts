@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "path";
 import { Component, Project } from "projen";
 import { exec } from "projen/lib/util";
 
@@ -19,7 +18,7 @@ export interface SmithyGeneratedOpenApiSpecOptions {
   readonly smithyBuildConfigPath: string;
 
   /**
-   * Absolute to smithy build output
+   * Absolute path to smithy build output
    */
   readonly outputPath: string;
 
@@ -27,11 +26,6 @@ export interface SmithyGeneratedOpenApiSpecOptions {
    * Absolute path to the gradle project with the "generate" task
    */
   readonly gradleProjectPath: string;
-
-  /**
-   * Custom gradle wrapper path
-   */
-  readonly gradleWrapperPath?: string;
 }
 
 /**
@@ -48,21 +42,14 @@ export class SmithyGeneratedOutput extends Component {
   synthesize() {
     super.synthesize();
 
-    const {
-      smithyBuildConfigPath,
-      modelPath,
-      outputPath,
-      gradleProjectPath,
-      gradleWrapperPath,
-    } = this.options;
+    const { smithyBuildConfigPath, modelPath, outputPath, gradleProjectPath } =
+      this.options;
 
     // Run smithy generation
     exec(
       `./gradlew -p ${gradleProjectPath} generate -Pconfig=${smithyBuildConfigPath} -Pdiscover=${modelPath} -Poutput=${outputPath}`,
       {
-        cwd:
-          gradleWrapperPath ??
-          path.resolve(__dirname, "..", "..", "..", "..", "scripts", "smithy"),
+        cwd: gradleProjectPath,
       }
     );
   }
