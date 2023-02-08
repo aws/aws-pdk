@@ -9,27 +9,3 @@ export enum IdentityProviderName {
   OIDC = "oidc",
   SAML = "saml",
 }
-
-// type Only<T, U> = {
-//   [P in keyof T]: T[P];
-// } & {
-//   [P in keyof U]?: never;
-// };
-
-// export type Either<T, U> = Only<T, U> | Only<U, T>;
-
-// interface IdentityProviderClientBase {
-//   scopes?: Array<string>
-//   attributeMapping?: AttributeMapping
-// }
-
-// interface IdentityProviderClients extends IdentityProviderClientBase {
-//   clientId: string
-//   clientSecret: string
-// }
-
-// interface IdentityProviderSecret extends IdentityProviderClientBase {
-//   secretArn: string
-// }
-
-// export type IdentityProvider = Either<IdentityProviderClients,  IdentityProviderSecret>
