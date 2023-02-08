@@ -47,6 +47,7 @@ export class UserIdentity extends Construct {
     // Unless explicitly stated, created a default Cognito User Pool and Web Client.
     if (!props?.userPool) {
       this.userPool = new UserPool(this, "UserPool", {
+        deletionProtection: true,
         passwordPolicy: {
           minLength: 8,
           requireLowercase: true,
