@@ -103,7 +103,7 @@ export interface IdpIdentityProps {
    */
   readonly userPoolClientProps?: UserPoolClientOptions;
 
-  identityProviders?: IdentityProviderProps;
+  readonly identityProviders?: IdentityProviderProps;
 }
 
 /**
@@ -114,13 +114,13 @@ export interface AddClientProps extends UserPoolClientOptions {
    * List of allowed redirect URLs for the identity providers.
    * @default - ['https://example.com'] if either authorizationCodeGrant or implicitCodeGrant flows are enabled, no callback URLs otherwise.
    */
-  callbackUrls: Array<string>;
+  readonly callbackUrls: Array<string>;
 
   /**
    * List of allowed logout URLs for the identity providers.
    * @default - no logout URLs
    */
-  logoutUrls: Array<string>;
+  readonly logoutUrls: Array<string>;
 
   /**
    * Options while specifying a cognito prefix domain.
@@ -134,7 +134,7 @@ export interface AddClientProps extends UserPoolClientOptions {
    */
   readonly customDomain?: CustomDomainOptions;
 
-  useIdentityProvider?: Array<UserPoolClientIdentityProvider>;
+  readonly useIdentityProvider?: Array<UserPoolClientIdentityProvider>;
 }
 
 /**
@@ -161,12 +161,12 @@ export class IdpIdentity extends Construct {
     if (props?.userPool) {
       this.userPool = props.userPool!;
     } else {
-      this.userPool = this.createUserPool(id, props);
-      this.addDomain(id, this.userPool, {
+      this.userPool = this._createUserPool(id, props);
+      this._addDomain(id, this.userPool, {
         cognitoDomain: props?.cognitoDomain,
         customDomain: props?.customDomain,
       });
-      this.attachIdentityProviders(
+      this._attachIdentityProviders(
         id,
         props?.identityProviders!,
         this.userPool
@@ -174,11 +174,40 @@ export class IdpIdentity extends Construct {
     }
   }
 
-  protected addDomain = (
+  public addClientApplication(
+    id: string,
+    props?: AddClientProps
+  ): UserPoolClient {
+    const client = new UserPoolClient(this, id, {
+      userPoolClientName: id,
+      userPool: this.userPool,
+      oAuth: {
+        callbackUrls: props?.callbackUrls ? props.callbackUrls : [],
+        logoutUrls: props?.logoutUrls ? props.logoutUrls : [],
+      },
+      authFlows: {
+        userPassword: true,
+        userSrp: true,
+      },
+      generateSecret: true,
+      supportedIdentityProviders: props?.useIdentityProvider,
+      ...props,
+    });
+
+    client.node.addDependency(this.userPool);
+
+    !this.hasIdentityPool &&
+      this._createIdentityPool(id, client).node.addDependency(client);
+
+    return client;
+  }
+
+  /** @internal */
+  protected _addDomain(
     id: string,
     userPool: IUserPool,
     props: CreateUserPoolProps
-  ) => {
+  ): void {
     if (props?.cognitoDomain) {
       Annotations.of(this).addInfo("cognitoDomain");
       new UserPoolDomain(this, `${id}-cognitoDomain`, {
@@ -192,9 +221,10 @@ export class IdpIdentity extends Construct {
         userPool: userPool,
       });
     }
-  };
+  }
 
-  protected createUserPool = (id: string, props?: CreateUserPoolProps) => {
+  /** @internal */
+  protected _createUserPool(id: string, props?: CreateUserPoolProps): UserPool {
     const ret = new UserPool(this, "UserPool", {
       userPoolName: id,
       removalPolicy: RemovalPolicy.RETAIN,
@@ -213,13 +243,14 @@ export class IdpIdentity extends Construct {
     };
 
     return ret;
-  };
+  }
 
-  protected attachIdentityProviders = (
+  /** @internal */
+  protected _attachIdentityProviders(
     id: string,
     identityProviders: IdentityProviderProps,
     userPool: IUserPool
-  ): void => {
+  ): void {
     for (const [identityProviderName, props] of Object.entries(
       identityProviders
     )) {
@@ -275,41 +306,14 @@ export class IdpIdentity extends Construct {
       }
       this.identityProviders.push(provider);
     }
-  };
+  }
 
-  public addClientApplication = (
-    id: string,
-    props?: AddClientProps
-  ): UserPoolClient => {
-    const client = new UserPoolClient(this, id, {
-      userPoolClientName: id,
-      userPool: this.userPool,
-      oAuth: {
-        callbackUrls: props?.callbackUrls ? props.callbackUrls : [],
-        logoutUrls: props?.logoutUrls ? props.logoutUrls : [],
-      },
-      authFlows: {
-        userPassword: true,
-        userSrp: true,
-      },
-      generateSecret: true,
-      supportedIdentityProviders: props?.useIdentityProvider,
-      ...props,
-    });
-
-    client.node.addDependency(this.userPool);
-
-    !this.hasIdentityPool &&
-      this.createIdentityPool(id, client).node.addDependency(client);
-
-    return client;
-  };
-
-  public createIdentityPool = (
+  /** @internal */
+  protected _createIdentityPool(
     id: string,
     client: UserPoolClient,
     props?: any
-  ) => {
+  ): IdentityPool {
     const identityPool = new IdentityPool(this, id + "IdentityPool", {
       ...props?.identityPoolOptions,
       authenticationProviders: {
@@ -331,5 +335,5 @@ export class IdpIdentity extends Construct {
 
     this.hasIdentityPool = true;
     return identityPool;
-  };
+  }
 }
