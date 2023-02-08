@@ -1,72 +1,118 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
-import { App, NestedStack, Stack } from "aws-cdk-lib";
-import { Template } from "aws-cdk-lib/assertions";
 import {
+  IdentityPool,
+  IdentityPoolProps,
+  UserPoolAuthenticationProvider,
+} from "@aws-cdk/aws-cognito-identitypool-alpha";
+import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
+import { Stack, Duration } from "aws-cdk-lib";
+import {
+  AccountRecovery,
+  CfnUserPool,
+  Mfa,
   UserPool,
-  UserPoolClientIdentityProvider,
+  UserPoolClient,
 } from "aws-cdk-lib/aws-cognito";
-import { IdpIdentity, UserIdentity } from "../src";
+import { Construct } from "constructs";
 
-describe("User Identity Unit Tests", () => {
-  it("Defaults", () => {
-    const stack = new Stack(PDKNag.app());
-    new UserIdentity(stack, "Defaults");
-    expect(Template.fromStack(stack)).toMatchSnapshot();
-  });
+/**
+ * Properties which configures the Identity Pool.
+ */
+export interface UserIdentityProps {
+  /**
+   * User provided Cognito UserPool.
+   *
+   * @default - a userpool will be created.
+   */
+  readonly userPool?: UserPool;
 
-  it("Defaults - Nested", () => {
-    const stack = new Stack(PDKNag.app());
-    const nestedStack = new NestedStack(stack, "Nested-Stack");
-    new UserIdentity(nestedStack, "Defaults-Nested");
-    expect(Template.fromStack(nestedStack)).toMatchSnapshot();
-  });
+  /**
+   * Configuration for the Identity Pool.
+   */
+  readonly identityPoolOptions?: IdentityPoolProps;
+}
 
-  it("User provided UserPool", () => {
-    const app = new App();
-    const stack = new Stack(app);
-    const userPool = new UserPool(stack, "UserPool");
-    const userIdentity = new UserIdentity(stack, "Defaults", {
-      userPool,
-    });
-    expect(userPool.userPoolId).toEqual(userIdentity.userPool.userPoolId);
-    expect(Template.fromStack(stack)).toMatchSnapshot();
-  });
-});
+/**
+ * Creates an Identity Pool with sane defaults configured.
+ */
+export class UserIdentity extends Construct {
+  public readonly identityPool: IdentityPool;
+  public readonly userPool: UserPool;
+  public readonly userPoolClient?: UserPoolClient;
 
-describe("Idp Identity Unit Tests", () => {
-  it("Defaults", () => {
-    const stack = new Stack(PDKNag.app());
-    const idp = new IdpIdentity(stack, "idp-identity-test-10", {
-      cognitoDomain: {
-        domainPrefix: "test-idp-10",
-      },
-      identityProviders: {
-        google: {
-          clientId:
-            "180033079154-ortdes3678qaith4m7d9pjv2vq0q7bku.apps.googleusercontent.com",
-          clientSecret: "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",
+  constructor(scope: Construct, id: string, props?: UserIdentityProps) {
+    super(scope, id);
+
+    // Unless explicitly stated, created a default Cognito User Pool and Web Client.
+    if (!props?.userPool) {
+      this.userPool = new UserPool(this, "UserPool", {
+        deletionProtection: true,
+        passwordPolicy: {
+          minLength: 8,
+          requireLowercase: true,
+          requireUppercase: true,
+          requireDigits: true,
+          requireSymbols: true,
+          tempPasswordValidity: Duration.days(3),
         },
-        amazon: {
-          clientId:
-            "180033079154-ortdes3678qaith4m7d9pjv2vq0q7bku.apps.googleusercontent.com",
-          clientSecret: "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",
+        mfa: Mfa.REQUIRED,
+        accountRecovery: AccountRecovery.EMAIL_ONLY,
+        autoVerify: {
+          email: true,
         },
+      });
+
+      (this.userPool.node.defaultChild as CfnUserPool).userPoolAddOns = {
+        advancedSecurityMode: "ENFORCED",
+      };
+
+      const stack = Stack.of(this);
+
+      ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
+        (RuleId) => {
+          PDKNag.addResourceSuppressionsByPathNoThrow(
+            stack,
+            `${PDKNag.getStackPrefix(stack)}${id}/UserPool/smsRole/Resource`,
+            [
+              {
+                id: RuleId,
+                reason:
+                  "MFA requires sending a text to a users phone number which cannot be known at deployment time.",
+                appliesTo: ["Resource::*"],
+              },
+            ]
+          );
+        }
+      );
+
+      this.userPoolClient = this.userPool.addClient("WebClient", {
+        authFlows: {
+          userPassword: true,
+          userSrp: true,
+        },
+      });
+    } else {
+      this.userPool = props.userPool;
+    }
+
+    this.identityPool = new IdentityPool(this, "IdentityPool", {
+      ...props?.identityPoolOptions,
+      authenticationProviders: {
+        ...props?.identityPoolOptions?.authenticationProviders,
+        userPools: [
+          ...(props?.identityPoolOptions?.authenticationProviders?.userPools ||
+            []),
+          ...(!props?.userPool
+            ? [
+                new UserPoolAuthenticationProvider({
+                  userPool: this.userPool,
+                  userPoolClient: this.userPoolClient!,
+                }),
+              ]
+            : []),
+        ],
       },
     });
-
-    idp.addClientApplication("web", {
-      callbackUrls: ["https://localhost:8080"],
-      logoutUrls: ["https://localhost:8080/logout"],
-      useIdentityProvider: [UserPoolClientIdentityProvider.GOOGLE],
-    });
-
-    idp.addClientApplication("mobile", {
-      callbackUrls: ["https://localhost:8080"],
-      logoutUrls: ["https://localhost:8080/logout"],
-      useIdentityProvider: [UserPoolClientIdentityProvider.AMAZON],
-    });
-    expect(Template.fromStack(stack)).toMatchSnapshot();
-  });
-});
+  }
+}
