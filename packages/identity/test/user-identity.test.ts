@@ -5,7 +5,7 @@ import { App, NestedStack, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import {
   UserPool,
-  UserPoolIdentityProviderSamlMetadataType,
+  UserPoolClientIdentityProvider,
 } from "aws-cdk-lib/aws-cognito";
 import { IdpIdentity, UserIdentity } from "../src";
 
@@ -38,38 +38,34 @@ describe("User Identity Unit Tests", () => {
 describe("Idp Identity Unit Tests", () => {
   it("Defaults", () => {
     const stack = new Stack(PDKNag.app());
-    new IdpIdentity(stack, "Defaults", {
-      identityProviderProps: {
-        amazon: {
-          clientId: "123",
-          clientSecret: "123",
-        },
-        apple: {
-          clientId: "123",
-          keyId: "dfds",
-          privateKey: "dsds",
-          teamId: "dsds",
-        },
-        facebook: {
-          clientId: "123",
-          clientSecret: "123",
-        },
+    const idp = new IdpIdentity(stack, "idp-identity-test-10", {
+      cognitoDomain: {
+        domainPrefix: "test-idp-10",
+      },
+      identityProviders: {
         google: {
-          clientId: "123",
-          clientSecret: "123",
+          clientId:
+            "180033079154-ortdes3678qaith4m7d9pjv2vq0q7bku.apps.googleusercontent.com",
+          clientSecret: "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",
         },
-        oidc: {
-          clientId: "123",
-          clientSecret: "123",
-          issuerUrl: "ddsds",
-        },
-        saml: {
-          metadata: {
-            metadataContent: "123",
-            metadataType: UserPoolIdentityProviderSamlMetadataType.URL,
-          },
+        amazon: {
+          clientId:
+            "180033079154-ortdes3678qaith4m7d9pjv2vq0q7bku.apps.googleusercontent.com",
+          clientSecret: "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",
         },
       },
+    });
+
+    idp.addClientApplication("web", {
+      callbackUrls: ["https://localhost:8080"],
+      logoutUrls: ["https://localhost:8080/logout"],
+      useIdentityProvider: [UserPoolClientIdentityProvider.GOOGLE],
+    });
+
+    idp.addClientApplication("mobile", {
+      callbackUrls: ["https://localhost:8080"],
+      logoutUrls: ["https://localhost:8080/logout"],
+      useIdentityProvider: [UserPoolClientIdentityProvider.AMAZON],
     });
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
