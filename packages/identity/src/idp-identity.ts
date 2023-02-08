@@ -40,9 +40,9 @@ import {
   UserPoolIdentityProviderOidcProps,
   UserPoolIdentityProviderSamlProps,
 } from "./cdk-internals";
-import { IdentityProviderName } from "./identityProviders";
+import { IdentityProviderName } from "./cdk-internals/identityProviders";
 
-export const passwordPolicy: PasswordPolicy = {
+export const defaultPasswordPolicy: PasswordPolicy = {
   minLength: 8,
   requireLowercase: true,
   requireUppercase: true,
@@ -60,8 +60,17 @@ export interface IdentityProviderProps {
   readonly [IdentityProviderName.SAML]?: UserPoolIdentityProviderSamlProps;
 }
 
+/**
+ * Properties which configures the IDP Identity construct.
+ */
 export interface IdpIdentityProps {
+  /**
+   * User provided Cognito UserPool.
+   *
+   * @default - a userpool will be created.
+   */
   readonly userPool?: IUserPool;
+
   /**
    * Props for the UserPool construct
    */
@@ -97,6 +106,9 @@ export interface IdpIdentityProps {
   identityProviders?: IdentityProviderProps;
 }
 
+/**
+ * Properties which configure a user pool client.
+ */
 export interface AddClientProps extends UserPoolClientOptions {
   /**
    * List of allowed redirect URLs for the identity providers.
@@ -125,13 +137,19 @@ export interface AddClientProps extends UserPoolClientOptions {
   useIdentityProvider?: Array<UserPoolClientIdentityProvider>;
 }
 
-export interface CreateUserPoolProps extends UserPoolProps {
+/**
+ * Properties which configure a domain for the user pool.
+ */
+interface CreateUserPoolProps extends UserPoolProps {
   readonly cognitoDomain?: CognitoDomainOptions;
   readonly customDomain?: CustomDomainOptions;
 }
 
+/**
+ * Creates a user pool will one or more federated identity providers
+ */
 export class IdpIdentity extends Construct {
-  public readonly userPool: IUserPool;
+  public userPool: IUserPool;
   public userPoolClient?: UserPoolClient;
   protected hasIdentityPool: boolean = false;
   protected identityProviders: Array<IUserPoolIdentityProvider> = [];
@@ -161,8 +179,6 @@ export class IdpIdentity extends Construct {
     userPool: IUserPool,
     props: CreateUserPoolProps
   ) => {
-    Annotations.of(this).addInfo(JSON.stringify(props));
-
     if (props?.cognitoDomain) {
       Annotations.of(this).addInfo("cognitoDomain");
       new UserPoolDomain(this, `${id}-cognitoDomain`, {
@@ -183,7 +199,7 @@ export class IdpIdentity extends Construct {
       userPoolName: id,
       removalPolicy: RemovalPolicy.RETAIN,
       deletionProtection: true,
-      passwordPolicy,
+      passwordPolicy: defaultPasswordPolicy,
       mfa: Mfa.REQUIRED,
       accountRecovery: AccountRecovery.EMAIL_ONLY,
       autoVerify: {
@@ -266,6 +282,7 @@ export class IdpIdentity extends Construct {
     props?: AddClientProps
   ): UserPoolClient => {
     const client = new UserPoolClient(this, id, {
+      userPoolClientName: id,
       userPool: this.userPool,
       oAuth: {
         callbackUrls: props?.callbackUrls ? props.callbackUrls : [],
@@ -283,12 +300,16 @@ export class IdpIdentity extends Construct {
     client.node.addDependency(this.userPool);
 
     !this.hasIdentityPool &&
-      this.createIdentityPool(id).node.addDependency(client);
+      this.createIdentityPool(id, client).node.addDependency(client);
 
     return client;
   };
 
-  public createIdentityPool = (id: string, props?: any) => {
+  public createIdentityPool = (
+    id: string,
+    client: UserPoolClient,
+    props?: any
+  ) => {
     const identityPool = new IdentityPool(this, id + "IdentityPool", {
       ...props?.identityPoolOptions,
       authenticationProviders: {
@@ -300,7 +321,7 @@ export class IdpIdentity extends Construct {
             ? [
                 new UserPoolAuthenticationProvider({
                   userPool: this.userPool,
-                  userPoolClient: this.userPoolClient!,
+                  userPoolClient: client,
                 }),
               ]
             : []),

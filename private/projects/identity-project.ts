@@ -15,7 +15,15 @@ export class IdentityProject extends PDKProject {
       authorAddress: "apj-cope@amazon.com",
       defaultReleaseBranch: "mainline",
       name: "identity",
-      keywords: ["aws", "pdk", "jsii", "projen"],
+      keywords: [
+        "aws",
+        "pdk",
+        "jsii",
+        "projen",
+        "cognito",
+        "identity",
+        "federated",
+      ],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: [
         "projen",
