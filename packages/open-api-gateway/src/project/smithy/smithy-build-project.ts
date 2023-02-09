@@ -4,6 +4,7 @@ import * as path from "path";
 import { Project, ProjectOptions, SampleFile } from "projen";
 import { SmithyBuild } from "projen/lib/smithy/smithy-build";
 import { SampleExecutable } from "./components/sample-executable";
+import { SmithyBuildGradleFile } from "./components/smithy-build-gradle-file";
 import { SmithyGeneratedOutput } from "./components/smithy-generated-output";
 import { SmithyBuildOptions } from "./types";
 import { SmithyServiceName } from "../types";
@@ -59,9 +60,8 @@ export class SmithyBuildProject extends Project {
       "smithy"
     );
 
-    // Add all the smithy gradle files, which the user is free to edit
+    // Add gradle wrapper files and executables
     [
-      "build.gradle",
       "gradle/wrapper/gradle-wrapper.jar",
       "gradle/wrapper/gradle-wrapper.properties",
     ].forEach((file) => {
@@ -76,6 +76,7 @@ export class SmithyBuildProject extends Project {
       });
     });
 
+    // Add settings.gradle
     new SampleFile(this, "settings.gradle", {
       contents: `rootProject.name = '${this.name.replace(
         /[\/\\:<>"?\*|]/g,
@@ -83,9 +84,41 @@ export class SmithyBuildProject extends Project {
       )}'`,
     });
 
-    const { namespace: serviceNamespace, serviceName } = options.serviceName;
-
     const modelDir = "src/main/smithy";
+
+    // Always add the following required dependencies
+    const requiredDependencies = [
+      "software.amazon.smithy:smithy-cli",
+      "software.amazon.smithy:smithy-model",
+      "software.amazon.smithy:smithy-openapi",
+      "software.amazon.smithy:smithy-aws-traits",
+    ];
+    const requiredSmithyDependencyVersion = "1.27.2";
+
+    // Ensure dependencies always include the required dependencies, allowing users to customise the version
+    const userSpecifiedDependencies =
+      options.smithyBuildOptions?.maven?.dependencies ?? [];
+    const userSpecifiedDependencySet = new Set(
+      userSpecifiedDependencies.map((dep) =>
+        dep.split(":").slice(0, -1).join(":")
+      )
+    );
+
+    const dependencies = [
+      ...requiredDependencies
+        .filter((requiredDep) => !userSpecifiedDependencySet.has(requiredDep))
+        .map((dep) => `${dep}:${requiredSmithyDependencyVersion}`),
+      ...userSpecifiedDependencies,
+    ];
+
+    // Add build.gradle
+    new SmithyBuildGradleFile(this, {
+      modelDir,
+      dependencies,
+      repositoryUrls: options.smithyBuildOptions?.maven?.repositoryUrls,
+    });
+
+    const { namespace: serviceNamespace, serviceName } = options.serviceName;
 
     // Create the default smithy model
     new SampleFile(this, path.join(modelDir, "main.smithy"), {
@@ -150,6 +183,15 @@ structure ApiError {
             },
           },
         },
+      },
+      maven: {
+        dependencies,
+        repositories: (
+          options.smithyBuildOptions?.maven?.repositoryUrls ?? [
+            "https://repo.maven.apache.org/maven2/",
+            "file://~/.m2/repository",
+          ]
+        ).map((url) => ({ url })),
       },
     });
 

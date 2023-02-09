@@ -74,7 +74,29 @@ export type SmithyPluginKey = string;
 export type SmithyPlugins = Record<SmithyPluginKey, SmithyPlugin>;
 
 /**
- * Options for the smithy build file
+ * Configuration for smithy maven dependencies
+ */
+export interface SmithyMavenConfiguration {
+  /**
+   * The dependencies used in the build.gradle and smithy-build.json files
+   * eg. software.amazon.smithy:smithy-validation-model:1.27.2
+   * The following required dependencies are always added:
+   * - software.amazon.smithy:smithy-cli:1.27.2
+   * - software.amazon.smithy:smithy-model:1.27.2
+   * - software.amazon.smithy:smithy-openapi:1.27.2
+   * - software.amazon.smithy:smithy-aws-traits:1.27.2
+   * You can however override the version of these dependencies if required.
+   */
+  readonly dependencies?: string[];
+  /**
+   * The repository urls used in the build.gradle and smithy-build.json files
+   * @default maven central and maven local
+   */
+  readonly repositoryUrls?: string[];
+}
+
+/**
+ * Options for the smithy build files
  */
 export interface SmithyBuildOptions extends SmithyCommon {
   /**
@@ -91,4 +113,10 @@ export interface SmithyBuildOptions extends SmithyCommon {
    * @default - no ignoreMissingPlugins set in the smithy-build.json file
    */
   readonly ignoreMissingPlugins?: boolean;
+  /**
+   * Maven configuration for the Smithy build project, used to specify dependencies and repositories in the build.gradle
+   * and smithy-build.json files.
+   * @default the default configuration required for Smithy to OpenAPI conversion
+   */
+  readonly maven?: SmithyMavenConfiguration;
 }
