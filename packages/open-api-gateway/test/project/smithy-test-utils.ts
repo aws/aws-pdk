@@ -12,7 +12,11 @@ export const synthSmithyCodeProject = (project: Project) => {
     project.synth();
     return directorySnapshot(project.outdir, {
       // Ignore the .gradle folder which is created during smithy build and includes timestamps
-      excludeGlobs: ["**/.gradle/**/*"],
+      excludeGlobs: [
+        "**/.gradle/**/*",
+        "**/output/classpath.json",
+        "**/output/**/model.json",
+      ],
     });
   } finally {
     fs.removeSync(project.outdir);
