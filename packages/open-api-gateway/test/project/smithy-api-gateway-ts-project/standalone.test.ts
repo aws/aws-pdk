@@ -7,6 +7,7 @@ import { synthSmithyCodeProject } from "../smithy-test-utils";
 describe("Smithy Api Gateway Ts Standalone Unit Tests", () => {
   it.each([
     NodePackageManager.YARN,
+    NodePackageManager.YARN2,
     NodePackageManager.NPM,
     NodePackageManager.PNPM,
   ])("With Package Manager %s", (packageManager) => {
