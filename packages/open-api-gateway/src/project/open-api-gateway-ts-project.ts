@@ -320,6 +320,7 @@ export class OpenApiGatewayTsProject extends TypeScriptProject {
     switch (this.package.packageManager) {
       case NodePackageManager.NPM:
       case NodePackageManager.YARN:
+      case NodePackageManager.YARN2:
         exec(`${this.package.packageManager} link`, {
           cwd: this.generatedTypescriptClient.outdir,
         });

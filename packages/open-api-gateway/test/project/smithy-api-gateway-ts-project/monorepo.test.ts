@@ -11,6 +11,7 @@ import { synthSmithyCodeProject } from "../smithy-test-utils";
 describe("Smithy Api Gateway Ts Monorepo Unit Tests", () => {
   it.each([
     NodePackageManager.YARN,
+    NodePackageManager.YARN2,
     NodePackageManager.NPM,
     NodePackageManager.PNPM,
   ])("Within Monorepo With Package Manager %s", (packageManager) => {

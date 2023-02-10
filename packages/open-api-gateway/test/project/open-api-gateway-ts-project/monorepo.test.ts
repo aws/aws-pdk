@@ -8,6 +8,7 @@ import { ClientLanguage, OpenApiGatewayTsProject } from "../../../src/project";
 describe("OpenAPI Gateway Ts Monorepo Unit Tests", () => {
   it.each([
     NodePackageManager.YARN,
+    NodePackageManager.YARN2,
     NodePackageManager.NPM,
     NodePackageManager.PNPM,
   ])("Within Monorepo With Package Manager %s", (packageManager) => {

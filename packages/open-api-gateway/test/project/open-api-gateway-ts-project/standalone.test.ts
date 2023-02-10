@@ -7,6 +7,7 @@ import { ClientLanguage, OpenApiGatewayTsProject } from "../../../src";
 describe("OpenAPI Gateway Ts Standalone Unit Tests", () => {
   it.each([
     NodePackageManager.YARN,
+    NodePackageManager.YARN2,
     NodePackageManager.NPM,
     NodePackageManager.PNPM,
   ])("With Package Manager %s", (packageManager) => {
