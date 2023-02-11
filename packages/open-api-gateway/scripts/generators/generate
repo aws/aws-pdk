@@ -24,6 +24,9 @@ working_dir=$(pwd)
 # Get the directory this script is executing in (scripts/generators)
 script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
 
+# load common package manager helper functions
+. "$script_dir/../common/common.sh"
+
 # Create a temporary directory
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-client-$generator_dir.XXXXXXXXX")
 cd $tmp_dir
@@ -31,26 +34,14 @@ cd $tmp_dir
 # Copy the specific generator directory into the temp directory
 cp -r $script_dir/$generator_dir/* .
 
-# Preference: pnpm > yarn > npm. Use if available, otherwise fall back to npm so as not to require it as a system-wide dependency
-pkg_manager=pnpm
-pkg_install_cmd=install
-if ! $pkg_manager -v &> /dev/null; then
-  pkg_manager=yarn
-  pkg_install_cmd=add
-  if ! $pkg_manager -v &> /dev/null; then
-    pkg_manager=npm
-    pkg_install_cmd=install
-  fi
-fi
-
 # Install dependencies
-$pkg_manager $pkg_install_cmd --silent @openapitools/openapi-generator-cli@2.5.1
+install_packages @openapitools/openapi-generator-cli@2.5.1
 
 # Support a special placeholder of {{src}} in config.yaml to ensure our custom templates get written to the correct folder
 sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
 
 # Generate the client
-npx openapi-generator-cli generate \
+run_command openapi-generator-cli generate \
   --log-to-stderr \
   --generator-name $generator \
   --skip-operation-example \
