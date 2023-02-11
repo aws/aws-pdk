@@ -5,6 +5,9 @@ set -e
 working_dir=$(pwd)
 script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
 
+# load common package manager helper functions
+. "$script_dir/../common/common.sh"
+
 # Create a temporary directory
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}parse-openapi-spec.XXXXXXXXX")
 cd $tmp_dir
@@ -12,21 +15,9 @@ cd $tmp_dir
 # Copy the parse script into the temp directory
 cp -r $script_dir/* .
 
-# Preference: pnpm > yarn > npm. Use if available, otherwise fall back to npm so as not to require it as a system-wide dependency
-pkg_manager=pnpm
-pkg_install_cmd=install
-if ! $pkg_manager -v &> /dev/null; then
-  pkg_manager=yarn
-  pkg_install_cmd=add
-  if ! $pkg_manager -v &> /dev/null; then
-    pkg_manager=npm
-    pkg_install_cmd=install
-  fi
-fi
-
 # Install dependencies. Note that projen version does not need to be kept in sync with project projen version since
 # this runs in isolation.
-$pkg_manager $pkg_install_cmd --silent \
+install_packages \
   typescript@4.7.2 \
   @types/node@14.14.20 \
   ts-node@10.8.1 \
@@ -36,7 +27,8 @@ $pkg_manager $pkg_install_cmd --silent \
   projen@0.67.46
 
 # Run the parse script
-npx ts-node parse-openapi-spec.ts "$@"
+run_command "ts-node parse-openapi-spec.ts $@"
+echo "openapi-spec parsed"
 
 # Clean up
 cd $working_dir
