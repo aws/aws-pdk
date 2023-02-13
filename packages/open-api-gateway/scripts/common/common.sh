@@ -50,10 +50,10 @@ run_command() {
     if [ "$yarn_major_version" == "1" ]; then
       runner="yarn run"
     else
-      runner="yarn dlx"
+      runner="yarn exec"
     fi
   elif [ "$pkg_manager" == "pnpm" ]; then
-    runner="pnpx"
+    runner="pnpm exec"
   else
     runner="npx"
   fi
