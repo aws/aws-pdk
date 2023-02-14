@@ -31,6 +31,8 @@ script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && 
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-client-$generator_dir.XXXXXXXXX")
 cd $tmp_dir
 
+log "generate :: tmp_dir :: $tmp_dir"
+
 # Copy the specific generator directory into the temp directory
 cp -r $script_dir/$generator_dir/* .
 
@@ -41,7 +43,7 @@ install_packages @openapitools/openapi-generator-cli@2.5.1
 sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
 
 # Generate the client
-run_command openapi-generator-cli generate \
+run_command @openapitools/openapi-generator-cli generate \
   --log-to-stderr \
   --generator-name $generator \
   --skip-operation-example \
