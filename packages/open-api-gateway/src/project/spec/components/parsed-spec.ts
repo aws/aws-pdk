@@ -1,9 +1,12 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
+import { getLogger } from "log4js";
 import type { OpenAPIV3 } from "openapi-types";
 import { Component, Project } from "projen";
 import { exec, tryReadFileSync } from "projen/lib/util";
+
+const logger = getLogger();
 
 /**
  * Configuration for the ParsedSpec component
@@ -62,9 +65,10 @@ export class ParsedSpec extends Component {
 
     const parsedSpec: OpenAPIV3.Document = JSON.parse(singleSpecFile);
 
-    // TODO: Remove this validation and update mustache templates as appropriate when the following has been addressed:
-    // https://github.com/OpenAPITools/openapi-generator/pull/14568
-    // Check that each operation has zero or one tags
+    // To avoid duplicating custom generated code (eg. OperationConfig or handler wrappers) and causing build errors, we
+    // will apply the OpenAPI Normalizer to KEEP_ONLY_FIRST_TAG_IN_OPERATION when generating code. Tags are still
+    // preserved in the specification to allow for better documentation.
+    // See: https://github.com/OpenAPITools/openapi-generator/pull/14465
     const operationsWithMultipleTags = Object.entries(parsedSpec.paths).flatMap(
       ([urlPath, methods]) =>
         Object.entries(methods ?? {})
@@ -79,10 +83,10 @@ export class ParsedSpec extends Component {
     );
 
     if (operationsWithMultipleTags.length > 0) {
-      throw new Error(
-        `Operations with multiple tags are not yet supported, please tag operations with at most one tag. The following operations have multiple tags: ${operationsWithMultipleTags.join(
+      logger.warn(
+        `The following operations had multiple tags: ${operationsWithMultipleTags.join(
           ", "
-        )}`
+        )}. Code will only be generated for each operation's first tag.`
       );
     }
   }

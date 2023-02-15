@@ -60,6 +60,9 @@ export class GeneratedTypescriptClientSourceCode extends Component {
           supportsES6: "true",
         },
         srcDir: (this.project as TypeScriptProject).srcdir,
+        normalizers: {
+          KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
+        },
       });
 
       // Write an index.ts which exposes the additional generated file OperationConfig.ts, which contains handler wrappers

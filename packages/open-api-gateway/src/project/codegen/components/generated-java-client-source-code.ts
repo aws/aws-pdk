@@ -71,6 +71,9 @@ export class GeneratedJavaClientSourceCode extends Component {
           ].join("\\ "),
         },
         srcDir: path.join("src", "main", "java", ...invokerPackage.split(".")),
+        normalizers: {
+          KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
+        },
       });
     }
   }

@@ -1311,6 +1311,38 @@ The Smithy-based projects are compatible with the [Smithy IntelliJ Plugin](https
 * Right-click on the `smithy/build.gradle` file in your Smithy API project
 * Select "Link Gradle Project"
 
+### Tagging Operations
+
+Operations can be grouped together into logical collections via tags. This can be achieved in Smithy with the `@tags` trait:
+
+```smithy
+@tags(["pets", "users"])
+operation PurchasePet {
+  ...
+}
+```
+
+Or in OpenAPI using the `tags` property:
+
+```yaml
+paths:
+  /pets/purchase:
+    post:
+      operationId: purchasePet
+      tags:
+        - pets
+        - users
+      ...
+```
+
+When multiple tags are used, the "first" tag is considered to be the API that the operation belongs to, so in the generated client, the above example operation would be included in the `PetsApi` client but not the `UsersApi` client.
+
+Multiple tags are still useful for documentation generation, for example `DocumentationFormat.HTML_REDOC` will group operations by tag in the side navigation bar.
+
+If you would like to introduce tags without breaking existing clients, we recommend first adding a tag named `default` to all operations.
+
+⚠️ __Important Note__: Smithy version 1.27.2 and below sorts tags in alphabetical order and so the "first" tag will be the earliest in the alphabet. Therefore, if using tags in Smithy, we currently recommend prefixing your desired first tag with an underscore (for example `_default`). This will be rectified in the next Smithy release, where tag order from the `@tags` trait will be preserved.
+
 ### Breaking Changes
 
 * `v0.14.0` - see https://github.com/aws/aws-prototyping-sdk/pull/280
