@@ -47,7 +47,7 @@ export class GeneratedPythonClientSourceCode extends Component {
       // Generate the python client
       logger.debug("Generating python client...");
       invokeOpenApiGenerator({
-        generator: "python-experimental",
+        generator: "python",
         specPath: this.options.specPath,
         outputPath: this.project.outdir,
         generatorDirectory: ClientLanguage.PYTHON,
@@ -57,6 +57,9 @@ export class GeneratedPythonClientSourceCode extends Component {
         },
         // Tell the generator where python source files live
         srcDir: (this.project as PythonProject).moduleName,
+        normalizers: {
+          KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
+        },
       });
     }
   }

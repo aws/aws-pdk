@@ -32,10 +32,6 @@ describe("Generated Typescript Client Code Unit Tests", () => {
   });
 
   it("Multiple Tags", () => {
-    // TODO: Remove this validation and update mustache templates as appropriate when the following has been addressed:
-    // https://github.com/OpenAPITools/openapi-generator/pull/14568
-    expect(() =>
-      synthGeneratedCode("multiple-tags.yaml")
-    ).toThrowErrorMatchingSnapshot();
+    expect(synthGeneratedCode("multiple-tags.yaml")).toMatchSnapshot();
   });
 });

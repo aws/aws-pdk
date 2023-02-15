@@ -18,6 +18,12 @@ export enum NonClientGeneratorDirectory {
 export type GeneratorDirectory = ClientLanguage | NonClientGeneratorDirectory;
 
 /**
+ * Types of normalizers supported by openapi-generator
+ * @see https://openapi-generator.tech/docs/customization/#openapi-normalizer
+ */
+export type OpenApiNormalizer = "KEEP_ONLY_FIRST_TAG_IN_OPERATION";
+
+/**
  * Options for generating client code or docs using OpenAPI Generator CLI
  */
 export interface GenerationOptions {
@@ -48,6 +54,11 @@ export interface GenerationOptions {
    * (eg. operation config) should be placed.
    */
   readonly srcDir?: string;
+  /**
+   * Normalizers to apply to the spec prior to generation, if any
+   * @see https://openapi-generator.tech/docs/customization/#openapi-normalizer
+   */
+  readonly normalizers?: Partial<Record<OpenApiNormalizer, boolean>>;
 }
 
 const serializeProperties = (properties: { [key: string]: string }) =>
@@ -95,8 +106,17 @@ export const invokeOpenApiGenerator = (options: GenerationOptions) => {
         options.additionalProperties
       )}"`
     : "";
+
+  const normalizers = options.normalizers
+    ? ` --openapi-normalizer "${serializeProperties(
+        Object.fromEntries(
+          Object.entries(options.normalizers).map(([k, v]) => [k, `${v}`])
+        )
+      )}"`
+    : "";
+
   exec(
-    `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${additionalProperties}`,
+    `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${additionalProperties}${normalizers}`,
     {
       cwd: path.resolve(
         __dirname,
