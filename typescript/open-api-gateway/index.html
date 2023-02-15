@@ -1969,6 +1969,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tagging-operations" class="md-nav__link">
+    Tagging Operations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#breaking-changes" class="md-nav__link">
     Breaking Changes
   </a>
@@ -3488,6 +3495,27 @@ aws-prototyping-sdk library.</p>
 <li>Right-click on the <code>smithy/build.gradle</code> file in your Smithy API project</li>
 <li>Select "Link Gradle Project"</li>
 </ul>
+<h3 id="tagging-operations">Tagging Operations</h3>
+<p>Operations can be grouped together into logical collections via tags. This can be achieved in Smithy with the <code>@tags</code> trait:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@tags</span>([<span class="s2">&quot;pets&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;users&quot;</span>])
+<span class="kd">operation</span><span class="nc"> PurchasePet</span><span class="w"> </span>{
+<span class="w">  </span><span class="vc">...</span>
+}
+</code></pre></div>
+<p>Or in OpenAPI using the <code>tags</code> property:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">paths</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">/pets/purchase</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">post</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">operationId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">purchasePet</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pets</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">users</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div>
+<p>When multiple tags are used, the "first" tag is considered to be the API that the operation belongs to, so in the generated client, the above example operation would be included in the <code>PetsApi</code> client but not the <code>UsersApi</code> client.</p>
+<p>Multiple tags are still useful for documentation generation, for example <code>DocumentationFormat.HTML_REDOC</code> will group operations by tag in the side navigation bar.</p>
+<p>If you would like to introduce tags without breaking existing clients, we recommend first adding a tag named <code>default</code> to all operations.</p>
+<p>⚠️ <strong>Important Note</strong>: Smithy version 1.27.2 and below sorts tags in alphabetical order and so the "first" tag will be the earliest in the alphabet. Therefore, if using tags in Smithy, we currently recommend prefixing your desired first tag with an underscore (for example <code>_default</code>). This will be rectified in the next Smithy release, where tag order from the <code>@tags</code> trait will be preserved.</p>
 <h3 id="breaking-changes">Breaking Changes</h3>
 <ul>
 <li><code>v0.14.0</code> - see <a class="magiclink magiclink-github magiclink-pull" href="https://github.com/aws/aws-prototyping-sdk/pull/280" title="GitHub Pull Request: aws/aws-prototyping-sdk #280">aws-prototyping-sdk!280</a></li>
@@ -21275,7 +21303,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2023-02-14
+      2023-02-15
     
   </small>
 </div>
