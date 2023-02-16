@@ -111,7 +111,7 @@ Total: `35`
 
 ### Warnings
 
-Total: `75`
+Total: `74`
 
 | Rule ID | Cause | Explanation |
 | ------------------ | ------------------ | ------------------ |
@@ -178,7 +178,6 @@ Total: `75`
 | RedshiftClusterNonDefaultUsername | The Redshift cluster uses the default "awsuser" username. | Using a custom user name instead of the default master user name (i.e. "awsuser") provides an additional layer of defense against non-targeted attacks. |
 | RedshiftRequireTlsSSL | The Redshift cluster does not require TLS/SSL encryption. | Ensure that your Amazon Redshift clusters require TLS/SSL encryption to connect to SQL clients. Because sensitive data can exist, enable encryption in transit to help protect that data. |
 | S3BucketLoggingEnabled | The S3 Bucket does not have server access logs enabled. | Amazon Simple Storage Service (Amazon S3) server access logging provides a method to monitor the network for potential cybersecurity events. The events are monitored by capturing detailed records for the requests that are made to an Amazon S3 bucket. Each access log record provides details about a single access request. The details include the requester, bucket name, request time, request action, response status, and an error code, if relevant. |
-| S3BucketServerSideEncryptionEnabled | The S3 Bucket does not have default server-side encryption enabled. | Because sensitive data can exist at rest in Amazon S3 buckets, enable encryption to help protect that data. |
 | S3BucketSSLRequestsOnly | The S3 Bucket or bucket policy does not require requests to use SSL/TLS. | You can use HTTPS (TLS) to help prevent potential attackers from eavesdropping on or manipulating network traffic using person-in-the-middle or similar attacks. You should allow only encrypted connections over HTTPS (TLS) using the aws:SecureTransport condition on Amazon S3 bucket policies. |
 | SageMakerNotebookInstanceKMSKeyConfigured | The SageMaker notebook instance does not have an encrypted storage volume. | Encrypting storage volumes helps protect SageMaker data-at-rest. |
 | SageMakerNotebookInVPC | The SageMaker notebook instance is not provisioned inside a VPC. | Provisioning the notebook instances inside a VPC enables the notebook to access VPC-only resources such as EFS file systems. |
