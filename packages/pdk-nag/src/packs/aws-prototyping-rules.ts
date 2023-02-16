@@ -685,13 +685,6 @@ export let RuleMetadata = [
     rule: rules.s3.S3BucketPublicWriteProhibited,
   },
   {
-    info: "The S3 Bucket does not have default server-side encryption enabled.",
-    explanation:
-      "Because sensitive data can exist at rest in Amazon S3 buckets, enable encryption to help protect that data.",
-    level: NagMessageLevel.WARN,
-    rule: rules.s3.S3BucketServerSideEncryptionEnabled,
-  },
-  {
     info: "The S3 Bucket or bucket policy does not require requests to use SSL/TLS.",
     explanation:
       "You can use HTTPS (TLS) to help prevent potential attackers from eavesdropping on or manipulating network traffic using person-in-the-middle or similar attacks. You should allow only encrypted connections over HTTPS (TLS) using the aws:SecureTransport condition on Amazon S3 bucket policies.",

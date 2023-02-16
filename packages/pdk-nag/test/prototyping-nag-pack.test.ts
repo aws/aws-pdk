@@ -109,7 +109,6 @@ const expectedWarnings = [
   "AwsPrototyping-RedshiftClusterNonDefaultUsername",
   "AwsPrototyping-RedshiftRequireTlsSSL",
   "AwsPrototyping-S3BucketLoggingEnabled",
-  "AwsPrototyping-S3BucketServerSideEncryptionEnabled",
   "AwsPrototyping-S3BucketSSLRequestsOnly",
   "AwsPrototyping-SageMakerNotebookInstanceKMSKeyConfigured",
   "AwsPrototyping-SageMakerNotebookInVPC",
