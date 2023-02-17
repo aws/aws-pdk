@@ -5,8 +5,8 @@ import { writeFileSync } from "fs-extra";
 import { getLogger } from "log4js";
 import { Component } from "projen";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { ClientLanguage } from "../../languages";
 import { invokeOpenApiGenerator } from "./utils";
+import { ClientLanguage } from "../../languages";
 
 const logger = getLogger();
 
@@ -58,6 +58,10 @@ export class GeneratedTypescriptClientSourceCode extends Component {
           typescriptThreePlus: "true",
           useSingleParameter: "true",
           supportsES6: "true",
+        },
+        srcDir: (this.project as TypeScriptProject).srcdir,
+        normalizers: {
+          KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
         },
       });
 

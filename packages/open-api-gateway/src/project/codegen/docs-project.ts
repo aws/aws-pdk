@@ -2,11 +2,12 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { getLogger } from "log4js";
 import { Project, ProjectOptions } from "projen";
-import { DocumentationFormatConfig } from "../client-config";
-import { DocumentationFormat } from "../languages";
+import { GeneratedHtmlRedocDocs } from "./components/docs/generated-html-redoc-docs";
 import { GeneratedHtml2Docs } from "./components/docs/generated-html2-docs";
 import { GeneratedMarkdownDocs } from "./components/docs/generated-markdown-docs";
 import { GeneratedPlantUmlDocs } from "./components/docs/generated-plantuml-docs";
+import { DocumentationFormatConfig } from "../client-config";
+import { DocumentationFormat } from "../languages";
 
 const logger = getLogger();
 
@@ -57,6 +58,8 @@ export class DocsProject extends Project {
         return new GeneratedMarkdownDocs(this, { specPath });
       case DocumentationFormat.PLANTUML:
         return new GeneratedPlantUmlDocs(this, { specPath });
+      case DocumentationFormat.HTML_REDOC:
+        return new GeneratedHtmlRedocDocs(this, { specPath });
       default:
         throw new Error(`Unsupported documentation format ${format}`);
     }

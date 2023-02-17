@@ -29,6 +29,8 @@ import {
   extractUnresolvedReferences,
   generateConsistentUUID,
   getConstructUUID,
+  resolveImportedConstructArnToken,
+  inferImportCfnType,
   inferNodeProps,
 } from "./utils";
 
@@ -124,6 +126,8 @@ export function computeGraph(root: IConstruct): Graph.Store {
 
     let node: Graph.Node;
     switch (constructInfo?.fqn as ConstructInfoFqnEnum) {
+      case ConstructInfoFqnEnum.PDKAPP_MONO:
+      case ConstructInfoFqnEnum.PDKAPP:
       case ConstructInfoFqnEnum.APP: {
         node = new Graph.AppNode({
           store,
@@ -247,7 +251,13 @@ export function computeGraph(root: IConstruct): Graph.Store {
         break;
       }
       default: {
-        if (Resource.isResource(construct)) {
+        if (flags?.includes(FlagEnum.IMPORT)) {
+          node = new Graph.CfnResourceNode({
+            ...nodeProps,
+            cfnType: inferImportCfnType(construct, constructInfo),
+            importArnToken: resolveImportedConstructArnToken(construct),
+          });
+        } else if (Resource.isResource(construct)) {
           node = new Graph.ResourceNode({
             ...nodeProps,
             cdkOwned: Resource.isOwnedResource(construct),
@@ -333,7 +343,7 @@ export function computeGraph(root: IConstruct): Graph.Store {
 function resolveReference(
   store: Graph.Store,
   unresolved: UnresolvedReference
-): Graph.Reference {
+): Graph.Reference | undefined {
   const source = store.getNode(unresolved.source);
   if (source.stack == null) {
     console.warn(String(source), source);
@@ -364,6 +374,23 @@ function resolveReference(
         uuid: generateConsistentUUID(unresolved, Graph.ImportReference.PREFIX),
         source,
         target,
+      });
+    }
+    case ReferenceTypeEnum.IMPORT_ARN: {
+      const resolvedImportArnNode = store.findNodeByImportArn(
+        unresolved.target
+      );
+      if (!resolvedImportArnNode) {
+        // ImportArn tokens are not direct matches, so we can safely ignore misses.
+        // We only care about resources directly imported into the CDK app.
+        return undefined;
+      }
+
+      return new Graph.ImportReference({
+        store,
+        uuid: generateConsistentUUID(unresolved, Graph.ImportReference.PREFIX),
+        source,
+        target: resolvedImportArnNode,
       });
     }
     case ReferenceTypeEnum.ATTRIBUTE: {

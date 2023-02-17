@@ -4,7 +4,7 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { synthSnapshot } from "projen/lib/util/synth";
-import { NxMonorepoProject, TargetDependencyProject } from "../src";
+import { NxMonorepoProject, Nx } from "../src";
 
 describe("NX Monorepo Unit Tests", () => {
   it("Empty Monorepo", () => {
@@ -33,10 +33,13 @@ describe("NX Monorepo Unit Tests", () => {
       nxConfig: {
         targetDependencies: {
           test: [
-            { target: "test", projects: TargetDependencyProject.DEPENDENCIES },
+            {
+              target: "test",
+              projects: Nx.TargetDependencyProject.DEPENDENCIES,
+            },
           ],
           eslint: [
-            { target: "eslint", projects: TargetDependencyProject.SELF },
+            { target: "eslint", projects: Nx.TargetDependencyProject.SELF },
           ],
         },
       },
@@ -55,31 +58,32 @@ describe("NX Monorepo Unit Tests", () => {
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
 
-  it.each([NodePackageManager.PNPM, NodePackageManager.YARN])(
-    "Additional Workspace Packages",
-    (packageManager) => {
-      const project = new NxMonorepoProject({
-        defaultReleaseBranch: "mainline",
-        packageManager,
-        name: "AdditionalWorkspacePackages",
-        workspaceConfig: {
-          additionalPackages: ["my/custom/package"],
-        },
-      });
-      new TypeScriptProject({
-        name: "ts-subproject",
-        outdir: "packages/ts-subproject",
-        parent: project,
-        packageManager,
-        defaultReleaseBranch: "mainline",
-      });
-      project.addWorkspacePackages(
-        "another/custom/package",
-        "yet/another/package"
-      );
-      expect(synthSnapshot(project)).toMatchSnapshot();
-    }
-  );
+  it.each([
+    NodePackageManager.PNPM,
+    NodePackageManager.YARN,
+    NodePackageManager.YARN2,
+  ])("Additional Workspace Packages", (packageManager) => {
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "mainline",
+      packageManager,
+      name: "AdditionalWorkspacePackages",
+      workspaceConfig: {
+        additionalPackages: ["my/custom/package"],
+      },
+    });
+    new TypeScriptProject({
+      name: "ts-subproject",
+      outdir: "packages/ts-subproject",
+      parent: project,
+      packageManager,
+      defaultReleaseBranch: "mainline",
+    });
+    project.addWorkspacePackages(
+      "another/custom/package",
+      "yet/another/package"
+    );
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
 
   it("Workspace Package Order", () => {
     const project = new NxMonorepoProject({

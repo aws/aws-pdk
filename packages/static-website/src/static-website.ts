@@ -127,6 +127,16 @@ export class StaticWebsite extends Construct {
 
     this.validateProps(props);
 
+    const accessLogsBucket = new Bucket(this, "AccessLogsBucket", {
+      versioned: false,
+      enforceSSL: true,
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      encryption: BucketEncryption.S3_MANAGED,
+      publicReadAccess: false,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+    });
+
     // S3 Bucket to hold website files
     this.websiteBucket =
       props.websiteBucket ??
@@ -140,7 +150,8 @@ export class StaticWebsite extends Construct {
         encryptionKey: props.defaultWebsiteBucketEncryptionKey,
         publicReadAccess: false,
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-        serverAccessLogsPrefix: "access-logs",
+        serverAccessLogsPrefix: "website-access-logs",
+        serverAccessLogsBucket: accessLogsBucket,
       });
 
     // Web ACL
@@ -161,7 +172,8 @@ export class StaticWebsite extends Construct {
         encryptionKey: props.defaultWebsiteBucketEncryptionKey,
         publicReadAccess: false,
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-        serverAccessLogsPrefix: "access-logs",
+        serverAccessLogsPrefix: "distribution-access-logs",
+        serverAccessLogsBucket: accessLogsBucket,
       });
 
     const originAccessIdentity = new OriginAccessIdentity(
@@ -338,6 +350,17 @@ export class StaticWebsite extends Construct {
                 )}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g`,
               },
             ],
+          },
+        ]);
+      }
+    );
+
+    ["AwsSolutions-S1", "AwsPrototyping-S3BucketLoggingEnabled"].forEach(
+      (RuleId) => {
+        NagSuppressions.addStackSuppressions(stack, [
+          {
+            id: RuleId,
+            reason: "Access Log buckets should not have s3 bucket logging",
           },
         ]);
       }

@@ -14,29 +14,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import * as path from 'path';
-import * as util from 'util';
-import * as stream from 'stream';
+import * as path from 'node:path';
 import * as fs from 'fs-extra';
-import fetch from 'node-fetch';
-import { CACHE_DIR, GENERATED_DIR, logCount } from './common';
+import { GENERATED_DIR, logCount } from './common';
 import { normalizeComparisonString, parseAwsUrl } from "../src/utils";
 import { sortedUniq } from "lodash";
 
-const PRICING_MANIFEST_URL = 'https://d1qsjq9pzbk1k6.cloudfront.net/manifest/en_US.json';
+const PRICING_MANIFEST_JSON = path.join(__dirname, '..', 'static', 'aws-pricing-manifest.json');
 
 const PRICING_MANIFEST_TS = path.join(GENERATED_DIR, 'pricing-manifest.ts');
 
 /** Generates `generated/pricing-manifest.ts` file. */
 export async function generate () {
-  const manifestJsonPath = path.join(CACHE_DIR, 'pricing-manifest.json');
-
-  if (!await fs.pathExists(manifestJsonPath)) {
-    const response = await fetch(PRICING_MANIFEST_URL);
-    if (!response.ok) throw new Error(`unexpected response ${response.statusText}`)
-    await util.promisify(stream.pipeline)(response.body, fs.createWriteStream(manifestJsonPath))
-  }
-
   const slugs = new Set<string>();
   const missingSlugs = new Set<string>();
   const missingLinkUrl = new Set<string>();
@@ -50,7 +39,7 @@ export async function generate () {
     set.add(value);
   }
 
-  const manifest = (require(manifestJsonPath).awsServices as any[]).reduce((dict, service) => {
+  const manifest = (require(PRICING_MANIFEST_JSON).awsServices as any[]).reduce((dict, service) => {
     service = transformServiceForJsii(service);
     const serviceCode: string = service.serviceCode;
     const isSubFor = isSubServiceForDefinition(service);

@@ -18,6 +18,12 @@ export enum NonClientGeneratorDirectory {
 export type GeneratorDirectory = ClientLanguage | NonClientGeneratorDirectory;
 
 /**
+ * Types of normalizers supported by openapi-generator
+ * @see https://openapi-generator.tech/docs/customization/#openapi-normalizer
+ */
+export type OpenApiNormalizer = "KEEP_ONLY_FIRST_TAG_IN_OPERATION";
+
+/**
  * Options for generating client code or docs using OpenAPI Generator CLI
  */
 export interface GenerationOptions {
@@ -43,6 +49,16 @@ export interface GenerationOptions {
   readonly additionalProperties?: {
     [key: string]: string;
   };
+  /**
+   * Supply the relative path from the code project root to the source code directory in which custom generated files
+   * (eg. operation config) should be placed.
+   */
+  readonly srcDir?: string;
+  /**
+   * Normalizers to apply to the spec prior to generation, if any
+   * @see https://openapi-generator.tech/docs/customization/#openapi-normalizer
+   */
+  readonly normalizers?: Partial<Record<OpenApiNormalizer, boolean>>;
 }
 
 const serializeProperties = (properties: { [key: string]: string }) =>
@@ -84,13 +100,23 @@ export const invokeOpenApiGenerator = (options: GenerationOptions) => {
   // previous executions.
   cleanPreviouslyGeneratedFiles(options.outputPath);
 
+  const srcDir = options.srcDir ?? "src";
   const additionalProperties = options.additionalProperties
     ? ` --additional-properties "${serializeProperties(
         options.additionalProperties
       )}"`
     : "";
+
+  const normalizers = options.normalizers
+    ? ` --openapi-normalizer "${serializeProperties(
+        Object.fromEntries(
+          Object.entries(options.normalizers).map(([k, v]) => [k, `${v}`])
+        )
+      )}"`
+    : "";
+
   exec(
-    `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --generator-dir ${options.generatorDirectory}${additionalProperties}`,
+    `./generate --generator ${options.generator} --spec-path ${options.specPath} --output-path ${options.outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${additionalProperties}${normalizers}`,
     {
       cwd: path.resolve(
         __dirname,
@@ -103,4 +129,38 @@ export const invokeOpenApiGenerator = (options: GenerationOptions) => {
       ),
     }
   );
+};
+
+/**
+ * Options for generating documentation via a custom generator script
+ */
+export interface CustomDocsGenerationOptions {
+  /**
+   * Name of the generator script which exists in scripts/custom/docs
+   */
+  readonly generator: string;
+  /**
+   * Any arguments to pass to the script
+   */
+  readonly args?: string;
+}
+
+/**
+ * Invoke a custom documentation generator script
+ */
+export const invokeCustomDocsGenerator = (
+  options: CustomDocsGenerationOptions
+) => {
+  exec(`./${options.generator}${options.args ? ` ${options.args}` : ""}`, {
+    cwd: path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "..",
+      "scripts",
+      "custom",
+      "docs"
+    ),
+  });
 };

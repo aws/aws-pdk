@@ -1,8 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import * as testUtils from "./test-utils";
 import { CdkGraph, getConstructUUID, Graph } from "../../src";
 import { MultiFixtureApp } from "../__fixtures__/apps";
-import * as testUtils from "./test-utils";
 
 const makeCdkOutdir = async (name: string) =>
   testUtils.makeCdkOutDir("mutations", name);

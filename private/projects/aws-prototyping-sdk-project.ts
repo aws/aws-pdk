@@ -3,12 +3,9 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Dependency, DependencyType, Project } from "projen";
 import { Stability } from "projen/lib/cdk";
-import {
-  ProjectTargets,
-  NxMonorepoProject,
-} from "../../packages/nx-monorepo/src";
-import { PDKProject } from "../pdk-project";
 import { PDKMonorepoProject } from "./pdk-monorepo-project";
+import { NxMonorepoProject } from "../../packages/nx-monorepo/src";
+import { PDKProject } from "../pdk-project";
 
 /**
  * File patterns to keep in the .gitignore. Also used to determine which files to keep when cleaning.
@@ -45,7 +42,7 @@ export class AwsPrototypingSdkProject extends PDKProject {
       eslint: false,
       prettier: false,
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: ["ts-node", "fs-extra"],
+      devDeps: ["ts-node", "fs-extra", "@types/fs-extra@9.0.13"],
       stability: Stability.STABLE,
       sampleCode: false,
       excludeTypescript: ["**/samples/**"],
@@ -133,6 +130,13 @@ export class AwsPrototypingSdkProject extends PDKProject {
       ...this.getNonPDKDependenciesByType(stableDeps, DependencyType.BUNDLED)
     );
 
+    // aws-prototyping-sdk needs the stable folders as cached outputs
+    const additionalOutputs = (this.root as PDKMonorepoProject).subProjects
+      .filter((s: Project) => s.name !== "aws-prototyping-sdk")
+      .filter((s: any) => s.package?.manifest?.stability === Stability.STABLE)
+      .map((s) => path.join("{projectRoot}", path.basename(s.outdir)));
+    this.nxOverride("targets.build.outputs", additionalOutputs, true);
+
     this.package.addField("exports", {
       ".": "./index.js",
       "./package.json": "./package.json",
@@ -149,25 +153,5 @@ export class AwsPrototypingSdkProject extends PDKProject {
     });
 
     super.synth();
-  }
-
-  /**
-   * @inheritDoc
-   */
-  getNxProjectTargets(): ProjectTargets {
-    const defaultTargets = super.getNxProjectTargets();
-
-    // aws-prototyping-sdk needs the stable folders as cached outputs
-    const additionalOutputs = (this.root as PDKMonorepoProject).subProjects
-      .filter((s: Project) => s.name !== "aws-prototyping-sdk")
-      .filter((s: any) => s.package?.manifest?.stability === Stability.STABLE)
-      .map((s) => path.join("{projectRoot}", path.basename(s.outdir)));
-
-    return {
-      build: {
-        outputs: [...defaultTargets.build.outputs!, ...additionalOutputs],
-        dependsOn: defaultTargets.build.dependsOn,
-      },
-    };
   }
 }

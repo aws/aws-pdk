@@ -2,8 +2,8 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { TypeScriptProject } from "projen/lib/typescript";
 import { SynthOutput } from "projen/lib/util/synth";
-import { GeneratedTypescriptClientSourceCode } from "../../../../src/project/codegen/components/generated-typescript-client-source-code";
 import { synthGeneratedCodeProject } from "./utils";
+import { GeneratedTypescriptClientSourceCode } from "../../../../src/project/codegen/components/generated-typescript-client-source-code";
 
 const synthGeneratedCode = (specFileName: string): SynthOutput => {
   const project = new TypeScriptProject({
@@ -25,5 +25,13 @@ describe("Generated Typescript Client Code Unit Tests", () => {
 
   it("Multi", () => {
     expect(synthGeneratedCode("multi.yaml")).toMatchSnapshot();
+  });
+
+  it("Single Tags", () => {
+    expect(synthGeneratedCode("single-tags.yaml")).toMatchSnapshot();
+  });
+
+  it("Multiple Tags", () => {
+    expect(synthGeneratedCode("multiple-tags.yaml")).toMatchSnapshot();
   });
 });

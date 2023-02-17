@@ -17,7 +17,7 @@ const TS_GRAPHVIZ = "ts-graphviz";
   const tsGraphvizPkgPath = path.join(tsGraphvizDir, "package.json");
   const tsGraphvizPkg = await fs.readJson(tsGraphvizPkgPath);
 
-  if (tsGraphvizPkg.typesVersions == null) {
+  if (!fs.existsSync(path.join(tsGraphvizDir, "ts3.9"))) {
     console.debug({
       tsGraphvizDir,
       tsGraphvizPkgPath,
@@ -29,6 +29,8 @@ const TS_GRAPHVIZ = "ts-graphviz";
       stdio: "inherit",
       shell: true,
     });
+
+    tsGraphvizPkg.typesVersions?.['*'] && delete tsGraphvizPkg.typesVersions['*'];
 
     const typesVersions = {
       ...tsGraphvizPkg.typesVersions,

@@ -19,7 +19,7 @@ import * as util from 'util';
 import * as stream from 'stream';
 import * as fs from 'fs-extra';
 import fetch from 'node-fetch';
-import { CACHE_DIR, GENERATED_DIR } from './common';
+import { TMP_DIR, GENERATED_DIR } from './common';
 import xmlFlow = require('xml-flow'); // eslint-disable-line @typescript-eslint/no-require-imports
 
 const DRAWIO_AWS4_STENCILS = 'https://raw.githubusercontent.com/jgraph/drawio/5e0079fb96102d8b272e4dfda435390d31377659/src/main/webapp/stencils/aws4.xml';
@@ -28,7 +28,7 @@ const DRAWIO_SPEC_TS = path.join(GENERATED_DIR, 'drawio-spec.ts');
 
 /** Generates `generated/drawio-spec.ts */
 export async function generate () {
-  const xmlFilePath = path.join(CACHE_DIR, 'drawio.aws4.xml');
+  const xmlFilePath = path.join(TMP_DIR, 'drawio.aws4.xml');
 
   if (!await fs.pathExists(xmlFilePath)) {
     const response = await fetch(DRAWIO_AWS4_STENCILS);

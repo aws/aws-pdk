@@ -16,6 +16,8 @@ export enum CdkConstructIds {
 /** Commonly used cdk construct info fqn (jsii fully-qualified ids) */
 export enum ConstructInfoFqnEnum {
   APP = "aws-cdk-lib.App",
+  PDKAPP_MONO = "aws-prototyping-sdk.PDKNagApp",
+  PDKAPP = "@aws-prototyping-sdk/pdk-nag.PDKNagApp",
   STAGE = "aws-cdk-lib.Stage",
   STACK = "aws-cdk-lib.Stack",
   NESTED_STACK = "aws-cdk-lib.NestedStack",
@@ -140,6 +142,8 @@ export enum ReferenceTypeEnum {
   ATTRIBUTE = "Fn::GetAtt",
   /** CloudFormation **Fn::ImportValue** reference */
   IMPORT = "Fn::ImportValue",
+  /** CloudFormation **Fn::Join** reference of imported resourced (eg: `s3.Bucket.fromBucketArn()`) */
+  IMPORT_ARN = "Fn::Join::arn",
 }
 
 /** Graph flags */
@@ -162,6 +166,8 @@ export enum FlagEnum {
   MUTATED = "MUTATED",
   /** Indicates that cfn resource has equivalent cdk resource wrapper. (eg: Lambda => CfnLambda) */
   WRAPPED_CFN_RESOURCE = "WRAPPED_CFN_RESOURCE",
+  /** Indicates that resource is imported into CDK (eg: `lambda.Function.fromFunctionName()`, `s3.Bucket.fromBucketArn()`) */
+  IMPORT = "IMPORT",
 }
 
 /** Universal unique identifier */

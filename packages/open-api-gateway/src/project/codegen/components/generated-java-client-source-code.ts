@@ -1,10 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import * as path from "path";
 import { getLogger } from "log4js";
 import { Component } from "projen";
 import { JavaProject } from "projen/lib/java";
-import { ClientLanguage } from "../../languages";
 import { invokeOpenApiGenerator } from "./utils";
+import { ClientLanguage } from "../../languages";
 
 const logger = getLogger();
 
@@ -68,6 +69,10 @@ export class GeneratedJavaClientSourceCode extends Component {
             // Regular lombok builder is not used since an abstract base schema class is also annotated
             "@lombok.experimental.SuperBuilder",
           ].join("\\ "),
+        },
+        srcDir: path.join("src", "main", "java", ...invokerPackage.split(".")),
+        normalizers: {
+          KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
         },
       });
     }

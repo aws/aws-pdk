@@ -3,21 +3,20 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Project, ProjectOptions, SampleFile } from "projen";
 import { SmithyBuild } from "projen/lib/smithy/smithy-build";
+import { SampleExecutable } from "./components/sample-executable";
+import { SmithyBuildGradleFile } from "./components/smithy-build-gradle-file";
 import { SmithyGeneratedOutput } from "./components/smithy-generated-output";
 import { SmithyBuildOptions } from "./types";
+import { SmithyServiceName } from "../types";
 
 /**
  * Options for a smithy build project
  */
 export interface SmithyBuildProjectOptions extends ProjectOptions {
   /**
-   * Fully qualified service name
+   * Smithy service name
    */
-  readonly fullyQualifiedServiceName: string;
-  /**
-   * Absolute path to the model directory
-   */
-  readonly modelPath: string;
+  readonly serviceName: SmithyServiceName;
   /**
    * Smithy build options
    */
@@ -26,10 +25,6 @@ export interface SmithyBuildProjectOptions extends ProjectOptions {
    * The build output directory, relative to the project outdir
    */
   readonly buildOutputDir: string;
-  /**
-   * Custom gradle wrapper path
-   */
-  readonly gradleWrapperPath?: string;
 }
 
 /**
@@ -56,28 +51,119 @@ export class SmithyBuildProject extends Project {
     // @ts-ignore
     this._components = [];
 
-    // Add the gradle files which the user may modify to customise what's generated
-    new SampleFile(this, "build.gradle", {
-      sourcePath: path.join(
-        __dirname,
-        "..",
-        "..",
-        "..",
-        "samples",
-        "smithy",
-        "build.gradle"
-      ),
+    const samplePath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "samples",
+      "smithy"
+    );
+
+    // Add gradle wrapper files and executables
+    [
+      "gradle/wrapper/gradle-wrapper.jar",
+      "gradle/wrapper/gradle-wrapper.properties",
+    ].forEach((file) => {
+      new SampleFile(this, file, {
+        sourcePath: path.join(samplePath, file),
+      });
     });
+
+    ["gradlew", "gradlew.bat"].forEach((executable) => {
+      new SampleExecutable(this, executable, {
+        sourcePath: path.join(samplePath, executable),
+      });
+    });
+
+    // Add settings.gradle
     new SampleFile(this, "settings.gradle", {
-      sourcePath: path.join(
-        __dirname,
-        "..",
-        "..",
-        "..",
-        "samples",
-        "smithy",
-        "settings.gradle"
-      ),
+      contents: `rootProject.name = '${this.name.replace(
+        /[\/\\:<>"?\*|]/g,
+        "-"
+      )}'`,
+    });
+
+    const modelDir = "src/main/smithy";
+
+    // Always add the following required dependencies
+    const requiredDependencies = [
+      "software.amazon.smithy:smithy-cli",
+      "software.amazon.smithy:smithy-model",
+      "software.amazon.smithy:smithy-openapi",
+      "software.amazon.smithy:smithy-aws-traits",
+    ];
+    const requiredSmithyDependencyVersion = "1.27.2";
+
+    // Ensure dependencies always include the required dependencies, allowing users to customise the version
+    const userSpecifiedDependencies =
+      options.smithyBuildOptions?.maven?.dependencies ?? [];
+    const userSpecifiedDependencySet = new Set(
+      userSpecifiedDependencies.map((dep) =>
+        dep.split(":").slice(0, -1).join(":")
+      )
+    );
+
+    const dependencies = [
+      ...requiredDependencies
+        .filter((requiredDep) => !userSpecifiedDependencySet.has(requiredDep))
+        .map((dep) => `${dep}:${requiredSmithyDependencyVersion}`),
+      ...userSpecifiedDependencies,
+    ];
+
+    // Add build.gradle
+    new SmithyBuildGradleFile(this, {
+      modelDir,
+      dependencies,
+      repositoryUrls: options.smithyBuildOptions?.maven?.repositoryUrls,
+    });
+
+    const { namespace: serviceNamespace, serviceName } = options.serviceName;
+
+    // Create the default smithy model
+    new SampleFile(this, path.join(modelDir, "main.smithy"), {
+      contents: `$version: "2"
+namespace ${serviceNamespace}
+
+use aws.protocols#restJson1
+
+/// A sample smithy api
+@restJson1
+service ${serviceName} {
+    version: "1.0"
+    operations: [SayHello]
+}
+
+@readonly
+@http(method: "GET", uri: "/hello")
+operation SayHello {
+    input: SayHelloInput
+    output: SayHelloOutput
+    errors: [ApiError]
+}
+
+string Name
+string Message
+
+@input
+structure SayHelloInput {
+    @httpQuery("name")
+    @required
+    name: Name
+}
+
+@output
+structure SayHelloOutput {
+    @required
+    message: Message
+}
+
+@error("client")
+structure ApiError {
+    @required
+    errorMessage: Message
+}
+`,
     });
 
     // Create the smithy build json file
@@ -89,12 +175,23 @@ export class SmithyBuildProject extends Project {
         openapi: {
           plugins: {
             openapi: {
-              service: options.fullyQualifiedServiceName,
+              service: `${serviceNamespace}#${serviceName}`,
+              // By default, preserve tags in the generated spec, but allow users to explicitly overwrite this
+              tags: true,
               ...options.smithyBuildOptions?.projections?.openapi?.plugins
                 ?.openapi,
             },
           },
         },
+      },
+      maven: {
+        dependencies,
+        repositories: (
+          options.smithyBuildOptions?.maven?.repositoryUrls ?? [
+            "https://repo.maven.apache.org/maven2/",
+            "file://~/.m2/repository",
+          ]
+        ).map((url) => ({ url })),
       },
     });
 
@@ -103,11 +200,10 @@ export class SmithyBuildProject extends Project {
     this.smithyBuildOutputPath = path.join(this.outdir, options.buildOutputDir);
 
     new SmithyGeneratedOutput(this, {
-      modelPath: options.modelPath,
+      modelPath: path.join(this.outdir, modelDir),
       gradleProjectPath: this.outdir,
       smithyBuildConfigPath: this.smithyBuildConfigPath,
       outputPath: this.smithyBuildOutputPath,
-      gradleWrapperPath: options.gradleWrapperPath,
     });
   }
 

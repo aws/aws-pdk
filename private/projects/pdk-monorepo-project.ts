@@ -1,24 +1,49 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-
 import path from "path";
 import { Project } from "projen";
 import { NodeProject, NpmConfig } from "projen/lib/javascript";
 import {
   NxMonorepoProject,
-  TargetDependencyProject,
   DEFAULT_CONFIG,
 } from "../../packages/nx-monorepo/src";
-import { PDKProject } from "../pdk-project";
+import { Nx } from "../../packages/nx-monorepo/src/nx-types";
 
 // Default NX outputs to cache
-export const DEFAULT_NX_OUTPUTS = [
+export const NX_DEFAULT_OUTPUTS = [
   "{projectRoot}/dist",
+  "{projectRoot}/lib",
   "{projectRoot}/build",
   "{projectRoot}/coverage",
-  "{projectRoot}/lib",
+  "{projectRoot}/test-reports",
   "{projectRoot}/target",
+  "{projectRoot}/LICENSE_THIRD_PARTY",
+  "{projectRoot}/.jsii",
 ];
+/**
+ * Workspace default NX "build" target
+ *
+ * @see {@link NxTargetDefaults}
+ * @see {@link ProjectTarget}
+ */
+export const NX_BUILD_TARGET_DEFAULT: Nx.ProjectTarget = {
+  outputs: NX_DEFAULT_OUTPUTS,
+  dependsOn: [
+    {
+      target: "build",
+      projects: Nx.TargetDependencyProject.DEPENDENCIES,
+    },
+  ],
+};
+/**
+ * Workspace default NX `targetDefaults`
+ *
+ * @see {@link NxTargetDefaults}
+ */
+export const NX_TARGET_DEFAULTS: Nx.TargetDefaults = {
+  build: NX_BUILD_TARGET_DEFAULT,
+};
+
 export const JEST_VERSION = "^27"; // This is needed due to: https://github.com/aws/jsii/issues/3619
 const HEADER_RULE = {
   "header/header": [
@@ -68,17 +93,19 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         // This is OK to be stored given its read only and the repository is public
         nxCloudReadOnlyAccessToken:
           "OWJmZDJmZmEtNzk5MC00OGJkLTg3YjUtNmNkZDk1MmYxZDZkfHJlYWQ=",
+        cacheableOperations: ["build", "test", "generate"],
+        targetDefaults: NX_TARGET_DEFAULTS,
         targetDependencies: {
           "release:mainline": [
             {
               target: "release:mainline",
-              projects: TargetDependencyProject.DEPENDENCIES,
+              projects: Nx.TargetDependencyProject.DEPENDENCIES,
             },
           ],
           upgrade: [
             {
               target: "upgrade",
-              projects: TargetDependencyProject.DEPENDENCIES,
+              projects: Nx.TargetDependencyProject.DEPENDENCIES,
             },
           ],
         },
@@ -173,23 +200,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       resolveDependencies(subProject);
       updateJavaPackageTask(subProject);
       this.configureEsLint(subProject);
-
-      this.overrideProjectTargets(
-        subProject,
-        subProject instanceof PDKProject
-          ? subProject.getNxProjectTargets()
-          : {
-              build: {
-                outputs: DEFAULT_NX_OUTPUTS,
-                dependsOn: [
-                  {
-                    target: "build",
-                    projects: TargetDependencyProject.DEPENDENCIES,
-                  },
-                ],
-              },
-            }
-      );
     });
 
     super.synth();
@@ -250,7 +260,8 @@ const resolveDependencies = (project: any): void => {
       "ejs@^3.1.7",
       "async@^2.6.4",
       "nth-check@^2.0.1",
-      "got@^11.8.5"
+      "got@^11.8.5",
+      "@types/yargs@17.0.10"
     );
   }
 };

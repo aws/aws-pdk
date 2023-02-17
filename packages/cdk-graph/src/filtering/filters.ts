@@ -2,8 +2,8 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { ConstructOrder } from "constructs";
 import memoize = require("lodash.memoize"); // eslint-disable-line @typescript-eslint/no-require-imports
-import { FlagEnum, Graph, NodeTypeEnum } from "../core";
 import { FilterStrategy, IGraphFilter, IGraphStoreFilter } from "./types";
+import { FlagEnum, Graph, NodeTypeEnum } from "../core";
 
 /**
  * Verify that store is filterable, meaning it allows destructive mutations.
@@ -177,10 +177,7 @@ export namespace Filters {
       node: (node) => {
         // Preserve container structure (stages, stacks, etc.)
         if (node.isCluster || node.isGraphContainer) return true;
-        if (
-          Graph.CfnResourceNode.isCfnResourceNode(node) ||
-          Graph.ResourceNode.isResourceNode(node)
-        ) {
+        if (Graph.isResourceLike(node)) {
           const match = !!node.cfnType && isMatch(node.cfnType);
           return (match && !exclude) || (!match && exclude);
         }

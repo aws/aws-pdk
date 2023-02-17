@@ -2,8 +2,8 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { PDKProject } from "../pdk-project";
 import { JEST_VERSION } from "./pdk-monorepo-project";
+import { PDKProject } from "../pdk-project";
 
 /**
  * Contains configuration for the OpenApiGateway project.
@@ -19,7 +19,7 @@ export class OpenApiGatewayProject extends PDKProject {
       keywords: ["aws", "pdk", "projen", "openapi"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: [
-        "@aws-prototyping-sdk/nx-monorepo@0.0.0",
+        "@aws-prototyping-sdk/nx-monorepo@^0.x",
         "@types/lodash",
         "aws-cdk-lib",
         "cdk-nag",
@@ -27,7 +27,7 @@ export class OpenApiGatewayProject extends PDKProject {
         "projen",
         "@aws-sdk/client-s3",
       ],
-      deps: ["@aws-prototyping-sdk/pdk-nag", "fs-extra"],
+      deps: ["@aws-prototyping-sdk/pdk-nag@^0.x", "fs-extra"],
       bundledDeps: ["fs-extra", "lodash", "log4js", "openapi-types"],
       peerDeps: ["aws-cdk-lib", "cdk-nag", "constructs", "projen"],
       stability: Stability.EXPERIMENTAL,

@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-
 import { SampleDir } from "projen";
 import {
   JsiiJavaTarget,
@@ -10,13 +9,10 @@ import {
   Stability,
 } from "projen/lib/cdk";
 import { Release } from "projen/lib/release";
+import type { Nx } from "../packages/nx-monorepo/src/nx-types";
 import {
-  ProjectTargets,
-  TargetDependencyProject,
-} from "../packages/nx-monorepo/src";
-import {
-  DEFAULT_NX_OUTPUTS,
   JEST_VERSION,
+  NX_TARGET_DEFAULTS,
 } from "./projects/pdk-monorepo-project";
 
 /**
@@ -36,6 +32,13 @@ export interface PDKProjectOptions extends JsiiProjectOptions {
    * @default - package will be published with package name: software.aws.awsprototypingsdk.<yourpackagename>
    */
   readonly publishToMavenConfig?: JsiiJavaTarget | false;
+
+  /**
+   * Nx project configuration.
+   *
+   * @see https://nx.dev/reference/project-configuration
+   */
+  readonly nx?: Nx.ProjectConfig;
 }
 
 /**
@@ -155,25 +158,47 @@ export abstract class PDKProject extends JsiiProject {
     });
 
     this.pdkRelease = new PDKRelease(this);
+
+    if (options.nx) {
+      this.nx = options.nx;
+    }
   }
 
   /**
-   * Provides the ability to override project specific NX Project Targets.
+   * Get Nx project configuration.
    *
-   * @return Nx ProjectTargets specific to this package.
+   * If project does not have explicit Nx configuration, the workspace defaults
+   * will be returned.
+   *
+   * @see https://nx.dev/reference/project-configuration
    */
-  public getNxProjectTargets(): ProjectTargets {
-    return {
-      build: {
-        outputs: [...DEFAULT_NX_OUTPUTS, "{projectRoot}/.jsii"],
-        dependsOn: [
-          {
-            target: "build",
-            projects: TargetDependencyProject.DEPENDENCIES,
-          },
-        ],
-      },
-    };
+  public get nx(): Nx.ProjectConfig | undefined {
+    return this.manifest.nx || cloneDeep({ targets: NX_TARGET_DEFAULTS });
+  }
+
+  /**
+   * Set Nx project configuration.
+   *
+   * This will overwrite the entire configuration and replace any workspace
+   * defaults of same key.
+   *
+   * @see https://nx.dev/reference/project-configuration
+   */
+  public set nx(config: Nx.ProjectConfig | undefined) {
+    this.package.addField("nx", config);
+  }
+
+  /**
+   * Override specific Nx config value for specific path.
+   * @param path Key path to override value
+   * @param value Value to override
+   * @param {boolean} [append=false] Indicates if array values are appended to, rather than overwritten.
+   */
+  public nxOverride(path: string, value: any, append?: boolean): void {
+    const nx = cloneDeep(this.nx);
+    overrideField(nx, path, value, append);
+
+    this.nx = nx;
   }
 }
 
@@ -216,5 +241,56 @@ class PDKRelease extends Release {
     project.package.addField("publishConfig", {
       access: "public",
     });
+  }
+}
+
+/**
+ * Utility to deeply clone a value
+ * @param value Value to clone
+ * @returns Cloned value
+ */
+export function cloneDeep(value: any): any {
+  return JSON.parse(JSON.stringify(value));
+}
+
+/**
+ * Utility to override nested object path value - performed in-place on the object.
+ * @param obj Object to override path value
+ * @param path Path of value to override
+ * @param value Value to override
+ * @param {boolean} [append=false] Indicates if array values are appended to, rather than overwritten.
+ */
+export function overrideField(
+  obj: any,
+  path: string,
+  value: any,
+  append?: boolean
+): void {
+  const parts = path.split(".");
+  let curr = obj;
+  while (parts.length > 1) {
+    const key = parts.shift() as string;
+    // if we can't recurse further or the previous value is not an
+    // object overwrite it with an object.
+    const isObject =
+      curr[key] != null &&
+      typeof curr[key] === "object" &&
+      !Array.isArray(curr[key]);
+    if (!isObject) {
+      curr[key] = {};
+    }
+    curr = curr[key];
+  }
+  const lastKey = parts.shift() as string;
+
+  if (
+    append &&
+    curr[lastKey] != null &&
+    Array.isArray(value) &&
+    Array.isArray(curr[lastKey])
+  ) {
+    curr[lastKey] = [...curr[lastKey], ...value];
+  } else {
+    curr[lastKey] = value;
   }
 }

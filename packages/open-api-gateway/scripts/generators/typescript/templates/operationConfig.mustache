@@ -1,20 +1,26 @@
 // Import models
-{{#imports.0}}
 import {
-    {{#imports}}
-    {{className}},
-    {{className}}FromJSON,
-    {{className}}ToJSON,
-    {{/imports}}
+    {{#apiInfo}}
+    {{#models}}
+    {{#model}}
+    {{classname}},
+    {{classname}}FromJSON,
+    {{classname}}ToJSON,
+    {{/model}}
+    {{/models}}
+    {{/apiInfo}}
 } from '../../models';
-{{/imports.0}}
 // Import request parameter interfaces
 import {
+    {{#apiInfo}}
+    {{#apis}}
     {{#operations}}
     {{#operation}}
     {{#allParams.0}}{{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request,{{/allParams.0}}
     {{/operation}}
     {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
 } from '..';
 
 // API Gateway Types
@@ -22,15 +28,21 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda
 
 // Generic type for object keyed by operation names
 export interface OperationConfig<T> {
+    {{#apiInfo}}
+    {{#apis}}
     {{#operations}}
     {{#operation}}
     {{nickname}}: T;
     {{/operation}}
     {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
 }
 
 // Look up path and http method for a given operation name
 export const OperationLookup = {
+    {{#apiInfo}}
+    {{#apis}}
     {{#operations}}
     {{#operation}}
     {{nickname}}: {
@@ -39,6 +51,8 @@ export const OperationLookup = {
     },
     {{/operation}}
     {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
 };
 
 export class Operations {
@@ -75,7 +89,7 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
-type OperationIds ={{#operations}}{{#operation}} | '{{nickname}}'{{/operation}}{{/operations}};
+type OperationIds ={{#apiInfo}}{{#apis}}{{#operations}}{{#operation}} | '{{nickname}}'{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
 type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
 
 // Api gateway lambda handler type
@@ -151,6 +165,8 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
   };
 };
 
+{{#apiInfo}}
+{{#apis}}
 {{#operations}}
 {{#operation}}
 /**
@@ -260,19 +276,25 @@ export const {{nickname}}Handler = (
 };
 {{/operation}}
 {{/operations}}
+{{/apis}}
+{{/apiInfo}}
 
 export interface HandlerRouterHandlers {
+{{#apiInfo}}
+{{#apis}}
 {{#operations}}
 {{#operation}}
   readonly {{nickname}}: OperationApiGatewayLambdaHandler<'{{nickname}}'>;
 {{/operation}}
 {{/operations}}
+{{/apis}}
+{{/apiInfo}}
 }
 
-export type AnyOperationRequestParameters = {{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestParameters{{/operation}}{{/operations}};
-export type AnyOperationRequestArrayParameters = {{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestArrayParameters{{/operation}}{{/operations}};
-export type AnyOperationRequestBodies = {{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestBody{{/operation}}{{/operations}};
-export type AnyOperationResponses = {{#operations}}{{#operation}}| {{operationIdCamelCase}}OperationResponses{{/operation}}{{/operations}};
+export type AnyOperationRequestParameters = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestParameters{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type AnyOperationRequestArrayParameters = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestArrayParameters{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type AnyOperationRequestBodies = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestBody{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type AnyOperationResponses = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}OperationResponses{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
 
 export interface HandlerRouterProps<
   RequestParameters,

@@ -1,8 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { NORMALIZED_RESOURCE_VARIANTS } from "./variants";
 import { AwsAsset } from "../../generated/assets";
 import { normalizeComparisonString } from "../../utils";
-import { NORMALIZED_RESOURCE_VARIANTS } from "./variants";
 
 /** @internal */
 const RESOURCE_LOOKUP: { [key: string]: string } = Object.fromEntries([

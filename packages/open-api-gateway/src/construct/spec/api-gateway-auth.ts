@@ -3,6 +3,8 @@ SPDX-License-Identifier: Apache-2.0 */
 import { AuthorizationType } from "aws-cdk-lib/aws-apigateway";
 import { Construct } from "constructs";
 import { OpenAPIV3 } from "openapi-types";
+import { OpenApiIntegrations } from "./api-gateway-integrations-types";
+import { functionInvocationUri } from "./utils";
 import {
   Authorizer,
   CognitoAuthorizer,
@@ -14,8 +16,6 @@ import {
   isCustomAuthorizer,
   isIamAuthorizer,
 } from "../authorizers/predicates";
-import { OpenApiIntegrations } from "./api-gateway-integrations-types";
-import { functionInvocationUri } from "./utils";
 
 /**
  * Snippet of OpenAPI API Gateway extension for a cognito x-amazon-apigateway-authorizer

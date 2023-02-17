@@ -7,8 +7,8 @@ import {
 } from "@aws-prototyping-sdk/cdk-graph";
 import { FixtureApp } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
-import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";
 import * as testUtils from "./test-utils";
+import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";
 
 jest.setTimeout(90000); // CI tests timeout occasionally so increase to large timeout buffer
 

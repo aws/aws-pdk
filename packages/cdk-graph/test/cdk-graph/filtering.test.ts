@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { CfnRole } from "aws-cdk-lib/aws-iam";
 import { CfnFunction } from "aws-cdk-lib/aws-lambda";
+import * as testUtils from "./test-utils";
 import {
   CdkGraph,
   FilterPreset,
@@ -12,7 +13,6 @@ import {
 } from "../../src";
 import { Filters } from "../../src/filtering/filters";
 import { MultiFixtureApp } from "../__fixtures__/apps";
-import * as testUtils from "./test-utils";
 
 const makeCdkOutdir = async (name: string) =>
   testUtils.makeCdkOutDir("filtering", name);
@@ -78,10 +78,11 @@ describe("cdk-graph/filtering", () => {
         ).toBe(0);
       });
 
-      it("should collapse all CfnResourceNodes to parent", () => {
+      it("should collapse all CfnResourceNodes that are wrapped to parent", () => {
         expect(
           store.root.findAll({
-            predicate: (node) => Graph.CfnResourceNode.isCfnResourceNode(node),
+            predicate: (node) =>
+              Graph.CfnResourceNode.isCfnResourceNode(node) && node.isWrapped,
           }).length
         ).toBe(0);
       });

@@ -3,9 +3,9 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "node:path";
 import execa = require("execa"); // eslint-disable-line @typescript-eslint/no-require-imports
-import { FONT_FAMILY } from "../../fonts";
 import { Options } from "./types";
 import { resolveDotWasmImage, resolveSvg } from "./utils";
+import { FONT_FAMILY } from "../../fonts";
 
 /**
  * Invoke `dot-wasm` in shell with image support.

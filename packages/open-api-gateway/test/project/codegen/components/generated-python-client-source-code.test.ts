@@ -2,8 +2,8 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { PythonProject } from "projen/lib/python";
 import { SynthOutput } from "projen/lib/util/synth";
-import { GeneratedPythonClientSourceCode } from "../../../../lib/project/codegen/components/generated-python-client-source-code";
 import { synthGeneratedCodeProject } from "./utils";
+import { GeneratedPythonClientSourceCode } from "../../../../lib/project/codegen/components/generated-python-client-source-code";
 
 const synthGeneratedCode = (specFileName: string): SynthOutput => {
   const project = new PythonProject({
@@ -28,5 +28,13 @@ describe("Generated Python Client Code Unit Tests", () => {
 
   it("Multi", () => {
     expect(synthGeneratedCode("multi.yaml")).toMatchSnapshot();
+  });
+
+  it("Single Tags", () => {
+    expect(synthGeneratedCode("single-tags.yaml")).toMatchSnapshot();
+  });
+
+  it("Multiple Tags", () => {
+    expect(synthGeneratedCode("multiple-tags.yaml")).toMatchSnapshot();
   });
 });

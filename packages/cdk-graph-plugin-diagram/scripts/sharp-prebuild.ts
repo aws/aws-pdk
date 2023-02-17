@@ -100,7 +100,7 @@ const SHARP_PREBUILDS: Record<string, SharpPrebuild> = {
     for (const copy of copies) {
       // Must delete hard link first other ways is considered same file during copy
       await fs.rm(path.join(vendorDir, copy), { recursive: true });
-      await fs.copy(path.join(vendorDir, source), path.join(vendorDir, copy), { overwrite: true, recursive: true, errorOnExist: true });
+      await fs.copy(path.join(vendorDir, source), path.join(vendorDir, copy), { overwrite: true, errorOnExist: true });
     }
   }
 

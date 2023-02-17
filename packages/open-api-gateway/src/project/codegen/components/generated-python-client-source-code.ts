@@ -3,8 +3,8 @@ SPDX-License-Identifier: Apache-2.0 */
 import { getLogger } from "log4js";
 import { Component } from "projen";
 import { PythonProject } from "projen/lib/python";
-import { ClientLanguage } from "../../languages";
 import { invokeOpenApiGenerator } from "./utils";
+import { ClientLanguage } from "../../languages";
 
 const logger = getLogger();
 
@@ -47,13 +47,18 @@ export class GeneratedPythonClientSourceCode extends Component {
       // Generate the python client
       logger.debug("Generating python client...");
       invokeOpenApiGenerator({
-        generator: "python-experimental",
+        generator: "python",
         specPath: this.options.specPath,
         outputPath: this.project.outdir,
         generatorDirectory: ClientLanguage.PYTHON,
         additionalProperties: {
           packageName: (this.project as PythonProject).moduleName,
           projectName: this.project.name,
+        },
+        // Tell the generator where python source files live
+        srcDir: (this.project as PythonProject).moduleName,
+        normalizers: {
+          KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
         },
       });
     }
