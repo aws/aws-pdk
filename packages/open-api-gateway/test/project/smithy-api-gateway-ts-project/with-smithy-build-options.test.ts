@@ -16,7 +16,6 @@ describe("Smithy Api Gateway Ts Build Options Test", () => {
       name: "@test/my-api",
       clientLanguages: [],
       outdir: "packages/api",
-      modelDir: "service",
       serviceName: { namespace: "my.test.service", serviceName: "TestService" },
       smithyBuildOptions: {
         projections: {
