@@ -22,11 +22,6 @@ export interface SmithyApiGatewayJavaProjectOptions
  * @pjid smithy-api-gateway-java
  */
 export class SmithyApiGatewayJavaProject extends OpenApiGatewayJavaProject {
-  /**
-   * The directory in which the smithy model files reside
-   */
-  public readonly modelDir: string = "model";
-
   constructor(options: SmithyApiGatewayJavaProjectOptions) {
     super(options as OpenApiGatewayJavaProjectOptions);
   }
@@ -34,14 +29,12 @@ export class SmithyApiGatewayJavaProject extends OpenApiGatewayJavaProject {
   protected preConstruct(
     options: OpenApiGatewayJavaProjectOptions
   ): OpenApiGatewayJavaProjectOptions {
-    const { modelDir, generatedSpecFilePath } = setupSmithyBuild(
+    const { generatedSpecFilePath } = setupSmithyBuild(
       this,
       // Options are the same as those in the constructor, so it is safe to cast to SmithyApiGatewayProjectOptions
       options as unknown as SmithyApiGatewayProjectOptions
     );
 
-    // @ts-ignore this method is called by the constructor
-    this.modelDir = modelDir;
     return {
       ...options,
       specFile: generatedSpecFilePath,

@@ -92,6 +92,10 @@ new SmithyApiGatewayTsProject({
   defaultReleaseBranch: "mainline",
   name: "my-api",
   outdir: "packages/api",
+  serviceName: {
+    namespace: "com.mycompany",
+    serviceName: "MyService",
+  },
   clientLanguages: [ClientLanguage.TYPESCRIPT, ClientLanguage.PYTHON, ClientLanguage.JAVA],
   documentationFormats: [DocumentationFormat.HTML2, DocumentationFormat.PLANTUML, DocumentationFormat.MARKDOWN],
 });
@@ -138,10 +142,11 @@ new SmithyApiGatewayTsProject({
   name: "my-api",
   outdir: "packages/api",
   clientLanguages: [],
-  // The fully qualified service name for your API, including both the namespace and service name:
-  serviceName: 'com.mycompany#MyService',
-  // Custom directory for your smithy model, relative to the project outdir
-  modelDir: 'api-model',
+  // The fully qualified service name for your API
+  serviceName: {
+    namespace: "com.mycompany",
+    serviceName: "MyService",
+  },
   // By default, the contents of `smithy-build/output` will be ignored by source control.
   // Set this to false to include it, for example if you are generating clients directly from the smithy model.
   ignoreSmithyBuildOutput: false,
@@ -422,7 +427,7 @@ Currently only [AWS restJson1](https://awslabs.github.io/smithy/2.0/aws/protocol
 
 #### Multiple Files
 
-You can split your definition into multiple files and folders, so long as they are all under the `model` directory in your API project.
+You can split your definition into multiple files and folders, so long as they are all under the `smithy/src/main/smithy` directory in your API project.
 
 #### Authorizers
 
@@ -693,7 +698,7 @@ await client.sayHello({ name: "Jack" });
 
 #### Python
 
-The [python-experimental](https://openapi-generator.tech/docs/generators/python-experimental) OpenAPI generator is used to generate OpenAPI clients for python.
+The [python](https://openapi-generator.tech/docs/generators/python) OpenAPI generator is used to generate OpenAPI clients for python.
 
 Example usage:
 

@@ -10,10 +10,6 @@ import { SmithyApiGatewayProjectOptions } from "../types";
  */
 export interface SmithyBuildProjectResult {
   /**
-   * Directory in which the model (main.smithy) was written, relative to the project outdir
-   */
-  readonly modelDir: string;
-  /**
    * Path to the generated OpenAPI spec to use as input for an OpenApiGateway<Language>Project
    */
   readonly generatedSpecFilePath: string;
@@ -26,7 +22,6 @@ export const setupSmithyBuild = (
   project: Project,
   options: SmithyApiGatewayProjectOptions
 ): SmithyBuildProjectResult => {
-  const modelDir = options.modelDir ?? "model";
   const { serviceName } = options.serviceName;
 
   const smithyBuildDir = "smithy";
@@ -63,7 +58,6 @@ export const setupSmithyBuild = (
   project.gitignore.addPatterns(path.join(smithyBuildDir, "build"));
 
   return {
-    modelDir,
     // Generated spec is written to output/<projection id>/<plugin id>/<service name>.openapi.json
     generatedSpecFilePath: path.join(
       smithyBuild.smithyBuildOutputPath,
