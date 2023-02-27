@@ -93,7 +93,7 @@ export class SmithyBuildProject extends Project {
       "software.amazon.smithy:smithy-openapi",
       "software.amazon.smithy:smithy-aws-traits",
     ];
-    const requiredSmithyDependencyVersion = "1.27.2";
+    const requiredSmithyDependencyVersion = "1.28.0";
 
     // Ensure dependencies always include the required dependencies, allowing users to customise the version
     const userSpecifiedDependencies =

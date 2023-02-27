@@ -1346,7 +1346,7 @@ Multiple tags are still useful for documentation generation, for example `Docume
 
 If you would like to introduce tags without breaking existing clients, we recommend first adding a tag named `default` to all operations.
 
-⚠️ __Important Note__: Smithy version 1.27.2 and below sorts tags in alphabetical order and so the "first" tag will be the earliest in the alphabet. Therefore, if using tags in Smithy, we currently recommend prefixing your desired first tag with an underscore (for example `_default`). This will be rectified in the next Smithy release, where tag order from the `@tags` trait will be preserved.
+⚠️ __Important Note__: Smithy versions below `1.28.0` sort tags in alphabetical order and so the "first" tag will be the earliest in the alphabet. Therefore, if using tags with older versions of Smithy, we recommend prefixing your desired first tag with an underscore (for example `_default`). This is rectified in `1.28.0`, where tag order from the `@tags` trait is preserved.
 
 ### Breaking Changes
 
