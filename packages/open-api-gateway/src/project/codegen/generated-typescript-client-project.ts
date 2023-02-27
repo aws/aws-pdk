@@ -58,6 +58,8 @@ export class GeneratedTypescriptClientProject extends TypeScriptProject {
         },
       },
       eslint: false,
+      // Disable tests unless explicitly enabled
+      jest: options.jest ?? false,
     });
 
     // Disable strict peer dependencies for pnpm as the default typescript project dependencies have type mismatches
