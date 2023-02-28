@@ -1400,8 +1400,8 @@ export namespace Graph {
     getNearestAncestor(node: Node): Node {
       if (node === this) throw new Error("Node is the current node");
 
-      const aScopes = this.scopes;
-      const bScopes = node.scopes;
+      const aScopes = this.scopes.reverse();
+      const bScopes = node.scopes.reverse();
 
       for (const aScope of aScopes) {
         for (const bScope of bScopes) {
