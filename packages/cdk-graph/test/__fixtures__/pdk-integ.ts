@@ -4,7 +4,7 @@ import { PDKNagApp } from "@aws-prototyping-sdk/pdk-nag";
 import { PDKPipeline } from "@aws-prototyping-sdk/pipeline";
 import { Stack } from "aws-cdk-lib";
 import { TestStage } from "./apps";
-import { ENVIRONMENTS } from "./common";
+import { ENVIRONMENTS } from "./env";
 
 export interface PDKIntegAppProps {
   outdir: string;
