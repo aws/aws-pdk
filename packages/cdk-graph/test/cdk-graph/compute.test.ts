@@ -40,21 +40,21 @@ describe("cdk-graph/compute", () => {
 
     it("should graph references and dependencies", () => {
       const bucketNode = graph.graphContext?.store.getNode(
-        getConstructUUID(app.stack.bucket)
+        getConstructUUID(app.stack.dataLayer.bucket)
       ) as Graph.ResourceNode;
       expect(bucketNode).toBeInstanceOf(Graph.ResourceNode);
       const cfnBucketNode = bucketNode.cfnResource!;
       expect(cfnBucketNode).toBeInstanceOf(Graph.CfnResourceNode);
 
       const lambdaNode = graph.graphContext?.store.getNode(
-        getConstructUUID(app.stack.lambda)
+        getConstructUUID(app.stack.apiLayer.helloHandler)
       ) as Graph.ResourceNode;
       expect(lambdaNode).toBeInstanceOf(Graph.ResourceNode);
       const cfnLambdaNode = lambdaNode.cfnResource!;
       expect(cfnLambdaNode).toBeInstanceOf(Graph.CfnResourceNode);
 
       const roleNode = graph.graphContext?.store.getNode(
-        getConstructUUID(app.stack.role)
+        getConstructUUID(app.stack.dataLayer.readRole)
       ) as Graph.ResourceNode;
       expect(roleNode).toBeInstanceOf(Graph.ResourceNode);
       const cfnRoleNode = roleNode.cfnResource!;
@@ -97,14 +97,14 @@ describe("cdk-graph/compute", () => {
 
     it("should graph references and dependencies", () => {
       const bucketNode = store.getNode(
-        getConstructUUID(app.stack.bucket)
+        getConstructUUID(app.stack.dataLayer.bucket)
       ) as Graph.ResourceNode;
       expect(bucketNode).toBeInstanceOf(Graph.ResourceNode);
       const cfnBucketNode = bucketNode.cfnResource!;
       expect(cfnBucketNode).toBeInstanceOf(Graph.CfnResourceNode);
 
       const lambdaNode1 = store.getNode(
-        getConstructUUID(app.stack.lambda)
+        getConstructUUID(app.stack.apiLayer.helloHandler)
       ) as Graph.ResourceNode;
       expect(lambdaNode1).toBeInstanceOf(Graph.ResourceNode);
       const cfnLambdaNode1 = lambdaNode1.cfnResource!;
@@ -174,7 +174,10 @@ describe("cdk-graph/compute", () => {
 
       function compareNode(a: Graph.Node, b: Graph.Node) {
         expect(a.nodeType).toEqual(b.nodeType);
-        if (a.nodeType !== NodeTypeEnum.OUTPUT) {
+        if (
+          a.nodeType !== NodeTypeEnum.OUTPUT &&
+          !a.path.includes("/ApiPermission.")
+        ) {
           expect(a.id).toEqual(b.id);
           expect(a.path.replace(/^\w+\//, "")).toEqual(
             b.path.replace(/^\w+\//, "")

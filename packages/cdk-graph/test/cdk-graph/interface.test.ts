@@ -8,6 +8,7 @@ import {
   Graph,
   NodeTypeEnum,
   SerializedGraph,
+  getConstructUUID,
 } from "../../src";
 import { MultiFixtureApp } from "../__fixtures__/apps";
 
@@ -253,6 +254,45 @@ describe("cdk-graph/interface", () => {
             OVERWRITE_DATA.tags
           );
           expect(entity.flags).toMatchObject<FlagEnum[]>(OVERWRITE_DATA.flags);
+        });
+      });
+    });
+
+    describe("Node", () => {
+      describe("#getNearestAncestor", () => {
+        it("should container for nested constructs in same parent", () => {
+          const nodeA = store.getNode(
+            getConstructUUID(app.stack.apiLayer.helloHandler)
+          );
+          const nodeB = store.getNode(
+            getConstructUUID(app.stack.apiLayer.worldHandler)
+          );
+          const ancestor = store.getNode(getConstructUUID(app.stack.apiLayer));
+
+          expect(nodeA.getNearestAncestor(nodeB).uuid).toBe(ancestor.uuid);
+        });
+
+        it("should return of stack for nested constructs in different nested containers", () => {
+          const nodeA = store.getNode(
+            getConstructUUID(app.stack.apiLayer.helloHandler)
+          );
+          const nodeB = store.getNode(
+            getConstructUUID(app.stack.dataLayer.bucket)
+          );
+          const ancestor = store.getNode(getConstructUUID(app.stack));
+
+          expect(nodeA.getNearestAncestor(nodeB).uuid).toBe(ancestor.uuid);
+        });
+
+        it("should return root for constructs in different stacks", () => {
+          const nodeA = store.getNode(
+            getConstructUUID(app.stack.apiLayer.helloHandler)
+          );
+          const nodeB = store.getNode(
+            getConstructUUID(app.dependentStack.lambda)
+          );
+
+          expect(nodeA.getNearestAncestor(nodeB).uuid).toBe(Graph.AppNode.UUID);
         });
       });
     });

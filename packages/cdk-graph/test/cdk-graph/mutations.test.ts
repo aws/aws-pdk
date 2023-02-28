@@ -44,12 +44,12 @@ describe("cdk-graph/mutations", () => {
 
       it("should remove all children and elevate dependencies", () => {
         const bucketNode = mutableStore.getNode(
-          getConstructUUID(app.stack.bucket)
+          getConstructUUID(app.stack.dataLayer.bucket)
         ) as Graph.ResourceNode;
         const cfnBucketNode = bucketNode.cfnResource!;
 
         const lambdaNode1 = mutableStore.getNode(
-          getConstructUUID(app.stack.lambda)
+          getConstructUUID(app.stack.apiLayer.helloHandler)
         ) as Graph.ResourceNode;
         const cfnLambdaNode1 = lambdaNode1.cfnResource!;
         expect(cfnLambdaNode1.doesReference(cfnBucketNode)).toBeTruthy();

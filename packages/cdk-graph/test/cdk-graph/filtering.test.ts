@@ -94,7 +94,7 @@ describe("cdk-graph/filtering", () => {
 
       beforeAll(() => {
         store = originStore.clone();
-        focusedNode = store.getNode(getConstructUUID(app.stack.lambda));
+        focusedNode = store.getNode(getConstructUUID(app.stack.apiLayer));
       });
 
       it("should perform focus hoist without error", () => {
@@ -111,7 +111,7 @@ describe("cdk-graph/filtering", () => {
       });
 
       it("should only have plan root nodes in the store", () => {
-        expect(store.counts.nodes).toBe(focusedNode.findAll().length);
+        expect(store.root.findAll().length).toBe(focusedNode.findAll().length);
       });
 
       it("should only have plan root edges in the store", () => {
@@ -125,7 +125,7 @@ describe("cdk-graph/filtering", () => {
 
       beforeAll(() => {
         store = originStore.clone();
-        focusedNode = store.getNode(getConstructUUID(app.stack.lambda));
+        focusedNode = store.getNode(getConstructUUID(app.stack.apiLayer));
       });
       it("should perform focus hoist without error", () => {
         expect(() =>
@@ -152,9 +152,8 @@ describe("cdk-graph/filtering", () => {
       });
 
       it("should only have plan root nodes and direct ancestors in the store", () => {
-        // NB: plus 1 for root
-        expect(store.counts.nodes + 1).toBe(
-          focusedNode.findAll().length + focusedNode.scopes.length
+        expect(focusedNode.findAll().length + focusedNode.scopes.length).toBe(
+          store.root.findAll().length + 1
         );
       });
     });
