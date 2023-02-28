@@ -2505,6 +2505,7 @@ aws-prototyping-sdk library.</p>
 <h5 id="smithy">Smithy</h5>
 <p>To create a project with Smithy as your interface definition language (IDL), you can use the <code>SmithyApiGatewayTsProject</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="kn">from</span> <span class="nn">aws_prototyping_sdk.open_api_gateway</span> <span class="kn">import</span> <span class="n">SmithyServiceName</span>
 <span class="kn">from</span> <span class="nn">aws_prototyping_sdk.open_api_gateway</span> <span class="kn">import</span> <span class="n">ClientLanguage</span><span class="p">,</span> <span class="n">DocumentationFormat</span><span class="p">,</span> <span class="n">SmithyApiGatewayTsProject</span>
 
 <span class="n">SmithyApiGatewayTsProject</span><span class="p">(</span>
@@ -2512,6 +2513,10 @@ aws-prototyping-sdk library.</p>
     <span class="n">default_release_branch</span><span class="o">=</span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-api&quot;</span><span class="p">,</span>
     <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="n">SmithyServiceName</span><span class="p">(</span>
+        <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;com.mycompany&quot;</span><span class="p">,</span>
+        <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;MyService&quot;</span>
+    <span class="p">),</span>
     <span class="n">client_languages</span><span class="o">=</span><span class="p">[</span><span class="n">ClientLanguage</span><span class="o">.</span><span class="n">TYPESCRIPT</span><span class="p">,</span> <span class="n">ClientLanguage</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">,</span> <span class="n">ClientLanguage</span><span class="o">.</span><span class="n">JAVA</span><span class="p">],</span>
     <span class="n">documentation_formats</span><span class="o">=</span><span class="p">[</span><span class="n">DocumentationFormat</span><span class="o">.</span><span class="n">HTML2</span><span class="p">,</span> <span class="n">DocumentationFormat</span><span class="o">.</span><span class="n">PLANTUML</span><span class="p">,</span> <span class="n">DocumentationFormat</span><span class="o">.</span><span class="n">MARKDOWN</span><span class="p">]</span>
 <span class="p">)</span>
@@ -2552,10 +2557,11 @@ aws-prototyping-sdk library.</p>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-api&quot;</span><span class="p">,</span>
     <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
     <span class="n">client_languages</span><span class="o">=</span><span class="p">[],</span>
-    <span class="c1"># The fully qualified service name for your API, including both the namespace and service name:</span>
-    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;com.mycompany#MyService&quot;</span><span class="p">,</span>
-    <span class="c1"># Custom directory for your smithy model, relative to the project outdir</span>
-    <span class="n">model_dir</span><span class="o">=</span><span class="s2">&quot;api-model&quot;</span><span class="p">,</span>
+    <span class="c1"># The fully qualified service name for your API</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;com.mycompany&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;service_name&quot;</span><span class="p">:</span> <span class="s2">&quot;MyService&quot;</span>
+    <span class="p">},</span>
     <span class="c1"># By default, the contents of `smithy-build/output` will be ignored by source control.</span>
     <span class="c1"># Set this to false to include it, for example if you are generating clients directly from the smithy model.</span>
     <span class="n">ignore_smithy_build_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -2634,7 +2640,8 @@ aws-prototyping-sdk library.</p>
 <span class="p">)</span>
 </code></pre></div>
 <p>You will need to set up a shared virtual environment and configure dependencies via the monorepo (see README.md for the nx-monorepo package). An example of a full <code>.projenrc.ts</code> might be:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">projen.VenvOptions</span> <span class="kn">import</span> <span class="n">VenvOptions</span><span class="p">,</span> <span class="n">VenvOptions</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="kn">from</span> <span class="nn">projen.VenvOptions</span> <span class="kn">import</span> <span class="n">VenvOptions</span><span class="p">,</span> <span class="n">VenvOptions</span>
 <span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
 <span class="kn">from</span> <span class="nn">aws_prototyping_sdk.open_api_gateway</span> <span class="kn">import</span> <span class="n">ClientLanguage</span><span class="p">,</span> <span class="n">OpenApiGatewayPythonProject</span>
 <span class="kn">from</span> <span class="nn">projen.awscdk</span> <span class="kn">import</span> <span class="n">AwsCdkPythonApp</span>
@@ -2796,7 +2803,7 @@ aws-prototyping-sdk library.</p>
 <h4 id="supported-protocols">Supported Protocols</h4>
 <p>Currently only <a href="https://awslabs.github.io/smithy/2.0/aws/protocols/aws-restjson1-protocol.html">AWS restJson1</a> is supported. Please ensure your service is annotated with the <code>@restJson1</code> trait.</p>
 <h4 id="multiple-files">Multiple Files</h4>
-<p>You can split your definition into multiple files and folders, so long as they are all under the <code>model</code> directory in your API project.</p>
+<p>You can split your definition into multiple files and folders, so long as they are all under the <code>smithy/src/main/smithy</code> directory in your API project.</p>
 <h4 id="authorizers">Authorizers</h4>
 <p>Smithy supports <a href="https://awslabs.github.io/smithy/2.0/aws/aws-auth.html">adding API Gateway authorizers in the model itself</a>. Given that at model definition time one usually does not know the ARN of the user pool or lambda function for an authorizer, it is recommended to add the authorizer(s) in your Api CDK construct.</p>
 <p>If using Smithy generated clients, some authorizer traits (eg sigv4) will include configuring the client for that particular method of authorization, so it can be beneficial to still define authorizers in the model. We therefore support specifying authorizers in both the model and the construct, but note that the construct will take precedence where the authorizer ID is the same.</p>
@@ -3004,7 +3011,7 @@ aws-prototyping-sdk library.</p>
 <span class="n">client</span><span class="o">.</span><span class="n">say_hello</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Jack&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h4 id="python_1">Python</h4>
-<p>The <a href="https://openapi-generator.tech/docs/generators/python-experimental">python-experimental</a> OpenAPI generator is used to generate OpenAPI clients for python.</p>
+<p>The <a href="https://openapi-generator.tech/docs/generators/python">python</a> OpenAPI generator is used to generate OpenAPI clients for python.</p>
 <p>Example usage:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">my_api_python</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">Configuration</span>
 <span class="kn">from</span> <span class="nn">my_api_python.api.default_api</span> <span class="kn">import</span> <span class="n">DefaultApi</span>
@@ -3528,7 +3535,7 @@ aws-prototyping-sdk library.</p>
 <p>When multiple tags are used, the "first" tag is considered to be the API that the operation belongs to, so in the generated client, the above example operation would be included in the <code>PetsApi</code> client but not the <code>UsersApi</code> client.</p>
 <p>Multiple tags are still useful for documentation generation, for example <code>DocumentationFormat.HTML_REDOC</code> will group operations by tag in the side navigation bar.</p>
 <p>If you would like to introduce tags without breaking existing clients, we recommend first adding a tag named <code>default</code> to all operations.</p>
-<p>⚠️ <strong>Important Note</strong>: Smithy version 1.27.2 and below sorts tags in alphabetical order and so the "first" tag will be the earliest in the alphabet. Therefore, if using tags in Smithy, we currently recommend prefixing your desired first tag with an underscore (for example <code>_default</code>). This will be rectified in the next Smithy release, where tag order from the <code>@tags</code> trait will be preserved.</p>
+<p>⚠️ <strong>Important Note</strong>: Smithy versions below <code>1.28.0</code> sort tags in alphabetical order and so the "first" tag will be the earliest in the alphabet. Therefore, if using tags with older versions of Smithy, we recommend prefixing your desired first tag with an underscore (for example <code>_default</code>). This is rectified in <code>1.28.0</code>, where tag order from the <code>@tags</code> trait is preserved.</p>
 <h3 id="breaking-changes">Breaking Changes</h3>
 <ul>
 <li>
@@ -24598,11 +24605,6 @@ resolved from the root of <em>this</em> project.</p>
 <td><code>bool</code></td>
 <td>Force to generate code and docs even if there were no changes in spec.</td>
 </tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayJavaProject.property.modelDir">model_dir</a></code></td>
-<td><code>str</code></td>
-<td>The directory in which the smithy model files reside.</td>
-</tr>
 </tbody>
 </table>
 <hr />
@@ -24946,14 +24948,6 @@ as the package for the api project.</p>
 <li><em>Type:</em> bool</li>
 </ul>
 <p>Force to generate code and docs even if there were no changes in spec.</p>
-<hr />
-<h5 id="model_dirrequired"><code>model_dir</code><sup>Required</sup> <a name="model_dir" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayJavaProject.property.modelDir"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">model_dir</span><span class="p">:</span> <span class="nb">str</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<p>The directory in which the smithy model files reside.</p>
 <hr />
 <h4 id="constants_3">Constants <a name="Constants" id="Constants"></a></h4>
 <table>
@@ -26487,11 +26481,6 @@ resolved from the root of <em>this</em> project.</p>
 <td><code>bool</code></td>
 <td>Force to generate code and docs even if there were no changes in spec.</td>
 </tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProject.property.modelDir">model_dir</a></code></td>
-<td><code>str</code></td>
-<td>The directory in which the smithy model files reside.</td>
-</tr>
 </tbody>
 </table>
 <hr />
@@ -26834,14 +26823,6 @@ FQN of the project type.</p>
 <li><em>Type:</em> bool</li>
 </ul>
 <p>Force to generate code and docs even if there were no changes in spec.</p>
-<hr />
-<h5 id="model_dirrequired_1"><code>model_dir</code><sup>Required</sup> <a name="model_dir" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayPythonProject.property.modelDir"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">model_dir</span><span class="p">:</span> <span class="nb">str</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<p>The directory in which the smithy model files reside.</p>
 <hr />
 <h4 id="constants_4">Constants <a name="Constants" id="Constants"></a></h4>
 <table>
@@ -29833,11 +29814,6 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <td><code>projen.YamlFile</code></td>
 <td>Reference to the PNPM workspace yaml file which adds the dependency between this project and the generated typescript client when this project is used in a monorepo, and the package manager is PNPM.</td>
 </tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayTsProject.property.modelDir">model_dir</a></code></td>
-<td><code>str</code></td>
-<td>The directory in which the smithy model files reside.</td>
-</tr>
 </tbody>
 </table>
 <hr />
@@ -30391,14 +30367,6 @@ release workflow.</p>
 </ul>
 <p>Reference to the PNPM workspace yaml file which adds the dependency between this project and the generated typescript client when this project is used in a monorepo, and the package manager is PNPM.</p>
 <hr />
-<h5 id="model_dirrequired_2"><code>model_dir</code><sup>Required</sup> <a name="model_dir" id="@aws-prototyping-sdk/open-api-gateway.SmithyApiGatewayTsProject.property.modelDir"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">model_dir</span><span class="p">:</span> <span class="nb">str</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<p>The directory in which the smithy model files reside.</p>
-<hr />
 <h4 id="constants_5">Constants <a name="Constants" id="Constants"></a></h4>
 <table>
 <thead>
@@ -30551,7 +30519,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2023-02-17
+      2023-02-27
     
   </small>
 </div>
