@@ -55,20 +55,28 @@ export enum ConstructInfoFqnEnum {
 }
 
 /** Fqns that denote a cdk asset */
-export const AssetFqnEnum = [
+export const AssetFqns = [
   ConstructInfoFqnEnum.S3_ASSET,
   ConstructInfoFqnEnum.ECR_TARBALL_ASSET,
 ];
 
 /** Fqns considered extraneous */
-export const ExtraneousFqnEnum = [
-  ...AssetFqnEnum,
+export const ExtraneousFqns = [
+  ...AssetFqns,
   ConstructInfoFqnEnum.ASSET_STAGING,
   ConstructInfoFqnEnum.LAMBDA_LAYER_VERSION,
   ConstructInfoFqnEnum.CFN_LAMBDA_LAYER_VERSION,
   ConstructInfoFqnEnum.LAMBDA_ALIAS,
   ConstructInfoFqnEnum.CFN_LAMBDA_ALIAS,
   ConstructInfoFqnEnum.LAMBDA_BASE,
+];
+
+/** Fqns that denote CDK CustomResources */
+export const CustomResourceFqns = [
+  ConstructInfoFqnEnum.CUSTOM_RESOURCE,
+  ConstructInfoFqnEnum.AWS_CUSTOM_RESOURCE,
+  ConstructInfoFqnEnum.CUSTOM_RESOURCE_PROVIDER,
+  ConstructInfoFqnEnum.CUSTOM_RESOURCE_PROVIDER_2,
 ];
 
 /** Common cfn attribute keys */
@@ -168,6 +176,22 @@ export enum FlagEnum {
   WRAPPED_CFN_RESOURCE = "WRAPPED_CFN_RESOURCE",
   /** Indicates that resource is imported into CDK (eg: `lambda.Function.fromFunctionName()`, `s3.Bucket.fromBucketArn()`) */
   IMPORT = "IMPORT",
+  /**
+   * Indicates if node is a CustomResource
+   * @see https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.custom_resources-readme.html
+   */
+  CUSTOM_RESOURCE = "CUSTOM_RESOURCE",
+  /**
+   * Indicates if node is an AwsCustomResource, which is a custom resource that simply calls
+   * the AWS SDK API via singleton provider.
+   * @see https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.custom_resources.AwsCustomResource.html
+   */
+  AWS_CUSTOM_RESOURCE = "AWS_CUSTOM_RESOURCE",
+  /**
+   * Indicates if lambda function resource is a singleton AWS API call lambda for AwsCustomResources.
+   * @see https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.custom_resources.AwsCustomResource.html
+   */
+  AWS_API_CALL_LAMBDA = "AWS_API_CALL_LAMBDA",
 }
 
 /** Universal unique identifier */

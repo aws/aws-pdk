@@ -7,6 +7,7 @@ import * as Dot from "ts-graphviz";
 import wordWrap = require("word-wrap"); // eslint-disable-line @typescript-eslint/no-require-imports
 import {
   resolveCfnResourceImage,
+  resolveCustomResourceImage,
   resolveResourceImage,
 } from "../../utils/resource-images";
 import { GraphTheme } from "../theme";
@@ -179,11 +180,9 @@ export class ResourceNode extends ImageNode {
  * CustomResourceNode class defines a {@link Dot.Node} based on a {@link Graph.Node} for a *custom resource*
  * @internal
  */
-export class CustomResourceNode extends Node {
+export class CustomResourceNode extends ImageNode {
   /** @internal */
-  constructor(node: Graph.ResourceNode) {
-    super(node);
-
-    this.attributes.apply(GraphTheme.instance.customResourceNode);
+  constructor(node: Graph.Node) {
+    super(node, resolveCustomResourceImage(node));
   }
 }

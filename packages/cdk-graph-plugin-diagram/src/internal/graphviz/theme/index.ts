@@ -153,8 +153,6 @@ export interface IGraphTheme {
   readonly cfnResourceNode: Dot.NodeAttributesObject;
   /** Styling for {@link Graph.ResourceNode} diagram entities */
   readonly resourceNode: Dot.NodeAttributesObject;
-  /** Styling for {@link Graph.ResourceNode} *custom resource* diagram entities */
-  readonly customResourceNode: Dot.NodeAttributesObject;
 
   // edges
   /** Styling for {@link Graph.Edge} *parent-child* based diagram edges */
@@ -237,8 +235,6 @@ export class GraphTheme implements IGraphTheme {
   /** @inheritdoc */
   readonly resourceNode: Dot.NodeAttributesObject;
   /** @inheritdoc */
-  readonly customResourceNode: Dot.NodeAttributesObject;
-  /** @inheritdoc */
   readonly childLink: Dot.EdgeAttributesObject;
   /** @inheritdoc */
   readonly referenceLink: Dot.EdgeAttributesObject;
@@ -265,7 +261,6 @@ export class GraphTheme implements IGraphTheme {
     this.imageNode = theme.imageNode;
     this.cfnResourceNode = theme.cfnResourceNode;
     this.resourceNode = theme.resourceNode;
-    this.customResourceNode = theme.customResourceNode;
     this.childLink = theme.childLink;
     this.referenceLink = theme.referenceLink;
     this.dependencyLink = theme.dependencyLink;
@@ -293,7 +288,6 @@ export function getBaseTheme(rendering?: IGraphThemeRendering): IGraphTheme {
     imageNode: IMAGE_NODE_ATTRIBUTES,
     cfnResourceNode: CFN_RESOURCE_NODE_ATTRIBUTES,
     resourceNode: RESOURCE_NODE_ATTRIBUTES,
-    customResourceNode: CUSTOM_RESOURCE_NODE_ATTRIBUTES,
     childLink: CHILD_LINK_ATTRIBUTES,
     referenceLink: REFERENCE_LINK_ATTRIBUTES,
     dependencyLink: DEPENDENCY_LINK_ATTRIBUTES,
@@ -343,11 +337,6 @@ function generateGraphThemeFromAwsTheme(
   });
   Object.assign(theme.resourceNode, {
     color: awsTheme.text.primary,
-    fontcolor: awsTheme.text.primary as Dot.Color,
-  });
-  Object.assign(theme.customResourceNode, {
-    color: awsTheme.text.primary,
-    fillcolor: awsTheme.backgrounds.generic,
     fontcolor: awsTheme.text.primary as Dot.Color,
   });
 
@@ -478,15 +467,6 @@ const RESOURCE_NODE_ATTRIBUTES: Dot.NodeAttributesObject = {
   fixedsize: true,
   color: "#666666",
   fontcolor: "#666666",
-};
-
-/** Base customer resource node attributes */
-const CUSTOM_RESOURCE_NODE_ATTRIBUTES: Dot.NodeAttributesObject = {
-  shape: "box",
-  style: "solid,filled",
-  width: 1,
-  height: 1,
-  fixedsize: false,
 };
 
 /** Base edge attributes */

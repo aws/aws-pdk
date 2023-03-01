@@ -14,10 +14,12 @@ import cloneDeep = require("lodash.clonedeep"); // eslint-disable-line @typescri
 import shorthash = require("shorthash2"); // eslint-disable-line @typescript-eslint/no-require-imports
 import traverse = require("traverse"); // eslint-disable-line @typescript-eslint/no-require-imports
 import {
-  AssetFqnEnum,
+  AssetFqns,
   CdkConstructIds,
   CfnAttributesEnum,
-  ExtraneousFqnEnum,
+  ConstructInfoFqnEnum,
+  CustomResourceFqns,
+  ExtraneousFqns,
   FlagEnum,
   MetadataTypeEnum,
   ReferenceTypeEnum,
@@ -224,23 +226,25 @@ export function extractUnresolvedReferences(
   return references;
 }
 
+// https://github.com/aws/aws-cdk/blob/main/packages/%40aws-cdk/custom-resources/lib/aws-custom-resource/aws-custom-resource.ts#L357
+const AWS_PROVIDER_FUNCTION_UUID = "679f53fac002430cb0da5b7982bd2287";
+
 /** Infer construct flags  */
 export function inferFlags(
   construct: IConstruct,
   constructInfo?: ConstructInfo
 ): FlagEnum[] {
   const flags: Set<FlagEnum> = new Set();
+  const fqn = constructInfo?.fqn;
 
   if (isImportConstruct(construct)) {
     flags.add(FlagEnum.IMPORT);
   } else {
-    const fqn = constructInfo?.fqn;
-
-    if (fqn && ExtraneousFqnEnum.includes(fqn as any)) {
+    if (fqn && ExtraneousFqns.includes(fqn as any)) {
       flags.add(FlagEnum.EXTRANEOUS);
     }
 
-    if (fqn && AssetFqnEnum.includes(fqn as any)) {
+    if (fqn && AssetFqns.includes(fqn as any)) {
       flags.add(FlagEnum.ASSET);
     }
   }
@@ -262,6 +266,23 @@ export function inferFlags(
 
   if (construct.node.id.startsWith("SsmParameterValue:")) {
     flags.add(FlagEnum.EXTRANEOUS);
+  }
+
+  if (
+    fqn === ConstructInfoFqnEnum.LAMBDA &&
+    Resource.isOwnedResource(construct)
+  ) {
+    if (construct.node.id === `AWS${AWS_PROVIDER_FUNCTION_UUID}`) {
+      flags.add(FlagEnum.AWS_API_CALL_LAMBDA);
+      flags.add(FlagEnum.EXTRANEOUS);
+    }
+  }
+
+  if (fqn && CustomResourceFqns.includes(fqn as any)) {
+    flags.add(FlagEnum.CUSTOM_RESOURCE);
+    if (fqn === ConstructInfoFqnEnum.AWS_CUSTOM_RESOURCE) {
+      flags.add(FlagEnum.AWS_CUSTOM_RESOURCE);
+    }
   }
 
   return Array.from(flags.values());

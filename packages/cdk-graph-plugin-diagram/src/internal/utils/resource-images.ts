@@ -37,6 +37,15 @@ export function resolveResourceImage(
   );
 }
 
+/** Resolves CustomResource image from {@link AwsArchitecture} asset */
+export function resolveCustomResourceImage(
+  _node: Graph.Node
+): string | undefined {
+  return AwsArchitecture.getResource(
+    "AWS::CloudFormation::CustomResource"
+  ).icon("svg", GraphTheme.instance.awsTheme?.id);
+}
+
 /** Resolves Resource image from {@link AwsArchitecture} asset */
 function _resolveResourceLikeImage(
   node: Graph.ResourceNode | Graph.CfnResourceNode,

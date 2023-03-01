@@ -173,7 +173,11 @@ export function buildDiagram(
       }
       default: {
         if (gNode.isLeaf) {
-          entity = new Diagram.Node(gNode);
+          if (gNode.hasFlag(FlagEnum.CUSTOM_RESOURCE)) {
+            entity = new Diagram.CustomResourceNode(gNode);
+          } else {
+            entity = new Diagram.Node(gNode);
+          }
         } else {
           entity = new Diagram.Cluster(gNode);
           gNode.addFlag(FlagEnum.CLUSTER);

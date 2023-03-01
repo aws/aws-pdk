@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { ConstructOrder } from "constructs";
 import memoize = require("lodash.memoize"); // eslint-disable-line @typescript-eslint/no-require-imports
+import uniq = require("lodash.uniq"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { FilterStrategy, IGraphFilter, IGraphStoreFilter } from "./types";
 import { FlagEnum, Graph, NodeTypeEnum } from "../core";
 
@@ -52,20 +53,11 @@ export namespace Filters {
   }
 
   /**
-   * Collapses extraneous nodes to parent and cdk created nodes on themselves,
-   * and prunes extraneous edges.
-   *
-   * This most closely represents the developers code for the current application
-   * and reduces the noise one expects.
-   *
-   * @throws Error if store is not filterable
-   * @destructive
+   * Collapses all Cdk Owned containers, which more closely mirrors the application code
+   * by removing resources that are automatically created by cdk.
    */
-  export function compact(): IGraphStoreFilter {
+  export function collapseCdkOwnedResources(): IGraphStoreFilter {
     return (store) => {
-      verifyFilterable(store);
-      pruneExtraneous()(store);
-
       const cdkOwnedContainers = store.root.findAll({
         order: ConstructOrder.POSTORDER,
         predicate: (node) =>
@@ -77,7 +69,15 @@ export namespace Filters {
       for (const cdkOwnedContainer of cdkOwnedContainers) {
         cdkOwnedContainer.mutateCollapse();
       }
+    };
+  }
 
+  /**
+   * Collapses all Cdk Resource wrappers that wrap directly wrap a CfnResource.
+   * Example, s3.Bucket wraps s3.CfnBucket.
+   */
+  export function collapseCdkWrappers(): IGraphStoreFilter {
+    return (store) => {
       const cdkResources = store.root.findAll({
         order: ConstructOrder.POSTORDER,
         predicate: (node) => Graph.ResourceNode.isResourceNode(node),
@@ -90,6 +90,72 @@ export namespace Filters {
           cdkResource.cfnResource.mutateCollapseToParent();
         }
       }
+    };
+  }
+
+  /**
+   * Collapses Custom Resource nodes to a single node.
+   */
+  export function collapseCustomResources(): IGraphStoreFilter {
+    return (store) => {
+      store.root
+        .findAll({
+          predicate: (node) => {
+            return node.hasFlag(FlagEnum.CUSTOM_RESOURCE);
+          },
+        })
+        .forEach((customResource) => {
+          if (customResource.isDestroyed) return;
+
+          if (
+            !customResource.hasFlag(FlagEnum.AWS_CUSTOM_RESOURCE) &&
+            !customResource.parent?.hasFlag(FlagEnum.AWS_CUSTOM_RESOURCE)
+          ) {
+            uniq(
+              customResource.findAllLinks().filter(({ target }) => {
+                // Framework refs are nodes that are only referenced by the custom resource provider
+                const nonframeworkRefs = target.referencedBy.filter(
+                  (_ref) =>
+                    _ref !== customResource && _ref.isAncestor(customResource)
+                );
+
+                return nonframeworkRefs.length === 0;
+              })
+            ).forEach(({ target: frameworkHandler }) => {
+              frameworkHandler.mutateMove(customResource);
+            });
+
+            customResource.mutateCollapse();
+          }
+
+          customResource.mutateCollapse();
+        });
+    };
+  }
+
+  /**
+   * Collapses extraneous nodes to parent and cdk created nodes on themselves,
+   * and prunes extraneous edges.
+   *
+   * This most closely represents the developers code for the current application
+   * and reduces the noise one expects.
+   *
+   * Invokes:
+   * 1. {@link pruneExtraneous}
+   * 1. {@link collapseCdkOwnedResources}
+   * 1. {@link collapseCdkWrappers}
+   * 1. {@link collapseCustomResources}
+   *
+   * @throws Error if store is not filterable
+   * @destructive
+   */
+  export function compact(): IGraphStoreFilter {
+    return (store) => {
+      verifyFilterable(store);
+      pruneExtraneous()(store);
+      collapseCdkOwnedResources()(store);
+      collapseCdkWrappers()(store);
+      collapseCustomResources()(store);
     };
   }
 
