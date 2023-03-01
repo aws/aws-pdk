@@ -12,6 +12,9 @@ This plugin generates diagrams utilizing the [cdk-graph](https://aws.github.io/a
 
 > **Disclaimer:** This is the first **cdk graph** plugin, it is highly *experimental*, and subject to major refactors as we gain feedback from the community.
 
+> **BREAKING CHANGES** (pre-release)
+> - `<= v0.14.8`: Only the last stage of a multi stage app will be rendered by default, which is commonly the production stage. Use the `theme.rendering.stage` config option to override this for each graph or in defaults.
+
 | | |
 | --- | --- |
 | <img src="docs/examples/default.png" width="300" /> | <img src="docs/examples/dark.png" width="300" /> |

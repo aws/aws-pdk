@@ -6,4 +6,6 @@ export {
   GraphThemeRenderingIconTarget,
   IGraphThemeConfigAlt,
   IGraphThemeRendering,
+  IGraphThemeRenderingIconProps,
+  IGraphThemeRenderingOptions,
 } from "./theme";

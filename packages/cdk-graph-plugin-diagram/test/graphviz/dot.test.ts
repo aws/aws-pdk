@@ -8,7 +8,7 @@ import {
 } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
 import * as testUtils from "./test-utils";
-import { CdkGraphDiagramPlugin } from "../../src";
+import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";
 
 jest.setTimeout(90000); // CI tests timeout occasionally so increase to large timeout buffer
 
@@ -116,7 +116,33 @@ describe("dot", () => {
       outdir = await makeCdkOutdir("staged-app");
 
       app = new StagedApp({ outdir });
-      plugin = new CdkGraphDiagramPlugin();
+      plugin = new CdkGraphDiagramPlugin({
+        diagrams: [
+          {
+            name: "prod-stage",
+            title: "Prod Stage (last)",
+            // by default will render only the last stage
+          },
+          {
+            name: "dev-stage",
+            title: "Dev Stage (regex)",
+            theme: {
+              rendering: {
+                stage: "Dev",
+              },
+            },
+          },
+          {
+            name: "all-stages",
+            title: "All Stages",
+            theme: {
+              rendering: {
+                stage: "all",
+              },
+            },
+          },
+        ],
+      });
       graph = new CdkGraph(app, {
         plugins: [plugin],
       });
@@ -124,29 +150,41 @@ describe("dot", () => {
       await graph.report();
     });
 
-    it("should generate dot artifact", async () => {
-      expect(plugin.defaultDotArtifact).toBeDefined();
-      expect(
-        await fs.pathExists(plugin.defaultDotArtifact!.filepath)
-      ).toBeTruthy();
-      expect(
-        testUtils.cleanseDotSnapshot(
-          await fs.readFile(plugin.defaultDotArtifact!.filepath, {
-            encoding: "utf-8",
-          })
-        )
-      ).toMatchSnapshot();
-    });
+    describe.each(["prod-stage", "dev-stage", "all-stages"])("%s", (name) => {
+      it.each([DiagramFormat.DOT, DiagramFormat.SVG, DiagramFormat.PNG])(
+        "should render %s artifact",
+        async (format) => {
+          const artifact = plugin.getDiagramArtifact(name, format);
+          expect(artifact).toBeDefined();
+          expect(await fs.pathExists(artifact!.filepath)).toBeTruthy();
 
-    it("should generate png artifact", async () => {
-      expect(plugin.defaultPngArtifact).toBeDefined();
-      expect(
-        await fs.pathExists(plugin.defaultPngArtifact!.filepath)
-      ).toBeTruthy();
-
-      await testUtils.expectToMatchImageSnapshot(
-        plugin.defaultPngArtifact!.filepath,
-        "staged"
+          switch (format) {
+            case DiagramFormat.DOT: {
+              expect(
+                testUtils.cleanseDotSnapshot(
+                  await fs.readFile(artifact!.filepath, {
+                    encoding: "utf-8",
+                  })
+                )
+              ).toMatchSnapshot();
+              break;
+            }
+            case DiagramFormat.SVG: {
+              expect(
+                await fs.readFile(artifact!.filepath, {
+                  encoding: "utf-8",
+                })
+              ).toMatchSnapshot();
+              break;
+            }
+            case DiagramFormat.PNG: {
+              await testUtils.expectToMatchImageSnapshot(
+                artifact!.filepath,
+                name
+              );
+            }
+          }
+        }
       );
     });
   });
