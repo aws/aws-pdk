@@ -28,6 +28,10 @@ export class Diagram extends Dot.Digraph {
 
     this.apply(graph);
 
+    if (GraphTheme.instance.rendering.layout === "vertical") {
+      this.set("rankdir", "LR");
+    }
+
     // NB: do not apply "subgraph" attributes as there seems to be bug where it overrides the diagram attributes
     // The subgraph class will apply them directly so not a concern
 

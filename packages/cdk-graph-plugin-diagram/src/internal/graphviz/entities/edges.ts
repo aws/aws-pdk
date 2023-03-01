@@ -112,6 +112,32 @@ export abstract class BaseEdge extends Dot.Edge {
     this._extraneous = false;
     this.isCompound = isCompound;
     this.isSynthetic = isSynthetic;
+
+    // Experimental: attempting to improve layout control of subgraphs (disabled by default)
+    if (GraphTheme.instance.rendering.unconstrainedCrossClusterEdges) {
+      // Prevent cross-cluster edges from mangling the cluster layout
+      if (
+        this.isClosedLoop ||
+        this.isCompound ||
+        this.isSynthetic ||
+        this.from.graphNode.findAncestor((node) => node.isCluster) !==
+          this.to.graphNode.findAncestor((node) => node.isCluster)
+      ) {
+        this.attributes.set("constraint", false);
+
+        if (
+          !this.isClosedLoop &&
+          this.from instanceof Dot.Node &&
+          this.to instanceof Dot.Node
+        ) {
+          const group =
+            "group_" +
+            this.from.graphNode.getNearestAncestor(this.to.graphNode).uuid;
+          this.from.attributes.set("group", group);
+          this.to.attributes.set("group", group);
+        }
+      }
+    }
   }
 }
 

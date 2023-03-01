@@ -80,21 +80,21 @@ describe("config", () => {
           },
           {
             name: "focus",
-            title: "Focus Lambda Diagram (non-extraneous)",
+            title: "Focus Data Diagram (non-extraneous)",
             filterPlan: {
               focus: (store) =>
-                store.getNode(getConstructUUID(app.stack.lambda)),
+                store.getNode(getConstructUUID(app.stack.dataLayer)),
               preset: FilterPreset.NON_EXTRANEOUS,
             },
             ignoreDefaults: true,
           },
           {
             name: "focus-nohoist",
-            title: "Focus WebServer Diagram (noHoist, verbose)",
+            title: "Focus Website Diagram (noHoist, verbose)",
             filterPlan: {
               focus: {
                 node: (store) =>
-                  store.getNode(getConstructUUID(app.stack.webServer)),
+                  store.getNode(getConstructUUID(app.stack.website)),
                 noHoist: true,
               },
             },

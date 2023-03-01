@@ -39,11 +39,16 @@ export async function convertSvgImageDefsFromSvgToPng(
 
   for (const def of defs) {
     const assetKey = def.attributes.id as string;
-    const pngBuffer = await sharp(
+    const png = sharp(
       AwsArchitecture.resolveAssetPath(
         AwsArchitecture.formatAssetPath(assetKey, "png")
       )
-    ).toBuffer();
+    );
+    const pngBuffer = await png
+      .resize({
+        width: 128,
+      })
+      .toBuffer();
     def.attributes[XLINK_HREF] = encodeDataUrl(pngBuffer, DATAURL_PNG_BASE64);
   }
 
@@ -263,11 +268,34 @@ export function reconcileViewBox(svg: svgson.INode): string {
   // const [scale0, scale1] = (transformScale.split(" ")).map((v) => parseFloat(v));
   // container.attributes.comment = `scope: ${scale0} ${scale1}`
 
-  const scaledViewBox: SvgViewBox = {
+  let scaledViewBox: SvgViewBox = {
     ...viewBox,
     width: viewBox.width * (scale[0] || 1),
     height: viewBox.height * (scale[1] || scale[0] || 1),
   };
+
+  // Max allowed by sharp: https://github.com/lovell/sharp/blob/2c465282699432299c478ba00ab825e07d9bdab0/src/pipeline.cc#L288
+  const MAX_SVG = 32760; // 32767 is max, but leaving a small buffer
+
+  if (scaledViewBox.width && scaledViewBox.width > MAX_SVG) {
+    const downscale = MAX_SVG / scaledViewBox.width;
+    scaledViewBox = {
+      ...scaledViewBox,
+      width: scaledViewBox.width * downscale,
+      height: scaledViewBox.height
+        ? scaledViewBox.height * downscale
+        : undefined,
+    };
+  }
+
+  if (scaledViewBox.height && scaledViewBox.height > MAX_SVG) {
+    const downscale = MAX_SVG / scaledViewBox.height;
+    scaledViewBox = {
+      ...scaledViewBox,
+      height: scaledViewBox.height * downscale,
+      width: scaledViewBox.width ? scaledViewBox.width * downscale : undefined,
+    };
+  }
 
   return stringifySvgViewBox(scaledViewBox);
 }
