@@ -14,6 +14,7 @@ import * as Dot from "ts-graphviz";
 import * as Diagram from "./entities";
 import { ChildLink, ImageNode } from "./entities";
 import { GraphTheme, GraphThemeConfigProp } from "./theme";
+import { IS_DEBUG } from "../debug";
 
 /**
  * Union of entities support by diagram
@@ -266,11 +267,12 @@ export function buildDiagram(
       | Diagram.Node;
 
     if (!dSource || !dTarget) {
-      console.warn(
-        "Diagram.Edge unresolved source and/or target:",
-        `source(${gEdge.source} => ${dSource})`,
-        `target(${gEdge.target} => ${dTarget})`
-      );
+      IS_DEBUG &&
+        console.warn(
+          "Diagram.Edge unresolved source and/or target:",
+          `source(${gEdge.source} => ${dSource})`,
+          `target(${gEdge.target} => ${dTarget})`
+        );
       return;
     }
 

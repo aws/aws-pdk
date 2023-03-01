@@ -126,7 +126,7 @@ export class CdkGraphContext {
 
     console.info(
       chalk.cyanBright(
-        `[CdkGraph] Artifact ${id} written to ${artifact.filename} (${artifact.source})`
+        `[CdkGraph] Artifact ${id} written to \x1B]8;;file://${artifact.filepath}\x1B\\${artifact.filename}\x1B]8;;\x1B\\ (${artifact.source})`
       )
     );
 

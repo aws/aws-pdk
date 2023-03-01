@@ -14,6 +14,7 @@ import merge = require("lodash.merge"); // eslint-disable-line @typescript-eslin
 import uniq = require("lodash.uniq"); // eslint-disable-line @typescript-eslint/no-require-imports
 import uniqBy = require("lodash.uniqby"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { GRAPH_ID } from "./constants";
+import { IS_DEBUG } from "./debug";
 import { Graph } from "./graph";
 import {
   CdkConstructIds,
@@ -321,7 +322,7 @@ export function computeGraph(root: IConstruct): Graph.Store {
     try {
       resolveReference(store, unresolved);
     } catch (e) {
-      console.warn(e, unresolved);
+      IS_DEBUG && console.warn(e, unresolved);
       // TODO: consider saving unresolved references if become valuable.
     }
   }
