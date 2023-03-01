@@ -159,6 +159,14 @@ export function buildDiagram(
         break;
       }
       case NodeTypeEnum.STACK: {
+        if (
+          GraphTheme.instance.rendering.stack &&
+          new RegExp(GraphTheme.instance.rendering.stack).test(gNode.id) ===
+            false
+        ) {
+          // Ignore non-matching root stacks
+          return;
+        }
         entity = new Diagram.StackCluster(gNode as Graph.StackNode);
         break;
       }
@@ -199,9 +207,28 @@ export function buildDiagram(
     }
   }
 
-  if (store.stages.length) {
+  if (store.stages.length > 1) {
+    const stageRendering = GraphTheme.instance.rendering.stage || "last";
+    let stages: Graph.StageNode[];
+    switch (stageRendering) {
+      case "all": {
+        stages = store.stages;
+        break;
+      }
+      case "first": {
+        stages = store.stages.slice(0, 1);
+        break;
+      }
+      case "last": {
+        stages = store.stages.slice(-1);
+        break;
+      }
+      default: {
+        stages = store.stages.filter((stage) => stage.id.match(stageRendering));
+      }
+    }
     // traverse all stages
-    store.stages.forEach((gStage) => {
+    stages.forEach((gStage) => {
       const dStage = new Diagram.StageCluster(gStage);
       diagram.addSubgraph(dStage);
       entities.set(gStage.uuid, dStage);

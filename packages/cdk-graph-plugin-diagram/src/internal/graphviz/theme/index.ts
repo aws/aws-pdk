@@ -42,8 +42,23 @@ export enum GraphThemeRenderingIconTarget {
   CATEGORY = 4,
 }
 
-/** Rending settings for GraphTheme */
-export interface IGraphThemeRendering {
+/** Icon specific properties for configuring graph rendering of resource icons. */
+export interface IGraphThemeRenderingIconProps {
+  /** Lowest Graph.ResourceNode icon to render */
+  readonly resourceIconMin?: GraphThemeRenderingIconTarget;
+  /** Highest Graph.ResourceNode icon to render */
+  readonly resourceIconMax?: GraphThemeRenderingIconTarget;
+  /** Lowest Graph.CfnResourceNode icon to render */
+  readonly cfnResourceIconMin?: GraphThemeRenderingIconTarget;
+  /** Highest Graph.CfnResourceNode icon to render */
+  readonly cfnResourceIconMax?: GraphThemeRenderingIconTarget;
+}
+
+/**
+ * Icon definition for graph rendering of resource icons.
+ * @internal
+ */
+export interface IGraphThemeRenderingIconInternal {
   /** Lowest Graph.ResourceNode icon to render */
   readonly resourceIconMin: GraphThemeRenderingIconTarget;
   /** Highest Graph.ResourceNode icon to render */
@@ -52,7 +67,10 @@ export interface IGraphThemeRendering {
   readonly cfnResourceIconMin: GraphThemeRenderingIconTarget;
   /** Highest Graph.CfnResourceNode icon to render */
   readonly cfnResourceIconMax: GraphThemeRenderingIconTarget;
+}
 
+/** Additional graph rendering options */
+export interface IGraphThemeRenderingOptions {
   /**
    * Prevent cross-cluster edges from ranking nodes in layout.
    * @see https://graphviz.org/docs/attrs/constraint/
@@ -65,9 +83,38 @@ export interface IGraphThemeRendering {
    * @default horizontal
    */
   readonly layout?: "horizontal" | "vertical";
+
+  /**
+   * Specify which stage to render when multiple stages are available.
+   *
+   * Can be a preset value of "first", "last", and "all", or regex string of the stage(s) to render.
+   *
+   * @default last
+   */
+  readonly stage?: "first" | "last" | "all" | string;
+
+  /**
+   * Specify regex pattern to match root stacks to render.
+   *
+   * @default undefined Will render all stacks
+   */
+  readonly stack?: string;
 }
 
-const DEFAULT_RENDERING: IGraphThemeRendering = {
+/** Properties for defining the rendering options for the graph theme. */
+export interface IGraphThemeRendering
+  extends IGraphThemeRenderingIconProps,
+    IGraphThemeRenderingOptions {}
+
+/**
+ * Rendering definition for the graph theme.
+ * @internal
+ */
+export interface IGraphThemeRenderingInternal
+  extends IGraphThemeRenderingIconInternal,
+    IGraphThemeRenderingOptions {}
+
+const DEFAULT_RENDERING: IGraphThemeRenderingInternal = {
   resourceIconMin: GraphThemeRenderingIconTarget.DATA,
   resourceIconMax: GraphThemeRenderingIconTarget.CATEGORY,
   cfnResourceIconMin: GraphThemeRenderingIconTarget.DATA,
@@ -76,7 +123,7 @@ const DEFAULT_RENDERING: IGraphThemeRendering = {
 
 /** GraphTheme definition */
 export interface IGraphTheme {
-  readonly rendering: IGraphThemeRendering;
+  readonly rendering: IGraphThemeRenderingInternal;
 
   /** Styling for {@link Dot.Digraph} */
   readonly graph: Dot.GraphAttributesObject;
@@ -163,7 +210,7 @@ export class GraphTheme implements IGraphTheme {
   }
 
   /** @inheritdoc */
-  readonly rendering: IGraphThemeRendering;
+  readonly rendering: IGraphThemeRenderingInternal;
 
   /** @inheritdoc */
   readonly graph: Dot.GraphAttributesObject;
@@ -230,7 +277,10 @@ export class GraphTheme implements IGraphTheme {
 /** Get the base theme */
 export function getBaseTheme(rendering?: IGraphThemeRendering): IGraphTheme {
   return cloneDeep({
-    rendering: rendering || DEFAULT_RENDERING,
+    rendering: {
+      ...DEFAULT_RENDERING,
+      ...rendering,
+    },
     graph: GRAPH_ATTRIBUTES,
     subgraph: SUBGRAPH_ATTRIBUTES,
     cluster: CLUSTER_ATTRIBUTES,
