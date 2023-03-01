@@ -52,6 +52,19 @@ export interface IGraphThemeRendering {
   readonly cfnResourceIconMin: GraphThemeRenderingIconTarget;
   /** Highest Graph.CfnResourceNode icon to render */
   readonly cfnResourceIconMax: GraphThemeRenderingIconTarget;
+
+  /**
+   * Prevent cross-cluster edges from ranking nodes in layout.
+   * @see https://graphviz.org/docs/attrs/constraint/
+   * @default false
+   */
+  readonly unconstrainedCrossClusterEdges?: boolean;
+
+  /**
+   * Layout direction of the graph.
+   * @default horizontal
+   */
+  readonly layout?: "horizontal" | "vertical";
 }
 
 const DEFAULT_RENDERING: IGraphThemeRendering = {
@@ -304,26 +317,24 @@ function generateGraphThemeFromAwsTheme(
 /** Base graph attributes */
 const GRAPH_ATTRIBUTES: Dot.GraphAttributesObject = {
   ...GraphFonts.REGULAR,
-  stylesheet: FONT_STYLESHEET,
-  ratio: "fill",
-  orientation: "[lL]*",
-  size: "%512,%384!",
+  center: true,
+  compound: true,
+  concentrate: true,
   dpi: 300,
-  labelloc: "tc",
-  forcelabels: true,
-  splines: "ortho",
-  pad: "%2,%1",
-  nodesep: 0.6,
-  ranksep: 0.75,
+  fontcolor: "#222222",
   fontnames: "ps",
   fontsize: 14,
-  rankdir: "LR",
-  compound: true,
-  fontcolor: "#222222",
-  packmode: "array_t3",
-  center: true,
-  concentrate: true,
+  forcelabels: true,
+  labelloc: "tc",
+  nodesep: 0.6,
+  pad: "%2,%1",
+  rankdir: "TB",
+  ranksep: 0.75,
+  ratio: "compress",
   remincross: true,
+  size: "%1024,%1024!",
+  splines: "ortho",
+  stylesheet: FONT_STYLESHEET,
 };
 
 /** Base subgraph attributes */
@@ -353,6 +364,7 @@ const STAGE_ATTRIBUTES: Dot.SubgraphAttributesObject = {
   ...GraphFonts.BOLD_ITALIC,
   style: "dashed",
   margin: 6,
+  rank: "same",
 };
 
 /** Base stack attributes */

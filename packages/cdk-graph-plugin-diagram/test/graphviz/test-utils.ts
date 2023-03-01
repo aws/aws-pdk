@@ -31,7 +31,12 @@ export async function expectToMatchImageSnapshot(
   pixelThreshold?: number,
   failureThreshold?: number
 ): Promise<void> {
-  const image = await sharp(imagePath).toBuffer();
+  const image = await sharp(imagePath)
+    .resize({
+      width: 5120,
+      withoutEnlargement: true,
+    })
+    .toBuffer();
   // https://github.com/americanexpress/jest-image-snapshot#%EF%B8%8F-api
   expect(image).toMatchImageSnapshot({
     customSnapshotIdentifier({ currentTestName, counter, testPath }) {

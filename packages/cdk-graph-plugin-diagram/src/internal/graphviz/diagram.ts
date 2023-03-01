@@ -4,6 +4,7 @@ import { AwsArchitecture } from "@aws-prototyping-sdk/aws-arch";
 import {
   EdgeTypeEnum,
   FilterPreset,
+  FlagEnum,
   Graph,
   NodeTypeEnum,
   UUID,
@@ -162,7 +163,12 @@ export function buildDiagram(
         break;
       }
       default: {
-        entity = new Diagram.Node(gNode);
+        if (gNode.isLeaf) {
+          entity = new Diagram.Node(gNode);
+        } else {
+          entity = new Diagram.Cluster(gNode);
+          gNode.addFlag(FlagEnum.CLUSTER);
+        }
         break;
       }
     }
