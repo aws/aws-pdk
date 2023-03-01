@@ -1,6 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { CfnOutput, Stack, CustomResource } from "aws-cdk-lib";
+import { CfnOutput, Stack } from "aws-cdk-lib";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
@@ -8,6 +8,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as cr from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
 import { ENVIRONMENTS } from "./common";
 
@@ -121,6 +122,26 @@ export class NetworkLayer extends Construct {
       ],
     });
 
+    const getParameter = new cr.AwsCustomResource(this, "GetUserDataParam", {
+      onUpdate: {
+        service: "SSM",
+        action: "getParameter",
+        parameters: {
+          Name: "my-parameter",
+          WithEncryption: true,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of("GetUserDataParam"),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
+      }),
+    });
+
+    const parameterValue = getParameter.getResponseField("Parameter.Value");
+
+    const commandsUserData = ec2.UserData.forLinux();
+    commandsUserData.addCommands(`echo ${parameterValue}`);
+
     this.webServer = new ec2.Instance(this, "WebServer", {
       vpc,
       vpcSubnets: {
@@ -136,6 +157,7 @@ export class NetworkLayer extends Construct {
         generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
       }),
       keyName: "web-ec2-key-pair",
+      userData: commandsUserData,
     });
 
     this.bastion = new ec2.Instance(this, "Bastion", {
@@ -234,8 +256,8 @@ export class Website extends Construct {
       ],
     });
 
-    new CustomResource(this, "ConfigProvider", {
-      serviceToken: configHandler.functionArn,
+    new cr.Provider(this, "ConfigProvider", {
+      onEventHandler: configHandler,
     });
 
     this.webDistribution = new cloudfront.CloudFrontWebDistribution(

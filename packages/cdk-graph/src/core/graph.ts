@@ -1846,6 +1846,24 @@ export namespace Graph {
       }
     }
 
+    /**
+     * Move this node into a new parent node.
+     * @param {Node} newParent - The parent to move this node to.
+     * @destructive
+     */
+    mutateMove(newParent: Node): void {
+      this._preMutate();
+
+      if (this.parent) {
+        this.parent.mutateRemoveChild(this);
+        this.parent._mutateReconcileLinks();
+      }
+
+      newParent.addChild(this);
+      this._parent = newParent;
+      newParent._mutateReconcileLinks();
+    }
+
     /** Get string representation of this node */
     toString(): string {
       return `Node:${this.nodeType}::${this.uuid}`;
