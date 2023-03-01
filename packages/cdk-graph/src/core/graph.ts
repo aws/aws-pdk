@@ -1259,7 +1259,7 @@ export namespace Graph {
 
     /** Gets list of {@link Dependency} links (edges) where this node is the **target** */
     get reverseDependencyLinks(): Dependency[] {
-      return Array.from(this._links.values()).filter((link) => {
+      return Array.from(this._reverseLinks.values()).filter((link) => {
         return link.edgeType === EdgeTypeEnum.DEPENDENCY;
       }) as Dependency[];
     }
@@ -1273,7 +1273,7 @@ export namespace Graph {
 
     /** Gets list of {@link Reference} links (edges) where this node is the **target** */
     get reverseReferenceLinks(): Reference[] {
-      return Array.from(this._links.values()).filter((link) => {
+      return Array.from(this._reverseLinks.values()).filter((link) => {
         return link.edgeType === EdgeTypeEnum.REFERENCE;
       }) as Reference[];
     }
