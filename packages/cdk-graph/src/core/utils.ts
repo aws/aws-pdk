@@ -106,7 +106,7 @@ export function inferNodeProps(construct: Construct): InferredNodeProps {
 
   const constructInfo = constructInfoFromConstruct(construct);
 
-  const flags = inferFlags(construct, constructInfo);
+  const flags = inferFlags(construct, constructInfo, tags);
 
   return {
     uuid,
@@ -231,7 +231,8 @@ const AWS_PROVIDER_FUNCTION_UUID = "679f53fac002430cb0da5b7982bd2287";
 /** Infer construct flags  */
 export function inferFlags(
   construct: IConstruct,
-  constructInfo?: ConstructInfo
+  constructInfo?: ConstructInfo,
+  tags?: SerializedGraph.Tags
 ): FlagEnum[] {
   const flags: Set<FlagEnum> = new Set();
   const fqn = constructInfo?.fqn;
@@ -275,6 +276,19 @@ export function inferFlags(
     if (fqn === ConstructInfoFqnEnum.AWS_CUSTOM_RESOURCE) {
       flags.add(FlagEnum.AWS_CUSTOM_RESOURCE);
     }
+  }
+
+  // https://github.com/aws/aws-cdk/blob/37f031f1f1c41bbfb6f8e8a56f73b5966e365ff6/packages/%40aws-cdk/aws-s3/lib/bucket.ts#L21
+  if (tags && tags["aws-cdk:auto-delete-objects"] === "true") {
+    flags.add(FlagEnum.EXTRANEOUS);
+  }
+
+  if (
+    /^Custom::(CDK(BucketDeployment)|S3AutoDeleteObjects)/i.test(
+      construct.node.id
+    )
+  ) {
+    flags.add(FlagEnum.EXTRANEOUS);
   }
 
   return Array.from(flags.values());

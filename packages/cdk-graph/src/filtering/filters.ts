@@ -2,8 +2,8 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { ConstructOrder } from "constructs";
 import memoize = require("lodash.memoize"); // eslint-disable-line @typescript-eslint/no-require-imports
-import uniq = require("lodash.uniq"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { FilterStrategy, IGraphFilter, IGraphStoreFilter } from "./types";
+import { findReferencesOfSubGraph } from "./utils";
 import { FlagEnum, Graph, NodeTypeEnum } from "../core";
 
 /**
@@ -106,28 +106,80 @@ export namespace Filters {
         .forEach((customResource) => {
           if (customResource.isDestroyed) return;
 
+          customResource.mutateCollapse();
+
           if (
             !customResource.hasFlag(FlagEnum.AWS_CUSTOM_RESOURCE) &&
             !customResource.parent?.hasFlag(FlagEnum.AWS_CUSTOM_RESOURCE)
           ) {
-            uniq(
-              customResource.findAllLinks().filter(({ target }) => {
-                // Framework refs are nodes that are only referenced by the custom resource provider
-                const nonframeworkRefs = target.referencedBy.filter(
-                  (_ref) =>
-                    _ref !== customResource && _ref.isAncestor(customResource)
+            // Try to find resources that are utilized only for the custom resource
+            findReferencesOfSubGraph(customResource)
+              .filter((_ref, _index, _refs) => {
+                // ignore reference that are already children
+                if (
+                  _ref === customResource ||
+                  _ref.isAncestor(customResource)
+                ) {
+                  return false;
+                }
+                // ignore refs that either have references or are referenced by nodes outside the set of references
+                const _externalByRefs = _ref.referencedBy.filter(
+                  (_by) =>
+                    _by !== customResource && _by.isAncestor(customResource)
                 );
-
-                return nonframeworkRefs.length === 0;
+                if (
+                  new Set([..._refs, ..._ref.references, ..._externalByRefs])
+                    .size !== _refs.length
+                ) {
+                  return false;
+                }
+                return true;
               })
-            ).forEach(({ target: frameworkHandler }) => {
-              frameworkHandler.mutateMove(customResource);
-            });
+              .forEach((_ref) => _ref.mutateMove(customResource));
 
             customResource.mutateCollapse();
           }
+        });
+    };
+  }
 
-          customResource.mutateCollapse();
+  /**
+   * Prune Custom Resource nodes.
+   */
+  export function pruneCustomResources(): IGraphStoreFilter {
+    return (store) => {
+      store.root
+        .findAll({
+          predicate: (node) => {
+            return node.hasFlag(FlagEnum.CUSTOM_RESOURCE);
+          },
+        })
+        .forEach((customResource) => {
+          if (customResource.isDestroyed) return;
+
+          customResource.mutateDestroy();
+        });
+    };
+  }
+
+  /**
+   * Prune empty containers, which are non-resource default nodes without any children.
+   *
+   * Generally L3 constructs in which all children have already been pruned, which
+   * would be useful as containers, but without children are considered extraneous.
+   */
+  export function pruneEmptyContainers(): IGraphStoreFilter {
+    return (store) => {
+      store.root
+        .findAll({
+          predicate: (node) => {
+            return node.nodeType === NodeTypeEnum.DEFAULT && node.isLeaf;
+          },
+        })
+        .forEach((node) => {
+          if (node.isDestroyed) return;
+
+          node.mutateDestroy();
         });
     };
   }
@@ -140,10 +192,13 @@ export namespace Filters {
    * and reduces the noise one expects.
    *
    * Invokes:
-   * 1. {@link pruneExtraneous}
-   * 1. {@link collapseCdkOwnedResources}
-   * 1. {@link collapseCdkWrappers}
-   * 1. {@link collapseCustomResources}
+   * 1.
+   * 1. pruneExtraneous()(store);
+   * 1. collapseCdkOwnedResources()(store);
+   * 1. collapseCdkWrappers()(store);
+   * 1. collapseCustomResources()(store);
+   * 1. pruneCustomResources()(store);
+   * 1. pruneEmptyContainers()(store);
    *
    * @throws Error if store is not filterable
    * @destructive
@@ -151,10 +206,13 @@ export namespace Filters {
   export function compact(): IGraphStoreFilter {
     return (store) => {
       verifyFilterable(store);
+
       pruneExtraneous()(store);
       collapseCdkOwnedResources()(store);
       collapseCdkWrappers()(store);
       collapseCustomResources()(store);
+      pruneCustomResources()(store);
+      pruneEmptyContainers()(store);
     };
   }
 

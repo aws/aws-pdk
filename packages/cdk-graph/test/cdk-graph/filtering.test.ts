@@ -82,7 +82,8 @@ describe("cdk-graph/filtering", () => {
         expect(
           store.root.findAll({
             predicate: (node) =>
-              Graph.CfnResourceNode.isCfnResourceNode(node) && node.isWrapped,
+              Graph.CfnResourceNode.isCfnResourceNode(node) &&
+              node.resource?.isWrapper != null,
           }).length
         ).toBe(0);
       });
