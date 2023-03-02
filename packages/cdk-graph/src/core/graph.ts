@@ -1299,9 +1299,7 @@ export namespace Graph {
      * @see {@link Node.reverseReferenceLinks}
      */
     get referencedBy(): Node[] {
-      return uniq(
-        this.reverseReferenceLinks.flatMap((link) => link.resolveTargets())
-      );
+      return uniq(this.reverseReferenceLinks.flatMap((link) => link.source));
     }
 
     /**
@@ -1317,7 +1315,7 @@ export namespace Graph {
      * @see {@link Node.reverseDependencyLinks}
      */
     get dependedOnBy(): Node[] {
-      return uniq(this.reverseDependencyLinks.flatMap((link) => link.target));
+      return uniq(this.reverseDependencyLinks.flatMap((link) => link.source));
     }
 
     /** Indicates if this node is considered a {@link FlagEnum.GRAPH_CONTAINER} */
@@ -1751,6 +1749,10 @@ export namespace Graph {
       const links = this.links;
       for (const a of links) {
         if (a.isDestroyed) continue;
+        if (a.isClosed && a.edgeType !== EdgeTypeEnum.CUSTOM) {
+          a.mutateDestroy();
+          continue;
+        }
         for (const b of links) {
           if (a === b || b.isDestroyed) continue;
           if (a.isEquivalent(b)) {
@@ -1762,6 +1764,10 @@ export namespace Graph {
       const reverseLinks = this.reverseLinks;
       for (const a of reverseLinks) {
         if (a.isDestroyed) continue;
+        if (a.isClosed && a.edgeType !== EdgeTypeEnum.CUSTOM) {
+          a.mutateDestroy();
+          continue;
+        }
         for (const b of reverseLinks) {
           if (a === b || b.isDestroyed) continue;
           if (a.isEquivalent(b)) {
