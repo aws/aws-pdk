@@ -19,6 +19,7 @@ import {
   IDiagramConfig,
   IPluginConfig,
 } from "./config";
+import { IS_DEBUG } from "./internal/debug";
 import { buildDiagram } from "./internal/graphviz/diagram";
 import { invokeDotWasm } from "./internal/graphviz/dot-wasm";
 import { convertSvg } from "./internal/utils/svg";
@@ -163,6 +164,15 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
       const generatePng = formats.includes(DiagramFormat.PNG);
       const generateSvg = generatePng || formats.includes(DiagramFormat.SVG);
       const generateDot = generateSvg || formats.includes(DiagramFormat.DOT);
+
+      IS_DEBUG &&
+        context.writeArtifact(
+          this,
+          "filtered.graph." + config.name + "",
+          "debug/filtered-graph/" + config.name + ".json",
+          JSON.stringify(store.serialize(), null, 2),
+          "DEBUG"
+        );
 
       if (generateDot) {
         // Graphviz provider

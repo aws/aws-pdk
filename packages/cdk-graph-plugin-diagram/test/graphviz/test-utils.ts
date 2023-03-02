@@ -6,6 +6,7 @@ import * as fs from "fs-extra";
 import { toMatchImageSnapshot } from "jest-image-snapshot";
 import { kebabCase } from "lodash";
 import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
+import { IS_DEBUG } from "../../src/internal/debug";
 
 expect.extend({ toMatchImageSnapshot });
 
@@ -57,5 +58,6 @@ export async function expectToMatchImageSnapshot(
     // Allow a 1% difference in image for testing
     failureThreshold: failureThreshold || 0.01,
     failureThresholdType: "percent",
+    updatePassedSnapshot: process.env.CI !== "true" && IS_DEBUG,
   });
 }

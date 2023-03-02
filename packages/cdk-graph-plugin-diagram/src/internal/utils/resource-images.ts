@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { AwsArchitecture, aws_arch } from "@aws-prototyping-sdk/aws-arch";
-import { FlagEnum, Graph } from "@aws-prototyping-sdk/cdk-graph";
+import { Graph } from "@aws-prototyping-sdk/cdk-graph";
 import { GraphTheme, GraphThemeRenderingIconTarget } from "../graphviz/theme";
 
 /** Resolves CfnResource image from {@link AwsArchitecture} asset */
@@ -23,10 +23,7 @@ export function resolveResourceImage(
   let min = GraphTheme.instance.rendering.resourceIconMin;
   let max = GraphTheme.instance.rendering.resourceIconMax;
   // elevate min to service when wrapped cfn resource is rendered
-  if (
-    node.cfnResource &&
-    node.cfnResource.hasFlag(FlagEnum.WRAPPED_CFN_RESOURCE)
-  ) {
+  if (node.isWrapper) {
     min = GraphThemeRenderingIconTarget.SERVICE;
   }
   return _resolveResourceLikeImage(
@@ -55,65 +52,67 @@ function _resolveResourceLikeImage(
 ): string | undefined {
   const cfnResourceType = node.cfnType;
 
-  if (
-    min <= GraphThemeRenderingIconTarget.DATA &&
-    max >= GraphThemeRenderingIconTarget.DATA
-  ) {
-    const dataImage = _resolveResourceLikeDataImage(node, theme);
-    if (dataImage) {
-      return dataImage;
-    }
-  }
-
-  if (
-    min <= GraphThemeRenderingIconTarget.RESOURCE &&
-    max >= GraphThemeRenderingIconTarget.RESOURCE
-  ) {
-    try {
-      const resource = AwsArchitecture.getResource(cfnResourceType as any);
-      const resourceIcon = resource.getResourceIcon("svg", theme);
-      if (resourceIcon) {
-        return resourceIcon;
+  try {
+    if (
+      min <= GraphThemeRenderingIconTarget.DATA &&
+      max >= GraphThemeRenderingIconTarget.DATA
+    ) {
+      const dataImage = _resolveResourceLikeDataImage(node, theme);
+      if (dataImage) {
+        return dataImage;
       }
-      if (
-        min <= GraphThemeRenderingIconTarget.GENERAL &&
-        max >= GraphThemeRenderingIconTarget.GENERAL
-      ) {
-        const generalIcon = resource.getGeneralIcon("svg", theme);
-        if (generalIcon) {
-          return generalIcon;
+    } else if (max <= GraphThemeRenderingIconTarget.DATA) {
+      return;
+    }
+
+    const resource = AwsArchitecture.getResource(cfnResourceType as any);
+
+    if (
+      min <= GraphThemeRenderingIconTarget.RESOURCE &&
+      max >= GraphThemeRenderingIconTarget.RESOURCE
+    ) {
+      try {
+        const icon = resource.getResourceIcon("svg", theme);
+        if (icon) {
+          return icon;
         }
-      }
-    } catch {
-      // if there is no resource definition found, then there won't be a service or category which are resource based
-      return undefined;
+        if (
+          min <= GraphThemeRenderingIconTarget.GENERAL &&
+          max >= GraphThemeRenderingIconTarget.GENERAL
+        ) {
+          const generalIcon = resource.getGeneralIcon("svg", theme);
+          if (generalIcon) {
+            return generalIcon;
+          }
+        }
+      } catch {}
     }
-  }
 
-  if (
-    min <= GraphThemeRenderingIconTarget.SERVICE &&
-    max >= GraphThemeRenderingIconTarget.SERVICE
-  ) {
-    try {
-      return AwsArchitecture.getResource(cfnResourceType as any).getServiceIcon(
-        "svg",
-        theme
-      );
-    } catch {}
-  }
+    if (
+      min <= GraphThemeRenderingIconTarget.SERVICE &&
+      max >= GraphThemeRenderingIconTarget.SERVICE
+    ) {
+      try {
+        const icon = resource.getServiceIcon("svg", theme);
+        if (icon) {
+          return icon;
+        }
+      } catch {}
+    }
 
-  if (
-    min <= GraphThemeRenderingIconTarget.CATEGORY &&
-    max >= GraphThemeRenderingIconTarget.CATEGORY
-  ) {
-    try {
-      return AwsArchitecture.getResource(
-        cfnResourceType as any
-      ).getCategoryIcon("svg", theme);
-    } catch {}
-  }
+    if (
+      min <= GraphThemeRenderingIconTarget.CATEGORY &&
+      max >= GraphThemeRenderingIconTarget.CATEGORY
+    ) {
+      try {
+        return resource.getCategoryIcon("svg", theme);
+      } catch {}
+    }
 
-  return undefined;
+    return;
+  } catch {
+    return;
+  }
 }
 
 /** Resolves CfnResource image from {@link AwsArchitecture} asset */

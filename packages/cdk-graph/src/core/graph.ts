@@ -1238,6 +1238,14 @@ export namespace Graph {
       return ConstructInfoFqnEnum.CUSTOM_RESOURCE === this.constructInfoFqn;
     }
 
+    /**
+     * Indicates if node ConstructInfoFqn denotes a `aws-cdk-lib.*.Cfn*` construct.
+     * @see {@link FlagEnum.CFN_FQN}
+     */
+    get isCfnFqn(): boolean {
+      return this.hasFlag(FlagEnum.CFN_FQN);
+    }
+
     /** Gets CloudFormation properties for this node */
     get cfnProps(): SerializedGraph.PlainObject | undefined {
       return this.attributes[CfnAttributesEnum.PROPS] as
@@ -1330,10 +1338,7 @@ export namespace Graph {
         this.hasFlag(FlagEnum.EXTRANEOUS) || (this.isCluster && this.isLeaf)
       );
     }
-    /** Indicates if this node is considered a {@link FlagEnum.RESOURCE_WRAPPER} */
-    get isResourceWrapper(): boolean {
-      return this.hasFlag(FlagEnum.RESOURCE_WRAPPER);
-    }
+
     /** Indicates if this node is considered a {@link FlagEnum.ASSET} */
     get isAsset(): boolean {
       return this.hasFlag(FlagEnum.ASSET);
@@ -1653,6 +1658,8 @@ export namespace Graph {
         child.mutateCollapseToParent();
       });
 
+      this._mutateReconcileLinks();
+
       // redirect all links to parent
       // while also deleting links to parent
       this.links.forEach((link) => {
@@ -1947,7 +1954,12 @@ export namespace Graph {
       return this.hasFlag(FlagEnum.CDK_OWNED);
     }
 
-    /** Get the L1 cdk resource that this L2 resource wraps */
+    /** Indicates if Resource wraps a single CfnResource */
+    get isWrapper(): boolean {
+      return this.children.length === 1 && this.cfnResource !== undefined;
+    }
+
+    /** Get the default/primary CfnResource that this Resource wraps */
     get cfnResource(): CfnResourceNode | undefined {
       if (this._cfnResource !== undefined) {
         if (this._cfnResource && this._cfnResource.isDestroyed)
@@ -1970,14 +1982,12 @@ export namespace Graph {
         return defaultNode;
       }
 
-      const childCfnResources = this.children.filter((node) => {
-        return (
-          CfnResourceNode.isCfnResourceNode(node) && node.isEquivalentFqn(this)
-        );
-      }) as CfnResourceNode[];
-      if (childCfnResources.length === 1) {
-        this._cfnResource = childCfnResources[0];
-        return childCfnResources[0];
+      if (this.isCdkOwned && this.children.length === 1) {
+        const child = this.children[0];
+        if (CfnResourceNode.isCfnResourceNode(child)) {
+          this._cfnResource = child;
+          return child;
+        }
       }
 
       // prevent looking up again by setting to `null`
@@ -2032,6 +2042,9 @@ export namespace Graph {
       return node.nodeType === NodeTypeEnum.CFN_RESOURCE;
     }
 
+    /** @internal */
+    private _resource?: ResourceNode;
+
     constructor(props: ICfnResourceNodeProps) {
       super({
         nodeType: NodeTypeEnum.CFN_RESOURCE,
@@ -2056,27 +2069,23 @@ export namespace Graph {
           this
         );
       }
+
+      this._resource = this._findNearestResource();
     }
 
-    /**
-     * Gets the ResourceNode (L2) that wraps this CfnResourceNode (L1)
-     */
-    get wrapper(): ResourceNode | undefined {
-      const resource = this.findNearestResource();
-      if (resource?.cfnResource === this) {
-        return resource;
-      }
-      return undefined;
-    }
-
-    /** Indicates if this CfnResource is wrapped by L2 ResourceNode */
-    get isWrapped(): boolean {
-      return !!this.wrapper;
+    /** @inheritdoc */
+    get isExtraneous(): boolean {
+      return super.isExtraneous || this.resource != null;
     }
 
     /** Indicates if this CfnResource is imported (eg: `s3.Bucket.fromBucketArn`) */
     get isImport(): boolean {
       return this.hasFlag(FlagEnum.IMPORT);
+    }
+
+    /** Reference to the L2 Resource that wraps this L1 CfnResource if it is wrapped. */
+    get resource(): ResourceNode | undefined {
+      return this._resource;
     }
 
     /**
@@ -2102,8 +2111,9 @@ export namespace Graph {
 
     /**
      * Finds the near *ancestor* that is a {@link ResourceNode}
+     * @internal
      */
-    findNearestResource(): ResourceNode | undefined {
+    private _findNearestResource(): ResourceNode | undefined {
       return this.scopes
         .slice()
         .reverse()
@@ -2116,14 +2126,14 @@ export namespace Graph {
      * @inheritdoc
      */
     mutateDestroy(strict?: boolean): void {
-      const _wrapper = this.wrapper;
-      if (_wrapper) {
-        _wrapper.setAttribute(ResourceNode.ATT_WRAPPED_CFN_TYPE, this.cfnType);
-        _wrapper.setAttribute(
+      const resource = this.resource;
+      if (resource?.cfnResource === this) {
+        resource.setAttribute(ResourceNode.ATT_WRAPPED_CFN_TYPE, this.cfnType);
+        resource.setAttribute(
           ResourceNode.ATT_WRAPPED_CFN_PROPS,
           this.cfnProps
         );
-        _wrapper.mutateCfnResource(undefined);
+        resource.mutateCfnResource(undefined);
       }
 
       super.mutateDestroy(strict);

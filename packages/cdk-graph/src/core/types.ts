@@ -162,18 +162,21 @@ export enum FlagEnum {
   GRAPH_CONTAINER = "GRAPH_CONTAINER",
   /** Indicates that the entity is extraneous and considered collapsible to parent without impact of intent. */
   EXTRANEOUS = "EXTRANEOUS",
-  /** Indicates node is a simple CfnResource wrapper and can be collapsed without change of intent; Determined by only containing a single child of "Default" or "Resource" */
-  RESOURCE_WRAPPER = "RESOURCE_WRAPPER",
   /** Indicates node is considered a CDK Asset (Lambda Code, Docker Image, etc). */
   ASSET = "ASSET",
-  /** Indicates that node was created by CDK (`construct.node.defaultChild === CfnResource`). */
+  /**
+   * Indicates that node was created by CDK.
+   * @see https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.Resource.html#static-iswbrownedwbrresourceconstruct
+   */
   CDK_OWNED = "CDK_OWNED",
+  /**
+   * Indicates node ConstructInfoFqn denotes a `aws-cdk-lib.*.Cfn*` construct.
+   */
+  CFN_FQN = "CFN_FQN",
   /** Indicates that edge is closed; meaning `source === target`. This flag only gets applied on creation of edge, not during mutations to maintain initial intent. */
   CLOSED_EDGE = "CLOSED_EDGE",
   /** Indicates that entity was mutated; meaning a mutation was performed to change originally computed graph value. */
   MUTATED = "MUTATED",
-  /** Indicates that cfn resource has equivalent cdk resource wrapper. (eg: Lambda => CfnLambda) */
-  WRAPPED_CFN_RESOURCE = "WRAPPED_CFN_RESOURCE",
   /** Indicates that resource is imported into CDK (eg: `lambda.Function.fromFunctionName()`, `s3.Bucket.fromBucketArn()`) */
   IMPORT = "IMPORT",
   /**
