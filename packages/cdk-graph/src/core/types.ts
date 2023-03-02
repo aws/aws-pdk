@@ -37,6 +37,9 @@ export enum ConstructInfoFqnEnum {
   LAMBDA_ALIAS = "aws-cdk-lib.aws_lambda.Alias",
   CFN_LAMBDA_ALIAS = "aws-cdk-lib.aws_lambda.CfnAlias",
   LAMBDA_BASE = "aws-cdk-lib.aws_lambda.FunctionBase",
+  LAMBDA_SINGLETON = "aws-cdk-lib.aws_lambda.SingletonFunction",
+  LAMBDA_LAYER_AWSCLI = "aws-cdk-lib.lambda_layer_awscli.AwsCliLayer",
+  CFN_LAMBDA_PERMISSIONS = "aws-cdk-lib.aws_lambda.CfnPermission",
   // Assets
   ASSET_STAGING = "aws-cdk-lib.AssetStaging",
   S3_ASSET = "aws-cdk-lib.aws_s3_assets.Asset",
@@ -52,6 +55,8 @@ export enum ConstructInfoFqnEnum {
   CFN_PRIVATE_SUBNET = "aws-cdk-lib.aws_ec2.CfnPrivateSubnet",
   PUBLIC_SUBNET = "aws-cdk-lib.aws_ec2.PublicSubnet",
   CFN_PUBLIC_SUBNET = "aws-cdk-lib.aws_ec2.CfnPublicSubnet",
+  // IAM
+  IAM_ROLE = "aws-cdk-lib.aws_iam.Role",
 }
 
 /** Fqns that denote a cdk asset */
@@ -69,6 +74,9 @@ export const ExtraneousFqns = [
   ConstructInfoFqnEnum.LAMBDA_ALIAS,
   ConstructInfoFqnEnum.CFN_LAMBDA_ALIAS,
   ConstructInfoFqnEnum.LAMBDA_BASE,
+  ConstructInfoFqnEnum.LAMBDA_SINGLETON,
+  ConstructInfoFqnEnum.LAMBDA_LAYER_AWSCLI,
+  ConstructInfoFqnEnum.CFN_LAMBDA_PERMISSIONS,
 ];
 
 /** Fqns that denote CDK CustomResources */
@@ -78,6 +86,14 @@ export const CustomResourceFqns = [
   ConstructInfoFqnEnum.CUSTOM_RESOURCE_PROVIDER,
   ConstructInfoFqnEnum.CUSTOM_RESOURCE_PROVIDER_2,
 ];
+
+/**
+ * Enum of specific Cfn Resource Types
+ * @internal
+ */
+export enum CfnResourceTypes {
+  CUSTOM_RESOURCE = "AWS::CloudFormation::CustomResource",
+}
 
 /** Common cfn attribute keys */
 export enum CfnAttributesEnum {

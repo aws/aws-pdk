@@ -8,10 +8,16 @@ import { GraphTheme, GraphThemeRenderingIconTarget } from "../graphviz/theme";
 export function resolveCfnResourceImage(
   node: Graph.CfnResourceNode
 ): string | undefined {
+  let min = GraphTheme.instance.rendering.resourceIconMin;
+  let max = GraphTheme.instance.rendering.resourceIconMax;
+  // lower max to general when wrapped cfn resource is rendered as wrapper will show service icon
+  if (node.resource?.isWrapper) {
+    min = GraphThemeRenderingIconTarget.SERVICE;
+  }
   return _resolveResourceLikeImage(
     node,
-    GraphTheme.instance.rendering.cfnResourceIconMin,
-    GraphTheme.instance.rendering.cfnResourceIconMax,
+    min,
+    max,
     GraphTheme.instance.awsTheme?.id
   );
 }

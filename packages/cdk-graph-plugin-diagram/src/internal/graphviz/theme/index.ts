@@ -118,7 +118,7 @@ const DEFAULT_RENDERING: IGraphThemeRenderingInternal = {
   resourceIconMin: GraphThemeRenderingIconTarget.DATA,
   resourceIconMax: GraphThemeRenderingIconTarget.CATEGORY,
   cfnResourceIconMin: GraphThemeRenderingIconTarget.DATA,
-  cfnResourceIconMax: GraphThemeRenderingIconTarget.GENERAL,
+  cfnResourceIconMax: GraphThemeRenderingIconTarget.SERVICE,
 } as const;
 
 /** GraphTheme definition */

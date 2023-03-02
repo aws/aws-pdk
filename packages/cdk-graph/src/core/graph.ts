@@ -20,6 +20,7 @@ import {
   FlagEnum,
   EdgeDirectionEnum,
   CdkConstructIds,
+  CfnResourceTypes,
 } from "./types";
 import { tokenizeImportArn } from "./utils";
 import { ConstructInfo } from "../cdk-internals";
@@ -1951,7 +1952,8 @@ export namespace Graph {
       return (
         super.cfnType ||
         this.getAttribute(ResourceNode.ATT_WRAPPED_CFN_TYPE) ||
-        this.cfnResource?.cfnType
+        this.cfnResource?.cfnType ||
+        (this.isCustomResource ? CfnResourceTypes.CUSTOM_RESOURCE : undefined)
       );
     }
 
