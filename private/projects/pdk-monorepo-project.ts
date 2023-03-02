@@ -190,6 +190,14 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     );
 
     this.testTask.spawn(gitSecretsScanTask);
+
+    this.addTask("dev:workspace:link", {
+      exec: "./scripts/dev/link-workspace.js link",
+    });
+
+    this.addTask("dev:workspace:unlink", {
+      exec: "./scripts/dev/link-workspace.js unlink",
+    });
   }
 
   /**
