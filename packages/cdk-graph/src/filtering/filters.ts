@@ -58,17 +58,16 @@ export namespace Filters {
    */
   export function collapseCdkOwnedResources(): IGraphStoreFilter {
     return (store) => {
-      const cdkOwnedContainers = store.root.findAll({
-        order: ConstructOrder.POSTORDER,
-        predicate: (node) =>
-          node.hasFlag(FlagEnum.CDK_OWNED) &&
-          !node.parent?.hasFlag(FlagEnum.CDK_OWNED),
-      });
-      // collapse all cdk owned containers
-      // NB: collapses the graph more closely mirror what developer writes, not what is auto created by cdk
-      for (const cdkOwnedContainer of cdkOwnedContainers) {
-        cdkOwnedContainer.mutateCollapse();
-      }
+      store.root
+        .findAll({
+          order: ConstructOrder.POSTORDER,
+          predicate: (node) =>
+            Graph.ResourceNode.isResourceNode(node) && node.isCdkOwned,
+        })
+        .forEach((node) => {
+          if (node.isDestroyed) return;
+          node.mutateCollapse();
+        });
     };
   }
 
@@ -84,7 +83,7 @@ export namespace Filters {
       }) as Graph.ResourceNode[];
       // collapse all cfnResource wrapped by cdk resource
       for (const cdkResource of cdkResources) {
-        if (cdkResource.isResourceWrapper) {
+        if (cdkResource.isWrapper) {
           cdkResource.mutateCollapse();
         } else if (cdkResource.cfnResource) {
           cdkResource.cfnResource.mutateCollapseToParent();

@@ -15,7 +15,6 @@ import shorthash = require("shorthash2"); // eslint-disable-line @typescript-esl
 import traverse = require("traverse"); // eslint-disable-line @typescript-eslint/no-require-imports
 import {
   AssetFqns,
-  CdkConstructIds,
   CfnAttributesEnum,
   ConstructInfoFqnEnum,
   CustomResourceFqns,
@@ -249,15 +248,8 @@ export function inferFlags(
     }
   }
 
-  if (construct.node.children.length === 1) {
-    const onlyChild = construct.node.children[0];
-    if (
-      [CdkConstructIds.RESOURCE, CdkConstructIds.DEFAULT].includes(
-        onlyChild.node.id as any
-      )
-    ) {
-      flags.add(FlagEnum.RESOURCE_WRAPPER);
-    }
+  if (fqn && _isCfnFqn(fqn)) {
+    flags.add(FlagEnum.CFN_FQN);
   }
 
   if (construct.node.id === "Exports" && Stack.isStack(construct.node.scope)) {
@@ -379,4 +371,9 @@ export function inferImportCfnType(
   }
 
   return undefined;
+}
+
+/** @internal */
+function _isCfnFqn(fqn: string): boolean {
+  return /^aws-cdk-lib\.[^.]+\.Cfn[^.]+$/.test(fqn);
 }

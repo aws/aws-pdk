@@ -265,17 +265,6 @@ export function computeGraph(root: IConstruct): Graph.Store {
           });
         } else if (cfnType) {
           node = new Graph.CfnResourceNode(nodeProps);
-          const ancestralResourceNode =
-            node.findAncestor(Graph.ResourceNode.isResourceNode, 2) || parent;
-          if (
-            Graph.ResourceNode.isResourceNode(ancestralResourceNode) &&
-            (node as Graph.CfnResourceNode).isEquivalentFqn(
-              ancestralResourceNode
-            )
-          ) {
-            node.addFlag(FlagEnum.WRAPPED_CFN_RESOURCE);
-            node.addFlag(FlagEnum.EXTRANEOUS);
-          }
         } else {
           node = new Graph.Node({
             nodeType: NodeTypeEnum.DEFAULT,
