@@ -458,6 +458,7 @@ export class NxMonorepoProject extends TypeScriptProject {
         .map((project) => project.name)
         .join(",")} --parallel=1`
     );
+    this.defaultTask?.spawn(monorepoInstallTask);
 
     // Update the nx.json to ensure that install-py follows dependency order
     this.nxJson.addOverride("targetDependencies.install-py", [
