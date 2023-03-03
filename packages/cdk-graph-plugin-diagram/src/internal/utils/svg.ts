@@ -42,7 +42,8 @@ export async function convertSvgImageDefsFromSvgToPng(
     const png = sharp(
       AwsArchitecture.resolveAssetPath(
         AwsArchitecture.formatAssetPath(assetKey, "png")
-      )
+      ),
+      { limitInputPixels: false }
     );
     const pngBuffer = await png
       .resize({
@@ -66,7 +67,7 @@ export async function convertSvg(
   outputFile: string
 ): Promise<void> {
   const resolvedSvg = await convertSvgImageDefsFromSvgToPng(svgString);
-  await sharp(Buffer.from(resolvedSvg))
+  await sharp(Buffer.from(resolvedSvg), { limitInputPixels: false })
     .trim({ background: "transparent" })
     .toFile(outputFile);
 }
@@ -275,7 +276,7 @@ export function reconcileViewBox(svg: svgson.INode): string {
   };
 
   // Max allowed by sharp: https://github.com/lovell/sharp/blob/2c465282699432299c478ba00ab825e07d9bdab0/src/pipeline.cc#L288
-  const MAX_SVG = 32760; // 32767 is max, but leaving a small buffer
+  const MAX_SVG = 10000; // 32767 is max width & height in sharp, but capping at 10k for perf and downscale huge diagrams
 
   if (scaledViewBox.width && scaledViewBox.width > MAX_SVG) {
     const downscale = MAX_SVG / scaledViewBox.width;

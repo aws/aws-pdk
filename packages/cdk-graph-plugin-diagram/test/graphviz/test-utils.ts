@@ -32,14 +32,12 @@ export async function expectToMatchImageSnapshot(
   pixelThreshold?: number,
   failureThreshold?: number
 ): Promise<void> {
-  const image = await sharp(imagePath)
-    .resize({
-      width: 5120,
-      withoutEnlargement: true,
-    })
+  const image = sharp(imagePath, { limitInputPixels: false });
+  const imageBuffer = await image
+    .resize({ width: 5120, withoutEnlargement: true })
     .toBuffer();
   // https://github.com/americanexpress/jest-image-snapshot#%EF%B8%8F-api
-  expect(image).toMatchImageSnapshot({
+  expect(imageBuffer).toMatchImageSnapshot({
     customSnapshotIdentifier({ currentTestName, counter, testPath }) {
       const dir = testPath.replace(__dirname, "").split(".")[0];
       if (name) {
