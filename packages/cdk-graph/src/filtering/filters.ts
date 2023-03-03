@@ -79,14 +79,13 @@ export namespace Filters {
     return (store) => {
       const cdkResources = store.root.findAll({
         order: ConstructOrder.POSTORDER,
-        predicate: (node) => Graph.ResourceNode.isResourceNode(node),
+        predicate: (node) =>
+          Graph.ResourceNode.isResourceNode(node) && !node.isLeaf,
       }) as Graph.ResourceNode[];
       // collapse all cfnResource wrapped by cdk resource
       for (const cdkResource of cdkResources) {
         if (cdkResource.isWrapper) {
           cdkResource.mutateCollapse();
-        } else if (cdkResource.cfnResource) {
-          cdkResource.cfnResource.mutateCollapseToParent();
         }
       }
     };
@@ -108,34 +107,21 @@ export namespace Filters {
 
           customResource.mutateCollapse();
 
+          // const REF_FQN = /^aws-cdk-lib\.aws-(iam|lambda)/
+
           if (
             !customResource.hasFlag(FlagEnum.AWS_CUSTOM_RESOURCE) &&
             !customResource.parent?.hasFlag(FlagEnum.AWS_CUSTOM_RESOURCE)
           ) {
+            let crId = customResource.id;
+            if (crId !== "Provider" && crId.endsWith("Provider")) {
+              crId = crId.replace(/Provider$/, "");
+            }
             // Try to find resources that are utilized only for the custom resource
-            findReferencesOfSubGraph(customResource)
-              .filter((_ref, _index, _refs) => {
-                // ignore reference that are already children
-                if (
-                  _ref === customResource ||
-                  _ref.isAncestor(customResource)
-                ) {
-                  return false;
-                }
-                // ignore refs that either have references or are referenced by nodes outside the set of references
-                const _externalByRefs = _ref.referencedBy.filter(
-                  (_by) =>
-                    _by !== customResource && _by.isAncestor(customResource)
-                );
-                if (
-                  new Set([..._refs, ..._ref.references, ..._externalByRefs])
-                    .size !== _refs.length
-                ) {
-                  return false;
-                }
-                return true;
-              })
-              .forEach((_ref) => _ref.mutateMove(customResource));
+            findReferencesOfSubGraph(customResource, 3, (node) => {
+              return node.id.includes(crId);
+              // return false && /^aws-cdk-lib\.(aws_)?(iam|lambda)/.test(node.constructInfoFqn || "")
+            }).forEach((_ref) => _ref.mutateMove(customResource));
 
             customResource.mutateCollapse();
           }
@@ -173,7 +159,11 @@ export namespace Filters {
       store.root
         .findAll({
           predicate: (node) => {
-            return node.nodeType === NodeTypeEnum.DEFAULT && node.isLeaf;
+            if (node.nodeType !== NodeTypeEnum.DEFAULT) return false;
+            if (!node.isLeaf) return false;
+            if (node.cfnType) return false;
+            if (node.constructInfoFqn?.startsWith("aws-cdk-lib.")) return false;
+            return true;
           },
         })
         .forEach((node) => {
@@ -197,7 +187,7 @@ export namespace Filters {
    * 1. collapseCdkOwnedResources()(store);
    * 1. collapseCdkWrappers()(store);
    * 1. collapseCustomResources()(store);
-   * 1. pruneCustomResources()(store);
+   * 1. ~pruneCustomResources()(store);~
    * 1. pruneEmptyContainers()(store);
    *
    * @throws Error if store is not filterable
@@ -211,7 +201,8 @@ export namespace Filters {
       collapseCdkOwnedResources()(store);
       collapseCdkWrappers()(store);
       collapseCustomResources()(store);
-      pruneCustomResources()(store);
+      // TODO: decide if we should prune custom resources in "compact"
+      // pruneCustomResources()(store);
       pruneEmptyContainers()(store);
     };
   }
