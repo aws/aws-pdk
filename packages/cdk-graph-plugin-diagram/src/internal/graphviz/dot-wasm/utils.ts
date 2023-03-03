@@ -52,10 +52,7 @@ export async function resolveSvg(svgString: string): Promise<string> {
   // The resulting svg from graphviz (both dot and dot-wasm) have incorrect viewBox and width/height attributes
   // viewBox="0.00 0.00 494.00 508.00" => viewBox="0 0 2058.33498 2116.66836"
   // from container with transform="scale(4.16667 4.16667) rotate(0) translate(4 504)"
-  svg.attributes.viewBox = reconcileViewBox(svg);
-  // drop width/height to ensure only reconciled viewbox is used
-  delete svg.attributes.width;
-  delete svg.attributes.height;
+  reconcileViewBox(svg);
 
   addGraphFontCssStyles(svg);
 

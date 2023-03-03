@@ -245,29 +245,32 @@ export interface SvgViewBox {
 
 /**
  * Reconcile svg viewBox attribute based on root container ([g](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g)) scale.
+ *
+ * This will modify the viewbox and root container in place.
  * @param svg Svg to reconcile
- * @returns Returns the reconciled `viewBox` attribute value, or original if no scaling available on container
  * @throws Error if svg does not define `viewBox` attribute
  * @internal
  */
-export function reconcileViewBox(svg: svgson.INode): string {
+export function reconcileViewBox(svg: svgson.INode): void {
   const viewBox = parseSvgViewBox(svg);
   if (viewBox == null || !viewBox.width || !viewBox.height) {
     throw new Error("Svg `viewBox` undefined or does not define dimensions");
   }
+
+  // drop width/height to ensure only reconciled viewbox is used
+  delete svg.attributes.width;
+  delete svg.attributes.height;
+
   const container = getSvgRootContainer(svg);
   if (container == null) {
-    return stringifySvgViewBox(viewBox);
+    return;
   }
 
   // let [x, y, width, height] = viewBox.split(" ").map((v) => parseFloat(v)) as [number, number, number, number];
-  const scale = parseSvgTransformScale(container);
+  let scale = parseSvgTransformScale(container);
   if (scale == null) {
-    return stringifySvgViewBox(viewBox);
+    return;
   }
-
-  // const [scale0, scale1] = (transformScale.split(" ")).map((v) => parseFloat(v));
-  // container.attributes.comment = `scope: ${scale0} ${scale1}`
 
   let scaledViewBox: SvgViewBox = {
     ...viewBox,
@@ -287,6 +290,8 @@ export function reconcileViewBox(svg: svgson.INode): string {
         ? scaledViewBox.height * downscale
         : undefined,
     };
+    if (scale[0]) scale[0] *= downscale;
+    if (scale[1]) scale[1] *= downscale;
   }
 
   if (scaledViewBox.height && scaledViewBox.height > MAX_SVG) {
@@ -296,9 +301,18 @@ export function reconcileViewBox(svg: svgson.INode): string {
       height: scaledViewBox.height * downscale,
       width: scaledViewBox.width ? scaledViewBox.width * downscale : undefined,
     };
+    if (scale[0]) scale[0] *= downscale;
+    if (scale[1]) scale[1] *= downscale;
   }
 
-  return stringifySvgViewBox(scaledViewBox);
+  svg.attributes.viewBox = stringifySvgViewBox(scaledViewBox);
+  if (scale[0] || scale[1]) {
+    const _scale = scale.filter((v) => v != null && !isNaN(v)).join(" ");
+    container.attributes.transform = container.attributes.transform.replace(
+      CSS_TRANSFORM_SCALE,
+      `scale(${_scale})`
+    );
+  }
 }
 
 /**
