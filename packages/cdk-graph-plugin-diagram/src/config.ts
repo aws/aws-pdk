@@ -100,5 +100,4 @@ export const CONFIG_DEFAULTS: IDiagramConfigBase = {
 export const DEFAULT_DIAGRAM: IDiagramConfig = {
   name: DEFAULT_DIAGRAM_NAME,
   title: DEFAULT_DIAGRAM_TITLE,
-  ...CONFIG_DEFAULTS,
 };
