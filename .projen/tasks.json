@@ -2,25 +2,11 @@
   "tasks": {
     "build": {
       "name": "build",
-      "description": "Full release build",
+      "description": "Full release build for all affected projects",
       "steps": [
         {
-          "spawn": "default"
-        },
-        {
-          "spawn": "pre-compile"
-        },
-        {
-          "spawn": "compile"
-        },
-        {
-          "spawn": "post-compile"
-        },
-        {
-          "spawn": "test"
-        },
-        {
-          "spawn": "package"
+          "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+          "receiveArgs": true
         }
       ]
     },
@@ -58,7 +44,13 @@
     },
     "compile": {
       "name": "compile",
-      "description": "Only compile"
+      "description": "Only compile for all affected projects",
+      "steps": [
+        {
+          "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+          "receiveArgs": true
+        }
+      ]
     },
     "default": {
       "name": "default",
@@ -102,10 +94,11 @@
     },
     "eslint": {
       "name": "eslint",
-      "description": "Runs eslint against the codebase",
+      "description": "Runs eslint against the codebase for all affected projects",
       "steps": [
         {
-          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern projects private test build-tools projenrc .projenrc.ts"
+          "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+          "receiveArgs": true
         }
       ]
     },
@@ -136,15 +129,33 @@
     },
     "package": {
       "name": "package",
-      "description": "Creates the distribution package"
+      "description": "Creates the distribution package for all affected projects",
+      "steps": [
+        {
+          "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+          "receiveArgs": true
+        }
+      ]
     },
     "post-compile": {
       "name": "post-compile",
-      "description": "Runs after successful compilation"
+      "description": "Runs after successful compilation for all affected projects",
+      "steps": [
+        {
+          "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+          "receiveArgs": true
+        }
+      ]
     },
     "pre-compile": {
       "name": "pre-compile",
-      "description": "Prepare the project for compilation"
+      "description": "Prepare the project for compilation for all affected projects",
+      "steps": [
+        {
+          "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+          "receiveArgs": true
+        }
+      ]
     },
     "prepare": {
       "name": "prepare",
@@ -154,10 +165,33 @@
         }
       ]
     },
+    "run-many": {
+      "name": "run-many",
+      "description": "Run task against multiple workspace projects",
+      "steps": [
+        {
+          "exec": "npx nx run-many",
+          "receiveArgs": true
+        }
+      ]
+    },
+    "synth-workspace": {
+      "name": "synth-workspace",
+      "description": "Synthesize workspace",
+      "steps": [
+        {
+          "exec": "npx projen"
+        }
+      ]
+    },
     "test": {
       "name": "test",
-      "description": "Run tests",
+      "description": "Run tests for all affected projects",
       "steps": [
+        {
+          "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+          "receiveArgs": true
+        },
         {
           "spawn": "git-secrets-scan"
         }
@@ -182,10 +216,11 @@
     },
     "watch": {
       "name": "watch",
-      "description": "Watch & compile in the background",
+      "description": "Watch & compile in the background for all affected projects",
       "steps": [
         {
-          "exec": "tsc --build -w"
+          "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+          "receiveArgs": true
         }
       ]
     }

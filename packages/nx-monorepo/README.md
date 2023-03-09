@@ -94,7 +94,8 @@ Run `npx projen` from the root directory. You will now notice a new Python packa
 
 To visualize our dependency graph, run the following command from the root directory: `npx nx graph`.
 
-Now lets test building our project, from the root directory run `npx nx run-many --target=build --all`. As you can see, the pythonlib was built first followed by the cicd package.
+Now lets test building our project, from the root directory run `npx nx run-many --target=build --nx-bail`. As you can see, the pythonlib was built first followed by the cicd package.
+> This is equivalent to running `yarn build`, `pnpm build`, or `npm run build` depending on your node package manager, and similarly `yarn build` also accepts the same [Nx Run-Many options](https://nx.dev/packages/nx/documents/run-many#options) (eg: `yarn build --projects=cicd`).
 
 The NxMonorepoProject also manages your yarn/pnpm workspaces for you and synthesizes these into your package.json pnpm-workspace.yml respectively.
 

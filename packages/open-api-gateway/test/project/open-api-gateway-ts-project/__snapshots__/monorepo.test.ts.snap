@@ -406,26 +406,12 @@ target
     },
     "tasks": Object {
       "build": Object {
-        "description": "Full release build",
+        "description": "Full release build for all affected projects",
         "name": "build",
         "steps": Array [
           Object {
-            "spawn": "default",
-          },
-          Object {
-            "spawn": "pre-compile",
-          },
-          Object {
-            "spawn": "compile",
-          },
-          Object {
-            "spawn": "post-compile",
-          },
-          Object {
-            "spawn": "test",
-          },
-          Object {
-            "spawn": "package",
+            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -462,8 +448,14 @@ target
         ],
       },
       "compile": Object {
-        "description": "Only compile",
+        "description": "Only compile for all affected projects",
         "name": "compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "default": Object {
         "description": "Synthesize project files",
@@ -490,11 +482,12 @@ target
         ],
       },
       "eslint": Object {
-        "description": "Runs eslint against the codebase",
+        "description": "Runs eslint against the codebase for all affected projects",
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern . test build-tools projenrc .projenrc.ts",
+            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -507,24 +500,67 @@ target
         ],
       },
       "package": Object {
-        "description": "Creates the distribution package",
+        "description": "Creates the distribution package for all affected projects",
         "name": "package",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "post-compile": Object {
-        "description": "Runs after successful compilation",
+        "description": "Runs after successful compilation for all affected projects",
         "name": "post-compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
       },
       "pre-compile": Object {
-        "description": "Prepare the project for compilation",
+        "description": "Prepare the project for compilation for all affected projects",
         "name": "pre-compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "run-many": Object {
+        "description": "Run task against multiple workspace projects",
+        "name": "run-many",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "synth-workspace": Object {
+        "description": "Synthesize workspace",
+        "name": "synth-workspace",
+        "steps": Array [
+          Object {
+            "exec": "npx projen",
+          },
+        ],
       },
       "test": Object {
-        "description": "Run tests",
+        "description": "Run tests for all affected projects",
         "name": "test",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "upgrade": Object {
         "description": "upgrade dependencies",
@@ -583,11 +619,12 @@ target
         ],
       },
       "watch": Object {
-        "description": "Watch & compile in the background",
+        "description": "Watch & compile in the background for all affected projects",
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "tsc --build -w",
+            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -918,6 +955,8 @@ target
       "post-upgrade": "npx projen post-upgrade",
       "pre-compile": "npx projen pre-compile",
       "projen": "npx projen",
+      "run-many": "npx projen run-many",
+      "synth-workspace": "npx projen synth-workspace",
       "test": "npx projen test",
       "upgrade": "npx projen upgrade",
       "upgrade-deps": "npx projen upgrade-deps",
@@ -17896,26 +17935,12 @@ target
     },
     "tasks": Object {
       "build": Object {
-        "description": "Full release build",
+        "description": "Full release build for all affected projects",
         "name": "build",
         "steps": Array [
           Object {
-            "spawn": "default",
-          },
-          Object {
-            "spawn": "pre-compile",
-          },
-          Object {
-            "spawn": "compile",
-          },
-          Object {
-            "spawn": "post-compile",
-          },
-          Object {
-            "spawn": "test",
-          },
-          Object {
-            "spawn": "package",
+            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -17952,8 +17977,14 @@ target
         ],
       },
       "compile": Object {
-        "description": "Only compile",
+        "description": "Only compile for all affected projects",
         "name": "compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "default": Object {
         "description": "Synthesize project files",
@@ -17980,11 +18011,12 @@ target
         ],
       },
       "eslint": Object {
-        "description": "Runs eslint against the codebase",
+        "description": "Runs eslint against the codebase for all affected projects",
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern . test build-tools projenrc .projenrc.ts",
+            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -17997,24 +18029,67 @@ target
         ],
       },
       "package": Object {
-        "description": "Creates the distribution package",
+        "description": "Creates the distribution package for all affected projects",
         "name": "package",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "post-compile": Object {
-        "description": "Runs after successful compilation",
+        "description": "Runs after successful compilation for all affected projects",
         "name": "post-compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
       },
       "pre-compile": Object {
-        "description": "Prepare the project for compilation",
+        "description": "Prepare the project for compilation for all affected projects",
         "name": "pre-compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "run-many": Object {
+        "description": "Run task against multiple workspace projects",
+        "name": "run-many",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "synth-workspace": Object {
+        "description": "Synthesize workspace",
+        "name": "synth-workspace",
+        "steps": Array [
+          Object {
+            "exec": "npx projen",
+          },
+        ],
       },
       "test": Object {
-        "description": "Run tests",
+        "description": "Run tests for all affected projects",
         "name": "test",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "upgrade": Object {
         "description": "upgrade dependencies",
@@ -18073,11 +18148,12 @@ target
         ],
       },
       "watch": Object {
-        "description": "Watch & compile in the background",
+        "description": "Watch & compile in the background for all affected projects",
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "tsc --build -w",
+            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -18410,6 +18486,8 @@ target
       "post-upgrade": "npx projen post-upgrade",
       "pre-compile": "npx projen pre-compile",
       "projen": "npx projen",
+      "run-many": "npx projen run-many",
+      "synth-workspace": "npx projen synth-workspace",
       "test": "npx projen test",
       "upgrade": "npx projen upgrade",
       "upgrade-deps": "npx projen upgrade-deps",
@@ -35392,26 +35470,12 @@ target
     },
     "tasks": Object {
       "build": Object {
-        "description": "Full release build",
+        "description": "Full release build for all affected projects",
         "name": "build",
         "steps": Array [
           Object {
-            "spawn": "default",
-          },
-          Object {
-            "spawn": "pre-compile",
-          },
-          Object {
-            "spawn": "compile",
-          },
-          Object {
-            "spawn": "post-compile",
-          },
-          Object {
-            "spawn": "test",
-          },
-          Object {
-            "spawn": "package",
+            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -35448,8 +35512,14 @@ target
         ],
       },
       "compile": Object {
-        "description": "Only compile",
+        "description": "Only compile for all affected projects",
         "name": "compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "default": Object {
         "description": "Synthesize project files",
@@ -35476,11 +35546,12 @@ target
         ],
       },
       "eslint": Object {
-        "description": "Runs eslint against the codebase",
+        "description": "Runs eslint against the codebase for all affected projects",
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern . test build-tools projenrc .projenrc.ts",
+            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -35493,24 +35564,67 @@ target
         ],
       },
       "package": Object {
-        "description": "Creates the distribution package",
+        "description": "Creates the distribution package for all affected projects",
         "name": "package",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "post-compile": Object {
-        "description": "Runs after successful compilation",
+        "description": "Runs after successful compilation for all affected projects",
         "name": "post-compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
       },
       "pre-compile": Object {
-        "description": "Prepare the project for compilation",
+        "description": "Prepare the project for compilation for all affected projects",
         "name": "pre-compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "run-many": Object {
+        "description": "Run task against multiple workspace projects",
+        "name": "run-many",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "synth-workspace": Object {
+        "description": "Synthesize workspace",
+        "name": "synth-workspace",
+        "steps": Array [
+          Object {
+            "exec": "npx projen",
+          },
+        ],
       },
       "test": Object {
-        "description": "Run tests",
+        "description": "Run tests for all affected projects",
         "name": "test",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "upgrade": Object {
         "description": "upgrade dependencies",
@@ -35569,11 +35683,12 @@ target
         ],
       },
       "watch": Object {
-        "description": "Watch & compile in the background",
+        "description": "Watch & compile in the background for all affected projects",
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "tsc --build -w",
+            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -35904,6 +36019,8 @@ target
       "post-upgrade": "npx projen post-upgrade",
       "pre-compile": "npx projen pre-compile",
       "projen": "npx projen",
+      "run-many": "npx projen run-many",
+      "synth-workspace": "npx projen synth-workspace",
       "test": "npx projen test",
       "upgrade": "npx projen upgrade",
       "upgrade-deps": "npx projen upgrade-deps",
@@ -52878,26 +52995,12 @@ target
     },
     "tasks": Object {
       "build": Object {
-        "description": "Full release build",
+        "description": "Full release build for all affected projects",
         "name": "build",
         "steps": Array [
           Object {
-            "spawn": "default",
-          },
-          Object {
-            "spawn": "pre-compile",
-          },
-          Object {
-            "spawn": "compile",
-          },
-          Object {
-            "spawn": "post-compile",
-          },
-          Object {
-            "spawn": "test",
-          },
-          Object {
-            "spawn": "package",
+            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -52934,8 +53037,14 @@ target
         ],
       },
       "compile": Object {
-        "description": "Only compile",
+        "description": "Only compile for all affected projects",
         "name": "compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "default": Object {
         "description": "Synthesize project files",
@@ -52962,11 +53071,12 @@ target
         ],
       },
       "eslint": Object {
-        "description": "Runs eslint against the codebase",
+        "description": "Runs eslint against the codebase for all affected projects",
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern . test build-tools projenrc .projenrc.ts",
+            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -52979,24 +53089,67 @@ target
         ],
       },
       "package": Object {
-        "description": "Creates the distribution package",
+        "description": "Creates the distribution package for all affected projects",
         "name": "package",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "post-compile": Object {
-        "description": "Runs after successful compilation",
+        "description": "Runs after successful compilation for all affected projects",
         "name": "post-compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
       },
       "pre-compile": Object {
-        "description": "Prepare the project for compilation",
+        "description": "Prepare the project for compilation for all affected projects",
         "name": "pre-compile",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "run-many": Object {
+        "description": "Run task against multiple workspace projects",
+        "name": "run-many",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "synth-workspace": Object {
+        "description": "Synthesize workspace",
+        "name": "synth-workspace",
+        "steps": Array [
+          Object {
+            "exec": "npx projen",
+          },
+        ],
       },
       "test": Object {
-        "description": "Run tests",
+        "description": "Run tests for all affected projects",
         "name": "test",
+        "steps": Array [
+          Object {
+            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
+        ],
       },
       "upgrade": Object {
         "description": "upgrade dependencies",
@@ -53055,11 +53208,12 @@ target
         ],
       },
       "watch": Object {
-        "description": "Watch & compile in the background",
+        "description": "Watch & compile in the background for all affected projects",
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "tsc --build -w",
+            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -53390,6 +53544,8 @@ target
       "post-upgrade": "npx projen post-upgrade",
       "pre-compile": "npx projen pre-compile",
       "projen": "npx projen",
+      "run-many": "npx projen run-many",
+      "synth-workspace": "npx projen synth-workspace",
       "test": "npx projen test",
       "upgrade": "npx projen upgrade",
       "upgrade-deps": "npx projen upgrade-deps",

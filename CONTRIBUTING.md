@@ -22,7 +22,7 @@ Contains classes which are to be used locally by the root package.
 
 Contains configurations for each project within this monorepo.
 
-***As a rule of thumb, every package in the monorepo should correspond to a file in this directory.*** 
+***As a rule of thumb, every package in the monorepo should correspond to a file in this directory.***
 
 ### **packages**
 
@@ -155,7 +155,8 @@ To send us a pull request, please:
 
 1. Fork the repository.
 2. Modify the source; please focus on the specific change you are contributing. If you also reformat all the code, it will be hard for us to focus on your change.
-3. Run `npx nx run-many --target=build --all` to ensure everything builds and tests correctly.
+3. Run `yarn build` to ensure everything builds and tests correctly.
+  > This will execute `npx nx run-many --target=build --output-style=stream --nx-bail` to build all sub-projects in the workspace.
 4. Commit to your fork on a new branch using [conventional commit messages](CONTRIBUTING.md#commits).
 5. Send us a pull request, answering any default questions in the pull request template.
 6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.

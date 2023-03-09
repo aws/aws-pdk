@@ -22,11 +22,19 @@ This package is built using [projen](https://github.com/projen/projen) and [nx](
 via either:
 
 - `npx nx run-many --target=<task> --all` - executes the `<task>` on every package, in dependency order.
-- `npx nx run <package_name>:<task>` - executes the `<task>` on the specified `<package_name>`. 
+- `npx nx run <package_name>:<task>` - executes the `<task>` on the specified `<package_name>`.
 
 To build the full project, run `npx nx run-many --target=build --all`
 
 Any change to `projects/*` or `.projenrc.ts` requires a synth to be executed. To do this, run: `npx projen` from the root directory.
+
+## Nx workspace script alias
+In addition to the above `npx nx <command>` format to execute commands, the workspace package contains useful alias for common tasks.
+
+Executing `yarn <task>` for common tasks will execute `npx nx run-many --target=<task> --output-style=stream --nx-bail`, such as `yarn build` will execute `npx nx run-many --target=build --output-style=stream --nx-bail` across all packages.
+
+All nx run-many alias scripts access additional arguments, such as to only run on specific projects you can use `yarn build --projects=proj1,proj2`.
+> See [Nx Run-Many options](https://nx.dev/packages/nx/documents/run-many#options) for details.
 
 ## Documentation
 
