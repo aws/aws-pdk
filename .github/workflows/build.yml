@@ -36,7 +36,7 @@ jobs:
         run: npx nx run-many --target=build --all --parallel=4 --output-style stream --nx-bail
       - name: Debug:Sharp:Build
         working-directory: packages/cdk-graph-plugin-diagram
-        run: tar -ztvf --wildcards ./dist/js/cdk-graph-plugin-diagram@0.0.0.jsii.tgz 'package/node_modules/sharp/*'
+        run: tar -ztvf ./dist/js/cdk-graph-plugin-diagram@0.0.0.jsii.tgz -v --wildcards 'package/node_modules/sharp/*'
       - name: Release
         run: npx nx run-many --target=release:mainline --all --parallel=4 --output-style stream --nx-bail
 #       - name: Check for mutations
@@ -48,7 +48,7 @@ jobs:
         run: rsync -a . ./dist --include="*/" --include="/public/docs/dist/**" --include="/packages/*/dist/**" --exclude="*" --prune-empty-dirs
       - name: Debug:Sharp:Extract
         working-directory: dist/packages/cdk-graph-plugin-diagram
-        run: tar -ztvf --wildcards ./dist/js/cdk-graph-plugin-diagram@0.*.*.jsii.tgz 'package/node_modules/sharp/*'
+        run: tar -ztvf ./dist/js/cdk-graph-plugin-diagram@0.*.*.jsii.tgz -v --wildcards 'package/node_modules/sharp/*'
       - name: Upload artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
         uses: actions/upload-artifact@v2.1.1
@@ -73,4 +73,4 @@ jobs:
           path: dist
       - name: Debug:Sharp:Extract
         working-directory: dist/packages/cdk-graph-plugin-diagram
-        run: tar -ztvf --wildcards ./dist/js/cdk-graph-plugin-diagram@0.*.*.jsii.tgz 'package/node_modules/sharp/*'
+        run: tar -ztvf ./dist/js/cdk-graph-plugin-diagram@0.*.*.jsii.tgz -v --wildcards 'package/node_modules/sharp/*'
