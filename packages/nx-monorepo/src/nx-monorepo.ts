@@ -109,6 +109,47 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
 }
 
 /**
+ *
+ * @see https://nx.dev/packages/nx/documents/run-many#options
+ */
+export interface NxRunManyOptions {
+  /** Task to run for affected projects */
+  readonly target: string;
+  /** This is the configuration to use when performing tasks on projects */
+  readonly configuration?: string;
+  /** Exclude certain projects from being processed */
+  readonly exclude?: string;
+  /**
+   * Do not stop command execution after the first failed task.
+   */
+  readonly noBail?: boolean;
+  /**
+   * Defines how Nx emits outputs tasks logs
+   * @default "stream"
+   */
+  readonly outputStyle?:
+    | "dynamic"
+    | "static"
+    | "stream"
+    | "stream-without-prefixes";
+  /**
+   * Max number of parallel processes
+   * @default 3
+   */
+  readonly parallel?: number;
+  /** Project to run as list project names and/or patterns. */
+  readonly projects?: string[];
+  /** This is the name of the tasks runner configuration in nx.json */
+  readonly runner?: string;
+  /** Rerun the tasks even when the results are available in the cache. */
+  readonly skipCache?: boolean;
+  /** Ignore cycles in the task graph */
+  readonly ignoreCycles?: boolean;
+  /** Prints additional information about the commands (e.g. stack traces). */
+  readonly verbose?: boolean;
+}
+
+/**
  * This project type will bootstrap a NX based monorepo with support for polygot
  * builds, build caching, dependency graph visualization and much more.
  *
@@ -156,9 +197,54 @@ export class NxMonorepoProject extends TypeScriptProject {
     // Never publish a monorepo root package.
     this.package.addField("private", true);
 
-    // No need to compile or test a monorepo root package.
-    this.compileTask.reset();
-    this.testTask.reset();
+    // Add alias task for "projen" to synthesize workspace
+    this.addTask("synth-workspace", {
+      exec: "npx projen",
+      description: "Synthesize workspace",
+    });
+
+    this.addTask("run-many", {
+      receiveArgs: true,
+      exec: "npx nx run-many",
+      description: "Run task against multiple workspace projects",
+    });
+
+    // Map tasks to nx run-many
+    if (options.scripts == null || options.scripts.build == null) {
+      this._overrideNxBuildTask(this.buildTask, { target: "build" }, true);
+    }
+    if (options.scripts == null || options.scripts["pre-compile"] == null) {
+      this._overrideNxBuildTask(this.preCompileTask, { target: "pre-compile" });
+    }
+    if (options.scripts == null || options.scripts.compile == null) {
+      this._overrideNxBuildTask(this.compileTask, { target: "compile" });
+    }
+    if (options.scripts == null || options.scripts["post-compile"] == null) {
+      this._overrideNxBuildTask(this.postCompileTask, {
+        target: "post-compile",
+      });
+    }
+    if (options.scripts == null || options.scripts.test == null) {
+      this._overrideNxBuildTask(this.testTask, { target: "test" });
+    }
+    if (options.scripts == null || options.scripts.eslint == null) {
+      this._overrideNxBuildTask(this.eslint?.eslintTask, { target: "eslint" });
+    }
+    if (options.scripts == null || options.scripts.package == null) {
+      this._overrideNxBuildTask(this.packageTask, { target: "package" });
+    }
+    if (options.scripts == null || options.scripts.prepare == null) {
+      this._overrideNxBuildTask("prepare", { target: "prepare" });
+    }
+    if (options.scripts == null || options.scripts.watch == null) {
+      this._overrideNxBuildTask(this.watchTask, {
+        target: "watch",
+        noBail: false,
+        ignoreCycles: true,
+        skipCache: true,
+        outputStyle: "stream",
+      });
+    }
 
     this.addDevDeps("@nrwl/cli", "@nrwl/workspace");
     this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in aws-prototyping-sdk
@@ -240,6 +326,92 @@ export class NxMonorepoProject extends TypeScriptProject {
           defaultBase: this.nxConfig?.affectedBranch || "mainline",
         },
       },
+    });
+  }
+
+  /**
+   * Helper to format `npx nx run-many ...` style command.
+   * @param options
+   */
+  public formatNxRunManyCommand(options: NxRunManyOptions): string {
+    const cmd: string[] = [
+      "npx nx run-many",
+      `--target=${options.target}`,
+      `--output-style=${options.outputStyle || "stream"}`,
+    ];
+    if (options.configuration) {
+      cmd.push(`--configuration=${options.configuration}`);
+    }
+    if (options.runner) {
+      cmd.push(`--runner=${options.runner}`);
+    }
+    if (options.parallel) {
+      cmd.push(`--parallel=${options.parallel}`);
+    }
+    if (options.skipCache) {
+      cmd.push("--skip-nx-cache");
+    }
+    if (options.ignoreCycles) {
+      cmd.push("--nx-ignore-cycles");
+    }
+    if (options.noBail !== true) {
+      cmd.push("--nx-bail");
+    }
+    if (options.projects && options.projects.length) {
+      cmd.push(`--projects=${options.projects.join(",")}`);
+    }
+    if (options.exclude) {
+      cmd.push(`--exclude=${options.exclude}`);
+    }
+    if (options.verbose) {
+      cmd.push("--verbose");
+    }
+
+    return cmd.join(" ");
+  }
+
+  /**
+   * Overrides "build" related project tasks (build, compile, test, etc.) with `npx nx run-many` format.
+   * @param task - The task or task name to override
+   * @param options - Nx run-many options
+   * @param force - Force unlocking task (eg: build task is locked)
+   * @returns - The task that was overridden
+   * @internal
+   */
+  protected _overrideNxBuildTask(
+    task: Task | string | undefined,
+    options: NxRunManyOptions,
+    force?: boolean
+  ): Task | undefined {
+    if (typeof task === "string") {
+      task = this.tasks.tryFind(task);
+    }
+
+    if (task == null) {
+      return;
+    }
+
+    if (force) {
+      // @ts-ignore - private property
+      task._locked = false;
+    }
+
+    task.reset(this.formatNxRunManyCommand(options), {
+      receiveArgs: true,
+    });
+
+    task.description += " for all affected projects";
+
+    return task;
+  }
+
+  /**
+   * Add project task that executes `npx nx run-many ...` style command.
+   */
+  public addNxRunManyTask(name: string, options: NxRunManyOptions): Task {
+    return this.addTask(name, {
+      receiveArgs: true,
+      exec: this.formatNxRunManyCommand(options),
     });
   }
 
