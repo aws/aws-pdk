@@ -26,5 +26,7 @@ export class NXMonorepoProject extends PDKProject {
     this.compileTask.exec(
       'rsync -a ./src/** ./lib --include="*/" --include="**/*.js" --exclude="*" --prune-empty-dirs'
     );
+
+    this.package.addBin({"nx-dir-hasher": "./scripts/nx-dir-hasher.js"});
   }
 }
