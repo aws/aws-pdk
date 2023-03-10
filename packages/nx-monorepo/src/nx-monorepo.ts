@@ -220,7 +220,11 @@ export class NxMonorepoProject extends TypeScriptProject {
             },
           },
         },
-        namedInputs: options.nxConfig?.namedInputs,
+        namedInputs: {
+          // https://nx.dev/more-concepts/customizing-inputs#defaults
+          default: ["{projectRoot}/**/*"],
+          ...options.nxConfig?.namedInputs,
+        },
         targetDefaults: options.nxConfig?.targetDefaults,
         implicitDependencies: this.implicitDependencies,
         targetDependencies: {
