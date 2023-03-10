@@ -120,8 +120,10 @@ export async function generate () {
   const iotThings = new Set<[string, string]>();
 
   // Unzip all .svg files (png resources are low-res of 48px only, so we generate them from svg)
-  const zip = fs.createReadStream(downloadPath).pipe(ZipParse({forceStream: true }));
-  for await (const entry of zip) {
+  const zip = fs.createReadStream(downloadPath).pipe(ZipParse());
+  // async for...of causes premature close in node 18+
+  // https://github.com/ZJONSSON/node-unzipper/issues/228#issuecomment-1294451911
+  await zip.on("entry", (entry) => {
     const entryPath: string = patchZipEntryPath(entry.path);
     let fileName = path.basename(entryPath);
     const ext = path.extname(fileName);
@@ -258,8 +260,8 @@ export async function generate () {
     if (extract) {
       const filePath = path.join(ASSET_PACKAGE_DIR, fileName);
       assetFiles.push(fileName);
-      await fs.ensureDir(path.dirname(filePath));
-      if (await fs.pathExists(filePath)) {
+      fs.ensureDirSync(path.dirname(filePath));
+      if (fs.pathExistsSync(filePath)) {
         console.debug(entryPath)
         throw new Error(`Asset path arealdy exists: ${filePath}`)
       }
@@ -267,7 +269,7 @@ export async function generate () {
     } else {
       entry.autodrain();
     }
-  }
+  }).promise();
 
   // some dark instance types do not have "-Instance" prefix, so need to move them
   const computeEC2Dir = path.join(ASSET_PACKAGE_DIR, 'compute', 'ec2');
