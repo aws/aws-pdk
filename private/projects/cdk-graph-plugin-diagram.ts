@@ -57,8 +57,6 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
       stability: Stability.EXPERIMENTAL,
     });
 
-    this.addPackageIgnore("**/node_modules");
-
     this.eslint?.addIgnorePattern("scripts/**");
 
     // ts-graphviz compiled to typescript >4.1 which includes TemplateLiterals+NamedTuples
@@ -68,11 +66,28 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
     // Ensure sharp has cross-platform prebuilds included in bundled dependency
     // https://sharp.pixelplumbing.com/install#cross-platform
     const sharpPrebuildTask = this.addTask("sharp:prebuild", {
-      condition: '[ -n "$CI" ]',
       exec: "ts-node ./scripts/sharp-prebuild.ts",
     });
-
     this.packageTask.prependSpawn(sharpPrebuildTask);
+    // Ensure build input + output includes `sharp:prebuild` artifacts
+    this.nxOverride(
+      "targets.build.inputs",
+      [
+        "default",
+        "^default",
+        {
+          // To ensure sharp:prebuild artifacts are included in build cache hash
+          runtime:
+            "npx -p @aws-prototyping-sdk/nx-monorepo nx-dir-hasher {workspaceRoot}/packages/cdk-graph-plugin-diagram/node_modules/sharp",
+        },
+      ],
+      true
+    );
+    this.nxOverride(
+      "targets.build.outputs",
+      ["{projectRoot}/node_modules/sharp"],
+      true
+    );
 
     const copyFilesTask = this.addTask("copy-files", {
       exec: "cp src/internal/graphviz/dot-wasm/dot-wasm-invoker.mjs lib/internal/graphviz/dot-wasm/dot-wasm-invoker.mjs",
