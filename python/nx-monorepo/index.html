@@ -1942,6 +1942,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#nxrunmanyoptions" class="md-nav__link">
+    NxRunManyOptions 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#semvergroup" class="md-nav__link">
     SemverGroup 
   </a>
@@ -2096,7 +2103,10 @@
 </code></pre></div>
 <p>Run <code>npx projen</code> from the root directory. You will now notice a new Python package has been created under packages/pythonlib.</p>
 <p>To visualize our dependency graph, run the following command from the root directory: <code>npx nx graph</code>.</p>
-<p>Now lets test building our project, from the root directory run <code>npx nx run-many --target=build --all</code>. As you can see, the pythonlib was built first followed by the cicd package.</p>
+<p>Now lets test building our project, from the root directory run <code>npx nx run-many --target=build --nx-bail</code>. As you can see, the pythonlib was built first followed by the cicd package.</p>
+<blockquote>
+<p>This is equivalent to running <code>yarn build</code>, <code>pnpm build</code>, or <code>npm run build</code> depending on your node package manager, and similarly <code>yarn build</code> also accepts the same <a href="https://nx.dev/packages/nx/documents/run-many#options">Nx Run-Many options</a> (eg: <code>yarn build --projects=cicd</code>).</p>
+</blockquote>
 <p>The NxMonorepoProject also manages your yarn/pnpm workspaces for you and synthesizes these into your package.json pnpm-workspace.yml respectively.</p>
 <p>For more information on NX commands, refer to this <a href="https://nx.dev/using-nx/nx-cli">documentation</a>.</p>
 <h3 id="homogenous-dependencies">Homogenous Dependencies</h3>
@@ -4435,8 +4445,187 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>Configuration for workspace.</p>
 <hr />
+<h3 id="nxrunmanyoptions">NxRunManyOptions <a name="NxRunManyOptions" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions"></a></h3>
+<blockquote>
+<p><a href="https://nx.dev/packages/nx/documents/run-many#options">https://nx.dev/packages/nx/documents/run-many#options</a></p>
+</blockquote>
+<h4 id="initializer_2">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
+
+<span class="n">nx_monorepo</span><span class="o">.</span><span class="n">NxRunManyOptions</span><span class="p">(</span>
+  <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">configuration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">exclude</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ignore_cycles</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">no_bail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">output_style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">parallel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">projects</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">runner</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">skip_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.target">target</a></code></td>
+<td><code>str</code></td>
+<td>Task to run for affected projects.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.configuration">configuration</a></code></td>
+<td><code>str</code></td>
+<td>This is the configuration to use when performing tasks on projects.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.exclude">exclude</a></code></td>
+<td><code>str</code></td>
+<td>Exclude certain projects from being processed.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.ignoreCycles">ignore_cycles</a></code></td>
+<td><code>bool</code></td>
+<td>Ignore cycles in the task graph.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.noBail">no_bail</a></code></td>
+<td><code>bool</code></td>
+<td>Do not stop command execution after the first failed task.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.outputStyle">output_style</a></code></td>
+<td><code>str</code></td>
+<td>Defines how Nx emits outputs tasks logs.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.parallel">parallel</a></code></td>
+<td><code>typing.Union[int, float]</code></td>
+<td>Max number of parallel processes.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.projects">projects</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Project to run as list project names and/or patterns.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.runner">runner</a></code></td>
+<td><code>str</code></td>
+<td>This is the name of the tasks runner configuration in nx.json.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.skipCache">skip_cache</a></code></td>
+<td><code>bool</code></td>
+<td>Rerun the tasks even when the results are available in the cache.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.verbose">verbose</a></code></td>
+<td><code>bool</code></td>
+<td>Prints additional information about the commands (e.g. stack traces).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="targetrequired"><code>target</code><sup>Required</sup> <a name="target" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.target"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">target</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Task to run for affected projects.</p>
+<hr />
+<h5 id="configurationoptional"><code>configuration</code><sup>Optional</sup> <a name="configuration" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.configuration"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">configuration</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>This is the configuration to use when performing tasks on projects.</p>
+<hr />
+<h5 id="excludeoptional"><code>exclude</code><sup>Optional</sup> <a name="exclude" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.exclude"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">exclude</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Exclude certain projects from being processed.</p>
+<hr />
+<h5 id="ignore_cyclesoptional"><code>ignore_cycles</code><sup>Optional</sup> <a name="ignore_cycles" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.ignoreCycles"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">ignore_cycles</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Ignore cycles in the task graph.</p>
+<hr />
+<h5 id="no_bailoptional"><code>no_bail</code><sup>Optional</sup> <a name="no_bail" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.noBail"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">no_bail</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Do not stop command execution after the first failed task.</p>
+<hr />
+<h5 id="output_styleoptional"><code>output_style</code><sup>Optional</sup> <a name="output_style" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.outputStyle"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">output_style</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> "stream"</li>
+</ul>
+<p>Defines how Nx emits outputs tasks logs.</p>
+<hr />
+<h5 id="paralleloptional"><code>parallel</code><sup>Optional</sup> <a name="parallel" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.parallel"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">parallel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+<li><em>Default:</em> 3</li>
+</ul>
+<p>Max number of parallel processes.</p>
+<hr />
+<h5 id="projectsoptional"><code>projects</code><sup>Optional</sup> <a name="projects" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.projects"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">projects</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>Project to run as list project names and/or patterns.</p>
+<hr />
+<h5 id="runneroptional"><code>runner</code><sup>Optional</sup> <a name="runner" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.runner"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">runner</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>This is the name of the tasks runner configuration in nx.json.</p>
+<hr />
+<h5 id="skip_cacheoptional"><code>skip_cache</code><sup>Optional</sup> <a name="skip_cache" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.skipCache"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">skip_cache</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Rerun the tasks even when the results are available in the cache.</p>
+<hr />
+<h5 id="verboseoptional"><code>verbose</code><sup>Optional</sup> <a name="verbose" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.verbose"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Prints additional information about the commands (e.g. stack traces).</p>
+<hr />
 <h3 id="semvergroup">SemverGroup <a name="SemverGroup" id="aws-prototyping-sdk.nx_monorepo.SemverGroup"></a></h3>
-<h4 id="initializer_2">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.SemverGroup.Initializer"></a></h4>
+<h4 id="initializer_3">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.SemverGroup.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
 
 <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">SemverGroup</span><span class="p">(</span>
@@ -4446,7 +4635,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">dependency_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4513,7 +4702,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <p>optionally only apply this group to dependencies of the provided types.</p>
 <hr />
 <h3 id="syncpackconfig">SyncpackConfig <a name="SyncpackConfig" id="aws-prototyping-sdk.nx_monorepo.SyncpackConfig"></a></h3>
-<h4 id="initializer_3">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.SyncpackConfig.Initializer"></a></h4>
+<h4 id="initializer_4">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.SyncpackConfig.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
 
 <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">SyncpackConfig</span><span class="p">(</span>
@@ -4535,7 +4724,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">workspace</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4755,7 +4944,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <p>whether to include the versions of the <code>--source</code> packages developed in your workspace/monorepo as part of the search for versions to sync.</p>
 <hr />
 <h3 id="versiongroup">VersionGroup <a name="VersionGroup" id="aws-prototyping-sdk.nx_monorepo.VersionGroup"></a></h3>
-<h4 id="initializer_4">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.VersionGroup.Initializer"></a></h4>
+<h4 id="initializer_5">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.VersionGroup.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
 
 <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">VersionGroup</span><span class="p">(</span>
@@ -4766,7 +4955,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">pin_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4850,7 +5039,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <blockquote>
 <p><a href="https://classic.yarnpkg.com/lang/en/docs/workspaces/">https://classic.yarnpkg.com/lang/en/docs/workspaces/</a></p>
 </blockquote>
-<h4 id="initializer_5">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.WorkspaceConfig.Initializer"></a></h4>
+<h4 id="initializer_6">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.WorkspaceConfig.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk</span> <span class="kn">import</span> <span class="n">nx_monorepo</span>
 
 <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">WorkspaceConfig</span><span class="p">(</span>
@@ -4859,7 +5048,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">no_hoist</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6963,8 +7152,16 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td>Create an implicit dependency between two Project's.</td>
 </tr>
 <tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask">add_nx_run_many_task</a></code></td>
+<td>Add project task that executes <code>npx nx run-many ...</code> style command.</td>
+</tr>
+<tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addWorkspacePackages">add_workspace_packages</a></code></td>
 <td>Add one or more additional package globs to the workspace.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand">format_nx_run_many_command</a></code></td>
+<td>Helper to format <code>npx nx run-many ...</code> style command.</td>
 </tr>
 </tbody>
 </table>
@@ -7427,6 +7624,96 @@ on a Python project as an example.</p>
 </ul>
 <p>project you wish to depend on.</p>
 <hr />
+<h5 id="add_nx_run_many_task"><code>add_nx_run_many_task</code> <a name="add_nx_run_many_task" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add_nx_run_many_task</span><span class="p">(</span>
+  <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">configuration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">exclude</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ignore_cycles</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">no_bail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">output_style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">parallel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">projects</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">runner</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">skip_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Task</span>
+</code></pre></div>
+<p>Add project task that executes <code>npx nx run-many ...</code> style command.</p>
+<h6 id="namerequired_7"><code>name</code><sup>Required</sup> <a name="name" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.name"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<hr />
+<h6 id="targetrequired_1"><code>target</code><sup>Required</sup> <a name="target" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.target"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Task to run for affected projects.</p>
+<hr />
+<h6 id="configurationoptional_1"><code>configuration</code><sup>Optional</sup> <a name="configuration" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.configuration"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>This is the configuration to use when performing tasks on projects.</p>
+<hr />
+<h6 id="excludeoptional_1"><code>exclude</code><sup>Optional</sup> <a name="exclude" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.exclude"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Exclude certain projects from being processed.</p>
+<hr />
+<h6 id="ignore_cyclesoptional_1"><code>ignore_cycles</code><sup>Optional</sup> <a name="ignore_cycles" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.ignoreCycles"></a></h6>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Ignore cycles in the task graph.</p>
+<hr />
+<h6 id="no_bailoptional_1"><code>no_bail</code><sup>Optional</sup> <a name="no_bail" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.noBail"></a></h6>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Do not stop command execution after the first failed task.</p>
+<hr />
+<h6 id="output_styleoptional_1"><code>output_style</code><sup>Optional</sup> <a name="output_style" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.outputStyle"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> "stream"</li>
+</ul>
+<p>Defines how Nx emits outputs tasks logs.</p>
+<hr />
+<h6 id="paralleloptional_1"><code>parallel</code><sup>Optional</sup> <a name="parallel" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.parallel"></a></h6>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+<li><em>Default:</em> 3</li>
+</ul>
+<p>Max number of parallel processes.</p>
+<hr />
+<h6 id="projectsoptional_1"><code>projects</code><sup>Optional</sup> <a name="projects" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.projects"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>Project to run as list project names and/or patterns.</p>
+<hr />
+<h6 id="runneroptional_1"><code>runner</code><sup>Optional</sup> <a name="runner" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.runner"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>This is the name of the tasks runner configuration in nx.json.</p>
+<hr />
+<h6 id="skip_cacheoptional_1"><code>skip_cache</code><sup>Optional</sup> <a name="skip_cache" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.skipCache"></a></h6>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Rerun the tasks even when the results are available in the cache.</p>
+<hr />
+<h6 id="verboseoptional_1"><code>verbose</code><sup>Optional</sup> <a name="verbose" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.verbose"></a></h6>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Prints additional information about the commands (e.g. stack traces).</p>
+<hr />
 <h5 id="add_workspace_packages"><code>add_workspace_packages</code> <a name="add_workspace_packages" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addWorkspacePackages"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add_workspace_packages</span><span class="p">(</span>
   <span class="n">package_globs</span><span class="p">:</span> <span class="nb">str</span>
@@ -7439,7 +7726,91 @@ on a Python project as an example.</p>
 </ul>
 <p>paths to the package to include in the workspace (for example packages/my-package).</p>
 <hr />
-<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
+<h5 id="format_nx_run_many_command"><code>format_nx_run_many_command</code> <a name="format_nx_run_many_command" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">format_nx_run_many_command</span><span class="p">(</span>
+  <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">configuration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">exclude</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ignore_cycles</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">no_bail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">output_style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">parallel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">projects</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">runner</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">skip_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+<p>Helper to format <code>npx nx run-many ...</code> style command.</p>
+<h6 id="targetrequired_2"><code>target</code><sup>Required</sup> <a name="target" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.target"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Task to run for affected projects.</p>
+<hr />
+<h6 id="configurationoptional_2"><code>configuration</code><sup>Optional</sup> <a name="configuration" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.configuration"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>This is the configuration to use when performing tasks on projects.</p>
+<hr />
+<h6 id="excludeoptional_2"><code>exclude</code><sup>Optional</sup> <a name="exclude" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.exclude"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Exclude certain projects from being processed.</p>
+<hr />
+<h6 id="ignore_cyclesoptional_2"><code>ignore_cycles</code><sup>Optional</sup> <a name="ignore_cycles" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.ignoreCycles"></a></h6>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Ignore cycles in the task graph.</p>
+<hr />
+<h6 id="no_bailoptional_2"><code>no_bail</code><sup>Optional</sup> <a name="no_bail" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.noBail"></a></h6>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Do not stop command execution after the first failed task.</p>
+<hr />
+<h6 id="output_styleoptional_2"><code>output_style</code><sup>Optional</sup> <a name="output_style" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.outputStyle"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> "stream"</li>
+</ul>
+<p>Defines how Nx emits outputs tasks logs.</p>
+<hr />
+<h6 id="paralleloptional_2"><code>parallel</code><sup>Optional</sup> <a name="parallel" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.parallel"></a></h6>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+<li><em>Default:</em> 3</li>
+</ul>
+<p>Max number of parallel processes.</p>
+<hr />
+<h6 id="projectsoptional_2"><code>projects</code><sup>Optional</sup> <a name="projects" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.projects"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>Project to run as list project names and/or patterns.</p>
+<hr />
+<h6 id="runneroptional_2"><code>runner</code><sup>Optional</sup> <a name="runner" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.runner"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>This is the name of the tasks runner configuration in nx.json.</p>
+<hr />
+<h6 id="skip_cacheoptional_2"><code>skip_cache</code><sup>Optional</sup> <a name="skip_cache" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.skipCache"></a></h6>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Rerun the tasks even when the results are available in the cache.</p>
+<hr />
+<h6 id="verboseoptional_2"><code>verbose</code><sup>Optional</sup> <a name="verbose" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.verbose"></a></h6>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Prints additional information about the commands (e.g. stack traces).</p>
+<hr />
+<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7830,7 +8201,7 @@ on a Python project as an example.</p>
 </ul>
 <p>Logging utilities.</p>
 <hr />
-<h5 id="namerequired_7"><code>name</code><sup>Required</sup> <a name="name" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.name"></a></h5>
+<h5 id="namerequired_8"><code>name</code><sup>Required</sup> <a name="name" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.name"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 <ul>
@@ -8279,7 +8650,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2023-03-08
+      2023-03-14
     
   </small>
 </div>

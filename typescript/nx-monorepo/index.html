@@ -1942,6 +1942,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#nxrunmanyoptions" class="md-nav__link">
+    NxRunManyOptions 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#semvergroup" class="md-nav__link">
     SemverGroup 
   </a>
@@ -2096,7 +2103,10 @@
 </code></pre></div>
 <p>Run <code>npx projen</code> from the root directory. You will now notice a new Python package has been created under packages/pythonlib.</p>
 <p>To visualize our dependency graph, run the following command from the root directory: <code>npx nx graph</code>.</p>
-<p>Now lets test building our project, from the root directory run <code>npx nx run-many --target=build --all</code>. As you can see, the pythonlib was built first followed by the cicd package.</p>
+<p>Now lets test building our project, from the root directory run <code>npx nx run-many --target=build --nx-bail</code>. As you can see, the pythonlib was built first followed by the cicd package.</p>
+<blockquote>
+<p>This is equivalent to running <code>yarn build</code>, <code>pnpm build</code>, or <code>npm run build</code> depending on your node package manager, and similarly <code>yarn build</code> also accepts the same <a href="https://nx.dev/packages/nx/documents/run-many#options">Nx Run-Many options</a> (eg: <code>yarn build --projects=cicd</code>).</p>
+</blockquote>
 <p>The NxMonorepoProject also manages your yarn/pnpm workspaces for you and synthesizes these into your package.json pnpm-workspace.yml respectively.</p>
 <p>For more information on NX commands, refer to this <a href="https://nx.dev/using-nx/nx-cli">documentation</a>.</p>
 <h3 id="homogenous-dependencies">Homogenous Dependencies</h3>
@@ -4295,13 +4305,180 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </ul>
 <p>Configuration for workspace.</p>
 <hr />
+<h3 id="nxrunmanyoptions">NxRunManyOptions <a name="NxRunManyOptions" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions"></a></h3>
+<blockquote>
+<p><a href="https://nx.dev/packages/nx/documents/run-many#options">https://nx.dev/packages/nx/documents/run-many#options</a></p>
+</blockquote>
+<h4 id="initializer_2">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;aws-prototyping-sdk&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">nxRunManyOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">nx_monorepo.NxRunManyOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.target">target</a></code></td>
+<td><code>string</code></td>
+<td>Task to run for affected projects.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.configuration">configuration</a></code></td>
+<td><code>string</code></td>
+<td>This is the configuration to use when performing tasks on projects.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.exclude">exclude</a></code></td>
+<td><code>string</code></td>
+<td>Exclude certain projects from being processed.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.ignoreCycles">ignoreCycles</a></code></td>
+<td><code>boolean</code></td>
+<td>Ignore cycles in the task graph.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.noBail">noBail</a></code></td>
+<td><code>boolean</code></td>
+<td>Do not stop command execution after the first failed task.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.outputStyle">outputStyle</a></code></td>
+<td><code>string</code></td>
+<td>Defines how Nx emits outputs tasks logs.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.parallel">parallel</a></code></td>
+<td><code>number</code></td>
+<td>Max number of parallel processes.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.projects">projects</a></code></td>
+<td><code>string[]</code></td>
+<td>Project to run as list project names and/or patterns.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.runner">runner</a></code></td>
+<td><code>string</code></td>
+<td>This is the name of the tasks runner configuration in nx.json.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.skipCache">skipCache</a></code></td>
+<td><code>boolean</code></td>
+<td>Rerun the tasks even when the results are available in the cache.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.verbose">verbose</a></code></td>
+<td><code>boolean</code></td>
+<td>Prints additional information about the commands (e.g. stack traces).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="targetrequired"><code>target</code><sup>Required</sup> <a name="target" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.target"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>Task to run for affected projects.</p>
+<hr />
+<h5 id="configurationoptional"><code>configuration</code><sup>Optional</sup> <a name="configuration" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.configuration"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">configuration</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>This is the configuration to use when performing tasks on projects.</p>
+<hr />
+<h5 id="excludeoptional"><code>exclude</code><sup>Optional</sup> <a name="exclude" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.exclude"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">exclude</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>Exclude certain projects from being processed.</p>
+<hr />
+<h5 id="ignorecyclesoptional"><code>ignoreCycles</code><sup>Optional</sup> <a name="ignoreCycles" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.ignoreCycles"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">ignoreCycles</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+</ul>
+<p>Ignore cycles in the task graph.</p>
+<hr />
+<h5 id="nobailoptional"><code>noBail</code><sup>Optional</sup> <a name="noBail" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.noBail"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">noBail</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+</ul>
+<p>Do not stop command execution after the first failed task.</p>
+<hr />
+<h5 id="outputstyleoptional"><code>outputStyle</code><sup>Optional</sup> <a name="outputStyle" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.outputStyle"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">outputStyle</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+<li><em>Default:</em> "stream"</li>
+</ul>
+<p>Defines how Nx emits outputs tasks logs.</p>
+<hr />
+<h5 id="paralleloptional"><code>parallel</code><sup>Optional</sup> <a name="parallel" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.parallel"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">parallel</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> number</li>
+<li><em>Default:</em> 3</li>
+</ul>
+<p>Max number of parallel processes.</p>
+<hr />
+<h5 id="projectsoptional"><code>projects</code><sup>Optional</sup> <a name="projects" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.projects"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">projects</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[];</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string[]</li>
+</ul>
+<p>Project to run as list project names and/or patterns.</p>
+<hr />
+<h5 id="runneroptional"><code>runner</code><sup>Optional</sup> <a name="runner" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.runner"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">runner</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>This is the name of the tasks runner configuration in nx.json.</p>
+<hr />
+<h5 id="skipcacheoptional"><code>skipCache</code><sup>Optional</sup> <a name="skipCache" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.skipCache"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">skipCache</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+</ul>
+<p>Rerun the tasks even when the results are available in the cache.</p>
+<hr />
+<h5 id="verboseoptional"><code>verbose</code><sup>Optional</sup> <a name="verbose" id="aws-prototyping-sdk.nx_monorepo.NxRunManyOptions.property.verbose"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">verbose</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+</ul>
+<p>Prints additional information about the commands (e.g. stack traces).</p>
+<hr />
 <h3 id="semvergroup">SemverGroup <a name="SemverGroup" id="aws-prototyping-sdk.nx_monorepo.SemverGroup"></a></h3>
-<h4 id="initializer_2">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.SemverGroup.Initializer"></a></h4>
+<h4 id="initializer_3">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.SemverGroup.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;aws-prototyping-sdk&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">semverGroup</span><span class="o">:</span><span class="w"> </span><span class="kt">nx_monorepo.SemverGroup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4368,12 +4545,12 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <p>optionally only apply this group to dependencies of the provided types.</p>
 <hr />
 <h3 id="syncpackconfig">SyncpackConfig <a name="SyncpackConfig" id="aws-prototyping-sdk.nx_monorepo.SyncpackConfig"></a></h3>
-<h4 id="initializer_3">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.SyncpackConfig.Initializer"></a></h4>
+<h4 id="initializer_4">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.SyncpackConfig.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;aws-prototyping-sdk&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">syncpackConfig</span><span class="o">:</span><span class="w"> </span><span class="kt">nx_monorepo.SyncpackConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4593,12 +4770,12 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <p>whether to include the versions of the <code>--source</code> packages developed in your workspace/monorepo as part of the search for versions to sync.</p>
 <hr />
 <h3 id="versiongroup">VersionGroup <a name="VersionGroup" id="aws-prototyping-sdk.nx_monorepo.VersionGroup"></a></h3>
-<h4 id="initializer_4">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.VersionGroup.Initializer"></a></h4>
+<h4 id="initializer_5">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.VersionGroup.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;aws-prototyping-sdk&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">versionGroup</span><span class="o">:</span><span class="w"> </span><span class="kt">nx_monorepo.VersionGroup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4682,12 +4859,12 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <blockquote>
 <p><a href="https://classic.yarnpkg.com/lang/en/docs/workspaces/">https://classic.yarnpkg.com/lang/en/docs/workspaces/</a></p>
 </blockquote>
-<h4 id="initializer_5">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.WorkspaceConfig.Initializer"></a></h4>
+<h4 id="initializer_6">Initializer <a name="Initializer" id="aws-prototyping-sdk.nx_monorepo.WorkspaceConfig.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;aws-prototyping-sdk&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">workspaceConfig</span><span class="o">:</span><span class="w"> </span><span class="kt">nx_monorepo.WorkspaceConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4901,8 +5078,16 @@ property to specify any additional paths to packages which may not be managed by
 <td>Create an implicit dependency between two Project's.</td>
 </tr>
 <tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask">addNxRunManyTask</a></code></td>
+<td>Add project task that executes <code>npx nx run-many ...</code> style command.</td>
+</tr>
+<tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addWorkspacePackages">addWorkspacePackages</a></code></td>
 <td>Add one or more additional package globs to the workspace.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand">formatNxRunManyCommand</a></code></td>
+<td>Helper to format <code>npx nx run-many ...</code> style command.</td>
 </tr>
 </tbody>
 </table>
@@ -5247,6 +5432,20 @@ on a Python project as an example.</p>
 </ul>
 <p>project you wish to depend on.</p>
 <hr />
+<h5 id="addnxrunmanytask"><code>addNxRunManyTask</code> <a name="addNxRunManyTask" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">addNxRunManyTask</span><span class="p">(</span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">NxRunManyOptions</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Task</span>
+</code></pre></div>
+<p>Add project task that executes <code>npx nx run-many ...</code> style command.</p>
+<h6 id="namerequired_6"><code>name</code><sup>Required</sup> <a name="name" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.name"></a></h6>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<hr />
+<h6 id="optionsrequired_1"><code>options</code><sup>Required</sup> <a name="options" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addNxRunManyTask.parameter.options"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions">NxRunManyOptions</a></li>
+</ul>
+<hr />
 <h5 id="addworkspacepackages"><code>addWorkspacePackages</code> <a name="addWorkspacePackages" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.addWorkspacePackages"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">addWorkspacePackages</span><span class="p">(</span><span class="nx">packageGlobs</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
 </code></pre></div>
@@ -5257,7 +5456,16 @@ on a Python project as an example.</p>
 </ul>
 <p>paths to the package to include in the workspace (for example packages/my-package).</p>
 <hr />
-<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
+<h5 id="formatnxrunmanycommand"><code>formatNxRunManyCommand</code> <a name="formatNxRunManyCommand" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">formatNxRunManyCommand</span><span class="p">(</span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">NxRunManyOptions</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span>
+</code></pre></div>
+<p>Helper to format <code>npx nx run-many ...</code> style command.</p>
+<h6 id="optionsrequired_2"><code>options</code><sup>Required</sup> <a name="options" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.formatNxRunManyCommand.parameter.options"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#aws-prototyping-sdk.nx_monorepo.NxRunManyOptions">NxRunManyOptions</a></li>
+</ul>
+<hr />
+<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5648,7 +5856,7 @@ on a Python project as an example.</p>
 </ul>
 <p>Logging utilities.</p>
 <hr />
-<h5 id="namerequired_6"><code>name</code><sup>Required</sup> <a name="name" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.name"></a></h5>
+<h5 id="namerequired_7"><code>name</code><sup>Required</sup> <a name="name" id="aws-prototyping-sdk.nx_monorepo.NxMonorepoProject.property.name"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 </code></pre></div>
 <ul>
@@ -6097,7 +6305,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2023-03-08
+      2023-03-14
     
   </small>
 </div>
