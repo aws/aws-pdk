@@ -19,6 +19,7 @@ export class OpenApiGatewayProject extends PDKProject {
       keywords: ["aws", "pdk", "projen", "openapi"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: [
+        "@types/fs-extra",
         "@aws-prototyping-sdk/nx-monorepo@^0.x",
         "@types/lodash",
         "aws-cdk-lib",
@@ -44,7 +45,5 @@ export class OpenApiGatewayProject extends PDKProject {
 
     this.eslint?.addRules({ "import/no-unresolved": ["off"] });
     this.tsconfigEslint!.addInclude("scripts");
-
-    this.addPackageIgnore("**/node_modules");
   }
 }

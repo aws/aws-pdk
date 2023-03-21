@@ -19,11 +19,13 @@ export class AwsArchProject extends PDKProject {
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: [
         "@aws-cdk/cfnspec",
+        "@types/lodash",
         "@types/fs-extra@9.0.13",
         "@types/node-fetch@2",
         "@types/sharp",
         "@types/unzipper",
         "@types/xml-flow",
+        "execa@5.1.1",
         "fs-extra",
         "lodash",
         "node-fetch@^2.6.7",
@@ -36,8 +38,6 @@ export class AwsArchProject extends PDKProject {
       peerDeps: ["projen"],
       stability: Stability.EXPERIMENTAL,
     });
-
-    this.addPackageIgnore("**/node_modules");
 
     this.eslint?.addIgnorePattern("scripts/**");
     this.addGitIgnore("/src/generated/");

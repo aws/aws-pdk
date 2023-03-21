@@ -28,6 +28,23 @@ import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
 const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 
 /**
+ * Execute command to run based on package manager configured.
+ *
+ * @param packageManager package manager being used.
+ */
+export function execute(packageManager: NodePackageManager) {
+  switch (packageManager) {
+    case NodePackageManager.YARN:
+    case NodePackageManager.YARN2:
+      return "yarn";
+    case NodePackageManager.PNPM:
+      return "pnpx";
+    default:
+      return "npx";
+  }
+}
+
+/**
  * Workspace configurations.
  *
  * @see https://classic.yarnpkg.com/lang/en/docs/workspaces/
@@ -177,6 +194,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       jest: options.jest ?? false,
       defaultReleaseBranch: options.defaultReleaseBranch ?? "mainline",
       sampleCode: false, // root should never have sample code,
+      gitignore: [".nx/cache"],
       eslintOptions: options.eslintOptions ?? {
         dirs: ["."],
         ignorePatterns: ["packages/**/*.*"],
@@ -199,13 +217,13 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     // Add alias task for "projen" to synthesize workspace
     this.addTask("synth-workspace", {
-      exec: "npx projen",
+      exec: `${execute(this.package.packageManager)} projen`,
       description: "Synthesize workspace",
     });
 
     this.addTask("run-many", {
       receiveArgs: true,
-      exec: "npx nx run-many",
+      exec: `${execute(this.package.packageManager)} nx run-many`,
       description: "Run task against multiple workspace projects",
     });
 
@@ -246,7 +264,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       });
     }
 
-    this.addDevDeps("@nrwl/cli", "@nrwl/workspace");
+    this.addDevDeps("nx", "@nrwl/cli", "@nrwl/workspace");
     this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in aws-prototyping-sdk
     this.package.addPackageResolutions("@types/babel__traverse@7.18.2");
 
@@ -257,11 +275,15 @@ export class NxMonorepoProject extends TypeScriptProject {
         options.monorepoUpgradeDepsOptions?.taskName || "upgrade-deps"
       );
       upgradeDepsTask.exec(
-        "npx npm-check-updates --deep --rejectVersion 0.0.0 -u"
+        `${execute(
+          this.package.packageManager
+        )} npm-check-updates --deep --rejectVersion 0.0.0 -u`
       );
-      upgradeDepsTask.exec("npx syncpack fix-mismatches");
-      upgradeDepsTask.exec(`${this.package.packageManager} install`);
-      upgradeDepsTask.exec("npx projen");
+      upgradeDepsTask.exec(
+        `${execute(this.package.packageManager)} syncpack fix-mismatches`
+      );
+      upgradeDepsTask.exec(`${execute(this.package.packageManager)} install`);
+      upgradeDepsTask.exec(`${execute(this.package.packageManager)} projen`);
 
       new JsonFile(this, ".syncpackrc.json", {
         obj:
@@ -335,7 +357,7 @@ export class NxMonorepoProject extends TypeScriptProject {
    */
   public formatNxRunManyCommand(options: NxRunManyOptions): string {
     const cmd: string[] = [
-      "npx nx run-many",
+      `${execute(this.package.packageManager)} nx run-many`,
       `--target=${options.target}`,
       `--output-style=${options.outputStyle || "stream"}`,
     ];
@@ -533,9 +555,12 @@ export class NxMonorepoProject extends TypeScriptProject {
           name: subProject.name,
           private: true,
           __pdk__: true,
+          devDependencies: { projen: "*" },
           scripts: subProject.tasks.all.reduce(
             (p, c) => ({
-              [c.name]: `npx projen ${c.name}`,
+              [c.name]: `${execute(this.package.packageManager)} projen ${
+                c.name
+              }`,
               ...p,
             }),
             {}
@@ -630,11 +655,12 @@ export class NxMonorepoProject extends TypeScriptProject {
     const monorepoInstallTask =
       this.tasks.tryFind("install") ?? this.addTask("install");
     monorepoInstallTask.exec(
-      `npx nx run-many --target install-py --projects ${pythonProjects
+      `${execute(
+        this.package.packageManager
+      )} nx run-many --target install-py --projects ${pythonProjects
         .map((project) => project.name)
         .join(",")} --parallel=1`
     );
-    this.defaultTask?.spawn(monorepoInstallTask);
 
     // Update the nx.json to ensure that install-py follows dependency order
     this.nxJson.addOverride("targetDependencies.install-py", [

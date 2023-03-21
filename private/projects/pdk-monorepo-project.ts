@@ -2,7 +2,11 @@
 SPDX-License-Identifier: Apache-2.0 */
 import path from "path";
 import { Project } from "projen";
-import { NodeProject, NpmConfig } from "projen/lib/javascript";
+import {
+  NodePackageManager,
+  NodeProject,
+  NpmConfig,
+} from "projen/lib/javascript";
 import {
   NxMonorepoProject,
   DEFAULT_CONFIG,
@@ -62,6 +66,7 @@ const HEADER_RULE = {
 export class PDKMonorepoProject extends NxMonorepoProject {
   constructor() {
     super({
+      packageManager: NodePackageManager.PNPM,
       defaultReleaseBranch: "mainline",
       eslint: true,
       eslintOptions: {
@@ -74,8 +79,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "lerna",
         "nx",
         "@nrwl/devkit",
-        "@aws-prototyping-sdk/nx-monorepo@0.0.0",
-        "@aws-prototyping-sdk/pipeline@0.0.0",
+        "@aws-prototyping-sdk/nx-monorepo@^0.x",
+        "@aws-prototyping-sdk/pipeline@^0.x",
         "@commitlint/cli",
         "@commitlint/config-conventional",
         "cz-conventional-changelog",
@@ -111,21 +116,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         },
       },
       workspaceConfig: {
-        noHoist: [
-          "aws-prototyping-sdk/@nrwl/devkit",
-          "aws-prototyping-sdk/@nrwl/devkit/*",
-          "aws-prototyping-sdk/license-checker",
-          "aws-prototyping-sdk/license-checker/*",
-          "aws-prototyping-sdk/oss-attribution-generator",
-          "aws-prototyping-sdk/oss-attribution-generator/*",
-          "@aws-prototyping-sdk/*/license-checker",
-          "@aws-prototyping-sdk/*/license-checker/*",
-          "@aws-prototyping-sdk/*/oss-attribution-generator",
-          "@aws-prototyping-sdk/*/oss-attribution-generator/*",
-          "@aws-prototyping-sdk/cloudscape-react-ts-sample-website",
-          "@aws-prototyping-sdk/cloudscape-react-ts-sample-website/**",
-          "@aws-prototyping-sdk/cdk-graph-plugin-diagram/@types/to-px",
-        ],
+        disableNoHoistBundled: true,
       },
     });
 
@@ -174,7 +165,13 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       "build",
       ".env",
       ".venv",
-      "tsconfig.tsbuildinfo"
+      "tsconfig.tsbuildinfo",
+      ".yarn/unplugged",
+      ".yarn/install-state.gz",
+      ".yarn/cache",
+      ".yarn/__virtual__",
+      ".pnp.cjs",
+      ".pnp.loader.cjs"
     );
 
     // add local `.npmrc` to automatically avoid build hangs if npx is promping to install a package
@@ -182,12 +179,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     npmrc.addConfig("yes", "true");
 
     resolveDependencies(this);
-
-    // For dependabot alerts
-    this.package.addPackageResolutions(
-      "**/react-dev-utils/**/loader-utils@^3.2.1",
-      "**/recursive-readdir/**/minimatch@^3.0.5"
-    );
 
     this.testTask.spawn(gitSecretsScanTask);
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env ts-node
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "node:path";
 import * as fs from "fs-extra";
 import execa = require("execa");
 
@@ -77,51 +76,9 @@ const SHARP_PREBUILDS: Record<string, SharpPrebuild> = {
     await execa.command(`${cmd} sharp`, { stdio: "inherit", cwd: __dirname })
   }
 
-  const sharpModule = require.resolve("sharp").replace(/sharp\/.*/, "sharp");
-  const vendorDir = path.join(sharpModule, "vendor");
-
-  // Replace all hard links with copy
-  // npm ERR! 415 Unsupported Media Type - PUT ... - Hard link is not allowed
-  const hardLinks = await findHardlinks(vendorDir);
-  console.debug("sharp hardlinks:", hardLinks.length, hardLinks);
-  // Find all same files (matching hard links)
-  const matchedFiles = new Set<string>();
-  const sameFiles: string[][] = [];
-  for (const hardlink of hardLinks) {
-    if (!matchedFiles.has(hardlink)) {
-      const _sameFiles = await findSameFiles(vendorDir, hardlink);
-      _sameFiles.forEach((f) => matchedFiles.add(f));
-      sameFiles.push(_sameFiles);
-    }
-  }
-  // Replace hard links with copies
-  for (const group of sameFiles) {
-    const [source, ...copies] = group;
-    for (const copy of copies) {
-      // Must delete hard link first other ways is considered same file during copy
-      await fs.rm(path.join(vendorDir, copy), { recursive: true });
-      await fs.copy(path.join(vendorDir, source), path.join(vendorDir, copy), { overwrite: true, errorOnExist: true });
-    }
-  }
-
-  // Ensure there are no more hard links
-  const remainingHardLinks = await findHardlinks(vendorDir);
-  if (remainingHardLinks.length) {
-    console.debug(remainingHardLinks);
-    throw new Error("Hard links still exist in sharp prebuild - this will cause publishing error in npm")
-  }
+  // Ensure vendor and build folders are included in bundle!
+  // https://github.blog/changelog/2022-10-24-npm-v9-0-0-released/#%E2%9A%A0%EF%B8%8F-notable-breaking-changes
+  const sharpPackageJson = `${require.resolve("sharp").replace(/sharp\/.*/, "sharp")}/package.json`;
+  const sharpPackage =  fs.readJsonSync(sharpPackageJson);
+  fs.writeJsonSync(sharpPackageJson, {...sharpPackage, files: Array.from(new Set([...sharpPackage.files, 'build/**', 'vendor/**']))}, {spaces: 2});
 })();
-
-async function findHardlinks (dir: string): Promise<string[]> {
-  return (await execa.command("find . -type f \! -links 1", { cwd: dir }))
-  .stdout
-  .split("\n")
-  .filter((v) => v != null && v.length);
-}
-
-async function findSameFiles (cwd: string, file: string): Promise<string[]> {
-  return (await execa.command(`find . -samefile ${file}`, { cwd }))
-  .stdout
-  .split("\n")
-  .filter((v) => v != null && v.length);
-}

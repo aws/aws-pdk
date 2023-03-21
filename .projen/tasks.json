@@ -5,7 +5,7 @@
       "description": "Full release build for all affected projects",
       "steps": [
         {
-          "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+          "exec": "pnpx nx run-many --target=build --output-style=stream --nx-bail",
           "receiveArgs": true
         }
       ]
@@ -47,7 +47,7 @@
       "description": "Only compile for all affected projects",
       "steps": [
         {
-          "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+          "exec": "pnpx nx run-many --target=compile --output-style=stream --nx-bail",
           "receiveArgs": true
         }
       ]
@@ -58,9 +58,6 @@
       "steps": [
         {
           "exec": "ts-node --project tsconfig.dev.json .projenrc.ts"
-        },
-        {
-          "spawn": "install"
         }
       ]
     },
@@ -97,7 +94,7 @@
       "description": "Runs eslint against the codebase for all affected projects",
       "steps": [
         {
-          "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+          "exec": "pnpx nx run-many --target=eslint --output-style=stream --nx-bail",
           "receiveArgs": true
         }
       ]
@@ -121,9 +118,22 @@
     },
     "install": {
       "name": "install",
+      "description": "Install project dependencies and update lockfile (non-frozen)",
       "steps": [
         {
-          "exec": "npx nx run-many --target install-py --projects pipeline-sample-py --parallel=1"
+          "exec": "pnpm i --no-frozen-lockfile"
+        },
+        {
+          "exec": "pnpx nx run-many --target install-py --projects pipeline-sample-py --parallel=1"
+        }
+      ]
+    },
+    "install:ci": {
+      "name": "install:ci",
+      "description": "Install project dependencies using frozen lockfile",
+      "steps": [
+        {
+          "exec": "pnpm i --frozen-lockfile"
         }
       ]
     },
@@ -132,7 +142,7 @@
       "description": "Creates the distribution package for all affected projects",
       "steps": [
         {
-          "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+          "exec": "pnpx nx run-many --target=package --output-style=stream --nx-bail",
           "receiveArgs": true
         }
       ]
@@ -142,7 +152,7 @@
       "description": "Runs after successful compilation for all affected projects",
       "steps": [
         {
-          "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+          "exec": "pnpx nx run-many --target=post-compile --output-style=stream --nx-bail",
           "receiveArgs": true
         }
       ]
@@ -152,7 +162,7 @@
       "description": "Prepare the project for compilation for all affected projects",
       "steps": [
         {
-          "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+          "exec": "pnpx nx run-many --target=pre-compile --output-style=stream --nx-bail",
           "receiveArgs": true
         }
       ]
@@ -170,7 +180,7 @@
       "description": "Run task against multiple workspace projects",
       "steps": [
         {
-          "exec": "npx nx run-many",
+          "exec": "pnpx nx run-many",
           "receiveArgs": true
         }
       ]
@@ -180,7 +190,7 @@
       "description": "Synthesize workspace",
       "steps": [
         {
-          "exec": "npx projen"
+          "exec": "pnpx projen"
         }
       ]
     },
@@ -189,7 +199,7 @@
       "description": "Run tests for all affected projects",
       "steps": [
         {
-          "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+          "exec": "pnpx nx run-many --target=test --output-style=stream --nx-bail",
           "receiveArgs": true
         },
         {
@@ -201,16 +211,16 @@
       "name": "upgrade-deps",
       "steps": [
         {
-          "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u"
+          "exec": "pnpx npm-check-updates --deep --rejectVersion 0.0.0 -u"
         },
         {
-          "exec": "npx syncpack fix-mismatches"
+          "exec": "pnpx syncpack fix-mismatches"
         },
         {
-          "exec": "yarn install"
+          "exec": "pnpx install"
         },
         {
-          "exec": "npx projen"
+          "exec": "pnpx projen"
         }
       ]
     },
@@ -219,7 +229,7 @@
       "description": "Watch & compile in the background for all affected projects",
       "steps": [
         {
-          "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+          "exec": "pnpx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
           "receiveArgs": true
         }
       ]
