@@ -2,9 +2,10 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
+import { NodePackageManager } from "projen/lib/javascript";
 import { ReactTypeScriptProject } from "projen/lib/web";
-import { PDKProject } from "../pdk-project";
 import { JEST_VERSION } from "./pdk-monorepo-project";
+import { PDKProject } from "../pdk-project";
 
 /**
  * Contains configuration for the CloudscapeReactTsWebsiteProject.
@@ -26,8 +27,6 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
       stability: Stability.EXPERIMENTAL,
     });
 
-    this.addPackageIgnore("**/node_modules");
-
     this.sampleProject = new CloudscapeReactTsSampleWebsiteProject(parent);
   }
 }
@@ -39,6 +38,7 @@ class CloudscapeReactTsSampleWebsiteProject extends ReactTypeScriptProject {
   constructor(parent: Project) {
     super({
       parent,
+      packageManager: NodePackageManager.PNPM,
       outdir: "packages/cloudscape-react-ts-website/samples",
       defaultReleaseBranch: "mainline",
       depsUpgrade: false,

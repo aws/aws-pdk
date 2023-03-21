@@ -8,12 +8,14 @@ import {
   JsiiPythonTarget,
   Stability,
 } from "projen/lib/cdk";
+import { NodePackageManager } from "projen/lib/javascript";
 import { Release } from "projen/lib/release";
-import type { Nx } from "../packages/nx-monorepo/src/nx-types";
 import {
   JEST_VERSION,
   NX_TARGET_DEFAULTS,
 } from "./projects/pdk-monorepo-project";
+import { execute } from "../packages/nx-monorepo/src";
+import type { Nx } from "../packages/nx-monorepo/src/nx-types";
 
 /**
  * Configuration options for the PDK Project.
@@ -59,6 +61,7 @@ export abstract class PDKProject extends JsiiProject {
 
     super({
       ...options,
+      packageManager: NodePackageManager.PNPM,
       stability: options.stability || Stability.EXPERIMENTAL,
       github: false,
       depsUpgrade: false,
@@ -215,15 +218,17 @@ class PDKRelease extends Release {
       artifactsDirectory: project.artifactsDirectory,
     });
 
-    project.addDevDeps("license-checker", "oss-attribution-generator");
+    project.addDevDeps("license-checker");
 
     project.packageTask.reset();
     project.packageTask.exec(
-      "npx license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
+      `${execute(
+        project.package.packageManager
+      )} license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'`
     );
-    project.packageTask.exec(
-      "npx oss-attribution-generator generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution"
-    );
+    // project.packageTask.exec(
+    //     `${execute(project.package.packageManager)} generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution`
+    // );
     project.packageTask.spawn(project.tasks.tryFind("package-all")!);
     project.npmignore?.addPatterns("!LICENSE_THIRD_PARTY");
 
