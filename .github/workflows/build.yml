@@ -27,5 +27,14 @@ jobs:
         run: npx projen
       - name: Build
         run: yarn build
+      - name: Debug:Sharp:Tar
+        working-directory: packages/cdk-graph-plugin-diagram
+        run: tar -ztvf ./dist/js/cdk-graph-plugin-diagram@0.0.0.jsii.tgz -v --wildcards 'package/node_modules/sharp/*'
+      - name: Debug:Sharp:Tree:Pkg
+        working-directory: packages/cdk-graph-plugin-diagram/node_modules/sharp
+        run: tree
+      - name: Debug:Sharp:Tree:Root
+        working-directory: node_modules/sharp
+        run: tree
       - name: Check for mutations
         run: git diff --ignore-space-at-eol --exit-code
