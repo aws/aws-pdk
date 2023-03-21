@@ -493,10 +493,23 @@ target
         ],
       },
       "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
         "name": "install",
         "steps": Array [
           Object {
+            "exec": "yarn install --check-files",
+          },
+          Object {
             "exec": "npx nx run-many --target install-py --projects my_api,my-api-python --parallel=1",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },
@@ -954,7 +967,6 @@ target
       "default": "npx projen default",
       "eject": "npx projen eject",
       "eslint": "npx projen eslint",
-      "install": "npx projen install",
       "package": "npx projen package",
       "post-compile": "npx projen post-compile",
       "post-upgrade": "npx projen post-upgrade",
@@ -15234,6 +15246,24 @@ src/runtime.ts
         "steps": Array [
           Object {
             "spawn": "default",
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },

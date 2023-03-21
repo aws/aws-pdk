@@ -65,6 +65,7 @@ export class AwsPrototypingSdkProject extends PDKProject {
       },
       gitignore: ["*", ...filesGlobsToKeep.map((f) => `!${f}`)],
     });
+    this.eslint?.addIgnorePattern("scripts/**");
 
     this.npmignore?.addPatterns(
       "/scripts/",

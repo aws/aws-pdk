@@ -31,10 +31,8 @@ export class IdentityProject extends PDKProject {
         "cdk-nag",
         "@aws-cdk/aws-cognito-identitypool-alpha",
       ],
-      deps: ["@aws-prototyping-sdk/pdk-nag"],
+      deps: ["@aws-prototyping-sdk/pdk-nag@^0.x"],
       stability: Stability.EXPERIMENTAL,
     });
-
-    this.addPackageIgnore("**/node_modules");
   }
 }

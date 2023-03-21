@@ -5,10 +5,11 @@ import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { JavaProject } from "projen/lib/java";
+import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { PDKProject } from "../pdk-project";
 import { JEST_VERSION } from "./pdk-monorepo-project";
+import { PDKProject } from "../pdk-project";
 
 /**
  * Contains configuration for the PipelineProject.
@@ -27,11 +28,9 @@ export class PipelineProject extends PDKProject {
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: ["projen", "aws-cdk-lib", "constructs", "cdk-nag"],
       peerDeps: ["projen", "aws-cdk-lib", "constructs", "cdk-nag"],
-      deps: ["@aws-prototyping-sdk/pdk-nag"],
+      deps: ["@aws-prototyping-sdk/pdk-nag@^0.x"],
       stability: Stability.STABLE,
     });
-
-    this.addPackageIgnore("**/node_modules");
 
     this._samples.push(
       new PipelineTypescriptSampleProject(parent),
@@ -52,6 +51,7 @@ export class PipelineTypescriptSampleProject extends TypeScriptProject {
   constructor(parent: Project) {
     super({
       parent,
+      packageManager: NodePackageManager.PNPM,
       outdir: "packages/pipeline/samples/typescript",
       defaultReleaseBranch: "mainline",
       name: "pipeline-sample-ts",

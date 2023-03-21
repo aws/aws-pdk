@@ -197,6 +197,7 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+.nx/cache
 !/.projenrc.js
 !/.prettierignore
 !/.prettierrc.json
@@ -334,6 +335,10 @@ target
         "type": "build",
       },
       Object {
+        "name": "nx",
+        "type": "build",
+      },
+      Object {
         "name": "prettier",
         "type": "build",
       },
@@ -405,7 +410,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -447,7 +452,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -478,8 +483,26 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "pnpm i --no-frozen-lockfile",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "pnpm i --frozen-lockfile",
           },
         ],
       },
@@ -488,7 +511,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -498,7 +521,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -512,7 +535,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -522,7 +545,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many",
+            "exec": "pnpx nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -532,7 +555,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "npx projen",
+            "exec": "pnpx projen",
           },
         ],
       },
@@ -541,7 +564,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -589,16 +612,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "pnpx npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "npx syncpack fix-mismatches",
+            "exec": "pnpx syncpack fix-mismatches",
           },
           Object {
-            "exec": "pnpm install",
+            "exec": "pnpx install",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "pnpx projen",
           },
         ],
       },
@@ -607,7 +630,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "pnpx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -907,6 +930,7 @@ target
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
+      "nx": "*",
       "prettier": "*",
       "projen": "*",
       "syncpack": "*",
@@ -1415,6 +1439,24 @@ tsconfig.tsbuildinfo
         "steps": Array [
           Object {
             "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js",
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "pnpm i --no-frozen-lockfile",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "pnpm i --frozen-lockfile",
           },
         ],
       },
@@ -2157,6 +2199,7 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+.nx/cache
 !/.projenrc.js
 !/.prettierignore
 !/.prettierrc.json
@@ -2293,6 +2336,10 @@ target
         "type": "build",
       },
       Object {
+        "name": "nx",
+        "type": "build",
+      },
+      Object {
         "name": "prettier",
         "type": "build",
       },
@@ -2363,7 +2410,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2405,7 +2452,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2436,8 +2483,26 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },
@@ -2446,7 +2511,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2456,7 +2521,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2470,7 +2535,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2480,7 +2545,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many",
+            "exec": "yarn nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -2490,7 +2555,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -2499,7 +2564,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2547,16 +2612,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "npx syncpack fix-mismatches",
+            "exec": "yarn syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -2565,7 +2630,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2865,6 +2930,7 @@ target
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
+      "nx": "*",
       "prettier": "*",
       "projen": "*",
       "syncpack": "*",
@@ -3379,6 +3445,24 @@ tsconfig.tsbuildinfo
         "steps": Array [
           Object {
             "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js",
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },
@@ -4113,6 +4197,7 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+.nx/cache
 !/.projenrc.js
 !/.prettierignore
 !/.prettierrc.json
@@ -4249,6 +4334,10 @@ target
         "type": "build",
       },
       Object {
+        "name": "nx",
+        "type": "build",
+      },
+      Object {
         "name": "prettier",
         "type": "build",
       },
@@ -4319,7 +4408,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4361,7 +4450,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4392,8 +4481,26 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --immutable",
           },
         ],
       },
@@ -4402,7 +4509,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4412,7 +4519,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4426,7 +4533,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4436,7 +4543,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many",
+            "exec": "yarn nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -4446,7 +4553,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -4455,7 +4562,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4503,16 +4610,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "npx syncpack fix-mismatches",
+            "exec": "yarn syncpack fix-mismatches",
           },
           Object {
-            "exec": "yarn2 install",
+            "exec": "yarn install",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -4521,7 +4628,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4821,6 +4928,7 @@ target
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
+      "nx": "*",
       "prettier": "*",
       "projen": "*",
       "syncpack": "*",
@@ -5335,6 +5443,24 @@ tsconfig.tsbuildinfo
         "steps": Array [
           Object {
             "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js",
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --immutable",
           },
         ],
       },
@@ -6068,6 +6194,7 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+.nx/cache
 !/.projenrc.js
 !/.prettierignore
 !/.prettierrc.json
@@ -6204,6 +6331,10 @@ target
         "type": "build",
       },
       Object {
+        "name": "nx",
+        "type": "build",
+      },
+      Object {
         "name": "prettier",
         "type": "build",
       },
@@ -6274,7 +6405,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6316,7 +6447,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6347,8 +6478,26 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },
@@ -6357,7 +6506,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6367,7 +6516,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6381,7 +6530,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6391,7 +6540,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many",
+            "exec": "yarn nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -6401,7 +6550,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -6410,7 +6559,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6458,16 +6607,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "npx syncpack fix-mismatches",
+            "exec": "yarn syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -6476,7 +6625,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6776,6 +6925,7 @@ target
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
+      "nx": "*",
       "prettier": "*",
       "projen": "*",
       "syncpack": "*",
@@ -7088,6 +7238,7 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+.nx/cache
 !/.projenrc.js
 !/.prettierignore
 !/.prettierrc.json
@@ -7224,6 +7375,10 @@ target
         "type": "build",
       },
       Object {
+        "name": "nx",
+        "type": "build",
+      },
+      Object {
         "name": "prettier",
         "type": "build",
       },
@@ -7294,7 +7449,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7336,7 +7491,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7347,9 +7502,6 @@ target
         "steps": Array [
           Object {
             "exec": "ts-node --project tsconfig.dev.json .projenrc.ts",
-          },
-          Object {
-            "spawn": "install",
           },
         ],
       },
@@ -7370,16 +7522,29 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
       },
       "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
         "name": "install",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target install-py --projects py-subproject --parallel=1",
+            "exec": "yarn install --check-files",
+          },
+          Object {
+            "exec": "yarn nx run-many --target install-py --projects py-subproject --parallel=1",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },
@@ -7388,7 +7553,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7398,7 +7563,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7412,7 +7577,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7422,7 +7587,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many",
+            "exec": "yarn nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -7432,7 +7597,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -7441,7 +7606,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7489,16 +7654,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "npx syncpack fix-mismatches",
+            "exec": "yarn syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -7507,7 +7672,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7817,6 +7982,7 @@ target
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
+      "nx": "*",
       "prettier": "*",
       "projen": "*",
       "syncpack": "*",
@@ -7837,7 +8003,6 @@ target
       "default": "npx projen default",
       "eject": "npx projen eject",
       "eslint": "npx projen eslint",
-      "install": "npx projen install",
       "package": "npx projen package",
       "post-compile": "npx projen post-compile",
       "post-upgrade": "npx projen post-upgrade",
@@ -8104,20 +8269,23 @@ cython_debug/
   "packages/py-subproject/package.json": Object {
     "//": "~~ Generated by projen. To modify, edit .projenrc.js and run \\"npx projen\\".",
     "__pdk__": true,
+    "devDependencies": Object {
+      "projen": "*",
+    },
     "name": "py-subproject",
     "private": true,
     "scripts": Object {
-      "build": "npx projen build",
-      "clobber": "npx projen clobber",
-      "compile": "npx projen compile",
-      "default": "npx projen default",
-      "eject": "npx projen eject",
-      "install": "npx projen install",
-      "install-py": "npx projen install-py",
-      "package": "npx projen package",
-      "post-compile": "npx projen post-compile",
-      "pre-compile": "npx projen pre-compile",
-      "test": "npx projen test",
+      "build": "yarn projen build",
+      "clobber": "yarn projen clobber",
+      "compile": "yarn projen compile",
+      "default": "yarn projen default",
+      "eject": "yarn projen eject",
+      "install": "yarn projen install",
+      "install-py": "yarn projen install-py",
+      "package": "yarn projen package",
+      "post-compile": "yarn projen post-compile",
+      "pre-compile": "yarn projen pre-compile",
+      "test": "yarn projen test",
     },
     "version": "0.0.0",
   },
@@ -8631,6 +8799,24 @@ tsconfig.tsbuildinfo
         "steps": Array [
           Object {
             "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js",
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },
@@ -9571,6 +9757,24 @@ tsconfig.tsbuildinfo
           },
         ],
       },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
+          },
+        ],
+      },
       "package": Object {
         "description": "Creates the distribution package",
         "name": "package",
@@ -10302,6 +10506,7 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+.nx/cache
 !/.projenrc.js
 !/.prettierignore
 !/.prettierrc.json
@@ -10438,6 +10643,10 @@ target
         "type": "build",
       },
       Object {
+        "name": "nx",
+        "type": "build",
+      },
+      Object {
         "name": "prettier",
         "type": "build",
       },
@@ -10508,7 +10717,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10550,7 +10759,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10581,8 +10790,26 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },
@@ -10591,7 +10818,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10601,7 +10828,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10615,7 +10842,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10625,7 +10852,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many",
+            "exec": "yarn nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -10635,7 +10862,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -10644,7 +10871,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10692,16 +10919,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "npx syncpack fix-mismatches",
+            "exec": "yarn syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -10710,7 +10937,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11010,6 +11237,7 @@ target
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
+      "nx": "*",
       "prettier": "*",
       "projen": "*",
       "syncpack": "*",
@@ -11319,6 +11547,7 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+.nx/cache
 !/.projenrc.js
 !/.prettierignore
 !/.prettierrc.json
@@ -11457,6 +11686,10 @@ pattern1.txt
         "type": "build",
       },
       Object {
+        "name": "nx",
+        "type": "build",
+      },
+      Object {
         "name": "prettier",
         "type": "build",
       },
@@ -11527,7 +11760,7 @@ pattern1.txt
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11569,7 +11802,7 @@ pattern1.txt
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11600,8 +11833,26 @@ pattern1.txt
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },
@@ -11610,7 +11861,7 @@ pattern1.txt
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11620,7 +11871,7 @@ pattern1.txt
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11634,7 +11885,7 @@ pattern1.txt
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11644,7 +11895,7 @@ pattern1.txt
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many",
+            "exec": "yarn nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -11654,7 +11905,7 @@ pattern1.txt
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -11663,7 +11914,7 @@ pattern1.txt
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11711,16 +11962,16 @@ pattern1.txt
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "npx syncpack fix-mismatches",
+            "exec": "yarn syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -11729,7 +11980,7 @@ pattern1.txt
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12029,6 +12280,7 @@ pattern1.txt
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
+      "nx": "*",
       "prettier": "*",
       "projen": "*",
       "syncpack": "*",
@@ -12340,6 +12592,7 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+.nx/cache
 !/.projenrc.js
 !/.prettierignore
 !/.prettierrc.json
@@ -12477,6 +12730,10 @@ target
         "type": "build",
       },
       Object {
+        "name": "nx",
+        "type": "build",
+      },
+      Object {
         "name": "prettier",
         "type": "build",
       },
@@ -12548,7 +12805,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12590,7 +12847,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12621,8 +12878,26 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "pnpm i --no-frozen-lockfile",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "pnpm i --frozen-lockfile",
           },
         ],
       },
@@ -12631,7 +12906,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12641,7 +12916,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12655,7 +12930,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12665,7 +12940,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many",
+            "exec": "pnpx nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -12675,7 +12950,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "npx projen",
+            "exec": "pnpx projen",
           },
         ],
       },
@@ -12684,7 +12959,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "pnpx nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12732,16 +13007,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "pnpx npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "npx syncpack fix-mismatches",
+            "exec": "pnpx syncpack fix-mismatches",
           },
           Object {
-            "exec": "pnpm install",
+            "exec": "pnpx install",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "pnpx projen",
           },
         ],
       },
@@ -12750,7 +13025,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "pnpx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -13050,6 +13325,7 @@ target
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
+      "nx": "*",
       "prettier": "*",
       "projen": "*",
       "syncpack": "*",
@@ -13558,6 +13834,24 @@ tsconfig.tsbuildinfo
         "steps": Array [
           Object {
             "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js",
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "pnpm i --no-frozen-lockfile",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "pnpm i --frozen-lockfile",
           },
         ],
       },
@@ -14296,6 +14590,7 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+.nx/cache
 !/.projenrc.js
 !/.prettierignore
 !/.prettierrc.json
@@ -14432,6 +14727,10 @@ target
         "type": "build",
       },
       Object {
+        "name": "nx",
+        "type": "build",
+      },
+      Object {
         "name": "prettier",
         "type": "build",
       },
@@ -14502,7 +14801,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14544,7 +14843,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14575,8 +14874,26 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },
@@ -14585,7 +14902,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14595,7 +14912,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14609,7 +14926,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14619,7 +14936,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many",
+            "exec": "yarn nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -14629,7 +14946,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -14638,7 +14955,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14686,16 +15003,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "npx syncpack fix-mismatches",
+            "exec": "yarn syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -14704,7 +15021,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15016,6 +15333,7 @@ target
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
+      "nx": "*",
       "prettier": "*",
       "projen": "*",
       "syncpack": "*",
@@ -15326,6 +15644,7 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+.nx/cache
 !/.projenrc.js
 !/.prettierignore
 !/.prettierrc.json
@@ -15462,6 +15781,10 @@ target
         "type": "build",
       },
       Object {
+        "name": "nx",
+        "type": "build",
+      },
+      Object {
         "name": "prettier",
         "type": "build",
       },
@@ -15532,7 +15855,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15574,7 +15897,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15605,8 +15928,26 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },
@@ -15615,7 +15956,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15625,7 +15966,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15639,7 +15980,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15649,7 +15990,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many",
+            "exec": "yarn nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -15659,7 +16000,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -15668,7 +16009,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15716,16 +16057,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "npx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "npx syncpack fix-mismatches",
+            "exec": "yarn syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "yarn projen",
           },
         ],
       },
@@ -15734,7 +16075,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "npx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -16034,6 +16375,7 @@ target
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
+      "nx": "*",
       "prettier": "*",
       "projen": "*",
       "syncpack": "*",
@@ -16551,6 +16893,24 @@ tsconfig.tsbuildinfo
         "steps": Array [
           Object {
             "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js",
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },
@@ -17487,6 +17847,24 @@ tsconfig.tsbuildinfo
           },
         ],
       },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
+          },
+        ],
+      },
       "package": Object {
         "description": "Creates the distribution package",
         "name": "package",
@@ -18417,6 +18795,24 @@ tsconfig.tsbuildinfo
         "steps": Array [
           Object {
             "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test build-tools .projenrc.js",
+          },
+        ],
+      },
+      "install": Object {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": Object {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": Array [
+          Object {
+            "exec": "yarn install --check-files --frozen-lockfile",
           },
         ],
       },

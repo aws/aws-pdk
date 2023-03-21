@@ -21,6 +21,7 @@ export class PDKNagProject extends PDKProject {
       devDeps: [
         "cdk-nag",
         "@aws-cdk/assert",
+        "@types/fs-extra",
         "@types/mustache",
         "mustache",
         "fs-extra",
