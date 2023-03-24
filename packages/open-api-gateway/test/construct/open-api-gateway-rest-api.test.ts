@@ -152,6 +152,52 @@ describe("OpenAPI Gateway Rest Api Construct Unit Tests", () => {
     });
   });
 
+  it("Create 2 APIs on same stack", () => {
+    const stack = new Stack(PDKNag.app());
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    withTempSpec(sampleSpec, (specPath) => {
+      new OpenApiGatewayRestApi(stack, "ApiTest", {
+        spec: sampleSpec,
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func),
+          },
+        },
+      });
+      new OpenApiGatewayRestApi(stack, "ApiTest2", {
+        spec: sampleSpec,
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func),
+          },
+        },
+      });
+      ["AwsSolutions-IAM4", "AwsPrototyping-IAMNoManagedPolicies"].forEach(
+        (RuleId) => {
+          NagSuppressions.addResourceSuppressions(
+            func,
+            [
+              {
+                id: RuleId,
+                reason: "This is a test construct.",
+              },
+            ],
+            true
+          );
+        }
+      );
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
   it("With Path Parameters", () => {
     const stack = new Stack();
     const func = new Function(stack, "Lambda", {
