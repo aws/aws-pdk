@@ -611,12 +611,11 @@ export class NxMonorepoProject extends TypeScriptProject {
           packages: this.workspacePackages,
         },
       });
-    } else {
-      this.package.addField("workspaces", {
-        packages: this.workspacePackages,
-        nohoist: noHoist,
-      });
     }
+    this.package.addField("workspaces", {
+      packages: this.workspacePackages,
+      nohoist: noHoist,
+    });
   }
 
   /**

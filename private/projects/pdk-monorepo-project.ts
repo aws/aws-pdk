@@ -196,8 +196,16 @@ export class PDKMonorepoProject extends NxMonorepoProject {
    */
   synth() {
     this.subProjects.forEach((subProject) => {
+      subProject.packageTask.prependExec(
+        `pnpx ts-node ${path.relative(
+          subProject.outdir,
+          this.outdir
+        )}/scripts/jsii-pacmak-hack.ts`
+      );
       resolveDependencies(subProject);
+      updateJsPackageTask(subProject);
       updateJavaPackageTask(subProject);
+      updatePythonPackageTask(subProject);
       this.configureEsLint(subProject);
     });
 
@@ -220,6 +228,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
  * This logic will by default attempt to symlink in the user .m2 repository if it exists. Otherwise a fresh repository
  * will be created in node_modules/.cache/.m2/repository.
  *
+ * This also configures pnpm as the pack command.
+ *
  * @param project project to update.
  */
 const updateJavaPackageTask = (project: Project): void => {
@@ -236,8 +246,30 @@ const updateJavaPackageTask = (project: Project): void => {
     `[ -d ${defaultM2} ] && [ ! -d "${localM2Repository}" ] && mkdir -p ${localM2Root} && ln -s ${defaultM2} ${localM2Repository} || true`
   );
   javaTask?.exec(
-    `jsii-pacmak -v --target java --maven-local-repository=${localM2Repository}`
+    `jsii-pacmak -v --target java --maven-local-repository=${localM2Repository} --pack-command='pnpm pack'`
   );
+};
+
+/**
+ * Changes the pack command to use pnpm.
+ *
+ * @param project project to update.
+ */
+const updateJsPackageTask = (project: Project): void => {
+  project.tasks
+    .tryFind("package:js")
+    ?.reset(`jsii-pacmak -v --target js --pack-command='pnpm pack'`);
+};
+
+/**
+ * Changes the pack command to use pnpm.
+ *
+ * @param project project to update.
+ */
+const updatePythonPackageTask = (project: Project): void => {
+  project.tasks
+    .tryFind("package:python")
+    ?.reset(`jsii-pacmak -v --target python --pack-command='pnpm pack'`);
 };
 
 /**
