@@ -16,6 +16,8 @@ do
   NPM_COUNT=`curl -s https://api.npmjs.org/downloads/range/last-month/$NPM_PKG | jq '[.downloads[].downloads | tonumber] | add'`;
   PYPI_COUNT=`curl -s https://pypistats.org/api/packages/$PYTHON_PKG/recent | jq '.data.last_month'`;
 
+  [[ "$PYTHON_PKG" == "null" ]] && PYPI_COUNT=0;
+
   TOTAL_NPM_COUNT=$(($TOTAL_NPM_COUNT + $NPM_COUNT));
   TOTAL_PYPI_COUNT=$(($TOTAL_PYPI_COUNT + $PYPI_COUNT));
 
