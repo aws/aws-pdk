@@ -6,14 +6,14 @@ AWS Prototyping SDK (PDK) is a package which contains useful CDK and Projen cons
 
 Ensure you have the following packages installed globally:
 
-* [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable)
+* [pnpm](https://pnpm.io/installation)
 * [node > 14](https://nodejs.org/en/download/package-manager/) (or use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to install)
 * [Python >= 3.7](https://www.python.org/downloads/)
 * [Java >= 8](https://aws.amazon.com/fr/corretto/) and [Maven >= 3.6](https://maven.apache.org/download.cgi)
 
 ```bash
 # from root directory of this package
-yarn
+pnpm i
 ```
 
 ## Usage of projen/nx
@@ -21,19 +21,19 @@ yarn
 This package is built using [projen](https://github.com/projen/projen) and [nx](https://nx.dev/getting-started/intro) as such all tasks should be invoked
 via either:
 
-- `npx nx run-many --target=<task> --all` - executes the `<task>` on every package, in dependency order.
-- `npx nx run <package_name>:<task>` - executes the `<task>` on the specified `<package_name>`.
+- `pnpx nx run-many --target=<task> --all` - executes the `<task>` on every package, in dependency order.
+- `pnpx nx run <package_name>:<task>` - executes the `<task>` on the specified `<package_name>`.
 
-To build the full project, run `npx nx run-many --target=build --all`
+To build the full project, run `pnpx nx run-many --target=build --all`
 
-Any change to `projects/*` or `.projenrc.ts` requires a synth to be executed. To do this, run: `npx projen` from the root directory.
+Any change to `projects/*` or `.projenrc.ts` requires a synth to be executed. To do this, run: `pnpx projen` from the root directory.
 
 ## Nx workspace script alias
-In addition to the above `npx nx <command>` format to execute commands, the workspace package contains useful alias for common tasks.
+In addition to the above `pnpx nx <command>` format to execute commands, the workspace package contains useful alias for common tasks.
 
-Executing `yarn <task>` for common tasks will execute `npx nx run-many --target=<task> --output-style=stream --nx-bail`, such as `yarn build` will execute `npx nx run-many --target=build --output-style=stream --nx-bail` across all packages.
+Executing `pnpm <task>` for common tasks will execute `pnpx nx run-many --target=<task> --output-style=stream --nx-bail`, such as `pnpm build` will execute `pnpx nx run-many --target=build --output-style=stream --nx-bail` across all packages.
 
-All nx run-many alias scripts access additional arguments, such as to only run on specific projects you can use `yarn build --projects=proj1,proj2`.
+All nx run-many alias scripts access additional arguments, such as to only run on specific projects you can use `pnpm build --projects=proj1,proj2`.
 > See [Nx Run-Many options](https://nx.dev/packages/nx/documents/run-many#options) for details.
 
 ## Documentation
