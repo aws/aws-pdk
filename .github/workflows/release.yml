@@ -96,7 +96,7 @@ jobs:
           path: dist
       - name: Release
         working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/js" ] && pnpx publib@latest publib-npm || echo "Ignore `basename $PWD` - no dist/js" ) && cd ..; done;
+        run: for d in *; do cd $d && ( [ -d "dist/js" ] && pnpm --package publib@latest dlx publib-npm || echo "Ignore `basename $PWD` - no dist/js" ) && cd ..; done;
         env:
           NPM_DIST_TAG: latest
           NPM_REGISTRY: registry.npmjs.org
@@ -125,7 +125,7 @@ jobs:
           path: dist
       - name: Release
         working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/java" ] && pnpx publib@latest publib-maven || echo "Ignore `basename $PWD` - no dist/java" ) && cd ..; done;
+        run: for d in *; do cd $d && ( [ -d "dist/java" ] && pnpm --package publib@latest dlx publib-maven || echo "Ignore `basename $PWD` - no dist/java" ) && cd ..; done;
         env:
           MAVEN_ENDPOINT: https://aws.oss.sonatype.org
           MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
@@ -156,7 +156,7 @@ jobs:
           path: dist
       - name: Release
         working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/python" ] && pnpx publib@latest publib-pypi || echo "Ignore `basename $PWD` - no dist/python" ) && cd ..; done;
+        run: for d in *; do cd $d && ( [ -d "dist/python" ] && pnpm --package publib@latest dlx publib-pypi || echo "Ignore `basename $PWD` - no dist/python" ) && cd ..; done;
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
