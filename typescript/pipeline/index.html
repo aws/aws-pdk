@@ -2313,6 +2313,16 @@ this type-testing method instead.</p>
 <td>The CodePipeline pipeline that deploys the CDK app.</td>
 </tr>
 <tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipeline.property.selfMutationEnabled">selfMutationEnabled</a></code></td>
+<td><code>boolean</code></td>
+<td>Whether SelfMutation is enabled for this CDK Pipeline.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipeline.property.selfMutationProject">selfMutationProject</a></code></td>
+<td><code>aws-cdk-lib.aws_codebuild.IProject</code></td>
+<td>The CodeBuild project that performs the SelfMutation.</td>
+</tr>
+<tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipeline.property.synthProject">synthProject</a></code></td>
 <td><code>aws-cdk-lib.aws_codebuild.IProject</code></td>
 <td>The CodeBuild project that performs the Synth.</td>
@@ -2366,6 +2376,24 @@ this type-testing method instead.</p>
 </ul>
 <p>The CodePipeline pipeline that deploys the CDK app.</p>
 <p>Only available after the pipeline has been built.</p>
+<hr />
+<h5 id="selfmutationenabledrequired"><code>selfMutationEnabled</code><sup>Required</sup> <a name="selfMutationEnabled" id="aws-prototyping-sdk.pipeline.PDKPipeline.property.selfMutationEnabled"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">selfMutationEnabled</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> boolean</li>
+</ul>
+<p>Whether SelfMutation is enabled for this CDK Pipeline.</p>
+<hr />
+<h5 id="selfmutationprojectrequired"><code>selfMutationProject</code><sup>Required</sup> <a name="selfMutationProject" id="aws-prototyping-sdk.pipeline.PDKPipeline.property.selfMutationProject"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">selfMutationProject</span><span class="o">:</span><span class="w"> </span><span class="kt">IProject</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws-cdk-lib.aws_codebuild.IProject</li>
+</ul>
+<p>The CodeBuild project that performs the SelfMutation.</p>
+<p>Will throw an error if this is accessed before <code>buildPipeline()</code>
+is called, or if selfMutation has been disabled.</p>
 <hr />
 <h5 id="synthprojectrequired"><code>synthProject</code><sup>Required</sup> <a name="synthProject" id="aws-prototyping-sdk.pipeline.PDKPipeline.property.synthProject"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">synthProject</span><span class="o">:</span><span class="w"> </span><span class="kt">IProject</span><span class="p">;</span>
@@ -2544,6 +2572,11 @@ this type-testing method instead.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineJavaProjectOptions.property.commitGenerated">commitGenerated</a></code></td>
 <td><code>boolean</code></td>
 <td>Whether to commit the managed files by default.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineJavaProjectOptions.property.gitOptions">gitOptions</a></code></td>
+<td><code>projen.GitOptions</code></td>
+<td>Configuration options for git.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineJavaProjectOptions.property.logging">logging</a></code></td>
@@ -2855,6 +2888,14 @@ this type-testing method instead.</p>
 <li><em>Default:</em> true</li>
 </ul>
 <p>Whether to commit the managed files by default.</p>
+<hr />
+<h5 id="gitoptionsoptional"><code>gitOptions</code><sup>Optional</sup> <a name="gitOptions" id="aws-prototyping-sdk.pipeline.PDKPipelineJavaProjectOptions.property.gitOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">gitOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">GitOptions</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.GitOptions</li>
+</ul>
+<p>Configuration options for git.</p>
 <hr />
 <h5 id="loggingoptional"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.pipeline.PDKPipelineJavaProjectOptions.property.logging"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">logging</span><span class="o">:</span><span class="w"> </span><span class="kt">LoggerOptions</span><span class="p">;</span>
@@ -3664,7 +3705,7 @@ framework version.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> aws-cdk-lib.pipelines.CodeBuildOptions</li>
-<li><em>Default:</em> All projects run non-privileged build, SMALL instance, LinuxBuildImage.STANDARD_5_0</li>
+<li><em>Default:</em> All projects run non-privileged build, SMALL instance, LinuxBuildImage.STANDARD_6_0</li>
 </ul>
 <p>Customize the CodeBuild projects created for this pipeline.</p>
 <hr />
@@ -3913,6 +3954,11 @@ a partial ShellStepProps.</p>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.commitGenerated">commitGenerated</a></code></td>
 <td><code>boolean</code></td>
 <td>Whether to commit the managed files by default.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.gitOptions">gitOptions</a></code></td>
+<td><code>projen.GitOptions</code></td>
+<td>Configuration options for git.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.logging">logging</a></code></td>
@@ -4269,6 +4315,14 @@ a partial ShellStepProps.</p>
 <li><em>Default:</em> true</li>
 </ul>
 <p>Whether to commit the managed files by default.</p>
+<hr />
+<h5 id="gitoptionsoptional_1"><code>gitOptions</code><sup>Optional</sup> <a name="gitOptions" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.gitOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">gitOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">GitOptions</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.GitOptions</li>
+</ul>
+<p>Configuration options for git.</p>
 <hr />
 <h5 id="loggingoptional_1"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.pipeline.PDKPipelinePyProjectOptions.property.logging"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">logging</span><span class="o">:</span><span class="w"> </span><span class="kt">LoggerOptions</span><span class="p">;</span>
@@ -4959,6 +5013,11 @@ If you use experimental features this will let you define the moment you include
 <td>Whether to commit the managed files by default.</td>
 </tr>
 <tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.gitOptions">gitOptions</a></code></td>
+<td><code>projen.GitOptions</code></td>
+<td>Configuration options for git.</td>
+</tr>
+<tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.logging">logging</a></code></td>
 <td><code>projen.LoggerOptions</code></td>
 <td>Configure logging options such as verbosity.</td>
@@ -5227,6 +5286,11 @@ If you use experimental features this will let you define the moment you include
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.peerDeps">peerDeps</a></code></td>
 <td><code>string[]</code></td>
 <td>Peer dependencies for this module.</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.pnpmVersion">pnpmVersion</a></code></td>
+<td><code>string</code></td>
+<td>The version of PNPM to use if using PNPM as a package manager.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.repository">repository</a></code></td>
@@ -5733,6 +5797,14 @@ If you use experimental features this will let you define the moment you include
 <li><em>Default:</em> true</li>
 </ul>
 <p>Whether to commit the managed files by default.</p>
+<hr />
+<h5 id="gitoptionsoptional_2"><code>gitOptions</code><sup>Optional</sup> <a name="gitOptions" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.gitOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">gitOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">GitOptions</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.GitOptions</li>
+</ul>
+<p>Configuration options for git.</p>
 <hr />
 <h5 id="loggingoptional_2"><code>logging</code><sup>Optional</sup> <a name="logging" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.logging"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">logging</span><span class="o">:</span><span class="w"> </span><span class="kt">LoggerOptions</span><span class="p">;</span>
@@ -6292,6 +6364,15 @@ breaking change for your customers.</p>
 enabled by default), projen will automatically add a dev dependency with a
 pinned version for each peer dependency. This will ensure that you build &amp;
 test your module against the lowest peer version required.</p>
+<hr />
+<h5 id="pnpmversionoptional"><code>pnpmVersion</code><sup>Optional</sup> <a name="pnpmVersion" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.pnpmVersion"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">pnpmVersion</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+<li><em>Default:</em> "7"</li>
+</ul>
+<p>The version of PNPM to use if using PNPM as a package manager.</p>
 <hr />
 <h5 id="repositoryoptional"><code>repository</code><sup>Optional</sup> <a name="repository" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProjectOptions.property.repository"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">repository</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -10086,7 +10167,7 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProject.property.maxNodeVersion">maxNodeVersion</a></code></td>
 <td><code>string</code></td>
-<td>Maximum node version required by this pacakge.</td>
+<td>Maximum node version required by this package.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.pipeline.PDKPipelineTsProject.property.minNodeVersion">minNodeVersion</a></code></td>
@@ -10553,7 +10634,7 @@ tarball will be placed under <code>dist/js/boom-boom-1.2.3.tg</code>.</p>
 <ul>
 <li><em>Type:</em> string</li>
 </ul>
-<p>Maximum node version required by this pacakge.</p>
+<p>Maximum node version required by this package.</p>
 <hr />
 <h5 id="minnodeversionoptional_1"><code>minNodeVersion</code><sup>Optional</sup> <a name="minNodeVersion" id="aws-prototyping-sdk.pipeline.PDKPipelineTsProject.property.minNodeVersion"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">minNodeVersion</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -10755,7 +10836,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2023-03-14
+      2023-03-24
     
   </small>
 </div>
