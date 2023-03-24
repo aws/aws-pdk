@@ -31,16 +31,20 @@ const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
  * Execute command to run based on package manager configured.
  *
  * @param packageManager package manager being used.
+ * @param args args to append.
  */
-export function execute(packageManager: NodePackageManager) {
+export function buildExecutableCommand(
+  packageManager: NodePackageManager,
+  ...args: string[]
+) {
   switch (packageManager) {
     case NodePackageManager.YARN:
     case NodePackageManager.YARN2:
-      return "yarn";
+      return `yarn ${args.join(" ")}`;
     case NodePackageManager.PNPM:
-      return "pnpx";
+      return `pnpx ${args.join(" ")}`;
     default:
-      return "npx";
+      return `npx ${args.join(" ")}`;
   }
 }
 
@@ -217,13 +221,17 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     // Add alias task for "projen" to synthesize workspace
     this.addTask("synth-workspace", {
-      exec: `${execute(this.package.packageManager)} projen`,
+      exec: buildExecutableCommand(this.package.packageManager, "projen"),
       description: "Synthesize workspace",
     });
 
     this.addTask("run-many", {
       receiveArgs: true,
-      exec: `${execute(this.package.packageManager)} nx run-many`,
+      exec: buildExecutableCommand(
+        this.package.packageManager,
+        "nx",
+        "run-many"
+      ),
       description: "Run task against multiple workspace projects",
     });
 
@@ -275,15 +283,26 @@ export class NxMonorepoProject extends TypeScriptProject {
         options.monorepoUpgradeDepsOptions?.taskName || "upgrade-deps"
       );
       upgradeDepsTask.exec(
-        `${execute(
-          this.package.packageManager
-        )} npm-check-updates --deep --rejectVersion 0.0.0 -u`
+        buildExecutableCommand(
+          this.package.packageManager,
+          "npm-check-updates",
+          "--deep",
+          "--rejectVersion",
+          "0.0.0",
+          "-u"
+        )
       );
       upgradeDepsTask.exec(
-        `${execute(this.package.packageManager)} syncpack fix-mismatches`
+        buildExecutableCommand(
+          this.package.packageManager,
+          "syncpack",
+          "fix-mismatches"
+        )
       );
       upgradeDepsTask.exec(`${this.package.packageManager} install`);
-      upgradeDepsTask.exec(`${execute(this.package.packageManager)} projen`);
+      upgradeDepsTask.exec(
+        buildExecutableCommand(this.package.packageManager, "projen")
+      );
 
       new JsonFile(this, ".syncpackrc.json", {
         obj:
@@ -356,40 +375,43 @@ export class NxMonorepoProject extends TypeScriptProject {
    * @param options
    */
   public formatNxRunManyCommand(options: NxRunManyOptions): string {
-    const cmd: string[] = [
-      `${execute(this.package.packageManager)} nx run-many`,
-      `--target=${options.target}`,
-      `--output-style=${options.outputStyle || "stream"}`,
-    ];
+    const args: string[] = [];
     if (options.configuration) {
-      cmd.push(`--configuration=${options.configuration}`);
+      args.push(`--configuration=${options.configuration}`);
     }
     if (options.runner) {
-      cmd.push(`--runner=${options.runner}`);
+      args.push(`--runner=${options.runner}`);
     }
     if (options.parallel) {
-      cmd.push(`--parallel=${options.parallel}`);
+      args.push(`--parallel=${options.parallel}`);
     }
     if (options.skipCache) {
-      cmd.push("--skip-nx-cache");
+      args.push("--skip-nx-cache");
     }
     if (options.ignoreCycles) {
-      cmd.push("--nx-ignore-cycles");
+      args.push("--nx-ignore-cycles");
     }
     if (options.noBail !== true) {
-      cmd.push("--nx-bail");
+      args.push("--nx-bail");
     }
     if (options.projects && options.projects.length) {
-      cmd.push(`--projects=${options.projects.join(",")}`);
+      args.push(`--projects=${options.projects.join(",")}`);
     }
     if (options.exclude) {
-      cmd.push(`--exclude=${options.exclude}`);
+      args.push(`--exclude=${options.exclude}`);
     }
     if (options.verbose) {
-      cmd.push("--verbose");
+      args.push("--verbose");
     }
 
-    return cmd.join(" ");
+    return buildExecutableCommand(
+      this.package.packageManager,
+      "nx",
+      "run-many",
+      `--target=${options.target}`,
+      `--output-style=${options.outputStyle || "stream"}`,
+      ...args
+    );
   }
 
   /**
@@ -558,9 +580,9 @@ export class NxMonorepoProject extends TypeScriptProject {
           devDependencies: { projen: "*" },
           scripts: subProject.tasks.all.reduce(
             (p, c) => ({
-              [c.name]: `${execute(this.package.packageManager)} projen ${
-                c.name
-              }`,
+              [c.name]: `${buildExecutableCommand(
+                this.package.packageManager
+              )} projen ${c.name}`,
               ...p,
             }),
             {}
@@ -654,7 +676,7 @@ export class NxMonorepoProject extends TypeScriptProject {
     const monorepoInstallTask =
       this.tasks.tryFind("install") ?? this.addTask("install");
     monorepoInstallTask.exec(
-      `${execute(
+      `${buildExecutableCommand(
         this.package.packageManager
       )} nx run-many --target install-py --projects ${pythonProjects
         .map((project) => project.name)
