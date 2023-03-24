@@ -282,7 +282,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       upgradeDepsTask.exec(
         `${execute(this.package.packageManager)} syncpack fix-mismatches`
       );
-      upgradeDepsTask.exec(`${execute(this.package.packageManager)} install`);
+      upgradeDepsTask.exec(`${this.package.packageManager} install`);
       upgradeDepsTask.exec(`${execute(this.package.packageManager)} projen`);
 
       new JsonFile(this, ".syncpackrc.json", {
