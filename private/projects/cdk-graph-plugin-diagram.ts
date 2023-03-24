@@ -2,7 +2,6 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { NodePackageManager } from "projen/lib/javascript";
 import { CdkGraphPluginProject } from "../abstract/cdk-graph-plugin-project";
 
 /**
@@ -81,14 +80,21 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
         "^default",
         {
           // To ensure sharp:prebuild artifacts are included in build cache hash
-          runtime: `${this.executeInWorkspace()} @aws-prototyping-sdk/nx-monorepo nx-dir-hasher {workspaceRoot}/packages/cdk-graph-plugin-diagram/node_modules/sharp`,
+          runtime: this.buildExecuteInWorkspaceCommand(
+            "@aws-prototyping-sdk/nx-monorepo",
+            "nx-dir-hasher",
+            "{workspaceRoot}/packages/cdk-graph-plugin-diagram/node_modules/sharp"
+          ),
         },
       ],
       true
     );
     this.nxOverride(
       "targets.build.outputs",
-      ["{projectRoot}/node_modules/sharp"],
+      [
+        "{projectRoot}/node_modules/sharp/build",
+        "{projectRoot}/node_modules/sharp/vendor",
+      ],
       true
     );
 
@@ -115,18 +121,6 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
       );
       this.testTask.env("JEST_IMAGE_SNAPSHOT_TRACK_OBSOLETE", "1");
       this.addGitIgnore(".jest-image-snapshot-touched-files");
-    }
-  }
-
-  private executeInWorkspace() {
-    switch (this.package.packageManager) {
-      case NodePackageManager.YARN:
-      case NodePackageManager.YARN2:
-        return "yarn workspace";
-      case NodePackageManager.PNPM:
-        return "pnpm --filter";
-      default:
-        return "npx -p";
     }
   }
 }

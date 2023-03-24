@@ -14,7 +14,7 @@ import {
   JEST_VERSION,
   NX_TARGET_DEFAULTS,
 } from "./projects/pdk-monorepo-project";
-import { execute } from "../packages/nx-monorepo/src";
+import { buildExecutableCommand } from "../packages/nx-monorepo/src";
 import type { Nx } from "../packages/nx-monorepo/src/nx-types";
 
 /**
@@ -168,6 +168,24 @@ export abstract class PDKProject extends JsiiProject {
   }
 
   /**
+   * Builds a command to execute in a particular workspace.
+   *
+   * @param args args to append to command.
+   * @protected
+   */
+  protected buildExecuteInWorkspaceCommand(...args: string[]) {
+    switch (this.package.packageManager) {
+      case NodePackageManager.YARN:
+      case NodePackageManager.YARN2:
+        return `yarn workspace ${args.join(" ")}`;
+      case NodePackageManager.PNPM:
+        return `pnpm --filter ${args.join(" ")}`;
+      default:
+        return `npx -p ${args.join(" ")}`;
+    }
+  }
+
+  /**
    * Get Nx project configuration.
    *
    * If project does not have explicit Nx configuration, the workspace defaults
@@ -222,9 +240,14 @@ class PDKRelease extends Release {
 
     project.packageTask.reset();
     project.packageTask.exec(
-      `${execute(
-        project.package.packageManager
-      )} license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'`
+      buildExecutableCommand(
+        project.package.packageManager,
+        "license-checker",
+        "--summary",
+        "--production",
+        "--onlyAllow",
+        "'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
+      )
     );
     // project.packageTask.exec(
     //     `${execute(project.package.packageManager)} generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution`
