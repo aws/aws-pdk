@@ -232,6 +232,9 @@
       "description": "Creates the distribution package",
       "steps": [
         {
+          "exec": "pnpx ts-node ../../scripts/jsii-pacmak-hack.ts"
+        },
+        {
           "exec": "pnpx license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
         },
         {
@@ -262,7 +265,7 @@
           "exec": "[ -d ~/.m2/repository ] && [ ! -d \"../../node_modules/.cache/.m2/repository\" ] && mkdir -p ../../node_modules/.cache/.m2 && ln -s ~/.m2/repository ../../node_modules/.cache/.m2/repository || true"
         },
         {
-          "exec": "jsii-pacmak -v --target java --maven-local-repository=../../node_modules/.cache/.m2/repository"
+          "exec": "jsii-pacmak -v --target java --maven-local-repository=../../node_modules/.cache/.m2/repository --pack-command='pnpm pack'"
         }
       ]
     },
@@ -271,7 +274,7 @@
       "description": "Create js language bindings",
       "steps": [
         {
-          "exec": "jsii-pacmak -v --target js"
+          "exec": "jsii-pacmak -v --target js --pack-command='pnpm pack'"
         }
       ]
     },
@@ -280,7 +283,7 @@
       "description": "Create python language bindings",
       "steps": [
         {
-          "exec": "jsii-pacmak -v --target python"
+          "exec": "jsii-pacmak -v --target python --pack-command='pnpm pack'"
         }
       ]
     },
