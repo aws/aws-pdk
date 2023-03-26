@@ -325,7 +325,7 @@ export class OpenApiGatewayRestApi extends Construct {
       ),
       deployOptions: {
         accessLogDestination: new LogGroupLogDestination(
-          new LogGroup(scope, `AccessLogs`)
+          new LogGroup(this, `AccessLogs`)
         ),
         accessLogFormat: AccessLogFormat.clf(),
         loggingLevel: MethodLoggingLevel.INFO,
