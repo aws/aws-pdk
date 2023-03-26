@@ -41,6 +41,14 @@ export class OpenApiGatewayProject extends PDKProject {
           globalSetup: "<rootDir>/jest.setup.ts",
         },
       },
+      publishConfig: {
+        executableFiles: [
+          "scripts/common/common.sh",
+          "scripts/custom/docs/html-redoc",
+          "scripts/generators/generate",
+          "scripts/parser/parse-openapi-spec",
+        ],
+      },
     });
 
     this.eslint?.addRules({ "import/no-unresolved": ["off"] });

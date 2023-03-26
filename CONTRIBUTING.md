@@ -81,13 +81,13 @@ export class MyPackageProject extends PDKProject {
 
 Please refer to existing projects for examples on full configuration.
 
-Once your class is created, simply instantiate it within `.projenrc.ts` and run `npx projen` from the root in order for it to be synthesized.
+Once your class is created, simply instantiate it within `.projenrc.ts` and run `pnpm projen` from the root in order for it to be synthesized.
 
 Any new project created **MUST** set the stability to `experimental`. This is to ensure the `aws-prototyping-sdk` package maintains only stable code. Once a sufficient enough period of time, tests, documentation and usage of this project has occured, it can be promoted to `stable`.
 
 #### Note regarding dependencies
 
-The jsii runtimes in non-javascript languages do not use `npm install`, and as a consequence cannot rely on `npm install` bringing in a packages dependencies. As a consequence, dependencies that are not themselves jsii modules, must also be referenced in the `bundledDependencies` section, so that they are bundled within the NPM package.
+The jsii runtimes in non-javascript languages do not use `pnpm i`, and as a consequence cannot rely on `pnpm i` bringing in a packages dependencies. As a consequence, dependencies that are not themselves jsii modules, must also be referenced in the `bundledDependencies` section, so that they are bundled within the NPM package.
 
 ### Write your code and tests
 
@@ -155,8 +155,8 @@ To send us a pull request, please:
 
 1. Fork the repository.
 2. Modify the source; please focus on the specific change you are contributing. If you also reformat all the code, it will be hard for us to focus on your change.
-3. Run `yarn build` to ensure everything builds and tests correctly.
-  > This will execute `npx nx run-many --target=build --output-style=stream --nx-bail` to build all sub-projects in the workspace.
+3. Run `pnpm build` to ensure everything builds and tests correctly.
+  > This will execute `pnpm nx run-many --target=build --output-style=stream --nx-bail` to build all sub-projects in the workspace.
 4. Commit to your fork on a new branch using [conventional commit messages](CONTRIBUTING.md#commits).
 5. Send us a pull request, answering any default questions in the pull request template.
 6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
@@ -173,7 +173,7 @@ for committing changes. To commit your changes run the following commands:
 
 ```bash
 git add -A # stage your changes
-npx cz # launch commitizen
+pnpm cz # launch commitizen
 ```
 
 An interactive UI will be displayed which you can follow to get your change committed.

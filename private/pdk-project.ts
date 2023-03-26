@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { PublishConfig as _PublishConfig } from "@pnpm/types/lib/package";
 import { SampleDir } from "projen";
 import {
   JsiiJavaTarget,
@@ -16,6 +17,10 @@ import {
 } from "./projects/pdk-monorepo-project";
 import { buildExecutableCommand } from "../packages/nx-monorepo/src";
 import type { Nx } from "../packages/nx-monorepo/src/nx-types";
+
+export type PublishConfig = _PublishConfig & {
+  access?: undefined | "restricted" | "public";
+};
 
 /**
  * Configuration options for the PDK Project.
@@ -41,6 +46,13 @@ export interface PDKProjectOptions extends JsiiProjectOptions {
    * @see https://nx.dev/reference/project-configuration
    */
   readonly nx?: Nx.ProjectConfig;
+
+  /**
+   * PublishConfig.
+   *
+   * @see https://pnpm.io/package_json#publishconfig
+   */
+  readonly publishConfig?: PublishConfig;
 }
 
 /**
@@ -160,7 +172,7 @@ export abstract class PDKProject extends JsiiProject {
       ],
     });
 
-    this.pdkRelease = new PDKRelease(this);
+    this.pdkRelease = new PDKRelease(this, options.publishConfig);
 
     if (options.nx) {
       this.nx = options.nx;
@@ -228,7 +240,7 @@ export abstract class PDKProject extends JsiiProject {
  * bumps package versions using semantic versioning.
  */
 class PDKRelease extends Release {
-  constructor(project: PDKProject) {
+  constructor(project: PDKProject, publishConfig?: PublishConfig) {
     super(project, {
       versionFile: "package.json",
       task: project.buildTask,
@@ -268,6 +280,7 @@ class PDKRelease extends Release {
 
     project.package.addField("publishConfig", {
       access: "public",
+      ...publishConfig,
     });
   }
 }
