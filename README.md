@@ -21,17 +21,17 @@ pnpm i
 This package is built using [projen](https://github.com/projen/projen) and [nx](https://nx.dev/getting-started/intro) as such all tasks should be invoked
 via either:
 
-- `pnpx nx run-many --target=<task> --all` - executes the `<task>` on every package, in dependency order.
-- `pnpx nx run <package_name>:<task>` - executes the `<task>` on the specified `<package_name>`.
+- `pnpm nx run-many --target=<task> --all` - executes the `<task>` on every package, in dependency order.
+- `pnpm nx run <package_name>:<task>` - executes the `<task>` on the specified `<package_name>`.
 
-To build the full project, run `pnpx nx run-many --target=build --all`
+To build the full project, run `pnpm nx run-many --target=build --all`
 
-Any change to `projects/*` or `.projenrc.ts` requires a synth to be executed. To do this, run: `pnpx projen` from the root directory.
+Any change to `projects/*` or `.projenrc.ts` requires a synth to be executed. To do this, run: `pnpm projen` from the root directory.
 
 ## Nx workspace script alias
-In addition to the above `pnpx nx <command>` format to execute commands, the workspace package contains useful alias for common tasks.
+In addition to the above `pnpm nx <command>` format to execute commands, the workspace package contains useful alias for common tasks.
 
-Executing `pnpm <task>` for common tasks will execute `pnpx nx run-many --target=<task> --output-style=stream --nx-bail`, such as `pnpm build` will execute `pnpx nx run-many --target=build --output-style=stream --nx-bail` across all packages.
+Executing `pnpm <task>` for common tasks will execute `pnpm nx run-many --target=<task> --output-style=stream --nx-bail`, such as `pnpm build` will execute `pnpx nx run-many --target=build --output-style=stream --nx-bail` across all packages.
 
 All nx run-many alias scripts access additional arguments, such as to only run on specific projects you can use `pnpm build --projects=proj1,proj2`.
 > See [Nx Run-Many options](https://nx.dev/packages/nx/documents/run-many#options) for details.

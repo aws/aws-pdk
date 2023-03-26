@@ -29,7 +29,7 @@ export class ParsedSpec extends Component {
   static parse(specPath: string, outputPath: string) {
     // Parse the spec and write to the target output path
     exec(
-      `chmod +x ./parse-openapi-spec && ./parse-openapi-spec --specPath=${specPath} --outputPath=${outputPath}`,
+      `./parse-openapi-spec --specPath=${specPath} --outputPath=${outputPath}`,
       {
         cwd: path.resolve(
           __dirname,
