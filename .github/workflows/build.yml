@@ -2,11 +2,30 @@ name: build
 on:
   pull_request: {}
   workflow_dispatch: {}
+  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#merge_group
+  merge_group:
+    types: [checks_requested]
 env:
   NX_BRANCH: ${{ github.event.number }}
   NX_RUN_GROUP: ${{ github.run_id }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+# Minimum permissions required by skip-duplicate-actions
+permissions:
+  actions: write
+  contents: read
 jobs:
+  # https://github.com/marketplace/actions/skip-duplicate-actions
+  pre_job:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          concurrent_skipping: 'never'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
   build:
     runs-on: ubuntu-latest
     permissions:
