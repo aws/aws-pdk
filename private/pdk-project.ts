@@ -152,12 +152,14 @@ export abstract class PDKProject extends JsiiProject {
 
     const eslintTask = this.tasks.tryFind("eslint");
     eslintTask?.reset(
-      `eslint --ext .ts,.tsx \${CI:-'--fix'} --no-error-on-unmatched-pattern ${this.srcdir} ${this.testdir}`
+      `eslint --ext .ts,.tsx \${CI:-'--fix'} --no-error-on-unmatched-pattern ${this.srcdir} ${this.testdir}`,
+      { receiveArgs: true }
     );
     const jestTask =
       this.jest &&
       this.addTask("jest", {
         exec: `jest --passWithNoTests \${CI:-'--updateSnapshot'}`,
+        receiveArgs: true,
       });
     this.testTask.reset();
     jestTask && this.testTask.spawn(jestTask);
