@@ -25,7 +25,13 @@ jobs:
         run: pnpm projen fetch-pricing-manifest
       - name: Build
         working-directory: packages/aws-arch
-        run: pnpm build
+        # Need to run each build step manually to allow updating snapshots in test
+        run: -|
+          pnpm projen pre-compile
+          pnpm projen compile
+          pnpm projen post-compile
+          pnpm jest --updateSnapshot
+          pnpm projen package
       - id: create_patch
         name: Find mutations
         run: |-
