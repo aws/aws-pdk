@@ -211,6 +211,14 @@ export class NxMonorepoProject extends TypeScriptProject {
       },
     });
 
+    // engines
+    this.package.addEngine("node", ">=16");
+    if (this.package.packageManager === NodePackageManager.PNPM) {
+      // https://pnpm.io/package_json
+      // https://github.com/pnpm/pnpm/releases/tag/v8.0.0
+      this.package.addEngine("pnpm", ">=8");
+    }
+
     this.nxConfig = options.nxConfig;
     this.workspaceConfig = options.workspaceConfig;
     this.workspacePackages = options.workspaceConfig?.additionalPackages ?? [];
