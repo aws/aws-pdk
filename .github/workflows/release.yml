@@ -19,7 +19,7 @@ jobs:
       CI: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
@@ -30,13 +30,8 @@ jobs:
         run: |-
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-      - name: Install pnpm
-        run: npm install -g pnpm
-      - name: Install dependencies
-        run: pnpm i --frozen-lockfile
-      - name: Synth Project
-        run: pnpm projen
-      - name: Build
+      - name: PDK Init
+        uses: ./.github/actions/pdk-init
         run: NX_CLOUD_NO_TIMEOUTS=true pnpm build
       - name: Release
         run: pnpm run-many --target=release:mainline --all --parallel=4 --output-style stream --nx-bail
