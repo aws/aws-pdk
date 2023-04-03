@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -e
+
+# Parse arguments
+spec_path=''
+output_path=''
+while [[ "$#" -gt 0 ]]; do case $1 in
+  --spec-path) spec_path="$2"; shift;;
+  --output-path) output_path="$2"; shift;;
+esac; shift; done
+
+working_dir=$(pwd)
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
+
+# load common package manager helper functions
+. "$script_dir/../common/common.sh"
+
+# Create a temporary directory
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}parse-openapi-spec.XXXXXXXXX")
+cd $tmp_dir
+
+log "parse-openapi-spec :: tmp_dir :: $tmp_dir"
+
+# Copy the parse script into the temp directory
+cp -r $script_dir/* .
+
+# Install dependencies. Note that projen version does not need to be kept in sync with project projen version since
+# this runs in isolation.
+install_packages \
+  typescript@4.7.2 \
+  @types/node@14.14.20 \
+  ts-node@10.8.1 \
+  @apidevtools/swagger-parser@10.0.3 \
+  openapi-types@11.0.1 \
+  ts-command-line-args@2.3.1 \
+  projen@0.67.46
+
+# Run the parse script
+run_command "ts-node parse-openapi-spec.ts --specPath=$script_dir/$spec_path --outputPath=$script_dir/$output_path"
+echo "openapi-spec parsed"
+
+# Clean up
+cd $working_dir
+rm -rf $tmp_dir

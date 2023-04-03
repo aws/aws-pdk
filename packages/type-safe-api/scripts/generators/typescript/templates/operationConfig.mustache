@@ -1,0 +1,339 @@
+// Import models
+import {
+    {{#apiInfo}}
+    {{#models}}
+    {{#model}}
+    {{classname}},
+    {{classname}}FromJSON,
+    {{classname}}ToJSON,
+    {{/model}}
+    {{/models}}
+    {{/apiInfo}}
+} from '../../models';
+// Import request parameter interfaces
+import {
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    {{#allParams.0}}{{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request,{{/allParams.0}}
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+} from '..';
+
+// API Gateway Types
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+
+// Generic type for object keyed by operation names
+export interface OperationConfig<T> {
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    {{nickname}}: T;
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+}
+
+// Look up path and http method for a given operation name
+export const OperationLookup = {
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    {{nickname}}: {
+        path: '{{path}}',
+        method: '{{httpMethod}}',
+    },
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+};
+
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
+// Standard apigateway request parameters (query parameters or path parameters, multi or single value)
+type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
+
+/**
+ * URI decode for a string or array of strings
+ */
+const uriDecode = (value: string | string[]): string | string[] =>
+    typeof value === 'string' ? decodeURIComponent(value) : value.map((v) => decodeURIComponent(v));
+
+/**
+ * URI decodes apigateway request parameters (query or path parameters)
+ */
+const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGatewayRequestParameters => {
+    const decodedParameters = {};
+    Object.keys(parameters || {}).forEach((key) => {
+        decodedParameters[key] = parameters[key] ? uriDecode(parameters[key]) : parameters[key];
+    });
+    return decodedParameters;
+};
+
+/**
+ * Parse the body if the content type is json, otherwise leave as a raw string
+ */
+const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
+
+type OperationIds ={{#apiInfo}}{{#apis}}{{#operations}}{{#operation}} | '{{nickname}}'{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
+// Api gateway lambda handler type
+type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
+
+// Type of the response to be returned by an operation lambda handler
+export interface OperationResponse<StatusCode extends number, Body> {
+    statusCode: StatusCode;
+    headers?: { [key: string]: string };
+    body: Body;
+}
+
+// Input for a lambda handler for an operation
+export type LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody> = {
+    requestParameters: RequestParameters,
+    requestArrayParameters: RequestArrayParameters,
+    body: RequestBody,
+};
+
+export type InterceptorContext = { [key: string]: any };
+
+export interface RequestInput<RequestParameters, RequestArrayParameters, RequestBody> {
+    input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>;
+    event: APIGatewayProxyEvent;
+    context: Context;
+    interceptorContext: InterceptorContext;
+}
+
+export interface ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response> extends RequestInput<RequestParameters, RequestArrayParameters, RequestBody> {
+    chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>;
+}
+
+/**
+ * A lambda handler function which is part of a chain. It may invoke the remainder of the chain via the given chain input
+ */
+export type ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
+  input: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+) => Promise<Response>;
+
+// Type for a lambda handler function to be wrapped
+export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
+  input: RequestInput<RequestParameters, RequestArrayParameters, RequestBody>,
+) => Promise<Response>;
+
+export interface LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> {
+  next: LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>;
+}
+
+// Interceptor is a type alias for ChainedLambdaHandlerFunction
+export type Interceptor<RequestParameters, RequestArrayParameters, RequestBody, Response> = ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>;
+
+/**
+ * Build a chain from the given array of chained lambda handlers
+ */
+const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, Response>(
+  ...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>[]
+): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> => {
+  if (handlers.length === 0) {
+    return {
+      next: () => {
+        throw new Error("No more handlers remain in the chain! The last handler should not call next.");
+      }
+    };
+  }
+  const [currentHandler, ...remainingHandlers] = handlers;
+  return {
+    next: (input) => {
+      return currentHandler({
+        ...input,
+        chain: buildHandlerChain(...remainingHandlers),
+      });
+    },
+  };
+};
+
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+/**
+ * Single-value path/query parameters for {{operationIdCamelCase}}
+ */
+export interface {{operationIdCamelCase}}RequestParameters {
+{{#allParams}}
+{{^isBodyParam}}
+{{^isArray}}
+    readonly {{baseName}}{{^required}}?{{/required}}: string;
+{{/isArray}}
+{{/isBodyParam}}
+{{/allParams}}
+}
+
+/**
+ * Multi-value query parameters for {{operationIdCamelCase}}
+ */
+export interface {{operationIdCamelCase}}RequestArrayParameters {
+{{#allParams}}
+{{^isBodyParam}}
+{{#isArray}}
+    readonly {{baseName}}{{^required}}?{{/required}}: string[];
+{{/isArray}}
+{{/isBodyParam}}
+{{/allParams}}
+}
+
+/**
+ * Request body parameter for {{operationIdCamelCase}}
+ */
+export type {{operationIdCamelCase}}RequestBody = {{#bodyParam}}{{#isPrimitiveType}}string{{/isPrimitiveType}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{/bodyParam}}{{^bodyParam}}never{{/bodyParam}};
+
+{{#responses}}
+export type {{operationIdCamelCase}}{{code}}OperationResponse = OperationResponse<{{code}}, {{#dataType}}{{#isPrimitiveType}}string{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}}{{/dataType}}{{^dataType}}undefined{{/dataType}}>;
+{{/responses}}
+export type {{operationIdCamelCase}}OperationResponses = {{#responses}}| {{operationIdCamelCase}}{{code}}OperationResponse {{/responses}};
+
+// Type that the handler function provided to the wrapper must conform to
+export type {{operationIdCamelCase}}HandlerFunction = LambdaHandlerFunction<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody, {{operationIdCamelCase}}OperationResponses>;
+export type {{operationIdCamelCase}}ChainedHandlerFunction = ChainedLambdaHandlerFunction<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody, {{operationIdCamelCase}}OperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of {{nickname}}
+ */
+export const {{nickname}}Handler = (
+    firstHandler: {{operationIdCamelCase}}ChainedHandlerFunction,
+    ...remainingHandlers: {{operationIdCamelCase}}ChainedHandlerFunction[]
+): OperationApiGatewayLambdaHandler<'{{nickname}}'> => async (event: any, context: any, _callback?: any, additionalInterceptors: {{operationIdCamelCase}}ChainedHandlerFunction[] = []): Promise<any> => {
+    const requestParameters = decodeRequestParameters({
+        ...(event.pathParameters || {}),
+        ...(event.queryStringParameters || {}),
+    }) as unknown as {{operationIdCamelCase}}RequestParameters;
+
+    const requestArrayParameters = decodeRequestParameters({
+        ...(event.multiValueQueryStringParameters || {}),
+    }) as unknown as {{operationIdCamelCase}}RequestArrayParameters;
+
+    const demarshal = (bodyString: string): any => {
+        {{#bodyParam}}
+        {{^isPrimitiveType}}
+        return {{dataType}}FromJSON(JSON.parse(bodyString));
+        {{/isPrimitiveType}}
+        {{#isPrimitiveType}}
+        return bodyString;
+        {{/isPrimitiveType}}
+        {{/bodyParam}}
+        {{^bodyParam}}
+        return {};
+        {{/bodyParam}}
+    };
+    const body = parseBody(event.body, demarshal, [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}]) as {{operationIdCamelCase}}RequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            requestArrayParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: {},
+    });
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+        {{#responses}}
+            case {{code}}:
+                {{^isPrimitiveType}}
+                marshalledBody = JSON.stringify({{dataType}}ToJSON(marshalledBody));
+                {{/isPrimitiveType}}
+                break;
+        {{/responses}}
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    return {
+        ...response,
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+
+export interface HandlerRouterHandlers {
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+  readonly {{nickname}}: OperationApiGatewayLambdaHandler<'{{nickname}}'>;
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+}
+
+export type AnyOperationRequestParameters = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestParameters{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type AnyOperationRequestArrayParameters = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestArrayParameters{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type AnyOperationRequestBodies = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestBody{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type AnyOperationResponses = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}OperationResponses{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => `${method.toLowerCase()}||${path}`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestArrayParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, undefined, props.interceptors);
+};

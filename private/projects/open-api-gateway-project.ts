@@ -51,6 +51,10 @@ export class OpenApiGatewayProject extends PDKProject {
       },
     });
 
+    // Since this package is now deprecated in favour of TypeSafeApi, we disable the tests to speed up the build
+    this.testTask.reset();
+    this.testTask.spawn(this.tasks.tryFind("eslint")!);
+
     this.eslint?.addRules({ "import/no-unresolved": ["off"] });
     this.tsconfigEslint!.addInclude("scripts");
   }

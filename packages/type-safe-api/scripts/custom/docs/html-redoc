@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+
+# Parse arguments
+spec_path=''
+output_path=''
+while [[ "$#" -gt 0 ]]; do case $1 in
+  --spec-path) spec_path="$2"; shift;;
+  --output-path) output_path="$2"; shift;;
+esac; shift; done
+
+echo "Generating HTML Redoc documentation..."
+
+working_dir=$(pwd)
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
+
+# load common package manager helper functions
+. "$working_dir/../../common/common.sh"
+
+# Create a temporary directory
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-docs-html-redoc.XXXXXXXXX")
+cd $tmp_dir
+
+log "html-redoc :: tmp_dir :: $tmp_dir"
+
+# Install dependencies
+install_packages redoc-cli@0.13.20
+
+# Generate
+run_command redoc-cli build "$script_dir/$spec_path" --output "$script_dir/$output_path/index.html"
+
+echo "HTML Redoc documentation generation done!"
+
+# Clean up
+cd $working_dir
+rm -rf $tmp_dir

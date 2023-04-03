@@ -191,6 +191,22 @@ export interface NxRunManyOptions {
 }
 
 /**
+ * Options for overriding nx build tasks
+ * @internal
+ */
+interface OverrideNxBuildTaskOptions {
+  /**
+   * Force unlocking task (eg: build task is locked)
+   */
+  readonly force?: boolean;
+  /**
+   * Disable further resets of the task by other components in further lifecycle stages
+   * (eg eslint resets during preSynthesize)
+   */
+  readonly disableReset?: boolean;
+}
+
+/**
  * This project type will bootstrap a NX based monorepo with support for polygot
  * builds, build caching, dependency graph visualization and much more.
  *
@@ -285,7 +301,11 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     // Map tasks to nx run-many
     if (options.scripts == null || options.scripts.build == null) {
-      this._overrideNxBuildTask(this.buildTask, { target: "build" }, true);
+      this._overrideNxBuildTask(
+        this.buildTask,
+        { target: "build" },
+        { force: true }
+      );
     }
     if (options.scripts == null || options.scripts["pre-compile"] == null) {
       this._overrideNxBuildTask(this.preCompileTask, { target: "pre-compile" });
@@ -302,7 +322,13 @@ export class NxMonorepoProject extends TypeScriptProject {
       this._overrideNxBuildTask(this.testTask, { target: "test" });
     }
     if (options.scripts == null || options.scripts.eslint == null) {
-      this._overrideNxBuildTask(this.eslint?.eslintTask, { target: "eslint" });
+      // The Projenrc component of TypeScriptProject resets the eslint task as part of preSynthesize which would undo
+      // our changes, so we disable further resets.
+      this._overrideNxBuildTask(
+        this.eslint?.eslintTask,
+        { target: "eslint" },
+        { disableReset: true }
+      );
     }
     if (options.scripts == null || options.scripts.package == null) {
       this._overrideNxBuildTask(this.packageTask, { target: "package" });
@@ -471,14 +497,14 @@ export class NxMonorepoProject extends TypeScriptProject {
    * Overrides "build" related project tasks (build, compile, test, etc.) with `npx nx run-many` format.
    * @param task - The task or task name to override
    * @param options - Nx run-many options
-   * @param force - Force unlocking task (eg: build task is locked)
+   * @param overrideOptions - Options for overriding the task
    * @returns - The task that was overridden
    * @internal
    */
   protected _overrideNxBuildTask(
     task: Task | string | undefined,
     options: NxRunManyOptions,
-    force?: boolean
+    overrideOptions?: OverrideNxBuildTaskOptions
   ): Task | undefined {
     if (typeof task === "string") {
       task = this.tasks.tryFind(task);
@@ -488,7 +514,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       return;
     }
 
-    if (force) {
+    if (overrideOptions?.force) {
       // @ts-ignore - private property
       task._locked = false;
     }
@@ -501,6 +527,11 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     // Fix for https://github.com/nrwl/nx/pull/15071
     task.env("NX_NON_NATIVE_HASHER", "true");
+
+    if (overrideOptions?.disableReset) {
+      // Prevent any further resets of the task to force it to remain as the overridden nx build task
+      task.reset = () => {};
+    }
 
     return task;
   }
@@ -569,7 +600,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   public get subProjects(): Project[] {
-    return this.instantiationOrderSubProjects.sort((a, b) =>
+    return [...this.instantiationOrderSubProjects].sort((a, b) =>
       a.name.localeCompare(b.name)
     );
   }

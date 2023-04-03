@@ -1,0 +1,645 @@
+{{#apiInfo}}
+{{#apis.0}}
+package {{package}};
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{modelPackage}}.*;
+{{/apis.0}}
+{{/apiInfo}}
+
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.stream.Collectors;
+import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+
+{{#apiInfo}}
+{{#apis}}
+{{#imports}}import {{import}};
+{{/imports}}
+{{/apis}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{invokerPackage}}.JSON;
+{{/apis.0}}
+{{/apiInfo}}
+
+{{>generatedAnnotation}}
+public class Handlers {
+
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here to ensure that the static Gson instance is always available.
+        new JSON();
+    }
+
+    private static String decodeParameter(final String parameter) {
+        try {
+            return URLDecoder.decode(parameter, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Map<String, String> decodeRequestParameters(Map<String, String> parameters) {
+        Map<String, String> decodedParameters = new HashMap<>();
+        for(Map.Entry<String, String> parameter : parameters.entrySet()) {
+            decodedParameters.put(parameter.getKey(), decodeParameter(parameter.getValue()));
+        }
+        return decodedParameters;
+    }
+
+    private static Map<String, List<String>> decodeRequestArrayParameters(Map<String, List<String>> parameters) {
+        Map<String, List<String>> decodedParameters = new HashMap<>();
+        for(Map.Entry<String, List<String>> parameter : parameters.entrySet()) {
+            decodedParameters.put(parameter.getKey(), parameter.getValue().stream().map(Handlers::decodeParameter).collect(Collectors.toList()));
+        }
+        return decodedParameters;
+    }
+
+    private static <K, V> void putAllFromNullableMap(Map<K, V> source, Map<K, V> destination) {
+        if (source != null) {
+            destination.putAll(source);
+        }
+    }
+
+    private static String concatMethodAndPath(final String method, final String path) {
+        return String.format("%s||%s", method.toLowerCase(), path);
+    }
+
+    private static <T, I> List<Interceptor<I>> getAnnotationInterceptors(Class<T> clazz) {
+        // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
+        return clazz.isAnnotationPresent(Interceptors.class)
+                ? Arrays.stream(clazz.getAnnotation(Interceptors.class).value()).map(c -> {
+            try {
+                return (Interceptor<I>) c.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(String.format(
+                        "Cannot create instance of interceptor %s. Please ensure it has a public constructor " +
+                                "with no arguments, or override the getInterceptors method instead of using the annotation", c.getSimpleName()), e);
+            }
+        }).collect(Collectors.toList())
+                : new ArrayList<>();
+    }
+
+    /**
+     * Represents an HTTP response from an api operation
+     */
+    public static interface Response {
+        /**
+         * Returns the response body
+         */
+        String getBody();
+        /**
+         * Returns the response status code
+         */
+        int getStatusCode();
+        /**
+         * Returns the response headers
+         */
+        Map<String, String> getHeaders();
+    }
+
+    @lombok.experimental.SuperBuilder
+    @lombok.AllArgsConstructor
+    @lombok.Getter
+    public static class ApiResponse implements Response {
+        private String body;
+        private int statusCode;
+        private Map<String, String> headers;
+    }
+
+    /**
+     * Interceptors can perform generic operations on requests and/or responses, optionally delegating to the remainder
+     * of the request chain.
+     */
+    public static interface Interceptor<TInput> {
+        /**
+         * Handle a request. Usually the response from `input.getChain().next(input)` is returned to delegate to the
+         * remainder of the chain, however you may wish to return an alternative Response.
+         */
+        Response handle(ChainedRequestInput<TInput> input);
+    }
+
+    /**
+     * Use this annotation to add interceptors to the request handler. Interceptors used in the annotation must have a
+     * constructor with no arguments.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public static @interface Interceptors {
+        public Class<? extends Interceptor>[] value() default {};
+    }
+
+    /**
+     * A handler chain represents a series of interceptors, which may or may not delegate to following interceptors.
+     * The lambda handler is always the last method in the chain.
+     */
+    public static interface HandlerChain<TInput> {
+        /**
+         * Delegate to the remainder of the handler chain
+         */
+        Response next(ChainedRequestInput<TInput> input);
+    }
+
+    /**
+     * Defines the input for a request.
+     */
+    public static interface RequestInput<TInput> {
+        /**
+         * The raw event from API Gateway
+         */
+        APIGatewayProxyRequestEvent getEvent();
+        /**
+         * Lambda execution context
+         */
+        Context getContext();
+        /**
+         * Demarshalled request input
+         */
+        TInput getInput();
+        /**
+         * Storage for arbitrary interceptor context for the lifetime of the request. Set and get values to pass state
+         * between interceptors or to the final handler.
+         */
+        Map<String, Object> getInterceptorContext();
+    }
+
+    /**
+     * Reqeust input with a handler chain
+     */
+    public static interface ChainedRequestInput<TInput> extends RequestInput<TInput> {
+        /**
+         * The chain for handling requests
+         */
+        HandlerChain<TInput> getChain();
+    }
+
+    private static <TInput> HandlerChain<TInput> buildHandlerChain(final List<Interceptor<TInput>> interceptors, final HandlerChain<TInput> baseChain) {
+        if (interceptors.isEmpty()) {
+            return baseChain;
+        } else {
+            Interceptor<TInput> interceptor = interceptors.get(0);
+            HandlerChain<TInput> remainingChain = buildHandlerChain(interceptors.subList(1, interceptors.size()), baseChain);
+            return new HandlerChain<TInput>() {
+                @Override
+                public Response next(ChainedRequestInput<TInput> input) {
+                    return interceptor.handle(new ChainedRequestInput<TInput>() {
+                        @Override
+                        public APIGatewayProxyRequestEvent getEvent() {
+                            return input.getEvent();
+                        }
+
+                        @Override
+                        public Context getContext() {
+                            return input.getContext();
+                        }
+
+                        @Override
+                        public TInput getInput() {
+                            return input.getInput();
+                        }
+
+                        @Override
+                        public HandlerChain<TInput> getChain() {
+                            return remainingChain;
+                        }
+
+                        @Override
+                        public Map<String, Object> getInterceptorContext() {
+                            return input.getInterceptorContext();
+                        }
+                    });
+                }
+            };
+        }
+    }
+
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+    /**
+     * Response for the {{nickname}} operation
+     */
+    public static interface {{operationIdCamelCase}}Response extends Response {}
+
+    {{#responses}}
+    /**
+     * Response with status code {{code}} for the {{nickname}} operation
+     */
+    public static class {{operationIdCamelCase}}{{code}}Response implements {{operationIdCamelCase}}Response {
+        private String body;
+        private Map<String, String> headers;
+
+        private {{operationIdCamelCase}}{{code}}Response({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers) {
+            this.body = {{#dataType}}{{#isPrimitiveType}}body{{/isPrimitiveType}}{{^isPrimitiveType}}body.toJson(){{/isPrimitiveType}}{{/dataType}}{{^dataType}}""{{/dataType}};
+            this.headers = headers;
+        }
+
+        @Override
+        public int getStatusCode() {
+            return {{code}};
+        }
+
+        @Override
+        public String getBody() {
+            return this.body;
+        }
+
+        @Override
+        public Map<String, String> getHeaders() {
+            return this.headers;
+        }
+
+        /**
+         * Create a {{operationIdCamelCase}}{{code}}Response with{{^dataType}}out{{/dataType}} a body
+         */
+        public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body{{/dataType}}) {
+            return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}new HashMap<>());
+        }
+
+        /**
+         * Create a {{operationIdCamelCase}}{{code}}Response with{{^dataType}}out{{/dataType}} a body and headers
+         */
+        public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers) {
+            return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}headers);
+        }
+    }
+
+    {{/responses}}
+    /**
+     * Single-value query and path parameters for the {{nickname}} operation
+     */
+    public static class {{operationIdCamelCase}}RequestParameters {
+        {{#allParams}}
+        {{^isBodyParam}}
+        {{^isArray}}
+        private {{^required}}Optional<{{/required}}String{{^required}}>{{/required}} {{baseName}};
+        {{/isArray}}
+        {{/isBodyParam}}
+        {{/allParams}}
+
+        public {{operationIdCamelCase}}RequestParameters(final APIGatewayProxyRequestEvent event) {
+            Map<String, String> parameters = new HashMap<>();
+            putAllFromNullableMap(event.getPathParameters(), parameters);
+            putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            Map<String, String> decodedParameters = decodeRequestParameters(parameters);
+
+            {{#allParams}}
+            {{^isBodyParam}}
+            {{^isArray}}
+            this.{{baseName}} = {{^required}}Optional.ofNullable({{/required}}decodedParameters.get("{{baseName}}"){{^required}}){{/required}};
+            {{/isArray}}
+            {{/isBodyParam}}
+            {{/allParams}}
+        }
+
+        {{#allParams}}
+        {{^isBodyParam}}
+        {{^isArray}}
+        public {{^required}}Optional<{{/required}}String{{^required}}>{{/required}} {{#schema}}{{getter}}{{/schema}}() {
+            return this.{{baseName}};
+        }
+        {{/isArray}}
+        {{/isBodyParam}}
+        {{/allParams}}
+    }
+
+    /**
+     * Multi-value query parameters for the {{nickname}} operation
+     */
+    public static class {{operationIdCamelCase}}RequestArrayParameters {
+        {{#allParams}}
+        {{^isBodyParam}}
+        {{#isArray}}
+        private {{^required}}Optional<{{/required}}List<String>{{^required}}>{{/required}} {{baseName}};
+        {{/isArray}}
+        {{/isBodyParam}}
+        {{/allParams}}
+
+        public {{operationIdCamelCase}}RequestArrayParameters(final APIGatewayProxyRequestEvent event) {
+            Map<String, List<String>> parameters = new HashMap<>();
+            putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
+
+            {{#allParams}}
+            {{^isBodyParam}}
+            {{#isArray}}
+            this.{{baseName}} = {{^required}}Optional.ofNullable({{/required}}decodedParameters.get("{{baseName}}"){{^required}}){{/required}};
+            {{/isArray}}
+            {{/isBodyParam}}
+            {{/allParams}}
+        }
+
+        {{#allParams}}
+        {{^isBodyParam}}
+        {{#isArray}}
+        public {{^required}}Optional<{{/required}}List<String>{{^required}}>{{/required}} {{#schema}}{{getter}}{{/schema}}() {
+            return this.{{baseName}};
+        }
+        {{/isArray}}
+        {{/isBodyParam}}
+        {{/allParams}}
+    }
+
+    /**
+     * Input for the {{nickname}} operation
+     */
+    public static class {{operationIdCamelCase}}Input {
+        private {{operationIdCamelCase}}RequestParameters requestParameters;
+        private {{operationIdCamelCase}}RequestArrayParameters requestArrayParameters;
+        {{#bodyParam}}
+        private {{#isModel}}{{dataType}}{{/isModel}}{{^isModel}}String{{/isModel}} body;
+        {{/bodyParam}}
+
+        public {{operationIdCamelCase}}Input(final APIGatewayProxyRequestEvent event) {
+            this.requestParameters = new {{operationIdCamelCase}}RequestParameters(event);
+            this.requestArrayParameters = new {{operationIdCamelCase}}RequestArrayParameters(event);
+            {{#bodyParam}}
+            {{#isModel}}
+            try {
+                this.body = {{dataType}}.fromJson(event.getBody());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            };
+            {{/isModel}}
+            {{^isModel}}
+            this.body = event.getBody();
+            {{/isModel}}
+            {{/bodyParam}}
+        }
+
+        public {{operationIdCamelCase}}RequestParameters getRequestParameters() {
+            return this.requestParameters;
+        }
+
+        public {{operationIdCamelCase}}RequestArrayParameters getRequestArrayParameters() {
+            return this.requestArrayParameters;
+        }
+
+        {{#bodyParam}}
+        public {{#isModel}}{{dataType}}{{/isModel}}{{^isModel}}String{{/isModel}} getBody() {
+            return this.body;
+        }
+        {{/bodyParam}}
+    }
+
+    /**
+     * Full request input for the {{nickname}} operation, including the raw API Gateway event
+     */
+    public static class {{operationIdCamelCase}}RequestInput implements RequestInput<{{operationIdCamelCase}}Input> {
+        private APIGatewayProxyRequestEvent event;
+        private Context context;
+        private Map<String, Object> interceptorContext;
+        private {{operationIdCamelCase}}Input input;
+
+        public {{operationIdCamelCase}}RequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final {{operationIdCamelCase}}Input input) {
+            this.event = event;
+            this.context = context;
+            this.interceptorContext = interceptorContext;
+            this.input = input;
+        }
+
+        /**
+         * Returns the typed request input, with path, query and body parameters
+         */
+        public {{operationIdCamelCase}}Input getInput() {
+            return this.input;
+        }
+
+        /**
+         * Returns the raw API Gateway event
+         */
+        public APIGatewayProxyRequestEvent getEvent() {
+            return this.event;
+        }
+
+        /**
+         * Returns the lambda context
+         */
+        public Context getContext() {
+            return this.context;
+        }
+
+        /**
+         * Returns the interceptor context, which may contain values set by request interceptors
+         */
+        public Map<String, Object> getInterceptorContext() {
+            return this.interceptorContext;
+        }
+    }
+
+    /**
+     * Lambda handler wrapper for the {{nickname}} operation
+     */
+    public static abstract class {{operationIdCamelCase}} implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+        /**
+         * Handle the request for the {{nickname}} operation
+         */
+        public abstract {{operationIdCamelCase}}Response handle(final {{operationIdCamelCase}}RequestInput request);
+
+        /**
+         * For more complex interceptors that require instantiation with parameters, you may override this method to
+         * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+         * prefer the @Interceptors annotation.
+         */
+        public List<Interceptor<{{operationIdCamelCase}}Input>> getInterceptors() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+        }
+
+        public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<{{operationIdCamelCase}}Input>> additionalInterceptors) {
+            final Map<String, Object> interceptorContext = new HashMap<>();
+
+            List<Interceptor<{{operationIdCamelCase}}Input>> interceptors = new ArrayList<>();
+            interceptors.addAll(additionalInterceptors);
+
+            List<Interceptor<{{operationIdCamelCase}}Input>> annotationInterceptors = getAnnotationInterceptors(this.getClass());
+
+            interceptors.addAll(annotationInterceptors);
+            interceptors.addAll(this.getInterceptors());
+
+            final HandlerChain chain = buildHandlerChain(interceptors, new HandlerChain<{{operationIdCamelCase}}Input>() {
+                @Override
+                public Response next(ChainedRequestInput<{{operationIdCamelCase}}Input> input) {
+                    return handle(new {{operationIdCamelCase}}RequestInput(input.getEvent(), input.getContext(), input.getInterceptorContext(), input.getInput()));
+                }
+            });
+
+            final Response response = chain.next(new ChainedRequestInput<{{operationIdCamelCase}}Input>() {
+                @Override
+                public HandlerChain getChain() {
+                    // The chain's next method ignores the chain given as input, and is pre-built to follow the remaining
+                    // chain.
+                    return null;
+                }
+
+                @Override
+                public APIGatewayProxyRequestEvent getEvent() {
+                    return event;
+                }
+
+                @Override
+                public Context getContext() {
+                    return context;
+                }
+
+                @Override
+                public {{operationIdCamelCase}}Input getInput() {
+                    return new {{operationIdCamelCase}}Input(event);
+                }
+
+                @Override
+                public Map<String, Object> getInterceptorContext() {
+                    return interceptorContext;
+                }
+            });
+
+            return new APIGatewayProxyResponseEvent()
+                    .withStatusCode(response.getStatusCode())
+                    .withHeaders(response.getHeaders())
+                    .withBody(response.getBody());
+        }
+    }
+
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+    public static abstract class HandlerRouter implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+        {{#apiInfo}}
+        {{#apis}}
+        {{#operations}}
+        {{#operation}}
+        private static final String {{nickname}}MethodAndPath = concatMethodAndPath("{{httpMethod}}", "{{path}}");
+        {{/operation}}
+        {{/operations}}
+        {{/apis}}
+        {{/apiInfo}}
+
+        {{#apiInfo}}
+        {{#apis}}
+        {{#operations}}
+        {{#operation}}
+        private final {{operationIdCamelCase}} constructed{{operationIdCamelCase}};
+        {{/operation}}
+        {{/operations}}
+        {{/apis}}
+        {{/apiInfo}}
+
+        {{#apiInfo}}
+        {{#apis}}
+        {{#operations}}
+        {{#operation}}
+        /**
+         * This method must return your implementation of the {{operationIdCamelCase}} operation
+         */
+        public abstract {{operationIdCamelCase}} {{nickname}}();
+        {{/operation}}
+        {{/operations}}
+        {{/apis}}
+        {{/apiInfo}}
+
+        private static enum Route {
+            {{#apiInfo}}
+            {{#apis}}
+            {{#operations}}
+            {{#operation}}
+            {{nickname}}Route,
+            {{/operation}}
+            {{/operations}}
+            {{/apis}}
+            {{/apiInfo}}
+        }
+
+        /**
+         * Map of method and path to the route to map to
+         */
+        private final Map<String, Route> routes = new HashMap<>();
+
+        public HandlerRouter() {
+            {{#apiInfo}}
+            {{#apis}}
+            {{#operations}}
+            {{#operation}}
+            this.routes.put({{nickname}}MethodAndPath, Route.{{nickname}}Route);
+            {{/operation}}
+            {{/operations}}
+            {{/apis}}
+            {{/apiInfo}}
+            // Handlers are all constructed in the router's constructor such that lambda behaviour remains consistent;
+            // ie resources created in the constructor remain in memory between invocations.
+            // https://docs.aws.amazon.com/lambda/latest/dg/java-handler.html
+            {{#apiInfo}}
+            {{#apis}}
+            {{#operations}}
+            {{#operation}}
+            this.constructed{{operationIdCamelCase}} = this.{{nickname}}();
+            {{/operation}}
+            {{/operations}}
+            {{/apis}}
+            {{/apiInfo}}
+        }
+
+        /**
+         * For more complex interceptors that require instantiation with parameters, you may override this method to
+         * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+         * prefer the @Interceptors annotation.
+         */
+        public <T> List<Interceptor<T>> getInterceptors() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            String method = event.getRequestContext().getHttpMethod();
+            String path = event.getRequestContext().getResourcePath();
+            String methodAndPath = concatMethodAndPath(method, path);
+            Route route = this.routes.get(methodAndPath);
+
+            switch (route) {
+                {{#apiInfo}}
+                {{#apis}}
+                {{#operations}}
+                {{#operation}}
+                case {{nickname}}Route:
+                    List<Interceptor<{{operationIdCamelCase}}Input>> {{nickname}}Interceptors = getAnnotationInterceptors(this.getClass());
+                    {{nickname}}Interceptors.addAll(this.getInterceptors());
+                    return this.constructed{{operationIdCamelCase}}.handleRequestWithAdditionalInterceptors(event, context, {{nickname}}Interceptors);
+                {{/operation}}
+                {{/operations}}
+                {{/apis}}
+                {{/apiInfo}}
+                default:
+                    throw new RuntimeException(String.format("No registered handler for method {} and path {}", method, path));
+            }
+        }
+    }
+}

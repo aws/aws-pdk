@@ -1,0 +1,292 @@
+import urllib.parse
+import json
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
+from functools import wraps
+from dataclasses import dataclass, fields
+
+{{#apiInfo}}
+{{#apis}}
+{{#imports}}
+{{{import}}}
+{{/imports}}
+{{/apis}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+from {{packageName}}.schemas import (
+    date,
+    datetime,
+    file_type,
+    none_type,
+)
+from {{packageName}}.api_client import JSONEncoder
+{{/apis.0}}
+{{/apiInfo}}
+
+T = TypeVar('T')
+
+# Generic type for object keyed by operation names
+@dataclass
+class OperationConfig(Generic[T]):
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+    {{operationId}}: T
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+    ...
+
+# Look up path and http method for a given operation name
+OperationLookup = {
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+    "{{operationId}}": {
+        "path": "{{path}}",
+        "method": "{{httpMethod}}",
+    },
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+}
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        """
+        Returns an OperationConfig with the same value for every operation
+        """
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
+
+def uri_decode(value):
+    """
+    URI decode a value or list of values
+    """
+    if isinstance(value, list):
+        return [urllib.parse.unquote(v) for v in value]
+    return urllib.parse.unquote(value)
+
+def decode_request_parameters(parameters):
+    """
+    URI decode api request parameters (path, query or multi-value query)
+    """
+    return { key: uri_decode(parameters[key]) if parameters[key] is not None else parameters[key] for key in parameters.keys() }
+
+def parse_body(body, content_types, model):
+    """
+    Parse the body of an api request into the given model if present
+    """
+    if len([c for c in content_types if c != 'application/json']) == 0:
+        body = json.loads(body or '{}')
+        if model != Any:
+            body = model(**body)
+    return body
+
+
+RequestParameters = TypeVar('RequestParameters')
+RequestArrayParameters = TypeVar('RequestArrayParameters')
+RequestBody = TypeVar('RequestBody')
+ResponseBody = TypeVar('ResponseBody')
+StatusCode = TypeVar('StatusCode')
+
+@dataclass
+class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+    request_parameters: RequestParameters
+    request_array_parameters: RequestArrayParameters
+    body: RequestBody
+    event: Any
+    context: Any
+    interceptor_context: Dict[str, Any]
+
+@dataclass
+class ChainedApiRequest(ApiRequest[RequestParameters, RequestArrayParameters, RequestBody],
+    Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+
+    chain: 'HandlerChain'
+
+@dataclass
+class ApiResponse(Generic[StatusCode, ResponseBody]):
+    status_code: StatusCode
+    headers: Dict[str, str]
+    body: ResponseBody
+
+class HandlerChain(Generic[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
+    def next(self, request: ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+        raise Exception("Not implemented!")
+
+def _build_handler_chain(_interceptors, handler) -> HandlerChain:
+    if len(_interceptors) == 0:
+        class BaseHandlerChain(HandlerChain[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+                return handler(request)
+        return BaseHandlerChain()
+    else:
+        interceptor = _interceptors[0]
+
+        class RemainingHandlerChain(HandlerChain[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+                return interceptor(ChainedApiRequest(
+                    request_parameters = request.request_parameters,
+                    request_array_parameters = request.request_array_parameters,
+                    body = request.body,
+                    event = request.event,
+                    context = request.context,
+                    interceptor_context = request.interceptor_context,
+                    chain = _build_handler_chain(_interceptors[1:len(_interceptors)], handler),
+                ))
+        return RemainingHandlerChain()
+
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+
+# Request parameters are single value query params or path params
+class {{operationIdCamelCase}}RequestParameters(TypedDict):
+{{#allParams}}
+{{^isBodyParam}}
+{{^isArray}}
+    {{baseName}}: str
+{{/isArray}}
+{{/isBodyParam}}
+{{/allParams}}
+    ...
+
+# Request array parameters are multi-value query params
+class {{operationIdCamelCase}}RequestArrayParameters(TypedDict):
+{{#allParams}}
+{{^isBodyParam}}
+{{#isArray}}
+    {{baseName}}: List[str]
+{{/isArray}}
+{{/isBodyParam}}
+{{/allParams}}
+    ...
+
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
+{{operationIdCamelCase}}RequestBody = {{^bodyParams.isEmpty}}{{#bodyParams.0}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/bodyParams.0}}{{/bodyParams.isEmpty}}{{#bodyParams.isEmpty}}Any{{/bodyParams.isEmpty}}
+
+{{#responses}}
+{{operationIdCamelCase}}{{code}}OperationResponse = ApiResponse[Literal[{{code}}], {{^simpleType}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/simpleType}}{{#simpleType}}None{{/simpleType}}]
+{{/responses}}
+{{operationIdCamelCase}}OperationResponses = Union[{{#responses}}{{operationIdCamelCase}}{{code}}OperationResponse, {{/responses}}]
+
+# Request type for {{operationId}}
+{{operationIdCamelCase}}Request = ApiRequest[{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody]
+{{operationIdCamelCase}}ChainedRequest = ChainedApiRequest[{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestArrayParameters, {{operationIdCamelCase}}RequestBody]
+
+class {{operationIdCamelCase}}HandlerFunction(Protocol):
+    def __call__(self, input: {{operationIdCamelCase}}Request, **kwargs) -> {{operationIdCamelCase}}OperationResponses:
+        ...
+
+{{operationIdCamelCase}}Interceptor = Callable[[{{operationIdCamelCase}}ChainedRequest], {{operationIdCamelCase}}OperationResponses]
+
+def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = None, interceptors: List[{{operationIdCamelCase}}Interceptor] = []):
+    """
+    Decorator for an api handler for the {{operationId}} operation, providing a typed interface for inputs and outputs
+    """
+    def _handler_wrapper(handler: {{operationIdCamelCase}}HandlerFunction):
+        @wraps(handler)
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
+            request_parameters = decode_request_parameters({
+                **(event['pathParameters'] or {}),
+                **(event['queryStringParameters'] or {}),
+            })
+            request_array_parameters = decode_request_parameters({
+                **(event['multiValueQueryStringParameters'] or {}),
+            })
+            {{^bodyParams.isEmpty}}
+            {{#bodyParams.0}}
+            {{^isPrimitiveType}}
+            # Non-primitive type so parse the body into the appropriate model
+            body = parse_body(event['body'], [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}], {{operationIdCamelCase}}RequestBody)
+            {{/isPrimitiveType}}
+            {{#isPrimitiveType}}
+            # Primitive type so body is passed as the original string
+            body = event['body']
+            {{/isPrimitiveType}}
+            {{/bodyParams.0}}
+            {{/bodyParams.isEmpty}}
+            {{#bodyParams.isEmpty}}
+            body = {}
+            {{/bodyParams.isEmpty}}
+            interceptor_context = {}
+
+            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            response = chain.next(ApiRequest(
+                request_parameters,
+                request_array_parameters,
+                body,
+                event,
+                context,
+                interceptor_context,
+            ), **kwargs)
+
+            response_body = ''
+            if response.body is None:
+                pass
+            {{#responses}}
+            elif response.status_code == {{code}}:
+                {{^isPrimitiveType}}
+                response_body = json.dumps(JSONEncoder().default(response.body))
+                {{/isPrimitiveType}}
+                {{#isPrimitiveType}}
+                response_body = response.body
+                {{/isPrimitiveType}}
+            {{/responses}}
+
+            return {
+                'statusCode': response.status_code,
+                'headers': response.headers,
+                'body': response_body,
+            }
+        return wrapper
+
+    # Support use as a decorator with no arguments, or with interceptor arguments
+    if callable(_handler):
+        return _handler_wrapper(_handler)
+    elif _handler is None:
+        return _handler_wrapper
+    else:
+        raise Exception("Positional arguments are not supported by {{operationId}}_handler.")
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return "{}||{}".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path["method"], method_and_path["path"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+  {{operationId}}: Callable[[Dict, Any], Dict]
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    """
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    """
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper

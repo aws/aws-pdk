@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { CdkGraphPluginProject } from "../abstract/cdk-graph-plugin-project";
+import { JestReporter } from "projen/lib/javascript";
 
 /**
  * Project for `@aws-prototyping-sdk/cdk-graph-plugin-diagram` package.
@@ -116,7 +117,7 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
 
       // https://www.npmjs.com/package/jest-image-snapshot
       this.jest.addReporter(
-        "jest-image-snapshot/src/outdated-snapshot-reporter.js"
+        new JestReporter("jest-image-snapshot/src/outdated-snapshot-reporter.js")
       );
       this.testTask.env("JEST_IMAGE_SNAPSHOT_TRACK_OBSOLETE", "1");
       this.addGitIgnore(".jest-image-snapshot-touched-files");

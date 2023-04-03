@@ -14,6 +14,7 @@ import { PDKMonorepoProject } from "./private/projects/pdk-monorepo-project";
 import { PDKNagProject } from "./private/projects/pdk-nag-project";
 import { PipelineProject } from "./private/projects/pipeline-project";
 import { StaticWebsiteProject } from "./private/projects/static-website-project";
+import { TypeSafeApiProject } from "./private/projects/type-safe-api-project";
 
 // root/parent project
 const monorepoProject = new PDKMonorepoProject();
@@ -30,6 +31,7 @@ const awsPrototypingSdkProject = new AwsPrototypingSdkProject(monorepoProject);
 new StaticWebsiteProject(monorepoProject);
 new IdentityProject(monorepoProject);
 new OpenApiGatewayProject(monorepoProject);
+new TypeSafeApiProject(monorepoProject);
 new CloudscapeReactTsWebsiteProject(monorepoProject);
 new AwsArchProject(monorepoProject);
 new CdkGraphProject(monorepoProject);
