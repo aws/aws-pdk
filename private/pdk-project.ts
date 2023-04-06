@@ -158,7 +158,14 @@ export abstract class PDKProject extends JsiiProject {
     const jestTask =
       this.jest &&
       this.addTask("jest", {
-        exec: `jest --passWithNoTests \${CI:-'--updateSnapshot'}`,
+        exec: [
+          "jest",
+          "--passWithNoTests",
+          // Only update snapshot locally
+          "\${CI:-'--updateSnapshot'}",
+          // Always run in band for nx runner (nx run-many)
+          "\${NX_INVOKED_BY_RUNNER:+'--runInBand'}"
+        ].join(" "),
         receiveArgs: true,
       });
     this.testTask.reset();
