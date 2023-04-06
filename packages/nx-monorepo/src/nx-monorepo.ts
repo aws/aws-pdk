@@ -488,7 +488,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       exec: this.formatNxRunManyCommand(options),
       env: {
         NX_NON_NATIVE_HASHER: "true",
-      }
+      },
     });
   }
 
