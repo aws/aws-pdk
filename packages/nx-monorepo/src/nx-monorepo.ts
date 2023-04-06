@@ -256,6 +256,9 @@ export class NxMonorepoProject extends TypeScriptProject {
         "nx",
         "run-many"
       ),
+      env: {
+        NX_NON_NATIVE_HASHER: "true",
+      },
       description: "Run task against multiple workspace projects",
     });
 
@@ -470,6 +473,9 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     task.description += " for all affected projects";
 
+    // Fix for https://github.com/nrwl/nx/pull/15071
+    task.env("NX_NON_NATIVE_HASHER", "true");
+
     return task;
   }
 
@@ -480,6 +486,9 @@ export class NxMonorepoProject extends TypeScriptProject {
     return this.addTask(name, {
       receiveArgs: true,
       exec: this.formatNxRunManyCommand(options),
+      env: {
+        NX_NON_NATIVE_HASHER: "true",
+      }
     });
   }
 
