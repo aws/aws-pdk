@@ -596,7 +596,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       steps: bins.map(([cmd, bin]) => ({
         exec: `ln -s ${bin} $(${binCommand(
           this.package.packageManager
-        )})/${cmd} &>/dev/null`,
+        )})/${cmd} &>/dev/null; exit 0;`,
       })),
     });
 

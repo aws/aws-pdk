@@ -117,6 +117,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       },
       workspaceConfig: {
         disableNoHoistBundled: true,
+        linkLocalWorkspaceBins: true,
       },
     });
 

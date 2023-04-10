@@ -190,6 +190,9 @@
       "steps": [
         {
           "exec": "husky install"
+        },
+        {
+          "spawn": "workspace:bin:link"
         }
       ]
     },
@@ -258,6 +261,17 @@
         {
           "exec": "pnpx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
           "receiveArgs": true
+        }
+      ]
+    },
+    "workspace:bin:link": {
+      "name": "workspace:bin:link",
+      "steps": [
+        {
+          "exec": "ln -s $PWD/packages/nx-monorepo/scripts/assert-bundled-deps.js $(pnpm bin)/assert-bundled-deps &>/dev/null; exit 0;"
+        },
+        {
+          "exec": "ln -s $PWD/packages/nx-monorepo/scripts/nx-dir-hasher.js $(pnpm bin)/nx-dir-hasher &>/dev/null; exit 0;"
         }
       ]
     }
