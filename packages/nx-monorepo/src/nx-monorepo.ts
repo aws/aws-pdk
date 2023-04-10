@@ -48,6 +48,18 @@ export function buildExecutableCommand(
   }
 }
 
+function binCommand(packageManager: NodePackageManager): string {
+  switch (packageManager) {
+    case NodePackageManager.YARN:
+    case NodePackageManager.YARN2:
+      return `yarn bin`;
+    case NodePackageManager.PNPM:
+      return `pnpm bin`;
+    default:
+      return `npm bin`;
+  }
+}
+
 /**
  * Workspace configurations.
  *
@@ -67,6 +79,15 @@ export interface WorkspaceConfig {
    * @default false
    */
   readonly disableNoHoistBundled?: boolean;
+
+  /**
+   * Links all local workspace project bins so they can be used for local development.
+   *
+   * Package bins are only linked when installed from the registry, however it is very useful
+   * for monorepo development to also utilize these bin scripts. When enabled, this flag will
+   * recursively link all bins from packages.json files to the root node_modules/.bin.
+   */
+  readonly linkLocalWorkspaceBins?: boolean;
 
   /**
    * List of additional package globs to include in the workspace.
@@ -187,6 +208,8 @@ export class NxMonorepoProject extends TypeScriptProject {
 
   private readonly nxJson: JsonFile;
 
+  private readonly _options: NxMonorepoProjectOptions;
+
   constructor(options: NxMonorepoProjectOptions) {
     super({
       ...options,
@@ -210,6 +233,8 @@ export class NxMonorepoProject extends TypeScriptProject {
         include: ["**/*.ts"],
       },
     });
+
+    this._options = options;
 
     // engines
     this.package.addEngine("node", ">=16");
@@ -541,6 +566,49 @@ export class NxMonorepoProject extends TypeScriptProject {
     return this.instantiationOrderSubProjects.sort((a, b) =>
       a.name.localeCompare(b.name)
     );
+  }
+
+  /**
+   * Create symbolic links to all local workspace bins. This enables the usage of bins the same
+   * way as consumers of the packages have when installing from the registry.
+   */
+  protected linkLocalWorkspaceBins(): void {
+    const bins: [string, string][] = [];
+
+    this.subProjects.forEach((subProject) => {
+      if (subProject instanceof NodeProject) {
+        const pkgBins: Record<string, string> =
+          subProject.package.manifest.bin() || {};
+        bins.push(
+          ...Object.entries(pkgBins).map(([cmd, bin]) => {
+            const resolvedBin = path.join(
+              "$PWD",
+              path.relative(this.outdir, subProject.outdir),
+              bin
+            );
+            return [cmd, resolvedBin] as [string, string];
+          })
+        );
+      }
+    });
+
+    const linkTask = this.addTask("workspace:bin:link", {
+      steps: bins.map(([cmd, bin]) => ({
+        exec: `ln -s ${bin} $(${binCommand(
+          this.package.packageManager
+        )})/${cmd} &>/dev/null`,
+      })),
+    });
+
+    (this.tasks.tryFind("prepare") || this.addTask("prepare")).spawn(linkTask);
+  }
+
+  preSynthesize(): void {
+    super.preSynthesize();
+
+    if (this._options.workspaceConfig?.linkLocalWorkspaceBins === true) {
+      this.linkLocalWorkspaceBins();
+    }
   }
 
   /**
