@@ -17,17 +17,9 @@ export class NXMonorepoProject extends PDKProject {
       name: "nx-monorepo",
       keywords: ["aws", "pdk", "jsii", "projen"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: ["projen", "nx"],
+      devDeps: ["projen", "nx", "@types/fs-extra", "@types/semver"],
       peerDeps: ["projen"],
-      bundledDeps: [
-        "@nrwl/devkit",
-        "fs-extra",
-        "@types/fs-extra",
-        "semver",
-        "@types/semver",
-        "@pnpm/lockfile-types",
-        "@pnpm/lockfile-file",
-      ],
+      bundledDeps: ["@nrwl/devkit", "fs-extra", "semver"],
       stability: Stability.STABLE,
     });
 

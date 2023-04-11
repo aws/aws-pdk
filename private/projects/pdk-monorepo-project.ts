@@ -172,14 +172,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     );
 
     const npmrc = new IniFile(this, ".npmrc", {});
-    // add local `.npmrc` to automatically avoid build hangs if npx is promping to install a package
+    // add local `.npmrc` to automatically avoid build hangs if npx is prompting to install a package
     npmrc.addOverride("yes", true);
-    // https://pnpm.io/npmrc#public-hoist-pattern
-    npmrc.addOverride("public-hoist-pattern", [
-      "*eslint*",
-      "*prettier*",
-      "@pnpm/*",
-    ]);
 
     resolveDependencies(this);
 
