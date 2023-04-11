@@ -2,7 +2,6 @@
 SPDX-License-Identifier: Apache-2.0 */
 import path from "path";
 import { Project } from "projen";
-import { JsiiProject } from "projen/lib/cdk";
 import {
   NodePackageManager,
   NodeProject,
@@ -197,15 +196,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
    */
   synth() {
     this.subProjects.forEach((subProject) => {
-      // TODO: remove this and the script once https://github.com/aws/jsii/pull/4030 is merged!
-      if (subProject instanceof JsiiProject) {
-        subProject.packageTask.prependExec(
-          `pnpx ts-node ${path.relative(
-            subProject.outdir,
-            this.outdir
-          )}/scripts/jsii-pacmak-hack.ts`
-        );
-      }
       resolveDependencies(subProject);
       updateJsPackageTask(subProject);
       updateJavaPackageTask(subProject);
