@@ -19,7 +19,15 @@ export class NXMonorepoProject extends PDKProject {
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: ["projen", "nx"],
       peerDeps: ["projen"],
-      bundledDeps: ["@nrwl/devkit"],
+      bundledDeps: [
+        "@nrwl/devkit",
+        "fs-extra",
+        "@types/fs-extra",
+        "semver",
+        "@types/semver",
+        "@pnpm/lockfile-types",
+        "@pnpm/lockfile-file",
+      ],
       stability: Stability.STABLE,
     });
 
@@ -28,5 +36,10 @@ export class NXMonorepoProject extends PDKProject {
     );
 
     this.package.addBin({ "nx-dir-hasher": "./scripts/nx-dir-hasher.js" });
+
+    this.package.addBin({
+      "pdk@pnpm-link-bundled-transitive-deps":
+        "./scripts/pnpm/link-bundled-transitive-deps.ts",
+    });
   }
 }

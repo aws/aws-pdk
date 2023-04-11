@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import {
+  Dependency,
   DependencyType,
   IgnoreFile,
   JsonFile,
@@ -609,6 +610,21 @@ export class NxMonorepoProject extends TypeScriptProject {
     if (this._options.workspaceConfig?.linkLocalWorkspaceBins === true) {
       this.linkLocalWorkspaceBins();
     }
+
+    if (this.package.packageManager === NodePackageManager.PNPM) {
+      // PNPM hoisting hides transitive bundled dependencies which results in
+      // transitive dependencies being packed correctly.
+      this.subProjects.forEach((subProject) => {
+        if (isNodeProject(subProject) && getBundledDeps(subProject).length) {
+          const pkgFolder = path.relative(this.root.outdir, subProject.outdir);
+          // Create a symlink in the sub-project node_modules for all transitive deps
+          // before running "package" task
+          subProject.packageTask.prependExec(
+            `pdk@pnpm-link-bundled-transitive-deps ${pkgFolder}`
+          );
+        }
+      });
+    }
   }
 
   /**
@@ -711,12 +727,10 @@ export class NxMonorepoProject extends TypeScriptProject {
     if (this.workspaceConfig?.disableNoHoistBundled !== true) {
       const noHoistBundled = this.subProjects.flatMap((sub) => {
         if (sub instanceof NodeProject) {
-          return sub.deps.all
-            .filter((dep) => dep.type === DependencyType.BUNDLED)
-            .flatMap((dep) => [
-              `${sub.name}/${dep.name}`,
-              `${sub.name}/${dep.name}/*`,
-            ]);
+          return getBundledDeps(sub).flatMap((dep) => [
+            `${sub.name}/${dep.name}`,
+            `${sub.name}/${dep.name}/*`,
+          ]);
         }
         return [];
       });
@@ -819,10 +833,17 @@ export class NxMonorepoProject extends TypeScriptProject {
  * @param project Project instance.
  * @returns true if the project instance is of type NodeProject.
  */
-function isNodeProject(project: any) {
+function isNodeProject(project: any): project is NodeProject {
   return project instanceof NodeProject || project.package;
 }
 
 function getPluginPath() {
   return path.join(__dirname, "plugin/nx-monorepo-plugin.js");
+}
+
+/**
+ * Gets bundled dependencies for a given project
+ */
+function getBundledDeps(project: Project): Dependency[] {
+  return project.deps.all.filter((dep) => dep.type === DependencyType.BUNDLED);
 }
