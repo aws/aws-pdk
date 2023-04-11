@@ -1,12 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import path from "path";
-import { Project } from "projen";
-import {
-  NodePackageManager,
-  NodeProject,
-  NpmConfig,
-} from "projen/lib/javascript";
+import { Project, IniFile } from "projen";
+import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import {
   NxMonorepoProject,
   DEFAULT_CONFIG,
@@ -175,9 +171,15 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       ".pnp.loader.cjs"
     );
 
+    const npmrc = new IniFile(this, ".npmrc", {});
     // add local `.npmrc` to automatically avoid build hangs if npx is promping to install a package
-    const npmrc = new NpmConfig(this);
-    npmrc.addConfig("yes", "true");
+    npmrc.addOverride("yes", true);
+    // https://pnpm.io/npmrc#public-hoist-pattern
+    npmrc.addOverride("public-hoist-pattern", [
+      "*eslint*",
+      "*prettier*",
+      "@pnpm/*",
+    ]);
 
     resolveDependencies(this);
 
