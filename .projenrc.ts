@@ -41,11 +41,9 @@ pipelineProject.samples.forEach((sample) =>
 );
 
 // Docs should have a dependency on all publishable packages
-docsProject.package.addField("nx", {
-  implicitDependencies: monorepoProject.subProjects
-    .filter((s: any) => s instanceof PDKProject && s.pdkRelease)
-    .map((s) => (s as PDKProject).package.packageName),
-});
+monorepoProject.subProjects
+  .filter((s: any) => s instanceof PDKProject && s.pdkRelease)
+  .forEach((p) => monorepoProject.addImplicitDependency(docsProject, p));
 
 monorepoProject.addImplicitDependency(awsPrototypingSdkProject, pdkNagProject);
 monorepoProject.addImplicitDependency(

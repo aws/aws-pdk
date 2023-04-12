@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as fs from "fs";
 import * as path from "path";
 import {
   DependencyType,
@@ -9,7 +8,6 @@ import {
   Project,
   Task,
   TaskStep,
-  TextFile,
   YamlFile,
 } from "projen";
 import {
@@ -24,8 +22,6 @@ import {
 } from "projen/lib/typescript";
 import { Nx } from "./nx-types";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
-
-const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 
 /**
  * Execute command to run based on package manager configured.
@@ -346,15 +342,9 @@ export class NxMonorepoProject extends TypeScriptProject {
       ...(this.nxConfig?.nxIgnore || [])
     );
 
-    new TextFile(this, NX_MONOREPO_PLUGIN_PATH, {
-      readonly: true,
-      lines: fs.readFileSync(getPluginPath()).toString("utf-8").split("\n"),
-    });
-
     this.nxJson = new JsonFile(this, "nx.json", {
       obj: {
         extends: "@nrwl/workspace/presets/npm.json",
-        plugins: [`./${NX_MONOREPO_PLUGIN_PATH}`],
         npmScope: "monorepo",
         tasksRunnerOptions: {
           default: {
@@ -377,7 +367,6 @@ export class NxMonorepoProject extends TypeScriptProject {
           ...options.nxConfig?.namedInputs,
         },
         targetDefaults: options.nxConfig?.targetDefaults,
-        implicitDependencies: this.implicitDependencies,
         targetDependencies: {
           build: [
             {
@@ -557,7 +546,7 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     super.synth();
 
-    // Force workspace install deps if any node subproject package has change, unless the workspace changed
+    // Force workspace install deps if any node subproject package has changed, unless the workspace changed
     if (
       // @ts-ignore - `file` is private
       (this.package.file as JsonFile).changed !== true &&
@@ -567,6 +556,17 @@ export class NxMonorepoProject extends TypeScriptProject {
       // @ts-ignore - `installDependencies` is private
       this.package.installDependencies();
     }
+
+    Object.entries(this.implicitDependencies).forEach(([packageName, deps]) => {
+      const manifest = this.subProjects
+        .find((p) => p.name === packageName)
+        ?.tryFindObjectFile("package.json");
+
+      if (manifest) {
+        manifest.addOverride("nx.implicitDependencies", deps);
+        manifest.synthesize();
+      }
+    });
   }
 
   /**
@@ -744,8 +744,4 @@ export class NxMonorepoProject extends TypeScriptProject {
  */
 function isNodeProject(project: any) {
   return project instanceof NodeProject || project.package;
-}
-
-function getPluginPath() {
-  return path.join(__dirname, "plugin/nx-monorepo-plugin.js");
 }
