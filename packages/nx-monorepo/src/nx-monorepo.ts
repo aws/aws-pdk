@@ -25,41 +25,9 @@ import {
 } from "projen/lib/typescript";
 import { Nx } from "./nx-types";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
+import { NodePackageUtils } from "./utils/node";
 
 const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
-
-/**
- * Execute command to run based on package manager configured.
- *
- * @param packageManager package manager being used.
- * @param args args to append.
- */
-export function buildExecutableCommand(
-  packageManager: NodePackageManager,
-  ...args: string[]
-) {
-  switch (packageManager) {
-    case NodePackageManager.YARN:
-    case NodePackageManager.YARN2:
-      return `yarn ${args.join(" ")}`;
-    case NodePackageManager.PNPM:
-      return `pnpx ${args.join(" ")}`;
-    default:
-      return `npx ${args.join(" ")}`;
-  }
-}
-
-function binCommand(packageManager: NodePackageManager): string {
-  switch (packageManager) {
-    case NodePackageManager.YARN:
-    case NodePackageManager.YARN2:
-      return `yarn bin`;
-    case NodePackageManager.PNPM:
-      return `pnpm bin`;
-    default:
-      return `npm bin`;
-  }
-}
 
 /**
  * Workspace configurations.
@@ -214,6 +182,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   constructor(options: NxMonorepoProjectOptions) {
     super({
       ...options,
+      pnpmVersion: options.pnpmVersion ?? "8",
       github: options.github ?? false,
       package: options.package ?? false,
       prettier: options.prettier ?? true,
@@ -238,12 +207,12 @@ export class NxMonorepoProject extends TypeScriptProject {
     this._options = options;
 
     // engines
-    this.package.addEngine("node", ">=16");
+    this.package.addEngine("node", `>=${this.minNodeVersion || 18}`);
     switch (this.package.packageManager) {
       case NodePackageManager.PNPM: {
         // https://pnpm.io/package_json
         // https://github.com/pnpm/pnpm/releases/tag/v8.0.0
-        this.package.addEngine("pnpm", ">=8");
+        this.package.addEngine("pnpm", `>=${this.package.pnpmVersion || 8}`);
         break;
       }
       case NodePackageManager.YARN: {
@@ -266,17 +235,13 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     // Add alias task for "projen" to synthesize workspace
     this.addTask("synth-workspace", {
-      exec: buildExecutableCommand(this.package.packageManager, "projen"),
+      exec: NodePackageUtils.executableCommand(this, "projen"),
       description: "Synthesize workspace",
     });
 
     this.addTask("run-many", {
       receiveArgs: true,
-      exec: buildExecutableCommand(
-        this.package.packageManager,
-        "nx",
-        "run-many"
-      ),
+      exec: NodePackageUtils.executableCommand(this, "nx", "run-many"),
       env: {
         NX_NON_NATIVE_HASHER: "true",
       },
@@ -331,8 +296,8 @@ export class NxMonorepoProject extends TypeScriptProject {
         options.monorepoUpgradeDepsOptions?.taskName || "upgrade-deps"
       );
       upgradeDepsTask.exec(
-        buildExecutableCommand(
-          this.package.packageManager,
+        NodePackageUtils.executableCommand(
+          this,
           "npm-check-updates",
           "--deep",
           "--rejectVersion",
@@ -341,16 +306,10 @@ export class NxMonorepoProject extends TypeScriptProject {
         )
       );
       upgradeDepsTask.exec(
-        buildExecutableCommand(
-          this.package.packageManager,
-          "syncpack",
-          "fix-mismatches"
-        )
+        NodePackageUtils.executableCommand(this, "syncpack", "fix-mismatches")
       );
       upgradeDepsTask.exec(`${this.package.packageManager} install`);
-      upgradeDepsTask.exec(
-        buildExecutableCommand(this.package.packageManager, "projen")
-      );
+      upgradeDepsTask.exec(NodePackageUtils.executableCommand(this, "projen"));
 
       new JsonFile(this, ".syncpackrc.json", {
         obj:
@@ -452,8 +411,8 @@ export class NxMonorepoProject extends TypeScriptProject {
       args.push("--verbose");
     }
 
-    return buildExecutableCommand(
-      this.package.packageManager,
+    return NodePackageUtils.executableCommand(
+      this,
       "nx",
       "run-many",
       `--target=${options.target}`,
@@ -590,8 +549,8 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     const linkTask = this.addTask("workspace:bin:link", {
       steps: bins.map(([cmd, bin]) => ({
-        exec: `ln -s ${bin} $(${binCommand(
-          this.package.packageManager
+        exec: `ln -s ${bin} $(${NodePackageUtils.binCommand(
+          this
         )})/${cmd} &>/dev/null; exit 0;`,
       })),
     });
@@ -692,9 +651,9 @@ export class NxMonorepoProject extends TypeScriptProject {
           devDependencies: { projen: "*" },
           scripts: subProject.tasks.all.reduce(
             (p, c) => ({
-              [c.name]: `${buildExecutableCommand(
-                this.package.packageManager
-              )} projen ${c.name}`,
+              [c.name]: `${NodePackageUtils.executableCommand(this)} projen ${
+                c.name
+              }`,
               ...p,
             }),
             {}
@@ -786,8 +745,8 @@ export class NxMonorepoProject extends TypeScriptProject {
     const monorepoInstallTask =
       this.tasks.tryFind("install") ?? this.addTask("install");
     monorepoInstallTask.exec(
-      `${buildExecutableCommand(
-        this.package.packageManager
+      `${NodePackageUtils.executableCommand(
+        this
       )} nx run-many --target install-py --projects ${pythonProjects
         .map((project) => project.name)
         .join(",")} --parallel=1`

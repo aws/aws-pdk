@@ -15,7 +15,7 @@ import {
   JEST_VERSION,
   NX_TARGET_DEFAULTS,
 } from "./projects/pdk-monorepo-project";
-import { buildExecutableCommand } from "../packages/nx-monorepo/src";
+import { NodePackageUtils } from "../packages/nx-monorepo/src/utils";
 import type { Nx } from "../packages/nx-monorepo/src/nx-types";
 
 export type PublishConfig = _PublishConfig & {
@@ -279,8 +279,8 @@ class PDKRelease extends Release {
 
     project.packageTask.reset();
     project.packageTask.exec(
-      buildExecutableCommand(
-        project.package.packageManager,
+      NodePackageUtils.executableCommand(
+        project,
         "license-checker",
         "--summary",
         "--production",

@@ -7,7 +7,7 @@ import {
   NxMonorepoProject,
   DEFAULT_CONFIG,
 } from "../../packages/nx-monorepo/src";
-import { Nx } from "../../packages/nx-monorepo/src/nx-types";
+import * as NxMonorepo from "../../packages/nx-monorepo/src";
 
 // Default NX outputs to cache
 export const NX_DEFAULT_OUTPUTS = [
@@ -26,12 +26,12 @@ export const NX_DEFAULT_OUTPUTS = [
  * @see {@link NxTargetDefaults}
  * @see {@link ProjectTarget}
  */
-export const NX_BUILD_TARGET_DEFAULT: Nx.ProjectTarget = {
+export const NX_BUILD_TARGET_DEFAULT: NxMonorepo.Nx.ProjectTarget = {
   outputs: NX_DEFAULT_OUTPUTS,
   dependsOn: [
     {
       target: "build",
-      projects: Nx.TargetDependencyProject.DEPENDENCIES,
+      projects: NxMonorepo.Nx.TargetDependencyProject.DEPENDENCIES,
     },
   ],
 };
@@ -40,7 +40,7 @@ export const NX_BUILD_TARGET_DEFAULT: Nx.ProjectTarget = {
  *
  * @see {@link NxTargetDefaults}
  */
-export const NX_TARGET_DEFAULTS: Nx.TargetDefaults = {
+export const NX_TARGET_DEFAULTS: NxMonorepo.Nx.TargetDefaults = {
   build: NX_BUILD_TARGET_DEFAULT,
 };
 
@@ -100,13 +100,13 @@ export class PDKMonorepoProject extends NxMonorepoProject {
           "release:mainline": [
             {
               target: "release:mainline",
-              projects: Nx.TargetDependencyProject.DEPENDENCIES,
+              projects: NxMonorepo.Nx.TargetDependencyProject.DEPENDENCIES,
             },
           ],
           upgrade: [
             {
               target: "upgrade",
-              projects: Nx.TargetDependencyProject.DEPENDENCIES,
+              projects: NxMonorepo.Nx.TargetDependencyProject.DEPENDENCIES,
             },
           ],
         },
@@ -116,6 +116,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         linkLocalWorkspaceBins: true,
       },
     });
+
+    new NxMonorepo.DevOps(this);
 
     this.eslint?.addPlugins("header");
     this.eslint?.addRules(HEADER_RULE);
