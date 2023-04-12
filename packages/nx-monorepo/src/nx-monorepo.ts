@@ -608,7 +608,7 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     if (this.package.packageManager === NodePackageManager.PNPM) {
       // PNPM hoisting hides transitive bundled dependencies which results in
-      // transitive dependencies being packed correctly.
+      // transitive dependencies being packed incorrectly.
       this.subProjects.forEach((subProject) => {
         if (isNodeProject(subProject) && getBundledDeps(subProject).length) {
           const pkgFolder = path.relative(this.root.outdir, subProject.outdir);

@@ -19,7 +19,12 @@ export class NXMonorepoProject extends PDKProject {
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       devDeps: ["projen", "nx", "@types/fs-extra", "@types/semver"],
       peerDeps: ["projen"],
-      bundledDeps: ["@nrwl/devkit", "fs-extra", "semver"],
+      bundledDeps: [
+        "@nrwl/devkit",
+        "fs-extra",
+        "semver",
+        "@pnpm/reviewing.dependencies-hierarchy",
+      ],
       stability: Stability.STABLE,
     });
 
