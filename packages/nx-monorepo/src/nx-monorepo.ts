@@ -20,6 +20,7 @@ import {
   TypeScriptProject,
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
+import { NxProject } from "./nx-project";
 import { Nx } from "./nx-types";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
 
@@ -173,9 +174,6 @@ export interface NxRunManyOptions {
  * @pjid nx-monorepo
  */
 export class NxMonorepoProject extends TypeScriptProject {
-  // mutable data structures
-  private readonly implicitDependencies: Nx.ImplicitDependencies;
-
   // immutable data structures
   private readonly nxConfig?: Nx.WorkspaceConfig;
   private readonly workspaceConfig?: WorkspaceConfig;
@@ -234,7 +232,6 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.nxConfig = options.nxConfig;
     this.workspaceConfig = options.workspaceConfig;
     this.workspacePackages = options.workspaceConfig?.additionalPackages ?? [];
-    this.implicitDependencies = this.nxConfig?.implicitDependencies || {};
 
     // Never publish a monorepo root package.
     this.package.addField("private", true);
@@ -384,6 +381,15 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   /**
+   * @internal
+   */
+  _addSubProject(subproject: Project) {
+    !NxProject.of(subproject) &&
+      subproject._addComponent(new NxProject(subproject));
+    super._addSubProject(subproject);
+  }
+
+  /**
    * Helper to format `npx nx run-many ...` style command.
    * @param options
    */
@@ -480,12 +486,8 @@ export class NxMonorepoProject extends TypeScriptProject {
    * @param dependent project you want to have the dependency.
    * @param dependee project you wish to depend on.
    */
-  public addImplicitDependency(dependent: Project, dependee: Project) {
-    if (this.implicitDependencies[dependent.name]) {
-      this.implicitDependencies[dependent.name].push(dependee.name);
-    } else {
-      this.implicitDependencies[dependent.name] = [dependee.name];
-    }
+  public addImplicitDependency(dependent: Project, dependee: Project | string) {
+    NxProject.of(dependent)?.addImplicitDependency(dependee);
   }
 
   /**
@@ -530,7 +532,6 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.validateSubProjects();
     this.updateWorkspace();
     this.wirePythonDependencies();
-    this.synthesizeNonNodePackageJson();
 
     // Prevent sub NodeProject packages from `postSynthesis` which will cause individual/extraneous installs.
     // The workspace package install will handle all the sub NodeProject packages automatically.
@@ -556,17 +557,6 @@ export class NxMonorepoProject extends TypeScriptProject {
       // @ts-ignore - `installDependencies` is private
       this.package.installDependencies();
     }
-
-    Object.entries(this.implicitDependencies).forEach(([packageName, deps]) => {
-      const manifest = this.subProjects
-        .find((p) => p.name === packageName)
-        ?.tryFindObjectFile("package.json");
-
-      if (manifest) {
-        manifest.addOverride("nx.implicitDependencies", deps);
-        manifest.synthesize();
-      }
-    });
   }
 
   /**
@@ -586,39 +576,6 @@ export class NxMonorepoProject extends TypeScriptProject {
         );
       }
     });
-  }
-
-  /**
-   * For non-node projects, a package.json is required in order to be discovered by NX.
-   */
-  private synthesizeNonNodePackageJson() {
-    this.subProjects
-      .filter((subProject: any) => !isNodeProject(subProject))
-      .filter((subProject: Project) => !subProject.tryFindFile("package.json"))
-      .forEach((subProject: Project) => {
-        // generate a package.json if not found
-        const manifest: any = {
-          name: subProject.name,
-          private: true,
-          __pdk__: true,
-          devDependencies: { projen: "*" },
-          scripts: subProject.tasks.all.reduce(
-            (p, c) => ({
-              [c.name]: `${buildExecutableCommand(
-                this.package.packageManager
-              )} projen ${c.name}`,
-              ...p,
-            }),
-            {}
-          ),
-          version: "0.0.0",
-        };
-
-        new JsonFile(subProject, "package.json", {
-          obj: manifest,
-          readonly: true,
-        });
-      });
   }
 
   /**
