@@ -5074,6 +5074,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <span class="n">nx_monorepo</span><span class="o">.</span><span class="n">WorkspaceConfig</span><span class="p">(</span>
   <span class="n">additional_packages</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">disable_no_hoist_bundled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">link_local_workspace_bins</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">no_hoist</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -5096,6 +5097,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.WorkspaceConfig.property.disableNoHoistBundled">disable_no_hoist_bundled</a></code></td>
 <td><code>bool</code></td>
 <td>Disable automatically applying <code>noHoist</code> logic for all sub-project "bundledDependencies".</td>
+</tr>
+<tr>
+<td><code><a href="#aws-prototyping-sdk.nx_monorepo.WorkspaceConfig.property.linkLocalWorkspaceBins">link_local_workspace_bins</a></code></td>
+<td><code>bool</code></td>
+<td>Links all local workspace project bins so they can be used for local development.</td>
 </tr>
 <tr>
 <td><code><a href="#aws-prototyping-sdk.nx_monorepo.WorkspaceConfig.property.noHoist">no_hoist</a></code></td>
@@ -5123,6 +5129,17 @@ property to specify any additional paths to packages which may not be managed by
 <li><em>Default:</em> false</li>
 </ul>
 <p>Disable automatically applying <code>noHoist</code> logic for all sub-project "bundledDependencies".</p>
+<hr />
+<h5 id="link_local_workspace_binsoptional"><code>link_local_workspace_bins</code><sup>Optional</sup> <a name="link_local_workspace_bins" id="aws-prototyping-sdk.nx_monorepo.WorkspaceConfig.property.linkLocalWorkspaceBins"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">link_local_workspace_bins</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Links all local workspace project bins so they can be used for local development.</p>
+<p>Package bins are only linked when installed from the registry, however it is very useful
+for monorepo development to also utilize these bin scripts. When enabled, this flag will
+recursively link all bins from packages.json files to the root node_modules/.bin.</p>
 <hr />
 <h5 id="no_hoistoptional"><code>no_hoist</code><sup>Optional</sup> <a name="no_hoist" id="aws-prototyping-sdk.nx_monorepo.WorkspaceConfig.property.noHoist"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">no_hoist</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -8704,7 +8721,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2023-04-11
+      2023-04-12
     
   </small>
 </div>
