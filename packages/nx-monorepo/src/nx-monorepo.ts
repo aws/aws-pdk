@@ -34,14 +34,15 @@ export function buildExecutableCommand(
   packageManager: NodePackageManager,
   ...args: string[]
 ) {
+  const argLiteral = args.length > 0 ? ` ${args.join(" ")}` : "";
   switch (packageManager) {
     case NodePackageManager.YARN:
     case NodePackageManager.YARN2:
-      return `yarn ${args.join(" ")}`;
+      return `yarn${argLiteral}`;
     case NodePackageManager.PNPM:
-      return `pnpx ${args.join(" ")}`;
+      return `pnpx${argLiteral}`;
     default:
-      return `npx ${args.join(" ")}`;
+      return `npx${argLiteral}`;
   }
 }
 
@@ -381,7 +382,10 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   /**
+   * Ensure NXProject is added when adding subprojects to the monorepo.
+   *
    * @internal
+   * @param subproject project to add.
    */
   _addSubProject(subproject: Project) {
     !NxProject.of(subproject) &&
@@ -485,9 +489,18 @@ export class NxMonorepoProject extends TypeScriptProject {
    *
    * @param dependent project you want to have the dependency.
    * @param dependee project you wish to depend on.
+   * @throws error if this is called on a dependent which does not have a NXProject component attached.
    */
   public addImplicitDependency(dependent: Project, dependee: Project | string) {
-    NxProject.of(dependent)?.addImplicitDependency(dependee);
+    const nxProject = NxProject.of(dependent);
+
+    if (!nxProject) {
+      throw new Error(
+        `${dependent.name} does not have an NXProject associated.`
+      );
+    } else {
+      nxProject.addImplicitDependency(dependee);
+    }
   }
 
   /**
