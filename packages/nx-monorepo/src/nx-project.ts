@@ -21,19 +21,25 @@ export class NxProject extends Component {
       | undefined;
   }
 
-  private readonly implicitDependencies: string[] = [];
+  /**
+   * List of implicit dependencies.
+   *
+   * @internal
+   * @private
+   */
+  private readonly _implicitDependencies: string[] = [];
 
   constructor(project: Project) {
     super(project);
   }
 
   /**
-   * Adds a implicitDependency between the dependant (this project) and dependee.
+   * Adds an implicit dependency between the dependant (this project) and dependee.
    *
-   * @param dependee project to add the implicitDependency on.
+   * @param dependee project to add the implicit dependency on.
    */
   public addImplicitDependency(dependee: Project | string) {
-    this.implicitDependencies.push(
+    this._implicitDependencies.push(
       dependee instanceof Project ? dependee.name : dependee
     );
   }
@@ -44,10 +50,10 @@ export class NxProject extends Component {
    */
   synthesize() {
     if (this.project instanceof NodeProject) {
-      this.implicitDependencies.length > 0 &&
+      this._implicitDependencies.length > 0 &&
         this.project
           .tryFindObjectFile("package.json")
-          ?.addOverride("nx.implicitDependencies", this.implicitDependencies);
+          ?.addOverride("nx.implicitDependencies", this._implicitDependencies);
     } else {
       const projectJson =
         this.project.tryFindObjectFile("project.json") ||
@@ -63,10 +69,10 @@ export class NxProject extends Component {
       );
       projectJson.addOverride("name", this.project.name);
       projectJson.addOverride("root", projectPath);
-      this.implicitDependencies.length > 0 &&
+      this._implicitDependencies.length > 0 &&
         projectJson.addOverride(
           "implicitDependencies",
-          this.implicitDependencies
+          this._implicitDependencies
         );
       projectJson.addOverride(
         "targets",
