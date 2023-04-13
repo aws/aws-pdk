@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as fs from "fs";
 import * as path from "path";
 import {
   Dependency,
@@ -10,7 +9,6 @@ import {
   Project,
   Task,
   TaskStep,
-  TextFile,
   YamlFile,
 } from "projen";
 import {
@@ -23,10 +21,9 @@ import {
   TypeScriptProject,
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
+import { NxProject } from "./nx-project";
 import { Nx } from "./nx-types";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
-
-const NX_MONOREPO_PLUGIN_PATH: string = ".nx/plugins/nx-monorepo-plugin.js";
 
 /**
  * Execute command to run based on package manager configured.
@@ -38,14 +35,15 @@ export function buildExecutableCommand(
   packageManager: NodePackageManager,
   ...args: string[]
 ) {
+  const argLiteral = args.length > 0 ? ` ${args.join(" ")}` : "";
   switch (packageManager) {
     case NodePackageManager.YARN:
     case NodePackageManager.YARN2:
-      return `yarn ${args.join(" ")}`;
+      return `yarn${argLiteral}`;
     case NodePackageManager.PNPM:
-      return `pnpx ${args.join(" ")}`;
+      return `pnpx${argLiteral}`;
     default:
-      return `npx ${args.join(" ")}`;
+      return `npx${argLiteral}`;
   }
 }
 
@@ -199,9 +197,6 @@ export interface NxRunManyOptions {
  * @pjid nx-monorepo
  */
 export class NxMonorepoProject extends TypeScriptProject {
-  // mutable data structures
-  private readonly implicitDependencies: Nx.ImplicitDependencies;
-
   // immutable data structures
   private readonly nxConfig?: Nx.WorkspaceConfig;
   private readonly workspaceConfig?: WorkspaceConfig;
@@ -259,7 +254,6 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.nxConfig = options.nxConfig;
     this.workspaceConfig = options.workspaceConfig;
     this.workspacePackages = options.workspaceConfig?.additionalPackages ?? [];
-    this.implicitDependencies = this.nxConfig?.implicitDependencies || {};
 
     // Never publish a monorepo root package.
     this.package.addField("private", true);
@@ -370,15 +364,9 @@ export class NxMonorepoProject extends TypeScriptProject {
       ...(this.nxConfig?.nxIgnore || [])
     );
 
-    new TextFile(this, NX_MONOREPO_PLUGIN_PATH, {
-      readonly: true,
-      lines: fs.readFileSync(getPluginPath()).toString("utf-8").split("\n"),
-    });
-
     this.nxJson = new JsonFile(this, "nx.json", {
       obj: {
         extends: "@nrwl/workspace/presets/npm.json",
-        plugins: [`./${NX_MONOREPO_PLUGIN_PATH}`],
         npmScope: "monorepo",
         tasksRunnerOptions: {
           default: {
@@ -401,7 +389,6 @@ export class NxMonorepoProject extends TypeScriptProject {
           ...options.nxConfig?.namedInputs,
         },
         targetDefaults: options.nxConfig?.targetDefaults,
-        implicitDependencies: this.implicitDependencies,
         targetDependencies: {
           build: [
             {
@@ -416,6 +403,18 @@ export class NxMonorepoProject extends TypeScriptProject {
         },
       },
     });
+  }
+
+  /**
+   * Ensure NXProject is added when adding subprojects to the monorepo.
+   *
+   * @internal
+   * @param subproject project to add.
+   */
+  _addSubProject(subproject: Project) {
+    !NxProject.of(subproject) &&
+      subproject._addComponent(new NxProject(subproject));
+    super._addSubProject(subproject);
   }
 
   /**
@@ -520,12 +519,17 @@ export class NxMonorepoProject extends TypeScriptProject {
    *
    * @param dependent project you want to have the dependency.
    * @param dependee project you wish to depend on.
+   * @throws error if this is called on a dependent which does not have a NXProject component attached.
    */
-  public addImplicitDependency(dependent: Project, dependee: Project) {
-    if (this.implicitDependencies[dependent.name]) {
-      this.implicitDependencies[dependent.name].push(dependee.name);
+  public addImplicitDependency(dependent: Project, dependee: Project | string) {
+    const nxProject = NxProject.of(dependent);
+
+    if (!nxProject) {
+      throw new Error(
+        `${dependent.name} does not have an NXProject associated.`
+      );
     } else {
-      this.implicitDependencies[dependent.name] = [dependee.name];
+      nxProject.addImplicitDependency(dependee);
     }
   }
 
@@ -629,7 +633,6 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.validateSubProjects();
     this.updateWorkspace();
     this.wirePythonDependencies();
-    this.synthesizeNonNodePackageJson();
 
     // Prevent sub NodeProject packages from `postSynthesis` which will cause individual/extraneous installs.
     // The workspace package install will handle all the sub NodeProject packages automatically.
@@ -645,7 +648,7 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     super.synth();
 
-    // Force workspace install deps if any node subproject package has change, unless the workspace changed
+    // Force workspace install deps if any node subproject package has changed, unless the workspace changed
     if (
       // @ts-ignore - `file` is private
       (this.package.file as JsonFile).changed !== true &&
@@ -674,39 +677,6 @@ export class NxMonorepoProject extends TypeScriptProject {
         );
       }
     });
-  }
-
-  /**
-   * For non-node projects, a package.json is required in order to be discovered by NX.
-   */
-  private synthesizeNonNodePackageJson() {
-    this.subProjects
-      .filter((subProject: any) => !isNodeProject(subProject))
-      .filter((subProject: Project) => !subProject.tryFindFile("package.json"))
-      .forEach((subProject: Project) => {
-        // generate a package.json if not found
-        const manifest: any = {
-          name: subProject.name,
-          private: true,
-          __pdk__: true,
-          devDependencies: { projen: "*" },
-          scripts: subProject.tasks.all.reduce(
-            (p, c) => ({
-              [c.name]: `${buildExecutableCommand(
-                this.package.packageManager
-              )} projen ${c.name}`,
-              ...p,
-            }),
-            {}
-          ),
-          version: "0.0.0",
-        };
-
-        new JsonFile(subProject, "package.json", {
-          obj: manifest,
-          readonly: true,
-        });
-      });
   }
 
   /**
@@ -830,10 +800,6 @@ export class NxMonorepoProject extends TypeScriptProject {
  */
 function isNodeProject(project: any): project is NodeProject {
   return project instanceof NodeProject || project.package;
-}
-
-function getPluginPath() {
-  return path.join(__dirname, "plugin/nx-monorepo-plugin.js");
 }
 
 /**

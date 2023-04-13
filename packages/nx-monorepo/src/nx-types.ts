@@ -35,11 +35,6 @@ export namespace Nx {
   }
 
   /**
-   * Implicit Dependencies map.
-   */
-  export type ImplicitDependencies = { [pkg: string]: string[] };
-
-  /**
    * Supported enums for a TargetDependency.
    */
   export enum TargetDependencyProject {
@@ -102,12 +97,6 @@ export namespace Nx {
      * @default mainline
      */
     readonly affectedBranch?: string;
-    /**
-     * Configuration for Implicit Dependencies.
-     *
-     * @see https://nx.dev/configuration/packagejson#implicitdependencies
-     */
-    readonly implicitDependencies?: ImplicitDependencies;
 
     /**
      * Configuration for TargetDependencies.
