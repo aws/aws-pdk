@@ -17,9 +17,14 @@ export class NXMonorepoProject extends PDKProject {
       name: "nx-monorepo",
       keywords: ["aws", "pdk", "jsii", "projen"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: ["projen", "nx"],
+      devDeps: ["projen", "nx", "@types/fs-extra", "@types/semver"],
       peerDeps: ["projen"],
-      bundledDeps: ["@nrwl/devkit"],
+      bundledDeps: [
+        "@nrwl/devkit",
+        "fs-extra",
+        "semver",
+        "@pnpm/reviewing.dependencies-hierarchy",
+      ],
       stability: Stability.STABLE,
     });
 
@@ -27,6 +32,11 @@ export class NXMonorepoProject extends PDKProject {
       'rsync -a ./src/** ./lib --include="*/" --include="**/*.js" --exclude="*" --prune-empty-dirs'
     );
 
-    this.package.addBin({ "nx-dir-hasher": "./scripts/nx-dir-hasher.js" });
+    this.package.addBin({ "pdk@nx-dir-hasher": "./scripts/nx-dir-hasher.js" });
+
+    this.package.addBin({
+      "pdk@pnpm-link-bundled-transitive-deps":
+        "./scripts/pnpm/link-bundled-transitive-deps.ts",
+    });
   }
 }

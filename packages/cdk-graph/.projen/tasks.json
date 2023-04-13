@@ -145,7 +145,7 @@
       "name": "jest",
       "steps": [
         {
-          "exec": "jest --passWithNoTests ${CI:-'--updateSnapshot'}",
+          "exec": "jest --passWithNoTests ${CI:-'--updateSnapshot'} ${NX_INVOKED_BY_RUNNER:+'--runInBand'}",
           "receiveArgs": true
         }
       ]
@@ -154,6 +154,9 @@
       "name": "package",
       "description": "Creates the distribution package",
       "steps": [
+        {
+          "exec": "pdk@pnpm-link-bundled-transitive-deps packages/cdk-graph"
+        },
         {
           "exec": "pnpx license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
         },

@@ -153,7 +153,7 @@
       "name": "jest",
       "steps": [
         {
-          "exec": "jest --passWithNoTests ${CI:-'--updateSnapshot'}",
+          "exec": "jest --passWithNoTests ${CI:-'--updateSnapshot'} ${NX_INVOKED_BY_RUNNER:+'--runInBand'}",
           "receiveArgs": true
         }
       ]
@@ -162,6 +162,9 @@
       "name": "package",
       "description": "Creates the distribution package",
       "steps": [
+        {
+          "exec": "pdk@pnpm-link-bundled-transitive-deps packages/cdk-graph-plugin-diagram"
+        },
         {
           "spawn": "sharp:prebuild"
         },

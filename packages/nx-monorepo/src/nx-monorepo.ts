@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import {
+  Dependency,
   DependencyType,
   IgnoreFile,
   JsonFile,
@@ -46,6 +47,18 @@ export function buildExecutableCommand(
   }
 }
 
+function binCommand(packageManager: NodePackageManager): string {
+  switch (packageManager) {
+    case NodePackageManager.YARN:
+    case NodePackageManager.YARN2:
+      return `yarn bin`;
+    case NodePackageManager.PNPM:
+      return `pnpm bin`;
+    default:
+      return `npm bin`;
+  }
+}
+
 /**
  * Workspace configurations.
  *
@@ -65,6 +78,15 @@ export interface WorkspaceConfig {
    * @default false
    */
   readonly disableNoHoistBundled?: boolean;
+
+  /**
+   * Links all local workspace project bins so they can be used for local development.
+   *
+   * Package bins are only linked when installed from the registry, however it is very useful
+   * for monorepo development to also utilize these bin scripts. When enabled, this flag will
+   * recursively link all bins from packages.json files to the root node_modules/.bin.
+   */
+  readonly linkLocalWorkspaceBins?: boolean;
 
   /**
    * List of additional package globs to include in the workspace.
@@ -182,6 +204,8 @@ export class NxMonorepoProject extends TypeScriptProject {
 
   private readonly nxJson: JsonFile;
 
+  private readonly _options: NxMonorepoProjectOptions;
+
   constructor(options: NxMonorepoProjectOptions) {
     super({
       ...options,
@@ -206,6 +230,8 @@ export class NxMonorepoProject extends TypeScriptProject {
       },
     });
 
+    this._options = options;
+
     // engines
     this.package.addEngine("node", ">=16");
     switch (this.package.packageManager) {
@@ -213,19 +239,14 @@ export class NxMonorepoProject extends TypeScriptProject {
         // https://pnpm.io/package_json
         // https://github.com/pnpm/pnpm/releases/tag/v8.0.0
         this.package.addEngine("pnpm", ">=8");
-        // https://nodejs.org/api/corepack.html
-        // https://nodejs.org/api/packages.html#packagemanager
-        this.package.addField("packageManager", "pnpm@8");
         break;
       }
       case NodePackageManager.YARN: {
         this.package.addEngine("yarn", ">=1 <2");
-        this.package.addField("packageManager", "yarn@1");
         break;
       }
       case NodePackageManager.YARN2: {
         this.package.addEngine("yarn", ">=2 <3");
-        this.package.addField("packageManager", "yarn@2");
         break;
       }
     }
@@ -250,6 +271,9 @@ export class NxMonorepoProject extends TypeScriptProject {
         "nx",
         "run-many"
       ),
+      env: {
+        NX_NON_NATIVE_HASHER: "true",
+      },
       description: "Run task against multiple workspace projects",
     });
 
@@ -469,6 +493,9 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     task.description += " for all affected projects";
 
+    // Fix for https://github.com/nrwl/nx/pull/15071
+    task.env("NX_NON_NATIVE_HASHER", "true");
+
     return task;
   }
 
@@ -479,6 +506,9 @@ export class NxMonorepoProject extends TypeScriptProject {
     return this.addTask(name, {
       receiveArgs: true,
       exec: this.formatNxRunManyCommand(options),
+      env: {
+        NX_NON_NATIVE_HASHER: "true",
+      },
     });
   }
 
@@ -536,6 +566,64 @@ export class NxMonorepoProject extends TypeScriptProject {
     return this.instantiationOrderSubProjects.sort((a, b) =>
       a.name.localeCompare(b.name)
     );
+  }
+
+  /**
+   * Create symbolic links to all local workspace bins. This enables the usage of bins the same
+   * way as consumers of the packages have when installing from the registry.
+   */
+  protected linkLocalWorkspaceBins(): void {
+    const bins: [string, string][] = [];
+
+    this.subProjects.forEach((subProject) => {
+      if (subProject instanceof NodeProject) {
+        const pkgBins: Record<string, string> =
+          subProject.package.manifest.bin() || {};
+        bins.push(
+          ...Object.entries(pkgBins).map(([cmd, bin]) => {
+            const resolvedBin = path.join(
+              "$PWD",
+              path.relative(this.outdir, subProject.outdir),
+              bin
+            );
+            return [cmd, resolvedBin] as [string, string];
+          })
+        );
+      }
+    });
+
+    const linkTask = this.addTask("workspace:bin:link", {
+      steps: bins.map(([cmd, bin]) => ({
+        exec: `ln -s ${bin} $(${binCommand(
+          this.package.packageManager
+        )})/${cmd} &>/dev/null; exit 0;`,
+      })),
+    });
+
+    (this.tasks.tryFind("prepare") || this.addTask("prepare")).spawn(linkTask);
+  }
+
+  preSynthesize(): void {
+    super.preSynthesize();
+
+    if (this._options.workspaceConfig?.linkLocalWorkspaceBins === true) {
+      this.linkLocalWorkspaceBins();
+    }
+
+    if (this.package.packageManager === NodePackageManager.PNPM) {
+      // PNPM hoisting hides transitive bundled dependencies which results in
+      // transitive dependencies being packed incorrectly.
+      this.subProjects.forEach((subProject) => {
+        if (isNodeProject(subProject) && getBundledDeps(subProject).length) {
+          const pkgFolder = path.relative(this.root.outdir, subProject.outdir);
+          // Create a symlink in the sub-project node_modules for all transitive deps
+          // before running "package" task
+          subProject.packageTask.prependExec(
+            `pdk@pnpm-link-bundled-transitive-deps ${pkgFolder}`
+          );
+        }
+      });
+    }
   }
 
   /**
@@ -604,12 +692,10 @@ export class NxMonorepoProject extends TypeScriptProject {
     if (this.workspaceConfig?.disableNoHoistBundled !== true) {
       const noHoistBundled = this.subProjects.flatMap((sub) => {
         if (sub instanceof NodeProject) {
-          return sub.deps.all
-            .filter((dep) => dep.type === DependencyType.BUNDLED)
-            .flatMap((dep) => [
-              `${sub.name}/${dep.name}`,
-              `${sub.name}/${dep.name}/*`,
-            ]);
+          return getBundledDeps(sub).flatMap((dep) => [
+            `${sub.name}/${dep.name}`,
+            `${sub.name}/${dep.name}/*`,
+          ]);
         }
         return [];
       });
@@ -712,6 +798,13 @@ export class NxMonorepoProject extends TypeScriptProject {
  * @param project Project instance.
  * @returns true if the project instance is of type NodeProject.
  */
-function isNodeProject(project: any) {
+function isNodeProject(project: any): project is NodeProject {
   return project instanceof NodeProject || project.package;
+}
+
+/**
+ * Gets bundled dependencies for a given project
+ */
+function getBundledDeps(project: Project): Dependency[] {
+  return project.deps.all.filter((dep) => dep.type === DependencyType.BUNDLED);
 }

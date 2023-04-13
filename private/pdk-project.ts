@@ -158,7 +158,14 @@ export abstract class PDKProject extends JsiiProject {
     const jestTask =
       this.jest &&
       this.addTask("jest", {
-        exec: `jest --passWithNoTests \${CI:-'--updateSnapshot'}`,
+        exec: [
+          "jest",
+          "--passWithNoTests",
+          // Only update snapshot locally
+          "${CI:-'--updateSnapshot'}",
+          // Always run in band for nx runner (nx run-many)
+          "${NX_INVOKED_BY_RUNNER:+'--runInBand'}",
+        ].join(" "),
         receiveArgs: true,
       });
     this.testTask.reset();
@@ -196,6 +203,24 @@ export abstract class PDKProject extends JsiiProject {
         return `pnpm --filter ${args.join(" ")}`;
       default:
         return `npx -p ${args.join(" ")}`;
+    }
+  }
+
+  /**
+   * Builds a command to execute using current package manager (npx, yarn, pnpm).
+   *
+   * @param args args to append to command.
+   * @protected
+   */
+  protected buildExecuteCommand(...args: string[]) {
+    switch (this.package.packageManager) {
+      case NodePackageManager.YARN:
+      case NodePackageManager.YARN2:
+        return `yarn ${args.join(" ")}`;
+      case NodePackageManager.PNPM:
+        return `pnpm ${args.join(" ")}`;
+      default:
+        return `npx ${args.join(" ")}`;
     }
   }
 
