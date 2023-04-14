@@ -9,7 +9,7 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { JEST_VERSION } from "./pdk-monorepo-project";
-import { buildExecutableCommand } from "../../packages/nx-monorepo";
+import { buildExecutableCommand } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
 /**

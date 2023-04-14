@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { buildExecutableCommand } from "../../packages/nx-monorepo";
+import { buildExecutableCommand } from "../../packages/nx-monorepo/src";
 
 /**
  * Contains configuration for the public (docs) package.
