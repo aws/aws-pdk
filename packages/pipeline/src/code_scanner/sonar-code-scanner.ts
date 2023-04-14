@@ -225,7 +225,6 @@ export class SonarCodeScanner extends Construct {
     });
 
     new CfnOutput(this, "SonarqubeSecretArn", {
-      exportName: "SonarqubeSecretArn",
       value: sonarQubeToken.secretArn,
     });
 
