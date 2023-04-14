@@ -373,7 +373,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -418,7 +418,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -452,7 +452,7 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -483,7 +483,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -496,7 +496,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -504,6 +504,14 @@ target
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
+      },
+      "postinstall": Object {
+        "name": "postinstall",
+        "steps": Array [
+          Object {
+            "exec": "pnpm exec nx run-many --target install --projects  --parallel=1",
+          },
+        ],
       },
       "pre-compile": Object {
         "description": "Prepare the project for compilation for all affected projects",
@@ -513,7 +521,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -526,7 +534,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many",
+            "exec": "pnpm exec nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -536,7 +544,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "pnpx projen",
+            "exec": "pnpm exec projen",
           },
         ],
       },
@@ -548,7 +556,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -585,7 +593,7 @@ target
             "exec": "pnpm update",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "pnpm exec projen",
           },
           Object {
             "spawn": "post-upgrade",
@@ -596,16 +604,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "pnpx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "pnpm exec npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "pnpx syncpack fix-mismatches",
+            "exec": "pnpm exec syncpack fix-mismatches",
           },
           Object {
             "exec": "pnpm install",
           },
           Object {
-            "exec": "pnpx projen",
+            "exec": "pnpm exec projen",
           },
         ],
       },
@@ -617,7 +625,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "pnpm exec nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -879,6 +887,12 @@ target
           "target": "build",
         },
       ],
+      "install": Array [
+        Object {
+          "projects": "dependencies",
+          "target": "install",
+        },
+      ],
     },
     "tasksRunnerOptions": Object {
       "default": Object {
@@ -934,23 +948,24 @@ target
     },
     "private": true,
     "scripts": Object {
-      "build": "npx projen build",
-      "clobber": "npx projen clobber",
-      "compile": "npx projen compile",
-      "default": "npx projen default",
-      "eject": "npx projen eject",
-      "eslint": "npx projen eslint",
-      "package": "npx projen package",
-      "post-compile": "npx projen post-compile",
-      "post-upgrade": "npx projen post-upgrade",
-      "pre-compile": "npx projen pre-compile",
-      "projen": "npx projen",
-      "run-many": "npx projen run-many",
-      "synth-workspace": "npx projen synth-workspace",
-      "test": "npx projen test",
-      "upgrade": "npx projen upgrade",
-      "upgrade-deps": "npx projen upgrade-deps",
-      "watch": "npx projen watch",
+      "build": "pnpm exec projen build",
+      "clobber": "pnpm exec projen clobber",
+      "compile": "pnpm exec projen compile",
+      "default": "pnpm exec projen default",
+      "eject": "pnpm exec projen eject",
+      "eslint": "pnpm exec projen eslint",
+      "package": "pnpm exec projen package",
+      "post-compile": "pnpm exec projen post-compile",
+      "post-upgrade": "pnpm exec projen post-upgrade",
+      "postinstall": "pnpm exec projen postinstall",
+      "pre-compile": "pnpm exec projen pre-compile",
+      "projen": "pnpm exec projen",
+      "run-many": "pnpm exec projen run-many",
+      "synth-workspace": "pnpm exec projen synth-workspace",
+      "test": "pnpm exec projen test",
+      "upgrade": "pnpm exec projen upgrade",
+      "upgrade-deps": "pnpm exec projen upgrade-deps",
+      "watch": "pnpm exec projen watch",
     },
     "types": "lib/index.d.ts",
     "version": "0.0.0",
@@ -2368,7 +2383,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2413,7 +2428,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2447,7 +2462,7 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2478,7 +2493,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2491,7 +2506,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2499,6 +2514,14 @@ target
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
+      },
+      "postinstall": Object {
+        "name": "postinstall",
+        "steps": Array [
+          Object {
+            "exec": "yarn run nx run-many --target install --projects  --parallel=1",
+          },
+        ],
       },
       "pre-compile": Object {
         "description": "Prepare the project for compilation for all affected projects",
@@ -2508,7 +2531,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2521,7 +2544,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many",
+            "exec": "yarn run nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -2531,7 +2554,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -2543,7 +2566,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2580,7 +2603,7 @@ target
             "exec": "yarn upgrade",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "yarn run projen",
           },
           Object {
             "spawn": "post-upgrade",
@@ -2591,16 +2614,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn run npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "yarn syncpack fix-mismatches",
+            "exec": "yarn run syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -2612,7 +2635,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn run nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -2874,6 +2897,12 @@ target
           "target": "build",
         },
       ],
+      "install": Array [
+        Object {
+          "projects": "dependencies",
+          "target": "install",
+        },
+      ],
     },
     "tasksRunnerOptions": Object {
       "default": Object {
@@ -2927,23 +2956,24 @@ target
       "@types/babel__traverse": "7.18.2",
     },
     "scripts": Object {
-      "build": "npx projen build",
-      "clobber": "npx projen clobber",
-      "compile": "npx projen compile",
-      "default": "npx projen default",
-      "eject": "npx projen eject",
-      "eslint": "npx projen eslint",
-      "package": "npx projen package",
-      "post-compile": "npx projen post-compile",
-      "post-upgrade": "npx projen post-upgrade",
-      "pre-compile": "npx projen pre-compile",
-      "projen": "npx projen",
-      "run-many": "npx projen run-many",
-      "synth-workspace": "npx projen synth-workspace",
-      "test": "npx projen test",
-      "upgrade": "npx projen upgrade",
-      "upgrade-deps": "npx projen upgrade-deps",
-      "watch": "npx projen watch",
+      "build": "yarn run projen build",
+      "clobber": "yarn run projen clobber",
+      "compile": "yarn run projen compile",
+      "default": "yarn run projen default",
+      "eject": "yarn run projen eject",
+      "eslint": "yarn run projen eslint",
+      "package": "yarn run projen package",
+      "post-compile": "yarn run projen post-compile",
+      "post-upgrade": "yarn run projen post-upgrade",
+      "postinstall": "yarn run projen postinstall",
+      "pre-compile": "yarn run projen pre-compile",
+      "projen": "yarn run projen",
+      "run-many": "yarn run projen run-many",
+      "synth-workspace": "yarn run projen synth-workspace",
+      "test": "yarn run projen test",
+      "upgrade": "yarn run projen upgrade",
+      "upgrade-deps": "yarn run projen upgrade-deps",
+      "watch": "yarn run projen watch",
     },
     "types": "lib/index.d.ts",
     "version": "0.0.0",
@@ -4353,7 +4383,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4398,7 +4428,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4432,7 +4462,7 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4463,7 +4493,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4476,7 +4506,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4484,6 +4514,14 @@ target
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
+      },
+      "postinstall": Object {
+        "name": "postinstall",
+        "steps": Array [
+          Object {
+            "exec": "yarn run nx run-many --target install --projects  --parallel=1",
+          },
+        ],
       },
       "pre-compile": Object {
         "description": "Prepare the project for compilation for all affected projects",
@@ -4493,7 +4531,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4506,7 +4544,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many",
+            "exec": "yarn run nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -4516,7 +4554,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -4528,7 +4566,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4565,7 +4603,7 @@ target
             "exec": "yarn upgrade",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "yarn run projen",
           },
           Object {
             "spawn": "post-upgrade",
@@ -4576,16 +4614,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn run npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "yarn syncpack fix-mismatches",
+            "exec": "yarn run syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn2 install",
           },
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -4597,7 +4635,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn run nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -4859,6 +4897,12 @@ target
           "target": "build",
         },
       ],
+      "install": Array [
+        Object {
+          "projects": "dependencies",
+          "target": "install",
+        },
+      ],
     },
     "tasksRunnerOptions": Object {
       "default": Object {
@@ -4912,23 +4956,24 @@ target
       "@types/babel__traverse": "7.18.2",
     },
     "scripts": Object {
-      "build": "npx projen build",
-      "clobber": "npx projen clobber",
-      "compile": "npx projen compile",
-      "default": "npx projen default",
-      "eject": "npx projen eject",
-      "eslint": "npx projen eslint",
-      "package": "npx projen package",
-      "post-compile": "npx projen post-compile",
-      "post-upgrade": "npx projen post-upgrade",
-      "pre-compile": "npx projen pre-compile",
-      "projen": "npx projen",
-      "run-many": "npx projen run-many",
-      "synth-workspace": "npx projen synth-workspace",
-      "test": "npx projen test",
-      "upgrade": "npx projen upgrade",
-      "upgrade-deps": "npx projen upgrade-deps",
-      "watch": "npx projen watch",
+      "build": "yarn run projen build",
+      "clobber": "yarn run projen clobber",
+      "compile": "yarn run projen compile",
+      "default": "yarn run projen default",
+      "eject": "yarn run projen eject",
+      "eslint": "yarn run projen eslint",
+      "package": "yarn run projen package",
+      "post-compile": "yarn run projen post-compile",
+      "post-upgrade": "yarn run projen post-upgrade",
+      "postinstall": "yarn run projen postinstall",
+      "pre-compile": "yarn run projen pre-compile",
+      "projen": "yarn run projen",
+      "run-many": "yarn run projen run-many",
+      "synth-workspace": "yarn run projen synth-workspace",
+      "test": "yarn run projen test",
+      "upgrade": "yarn run projen upgrade",
+      "upgrade-deps": "yarn run projen upgrade-deps",
+      "watch": "yarn run projen watch",
     },
     "types": "lib/index.d.ts",
     "version": "0.0.0",
@@ -6337,7 +6382,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6382,7 +6427,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6416,7 +6461,7 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6447,7 +6492,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6460,7 +6505,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6468,6 +6513,14 @@ target
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
+      },
+      "postinstall": Object {
+        "name": "postinstall",
+        "steps": Array [
+          Object {
+            "exec": "yarn run nx run-many --target install --projects  --parallel=1",
+          },
+        ],
       },
       "pre-compile": Object {
         "description": "Prepare the project for compilation for all affected projects",
@@ -6477,7 +6530,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6490,7 +6543,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many",
+            "exec": "yarn run nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -6500,7 +6553,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -6512,7 +6565,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6560,16 +6613,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn run npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "yarn syncpack fix-mismatches",
+            "exec": "yarn run syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -6581,7 +6634,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn run nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -6843,6 +6896,12 @@ target
           "target": "build",
         },
       ],
+      "install": Array [
+        Object {
+          "projects": "dependencies",
+          "target": "install",
+        },
+      ],
     },
     "tasksRunnerOptions": Object {
       "default": Object {
@@ -6905,6 +6964,7 @@ target
       "package": "npx projen package",
       "post-compile": "npx projen post-compile",
       "post-upgrade": "npx projen post-upgrade",
+      "postinstall": "npx projen postinstall",
       "pre-compile": "npx projen pre-compile",
       "projen": "npx projen",
       "run-many": "npx projen run-many",
@@ -7369,7 +7429,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7414,7 +7474,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7448,7 +7508,7 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7459,9 +7519,6 @@ target
         "steps": Array [
           Object {
             "exec": "yarn install --check-files",
-          },
-          Object {
-            "exec": "yarn nx run-many --target install-py --projects py-subproject --parallel=1",
           },
         ],
       },
@@ -7482,7 +7539,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7495,7 +7552,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7503,6 +7560,14 @@ target
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
+      },
+      "postinstall": Object {
+        "name": "postinstall",
+        "steps": Array [
+          Object {
+            "exec": "yarn run nx run-many --target install --projects py-subproject --parallel=1",
+          },
+        ],
       },
       "pre-compile": Object {
         "description": "Prepare the project for compilation for all affected projects",
@@ -7512,7 +7577,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7525,7 +7590,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many",
+            "exec": "yarn run nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -7535,7 +7600,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -7547,7 +7612,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7595,16 +7660,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn run npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "yarn syncpack fix-mismatches",
+            "exec": "yarn run syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -7616,7 +7681,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn run nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -7878,10 +7943,10 @@ target
           "target": "build",
         },
       ],
-      "install-py": Array [
+      "install": Array [
         Object {
           "projects": "dependencies",
-          "target": "install-py",
+          "target": "install",
         },
       ],
     },
@@ -7946,6 +8011,7 @@ target
       "package": "npx projen package",
       "post-compile": "npx projen post-compile",
       "post-upgrade": "npx projen post-upgrade",
+      "postinstall": "npx projen postinstall",
       "pre-compile": "npx projen pre-compile",
       "projen": "npx projen",
       "run-many": "npx projen run-many",
@@ -8167,9 +8233,6 @@ cython_debug/
       "install": Object {
         "description": "Install and upgrade dependencies",
         "name": "install",
-      },
-      "install-py": Object {
-        "name": "install-py",
         "steps": Array [
           Object {
             "exec": "pip install --upgrade pip",
@@ -8214,77 +8277,70 @@ cython_debug/
       "build": Object {
         "executor": "nx:run-commands",
         "options": Object {
-          "command": "yarn projen build",
+          "command": "npx projen build",
           "cwd": "packages/py-subproject",
         },
       },
       "clobber": Object {
         "executor": "nx:run-commands",
         "options": Object {
-          "command": "yarn projen clobber",
+          "command": "npx projen clobber",
           "cwd": "packages/py-subproject",
         },
       },
       "compile": Object {
         "executor": "nx:run-commands",
         "options": Object {
-          "command": "yarn projen compile",
+          "command": "npx projen compile",
           "cwd": "packages/py-subproject",
         },
       },
       "default": Object {
         "executor": "nx:run-commands",
         "options": Object {
-          "command": "yarn projen default",
+          "command": "npx projen default",
           "cwd": "packages/py-subproject",
         },
       },
       "eject": Object {
         "executor": "nx:run-commands",
         "options": Object {
-          "command": "yarn projen eject",
+          "command": "npx projen eject",
           "cwd": "packages/py-subproject",
         },
       },
       "install": Object {
         "executor": "nx:run-commands",
         "options": Object {
-          "command": "yarn projen install",
-          "cwd": "packages/py-subproject",
-        },
-      },
-      "install-py": Object {
-        "executor": "nx:run-commands",
-        "options": Object {
-          "command": "yarn projen install-py",
+          "command": "npx projen install",
           "cwd": "packages/py-subproject",
         },
       },
       "package": Object {
         "executor": "nx:run-commands",
         "options": Object {
-          "command": "yarn projen package",
+          "command": "npx projen package",
           "cwd": "packages/py-subproject",
         },
       },
       "post-compile": Object {
         "executor": "nx:run-commands",
         "options": Object {
-          "command": "yarn projen post-compile",
+          "command": "npx projen post-compile",
           "cwd": "packages/py-subproject",
         },
       },
       "pre-compile": Object {
         "executor": "nx:run-commands",
         "options": Object {
-          "command": "yarn projen pre-compile",
+          "command": "npx projen pre-compile",
           "cwd": "packages/py-subproject",
         },
       },
       "test": Object {
         "executor": "nx:run-commands",
         "options": Object {
-          "command": "yarn projen test",
+          "command": "npx projen test",
           "cwd": "packages/py-subproject",
         },
       },
@@ -10686,7 +10742,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10731,7 +10787,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10765,7 +10821,7 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10796,7 +10852,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10809,7 +10865,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10817,6 +10873,14 @@ target
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
+      },
+      "postinstall": Object {
+        "name": "postinstall",
+        "steps": Array [
+          Object {
+            "exec": "yarn run nx run-many --target install --projects  --parallel=1",
+          },
+        ],
       },
       "pre-compile": Object {
         "description": "Prepare the project for compilation for all affected projects",
@@ -10826,7 +10890,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10839,7 +10903,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many",
+            "exec": "yarn run nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -10849,7 +10913,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -10861,7 +10925,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -10909,16 +10973,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn run npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "yarn syncpack fix-mismatches",
+            "exec": "yarn run syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -10930,7 +10994,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn run nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11192,6 +11256,12 @@ target
           "target": "build",
         },
       ],
+      "install": Array [
+        Object {
+          "projects": "dependencies",
+          "target": "install",
+        },
+      ],
     },
     "tasksRunnerOptions": Object {
       "default": Object {
@@ -11254,6 +11324,7 @@ target
       "package": "npx projen package",
       "post-compile": "npx projen post-compile",
       "post-upgrade": "npx projen post-upgrade",
+      "postinstall": "npx projen postinstall",
       "pre-compile": "npx projen pre-compile",
       "projen": "npx projen",
       "run-many": "npx projen run-many",
@@ -11716,7 +11787,7 @@ pattern1.txt
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11761,7 +11832,7 @@ pattern1.txt
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11795,7 +11866,7 @@ pattern1.txt
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11826,7 +11897,7 @@ pattern1.txt
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11839,7 +11910,7 @@ pattern1.txt
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11847,6 +11918,14 @@ pattern1.txt
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
+      },
+      "postinstall": Object {
+        "name": "postinstall",
+        "steps": Array [
+          Object {
+            "exec": "yarn run nx run-many --target install --projects  --parallel=1",
+          },
+        ],
       },
       "pre-compile": Object {
         "description": "Prepare the project for compilation for all affected projects",
@@ -11856,7 +11935,7 @@ pattern1.txt
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11869,7 +11948,7 @@ pattern1.txt
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many",
+            "exec": "yarn run nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -11879,7 +11958,7 @@ pattern1.txt
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -11891,7 +11970,7 @@ pattern1.txt
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -11939,16 +12018,16 @@ pattern1.txt
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn run npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "yarn syncpack fix-mismatches",
+            "exec": "yarn run syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -11960,7 +12039,7 @@ pattern1.txt
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn run nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12222,6 +12301,12 @@ pattern1.txt
           "target": "build",
         },
       ],
+      "install": Array [
+        Object {
+          "projects": "dependencies",
+          "target": "install",
+        },
+      ],
     },
     "tasksRunnerOptions": Object {
       "default": Object {
@@ -12284,6 +12369,7 @@ pattern1.txt
       "package": "npx projen package",
       "post-compile": "npx projen post-compile",
       "post-upgrade": "npx projen post-upgrade",
+      "postinstall": "npx projen postinstall",
       "pre-compile": "npx projen pre-compile",
       "projen": "npx projen",
       "run-many": "npx projen run-many",
@@ -12748,7 +12834,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12793,7 +12879,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12827,7 +12913,7 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12858,7 +12944,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12871,7 +12957,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12879,6 +12965,14 @@ target
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
+      },
+      "postinstall": Object {
+        "name": "postinstall",
+        "steps": Array [
+          Object {
+            "exec": "pnpm exec nx run-many --target install --projects  --parallel=1",
+          },
+        ],
       },
       "pre-compile": Object {
         "description": "Prepare the project for compilation for all affected projects",
@@ -12888,7 +12982,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12901,7 +12995,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many",
+            "exec": "pnpm exec nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -12911,7 +13005,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "pnpx projen",
+            "exec": "pnpm exec projen",
           },
         ],
       },
@@ -12923,7 +13017,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "pnpm exec nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -12960,7 +13054,7 @@ target
             "exec": "pnpm update",
           },
           Object {
-            "exec": "npx projen",
+            "exec": "pnpm exec projen",
           },
           Object {
             "spawn": "post-upgrade",
@@ -12971,16 +13065,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "pnpx npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "pnpm exec npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "pnpx syncpack fix-mismatches",
+            "exec": "pnpm exec syncpack fix-mismatches",
           },
           Object {
             "exec": "pnpm install",
           },
           Object {
-            "exec": "pnpx projen",
+            "exec": "pnpm exec projen",
           },
         ],
       },
@@ -12992,7 +13086,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "pnpx nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "pnpm exec nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -13254,6 +13348,12 @@ target
           "target": "build",
         },
       ],
+      "install": Array [
+        Object {
+          "projects": "dependencies",
+          "target": "install",
+        },
+      ],
     },
     "tasksRunnerOptions": Object {
       "default": Object {
@@ -13309,23 +13409,24 @@ target
     },
     "private": true,
     "scripts": Object {
-      "build": "npx projen build",
-      "clobber": "npx projen clobber",
-      "compile": "npx projen compile",
-      "default": "npx projen default",
-      "eject": "npx projen eject",
-      "eslint": "npx projen eslint",
-      "package": "npx projen package",
-      "post-compile": "npx projen post-compile",
-      "post-upgrade": "npx projen post-upgrade",
-      "pre-compile": "npx projen pre-compile",
-      "projen": "npx projen",
-      "run-many": "npx projen run-many",
-      "synth-workspace": "npx projen synth-workspace",
-      "test": "npx projen test",
-      "upgrade": "npx projen upgrade",
-      "upgrade-deps": "npx projen upgrade-deps",
-      "watch": "npx projen watch",
+      "build": "pnpm exec projen build",
+      "clobber": "pnpm exec projen clobber",
+      "compile": "pnpm exec projen compile",
+      "default": "pnpm exec projen default",
+      "eject": "pnpm exec projen eject",
+      "eslint": "pnpm exec projen eslint",
+      "package": "pnpm exec projen package",
+      "post-compile": "pnpm exec projen post-compile",
+      "post-upgrade": "pnpm exec projen post-upgrade",
+      "postinstall": "pnpm exec projen postinstall",
+      "pre-compile": "pnpm exec projen pre-compile",
+      "projen": "pnpm exec projen",
+      "run-many": "pnpm exec projen run-many",
+      "synth-workspace": "pnpm exec projen synth-workspace",
+      "test": "pnpm exec projen test",
+      "upgrade": "pnpm exec projen upgrade",
+      "upgrade-deps": "pnpm exec projen upgrade-deps",
+      "watch": "pnpm exec projen watch",
     },
     "types": "lib/index.d.ts",
     "version": "0.0.0",
@@ -14736,7 +14837,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14781,7 +14882,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14815,7 +14916,7 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14846,7 +14947,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14859,7 +14960,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14867,6 +14968,14 @@ target
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
+      },
+      "postinstall": Object {
+        "name": "postinstall",
+        "steps": Array [
+          Object {
+            "exec": "yarn run nx run-many --target install --projects  --parallel=1",
+          },
+        ],
       },
       "pre-compile": Object {
         "description": "Prepare the project for compilation for all affected projects",
@@ -14876,7 +14985,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14889,7 +14998,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many",
+            "exec": "yarn run nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -14899,7 +15008,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -14911,7 +15020,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -14959,16 +15068,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn run npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "yarn syncpack fix-mismatches",
+            "exec": "yarn run syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -14980,7 +15089,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn run nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15248,6 +15357,12 @@ target
           "target": "eslint",
         },
       ],
+      "install": Array [
+        Object {
+          "projects": "dependencies",
+          "target": "install",
+        },
+      ],
       "test": Array [
         Object {
           "projects": "dependencies",
@@ -15316,6 +15431,7 @@ target
       "package": "npx projen package",
       "post-compile": "npx projen post-compile",
       "post-upgrade": "npx projen post-upgrade",
+      "postinstall": "npx projen postinstall",
       "pre-compile": "npx projen pre-compile",
       "projen": "npx projen",
       "run-many": "npx projen run-many",
@@ -15777,7 +15893,7 @@ target
         "name": "build",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=build --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=build --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15822,7 +15938,7 @@ target
         "name": "compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15856,7 +15972,7 @@ target
         "name": "eslint",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=eslint --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=eslint --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15887,7 +16003,7 @@ target
         "name": "package",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=package --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=package --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15900,7 +16016,7 @@ target
         "name": "post-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=post-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=post-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15908,6 +16024,14 @@ target
       "post-upgrade": Object {
         "description": "Runs after upgrading dependencies",
         "name": "post-upgrade",
+      },
+      "postinstall": Object {
+        "name": "postinstall",
+        "steps": Array [
+          Object {
+            "exec": "yarn run nx run-many --target install --projects  --parallel=1",
+          },
+        ],
       },
       "pre-compile": Object {
         "description": "Prepare the project for compilation for all affected projects",
@@ -15917,7 +16041,7 @@ target
         "name": "pre-compile",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=pre-compile --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=pre-compile --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -15930,7 +16054,7 @@ target
         "name": "run-many",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many",
+            "exec": "yarn run nx run-many",
             "receiveArgs": true,
           },
         ],
@@ -15940,7 +16064,7 @@ target
         "name": "synth-workspace",
         "steps": Array [
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -15952,7 +16076,7 @@ target
         "name": "test",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=test --output-style=stream --nx-bail",
+            "exec": "yarn run nx run-many --target=test --output-style=stream --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -16000,16 +16124,16 @@ target
         "name": "upgrade-deps",
         "steps": Array [
           Object {
-            "exec": "yarn npm-check-updates --deep --rejectVersion 0.0.0 -u",
+            "exec": "yarn run npm-check-updates --deep --rejectVersion 0.0.0 -u",
           },
           Object {
-            "exec": "yarn syncpack fix-mismatches",
+            "exec": "yarn run syncpack fix-mismatches",
           },
           Object {
             "exec": "yarn install",
           },
           Object {
-            "exec": "yarn projen",
+            "exec": "yarn run projen",
           },
         ],
       },
@@ -16021,7 +16145,7 @@ target
         "name": "watch",
         "steps": Array [
           Object {
-            "exec": "yarn nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
+            "exec": "yarn run nx run-many --target=watch --output-style=stream --skip-nx-cache --nx-ignore-cycles --nx-bail",
             "receiveArgs": true,
           },
         ],
@@ -16283,6 +16407,12 @@ target
           "target": "build",
         },
       ],
+      "install": Array [
+        Object {
+          "projects": "dependencies",
+          "target": "install",
+        },
+      ],
     },
     "tasksRunnerOptions": Object {
       "default": Object {
@@ -16345,6 +16475,7 @@ target
       "package": "npx projen package",
       "post-compile": "npx projen post-compile",
       "post-upgrade": "npx projen post-upgrade",
+      "postinstall": "npx projen postinstall",
       "pre-compile": "npx projen pre-compile",
       "projen": "npx projen",
       "run-many": "npx projen run-many",
