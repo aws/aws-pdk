@@ -306,6 +306,12 @@ export class NxMonorepoProject extends TypeScriptProject {
       description: "Run task against multiple workspace projects",
     });
 
+    this.addTask("graph", {
+      receiveArgs: true,
+      exec: buildExecutableCommand(this.package.packageManager, "nx", "graph"),
+      description: "Generate dependency graph for monorepo",
+    });
+
     // Map tasks to nx run-many
     if (options.scripts == null || options.scripts.build == null) {
       this._overrideNxBuildTask(this.buildTask, { target: "build" }, true);
