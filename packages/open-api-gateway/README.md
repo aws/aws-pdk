@@ -1,3 +1,33 @@
+## DEPRECATED!
+
+Please use the [`type-safe-api`](../type-safe-api) package instead. `open-api-gateway` will be removed in the GA 1.0 release.
+
+`type-safe-api` offers several benefits over `open-api-gateway`:
+
+* Code generation at build time:
+  * You no longer need to run `npx projen` when you make changes to your API definition.
+  * You no longer need to pollute your version control with generated code
+* More intuitive directory structure
+* Generated python projects use `poetry`, allowing for better local dependencies (eg no need to deploy a lambda layer for handlers to depend on the generated handler wrappers)
+
+### TypeSafeApi Migration Guide
+
+Migration will vary a little depending on the language you are using, however the following rough steps can be used to migrate a project to use `type-safe-api`:
+
+1. Create a `TypeSafeApiProject` in your `.projenrc.ts`, with a different `outdir` to your existing `OpenApiGatewayXXXProject` or `SmithyApiGatewayXXXProject` (which we assume is called `api`, ie `const api = new SmithyApiGateway...`). Make sure you select the appropriate `modelLanguage` based on whether your existing model is written in OpenApi or Smithy. We'll call it `newApi` (eg `const newApi = new TypeSafeApiProject({...`)
+1. Duplicate any client dependencies in your `.projenrc.ts` so that packages depend on the equivalent package. (eg. if a package depends on `api.generatedTypescriptClient`, make sure it depends on `newApi.typescriptClient`).
+1. Duplicate any infrastructure dependencies in your `.projenrc.ts` - the infrastructure is now a separate subproject rather than the top level API project. (eg if a package depended on `api` before, it should now depend on `newApi.typescriptInfrastructure`)
+1. Synthesize with `npx projen`
+1. Copy your model into the new directory:
+   1. For Smithy, you can copy everything in `<oldoutdir>/smithy/src/main/smithy` directory into `<newoutdir>/model/src/main/smithy`
+   1. For OpenAPI, copy your `<oldoutdir>/src/spec.yaml` to `<newoutdir>/model/src/main/openapi`, and rename it to `main.yaml`. Additionally, copy any other referenced OpenAPI files from `<oldoutdir>/src/` into `<newoutdir>/model/src/main/openapi` if present.
+1. Build your project using your build command (eg. `yarn build` in root of monorepo if using monorepo with yarn).
+1. Update any imports for the `Api` construct to import from the new generated infrastructure project, eg. `import { Api } from 'mynewapi-typescript-infra';`
+1. Update any imports for the generated clients to use the new generated client packages
+1. Make sure any custom code / files / scripts added to the `OpenApiGatewayXXXProject` or `SmithyApiGatewayXXXProject` are moved to their appropriate new home, most likely your infrastructure project (eg `AwsCdkTypeScriptApp`).
+1. Remove the `OpenApiGatewayXXXProject` or `SmithyApiGatewayXXXProject` from `.projenrc.ts` and run `npx projen` again
+1. Delete the `<oldoutdir>`
+
 ## OpenAPI Gateway
 
 Define your APIs using [Smithy](https://awslabs.github.io/smithy/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated clients and documentation, automatic input validation, and type safe client and server code!

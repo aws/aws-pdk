@@ -1,0 +1,65 @@
+#!/bin/bash
+
+set -e
+
+# Parse arguments
+spec_path=''
+output_path=''
+generator=''
+generator_dir=''
+additional_properties=''
+openapi_normalizer=''
+src_dir='src'
+while [[ "$#" -gt 0 ]]; do case $1 in
+  --spec-path) spec_path="$2"; shift;;
+  --output-path) output_path="$2"; shift;;
+  --generator) generator="$2"; shift;;
+  --generator-dir) generator_dir="$2"; shift;;
+  --additional-properties) additional_properties="$2"; shift;;
+  --openapi-normalizer) openapi_normalizer="$2"; shift;;
+  --src-dir) src_dir="$2"; shift;;
+esac; shift; done
+
+echo "Generating OpenAPI $generator_dir ($generator)..."
+working_dir=$(pwd)
+
+# Get the directory this script is executing in (scripts/generators)
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
+
+# load common package manager helper functions
+. "$script_dir/../common/common.sh"
+
+# Create a temporary directory
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-client-$generator_dir.XXXXXXXXX")
+cd $tmp_dir
+
+log "generate :: tmp_dir :: $tmp_dir"
+
+# Copy the specific generator directory into the temp directory
+cp -r $script_dir/$generator_dir/* .
+
+# Install dependencies
+install_packages @openapitools/openapi-generator-cli@2.5.1
+
+# Support a special placeholder of {{src}} in config.yaml to ensure our custom templates get written to the correct folder
+sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
+
+# Generate the client
+run_command @openapitools/openapi-generator-cli generate \
+  --log-to-stderr \
+  --generator-name $generator \
+  --skip-operation-example \
+  --generate-alias-as-model \
+  --minimal-update \
+  --template-dir templates \
+  --config config.final.yaml \
+  --additional-properties="$additional_properties" \
+  ${openapi_normalizer:+"--openapi-normalizer=$openapi_normalizer"} \
+  --input-spec "$script_dir/$spec_path" \
+  --output "$script_dir/$output_path"
+
+echo "$generator_dir ($generator) OpenAPI generation done!"
+
+# Clean up
+cd $working_dir
+rm -rf $tmp_dir

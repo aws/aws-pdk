@@ -1,0 +1,50 @@
+{{#apiInfo}}
+{{#apis.0}}
+package {{package}};
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{modelPackage}}.*;
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis}}
+{{#imports}}import {{import}};
+{{/imports}}
+{{/apis}}
+{{/apiInfo}}
+
+import java.util.HashMap;
+import java.util.Map;
+
+// Generic type for object "keyed" by operation names
+{{>generatedAnnotation}}
+@lombok.Builder @lombok.Getter
+public class OperationConfig<T> {
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    private T {{nickname}};
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+
+    public Map<String, T> asMap() {
+        Map<String, T> map = new HashMap<>();
+        {{#apiInfo}}
+        {{#apis}}
+        {{#operations}}
+        {{#operation}}
+        map.put("{{nickname}}", this.{{nickname}});
+        {{/operation}}
+        {{/operations}}
+        {{/apis}}
+        {{/apiInfo}}
+        return map;
+    }
+}

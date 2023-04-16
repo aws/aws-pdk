@@ -20,6 +20,7 @@ export interface SmithyApiGatewayTsProjectOptions
  * with API Gateway, and generated lambda handler wrappers for type-safe handling of requests.
  *
  * @pjid smithy-api-gateway-ts
+ * @deprecated Please use TypeSafeApiProject instead. This will be removed in the PDK GA 1.0 release.
  */
 export class SmithyApiGatewayTsProject extends OpenApiGatewayTsProject {
   constructor(options: SmithyApiGatewayTsProjectOptions) {

@@ -27,6 +27,7 @@ export interface OpenApiGatewayJavaProjectOptions
  * with API Gateway, and generated lambda handler wrappers for type-safe handling of requests.
  *
  * @pjid open-api-gateway-java
+ * @deprecated Please use TypeSafeApiProject instead. This will be removed in the PDK GA 1.0 release.
  */
 export class OpenApiGatewayJavaProject extends JavaProject {
   /**

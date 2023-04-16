@@ -1,0 +1,130 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Example API
+paths:
+  /path/{pathParam}:
+    post:
+      operationId: operationOne
+      parameters:
+        - in: query
+          name: param1
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: param2
+          schema:
+            type: array
+            items:
+              type: string
+          required: true
+        - in: query
+          name: param3
+          schema:
+            type: number
+          required: true
+        - in: query
+          name: param4
+          schema:
+            type: string
+          required: false
+        - in: path
+          name: pathParam
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/TestResponse'
+        '400':
+          description: Error response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /without-operation-id:
+    delete:
+      responses:
+        '200':
+          description: Successful response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/TestResponse'
+  /empty-response:
+    put:
+      operationId: empty
+      responses:
+        204:
+          description: No response body!
+  /any-request-response:
+    put:
+      operationId: anyRequestResponse
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      responses:
+        200:
+          description: Any response
+          content:
+            'application/json':
+              schema: {}
+  /different-media-type:
+    post:
+      operationId: mediaTypes
+      requestBody:
+        required: true
+        content:
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Success
+          content:
+            application/x-mpegurl:
+              schema:
+                type: string
+components:
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+      required:
+        - errorMessage
+    TestRequest:
+      type: object
+      properties:
+        myInput:
+          type: number
+    TestResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              id:
+                type: integer
+            required:
+              - id
+      required:
+        - messages

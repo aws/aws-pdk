@@ -1,0 +1,45 @@
+{{#apiInfo}}
+{{#apis.0}}
+package {{package}};
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{modelPackage}}.*;
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis}}
+{{#imports}}import {{import}};
+{{/imports}}
+{{/apis}}
+{{/apiInfo}}
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+// Look up path and http method for a given operation name
+{{>generatedAnnotation}}
+public class OperationLookup {
+    /**
+     * Returns the operation lookup information for the OpenApiGatewayLambdaApi construct
+     */
+    public static Map<String, Map<String, String>> getOperationLookup() {
+        final Map<String, Map<String, String>> config = new HashMap<>();
+
+        {{#apiInfo}}
+        {{#apis}}
+        {{#operations}}
+        {{#operation}}
+        config.put("{{nickname}}", new HashMap<String, String>() { { put("path", "{{path}}"); put("method", "{{httpMethod}}"); } });
+        {{/operation}}
+        {{/operations}}
+        {{/apis}}
+        {{/apiInfo}}
+
+        return config;
+    }
+}

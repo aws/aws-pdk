@@ -1,0 +1,27 @@
+{{#apiInfo}}
+{{#apis.0}}
+package {{package}};
+{{/apis.0}}
+{{/apiInfo}}
+
+{{>generatedAnnotation}}
+public class Operations {
+    /**
+     * Returns an OperationConfig Builder with all values populated with the given value.
+     * You can override specific values on the builder if you like.
+     * Make sure you call `.build()` at the end to construct the OperationConfig.
+     */
+    public static <T> OperationConfig.OperationConfigBuilder<T> all(final T value) {
+        return OperationConfig.<T>builder()
+                {{#apiInfo}}
+                {{#apis}}
+                {{#operations}}
+                {{#operation}}
+                .{{nickname}}(value)
+                {{/operation}}
+                {{/operations}}
+                {{/apis}}
+                {{/apiInfo}}
+                ;
+    }
+}
