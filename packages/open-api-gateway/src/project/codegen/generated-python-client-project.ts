@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { JsonFile, Task, TaskStep } from "projen";
+import { JsonFile } from "projen";
 import { PythonProject, PythonProjectOptions } from "projen/lib/python";
 import { GeneratedPythonClientSourceCode } from "./components/generated-python-client-source-code";
 import { OpenApiGeneratorIgnoreFile } from "./components/open-api-generator-ignore-file";
@@ -62,18 +62,6 @@ export class GeneratedPythonClientProject extends PythonProject {
       );
     }
 
-    // The NX monorepo will rewrite install tasks to install-py to ensure installs can be run sequentially in dependency
-    // order. This runs as part of monorepo synthesis which is too late for this project since we synthesize early to
-    // ensure the generated client code is available for the install phase of the api project itself. Thus, we rewrite
-    // the install tasks ourselves instead.
-    if (this.parent && "addImplicitDependency" in this.parent) {
-      const installPyTask = this.addTask("install-py");
-      this.depsManager.installTask.steps.forEach((step) =>
-        this.copyStepIntoTask(step, installPyTask)
-      );
-      this.depsManager.installTask.reset();
-    }
-
     // Use a package.json to ensure the client is discoverable by nx
     new JsonFile(this, "package.json", {
       obj: {
@@ -107,24 +95,5 @@ export class GeneratedPythonClientProject extends PythonProject {
     }
     super.synth();
     this.synthed = true;
-  }
-
-  /**
-   * Copies the given step into the given task within this project
-   * @private
-   */
-  private copyStepIntoTask(step: TaskStep, task: Task) {
-    if (step.exec) {
-      task.exec(step.exec, { name: step.name, cwd: step.cwd });
-    } else if (step.say) {
-      task.say(step.say, { name: step.name, cwd: step.cwd });
-    } else if (step.spawn) {
-      const stepToSpawn = this.tasks.tryFind(step.spawn);
-      if (stepToSpawn) {
-        task.spawn(stepToSpawn, { name: step.name, cwd: step.cwd });
-      }
-    } else if (step.builtin) {
-      task.builtin(step.builtin);
-    }
   }
 }

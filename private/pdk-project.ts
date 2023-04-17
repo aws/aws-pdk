@@ -74,6 +74,7 @@ export abstract class PDKProject extends JsiiProject {
     super({
       ...options,
       packageManager: NodePackageManager.PNPM,
+      projenCommand: buildExecutableCommand(NodePackageManager.PNPM, "projen"),
       stability: options.stability || Stability.EXPERIMENTAL,
       github: false,
       depsUpgrade: false,
