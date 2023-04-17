@@ -8,7 +8,6 @@ import {
   JsonFile,
   Project,
   Task,
-  TaskStep,
   YamlFile,
 } from "projen";
 import {
@@ -16,7 +15,6 @@ import {
   NodePackageManager,
   NodeProject,
 } from "projen/lib/javascript";
-import { PythonProject } from "projen/lib/python";
 import {
   TypeScriptProject,
   TypeScriptProjectOptions,
@@ -24,6 +22,31 @@ import {
 import { NxProject } from "./nx-project";
 import { Nx } from "./nx-types";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
+
+/**
+ * Execute download/execute command to run based on package manager configured.
+ *
+ * @param packageManager package manager being used.
+ * @param args args to append.
+ */
+export function buildDownloadExecutableCommand(
+  packageManager: NodePackageManager,
+  ...args: string[]
+) {
+  if (args.length === 0) {
+    throw new Error("args must be specified");
+  }
+  const argLiteral = args.join(" ");
+  switch (packageManager) {
+    case NodePackageManager.YARN2:
+      return `yarn dlx ${argLiteral}`;
+    case NodePackageManager.PNPM:
+      return `pnpm dlx ${argLiteral}`;
+    case NodePackageManager.YARN:
+    default:
+      return `npx ${argLiteral}`;
+  }
+}
 
 /**
  * Execute command to run based on package manager configured.
@@ -35,15 +58,18 @@ export function buildExecutableCommand(
   packageManager: NodePackageManager,
   ...args: string[]
 ) {
-  const argLiteral = args.length > 0 ? ` ${args.join(" ")}` : "";
+  if (args.length === 0) {
+    throw new Error("args must be specified");
+  }
+  const argLiteral = args.join(" ");
   switch (packageManager) {
     case NodePackageManager.YARN:
     case NodePackageManager.YARN2:
-      return `yarn${argLiteral}`;
+      return `yarn run ${argLiteral}`;
     case NodePackageManager.PNPM:
-      return `pnpx${argLiteral}`;
+      return `pnpm exec ${argLiteral}`;
     default:
-      return `npx${argLiteral}`;
+      return `npx ${argLiteral}`;
   }
 }
 
@@ -218,7 +244,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   private readonly workspaceConfig?: WorkspaceConfig;
   private readonly workspacePackages: string[];
 
-  private readonly nxJson: JsonFile;
+  public readonly nxJson: JsonFile;
 
   private readonly _options: NxMonorepoProjectOptions;
 
@@ -227,6 +253,9 @@ export class NxMonorepoProject extends TypeScriptProject {
       ...options,
       github: options.github ?? false,
       package: options.package ?? false,
+      projenCommand: options.packageManager
+        ? buildExecutableCommand(options.packageManager, "projen")
+        : undefined,
       prettier: options.prettier ?? true,
       projenrcTs: true,
       release: options.release ?? false,
@@ -669,7 +698,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   synth() {
     this.validateSubProjects();
     this.updateWorkspace();
-    this.wirePythonDependencies();
+    this.installNonNodeDependencies();
 
     // Prevent sub NodeProject packages from `postSynthesis` which will cause individual/extraneous installs.
     // The workspace package install will handle all the sub NodeProject packages automatically.
@@ -758,74 +787,34 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   /**
-   * Updates the install task for python projects so that they are run serially and in dependency order such that python
-   * projects within the monorepo can declare dependencies on one another.
+   * Ensures the install task for non-node projects is executed postinstall.
+   *
    * @private
    */
-  private wirePythonDependencies() {
-    // Find any python projects
-    const pythonProjects = this.subProjects.filter(
-      (project) => project instanceof PythonProject
-    ) as PythonProject[];
+  private installNonNodeDependencies() {
+    const installProjects = this.subProjects.filter(
+      (project) =>
+        !(project instanceof NodeProject) && project.tasks.tryFind("install")
+    );
 
-    if (pythonProjects.length === 0) {
-      // Nothing to do for no python projects
-      return;
-    }
-
-    // Move all install commands to install-py so that they are not installed in parallel by the monorepo package manager.
-    // eg yarn install will run the install task for all packages in parallel which can lead to conflicts for python.
-    pythonProjects.forEach((pythonProject) => {
-      const installPyTask =
-        pythonProject.tasks.tryFind("install-py") ??
-        pythonProject.addTask("install-py");
-      const installTask = pythonProject.tasks.tryFind("install");
-
-      (installTask?.steps || []).forEach((step) => {
-        this.copyStepIntoTask(step, installPyTask, pythonProject);
-      });
-
-      installTask?.reset();
-    });
-
-    // Add an install task to the monorepo to include running the install-py command serially to avoid conflicting writes
-    // to a shared virtual env. This is also managed by nx so that installs occur in dependency order.
     const monorepoInstallTask =
-      this.tasks.tryFind("install") ?? this.addTask("install");
+      this.tasks.tryFind("postinstall") ?? this.addTask("postinstall");
     monorepoInstallTask.exec(
-      `${buildExecutableCommand(
-        this.package.packageManager
-      )} nx run-many --target install-py --projects ${pythonProjects
-        .map((project) => project.name)
-        .join(",")} --parallel=1`
+      buildExecutableCommand(
+        this.package.packageManager,
+        `nx run-many --target install --projects ${installProjects
+          .map((project) => project.name)
+          .join(",")} --parallel=1`
+      )
     );
 
     // Update the nx.json to ensure that install-py follows dependency order
-    this.nxJson.addOverride("targetDependencies.install-py", [
+    this.nxJson.addOverride("targetDependencies.install", [
       {
-        target: "install-py",
+        target: "install",
         projects: "dependencies",
       },
     ]);
-  }
-
-  /**
-   * Copies the given step into the given task. Step and Task must be from the given Project
-   * @private
-   */
-  private copyStepIntoTask(step: TaskStep, task: Task, project: Project) {
-    if (step.exec) {
-      task.exec(step.exec, { name: step.name, cwd: step.cwd });
-    } else if (step.say) {
-      task.say(step.say, { name: step.name, cwd: step.cwd });
-    } else if (step.spawn) {
-      const stepToSpawn = project.tasks.tryFind(step.spawn);
-      if (stepToSpawn) {
-        task.spawn(stepToSpawn, { name: step.name, cwd: step.cwd });
-      }
-    } else if (step.builtin) {
-      task.builtin(step.builtin);
-    }
   }
 }
 

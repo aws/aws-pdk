@@ -9,6 +9,7 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { JEST_VERSION } from "./pdk-monorepo-project";
+import { buildExecutableCommand } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
 /**
@@ -52,6 +53,7 @@ export class PipelineTypescriptSampleProject extends TypeScriptProject {
     super({
       parent,
       packageManager: NodePackageManager.PNPM,
+      projenCommand: buildExecutableCommand(NodePackageManager.PNPM, "projen"),
       outdir: "packages/pipeline/samples/typescript",
       defaultReleaseBranch: "mainline",
       name: "pipeline-sample-ts",
@@ -93,13 +95,18 @@ export class PipelinePythonSampleProject extends PythonProject {
       ],
     });
 
-    // Re-deploy any changes to dependant local packages
-    this.tasks.tryFind("install")?.reset();
-    this.preCompileTask.exec("pip install --upgrade pip");
-    this.preCompileTask.exec(
-      "pip install -r requirements.txt --force-reinstall"
+    const installTask =
+      this.tasks.tryFind("install") ?? this.addTask("install");
+    installTask.reset();
+    installTask.exec("pip install --upgrade pip");
+    installTask.exec(
+      'cat requirements.txt | cut -f1 -d"#" | xargs -n 1 pip install || echo "\\033[33mInstalled with some errors\\033[0m"'
     );
-    this.preCompileTask.exec("pip install -r requirements-dev.txt");
+    installTask.exec(
+      'cat requirements-dev.txt | cut -f1 -d"#" | xargs -n 1 pip install || echo "\\033[33mInstalled with some errors\\033[0m"'
+    );
+
+    this.preCompileTask.spawn(installTask);
   }
 }
 
