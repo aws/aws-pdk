@@ -57,6 +57,8 @@ export class TypeSafeApiProject extends PDKProject {
           "scripts/parser/parse-openapi-spec",
           "scripts/custom/infrastructure/cdk/generate-type-safe-cdk-construct",
           "scripts/custom/clean-openapi-generated-code/clean-openapi-generated-code",
+          "samples/smithy/gradlew",
+          "samples/smithy/gradelw.bat",
         ],
       },
     });
