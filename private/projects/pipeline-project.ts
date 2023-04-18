@@ -56,6 +56,7 @@ export class PipelineTypescriptSampleProject extends TypeScriptProject {
       projenCommand: buildExecutableCommand(NodePackageManager.PNPM, "projen"),
       outdir: "packages/pipeline/samples/typescript",
       defaultReleaseBranch: "mainline",
+      npmignoreEnabled: false,
       name: "pipeline-sample-ts",
       sampleCode: false,
       depsUpgrade: false,

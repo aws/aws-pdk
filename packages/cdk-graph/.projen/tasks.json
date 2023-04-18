@@ -60,6 +60,15 @@
       "name": "default",
       "description": "Synthesize project files"
     },
+    "docgen": {
+      "name": "docgen",
+      "description": "Generate API docs from .jsii manifest",
+      "steps": [
+        {
+          "exec": "mkdir -p docs/api/typescript && jsii-docgen -r -o docs/api/typescript/index.md"
+        }
+      ]
+    },
     "eslint": {
       "name": "eslint",
       "description": "Runs eslint against the codebase",
@@ -141,7 +150,12 @@
     },
     "post-compile": {
       "name": "post-compile",
-      "description": "Runs after successful compilation"
+      "description": "Runs after successful compilation",
+      "steps": [
+        {
+          "spawn": "docgen"
+        }
+      ]
     },
     "pre-compile": {
       "name": "pre-compile",
