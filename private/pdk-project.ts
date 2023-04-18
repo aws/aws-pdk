@@ -62,6 +62,7 @@ export interface PDKProjectOptions extends JsiiProjectOptions {
  */
 export abstract class PDKProject extends JsiiProject {
   public readonly pdkRelease: PDKRelease;
+  public readonly options: PDKProjectOptions;
 
   constructor(options: PDKProjectOptions) {
     const nameWithUnderscore = options.name.replace(/-/g, "_");
@@ -112,6 +113,7 @@ export abstract class PDKProject extends JsiiProject {
       gitignore: [...(options.gitignore || []), "LICENSE_THIRD_PARTY"],
     });
 
+    this.options = options;
     if (
       options.stability &&
       !Object.values(Stability).find((f) => f === options.stability)
@@ -183,6 +185,7 @@ export abstract class PDKProject extends JsiiProject {
     });
 
     this.pdkRelease = new PDKRelease(this, options.publishConfig);
+    new PDKDocgen(this);
 
     if (options.nx) {
       this.nx = options.nx;
@@ -217,9 +220,9 @@ export abstract class PDKProject extends JsiiProject {
     switch (this.package.packageManager) {
       case NodePackageManager.YARN:
       case NodePackageManager.YARN2:
-        return `yarn ${args.join(" ")}`;
+        return `yarn run ${args.join(" ")}`;
       case NodePackageManager.PNPM:
-        return `pnpm ${args.join(" ")}`;
+        return `pnpm exec ${args.join(" ")}`;
       default:
         return `npx ${args.join(" ")}`;
     }
@@ -260,6 +263,34 @@ export abstract class PDKProject extends JsiiProject {
     overrideField(nx, path, value, append);
 
     this.nx = nx;
+  }
+}
+
+class PDKDocgen {
+  constructor(project: PDKProject) {
+    project.addDevDeps("jsii-docgen");
+
+    const docsBasePath = "docs/api";
+
+    const docgen = project.addTask("docgen", {
+      description: "Generate API docs from .jsii manifest",
+      exec: `mkdir -p ${docsBasePath}/typescript && jsii-docgen -r -o ${docsBasePath}/typescript/index.md`,
+    });
+
+    project.options.publishToPypiConfig !== false &&
+      docgen.exec(
+        `mkdir -p ${docsBasePath}/python && jsii-docgen -l python -r -o ${docsBasePath}/python/index.md`
+      );
+
+    project.options.publishToMavenConfig !== false &&
+      docgen.exec(
+        `mkdir -p ${docsBasePath}/java && jsii-docgen -l java -r -o ${docsBasePath}/java/index.md`
+      );
+
+    // spawn docgen after compilation (requires the .jsii manifest).
+    project.postCompileTask.spawn(docgen);
+    project.gitignore.exclude(`/${docsBasePath}`);
+    project.annotateGenerated(`/${docsBasePath}`);
   }
 }
 
