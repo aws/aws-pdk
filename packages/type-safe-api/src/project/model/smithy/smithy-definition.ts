@@ -47,17 +47,19 @@ export class SmithyDefinition extends Component {
       "smithy"
     );
 
-    // Add gradle wrapper files and executables
-    [
+    const gradleExecutables = ["gradlew", "gradlew.bat"];
+    const gradleFiles = [
       "gradle/wrapper/gradle-wrapper.jar",
       "gradle/wrapper/gradle-wrapper.properties",
-    ].forEach((file) => {
+    ];
+
+    // Add gradle wrapper files and executables
+    gradleFiles.forEach((file) => {
       new SampleFile(project, file, {
         sourcePath: path.join(samplePath, file),
       });
     });
-
-    ["gradlew", "gradlew.bat"].forEach((executable) => {
+    gradleExecutables.forEach((executable) => {
       new SampleExecutable(project, executable, {
         sourcePath: path.join(samplePath, executable),
       });
@@ -198,6 +200,22 @@ structure ApiError {
       "openapi",
       `${serviceName}.openapi.json`
     );
+
+    // Copy the gradle files during build if they don't exist. We don't overwrite to allow users to BYO gradle wrapper
+    // and set `ignoreGradleWrapper: false`.
+    project.generateTask.exec("mkdir -p gradle/wrapper");
+    const samplePathRelativeToProjectOutdir = path.relative(
+      project.outdir,
+      path.resolve(samplePath)
+    );
+    [...gradleFiles, ...gradleExecutables].forEach((file) => {
+      project.generateTask.exec(
+        `if [ ! -f ${file} ]; then cp ${path.join(
+          samplePathRelativeToProjectOutdir,
+          file
+        )} ${file}; fi`
+      );
+    });
 
     // SmithyBuild component above always writes to smithy-build.json
     project.generateTask.exec(
