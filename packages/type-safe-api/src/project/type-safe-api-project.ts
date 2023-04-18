@@ -155,6 +155,7 @@ export class TypeSafeApiProject extends Project {
       parent: parentMonorepo ?? this,
       parentPackageName: this.name,
       generatedCodeDir: runtimeDirRelativeToParent,
+      isWithinMonorepo: !!parentMonorepo,
       // Spec path relative to each generated client dir
       parsedSpecPath: path.join(
         "..",
@@ -235,6 +236,7 @@ export class TypeSafeApiProject extends Project {
       parent: parentMonorepo ?? this,
       parentPackageName: this.name,
       generatedCodeDir: infraDirRelativeToParent,
+      isWithinMonorepo: !!parentMonorepo,
       // Spec path relative to each generated infra package dir
       parsedSpecPath: path.join(
         "..",
