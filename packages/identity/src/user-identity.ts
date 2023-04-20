@@ -5,16 +5,11 @@ import {
   IdentityPoolProps,
   UserPoolAuthenticationProvider,
 } from "@aws-cdk/aws-cognito-identitypool-alpha";
-import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
-import { Stack, Duration } from "aws-cdk-lib";
-import {
-  AccountRecovery,
-  CfnUserPool,
-  Mfa,
-  UserPool,
-  UserPoolClient,
-} from "aws-cdk-lib/aws-cognito";
+import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
 import { Construct } from "constructs";
+import { UserPoolWithMfa } from "./userpool-with-mfa";
+
+const WEB_CLIENT_ID = "WebClient";
 
 /**
  * Properties which configures the Identity Pool.
@@ -23,7 +18,7 @@ export interface UserIdentityProps {
   /**
    * User provided Cognito UserPool.
    *
-   * @default - a userpool will be created.
+   * @default - a userpool with mfa will be created.
    */
   readonly userPool?: UserPool;
 
@@ -34,85 +29,45 @@ export interface UserIdentityProps {
 }
 
 /**
- * Creates an Identity Pool with sane defaults configured.
+ * Creates a UserPool and Identity Pool with sane defaults configured intended for usage from a web client.
  */
 export class UserIdentity extends Construct {
   public readonly identityPool: IdentityPool;
   public readonly userPool: UserPool;
-  public readonly userPoolClient?: UserPoolClient;
+  public readonly userPoolClient: UserPoolClient;
 
   constructor(scope: Construct, id: string, props?: UserIdentityProps) {
     super(scope, id);
 
     // Unless explicitly stated, created a default Cognito User Pool and Web Client.
-    if (!props?.userPool) {
-      this.userPool = new UserPool(this, "UserPool", {
-        deletionProtection: true,
-        passwordPolicy: {
-          minLength: 8,
-          requireLowercase: true,
-          requireUppercase: true,
-          requireDigits: true,
-          requireSymbols: true,
-          tempPasswordValidity: Duration.days(3),
-        },
-        mfa: Mfa.REQUIRED,
-        accountRecovery: AccountRecovery.EMAIL_ONLY,
-        autoVerify: {
-          email: true,
-        },
-      });
+    this.userPool = !props?.userPool
+      ? new UserPoolWithMfa(this, "UserPool")
+      : props.userPool;
 
-      (this.userPool.node.defaultChild as CfnUserPool).userPoolAddOns = {
-        advancedSecurityMode: "ENFORCED",
-      };
+    this.identityPool = new IdentityPool(
+      this,
+      "IdentityPool",
+      props?.identityPoolOptions
+    );
 
-      const stack = Stack.of(this);
+    const existingClient = this.userPool.node.children.find(
+      (e) => e.node.id === WEB_CLIENT_ID && e instanceof UserPoolClient
+    ) as UserPoolClient | undefined;
 
-      ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
-        (RuleId) => {
-          PDKNag.addResourceSuppressionsByPathNoThrow(
-            stack,
-            `${PDKNag.getStackPrefix(stack)}${id}/UserPool/smsRole/Resource`,
-            [
-              {
-                id: RuleId,
-                reason:
-                  "MFA requires sending a text to a users phone number which cannot be known at deployment time.",
-                appliesTo: ["Resource::*"],
-              },
-            ]
-          );
-        }
-      );
-
-      this.userPoolClient = this.userPool.addClient("WebClient", {
+    this.userPoolClient =
+      existingClient ??
+      this.userPool.addClient(WEB_CLIENT_ID, {
         authFlows: {
           userPassword: true,
           userSrp: true,
         },
       });
-    } else {
-      this.userPool = props.userPool;
-    }
 
-    this.identityPool = new IdentityPool(this, "IdentityPool", {
-      ...props?.identityPoolOptions,
-      authenticationProviders: {
-        ...props?.identityPoolOptions?.authenticationProviders,
-        userPools: [
-          ...(props?.identityPoolOptions?.authenticationProviders?.userPools ||
-            []),
-          ...(!props?.userPool
-            ? [
-                new UserPoolAuthenticationProvider({
-                  userPool: this.userPool,
-                  userPoolClient: this.userPoolClient!,
-                }),
-              ]
-            : []),
-        ],
-      },
-    });
+    this.identityPool.addUserPoolAuthentication(
+      new UserPoolAuthenticationProvider({
+        userPool: this.userPool,
+        userPoolClient: this.userPoolClient!,
+      })
+    );
   }
 }

@@ -176,12 +176,14 @@ Object {
         },
         "AutoVerifiedAttributes": Array [
           "email",
+          "phone_number",
         ],
         "DeletionProtection": "ACTIVE",
         "EmailVerificationMessage": "The verification code to your new account is {####}",
         "EmailVerificationSubject": "Verify your new account",
         "EnabledMfas": Array [
           "SMS_MFA",
+          "SOFTWARE_TOKEN_MFA",
         ],
         "MfaConfiguration": "ON",
         "Policies": Object {
@@ -194,6 +196,28 @@ Object {
             "TemporaryPasswordValidityDays": 3,
           },
         },
+        "Schema": Array [
+          Object {
+            "Mutable": true,
+            "Name": "phone_number",
+            "Required": false,
+          },
+          Object {
+            "Mutable": true,
+            "Name": "email",
+            "Required": true,
+          },
+          Object {
+            "Mutable": true,
+            "Name": "given_name",
+            "Required": true,
+          },
+          Object {
+            "Mutable": true,
+            "Name": "family_name",
+            "Required": true,
+          },
+        ],
         "SmsConfiguration": Object {
           "ExternalId": "NestedStackDefaultsNestedUserPoolF08F152B",
           "SnsCallerArn": Object {
@@ -204,8 +228,17 @@ Object {
           },
         },
         "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "UserAttributeUpdateSettings": Object {
+          "AttributesRequireVerificationBeforeUpdate": Array [
+            "email",
+            "phone_number",
+          ],
+        },
         "UserPoolAddOns": Object {
           "AdvancedSecurityMode": "ENFORCED",
+        },
+        "UsernameConfiguration": Object {
+          "CaseSensitive": false,
         },
         "VerificationMessageTemplate": Object {
           "DefaultEmailOption": "CONFIRM_WITH_CODE",
@@ -249,26 +282,6 @@ Object {
       "Type": "AWS::Cognito::UserPoolClient",
     },
     "DefaultsNestedUserPoolsmsRole9E53925E": Object {
-      "Metadata": Object {
-        "cdk_nag": Object {
-          "rules_to_suppress": Array [
-            Object {
-              "applies_to": Array [
-                "Resource::*",
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "MFA requires sending a text to a users phone number which cannot be known at deployment time.",
-            },
-            Object {
-              "applies_to": Array [
-                "Resource::*",
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "MFA requires sending a text to a users phone number which cannot be known at deployment time.",
-            },
-          ],
-        },
-      },
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -304,6 +317,329 @@ Object {
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+  },
+}
+`;
+
+exports[`User Identity Unit Tests Defaults - using legacy props 1`] = `
+Object {
+  "Parameters": Object {
+    "BootstrapVersion": Object {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": Object {
+    "DefaultsLegacyPropsIdentityPool99521833": Object {
+      "DependsOn": Array [
+        "DefaultsLegacyPropsUserPoolEF40D398",
+        "DefaultsLegacyPropsUserPoolsmsRole885B2281",
+        "DefaultsLegacyPropsUserPoolWebClient084DDFA3",
+      ],
+      "Properties": Object {
+        "AllowUnauthenticatedIdentities": false,
+        "CognitoIdentityProviders": Array [
+          Object {
+            "ClientId": Object {
+              "Ref": "DefaultsLegacyPropsUserPoolWebClient084DDFA3",
+            },
+            "ProviderName": Object {
+              "Fn::Join": Array [
+                "",
+                Array [
+                  "cognito-idp.",
+                  Object {
+                    "Ref": "AWS::Region",
+                  },
+                  ".",
+                  Object {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/",
+                  Object {
+                    "Ref": "DefaultsLegacyPropsUserPoolEF40D398",
+                  },
+                ],
+              ],
+            },
+            "ServerSideTokenCheck": true,
+          },
+        ],
+      },
+      "Type": "AWS::Cognito::IdentityPool",
+    },
+    "DefaultsLegacyPropsIdentityPoolAuthenticatedRole13B826B9": Object {
+      "DependsOn": Array [
+        "DefaultsLegacyPropsUserPoolEF40D398",
+        "DefaultsLegacyPropsUserPoolsmsRole885B2281",
+        "DefaultsLegacyPropsUserPoolWebClient084DDFA3",
+      ],
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": Object {
+                "ForAnyValue:StringLike": Object {
+                  "cognito-identity.amazonaws.com:amr": "authenticated",
+                },
+                "StringEquals": Object {
+                  "cognito-identity.amazonaws.com:aud": Object {
+                    "Ref": "DefaultsLegacyPropsIdentityPool99521833",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Federated": "cognito-identity.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Default Authenticated Role for Identity Pool ",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsLegacyPropsIdentityPool99521833",
+                  "Name",
+                ],
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsLegacyPropsIdentityPoolDefaultRoleAttachmentC29D2D43": Object {
+      "DependsOn": Array [
+        "DefaultsLegacyPropsUserPoolEF40D398",
+        "DefaultsLegacyPropsUserPoolsmsRole885B2281",
+        "DefaultsLegacyPropsUserPoolWebClient084DDFA3",
+      ],
+      "Properties": Object {
+        "IdentityPoolId": Object {
+          "Ref": "DefaultsLegacyPropsIdentityPool99521833",
+        },
+        "Roles": Object {
+          "authenticated": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsLegacyPropsIdentityPoolAuthenticatedRole13B826B9",
+              "Arn",
+            ],
+          },
+          "unauthenticated": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsLegacyPropsIdentityPoolUnauthenticatedRole933ECEDF",
+              "Arn",
+            ],
+          },
+        },
+      },
+      "Type": "AWS::Cognito::IdentityPoolRoleAttachment",
+    },
+    "DefaultsLegacyPropsIdentityPoolUnauthenticatedRole933ECEDF": Object {
+      "DependsOn": Array [
+        "DefaultsLegacyPropsUserPoolEF40D398",
+        "DefaultsLegacyPropsUserPoolsmsRole885B2281",
+        "DefaultsLegacyPropsUserPoolWebClient084DDFA3",
+      ],
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": Object {
+                "ForAnyValue:StringLike": Object {
+                  "cognito-identity.amazonaws.com:amr": "unauthenticated",
+                },
+                "StringEquals": Object {
+                  "cognito-identity.amazonaws.com:aud": Object {
+                    "Ref": "DefaultsLegacyPropsIdentityPool99521833",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Federated": "cognito-identity.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Default Unauthenticated Role for Identity Pool ",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DefaultsLegacyPropsIdentityPool99521833",
+                  "Name",
+                ],
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DefaultsLegacyPropsUserPoolEF40D398": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "AccountRecoverySetting": Object {
+          "RecoveryMechanisms": Array [
+            Object {
+              "Name": "verified_email",
+              "Priority": 1,
+            },
+          ],
+        },
+        "AdminCreateUserConfig": Object {
+          "AllowAdminCreateUserOnly": true,
+        },
+        "AutoVerifiedAttributes": Array [
+          "email",
+        ],
+        "DeletionProtection": "ACTIVE",
+        "EmailVerificationMessage": "The verification code to your new account is {####}",
+        "EmailVerificationSubject": "Verify your new account",
+        "EnabledMfas": Array [
+          "SMS_MFA",
+        ],
+        "MfaConfiguration": "ON",
+        "Policies": Object {
+          "PasswordPolicy": Object {
+            "MinimumLength": 8,
+            "RequireLowercase": true,
+            "RequireNumbers": true,
+            "RequireSymbols": true,
+            "RequireUppercase": true,
+            "TemporaryPasswordValidityDays": 3,
+          },
+        },
+        "SmsConfiguration": Object {
+          "ExternalId": "DefaultsLegacyPropsUserPoolF2A9E2AD",
+          "SnsCallerArn": Object {
+            "Fn::GetAtt": Array [
+              "DefaultsLegacyPropsUserPoolsmsRole885B2281",
+              "Arn",
+            ],
+          },
+        },
+        "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "UserPoolAddOns": Object {
+          "AdvancedSecurityMode": "ENFORCED",
+        },
+        "VerificationMessageTemplate": Object {
+          "DefaultEmailOption": "CONFIRM_WITH_CODE",
+          "EmailMessage": "The verification code to your new account is {####}",
+          "EmailSubject": "Verify your new account",
+          "SmsMessage": "The verification code to your new account is {####}",
+        },
+      },
+      "Type": "AWS::Cognito::UserPool",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "DefaultsLegacyPropsUserPoolWebClient084DDFA3": Object {
+      "Properties": Object {
+        "AllowedOAuthFlows": Array [
+          "implicit",
+          "code",
+        ],
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthScopes": Array [
+          "profile",
+          "phone",
+          "email",
+          "openid",
+          "aws.cognito.signin.user.admin",
+        ],
+        "CallbackURLs": Array [
+          "https://example.com",
+        ],
+        "ExplicitAuthFlows": Array [
+          "ALLOW_USER_PASSWORD_AUTH",
+          "ALLOW_USER_SRP_AUTH",
+          "ALLOW_REFRESH_TOKEN_AUTH",
+        ],
+        "SupportedIdentityProviders": Array [
+          "COGNITO",
+        ],
+        "UserPoolId": Object {
+          "Ref": "DefaultsLegacyPropsUserPoolEF40D398",
+        },
+      },
+      "Type": "AWS::Cognito::UserPoolClient",
+    },
+    "DefaultsLegacyPropsUserPoolsmsRole885B2281": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Condition": Object {
+                "StringEquals": Object {
+                  "sts:ExternalId": "DefaultsLegacyPropsUserPoolF2A9E2AD",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "cognito-idp.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": Array [
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Array [
+                Object {
+                  "Action": "sns:Publish",
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "sns-publish",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+  },
+  "Rules": Object {
+    "CheckBootstrapVersion": Object {
+      "Assertions": Array [
+        Object {
+          "Assert": Object {
+            "Fn::Not": Array [
+              Object {
+                "Fn::Contains": Array [
+                  Array [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  Object {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
     },
   },
 }
@@ -492,12 +828,14 @@ Object {
         },
         "AutoVerifiedAttributes": Array [
           "email",
+          "phone_number",
         ],
         "DeletionProtection": "ACTIVE",
         "EmailVerificationMessage": "The verification code to your new account is {####}",
         "EmailVerificationSubject": "Verify your new account",
         "EnabledMfas": Array [
           "SMS_MFA",
+          "SOFTWARE_TOKEN_MFA",
         ],
         "MfaConfiguration": "ON",
         "Policies": Object {
@@ -510,6 +848,28 @@ Object {
             "TemporaryPasswordValidityDays": 3,
           },
         },
+        "Schema": Array [
+          Object {
+            "Mutable": true,
+            "Name": "phone_number",
+            "Required": false,
+          },
+          Object {
+            "Mutable": true,
+            "Name": "email",
+            "Required": true,
+          },
+          Object {
+            "Mutable": true,
+            "Name": "given_name",
+            "Required": true,
+          },
+          Object {
+            "Mutable": true,
+            "Name": "family_name",
+            "Required": true,
+          },
+        ],
         "SmsConfiguration": Object {
           "ExternalId": "DefaultsUserPool4C3A90C6",
           "SnsCallerArn": Object {
@@ -520,8 +880,17 @@ Object {
           },
         },
         "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "UserAttributeUpdateSettings": Object {
+          "AttributesRequireVerificationBeforeUpdate": Array [
+            "email",
+            "phone_number",
+          ],
+        },
         "UserPoolAddOns": Object {
           "AdvancedSecurityMode": "ENFORCED",
+        },
+        "UsernameConfiguration": Object {
+          "CaseSensitive": false,
         },
         "VerificationMessageTemplate": Object {
           "DefaultEmailOption": "CONFIRM_WITH_CODE",
@@ -565,26 +934,6 @@ Object {
       "Type": "AWS::Cognito::UserPoolClient",
     },
     "DefaultsUserPoolsmsRoleE0CA6B10": Object {
-      "Metadata": Object {
-        "cdk_nag": Object {
-          "rules_to_suppress": Array [
-            Object {
-              "applies_to": Array [
-                "Resource::*",
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "MFA requires sending a text to a users phone number which cannot be known at deployment time.",
-            },
-            Object {
-              "applies_to": Array [
-                "Resource::*",
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "MFA requires sending a text to a users phone number which cannot be known at deployment time.",
-            },
-          ],
-        },
-      },
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -663,6 +1012,10 @@ Object {
   },
   "Resources": Object {
     "DefaultsIdentityPoolAuthenticatedRole69EA113E": Object {
+      "DependsOn": Array [
+        "UserPool6BA7E5F2",
+        "UserPoolWebClient4C9370B0",
+      ],
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -704,13 +1057,47 @@ Object {
       "Type": "AWS::IAM::Role",
     },
     "DefaultsIdentityPoolBA85B5EA": Object {
+      "DependsOn": Array [
+        "UserPool6BA7E5F2",
+        "UserPoolWebClient4C9370B0",
+      ],
       "Properties": Object {
         "AllowUnauthenticatedIdentities": false,
-        "CognitoIdentityProviders": Array [],
+        "CognitoIdentityProviders": Array [
+          Object {
+            "ClientId": Object {
+              "Ref": "UserPoolWebClient4C9370B0",
+            },
+            "ProviderName": Object {
+              "Fn::Join": Array [
+                "",
+                Array [
+                  "cognito-idp.",
+                  Object {
+                    "Ref": "AWS::Region",
+                  },
+                  ".",
+                  Object {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/",
+                  Object {
+                    "Ref": "UserPool6BA7E5F2",
+                  },
+                ],
+              ],
+            },
+            "ServerSideTokenCheck": true,
+          },
+        ],
       },
       "Type": "AWS::Cognito::IdentityPool",
     },
     "DefaultsIdentityPoolDefaultRoleAttachment961DF578": Object {
+      "DependsOn": Array [
+        "UserPool6BA7E5F2",
+        "UserPoolWebClient4C9370B0",
+      ],
       "Properties": Object {
         "IdentityPoolId": Object {
           "Ref": "DefaultsIdentityPoolBA85B5EA",
@@ -733,6 +1120,10 @@ Object {
       "Type": "AWS::Cognito::IdentityPoolRoleAttachment",
     },
     "DefaultsIdentityPoolUnauthenticatedRole863CFE8C": Object {
+      "DependsOn": Array [
+        "UserPool6BA7E5F2",
+        "UserPoolWebClient4C9370B0",
+      ],
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -803,6 +1194,37 @@ Object {
       },
       "Type": "AWS::Cognito::UserPool",
       "UpdateReplacePolicy": "Retain",
+    },
+    "UserPoolWebClient4C9370B0": Object {
+      "Properties": Object {
+        "AllowedOAuthFlows": Array [
+          "implicit",
+          "code",
+        ],
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthScopes": Array [
+          "profile",
+          "phone",
+          "email",
+          "openid",
+          "aws.cognito.signin.user.admin",
+        ],
+        "CallbackURLs": Array [
+          "https://example.com",
+        ],
+        "ExplicitAuthFlows": Array [
+          "ALLOW_USER_PASSWORD_AUTH",
+          "ALLOW_USER_SRP_AUTH",
+          "ALLOW_REFRESH_TOKEN_AUTH",
+        ],
+        "SupportedIdentityProviders": Array [
+          "COGNITO",
+        ],
+        "UserPoolId": Object {
+          "Ref": "UserPool6BA7E5F2",
+        },
+      },
+      "Type": "AWS::Cognito::UserPoolClient",
     },
   },
   "Rules": Object {

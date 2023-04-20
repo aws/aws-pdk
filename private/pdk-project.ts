@@ -287,6 +287,12 @@ class PDKDocgen {
         `mkdir -p ${docsBasePath}/java && jsii-docgen -l java -r -o ${docsBasePath}/java/index.md`
       );
 
+    project.nxOverride(
+      "targets.build.outputs",
+      [`{projectRoot}/${docsBasePath}`],
+      true
+    );
+
     // spawn docgen after compilation (requires the .jsii manifest).
     project.postCompileTask.spawn(docgen);
     project.gitignore.exclude(`/${docsBasePath}`);
