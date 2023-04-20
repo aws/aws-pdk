@@ -153,7 +153,40 @@ new TypeScriptProject({
 
 #### Python
 
-The recommended way to configure dependencies between python projects within your monorepo is to use a single shared virtual environment. You can then install packages you wish to depend on into that environment using pip's [Editable Installs](https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs).
+##### Poetry (Recommended)
+
+The recommended way to configure dependencies between python projects within your monorepo is to use Poetry. Poetry sets up separate virtual environments per project but also supports local file dependencies. You can use the monorepo's `addPythonPoetryDependency` method:
+
+```ts
+const a = new PythonProject({
+  parent: monorepo,
+  outdir: 'packages/a',
+  moduleName: 'a',
+  name: 'a',
+  authorName: 'jack',
+  authorEmail: 'me@example.com',
+  version: '1.0.0',
+  poetry: true,
+});
+
+const b = new PythonProject({
+  parent: monorepo,
+  outdir: 'packages/b',
+  moduleName: 'b',
+  name: 'b',
+  authorName: 'jack',
+  authorEmail: 'me@example.com',
+  version: '1.0.0',
+  poetry: true,
+});
+
+// b depends on a
+monorepo.addPythonPoetryDependency(b, a);
+```
+
+##### Pip
+
+If you are using pip for your python projects, you can set up a dependency using a single shared virtual environment. You can then install packages you wish to depend on into that environment using pip's [Editable Installs](https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs).
 
 You will also need to add an implicit dependency to tell the monorepo the correct build order for your packages.
 
@@ -197,7 +230,7 @@ monorepo.addImplicitDependency(b, a);
 
 #### Java
 
-The recommended way to configure dependencies between java projects within your monorepo is to use shared maven repositories. The default java project build will already create a distributable in the correct format for a maven repository in its `dist/java` folder, so you can use this as a repository.
+The recommended way to configure dependencies between java projects within your monorepo is to use shared maven repositories. The default java project build will already create a distributable in the correct format for a maven repository in its `dist/java` folder, so you can use this as a repository. You can use the monorepo's `addJavaDependency` method:
 
 For example:
 
@@ -218,16 +251,8 @@ const b = new JavaProject({
   artifactId: 'b',
   name: 'b',
   version: '1.0.0',
-  // Declare the dependency on A
-  deps: [`${a.pom.groupId}/${a.pom.artifactId}@${a.pom.version}`],
 });
 
-// Add the repository
-b.pom.addRepository({
-  url: 'file://../a/dist/java',
-  id: 'dependency-on-a',
-});
-
-// Add the implicit dependency to control build order
-monorepo.addImplicitDependency(b, a);
+// b depends on a
+monorepo.addJavaDependency(b, a);
 ```

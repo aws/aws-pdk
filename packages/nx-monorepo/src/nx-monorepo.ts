@@ -10,11 +10,13 @@ import {
   Task,
   YamlFile,
 } from "projen";
+import { JavaProject } from "projen/lib/java";
 import {
   NodePackage,
   NodePackageManager,
   NodeProject,
 } from "projen/lib/javascript";
+import { Poetry, PythonProject } from "projen/lib/python";
 import {
   TypeScriptProject,
   TypeScriptProjectOptions,
@@ -579,7 +581,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   /**
-   * Create an implicit dependency between two Project's. This is typically
+   * Create an implicit dependency between two Projects. This is typically
    * used in polygot repos where a Typescript project wants a build dependency
    * on a Python project as an example.
    *
@@ -597,6 +599,60 @@ export class NxMonorepoProject extends TypeScriptProject {
     } else {
       nxProject.addImplicitDependency(dependee);
     }
+  }
+
+  /**
+   * Adds a dependency between two Java Projects in the monorepo.
+   * @param dependent project you want to have the dependency
+   * @param dependee project you wish to depend on
+   */
+  public addJavaDependency(dependent: JavaProject, dependee: JavaProject) {
+    // Add implicit dependency for build order
+    this.addImplicitDependency(dependent, dependee);
+
+    // Add dependency in pom.xml
+    dependent.addDependency(
+      `${dependee.pom.groupId}/${dependee.pom.artifactId}@${dependee.pom.version}`
+    );
+
+    // Add a repository so that the dependency in the pom can be resolved
+    dependent.pom.addRepository({
+      id: dependee.name,
+      url: `file://${path.join(
+        path.relative(dependent.outdir, dependee.outdir),
+        "dist",
+        "java"
+      )}`,
+    });
+  }
+
+  /**
+   * Adds a dependency between two Python Projects in the monorepo. The dependent must have Poetry enabled.
+   * @param dependent project you want to have the dependency (must be a Poetry Python Project)
+   * @param dependee project you wish to depend on
+   * @throws error if the dependent does not have Poetry enabled
+   */
+  public addPythonPoetryDependency(
+    dependent: PythonProject,
+    dependee: PythonProject
+  ) {
+    // Check we're adding the dependency to a poetry python project
+    if (!(dependent.depsManager instanceof Poetry)) {
+      throw new Error(
+        `${dependent.name} must be a PythonProject with Poetry enabled to add this dependency`
+      );
+    }
+
+    // Add implicit dependency for build order
+    this.addImplicitDependency(dependent, dependee);
+
+    // Add local path dependency
+    dependent.addDependency(
+      `${dependee.name}@{path="${path.relative(
+        dependent.outdir,
+        dependee.outdir
+      )}", develop=true}`
+    );
   }
 
   /**
