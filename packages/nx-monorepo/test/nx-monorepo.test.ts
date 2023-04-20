@@ -22,6 +22,7 @@ describe("NX Monorepo Unit Tests", () => {
       nxConfig: {
         nxIgnore: ["pattern1.txt", "**/foo.ts"],
       },
+      gitignore: ["another"],
     });
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
