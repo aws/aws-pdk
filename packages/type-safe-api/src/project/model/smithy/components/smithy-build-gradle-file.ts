@@ -15,6 +15,8 @@ export interface SmithyBuildGradleFileOptions {
  * Synthesize a build.gradle file for Smithy projects
  */
 export class SmithyBuildGradleFile extends FileBase {
+  public static readonly fileDependencyPrefix: string = "file://";
+
   private readonly modelDir: string;
   private readonly dependencies: string[];
   private readonly repositories: string[];
@@ -30,6 +32,22 @@ export class SmithyBuildGradleFile extends FileBase {
       (url) => `maven { url "${url}" }`
     ) ?? ["mavenLocal()", "mavenCentral()"];
   }
+
+  /**
+   * Add dependencies to the build.gradle
+   */
+  public addDeps(...deps: string[]) {
+    this.dependencies.push(...deps);
+  }
+
+  private renderDependency = (dep: string) => {
+    if (dep.startsWith(SmithyBuildGradleFile.fileDependencyPrefix)) {
+      return `files("${dep.substring(
+        SmithyBuildGradleFile.fileDependencyPrefix.length
+      )}")`;
+    }
+    return `"${dep}"`;
+  };
 
   public synthesizeContent(_: IResolver): string | undefined {
     return `// ${this.marker}
@@ -52,24 +70,9 @@ ${this.repositories.map((repository) => `    ${repository}`).join("\n")}
 
 // Dependencies can be added by configuring smithyBuildOptions in your .projenrc file
 dependencies {
-${this.dependencies.map((dep) => `    implementation "${dep}"`).join("\n")}
-}
-
-task generate(type: JavaExec) {
-    configurations.implementation.setCanBeResolved(true)
-
-    classpath = configurations.implementation
-    mainClass.set('software.amazon.smithy.cli.SmithyCli')
-
-    if (project.hasProperty("config") && project.hasProperty("output") && project.hasProperty("discover")) {
-        args("build",
-                "--config",
-                file(project.getProperty("config")).toString(),
-                "--output",
-                file(project.getProperty("output")).toString(),
-                "--discover",
-                file(project.getProperty("discover")).toString())
-    }
+${this.dependencies
+  .map((dep) => `    implementation ${this.renderDependency(dep)}`)
+  .join("\n")}
 }
 `;
   }

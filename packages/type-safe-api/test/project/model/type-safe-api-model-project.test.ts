@@ -53,6 +53,38 @@ describe("Type Safe Api Model Project Unit Tests", () => {
     expect(synthSmithyProject(project)).toMatchSnapshot();
   });
 
+  it("Smithy With Dependencies", () => {
+    const lib = new TypeSafeApiModelProject({
+      outdir: path.resolve(__dirname, "smithy-model-lib"),
+      name: "smithy-model-lib",
+      modelLanguage: ModelLanguage.SMITHY,
+      modelOptions: {
+        smithy: {
+          serviceName: {
+            namespace: "com.shared",
+            serviceName: "Lib",
+          },
+        },
+      },
+    });
+    const consumer = new TypeSafeApiModelProject({
+      outdir: path.resolve(__dirname, "smithy-model-consumer"),
+      name: "smithy-model-consumer",
+      modelLanguage: ModelLanguage.SMITHY,
+      modelOptions: {
+        smithy: {
+          serviceName: {
+            namespace: "com.test",
+            serviceName: "Consumer",
+          },
+        },
+      },
+    });
+    consumer.smithy!.addSmithyDeps(lib.smithy!);
+
+    expect(synthSmithyProject(consumer)).toMatchSnapshot();
+  });
+
   it("OpenAPI", () => {
     const project = new TypeSafeApiModelProject({
       outdir: path.resolve(__dirname, "openapi-model"),

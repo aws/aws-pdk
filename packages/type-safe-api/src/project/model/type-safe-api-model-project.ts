@@ -12,8 +12,24 @@ export interface TypeSafeApiModelProjectOptions extends ProjectOptions {
 }
 
 export class TypeSafeApiModelProject extends Project {
+  /**
+   * Name of the final bundled OpenAPI specification
+   */
   public readonly parsedSpecFile: string = ".api.json";
+  /**
+   * Reference to the task used for generating the final bundled OpenAPI specification
+   */
   public readonly generateTask: Task;
+
+  /**
+   * Reference to the Smithy definition component. Will be defined if the model language is Smithy
+   */
+  public readonly smithy?: SmithyDefinition;
+
+  /**
+   * Reference to the OpenAPI definition component. Will be defined if the model language is OpenAPI
+   */
+  public readonly openapi?: OpenApiDefinition;
 
   constructor(options: TypeSafeApiModelProjectOptions) {
     super(options);
@@ -21,13 +37,15 @@ export class TypeSafeApiModelProject extends Project {
     this.generateTask = this.addTask("generate");
 
     // Add the API definition
-    const openApiSpecificationPath = this.addApiDefinition(
+    const { specPath, smithy, openapi } = this.addApiDefinition(
       options.modelLanguage,
       options.modelOptions
     );
+    this.smithy = smithy;
+    this.openapi = openapi;
 
     // Parse and bundle the openapi specification
-    this.addParseAndBundleTask(openApiSpecificationPath);
+    this.addParseAndBundleTask(specPath);
 
     // Run the generate task as part of build
     this.compileTask.spawn(this.generateTask);
@@ -50,7 +68,7 @@ export class TypeSafeApiModelProject extends Project {
   private addApiDefinition = (
     modelLanguage: ModelLanguage,
     modelOptions: ModelOptions
-  ): string => {
+  ) => {
     if (modelLanguage === ModelLanguage.SMITHY) {
       if (!modelOptions.smithy) {
         throw new Error(
@@ -59,12 +77,11 @@ export class TypeSafeApiModelProject extends Project {
       }
 
       const smithyOptions = modelOptions.smithy;
-      const smithyDefinition = new SmithyDefinition(this, {
+      const smithy = new SmithyDefinition(this, {
         smithyOptions,
-        buildOutputDir: "smithy-output",
       });
 
-      return smithyDefinition.openApiSpecificationPath;
+      return { smithy, specPath: smithy.openApiSpecificationPath };
     } else if (modelLanguage === ModelLanguage.OPENAPI) {
       if (!modelOptions.openapi) {
         throw new Error(
@@ -73,10 +90,10 @@ export class TypeSafeApiModelProject extends Project {
       }
 
       const openApiOptions = modelOptions.openapi;
-      const openApiDefinition = new OpenApiDefinition(this, {
+      const openapi = new OpenApiDefinition(this, {
         openApiOptions,
       });
-      return openApiDefinition.openApiSpecificationPath;
+      return { openapi, specPath: openapi.openApiSpecificationPath };
     } else {
       throw new Error(`Unknown model language ${modelLanguage}`);
     }
