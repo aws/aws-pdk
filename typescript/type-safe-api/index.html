@@ -2285,6 +2285,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#openapidefinitionoptions" class="md-nav__link">
+    OpenApiDefinitionOptions 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#openapimodeloptions" class="md-nav__link">
     OpenApiModelOptions 
   </a>
@@ -2308,6 +2315,13 @@
           <li class="md-nav__item">
   <a href="#smithycommon" class="md-nav__link">
     SmithyCommon 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smithydefinitionoptions" class="md-nav__link">
+    SmithyDefinitionOptions 
   </a>
   
 </li>
@@ -2468,6 +2482,20 @@
           <li class="md-nav__item">
   <a href="#noneauthorizer" class="md-nav__link">
     NoneAuthorizer 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openapidefinition" class="md-nav__link">
+    OpenApiDefinition 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smithydefinition" class="md-nav__link">
+    SmithyDefinition 
   </a>
   
 </li>
@@ -3472,8 +3500,7 @@ aws-prototyping-sdk library.</p>
 <span class="p">});</span>
 
 <span class="c1">// Add a local dependency on the generated python runtime</span>
-<span class="nx">lambdas</span><span class="p">.</span><span class="nx">addDependency</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">@{path=&quot;</span><span class="si">${</span><span class="nx">path</span><span class="p">.</span><span class="nx">relative</span><span class="p">(</span><span class="nx">lambdas</span><span class="p">.</span><span class="nx">outdir</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">.</span><span class="nx">outdir</span><span class="p">)</span><span class="si">}</span><span class="sb">&quot;, develop=true}`</span><span class="p">);</span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">lambdas</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">);</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addPythonPoetryDependency</span><span class="p">(</span><span class="nx">lambdas</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">);</span>
 
 <span class="c1">// Add commands to the lambda project&#39;s package task to create a distributable which can be deployed to AWS Lambda</span>
 <span class="nx">lambdas</span><span class="p">.</span><span class="nx">packageTask</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="sb">`mkdir -p lambda-dist &amp;&amp; rm -rf lambda-dist/*`</span><span class="p">);</span>
@@ -3496,12 +3523,9 @@ aws-prototyping-sdk library.</p>
 <span class="p">});</span>
 
 <span class="c1">// The infrastructure project depends on the python types, python infrastructure, and the lambda package</span>
-<span class="nx">infra</span><span class="p">.</span><span class="nx">addDependency</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">@{path=&quot;</span><span class="si">${</span><span class="nx">path</span><span class="p">.</span><span class="nx">relative</span><span class="p">(</span><span class="nx">infra</span><span class="p">.</span><span class="nx">outdir</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">.</span><span class="nx">outdir</span><span class="p">)</span><span class="si">}</span><span class="sb">&quot;, develop=true}`</span><span class="p">);</span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">infra</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">);</span>
-<span class="nx">infra</span><span class="p">.</span><span class="nx">addDependency</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">@{path=&quot;</span><span class="si">${</span><span class="nx">path</span><span class="p">.</span><span class="nx">relative</span><span class="p">(</span><span class="nx">infra</span><span class="p">.</span><span class="nx">outdir</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">.</span><span class="nx">outdir</span><span class="p">)</span><span class="si">}</span><span class="sb">&quot;, develop=true}`</span><span class="p">);</span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">infra</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">);</span>
-<span class="nx">infra</span><span class="p">.</span><span class="nx">addDependency</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">lambdas</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">@{path=&quot;</span><span class="si">${</span><span class="nx">path</span><span class="p">.</span><span class="nx">relative</span><span class="p">(</span><span class="nx">infra</span><span class="p">.</span><span class="nx">outdir</span><span class="p">,</span><span class="w"> </span><span class="nx">lambdas</span><span class="p">.</span><span class="nx">outdir</span><span class="p">)</span><span class="si">}</span><span class="sb">&quot;, develop=true}`</span><span class="p">);</span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">infra</span><span class="p">,</span><span class="w"> </span><span class="nx">lambdas</span><span class="p">);</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addPythonPoetryDependency</span><span class="p">(</span><span class="nx">infra</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">);</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addPythonPoetryDependency</span><span class="p">(</span><span class="nx">infra</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">python</span><span class="o">!</span><span class="p">);</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addPythonPoetryDependency</span><span class="p">(</span><span class="nx">infra</span><span class="p">,</span><span class="w"> </span><span class="nx">lambdas</span><span class="p">);</span>
 
 <span class="nx">monorepo</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
 </code></pre></div>
@@ -3608,12 +3632,7 @@ aws-prototyping-sdk library.</p>
 <span class="p">});</span>
 
 <span class="c1">// The lambdas package needs a dependency on the generated java runtime</span>
-<span class="nx">lambdas</span><span class="p">.</span><span class="nx">addDependency</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">groupId</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">artifactId</span><span class="si">}</span><span class="sb">@</span><span class="si">${</span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">version</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
-<span class="nx">lambdas</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">addRepository</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="sb">`file://</span><span class="si">${</span><span class="nx">path</span><span class="p">.</span><span class="nx">relative</span><span class="p">(</span><span class="nx">lambdas</span><span class="p">.</span><span class="nx">outdir</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">.</span><span class="nx">outdir</span><span class="p">)</span><span class="si">}</span><span class="sb">/dist/java`</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;java-api-runtime&#39;</span><span class="p">,</span>
-<span class="p">});</span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">lambdas</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">);</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addJavaDependency</span><span class="p">(</span><span class="nx">lambdas</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">);</span>
 
 <span class="c1">// Use the maven shade plugin to build a &quot;super jar&quot; which we can deploy to AWS Lambda</span>
 <span class="nx">lambdas</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">addPlugin</span><span class="p">(</span><span class="s2">&quot;org.apache.maven.plugins/maven-shade-plugin@3.3.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
@@ -3641,12 +3660,7 @@ aws-prototyping-sdk library.</p>
 <span class="p">});</span>
 
 <span class="c1">// Add a dependency on the generated CDK infrastructure</span>
-<span class="nx">infra</span><span class="p">.</span><span class="nx">addDependency</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">groupId</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">artifactId</span><span class="si">}</span><span class="sb">@</span><span class="si">${</span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">version</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
-<span class="nx">infra</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">addRepository</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="sb">`file://</span><span class="si">${</span><span class="nx">path</span><span class="p">.</span><span class="nx">relative</span><span class="p">(</span><span class="nx">infra</span><span class="p">.</span><span class="nx">outdir</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">.</span><span class="nx">outdir</span><span class="p">)</span><span class="si">}</span><span class="sb">/dist/java`</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;java-api-infra&#39;</span><span class="p">,</span>
-<span class="p">});</span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">infra</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">);</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addJavaDependency</span><span class="p">(</span><span class="nx">infra</span><span class="p">,</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">java</span><span class="o">!</span><span class="p">);</span>
 
 <span class="c1">// Make sure the java lambda builds before our CDK infra</span>
 <span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">infra</span><span class="p">,</span><span class="w"> </span><span class="nx">lambdas</span><span class="p">);</span>
@@ -3783,6 +3797,33 @@ aws-prototyping-sdk library.</p>
 <p>Multiple tags are still useful for documentation generation, for example <code>DocumentationFormat.HTML_REDOC</code> will group operations by tag in the side navigation bar.</p>
 <p>If you would like to introduce tags without breaking existing clients, we recommend first adding a tag named <code>default</code> to all operations.</p>
 <p>⚠️ <strong>Important Note</strong>: Smithy versions below <code>1.28.0</code> sort tags in alphabetical order and so the "first" tag will be the earliest in the alphabet. Therefore, if using tags with older versions of Smithy, we recommend prefixing your desired first tag with an underscore (for example <code>_default</code>). This is rectified in <code>1.28.0</code>, where tag order from the <code>@tags</code> trait is preserved.</p>
+<h4 id="smithy-model-libraries-and-dependencies">Smithy Model Libraries and Dependencies</h4>
+<p>You can instantiate the TypeSafeApiModelProject on its own to create a standalone Smithy model library.</p>
+<p>You can consume the library using the <code>addSmithyDeps</code> method, which adds a local file dependency on the built Smithy jar.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Standalone model project, used as our model library</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">shapes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiModelProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;shapes&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/shapes&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">modelLanguage</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelLanguage.SMITHY</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">modelOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">smithy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">namespace</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;com.my.shared.shapes&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Ignored&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
+
+<span class="c1">// Add the implicit monorepo dependency (if using the nx-monorepo) to ensure the shape library is built before the api model</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">api</span><span class="p">.</span><span class="nx">model</span><span class="p">,</span><span class="w"> </span><span class="nx">shapes</span><span class="p">);</span>
+
+<span class="c1">// Add a local file dependency on the built shapes jar</span>
+<span class="nx">api</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">smithy</span><span class="o">!</span><span class="p">.</span><span class="nx">addSmithyDeps</span><span class="p">(</span><span class="nx">shapes</span><span class="p">.</span><span class="nx">smithy</span><span class="o">!</span><span class="p">);</span>
+</code></pre></div>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="constructs">Constructs <a name="Constructs" id="Constructs"></a></h2>
 <h3 id="typesaferestapi">TypeSafeRestApi <a name="TypeSafeRestApi" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi"></a></h3>
@@ -5158,14 +5199,47 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>Options for the Smithy model - required when model language is SMITHY.</p>
 <hr />
+<h3 id="openapidefinitionoptions">OpenApiDefinitionOptions <a name="OpenApiDefinitionOptions" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions"></a></h3>
+<p>Options for the OpenAPI Spec.</p>
+<h4 id="initializer_17">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiDefinitionOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">openApiDefinitionOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiDefinitionOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="properties_18">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions.property.openApiOptions">openApiOptions</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions">OpenApiModelOptions</a></code></td>
+<td>Options for the openapi model.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="openapioptionsrequired"><code>openApiOptions</code><sup>Required</sup> <a name="openApiOptions" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions.property.openApiOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">openApiOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiModelOptions</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions">OpenApiModelOptions</a></li>
+</ul>
+<p>Options for the openapi model.</p>
+<hr />
 <h3 id="openapimodeloptions">OpenApiModelOptions <a name="OpenApiModelOptions" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions"></a></h3>
 <p>Options for the OpenAPI model.</p>
-<h4 id="initializer_17">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions.Initializer"></a></h4>
+<h4 id="initializer_18">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiModelOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">openApiModelOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiModelOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_18">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_19">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5193,12 +5267,12 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="runtimeconfiguration">RuntimeConfiguration <a name="RuntimeConfiguration" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration"></a></h3>
 <p>Configuration for generated runtime projects.</p>
-<h4 id="initializer_18">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration.Initializer"></a></h4>
+<h4 id="initializer_19">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RuntimeConfiguration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">runtimeConfiguration</span><span class="o">:</span><span class="w"> </span><span class="kt">RuntimeConfiguration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_19">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_20">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5242,12 +5316,12 @@ both client and server projects.</p>
 <hr />
 <h3 id="smithybuildoptions">SmithyBuildOptions <a name="SmithyBuildOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions"></a></h3>
 <p>Options for the smithy build files.</p>
-<h4 id="initializer_19">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions.Initializer"></a></h4>
+<h4 id="initializer_20">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyBuildOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyBuildOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyBuildOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_20">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_21">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5332,12 +5406,12 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithycommon">SmithyCommon <a name="SmithyCommon" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon"></a></h3>
 <p>Properties common to smithy plugins and the root smithy build.</p>
-<h4 id="initializer_20">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon.Initializer"></a></h4>
+<h4 id="initializer_21">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyCommon</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyCommon</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyCommon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_21">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_22">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5376,14 +5450,47 @@ even if a plugin can't be found on the classpath.</p>
 </ul>
 <p>Plugins keyed by plugin id.</p>
 <hr />
+<h3 id="smithydefinitionoptions">SmithyDefinitionOptions <a name="SmithyDefinitionOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions"></a></h3>
+<p>Options for a smithy build project.</p>
+<h4 id="initializer_22">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyDefinitionOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">smithyDefinitionOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyDefinitionOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="properties_23">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions.property.smithyOptions">smithyOptions</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyModelOptions">SmithyModelOptions</a></code></td>
+<td>Smithy engine options.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="smithyoptionsrequired"><code>smithyOptions</code><sup>Required</sup> <a name="smithyOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions.property.smithyOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">smithyOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyModelOptions</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.SmithyModelOptions">SmithyModelOptions</a></li>
+</ul>
+<p>Smithy engine options.</p>
+<hr />
 <h3 id="smithymavenconfiguration">SmithyMavenConfiguration <a name="SmithyMavenConfiguration" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration"></a></h3>
 <p>Configuration for smithy maven dependencies.</p>
-<h4 id="initializer_21">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration.Initializer"></a></h4>
+<h4 id="initializer_23">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyMavenConfiguration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyMavenConfiguration</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyMavenConfiguration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_22">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_24">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5425,12 +5532,12 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithymodeloptions">SmithyModelOptions <a name="SmithyModelOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions"></a></h3>
 <p>Options for a Smithy model.</p>
-<h4 id="initializer_22">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions.Initializer"></a></h4>
+<h4 id="initializer_24">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyModelOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyModelOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyModelOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_23">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_25">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5501,12 +5608,12 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="smithyplugin">SmithyPlugin <a name="SmithyPlugin" id="@aws-prototyping-sdk/type-safe-api.SmithyPlugin"></a></h3>
 <p>A smithy plugin.</p>
-<h4 id="initializer_23">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyPlugin.Initializer"></a></h4>
+<h4 id="initializer_25">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyPlugin.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyPlugin</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyPlugin</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyPlugin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_24">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_26">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5534,12 +5641,12 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="smithyprojection">SmithyProjection <a name="SmithyProjection" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection"></a></h3>
 <p>A smithy build projection.</p>
-<h4 id="initializer_24">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection.Initializer"></a></h4>
+<h4 id="initializer_26">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyProjection</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyProjection</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyProjection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_25">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_27">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5609,12 +5716,12 @@ of gradle to the one provided by default</p>
 <blockquote>
 <p><a href="https://awslabs.github.io/smithy/2.0/spec/service-types.html">https://awslabs.github.io/smithy/2.0/spec/service-types.html</a></p>
 </blockquote>
-<h4 id="initializer_25">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyServiceName.Initializer"></a></h4>
+<h4 id="initializer_27">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyServiceName.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyServiceName</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyServiceName</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyServiceName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_26">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_28">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5663,12 +5770,12 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="smithytransform">SmithyTransform <a name="SmithyTransform" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform"></a></h3>
 <p>A smithy build transform.</p>
-<h4 id="initializer_26">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform.Initializer"></a></h4>
+<h4 id="initializer_28">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyTransform</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyTransform</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyTransform</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_27">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_29">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5709,12 +5816,12 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="typesafeapiintegration">TypeSafeApiIntegration <a name="TypeSafeApiIntegration" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration"></a></h3>
 <p>Defines an integration for an individual API operation.</p>
-<h4 id="initializer_27">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.Initializer"></a></h4>
+<h4 id="initializer_29">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiIntegration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeApiIntegration</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiIntegration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_28">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_30">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5754,12 +5861,12 @@ of gradle to the one provided by default</p>
 <p>The authorizer to use for this api operation (overrides the default).</p>
 <hr />
 <h3 id="typesafeapimodelprojectoptions">TypeSafeApiModelProjectOptions <a name="TypeSafeApiModelProjectOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions"></a></h3>
-<h4 id="initializer_28">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_30">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiModelProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeApiModelProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiModelProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_29">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_31">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5968,12 +6075,12 @@ sub-projects.</p>
 <hr />
 <h3 id="typesafeapioptions">TypeSafeApiOptions <a name="TypeSafeApiOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions"></a></h3>
 <p>Options required alongside an Open API specification to create API Gateway resources.</p>
-<h4 id="initializer_29">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.Initializer"></a></h4>
+<h4 id="initializer_31">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeApiOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_30">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_32">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6042,12 +6149,12 @@ Authorizers specified at the integration level will override this for that opera
 <hr />
 <h3 id="typesafeapiprojectoptions">TypeSafeApiProjectOptions <a name="TypeSafeApiProjectOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions"></a></h3>
 <p>Options for the TypeSafeApiProject.</p>
-<h4 id="initializer_30">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_32">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeApiProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_31">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_33">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6284,12 +6391,12 @@ sub-projects.</p>
 <hr />
 <h3 id="typesafeapiwebacloptions">TypeSafeApiWebAclOptions <a name="TypeSafeApiWebAclOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions"></a></h3>
 <p>Configuration for the Web ACL associated with the API.</p>
-<h4 id="initializer_31">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions.Initializer"></a></h4>
+<h4 id="initializer_33">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiWebAclOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeApiWebAclOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiWebAclOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_32">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_34">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6348,12 +6455,12 @@ your own WebACL and associate it yourself.</p>
 <hr />
 <h3 id="typesaferestapiprops">TypeSafeRestApiProps <a name="TypeSafeRestApiProps" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps"></a></h3>
 <p>Configuration for the TypeSafeRestApi construct.</p>
-<h4 id="initializer_32">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.Initializer"></a></h4>
+<h4 id="initializer_34">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeRestApiProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeRestApiProps</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeRestApiProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_33">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_35">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6687,7 +6794,7 @@ rule set will be associated with the API. These options may disable or override 
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.AuthorizerProps">AuthorizerProps</a></li>
 </ul>
 <hr />
-<h4 id="properties_34">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_36">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6883,7 +6990,7 @@ rule set will be associated with the API. These options may disable or override 
 </ul>
 <p>the scopes to apply.</p>
 <hr />
-<h4 id="properties_35">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_37">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6977,7 +7084,7 @@ rule set will be associated with the API. These options may disable or override 
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.CustomAuthorizerProps">CustomAuthorizerProps</a></li>
 </ul>
 <hr />
-<h4 id="properties_36">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_38">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7111,7 +7218,7 @@ rule set will be associated with the API. These options may disable or override 
 </tbody>
 </table>
 <hr />
-<h4 id="properties_37">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_39">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7369,7 +7476,7 @@ rule set will be associated with the API. These options may disable or override 
 </tbody>
 </table>
 <hr />
-<h4 id="properties_38">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_40">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7421,8 +7528,277 @@ rule set will be associated with the API. These options may disable or override 
 </ul>
 <p>Scopes for the authorizer, if any.</p>
 <hr />
+<h3 id="openapidefinition">OpenApiDefinition <a name="OpenApiDefinition" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition"></a></h3>
+<p>The OpenAPI Spec.</p>
+<h4 id="initializers_10">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiDefinition</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">OpenApiDefinition</span><span class="p">(</span><span class="nx">project</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiModelProject</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiDefinitionOptions</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.Initializer.parameter.project">project</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject">TypeSafeApiModelProject</a></code></td>
+<td><em>No description.</em></td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.Initializer.parameter.options">options</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions">OpenApiDefinitionOptions</a></code></td>
+<td><em>No description.</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="projectrequired"><code>project</code><sup>Required</sup> <a name="project" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.Initializer.parameter.project"></a></h5>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject">TypeSafeApiModelProject</a></li>
+</ul>
+<hr />
+<h5 id="optionsrequired_1"><code>options</code><sup>Required</sup> <a name="options" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.Initializer.parameter.options"></a></h5>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions">OpenApiDefinitionOptions</a></li>
+</ul>
+<hr />
+<h4 id="methods_4">Methods <a name="Methods" id="Methods"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.postSynthesize">postSynthesize</a></code></td>
+<td>Called after synthesis.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.preSynthesize">preSynthesize</a></code></td>
+<td>Called before synthesis.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.synthesize">synthesize</a></code></td>
+<td>Synthesizes files to the project output directory.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="postsynthesize"><code>postSynthesize</code> <a name="postSynthesize" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.postSynthesize"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">postSynthesize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
+</code></pre></div>
+<p>Called after synthesis.</p>
+<p>Order is <em>not</em> guaranteed.</p>
+<h5 id="presynthesize"><code>preSynthesize</code> <a name="preSynthesize" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.preSynthesize"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">preSynthesize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
+</code></pre></div>
+<p>Called before synthesis.</p>
+<h5 id="synthesize"><code>synthesize</code> <a name="synthesize" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.synthesize"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">synthesize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
+</code></pre></div>
+<p>Synthesizes files to the project output directory.</p>
+<h4 id="properties_41">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.property.project">project</a></code></td>
+<td><code>projen.Project</code></td>
+<td><em>No description.</em></td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.property.openApiSpecificationPath">openApiSpecificationPath</a></code></td>
+<td><code>string</code></td>
+<td>Path to the root OpenAPI specification file.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="projectrequired_1"><code>project</code><sup>Required</sup> <a name="project" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.property.project"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">project</span><span class="o">:</span><span class="w"> </span><span class="kt">Project</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.Project</li>
+</ul>
+<hr />
+<h5 id="openapispecificationpathrequired"><code>openApiSpecificationPath</code><sup>Required</sup> <a name="openApiSpecificationPath" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.property.openApiSpecificationPath"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">openApiSpecificationPath</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>Path to the root OpenAPI specification file.</p>
+<hr />
+<h3 id="smithydefinition">SmithyDefinition <a name="SmithyDefinition" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition"></a></h3>
+<p>Creates a project which transforms a Smithy model to OpenAPI.</p>
+<h4 id="initializers_11">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyDefinition</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">SmithyDefinition</span><span class="p">(</span><span class="nx">project</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiModelProject</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyDefinitionOptions</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition.Initializer.parameter.project">project</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject">TypeSafeApiModelProject</a></code></td>
+<td><em>No description.</em></td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition.Initializer.parameter.options">options</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions">SmithyDefinitionOptions</a></code></td>
+<td><em>No description.</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="projectrequired_2"><code>project</code><sup>Required</sup> <a name="project" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.Initializer.parameter.project"></a></h5>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject">TypeSafeApiModelProject</a></li>
+</ul>
+<hr />
+<h5 id="optionsrequired_2"><code>options</code><sup>Required</sup> <a name="options" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.Initializer.parameter.options"></a></h5>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions">SmithyDefinitionOptions</a></li>
+</ul>
+<hr />
+<h4 id="methods_5">Methods <a name="Methods" id="Methods"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition.postSynthesize">postSynthesize</a></code></td>
+<td>Called after synthesis.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition.preSynthesize">preSynthesize</a></code></td>
+<td>Called before synthesis.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition.synthesize">synthesize</a></code></td>
+<td>Synthesizes files to the project output directory.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition.addDeps">addDeps</a></code></td>
+<td>Add maven-style or local file dependencies to the smithy model project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition.addSmithyDeps">addSmithyDeps</a></code></td>
+<td>Add dependencies on other smithy models, such that their shapes can be imported in this project.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="postsynthesize_1"><code>postSynthesize</code> <a name="postSynthesize" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.postSynthesize"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">postSynthesize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
+</code></pre></div>
+<p>Called after synthesis.</p>
+<p>Order is <em>not</em> guaranteed.</p>
+<h5 id="presynthesize_1"><code>preSynthesize</code> <a name="preSynthesize" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.preSynthesize"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">preSynthesize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
+</code></pre></div>
+<p>Called before synthesis.</p>
+<h5 id="synthesize_1"><code>synthesize</code> <a name="synthesize" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.synthesize"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">synthesize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
+</code></pre></div>
+<p>Synthesizes files to the project output directory.</p>
+<h5 id="adddeps"><code>addDeps</code> <a name="addDeps" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.addDeps"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">addDeps</span><span class="p">(</span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
+</code></pre></div>
+<p>Add maven-style or local file dependencies to the smithy model project.</p>
+<h6 id="depsrequired"><code>deps</code><sup>Required</sup> <a name="deps" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.addDeps.parameter.deps"></a></h6>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>dependencies to add, eg "software.amazon.smithy:smithy-validation-model:1.27.2" or "file://../some/path/build/lib/my-shapes.jar.</p>
+<hr />
+<h5 id="addsmithydeps"><code>addSmithyDeps</code> <a name="addSmithyDeps" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.addSmithyDeps"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">addSmithyDeps</span><span class="p">(</span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyDefinition</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
+</code></pre></div>
+<p>Add dependencies on other smithy models, such that their shapes can be imported in this project.</p>
+<h6 id="depsrequired_1"><code>deps</code><sup>Required</sup> <a name="deps" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.addSmithyDeps.parameter.deps"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition">SmithyDefinition</a></li>
+</ul>
+<p>smithy definitions to depend on.</p>
+<hr />
+<h4 id="properties_42">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition.property.project">project</a></code></td>
+<td><code>projen.Project</code></td>
+<td><em>No description.</em></td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition.property.gradleProjectName">gradleProjectName</a></code></td>
+<td><code>string</code></td>
+<td>Name of the gradle project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition.property.openApiSpecificationPath">openApiSpecificationPath</a></code></td>
+<td><code>string</code></td>
+<td>Path to the generated OpenAPI specification, relative to the project outdir.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="projectrequired_3"><code>project</code><sup>Required</sup> <a name="project" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.property.project"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">project</span><span class="o">:</span><span class="w"> </span><span class="kt">Project</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.Project</li>
+</ul>
+<hr />
+<h5 id="gradleprojectnamerequired"><code>gradleProjectName</code><sup>Required</sup> <a name="gradleProjectName" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.property.gradleProjectName"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">gradleProjectName</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>Name of the gradle project.</p>
+<hr />
+<h5 id="openapispecificationpathrequired_1"><code>openApiSpecificationPath</code><sup>Required</sup> <a name="openApiSpecificationPath" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.property.openApiSpecificationPath"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">openApiSpecificationPath</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> string</li>
+</ul>
+<p>Path to the generated OpenAPI specification, relative to the project outdir.</p>
+<hr />
 <h3 id="typesafeapimodelproject">TypeSafeApiModelProject <a name="TypeSafeApiModelProject" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject"></a></h3>
-<h4 id="initializers_10">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.Initializer"></a></h4>
+<h4 id="initializers_12">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiModelProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiModelProject</span><span class="p">(</span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiModelProjectOptions</span><span class="p">)</span>
@@ -7444,12 +7820,12 @@ rule set will be associated with the API. These options may disable or override 
 </tbody>
 </table>
 <hr />
-<h5 id="optionsrequired_1"><code>options</code><sup>Required</sup> <a name="options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.Initializer.parameter.options"></a></h5>
+<h5 id="optionsrequired_3"><code>options</code><sup>Required</sup> <a name="options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.Initializer.parameter.options"></a></h5>
 <ul>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions">TypeSafeApiModelProjectOptions</a></li>
 </ul>
 <hr />
-<h4 id="methods_4">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_6">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7596,12 +7972,12 @@ that certain files are generated.</p>
 </ul>
 <p>the glob pattern to match (could be a file path).</p>
 <hr />
-<h5 id="postsynthesize"><code>postSynthesize</code> <a name="postSynthesize" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.postSynthesize"></a></h5>
+<h5 id="postsynthesize_2"><code>postSynthesize</code> <a name="postSynthesize" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.postSynthesize"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">postSynthesize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
 </code></pre></div>
 <p>Called after all components are synthesized.</p>
 <p>Order is <em>not</em> guaranteed.</p>
-<h5 id="presynthesize"><code>preSynthesize</code> <a name="preSynthesize" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.preSynthesize"></a></h5>
+<h5 id="presynthesize_2"><code>preSynthesize</code> <a name="preSynthesize" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.preSynthesize"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">preSynthesize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
 </code></pre></div>
 <p>Called before all components are synthesized.</p>
@@ -7682,7 +8058,7 @@ from the root of <em>this</em> project.</p>
 <p>If this path is relative, it will be
 resolved from the root of <em>this</em> project.</p>
 <hr />
-<h4 id="properties_39">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_43">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7810,12 +8186,22 @@ resolved from the root of <em>this</em> project.</p>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.property.generateTask">generateTask</a></code></td>
 <td><code>projen.Task</code></td>
-<td><em>No description.</em></td>
+<td>Reference to the task used for generating the final bundled OpenAPI specification.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.property.parsedSpecFile">parsedSpecFile</a></code></td>
 <td><code>string</code></td>
-<td><em>No description.</em></td>
+<td>Name of the final bundled OpenAPI specification.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.property.openapi">openapi</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinition">OpenApiDefinition</a></code></td>
+<td>Reference to the OpenAPI definition component.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.property.smithy">smithy</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition">SmithyDefinition</a></code></td>
+<td>Reference to the Smithy definition component.</td>
 </tr>
 </tbody>
 </table>
@@ -7850,7 +8236,7 @@ resolved from the root of <em>this</em> project.</p>
 </ul>
 <p>Returns all the components within this project.</p>
 <hr />
-<h5 id="depsrequired"><code>deps</code><sup>Required</sup> <a name="deps" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.property.deps"></a></h5>
+<h5 id="depsrequired_2"><code>deps</code><sup>Required</sup> <a name="deps" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.property.deps"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="kt">Dependencies</span><span class="p">;</span>
 </code></pre></div>
 <ul>
@@ -8010,6 +8396,7 @@ FQN of the project type.</p>
 <ul>
 <li><em>Type:</em> projen.Task</li>
 </ul>
+<p>Reference to the task used for generating the final bundled OpenAPI specification.</p>
 <hr />
 <h5 id="parsedspecfilerequired"><code>parsedSpecFile</code><sup>Required</sup> <a name="parsedSpecFile" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.property.parsedSpecFile"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">parsedSpecFile</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -8017,6 +8404,25 @@ FQN of the project type.</p>
 <ul>
 <li><em>Type:</em> string</li>
 </ul>
+<p>Name of the final bundled OpenAPI specification.</p>
+<hr />
+<h5 id="openapioptional_1"><code>openapi</code><sup>Optional</sup> <a name="openapi" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.property.openapi"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">openapi</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiDefinition</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.OpenApiDefinition">OpenApiDefinition</a></li>
+</ul>
+<p>Reference to the OpenAPI definition component.</p>
+<p>Will be defined if the model language is OpenAPI</p>
+<hr />
+<h5 id="smithyoptional_1"><code>smithy</code><sup>Optional</sup> <a name="smithy" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.property.smithy"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">smithy</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyDefinition</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.SmithyDefinition">SmithyDefinition</a></li>
+</ul>
+<p>Reference to the Smithy definition component.</p>
+<p>Will be defined if the model language is Smithy</p>
 <hr />
 <h4 id="constants">Constants <a name="Constants" id="Constants"></a></h4>
 <table>
@@ -8049,7 +8455,7 @@ this task should synthesize the project files.</p>
 <h3 id="typesafeapiproject">TypeSafeApiProject <a name="TypeSafeApiProject" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject"></a></h3>
 <p>Project for a type-safe API, defined using Smithy or OpenAPI.</p>
 <p>Generates a CDK construct to deploy your API, as well as client and server code to help build your API quickly.</p>
-<h4 id="initializers_11">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.Initializer"></a></h4>
+<h4 id="initializers_13">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">(</span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiProjectOptions</span><span class="p">)</span>
@@ -8071,12 +8477,12 @@ this task should synthesize the project files.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="optionsrequired_2"><code>options</code><sup>Required</sup> <a name="options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.Initializer.parameter.options"></a></h5>
+<h5 id="optionsrequired_4"><code>options</code><sup>Required</sup> <a name="options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.Initializer.parameter.options"></a></h5>
 <ul>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions">TypeSafeApiProjectOptions</a></li>
 </ul>
 <hr />
-<h4 id="methods_5">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_7">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8223,12 +8629,12 @@ that certain files are generated.</p>
 </ul>
 <p>the glob pattern to match (could be a file path).</p>
 <hr />
-<h5 id="postsynthesize_1"><code>postSynthesize</code> <a name="postSynthesize" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.postSynthesize"></a></h5>
+<h5 id="postsynthesize_3"><code>postSynthesize</code> <a name="postSynthesize" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.postSynthesize"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">postSynthesize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
 </code></pre></div>
 <p>Called after all components are synthesized.</p>
 <p>Order is <em>not</em> guaranteed.</p>
-<h5 id="presynthesize_1"><code>preSynthesize</code> <a name="preSynthesize" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.preSynthesize"></a></h5>
+<h5 id="presynthesize_3"><code>preSynthesize</code> <a name="preSynthesize" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.preSynthesize"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">preSynthesize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
 </code></pre></div>
 <p>Called before all components are synthesized.</p>
@@ -8309,7 +8715,7 @@ from the root of <em>this</em> project.</p>
 <p>If this path is relative, it will be
 resolved from the root of <em>this</em> project.</p>
 <hr />
-<h4 id="properties_40">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_44">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8440,6 +8846,11 @@ resolved from the root of <em>this</em> project.</p>
 <td>Generated infrastructure projects.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.property.model">model</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject">TypeSafeApiModelProject</a></code></td>
+<td>Project for the api model.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.property.runtime">runtime</a></code></td>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.GeneratedCodeProjects">GeneratedCodeProjects</a></code></td>
 <td>Generated runtime projects.</td>
@@ -8477,7 +8888,7 @@ resolved from the root of <em>this</em> project.</p>
 </ul>
 <p>Returns all the components within this project.</p>
 <hr />
-<h5 id="depsrequired_1"><code>deps</code><sup>Required</sup> <a name="deps" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.property.deps"></a></h5>
+<h5 id="depsrequired_3"><code>deps</code><sup>Required</sup> <a name="deps" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.property.deps"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="kt">Dependencies</span><span class="p">;</span>
 </code></pre></div>
 <ul>
@@ -8639,6 +9050,14 @@ FQN of the project type.</p>
 </ul>
 <p>Generated infrastructure projects.</p>
 <p>Only the property corresponding to <code>infrastructure.language</code> will be defined.</p>
+<hr />
+<h5 id="modelrequired_1"><code>model</code><sup>Required</sup> <a name="model" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.property.model"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiModelProject</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject">TypeSafeApiModelProject</a></li>
+</ul>
+<p>Project for the api model.</p>
 <hr />
 <h5 id="runtimerequired_1"><code>runtime</code><sup>Required</sup> <a name="runtime" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.property.runtime"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">runtime</span><span class="o">:</span><span class="w"> </span><span class="kt">GeneratedCodeProjects</span><span class="p">;</span>
@@ -8836,7 +9255,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2023-04-20
+      2023-04-21
     
   </small>
 </div>

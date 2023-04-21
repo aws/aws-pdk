@@ -2345,7 +2345,35 @@
 <span class="p">});</span>
 </code></pre></div>
 <h4 id="python">Python</h4>
-<p>The recommended way to configure dependencies between python projects within your monorepo is to use a single shared virtual environment. You can then install packages you wish to depend on into that environment using pip's <a href="https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs">Editable Installs</a>.</p>
+<h5 id="poetry-recommended">Poetry (Recommended)</h5>
+<p>The recommended way to configure dependencies between python projects within your monorepo is to use Poetry. Poetry sets up separate virtual environments per project but also supports local file dependencies. You can use the monorepo's <code>addPythonPoetryDependency</code> method:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/a&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;jack&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;me@example.com&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">poetry</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;packages/b&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;jack&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;me@example.com&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">poetry</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="c1">// b depends on a</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addPythonPoetryDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span>
+</code></pre></div>
+<h5 id="pip">Pip</h5>
+<p>If you are using pip for your python projects, you can set up a dependency using a single shared virtual environment. You can then install packages you wish to depend on into that environment using pip's <a href="https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs">Editable Installs</a>.</p>
 <p>You will also need to add an implicit dependency to tell the monorepo the correct build order for your packages.</p>
 <p>For example:</p>
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">sharedEnv</span><span class="o">:</span><span class="w"> </span><span class="kt">VenvOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
@@ -2383,7 +2411,7 @@
 <span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span>
 </code></pre></div>
 <h4 id="java">Java</h4>
-<p>The recommended way to configure dependencies between java projects within your monorepo is to use shared maven repositories. The default java project build will already create a distributable in the correct format for a maven repository in its <code>dist/java</code> folder, so you can use this as a repository.</p>
+<p>The recommended way to configure dependencies between java projects within your monorepo is to use shared maven repositories. The default java project build will already create a distributable in the correct format for a maven repository in its <code>dist/java</code> folder, so you can use this as a repository. You can use the monorepo's <code>addJavaDependency</code> method:</p>
 <p>For example:</p>
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">JavaProject</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
@@ -2401,18 +2429,10 @@
 <span class="w">  </span><span class="nx">artifactId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="c1">// Declare the dependency on A</span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="sb">`</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">groupId</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">artifactId</span><span class="si">}</span><span class="sb">@</span><span class="si">${</span><span class="nx">a</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">version</span><span class="si">}</span><span class="sb">`</span><span class="p">],</span>
 <span class="p">});</span>
 
-<span class="c1">// Add the repository</span>
-<span class="nx">b</span><span class="p">.</span><span class="nx">pom</span><span class="p">.</span><span class="nx">addRepository</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;file://../a/dist/java&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;dependency-on-a&#39;</span><span class="p">,</span>
-<span class="p">});</span>
-
-<span class="c1">// Add the implicit dependency to control build order</span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span>
+<span class="c1">// b depends on a</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addJavaDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span>
 </code></pre></div>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
@@ -5716,11 +5736,19 @@ recursively link all bins from packages.json files to the root node_modules/.bin
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addImplicitDependency">addImplicitDependency</a></code></td>
-<td>Create an implicit dependency between two Project's.</td>
+<td>Create an implicit dependency between two Projects.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addJavaDependency">addJavaDependency</a></code></td>
+<td>Adds a dependency between two Java Projects in the monorepo.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addNxRunManyTask">addNxRunManyTask</a></code></td>
 <td>Add project task that executes <code>npx nx run-many ...</code> style command.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addPythonPoetryDependency">addPythonPoetryDependency</a></code></td>
+<td>Adds a dependency between two Python Projects in the monorepo.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addWorkspacePackages">addWorkspacePackages</a></code></td>
@@ -6067,7 +6095,7 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <h5 id="addimplicitdependency"><code>addImplicitDependency</code> <a name="addImplicitDependency" id="@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addImplicitDependency"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">dependent</span><span class="o">:</span><span class="w"> </span><span class="kt">Project</span><span class="p">,</span><span class="w"> </span><span class="nx">dependee</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">Project</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
 </code></pre></div>
-<p>Create an implicit dependency between two Project's.</p>
+<p>Create an implicit dependency between two Projects.</p>
 <p>This is typically
 used in polygot repos where a Typescript project wants a build dependency
 on a Python project as an example.</p>
@@ -6080,6 +6108,22 @@ on a Python project as an example.</p>
 <h6 id="dependeerequired"><code>dependee</code><sup>Required</sup> <a name="dependee" id="@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addImplicitDependency.parameter.dependee"></a></h6>
 <ul>
 <li><em>Type:</em> string | projen.Project</li>
+</ul>
+<p>project you wish to depend on.</p>
+<hr />
+<h5 id="addjavadependency"><code>addJavaDependency</code> <a name="addJavaDependency" id="@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addJavaDependency"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">addJavaDependency</span><span class="p">(</span><span class="nx">dependent</span><span class="o">:</span><span class="w"> </span><span class="kt">JavaProject</span><span class="p">,</span><span class="w"> </span><span class="nx">dependee</span><span class="o">:</span><span class="w"> </span><span class="kt">JavaProject</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
+</code></pre></div>
+<p>Adds a dependency between two Java Projects in the monorepo.</p>
+<h6 id="dependentrequired_1"><code>dependent</code><sup>Required</sup> <a name="dependent" id="@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addJavaDependency.parameter.dependent"></a></h6>
+<ul>
+<li><em>Type:</em> projen.java.JavaProject</li>
+</ul>
+<p>project you want to have the dependency.</p>
+<hr />
+<h6 id="dependeerequired_1"><code>dependee</code><sup>Required</sup> <a name="dependee" id="@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addJavaDependency.parameter.dependee"></a></h6>
+<ul>
+<li><em>Type:</em> projen.java.JavaProject</li>
 </ul>
 <p>project you wish to depend on.</p>
 <hr />
@@ -6096,6 +6140,23 @@ on a Python project as an example.</p>
 <ul>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/nx-monorepo.NxRunManyOptions">NxRunManyOptions</a></li>
 </ul>
+<hr />
+<h5 id="addpythonpoetrydependency"><code>addPythonPoetryDependency</code> <a name="addPythonPoetryDependency" id="@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addPythonPoetryDependency"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">addPythonPoetryDependency</span><span class="p">(</span><span class="nx">dependent</span><span class="o">:</span><span class="w"> </span><span class="kt">PythonProject</span><span class="p">,</span><span class="w"> </span><span class="nx">dependee</span><span class="o">:</span><span class="w"> </span><span class="kt">PythonProject</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
+</code></pre></div>
+<p>Adds a dependency between two Python Projects in the monorepo.</p>
+<p>The dependent must have Poetry enabled.</p>
+<h6 id="dependentrequired_2"><code>dependent</code><sup>Required</sup> <a name="dependent" id="@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addPythonPoetryDependency.parameter.dependent"></a></h6>
+<ul>
+<li><em>Type:</em> projen.python.PythonProject</li>
+</ul>
+<p>project you want to have the dependency (must be a Poetry Python Project).</p>
+<hr />
+<h6 id="dependeerequired_2"><code>dependee</code><sup>Required</sup> <a name="dependee" id="@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addPythonPoetryDependency.parameter.dependee"></a></h6>
+<ul>
+<li><em>Type:</em> projen.python.PythonProject</li>
+</ul>
+<p>project you wish to depend on.</p>
 <hr />
 <h5 id="addworkspacepackages"><code>addWorkspacePackages</code> <a name="addWorkspacePackages" id="@aws-prototyping-sdk/nx-monorepo.NxMonorepoProject.addWorkspacePackages"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">addWorkspacePackages</span><span class="p">(</span><span class="nx">packageGlobs</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
@@ -7001,7 +7062,7 @@ dependant projects first.</p>
   <small>
     
       Last update:
-      2023-04-20
+      2023-04-21
     
   </small>
 </div>
