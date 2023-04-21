@@ -18,6 +18,9 @@ export interface OpenApiDefinitionOptions {
  * The OpenAPI Spec
  */
 export class OpenApiDefinition extends Component {
+  /**
+   * Path to the root OpenAPI specification file
+   */
   public readonly openApiSpecificationPath: string =
     "src/main/openapi/main.yaml";
 

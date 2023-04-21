@@ -1453,3 +1453,34 @@ If you would like to introduce tags without breaking existing clients, we recomm
 
 ⚠️ __Important Note__: Smithy versions below `1.28.0` sort tags in alphabetical order and so the "first" tag will be the earliest in the alphabet. Therefore, if using tags with older versions of Smithy, we recommend prefixing your desired first tag with an underscore (for example `_default`). This is rectified in `1.28.0`, where tag order from the `@tags` trait is preserved.
 
+#### Smithy Model Libraries and Dependencies
+
+You can instantiate the TypeSafeApiModelProject on its own to create a standalone Smithy model library.
+
+You can consume the library using the `addSmithyDeps` method, which adds a local file dependency on the built Smithy jar.
+
+```ts
+// Standalone model project, used as our model library
+const shapes = new TypeSafeApiModelProject({
+  name: "shapes",
+  parent: monorepo,
+  outdir: "packages/shapes",
+  modelLanguage: ModelLanguage.SMITHY,
+  modelOptions: {
+    smithy: {
+      serviceName: {
+        namespace: "com.my.shared.shapes",
+        serviceName: "Ignored",
+      },
+    },
+  },
+});
+
+const api = new TypeSafeApiProject({ ... });
+
+// Add the implicit monorepo dependency (if using the nx-monorepo) to ensure the shape library is built before the api model
+monorepo.addImplicitDependency(api.model, shapes);
+
+// Add a local file dependency on the built shapes jar
+api.model.smithy!.addSmithyDeps(shapes.smithy!);
+```

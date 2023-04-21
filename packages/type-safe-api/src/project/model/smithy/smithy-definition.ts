@@ -16,18 +16,31 @@ export interface SmithyDefinitionOptions {
    * Smithy engine options
    */
   readonly smithyOptions: SmithyModelOptions;
-
-  /**
-   * The build output directory, relative to the project outdir
-   */
-  readonly buildOutputDir: string;
 }
 
 /**
  * Creates a project which transforms a Smithy model to OpenAPI
  */
 export class SmithyDefinition extends Component {
+  /**
+   * Path to the generated OpenAPI specification, relative to the project outdir
+   */
   public readonly openApiSpecificationPath: string;
+  /**
+   * Name of the gradle project
+   */
+  public readonly gradleProjectName: string;
+
+  /**
+   * Reference to the build.gradle file component
+   * @private
+   */
+  private readonly smithyBuildGradleFile: SmithyBuildGradleFile;
+  /**
+   * Reference to the smithy-build.json file component
+   * @private
+   */
+  private readonly smithyBuild: SmithyBuild;
 
   constructor(
     project: TypeSafeApiModelProject,
@@ -74,12 +87,11 @@ export class SmithyDefinition extends Component {
     // Always ignore the .gradle dir which the wrapper downloads gradle into
     project.gitignore.addPatterns(".gradle");
 
+    this.gradleProjectName = project.name.replace(/[\/\\:<>"?\*|]/g, "-");
+
     // Add settings.gradle
     new SampleFile(project, "settings.gradle", {
-      contents: `rootProject.name = '${project.name.replace(
-        /[\/\\:<>"?\*|]/g,
-        "-"
-      )}'`,
+      contents: `rootProject.name = '${this.gradleProjectName}'`,
     });
 
     const modelDir = "src/main/smithy";
@@ -110,7 +122,7 @@ export class SmithyDefinition extends Component {
     ];
 
     // Add build.gradle
-    new SmithyBuildGradleFile(project, {
+    this.smithyBuildGradleFile = new SmithyBuildGradleFile(project, {
       modelDir,
       dependencies,
       repositoryUrls: smithyOptions.smithyBuildOptions?.maven?.repositoryUrls,
@@ -166,7 +178,7 @@ structure ApiError {
     });
 
     // Create the smithy build json file
-    new SmithyBuild(project, {
+    this.smithyBuild = new SmithyBuild(project, {
       version: "2.0",
       ...smithyOptions.smithyBuildOptions,
       projections: {
@@ -184,7 +196,10 @@ structure ApiError {
         },
       },
       maven: {
-        dependencies,
+        // Filter out any file dependencies since these aren't supported in smithy-build.json
+        dependencies: dependencies.filter(
+          (dep) => !dep.startsWith(SmithyBuildGradleFile.fileDependencyPrefix)
+        ),
         repositories: (
           smithyOptions.smithyBuildOptions?.maven?.repositoryUrls ?? [
             "https://repo.maven.apache.org/maven2/",
@@ -195,7 +210,9 @@ structure ApiError {
     });
 
     this.openApiSpecificationPath = path.join(
-      options.buildOutputDir,
+      "build",
+      "smithyprojections",
+      this.gradleProjectName,
       "openapi",
       "openapi",
       `${serviceName}.openapi.json`
@@ -217,13 +234,43 @@ structure ApiError {
       );
     });
 
-    // SmithyBuild component above always writes to smithy-build.json
-    project.generateTask.exec(
-      `./gradlew -p . generate -Pconfig=smithy-build.json -Pdiscover=${modelDir} -Poutput=${options.buildOutputDir}`
-    );
+    // Build with gradle to generate smithy projections, and any other tasks
+    project.generateTask.exec("./gradlew build");
 
     if (smithyOptions.ignoreSmithyBuildOutput ?? true) {
-      project.gitignore.addPatterns(options.buildOutputDir);
+      // Ignore the build directory, and smithy-output which was the old build directory for the cli-based generation
+      project.gitignore.addPatterns("build", "smithy-output");
     }
+  }
+
+  /**
+   * Add maven-style or local file dependencies to the smithy model project
+   * @param deps dependencies to add, eg "software.amazon.smithy:smithy-validation-model:1.27.2" or "file://../some/path/build/lib/my-shapes.jar
+   */
+  public addDeps(...deps: string[]) {
+    this.smithyBuildGradleFile.addDeps(...deps);
+    this.smithyBuild.addMavenDependencies(
+      ...deps.filter(
+        (dep) => !dep.startsWith(SmithyBuildGradleFile.fileDependencyPrefix)
+      )
+    );
+  }
+
+  /**
+   * Add dependencies on other smithy models, such that their shapes can be imported in this project
+   * @param deps smithy definitions to depend on
+   */
+  public addSmithyDeps(...deps: SmithyDefinition[]) {
+    this.addDeps(
+      ...deps.map(
+        (dep) =>
+          `${SmithyBuildGradleFile.fileDependencyPrefix}${path.join(
+            path.relative(this.project.outdir, dep.project.outdir),
+            "build",
+            "libs",
+            `${dep.gradleProjectName}.jar`
+          )}`
+      )
+    );
   }
 }

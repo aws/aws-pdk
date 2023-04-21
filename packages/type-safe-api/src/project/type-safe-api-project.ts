@@ -108,6 +108,10 @@ export interface TypeSafeApiProjectOptions extends ProjectOptions {
  */
 export class TypeSafeApiProject extends Project {
   /**
+   * Project for the api model
+   */
+  public readonly model: TypeSafeApiModelProject;
+  /**
    * Generated runtime projects. When `runtime.languages` includes the corresponding language, the project can be
    * assumed to be defined.
    */
@@ -124,7 +128,7 @@ export class TypeSafeApiProject extends Project {
 
     // API Definition project containing the model
     const modelDir = "model";
-    const modelProject = new TypeSafeApiModelProject({
+    this.model = new TypeSafeApiModelProject({
       parent: parentMonorepo ?? this,
       outdir: parentMonorepo ? path.join(options.outdir!, modelDir) : modelDir,
       name: `${options.name}-model`,
@@ -133,7 +137,7 @@ export class TypeSafeApiProject extends Project {
     });
     const parsedSpecPathRelativeToProjectRoot = path.join(
       modelDir,
-      modelProject.parsedSpecFile
+      this.model.parsedSpecFile
     );
 
     // Ensure we always generate a runtime project for the infrastructure language, regardless of what was specified by
@@ -210,7 +214,7 @@ export class TypeSafeApiProject extends Project {
         ...Object.values(generatedRuntimeProjects),
         ...Object.values(generatedDocs),
       ].forEach((project) => {
-        parentMonorepo.addImplicitDependency(project, modelProject);
+        parentMonorepo.addImplicitDependency(project, this.model);
       });
     }
 
@@ -307,12 +311,12 @@ export class TypeSafeApiProject extends Project {
     }
     this.infrastructure = infraProjects;
 
-    parentMonorepo?.addImplicitDependency?.(infraProject, modelProject);
+    parentMonorepo?.addImplicitDependency?.(infraProject, this.model);
 
     if (!parentMonorepo) {
       // Add a task for the non-monorepo case to build the projects in the right order
       [
-        modelProject,
+        this.model,
         ...Object.values(generatedRuntimeProjects),
         infraProject,
         ...Object.values(generatedDocs),
