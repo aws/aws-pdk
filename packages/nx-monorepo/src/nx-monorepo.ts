@@ -797,24 +797,26 @@ export class NxMonorepoProject extends TypeScriptProject {
         !(project instanceof NodeProject) && project.tasks.tryFind("install")
     );
 
-    const monorepoInstallTask =
-      this.tasks.tryFind("postinstall") ?? this.addTask("postinstall");
-    monorepoInstallTask.exec(
-      buildExecutableCommand(
-        this.package.packageManager,
-        `nx run-many --target install --projects ${installProjects
-          .map((project) => project.name)
-          .join(",")} --parallel=1`
-      )
-    );
+    if (installProjects.length > 0) {
+      const monorepoInstallTask =
+        this.tasks.tryFind("postinstall") ?? this.addTask("postinstall");
+      monorepoInstallTask.exec(
+        buildExecutableCommand(
+          this.package.packageManager,
+          `nx run-many --target install --projects ${installProjects
+            .map((project) => project.name)
+            .join(",")} --parallel=1`
+        )
+      );
 
-    // Update the nx.json to ensure that install-py follows dependency order
-    this.nxJson.addOverride("targetDependencies.install", [
-      {
-        target: "install",
-        projects: "dependencies",
-      },
-    ]);
+      // Update the nx.json to ensure that install-py follows dependency order
+      this.nxJson.addOverride("targetDependencies.install", [
+        {
+          target: "install",
+          projects: "dependencies",
+        },
+      ]);
+    }
   }
 }
 
