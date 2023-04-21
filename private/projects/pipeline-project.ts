@@ -35,6 +35,7 @@ export class PipelineProject extends PDKProject {
 
     this.addPackageIgnore("!samples");
     this.addGitIgnore("samples");
+    this.postCompileTask.prependExec("cp -r src/lambda lib");
 
     this._samples.push(
       new PipelineTypescriptSampleProject(parent),

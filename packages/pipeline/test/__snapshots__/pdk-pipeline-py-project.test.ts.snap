@@ -392,15 +392,20 @@ from aws_cdk import App, Environment
 from pipeline_stack import PipelineStack
 from application_stage import ApplicationStage
 from aws_prototyping_sdk.pdk_nag import PDKNag
+from aws_prototyping_sdk.pipeline import PDKPipeline
+
+
 
 app = PDKNag.app()
 
-pipelineStack = PipelineStack(app, \\"PipelineStack\\", env=Environment(
+branch_prefix = PDKPipeline.get_branch_prefix(node=app.node)
+
+pipelineStack = PipelineStack(app, branch_prefix + \\"PipelineStack\\", env=Environment(
     account=os.environ[\\"CDK_DEFAULT_ACCOUNT\\"],
     region=os.environ[\\"CDK_DEFAULT_REGION\\"]
 ))
 
-devStage = ApplicationStage(app, \\"Dev\\", env=Environment(
+devStage = ApplicationStage(app, branch_prefix + \\"Dev\\", env=Environment(
     account=os.environ[\\"CDK_DEFAULT_ACCOUNT\\"],
     region=os.environ[\\"CDK_DEFAULT_REGION\\"]
 ))
@@ -408,6 +413,7 @@ devStage = ApplicationStage(app, \\"Dev\\", env=Environment(
 pipelineStack.pipeline.add_stage(devStage)
 
 # Add additional stages here i.e. Prod
+# if PDKPipeline.is_default_branch(node=app.node): ...
 
 pipelineStack.pipeline.build_pipeline()  # Needed for CDK Nag
 app.synth()
@@ -423,10 +429,14 @@ class PipelineStack(Stack):
 
         context = self.node.try_get_context(\\"sonarqubeScannerConfig\\")
         repo_name = self.node.try_get_context(\\"repositoryName\\")
+        default_branch_name = self.node.try_get_context(\\"defaultBranchName\\")
         sonar_config = None
 
         if repo_name is None:
             repo_name = \\"monorepo\\"
+        
+        if default_branch_name is None:
+            default_branch_name = PDKPipeline.DEFAULT_BRANCH_NAME
 
         if context is not None:
             sonar_config = SonarCodeScannerConfig(**json.loads(json.dumps(humps.decamelize(context))))
@@ -434,6 +444,7 @@ class PipelineStack(Stack):
         self.pipeline = PDKPipeline(self, \\"Pipeline\\",
                                                  primary_synth_directory=\\"packages/infra/cdk.out\\",
                                                  repository_name=repo_name,
+                                                 default_branch_name=default_branch_name,
                                                  publish_assets_in_parallel=False,
                                                  cross_account_keys=True,
                                                  sonar_code_scanner_config=sonar_config,
@@ -863,15 +874,20 @@ from aws_cdk import App, Environment
 from pipeline_stack import PipelineStack
 from application_stage import ApplicationStage
 from aws_prototyping_sdk.pdk_nag import PDKNag
+from aws_prototyping_sdk.pipeline import PDKPipeline
+
+
 
 app = PDKNag.app()
 
-pipelineStack = PipelineStack(app, \\"PipelineStack\\", env=Environment(
+branch_prefix = PDKPipeline.get_branch_prefix(node=app.node)
+
+pipelineStack = PipelineStack(app, branch_prefix + \\"PipelineStack\\", env=Environment(
     account=os.environ[\\"CDK_DEFAULT_ACCOUNT\\"],
     region=os.environ[\\"CDK_DEFAULT_REGION\\"]
 ))
 
-devStage = ApplicationStage(app, \\"Dev\\", env=Environment(
+devStage = ApplicationStage(app, branch_prefix + \\"Dev\\", env=Environment(
     account=os.environ[\\"CDK_DEFAULT_ACCOUNT\\"],
     region=os.environ[\\"CDK_DEFAULT_REGION\\"]
 ))
@@ -879,6 +895,7 @@ devStage = ApplicationStage(app, \\"Dev\\", env=Environment(
 pipelineStack.pipeline.add_stage(devStage)
 
 # Add additional stages here i.e. Prod
+# if PDKPipeline.is_default_branch(node=app.node): ...
 
 pipelineStack.pipeline.build_pipeline()  # Needed for CDK Nag
 app.synth()
@@ -894,10 +911,14 @@ class PipelineStack(Stack):
 
         context = self.node.try_get_context(\\"sonarqubeScannerConfig\\")
         repo_name = self.node.try_get_context(\\"repositoryName\\")
+        default_branch_name = self.node.try_get_context(\\"defaultBranchName\\")
         sonar_config = None
 
         if repo_name is None:
             repo_name = \\"monorepo\\"
+        
+        if default_branch_name is None:
+            default_branch_name = PDKPipeline.DEFAULT_BRANCH_NAME
 
         if context is not None:
             sonar_config = SonarCodeScannerConfig(**json.loads(json.dumps(humps.decamelize(context))))
@@ -905,6 +926,7 @@ class PipelineStack(Stack):
         self.pipeline = PDKPipeline(self, \\"Pipeline\\",
                                                  primary_synth_directory=\\"packages/infra/cdk.out\\",
                                                  repository_name=repo_name,
+                                                 default_branch_name=default_branch_name,
                                                  publish_assets_in_parallel=False,
                                                  cross_account_keys=True,
                                                  sonar_code_scanner_config=sonar_config,
@@ -1378,15 +1400,20 @@ from aws_cdk import App, Environment
 from pipeline_stack import PipelineStack
 from application_stage import ApplicationStage
 from aws_prototyping_sdk.pdk_nag import PDKNag
+from aws_prototyping_sdk.pipeline import PDKPipeline
+
+
 
 app = PDKNag.app()
 
-pipelineStack = PipelineStack(app, \\"PipelineStack\\", env=Environment(
+branch_prefix = PDKPipeline.get_branch_prefix(node=app.node)
+
+pipelineStack = PipelineStack(app, branch_prefix + \\"PipelineStack\\", env=Environment(
     account=os.environ[\\"CDK_DEFAULT_ACCOUNT\\"],
     region=os.environ[\\"CDK_DEFAULT_REGION\\"]
 ))
 
-devStage = ApplicationStage(app, \\"Dev\\", env=Environment(
+devStage = ApplicationStage(app, branch_prefix + \\"Dev\\", env=Environment(
     account=os.environ[\\"CDK_DEFAULT_ACCOUNT\\"],
     region=os.environ[\\"CDK_DEFAULT_REGION\\"]
 ))
@@ -1394,6 +1421,7 @@ devStage = ApplicationStage(app, \\"Dev\\", env=Environment(
 pipelineStack.pipeline.add_stage(devStage)
 
 # Add additional stages here i.e. Prod
+# if PDKPipeline.is_default_branch(node=app.node): ...
 
 pipelineStack.pipeline.build_pipeline()  # Needed for CDK Nag
 app.synth()
@@ -1409,10 +1437,14 @@ class PipelineStack(Stack):
 
         context = self.node.try_get_context(\\"sonarqubeScannerConfig\\")
         repo_name = self.node.try_get_context(\\"repositoryName\\")
+        default_branch_name = self.node.try_get_context(\\"defaultBranchName\\")
         sonar_config = None
 
         if repo_name is None:
             repo_name = \\"monorepo\\"
+        
+        if default_branch_name is None:
+            default_branch_name = PDKPipeline.DEFAULT_BRANCH_NAME
 
         if context is not None:
             sonar_config = SonarCodeScannerConfig(**json.loads(json.dumps(humps.decamelize(context))))
@@ -1420,6 +1452,7 @@ class PipelineStack(Stack):
         self.pipeline = PDKPipeline(self, \\"Pipeline\\",
                                                  primary_synth_directory=\\"packages/infra/cdk.out\\",
                                                  repository_name=repo_name,
+                                                 default_branch_name=default_branch_name,
                                                  publish_assets_in_parallel=False,
                                                  cross_account_keys=True,
                                                  sonar_code_scanner_config=sonar_config,

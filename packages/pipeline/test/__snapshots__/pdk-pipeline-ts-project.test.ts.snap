@@ -1008,6 +1008,7 @@ export class PipelineStack extends Stack {
     this.pipeline = new PDKPipeline(this, 'ApplicationPipeline', {
       primarySynthDirectory: 'packages/infra/cdk.out',
       repositoryName: this.node.tryGetContext('repositoryName') || 'monorepo',
+      defaultBranchName: this.node.tryGetContext('defaultBranchName') || PDKPipeline.defaultBranchName,
       publishAssetsInParallel: false,
       crossAccountKeys: true,
       synth: {},
@@ -1018,19 +1019,22 @@ export class PipelineStack extends Stack {
   "src/pipeline.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { PDKNag } from '@aws-prototyping-sdk/pdk-nag';
+import { PDKPipeline } from '@aws-prototyping-sdk/pipeline';
 import { ApplicationStage } from './application-stage';
 import { PipelineStack } from './pipeline-stack';
 
 const app = PDKNag.app();
 
-const pipelineStack = new PipelineStack(app, 'PipelineStack', {
+const branchPrefix = PDKPipeline.getBranchPrefix({ node: app.node });
+
+const pipelineStack = new PipelineStack(app, branchPrefix + 'PipelineStack', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT!,
     region: process.env.CDK_DEFAULT_REGION!,
   },
 });
 
-const devStage = new ApplicationStage(app, 'Dev', {
+const devStage = new ApplicationStage(app, branchPrefix + 'Dev', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT!, // Replace with Dev account
     region: process.env.CDK_DEFAULT_REGION!, // Replace with Dev region
@@ -1040,6 +1044,7 @@ const devStage = new ApplicationStage(app, 'Dev', {
 pipelineStack.pipeline.addStage(devStage);
 
 // Add additional stages here i.e. Prod
+// if (PDKPipeline.isDefaultBranch({node: app.node}) ...
 
 pipelineStack.pipeline.buildPipeline(); // Needed for CDK Nag
 app.synth();
@@ -1107,6 +1112,14 @@ Object {
           Object {
             \\"Key\\": \\"aws-cdk:auto-delete-objects\\",
             \\"Value\\": \\"true\\",
+          },
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
           },
         ],
       },
@@ -1285,6 +1298,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::KMS::Key\\",
       \\"UpdateReplacePolicy\\": \\"Delete\\",
@@ -1349,6 +1372,14 @@ Object {
           Object {
             \\"Key\\": \\"aws-cdk:auto-delete-objects\\",
             \\"Value\\": \\"true\\",
+          },
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
           },
         ],
       },
@@ -1474,6 +1505,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },
@@ -1601,7 +1642,7 @@ Object {
                   \\"Version\\": \\"1\\",
                 },
                 \\"Configuration\\": Object {
-                  \\"EnvironmentVariables\\": \\"[{\\\\\\\\\\"name\\\\\\\\\\":\\\\\\\\\\"_PROJECT_CONFIG_HASH\\\\\\\\\\",\\\\\\\\\\"type\\\\\\\\\\":\\\\\\\\\\"PLAINTEXT\\\\\\\\\\",\\\\\\\\\\"value\\\\\\\\\\":\\\\\\\\\\"13fb1f6f3f0a665500d00a30e46cf5c67342362be94a9d79d179c2ea7436a504\\\\\\\\\\"}]\\",
+                  \\"EnvironmentVariables\\": \\"[{\\\\\\\\\\"name\\\\\\\\\\":\\\\\\\\\\"_PROJECT_CONFIG_HASH\\\\\\\\\\",\\\\\\\\\\"type\\\\\\\\\\":\\\\\\\\\\"PLAINTEXT\\\\\\\\\\",\\\\\\\\\\"value\\\\\\\\\\":\\\\\\\\\\"d8ae97960b7fb4624979583404dbc912635079bb6cb253679bbafd66b2a9d9d8\\\\\\\\\\"}]\\",
                   \\"ProjectName\\": Object {
                     \\"Ref\\": \\"ApplicationPipelineCodePipelineBuildSynthCdkBuildProjectEE7ED66A\\",
                   },
@@ -1664,6 +1705,16 @@ Object {
             \\"Name\\": \\"UpdatePipeline\\",
           },
         ],
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::CodePipeline::Pipeline\\",
     },
@@ -1684,6 +1735,13 @@ Object {
         },
         \\"Environment\\": Object {
           \\"ComputeType\\": \\"BUILD_GENERAL1_SMALL\\",
+          \\"EnvironmentVariables\\": Array [
+            Object {
+              \\"Name\\": \\"BRANCH\\",
+              \\"Type\\": \\"PLAINTEXT\\",
+              \\"Value\\": \\"mainline\\",
+            },
+          ],
           \\"Image\\": \\"aws/codebuild/standard:6.0\\",
           \\"ImagePullCredentialsType\\": \\"CODEBUILD\\",
           \\"PrivilegedMode\\": false,
@@ -1995,6 +2053,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },
@@ -2208,6 +2276,16 @@ Object {
       \\"DeletionPolicy\\": \\"Retain\\",
       \\"Properties\\": Object {
         \\"RepositoryName\\": \\"monorepo\\",
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::CodeCommit::Repository\\",
       \\"UpdateReplacePolicy\\": \\"Retain\\",
@@ -2323,6 +2401,16 @@ Object {
 }\\",
           \\"Type\\": \\"CODEPIPELINE\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::CodeBuild::Project\\",
     },
@@ -2340,6 +2428,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },
@@ -3733,6 +3831,7 @@ export class PipelineStack extends Stack {
     this.pipeline = new PDKPipeline(this, 'ApplicationPipeline', {
       primarySynthDirectory: 'packages/infra/cdk.out',
       repositoryName: this.node.tryGetContext('repositoryName') || 'monorepo',
+      defaultBranchName: this.node.tryGetContext('defaultBranchName') || PDKPipeline.defaultBranchName,
       publishAssetsInParallel: false,
       crossAccountKeys: true,
       synth: {},
@@ -3743,19 +3842,22 @@ export class PipelineStack extends Stack {
   "src/pipeline.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { PDKNag } from '@aws-prototyping-sdk/pdk-nag';
+import { PDKPipeline } from '@aws-prototyping-sdk/pipeline';
 import { ApplicationStage } from './application-stage';
 import { PipelineStack } from './pipeline-stack';
 
 const app = PDKNag.app();
 
-const pipelineStack = new PipelineStack(app, 'PipelineStack', {
+const branchPrefix = PDKPipeline.getBranchPrefix({ node: app.node });
+
+const pipelineStack = new PipelineStack(app, branchPrefix + 'PipelineStack', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT!,
     region: process.env.CDK_DEFAULT_REGION!,
   },
 });
 
-const devStage = new ApplicationStage(app, 'Dev', {
+const devStage = new ApplicationStage(app, branchPrefix + 'Dev', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT!, // Replace with Dev account
     region: process.env.CDK_DEFAULT_REGION!, // Replace with Dev region
@@ -3765,6 +3867,7 @@ const devStage = new ApplicationStage(app, 'Dev', {
 pipelineStack.pipeline.addStage(devStage);
 
 // Add additional stages here i.e. Prod
+// if (PDKPipeline.isDefaultBranch({node: app.node}) ...
 
 pipelineStack.pipeline.buildPipeline(); // Needed for CDK Nag
 app.synth();
@@ -3832,6 +3935,14 @@ Object {
           Object {
             \\"Key\\": \\"aws-cdk:auto-delete-objects\\",
             \\"Value\\": \\"true\\",
+          },
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
           },
         ],
       },
@@ -4010,6 +4121,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::KMS::Key\\",
       \\"UpdateReplacePolicy\\": \\"Delete\\",
@@ -4074,6 +4195,14 @@ Object {
           Object {
             \\"Key\\": \\"aws-cdk:auto-delete-objects\\",
             \\"Value\\": \\"true\\",
+          },
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
           },
         ],
       },
@@ -4199,6 +4328,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },
@@ -4326,7 +4465,7 @@ Object {
                   \\"Version\\": \\"1\\",
                 },
                 \\"Configuration\\": Object {
-                  \\"EnvironmentVariables\\": \\"[{\\\\\\\\\\"name\\\\\\\\\\":\\\\\\\\\\"_PROJECT_CONFIG_HASH\\\\\\\\\\",\\\\\\\\\\"type\\\\\\\\\\":\\\\\\\\\\"PLAINTEXT\\\\\\\\\\",\\\\\\\\\\"value\\\\\\\\\\":\\\\\\\\\\"13fb1f6f3f0a665500d00a30e46cf5c67342362be94a9d79d179c2ea7436a504\\\\\\\\\\"}]\\",
+                  \\"EnvironmentVariables\\": \\"[{\\\\\\\\\\"name\\\\\\\\\\":\\\\\\\\\\"_PROJECT_CONFIG_HASH\\\\\\\\\\",\\\\\\\\\\"type\\\\\\\\\\":\\\\\\\\\\"PLAINTEXT\\\\\\\\\\",\\\\\\\\\\"value\\\\\\\\\\":\\\\\\\\\\"d8ae97960b7fb4624979583404dbc912635079bb6cb253679bbafd66b2a9d9d8\\\\\\\\\\"}]\\",
                   \\"ProjectName\\": Object {
                     \\"Ref\\": \\"ApplicationPipelineCodePipelineBuildSynthCdkBuildProjectEE7ED66A\\",
                   },
@@ -4389,6 +4528,16 @@ Object {
             \\"Name\\": \\"UpdatePipeline\\",
           },
         ],
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::CodePipeline::Pipeline\\",
     },
@@ -4409,6 +4558,13 @@ Object {
         },
         \\"Environment\\": Object {
           \\"ComputeType\\": \\"BUILD_GENERAL1_SMALL\\",
+          \\"EnvironmentVariables\\": Array [
+            Object {
+              \\"Name\\": \\"BRANCH\\",
+              \\"Type\\": \\"PLAINTEXT\\",
+              \\"Value\\": \\"mainline\\",
+            },
+          ],
           \\"Image\\": \\"aws/codebuild/standard:6.0\\",
           \\"ImagePullCredentialsType\\": \\"CODEBUILD\\",
           \\"PrivilegedMode\\": false,
@@ -4720,6 +4876,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },
@@ -4933,6 +5099,16 @@ Object {
       \\"DeletionPolicy\\": \\"Retain\\",
       \\"Properties\\": Object {
         \\"RepositoryName\\": \\"monorepo\\",
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::CodeCommit::Repository\\",
       \\"UpdateReplacePolicy\\": \\"Retain\\",
@@ -5048,6 +5224,16 @@ Object {
 }\\",
           \\"Type\\": \\"CODEPIPELINE\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::CodeBuild::Project\\",
     },
@@ -5065,6 +5251,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },
@@ -6473,6 +6669,7 @@ export class PipelineStack extends Stack {
     this.pipeline = new PDKPipeline(this, 'ApplicationPipeline', {
       primarySynthDirectory: 'packages/infra/cdk.out',
       repositoryName: this.node.tryGetContext('repositoryName') || 'monorepo',
+      defaultBranchName: this.node.tryGetContext('defaultBranchName') || PDKPipeline.defaultBranchName,
       publishAssetsInParallel: false,
       crossAccountKeys: true,
       synth: {},
@@ -6483,19 +6680,22 @@ export class PipelineStack extends Stack {
   "src/pipeline.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { PDKNag } from '@aws-prototyping-sdk/pdk-nag';
+import { PDKPipeline } from '@aws-prototyping-sdk/pipeline';
 import { ApplicationStage } from './application-stage';
 import { PipelineStack } from './pipeline-stack';
 
 const app = PDKNag.app();
 
-const pipelineStack = new PipelineStack(app, 'PipelineStack', {
+const branchPrefix = PDKPipeline.getBranchPrefix({ node: app.node });
+
+const pipelineStack = new PipelineStack(app, branchPrefix + 'PipelineStack', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT!,
     region: process.env.CDK_DEFAULT_REGION!,
   },
 });
 
-const devStage = new ApplicationStage(app, 'Dev', {
+const devStage = new ApplicationStage(app, branchPrefix + 'Dev', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT!, // Replace with Dev account
     region: process.env.CDK_DEFAULT_REGION!, // Replace with Dev region
@@ -6505,6 +6705,7 @@ const devStage = new ApplicationStage(app, 'Dev', {
 pipelineStack.pipeline.addStage(devStage);
 
 // Add additional stages here i.e. Prod
+// if (PDKPipeline.isDefaultBranch({node: app.node}) ...
 
 pipelineStack.pipeline.buildPipeline(); // Needed for CDK Nag
 app.synth();
@@ -6572,6 +6773,14 @@ Object {
           Object {
             \\"Key\\": \\"aws-cdk:auto-delete-objects\\",
             \\"Value\\": \\"true\\",
+          },
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
           },
         ],
       },
@@ -6750,6 +6959,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::KMS::Key\\",
       \\"UpdateReplacePolicy\\": \\"Delete\\",
@@ -6814,6 +7033,14 @@ Object {
           Object {
             \\"Key\\": \\"aws-cdk:auto-delete-objects\\",
             \\"Value\\": \\"true\\",
+          },
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
           },
         ],
       },
@@ -6939,6 +7166,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },
@@ -7066,7 +7303,7 @@ Object {
                   \\"Version\\": \\"1\\",
                 },
                 \\"Configuration\\": Object {
-                  \\"EnvironmentVariables\\": \\"[{\\\\\\\\\\"name\\\\\\\\\\":\\\\\\\\\\"_PROJECT_CONFIG_HASH\\\\\\\\\\",\\\\\\\\\\"type\\\\\\\\\\":\\\\\\\\\\"PLAINTEXT\\\\\\\\\\",\\\\\\\\\\"value\\\\\\\\\\":\\\\\\\\\\"13fb1f6f3f0a665500d00a30e46cf5c67342362be94a9d79d179c2ea7436a504\\\\\\\\\\"}]\\",
+                  \\"EnvironmentVariables\\": \\"[{\\\\\\\\\\"name\\\\\\\\\\":\\\\\\\\\\"_PROJECT_CONFIG_HASH\\\\\\\\\\",\\\\\\\\\\"type\\\\\\\\\\":\\\\\\\\\\"PLAINTEXT\\\\\\\\\\",\\\\\\\\\\"value\\\\\\\\\\":\\\\\\\\\\"d8ae97960b7fb4624979583404dbc912635079bb6cb253679bbafd66b2a9d9d8\\\\\\\\\\"}]\\",
                   \\"ProjectName\\": Object {
                     \\"Ref\\": \\"ApplicationPipelineCodePipelineBuildSynthCdkBuildProjectEE7ED66A\\",
                   },
@@ -7129,6 +7366,16 @@ Object {
             \\"Name\\": \\"UpdatePipeline\\",
           },
         ],
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::CodePipeline::Pipeline\\",
     },
@@ -7149,6 +7396,13 @@ Object {
         },
         \\"Environment\\": Object {
           \\"ComputeType\\": \\"BUILD_GENERAL1_SMALL\\",
+          \\"EnvironmentVariables\\": Array [
+            Object {
+              \\"Name\\": \\"BRANCH\\",
+              \\"Type\\": \\"PLAINTEXT\\",
+              \\"Value\\": \\"mainline\\",
+            },
+          ],
           \\"Image\\": \\"aws/codebuild/standard:6.0\\",
           \\"ImagePullCredentialsType\\": \\"CODEBUILD\\",
           \\"PrivilegedMode\\": false,
@@ -7460,6 +7714,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },
@@ -7673,6 +7937,16 @@ Object {
       \\"DeletionPolicy\\": \\"Retain\\",
       \\"Properties\\": Object {
         \\"RepositoryName\\": \\"monorepo\\",
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::CodeCommit::Repository\\",
       \\"UpdateReplacePolicy\\": \\"Retain\\",
@@ -7788,6 +8062,16 @@ Object {
 }\\",
           \\"Type\\": \\"CODEPIPELINE\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::CodeBuild::Project\\",
     },
@@ -7805,6 +8089,16 @@ Object {
           ],
           \\"Version\\": \\"2012-10-17\\",
         },
+        \\"Tags\\": Array [
+          Object {
+            \\"Key\\": \\"FeatureBranch\\",
+            \\"Value\\": \\"mainline\\",
+          },
+          Object {
+            \\"Key\\": \\"RepoName\\",
+            \\"Value\\": \\"monorepo\\",
+          },
+        ],
       },
       \\"Type\\": \\"AWS::IAM::Role\\",
     },

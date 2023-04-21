@@ -13,6 +13,7 @@ export class PipelineStack extends Stack {
     this.pipeline = new PDKPipeline(this, 'ApplicationPipeline', {
       primarySynthDirectory: 'packages/infra/cdk.out',
       repositoryName: this.node.tryGetContext('repositoryName') || 'monorepo',
+      defaultBranchName: this.node.tryGetContext('defaultBranchName') || PDKPipeline.defaultBranchName,
       publishAssetsInParallel: false,
       crossAccountKeys: true,
       synth: {},

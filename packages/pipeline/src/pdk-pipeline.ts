@@ -1,7 +1,14 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { Aspects, CfnOutput, RemovalPolicy, Stage } from "aws-cdk-lib";
-import { Repository } from "aws-cdk-lib/aws-codecommit";
+import {
+  Aspects,
+  CfnOutput,
+  RemovalPolicy,
+  Stack,
+  Stage,
+  Tags,
+} from "aws-cdk-lib";
+import { IRepository, Repository } from "aws-cdk-lib/aws-codecommit";
 import { Pipeline } from "aws-cdk-lib/aws-codepipeline";
 import { Key } from "aws-cdk-lib/aws-kms";
 import {
@@ -20,15 +27,16 @@ import {
   StageDeployment,
 } from "aws-cdk-lib/pipelines";
 import { NagSuppressions } from "cdk-nag";
-import { Construct } from "constructs";
+import { Construct, Node } from "constructs";
 import {
   SonarCodeScanner,
   SonarCodeScannerConfig,
 } from "./code_scanner/sonar-code-scanner";
+import { FeatureBranches } from "./feature-branches";
 
 export * from "./code_scanner/sonar-code-scanner";
 
-const DEFAULT_BRANCH_NAME = "mainline";
+export const DEFAULT_BRANCH_NAME = "mainline";
 
 /**
  * Properties to configure the PDKPipeline.
@@ -79,6 +87,47 @@ export interface PDKPipelineProps extends CodePipelineProps {
    * The removal policy controls what happens to the resource if it stops being managed by CloudFormation.
    */
   readonly codeCommitRemovalPolicy?: RemovalPolicy;
+
+  /**
+   * Branch name prefixes
+   * Any branches created matching this list of prefixes will create a new pipeline and stack.
+   *
+   * @example
+   * // Creates a new pipeline and stack for any branch
+   * new PDKPipeline(this, 'PDKPipeline', {
+   *   repositoryName: 'my-repo',
+   *   branchNamePrefixes: PDKPipeline.ALL_BRANCHES,
+   * }
+   * @example
+   * // Creates a new pipeline and stack for any branch starting with 'feature/' or 'fix/'
+   * new PDKPipeline(this, 'PDKPipeline', {
+   *   repositoryName: 'my-repo',
+   *   branchNamePrefixes: ['feature/', 'fix/'],
+   * }
+   * @example
+   * // Disables feature branches (default)
+   * new PDKPipeline(this, 'PDKPipeline', {
+   *   repositoryName: 'my-repo',
+   *   branchNamePrefixes: [], // or simply exclude this line
+   * }
+   * @default undefined
+   */
+  readonly branchNamePrefixes?: string[];
+}
+
+/**
+ * Properties to help the isDefaultBranch function determine the default branch name.
+ */
+export interface IsDefaultBranchProps {
+  /**
+   * The current node to fetch defaultBranchName from context.
+   */
+  readonly node?: Node;
+
+  /**
+   * Specify the default branch name without context.
+   */
+  readonly defaultBranchName?: string;
 }
 
 /**
@@ -87,9 +136,66 @@ export interface PDKPipelineProps extends CodePipelineProps {
  * automated PR builds and approvals.
  */
 export class PDKPipeline extends Construct {
+  static readonly ALL_BRANCHES = [""];
+  static readonly defaultBranchName = DEFAULT_BRANCH_NAME;
+
+  /**
+   * A helper function to normalize the branch name with only alphanumeric characters and hypens ('-').
+   * @param branchName The name of the branch to normalize.
+   * @returns The normalized branch name.
+   */
+  public static normalizeBranchName(branchName: string): string {
+    return branchName.replace(/[^a-zA-Z0-9-]/g, "-");
+  }
+
+  /**
+   * A helper function to determine if the current banch is the default branch.
+   * @param props? {
+   *    defaultBranchName? Specify the default branch name without context.
+   *    node? The current app to fetch defaultBranchName from context.
+   * }
+   * @returns True if the current branch is the default branch.
+   */
+  public static isDefaultBranch(
+    props: IsDefaultBranchProps = {
+      defaultBranchName: undefined,
+      node: undefined,
+    }
+  ): boolean {
+    return process.env.BRANCH &&
+      process.env.BRANCH !==
+        (props.defaultBranchName ||
+          (props.node && props.node.tryGetContext("defaultBranchName")) ||
+          PDKPipeline.defaultBranchName)
+      ? false
+      : true;
+  }
+
+  /**
+   * A helper function to create a branch prefix. The prefix is empty on the default branch.
+   * @param props? {
+   *    defaultBranchName? Specify the default branch name without context.
+   *    node? The current app to fetch defaultBranchName from context.
+   * }
+   * @returns The branch prefix.
+   */
+  public static getBranchPrefix(
+    props: IsDefaultBranchProps = {
+      defaultBranchName: undefined,
+      node: undefined,
+    }
+  ): string {
+    return PDKPipeline.isDefaultBranch(props)
+      ? ""
+      : PDKPipeline.normalizeBranchName(process.env.BRANCH!) + "-";
+  }
+
   readonly codePipeline: CodePipeline;
-  readonly codeRepository: Repository;
+  readonly codeRepository: IRepository;
   private readonly sonarCodeScannerConfig?: SonarCodeScannerConfig;
+  private readonly branchNamePrefixes?: string[];
+  private readonly defaultBranchName?: string;
+  private readonly repositoryName: string;
 
   public constructor(scope: Construct, id: string, props: PDKPipelineProps) {
     super(scope, id);
@@ -99,12 +205,29 @@ export class PDKPipeline extends Construct {
       true
     );
 
-    const codeRepository = new Repository(this, "CodeRepository", {
-      repositoryName: props.repositoryName,
-    });
-    codeRepository.applyRemovalPolicy(
-      props.codeCommitRemovalPolicy ?? RemovalPolicy.RETAIN
-    );
+    let codeRepository: IRepository;
+    // process.env.BRANCH is set only in CodeBuild builds
+    if (
+      PDKPipeline.isDefaultBranch({
+        node: this.node,
+        defaultBranchName: props.defaultBranchName,
+      })
+    ) {
+      // In the default branch, create a CodeCommit repository
+      codeRepository = new Repository(this, "CodeRepository", {
+        repositoryName: props.repositoryName,
+      });
+      codeRepository.applyRemovalPolicy(
+        props.codeCommitRemovalPolicy ?? RemovalPolicy.RETAIN
+      );
+    } else {
+      // In a non-default branch, use an existing CodeCommit repository
+      codeRepository = Repository.fromRepositoryName(
+        scope,
+        "CodeRepository",
+        props.repositoryName
+      );
+    }
 
     const accessLogsBucket = new Bucket(this, "AccessLogsBucket", {
       versioned: false,
@@ -152,11 +275,14 @@ export class PDKPipeline extends Construct {
       ...synthShellStepPartialProps
     } = props.synthShellStepPartialProps || {};
 
+    const branch =
+      process.env.BRANCH || props.defaultBranchName || DEFAULT_BRANCH_NAME;
+
     const synthShellStep = new ShellStep("Synth", {
-      input: CodePipelineSource.codeCommit(
-        codeRepository,
-        props.defaultBranchName || DEFAULT_BRANCH_NAME
-      ),
+      input: CodePipelineSource.codeCommit(codeRepository, branch),
+      env: {
+        BRANCH: branch,
+      },
       installCommands: [
         "npm install -g aws-cdk",
         "yarn install --frozen-lockfile || npx projen && yarn install --frozen-lockfile",
@@ -186,6 +312,33 @@ export class PDKPipeline extends Construct {
           ...props.sonarCodeScannerConfig,
         }
       : undefined;
+    this.branchNamePrefixes = props.branchNamePrefixes;
+    this.defaultBranchName = props.defaultBranchName;
+    this.repositoryName = props.repositoryName;
+
+    if (
+      props.branchNamePrefixes &&
+      PDKPipeline.isDefaultBranch({
+        node: this.node,
+        defaultBranchName: props.defaultBranchName,
+      })
+    ) {
+      new FeatureBranches(this, "FeatureBranchPipelines", {
+        codeRepository: this.codeRepository,
+        cdkSrcDir: props.primarySynthDirectory
+          .split("/")
+          .slice(0, -1)
+          .join("/"),
+        buildCommands: commands,
+        branchNamePrefixes: props.branchNamePrefixes,
+        defaultBranchName: props.defaultBranchName || DEFAULT_BRANCH_NAME,
+        codeBuildDefaults: props.codeBuildDefaults,
+        dockerEnabledForSynth: props.dockerEnabledForSynth,
+      });
+    } else {
+      Tags.of(Stack.of(this)).add("FeatureBranch", branch);
+      Tags.of(Stack.of(this)).add("RepoName", this.repositoryName);
+    }
 
     new CfnOutput(this, "CodeRepositoryGRCUrl", {
       value: this.codeRepository.repositoryCloneUrlGrc,
@@ -196,6 +349,16 @@ export class PDKPipeline extends Construct {
    * @inheritDoc
    */
   addStage(stage: Stage, options?: AddStageOpts): StageDeployment {
+    if (
+      this.branchNamePrefixes &&
+      !PDKPipeline.isDefaultBranch({
+        node: stage.node,
+        defaultBranchName: this.defaultBranchName,
+      })
+    ) {
+      Tags.of(stage).add("FeatureBranch", process.env.BRANCH!);
+      Tags.of(stage).add("RepoName", this.repositoryName);
+    }
     // Add any root Aspects to the stage level as currently this doesn't happen automatically
     Aspects.of(stage.node.root).all.forEach((aspect) =>
       Aspects.of(stage).add(aspect)
