@@ -1096,8 +1096,7 @@ const lambdas = new PythonProject({
 });
 
 // Add a local dependency on the generated python runtime
-lambdas.addDependency(`${api.runtime.python!.name}@{path="${path.relative(lambdas.outdir, api.runtime.python!.outdir)}", develop=true}`);
-monorepo.addImplicitDependency(lambdas, api.runtime.python!);
+monorepo.addPythonPoetryDependency(lambdas, api.runtime.python!);
 
 // Add commands to the lambda project's package task to create a distributable which can be deployed to AWS Lambda
 lambdas.packageTask.exec(`mkdir -p lambda-dist && rm -rf lambda-dist/*`);
@@ -1120,12 +1119,9 @@ const infra = new AwsCdkPythonApp({
 });
 
 // The infrastructure project depends on the python types, python infrastructure, and the lambda package
-infra.addDependency(`${api.runtime.python!.name}@{path="${path.relative(infra.outdir, api.runtime.python!.outdir)}", develop=true}`);
-monorepo.addImplicitDependency(infra, api.runtime.python!);
-infra.addDependency(`${api.infrastructure.python!.name}@{path="${path.relative(infra.outdir, api.infrastructure.python!.outdir)}", develop=true}`);
-monorepo.addImplicitDependency(infra, api.infrastructure.python!);
-infra.addDependency(`${lambdas.name}@{path="${path.relative(infra.outdir, lambdas.outdir)}", develop=true}`);
-monorepo.addImplicitDependency(infra, lambdas);
+monorepo.addPythonPoetryDependency(infra, api.runtime.python!);
+monorepo.addPythonPoetryDependency(infra, api.infrastructure.python!);
+monorepo.addPythonPoetryDependency(infra, lambdas);
 
 monorepo.synth();
 ```
@@ -1246,12 +1242,7 @@ const lambdas = new JavaProject({
 });
 
 // The lambdas package needs a dependency on the generated java runtime
-lambdas.addDependency(`${api.runtime.java!.pom.groupId}/${api.runtime.java!.pom.artifactId}@${api.runtime.java!.pom.version}`);
-lambdas.pom.addRepository({
-  url: `file://${path.relative(lambdas.outdir, api.runtime.java!.outdir)}/dist/java`,
-  id: 'java-api-runtime',
-});
-monorepo.addImplicitDependency(lambdas, api.runtime.java!);
+monorepo.addJavaDependency(lambdas, api.runtime.java!);
 
 // Use the maven shade plugin to build a "super jar" which we can deploy to AWS Lambda
 lambdas.pom.addPlugin("org.apache.maven.plugins/maven-shade-plugin@3.3.0", {
@@ -1279,12 +1270,7 @@ const infra = new AwsCdkJavaApp({
 });
 
 // Add a dependency on the generated CDK infrastructure
-infra.addDependency(`${api.infrastructure.java!.pom.groupId}/${api.infrastructure.java!.pom.artifactId}@${api.infrastructure.java!.pom.version}`);
-infra.pom.addRepository({
-  url: `file://${path.relative(infra.outdir, api.infrastructure.java!.outdir)}/dist/java`,
-  id: 'java-api-infra',
-});
-monorepo.addImplicitDependency(infra, api.infrastructure.java!);
+monorepo.addJavaDependency(infra, api.infrastructure.java!);
 
 // Make sure the java lambda builds before our CDK infra
 monorepo.addImplicitDependency(infra, lambdas);

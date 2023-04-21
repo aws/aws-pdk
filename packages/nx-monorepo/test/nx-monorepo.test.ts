@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { JavaProject } from "projen/lib/java";
 import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
@@ -186,5 +187,145 @@ describe("NX Monorepo Unit Tests", () => {
     project.addImplicitDependency(tsProject, pyProject);
 
     expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("Synths in Instantiation Order", () => {
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "mainline",
+      name: "SynthOrder",
+    });
+
+    const addProject = (name: string) =>
+      new TypeScriptProject({
+        name,
+        outdir: `packages/${name}`,
+        parent: project,
+        defaultReleaseBranch: "mainline",
+      });
+
+    // Add projects in this order - note that this is not alphabetical order!
+    addProject("one");
+    addProject("two");
+    addProject("three");
+    addProject("four");
+    addProject("five");
+    addProject("six");
+    addProject("seven");
+    addProject("eight");
+    addProject("nine");
+    addProject("ten");
+
+    project.synth();
+
+    // @ts-ignore accessing private subprojects which projen uses for synth order
+    const subProjects: TypeScriptProject[] = project.subprojects;
+
+    expect(subProjects.map((p) => p.name)).toEqual([
+      "one",
+      "two",
+      "three",
+      "four",
+      "five",
+      "six",
+      "seven",
+      "eight",
+      "nine",
+      "ten",
+    ]);
+  });
+
+  it("Adds Java Dependencies", () => {
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "mainline",
+      name: "SynthOrder",
+    });
+
+    const library = new JavaProject({
+      parent: project,
+      outdir: "packages/library",
+      name: "library",
+      artifactId: "library",
+      groupId: "com.library",
+      version: "1.0.0",
+    });
+
+    const consumer = new JavaProject({
+      parent: project,
+      outdir: "packages/consumer",
+      name: "consumer",
+      artifactId: "consumer",
+      groupId: "com.consumer",
+      version: "1.0.0",
+    });
+
+    project.addJavaDependency(consumer, library);
+
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("Adds Python Poetry Dependencies", () => {
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "mainline",
+      name: "SynthOrder",
+    });
+
+    const library = new PythonProject({
+      parent: project,
+      outdir: "packages/library",
+      name: "library",
+      authorEmail: "test@test.com",
+      authorName: "test",
+      moduleName: "library_module",
+      version: "1.0.0",
+      poetry: true,
+    });
+
+    const consumer = new PythonProject({
+      parent: project,
+      outdir: "packages/consumer",
+      name: "consumer",
+      authorEmail: "test@test.com",
+      authorName: "test",
+      moduleName: "consumer_module",
+      version: "1.0.0",
+      poetry: true,
+    });
+
+    project.addPythonPoetryDependency(consumer, library);
+
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("addPythonPoetryDependency Throws For Non Poetry Python Projects", () => {
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "mainline",
+      name: "SynthOrder",
+    });
+
+    const library = new PythonProject({
+      parent: project,
+      outdir: "packages/library",
+      name: "library",
+      authorEmail: "test@test.com",
+      authorName: "test",
+      moduleName: "library_module",
+      version: "1.0.0",
+    });
+
+    const consumer = new PythonProject({
+      parent: project,
+      outdir: "packages/consumer",
+      name: "consumer",
+      authorEmail: "test@test.com",
+      authorName: "test",
+      moduleName: "consumer_module",
+      version: "1.0.0",
+    });
+
+    expect(() => {
+      project.addPythonPoetryDependency(consumer, library);
+    }).toThrow(
+      "consumer must be a PythonProject with Poetry enabled to add this dependency"
+    );
   });
 });
