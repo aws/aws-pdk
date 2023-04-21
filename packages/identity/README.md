@@ -17,3 +17,7 @@ Cognito User Pool --------------------> Identity Pool
      |_ User Pool Client                     |_ Unauthenticated IAM Role
                                              |_ Authenticated IAM Role
 ```
+
+## Migrating Users
+
+If you ever need to migrate users from one cognito user pool to another, you can use this helper utility: https://www.npmjs.com/package/cognito-backup-restore

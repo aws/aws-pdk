@@ -13,6 +13,8 @@ import { Construct } from "constructs";
 
 /**
  * Boolean context to indicate whether legacy MFA props should be used.
+ *
+ * @deprecated
  */
 export const USE_LEGACY_MFA_PROPS_CONTEXT_KEY =
   "@aws-prototyping-sdk/identity:useLegacyMFAProps";
@@ -55,7 +57,7 @@ const DEFAULT_PROPS: UserPoolProps = {
   mfaSecondFactor: { sms: true, otp: true },
   signInCaseSensitive: false,
   advancedSecurityMode: AdvancedSecurityMode.ENFORCED,
-  signInAliases: { username: true },
+  signInAliases: { username: true, email: true },
   accountRecovery: AccountRecovery.EMAIL_ONLY,
   selfSignUpEnabled: false,
   standardAttributes: {
