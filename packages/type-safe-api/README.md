@@ -55,7 +55,7 @@ const api = new TypeSafeApiProject({
   }
 });
 
-// Create a CDK infrastructure project
+// Create a CDK infrastructure project. Can also consider PDKPipelineTsProject as an alternative!
 const infra = new AwsCdkTypeScriptApp({ ... });
 
 // Infrastructure can depend on the generated API infrastructure and runtime
@@ -67,7 +67,7 @@ monorepo.synth();
 
 #### Use the CDK Construct
 
-In your CDK application, consume the `Api` construct, vended from the generated typescript infrastructure package.
+In your CDK application (ie within the `infra` project we created), consume the `Api` construct, vended from the generated typescript infrastructure package.
 
 ```ts
 import { Stack, StackProps } from 'aws-cdk-lib';
@@ -104,7 +104,11 @@ export class MyStack extends Stack {
 
 #### Implement a Lambda Handler
 
-The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. You can implement your lambda handlers in any of the supported languages, and even mix and match languages for different operations if you like. In typescript, the implementation of `say-hello.ts` would look like:
+The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. You can implement your lambda handlers in any of the supported languages, and even mix and match languages for different operations if you like.
+
+In the above CDK application, we used `NodejsFunction` with the entry point as `say-hello.ts`, so we can define the lambda function in the same `infra` project.
+
+In typescript, the implementation of `say-hello.ts` would look like:
 
 ```ts
 import { sayHelloHandler } from "myapi-typescript-runtime"; // <- generated typescript runtime package
@@ -1470,3 +1474,32 @@ monorepo.addImplicitDependency(api.model, shapes);
 // Add a local file dependency on the built shapes jar
 api.model.smithy!.addSmithyDeps(shapes.smithy!);
 ```
+
+#### Local API Development Server
+
+You can use the [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) to run a local development server for your API. You can achieve this using the following steps:
+
+1. Synthesize your CDK stack containing your `Api` construct (this might be your `AwsCdkTypeScriptApp` project for example), with the context property `type-safe-api-local` set to `true`, for example:
+
+```bash
+cd packages/infra
+npx cdk synth --context type-safe-api-local=true
+```
+
+2. Use the AWS SAM CLI to start the local development server, pointing it at the cloudformation template synthesized from the above command (note that the command will fail if docker is not running)
+
+```bash
+sam local start-api -t cdk.out/<your-stack>.template.json
+```
+
+You will need to repeat the above steps every time you make a code change for them to be reflected in your local development server.
+
+See the [AWS SAM CLI Reference](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-start-api.html) for more information on the commands to run.
+
+Make sure you do not deploy your CDK stack with `type-safe-api-local` set to `true`, since this uses an inline API definition which bloats the CloudFormation template and can exceed the maximum template size depending on the size of your API.
+
+##### Limitations
+
+Note that there is currently a limitation with SAM CLI where it does not support mock integrations, which means that the development server will not respond to OPTIONS requests even if you specified `corsOptions: { ... }` in your `Api` construct. This is being tracked as a [feature request here](https://github.com/aws/aws-sam-cli/issues/4973).
+
+Note also that your API business logic may include operations which do not work locally, or may interact with real AWS resources depending on the AWS credentials you start your local development server with.
