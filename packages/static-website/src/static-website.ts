@@ -19,6 +19,7 @@ import {
   Bucket,
   BucketEncryption,
   IBucket,
+  ObjectOwnership,
 } from "aws-cdk-lib/aws-s3";
 import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import { NagSuppressions } from "cdk-nag";
@@ -125,6 +126,11 @@ export class StaticWebsite extends Construct {
   constructor(scope: Construct, id: string, props: StaticWebsiteProps) {
     super(scope, id);
 
+    this.node.setContext(
+      "@aws-cdk/aws-s3:serverAccessLogsUseBucketPolicy",
+      true
+    );
+
     this.validateProps(props);
 
     const accessLogsBucket = new Bucket(this, "AccessLogsBucket", {
@@ -133,6 +139,7 @@ export class StaticWebsite extends Construct {
       autoDeleteObjects: true,
       removalPolicy: RemovalPolicy.DESTROY,
       encryption: BucketEncryption.S3_MANAGED,
+      objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
       publicReadAccess: false,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
     });
@@ -147,6 +154,7 @@ export class StaticWebsite extends Construct {
         removalPolicy: RemovalPolicy.DESTROY,
         encryption:
           props.defaultWebsiteBucketEncryption ?? BucketEncryption.S3_MANAGED,
+        objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
         encryptionKey: props.defaultWebsiteBucketEncryptionKey,
         publicReadAccess: false,
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
@@ -169,6 +177,7 @@ export class StaticWebsite extends Construct {
         removalPolicy: RemovalPolicy.DESTROY,
         encryption:
           props.defaultWebsiteBucketEncryption ?? BucketEncryption.S3_MANAGED,
+        objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
         encryptionKey: props.defaultWebsiteBucketEncryptionKey,
         publicReadAccess: false,
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,

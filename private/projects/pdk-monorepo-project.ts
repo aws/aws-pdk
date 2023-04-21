@@ -79,6 +79,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "@aws-prototyping-sdk/pipeline@^0.x",
         "@commitlint/cli",
         "@commitlint/config-conventional",
+        "commitizen",
         "cz-conventional-changelog",
         "eslint-plugin-header",
         "husky",

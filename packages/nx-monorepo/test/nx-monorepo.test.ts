@@ -215,7 +215,7 @@ describe("NX Monorepo Unit Tests", () => {
     addProject("nine");
     addProject("ten");
 
-    project.synth();
+    synthSnapshot(project);
 
     // @ts-ignore accessing private subprojects which projen uses for synth order
     const subProjects: TypeScriptProject[] = project.subprojects;
