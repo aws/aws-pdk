@@ -2192,6 +2192,12 @@
 </a>
 
 
+<blockquote>
+<p><strong>BREAKING CHANGES</strong> (pre-release)</p>
+<ul>
+<li><code>&gt; v0.16.1</code>: Refactored PDKPipeline to now be a construct so accessing CodePipeline methods now requires accessing a public codePipeline property i.e: <code>pdkPipeline.codePipeline.XXX</code></li>
+</ul>
+</blockquote>
 <p>The pipeline module vends an extension to CDK's CodePipeline construct, named PDKPipeline. It additionally creates a CodeCommit repository and by default is configured to build the project assumming nx-monorepo is being used (although this can be changed). A Sonarqube Scanner can also be configured to trigger a scan whenever the synth build job completes successfully. This Scanner is non-blocking and as such is not instrumented as part of the pipeline.</p>
 <p>The architecture for the PDKPipeline is as follows:</p>
 <div class="highlight"><pre><span></span><code>CodeCommit repository -&gt; CodePipeline
@@ -2647,15 +2653,11 @@ a partial ShellStepProps.</p>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.addStage">addStage</a></code></td>
-<td>Deploy a single Stage by itself.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.addWave">addWave</a></code></td>
-<td>Add a Wave to the pipeline, for deploying multiple Stages in parallel.</td>
+<td><em>No description.</em></td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.buildPipeline">buildPipeline</a></code></td>
-<td>Send the current pipeline definition to the engine, and construct the pipeline.</td>
+<td><em>No description.</em></td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.suppressCDKViolations">suppressCDKViolations</a></code></td>
@@ -2672,10 +2674,6 @@ a partial ShellStepProps.</p>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">StageDeployment</span><span class="w"> </span><span class="nf">addStage</span><span class="p">(</span><span class="n">Stage</span><span class="w"> </span><span class="n">stage</span><span class="p">)</span>
 <span class="kd">public</span><span class="w"> </span><span class="n">StageDeployment</span><span class="w"> </span><span class="nf">addStage</span><span class="p">(</span><span class="n">Stage</span><span class="w"> </span><span class="n">stage</span><span class="p">,</span><span class="w"> </span><span class="n">AddStageOpts</span><span class="w"> </span><span class="n">options</span><span class="p">)</span>
 </code></pre></div>
-<p>Deploy a single Stage by itself.</p>
-<p>Add a Stage to the pipeline, to be deployed in sequence with other
-Stages added to the pipeline. All Stacks in the stage will be deployed
-in an order automatically determined by their relative dependencies.</p>
 <h6 id="stagerequired"><code>stage</code><sup>Required</sup> <a name="stage" id="@aws-prototyping-sdk/pipeline.PDKPipeline.addStage.parameter.stage"></a></h6>
 <ul>
 <li><em>Type:</em> software.amazon.awscdk.Stage</li>
@@ -2686,34 +2684,9 @@ in an order automatically determined by their relative dependencies.</p>
 <li><em>Type:</em> software.amazon.awscdk.pipelines.AddStageOpts</li>
 </ul>
 <hr />
-<h5 id="addwave"><code>addWave</code> <a name="addWave" id="@aws-prototyping-sdk/pipeline.PDKPipeline.addWave"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Wave</span><span class="w"> </span><span class="nf">addWave</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
-<span class="kd">public</span><span class="w"> </span><span class="n">Wave</span><span class="w"> </span><span class="nf">addWave</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">String</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">WaveOptions</span><span class="w"> </span><span class="n">options</span><span class="p">)</span>
-</code></pre></div>
-<p>Add a Wave to the pipeline, for deploying multiple Stages in parallel.</p>
-<p>Use the return object of this method to deploy multiple stages in parallel.</p>
-<p>Example:</p>
-<div class="highlight"><pre><span></span><code><span class="kr">declare</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">pipeline</span><span class="o">:</span><span class="w"> </span><span class="kt">pipelines.CodePipeline</span><span class="p">;</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">wave</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pipeline</span><span class="p">.</span><span class="nx">addWave</span><span class="p">(</span><span class="s1">&#39;MyWave&#39;</span><span class="p">);</span>
-<span class="nx">wave</span><span class="p">.</span><span class="nx">addStage</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApplicationStage</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Stage1&#39;</span><span class="p">));</span>
-<span class="nx">wave</span><span class="p">.</span><span class="nx">addStage</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApplicationStage</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Stage2&#39;</span><span class="p">));</span>
-</code></pre></div>
-<h6 id="idrequired_1"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/pipeline.PDKPipeline.addWave.parameter.id"></a></h6>
-<ul>
-<li><em>Type:</em> java.lang.String</li>
-</ul>
-<hr />
-<h6 id="optionsoptional_1"><code>options</code><sup>Optional</sup> <a name="options" id="@aws-prototyping-sdk/pipeline.PDKPipeline.addWave.parameter.options"></a></h6>
-<ul>
-<li><em>Type:</em> software.amazon.awscdk.pipelines.WaveOptions</li>
-</ul>
-<hr />
 <h5 id="buildpipeline"><code>buildPipeline</code> <a name="buildPipeline" id="@aws-prototyping-sdk/pipeline.PDKPipeline.buildPipeline"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">buildPipeline</span><span class="p">()</span>
 </code></pre></div>
-<p>Send the current pipeline definition to the engine, and construct the pipeline.</p>
-<p>It is not possible to modify the pipeline after calling this method.</p>
 <h5 id="suppresscdkviolations"><code>suppressCDKViolations</code> <a name="suppressCDKViolations" id="@aws-prototyping-sdk/pipeline.PDKPipeline.suppressCDKViolations"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">suppressCDKViolations</span><span class="p">()</span>
 </code></pre></div>
@@ -2729,10 +2702,6 @@ in an order automatically determined by their relative dependencies.</p>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.isConstruct">isConstruct</a></code></td>
 <td>Checks if <code>x</code> is a construct.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.isPipeline">isPipeline</a></code></td>
-<td>Return whether the given object extends <code>PipelineBase</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -2761,18 +2730,6 @@ this type-testing method instead.</p>
 </ul>
 <p>Any object.</p>
 <hr />
-<h5 id="ispipeline"><code>isPipeline</code> <a name="isPipeline" id="@aws-prototyping-sdk/pipeline.PDKPipeline.isPipeline"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.pipeline.PDKPipeline</span><span class="p">;</span>
-
-<span class="n">PDKPipeline</span><span class="p">.</span><span class="na">isPipeline</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Object</span><span class="w"> </span><span class="n">x</span><span class="p">)</span>
-</code></pre></div>
-<p>Return whether the given object extends <code>PipelineBase</code>.</p>
-<p>We do attribute detection since we can't reliably use 'instanceof'.</p>
-<h6 id="xrequired_1"><code>x</code><sup>Required</sup> <a name="x" id="@aws-prototyping-sdk/pipeline.PDKPipeline.isPipeline.parameter.x"></a></h6>
-<ul>
-<li><em>Type:</em> java.lang.Object</li>
-</ul>
-<hr />
 <h4 id="properties">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
@@ -2789,39 +2746,9 @@ this type-testing method instead.</p>
 <td>The tree node.</td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.cloudAssemblyFileSet">cloudAssemblyFileSet</a></code></td>
-<td><code>software.amazon.awscdk.pipelines.FileSet</code></td>
-<td>The FileSet tha contains the cloud assembly.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.synth">synth</a></code></td>
-<td><code>software.amazon.awscdk.pipelines.IFileSetProducer</code></td>
-<td>The build step that produces the CDK Cloud Assembly.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.waves">waves</a></code></td>
-<td><code>java.util.List<software.amazon.awscdk.pipelines.Wave></code></td>
-<td>The waves in this pipeline.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.pipeline">pipeline</a></code></td>
-<td><code>software.amazon.awscdk.services.codepipeline.Pipeline</code></td>
-<td>The CodePipeline pipeline that deploys the CDK app.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.selfMutationEnabled">selfMutationEnabled</a></code></td>
-<td><code>java.lang.Boolean</code></td>
-<td>Whether SelfMutation is enabled for this CDK Pipeline.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.selfMutationProject">selfMutationProject</a></code></td>
-<td><code>software.amazon.awscdk.services.codebuild.IProject</code></td>
-<td>The CodeBuild project that performs the SelfMutation.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.synthProject">synthProject</a></code></td>
-<td><code>software.amazon.awscdk.services.codebuild.IProject</code></td>
-<td>The CodeBuild project that performs the Synth.</td>
+<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.codePipeline">codePipeline</a></code></td>
+<td><code>software.amazon.awscdk.pipelines.CodePipeline</code></td>
+<td><em>No description.</em></td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.codeRepository">codeRepository</a></code></td>
@@ -2839,66 +2766,12 @@ this type-testing method instead.</p>
 </ul>
 <p>The tree node.</p>
 <hr />
-<h5 id="cloudassemblyfilesetrequired"><code>cloudAssemblyFileSet</code><sup>Required</sup> <a name="cloudAssemblyFileSet" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.cloudAssemblyFileSet"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">FileSet</span><span class="w"> </span><span class="nf">getCloudAssemblyFileSet</span><span class="p">();</span>
+<h5 id="codepipelinerequired"><code>codePipeline</code><sup>Required</sup> <a name="codePipeline" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.codePipeline"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">CodePipeline</span><span class="w"> </span><span class="nf">getCodePipeline</span><span class="p">();</span>
 </code></pre></div>
 <ul>
-<li><em>Type:</em> software.amazon.awscdk.pipelines.FileSet</li>
+<li><em>Type:</em> software.amazon.awscdk.pipelines.CodePipeline</li>
 </ul>
-<p>The FileSet tha contains the cloud assembly.</p>
-<p>This is the primary output of the synth step.</p>
-<hr />
-<h5 id="synthrequired_1"><code>synth</code><sup>Required</sup> <a name="synth" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.synth"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">IFileSetProducer</span><span class="w"> </span><span class="nf">getSynth</span><span class="p">();</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> software.amazon.awscdk.pipelines.IFileSetProducer</li>
-</ul>
-<p>The build step that produces the CDK Cloud Assembly.</p>
-<hr />
-<h5 id="wavesrequired"><code>waves</code><sup>Required</sup> <a name="waves" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.waves"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">Wave</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getWaves</span><span class="p">();</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> java.util.List<software.amazon.awscdk.pipelines.Wave></li>
-</ul>
-<p>The waves in this pipeline.</p>
-<hr />
-<h5 id="pipelinerequired"><code>pipeline</code><sup>Required</sup> <a name="pipeline" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.pipeline"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Pipeline</span><span class="w"> </span><span class="nf">getPipeline</span><span class="p">();</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> software.amazon.awscdk.services.codepipeline.Pipeline</li>
-</ul>
-<p>The CodePipeline pipeline that deploys the CDK app.</p>
-<p>Only available after the pipeline has been built.</p>
-<hr />
-<h5 id="selfmutationenabledrequired"><code>selfMutationEnabled</code><sup>Required</sup> <a name="selfMutationEnabled" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.selfMutationEnabled"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">lang</span><span class="p">.</span><span class="na">Boolean</span><span class="w"> </span><span class="nf">getSelfMutationEnabled</span><span class="p">();</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> java.lang.Boolean</li>
-</ul>
-<p>Whether SelfMutation is enabled for this CDK Pipeline.</p>
-<hr />
-<h5 id="selfmutationprojectrequired"><code>selfMutationProject</code><sup>Required</sup> <a name="selfMutationProject" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.selfMutationProject"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">IProject</span><span class="w"> </span><span class="nf">getSelfMutationProject</span><span class="p">();</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> software.amazon.awscdk.services.codebuild.IProject</li>
-</ul>
-<p>The CodeBuild project that performs the SelfMutation.</p>
-<p>Will throw an error if this is accessed before <code>buildPipeline()</code>
-is called, or if selfMutation has been disabled.</p>
-<hr />
-<h5 id="synthprojectrequired"><code>synthProject</code><sup>Required</sup> <a name="synthProject" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.synthProject"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">IProject</span><span class="w"> </span><span class="nf">getSynthProject</span><span class="p">();</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> software.amazon.awscdk.services.codebuild.IProject</li>
-</ul>
-<p>The CodeBuild project that performs the Synth.</p>
-<p>Only available after the pipeline has been built.</p>
 <hr />
 <h5 id="coderepositoryrequired"><code>codeRepository</code><sup>Required</sup> <a name="codeRepository" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.codeRepository"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Repository</span><span class="w"> </span><span class="nf">getCodeRepository</span><span class="p">();</span>
@@ -3025,7 +2898,7 @@ is called, or if selfMutation has been disabled.</p>
 <li><em>Type:</em> software.constructs.Construct</li>
 </ul>
 <hr />
-<h5 id="idrequired_2"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/pipeline.SonarCodeScanner.Initializer.parameter.id"></a></h5>
+<h5 id="idrequired_1"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/pipeline.SonarCodeScanner.Initializer.parameter.id"></a></h5>
 <ul>
 <li><em>Type:</em> java.lang.String</li>
 </ul>
@@ -3171,7 +3044,7 @@ use a monorepo tool: in those cases, multiple copies of the <code>constructs</co
 library can be accidentally installed, and <code>instanceof</code> will behave
 unpredictably. It is safest to avoid using <code>instanceof</code>, and using
 this type-testing method instead.</p>
-<h6 id="xrequired_2"><code>x</code><sup>Required</sup> <a name="x" id="@aws-prototyping-sdk/pipeline.SonarCodeScanner.isConstruct.parameter.x"></a></h6>
+<h6 id="xrequired_1"><code>x</code><sup>Required</sup> <a name="x" id="@aws-prototyping-sdk/pipeline.SonarCodeScanner.isConstruct.parameter.x"></a></h6>
 <ul>
 <li><em>Type:</em> java.lang.Object</li>
 </ul>
@@ -4416,7 +4289,7 @@ if you pass in [] the default commands of this construct will be retained.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="synthrequired_2"><code>synth</code><sup>Required</sup> <a name="synth" id="@aws-prototyping-sdk/pipeline.PDKPipelineProps.property.synth"></a></h5>
+<h5 id="synthrequired_1"><code>synth</code><sup>Required</sup> <a name="synth" id="@aws-prototyping-sdk/pipeline.PDKPipelineProps.property.synth"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">IFileSetProducer</span><span class="w"> </span><span class="nf">getSynth</span><span class="p">();</span>
 </code></pre></div>
 <ul>
@@ -9990,7 +9863,7 @@ resolved from the root of <em>this</em> project.</p>
 </ul>
 <p>dependency spec (<code>group/artifact@version</code>).</p>
 <hr />
-<h6 id="optionsoptional_2"><code>options</code><sup>Optional</sup> <a name="options" id="@aws-prototyping-sdk/pipeline.PDKPipelineJavaProject.addPlugin.parameter.options"></a></h6>
+<h6 id="optionsoptional_1"><code>options</code><sup>Optional</sup> <a name="options" id="@aws-prototyping-sdk/pipeline.PDKPipelineJavaProject.addPlugin.parameter.options"></a></h6>
 <ul>
 <li><em>Type:</em> io.github.cdklabs.projen.java.PluginOptions</li>
 </ul>
@@ -15154,7 +15027,7 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <span class="kd">public</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">List</span><span class="o">&lt;</span><span class="n">JobStep</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">renderWorkflowSetup</span><span class="p">(</span><span class="n">RenderWorkflowSetupOptions</span><span class="w"> </span><span class="n">options</span><span class="p">)</span>
 </code></pre></div>
 <p>Returns the set of workflow steps which should be executed to bootstrap a workflow.</p>
-<h6 id="optionsoptional_3"><code>options</code><sup>Optional</sup> <a name="options" id="@aws-prototyping-sdk/pipeline.PDKPipelineTsProject.renderWorkflowSetup.parameter.options"></a></h6>
+<h6 id="optionsoptional_2"><code>options</code><sup>Optional</sup> <a name="options" id="@aws-prototyping-sdk/pipeline.PDKPipelineTsProject.renderWorkflowSetup.parameter.options"></a></h6>
 <ul>
 <li><em>Type:</em> io.github.cdklabs.projen.javascript.RenderWorkflowSetupOptions</li>
 </ul>

@@ -2192,6 +2192,12 @@
 </a>
 
 
+<blockquote>
+<p><strong>BREAKING CHANGES</strong> (pre-release)</p>
+<ul>
+<li><code>&gt; v0.16.1</code>: Refactored PDKPipeline to now be a construct so accessing CodePipeline methods now requires accessing a public codePipeline property i.e: <code>pdkPipeline.codePipeline.XXX</code></li>
+</ul>
+</blockquote>
 <p>The pipeline module vends an extension to CDK's CodePipeline construct, named PDKPipeline. It additionally creates a CodeCommit repository and by default is configured to build the project assumming nx-monorepo is being used (although this can be changed). A Sonarqube Scanner can also be configured to trigger a scan whenever the synth build job completes successfully. This Scanner is non-blocking and as such is not instrumented as part of the pipeline.</p>
 <p>The architecture for the PDKPipeline is as follows:</p>
 <div class="highlight"><pre><span></span><code>CodeCommit repository -&gt; CodePipeline
@@ -2649,15 +2655,11 @@ a partial ShellStepProps.</p>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.addStage">add_stage</a></code></td>
-<td>Deploy a single Stage by itself.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.addWave">add_wave</a></code></td>
-<td>Add a Wave to the pipeline, for deploying multiple Stages in parallel.</td>
+<td><em>No description.</em></td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.buildPipeline">build_pipeline</a></code></td>
-<td>Send the current pipeline definition to the engine, and construct the pipeline.</td>
+<td><em>No description.</em></td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.suppressCDKViolations">suppress_cdk_violations</a></code></td>
@@ -2678,10 +2680,6 @@ a partial ShellStepProps.</p>
   <span class="n">stack_steps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">StackSteps</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StageDeployment</span>
 </code></pre></div>
-<p>Deploy a single Stage by itself.</p>
-<p>Add a Stage to the pipeline, to be deployed in sequence with other
-Stages added to the pipeline. All Stacks in the stage will be deployed
-in an order automatically determined by their relative dependencies.</p>
 <h6 id="stagerequired"><code>stage</code><sup>Required</sup> <a name="stage" id="@aws-prototyping-sdk/pipeline.PDKPipeline.addStage.parameter.stage"></a></h6>
 <ul>
 <li><em>Type:</em> aws_cdk.Stage</li>
@@ -2708,46 +2706,9 @@ in an order automatically determined by their relative dependencies.</p>
 </ul>
 <p>Instructions for stack level steps.</p>
 <hr />
-<h5 id="add_wave"><code>add_wave</code> <a name="add_wave" id="@aws-prototyping-sdk/pipeline.PDKPipeline.addWave"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add_wave</span><span class="p">(</span>
-  <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-  <span class="n">post</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-  <span class="n">pre</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Wave</span>
-</code></pre></div>
-<p>Add a Wave to the pipeline, for deploying multiple Stages in parallel.</p>
-<p>Use the return object of this method to deploy multiple stages in parallel.</p>
-<p>Example:</p>
-<div class="highlight"><pre><span></span><code><span class="kr">declare</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">pipeline</span><span class="o">:</span><span class="w"> </span><span class="kt">pipelines.CodePipeline</span><span class="p">;</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">wave</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pipeline</span><span class="p">.</span><span class="nx">addWave</span><span class="p">(</span><span class="s1">&#39;MyWave&#39;</span><span class="p">);</span>
-<span class="nx">wave</span><span class="p">.</span><span class="nx">addStage</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApplicationStage</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Stage1&#39;</span><span class="p">));</span>
-<span class="nx">wave</span><span class="p">.</span><span class="nx">addStage</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApplicationStage</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Stage2&#39;</span><span class="p">));</span>
-</code></pre></div>
-<h6 id="idrequired_1"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/pipeline.PDKPipeline.addWave.parameter.id"></a></h6>
-<ul>
-<li><em>Type:</em> str</li>
-</ul>
-<hr />
-<h6 id="postoptional_1"><code>post</code><sup>Optional</sup> <a name="post" id="@aws-prototyping-sdk/pipeline.PDKPipeline.addWave.parameter.post"></a></h6>
-<ul>
-<li><em>Type:</em> typing.List[aws_cdk.pipelines.Step]</li>
-<li><em>Default:</em> No additional steps</li>
-</ul>
-<p>Additional steps to run after all of the stages in the wave.</p>
-<hr />
-<h6 id="preoptional_1"><code>pre</code><sup>Optional</sup> <a name="pre" id="@aws-prototyping-sdk/pipeline.PDKPipeline.addWave.parameter.pre"></a></h6>
-<ul>
-<li><em>Type:</em> typing.List[aws_cdk.pipelines.Step]</li>
-<li><em>Default:</em> No additional steps</li>
-</ul>
-<p>Additional steps to run before any of the stages in the wave.</p>
-<hr />
 <h5 id="build_pipeline"><code>build_pipeline</code> <a name="build_pipeline" id="@aws-prototyping-sdk/pipeline.PDKPipeline.buildPipeline"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">build_pipeline</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p>Send the current pipeline definition to the engine, and construct the pipeline.</p>
-<p>It is not possible to modify the pipeline after calling this method.</p>
 <h5 id="suppress_cdk_violations"><code>suppress_cdk_violations</code> <a name="suppress_cdk_violations" id="@aws-prototyping-sdk/pipeline.PDKPipeline.suppressCDKViolations"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">suppress_cdk_violations</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
@@ -2763,10 +2724,6 @@ in an order automatically determined by their relative dependencies.</p>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.isConstruct">is_construct</a></code></td>
 <td>Checks if <code>x</code> is a construct.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.isPipeline">is_pipeline</a></code></td>
-<td>Return whether the given object extends <code>PipelineBase</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -2797,20 +2754,6 @@ this type-testing method instead.</p>
 </ul>
 <p>Any object.</p>
 <hr />
-<h5 id="is_pipeline"><code>is_pipeline</code> <a name="is_pipeline" id="@aws-prototyping-sdk/pipeline.PDKPipeline.isPipeline"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.pipeline</span>
-
-<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">PDKPipeline</span><span class="o">.</span><span class="n">is_pipeline</span><span class="p">(</span>
-  <span class="n">x</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
-<span class="p">)</span>
-</code></pre></div>
-<p>Return whether the given object extends <code>PipelineBase</code>.</p>
-<p>We do attribute detection since we can't reliably use 'instanceof'.</p>
-<h6 id="xrequired_1"><code>x</code><sup>Required</sup> <a name="x" id="@aws-prototyping-sdk/pipeline.PDKPipeline.isPipeline.parameter.x"></a></h6>
-<ul>
-<li><em>Type:</em> typing.Any</li>
-</ul>
-<hr />
 <h4 id="properties">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
@@ -2827,39 +2770,9 @@ this type-testing method instead.</p>
 <td>The tree node.</td>
 </tr>
 <tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.cloudAssemblyFileSet">cloud_assembly_file_set</a></code></td>
-<td><code>aws_cdk.pipelines.FileSet</code></td>
-<td>The FileSet tha contains the cloud assembly.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.synth">synth</a></code></td>
-<td><code>aws_cdk.pipelines.IFileSetProducer</code></td>
-<td>The build step that produces the CDK Cloud Assembly.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.waves">waves</a></code></td>
-<td><code>typing.List[aws_cdk.pipelines.Wave]</code></td>
-<td>The waves in this pipeline.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.pipeline">pipeline</a></code></td>
-<td><code>aws_cdk.aws_codepipeline.Pipeline</code></td>
-<td>The CodePipeline pipeline that deploys the CDK app.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.selfMutationEnabled">self_mutation_enabled</a></code></td>
-<td><code>bool</code></td>
-<td>Whether SelfMutation is enabled for this CDK Pipeline.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.selfMutationProject">self_mutation_project</a></code></td>
-<td><code>aws_cdk.aws_codebuild.IProject</code></td>
-<td>The CodeBuild project that performs the SelfMutation.</td>
-</tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.synthProject">synth_project</a></code></td>
-<td><code>aws_cdk.aws_codebuild.IProject</code></td>
-<td>The CodeBuild project that performs the Synth.</td>
+<td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.codePipeline">code_pipeline</a></code></td>
+<td><code>aws_cdk.pipelines.CodePipeline</code></td>
+<td><em>No description.</em></td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pipeline.PDKPipeline.property.codeRepository">code_repository</a></code></td>
@@ -2877,66 +2790,12 @@ this type-testing method instead.</p>
 </ul>
 <p>The tree node.</p>
 <hr />
-<h5 id="cloud_assembly_file_setrequired"><code>cloud_assembly_file_set</code><sup>Required</sup> <a name="cloud_assembly_file_set" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.cloudAssemblyFileSet"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">cloud_assembly_file_set</span><span class="p">:</span> <span class="n">FileSet</span>
+<h5 id="code_pipelinerequired"><code>code_pipeline</code><sup>Required</sup> <a name="code_pipeline" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.codePipeline"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">code_pipeline</span><span class="p">:</span> <span class="n">CodePipeline</span>
 </code></pre></div>
 <ul>
-<li><em>Type:</em> aws_cdk.pipelines.FileSet</li>
+<li><em>Type:</em> aws_cdk.pipelines.CodePipeline</li>
 </ul>
-<p>The FileSet tha contains the cloud assembly.</p>
-<p>This is the primary output of the synth step.</p>
-<hr />
-<h5 id="synthrequired_1"><code>synth</code><sup>Required</sup> <a name="synth" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.synth"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">synth</span><span class="p">:</span> <span class="n">IFileSetProducer</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws_cdk.pipelines.IFileSetProducer</li>
-</ul>
-<p>The build step that produces the CDK Cloud Assembly.</p>
-<hr />
-<h5 id="wavesrequired"><code>waves</code><sup>Required</sup> <a name="waves" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.waves"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">waves</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Wave</span><span class="p">]</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> typing.List[aws_cdk.pipelines.Wave]</li>
-</ul>
-<p>The waves in this pipeline.</p>
-<hr />
-<h5 id="pipelinerequired"><code>pipeline</code><sup>Required</sup> <a name="pipeline" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.pipeline"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">pipeline</span><span class="p">:</span> <span class="n">Pipeline</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_codepipeline.Pipeline</li>
-</ul>
-<p>The CodePipeline pipeline that deploys the CDK app.</p>
-<p>Only available after the pipeline has been built.</p>
-<hr />
-<h5 id="self_mutation_enabledrequired"><code>self_mutation_enabled</code><sup>Required</sup> <a name="self_mutation_enabled" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.selfMutationEnabled"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">self_mutation_enabled</span><span class="p">:</span> <span class="nb">bool</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> bool</li>
-</ul>
-<p>Whether SelfMutation is enabled for this CDK Pipeline.</p>
-<hr />
-<h5 id="self_mutation_projectrequired"><code>self_mutation_project</code><sup>Required</sup> <a name="self_mutation_project" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.selfMutationProject"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">self_mutation_project</span><span class="p">:</span> <span class="n">IProject</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_codebuild.IProject</li>
-</ul>
-<p>The CodeBuild project that performs the SelfMutation.</p>
-<p>Will throw an error if this is accessed before <code>buildPipeline()</code>
-is called, or if selfMutation has been disabled.</p>
-<hr />
-<h5 id="synth_projectrequired"><code>synth_project</code><sup>Required</sup> <a name="synth_project" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.synthProject"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">synth_project</span><span class="p">:</span> <span class="n">IProject</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> aws_cdk.aws_codebuild.IProject</li>
-</ul>
-<p>The CodeBuild project that performs the Synth.</p>
-<p>Only available after the pipeline has been built.</p>
 <hr />
 <h5 id="code_repositoryrequired"><code>code_repository</code><sup>Required</sup> <a name="code_repository" id="@aws-prototyping-sdk/pipeline.PDKPipeline.property.codeRepository"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">code_repository</span><span class="p">:</span> <span class="n">Repository</span>
@@ -3065,7 +2924,7 @@ is called, or if selfMutation has been disabled.</p>
 <li><em>Type:</em> constructs.Construct</li>
 </ul>
 <hr />
-<h5 id="idrequired_2"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/pipeline.SonarCodeScanner.Initializer.parameter.id"></a></h5>
+<h5 id="idrequired_1"><code>id</code><sup>Required</sup> <a name="id" id="@aws-prototyping-sdk/pipeline.SonarCodeScanner.Initializer.parameter.id"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
@@ -3213,7 +3072,7 @@ use a monorepo tool: in those cases, multiple copies of the <code>constructs</co
 library can be accidentally installed, and <code>instanceof</code> will behave
 unpredictably. It is safest to avoid using <code>instanceof</code>, and using
 this type-testing method instead.</p>
-<h6 id="xrequired_2"><code>x</code><sup>Required</sup> <a name="x" id="@aws-prototyping-sdk/pipeline.SonarCodeScanner.isConstruct.parameter.x"></a></h6>
+<h6 id="xrequired_1"><code>x</code><sup>Required</sup> <a name="x" id="@aws-prototyping-sdk/pipeline.SonarCodeScanner.isConstruct.parameter.x"></a></h6>
 <ul>
 <li><em>Type:</em> typing.Any</li>
 </ul>
@@ -4458,7 +4317,7 @@ if you pass in [] the default commands of this construct will be retained.</p>
 </tbody>
 </table>
 <hr />
-<h5 id="synthrequired_2"><code>synth</code><sup>Required</sup> <a name="synth" id="@aws-prototyping-sdk/pipeline.PDKPipelineProps.property.synth"></a></h5>
+<h5 id="synthrequired_1"><code>synth</code><sup>Required</sup> <a name="synth" id="@aws-prototyping-sdk/pipeline.PDKPipelineProps.property.synth"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">synth</span><span class="p">:</span> <span class="n">IFileSetProducer</span>
 </code></pre></div>
 <ul>
