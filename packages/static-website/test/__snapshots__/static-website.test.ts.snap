@@ -290,13 +290,19 @@ Object {
     "DefaultsAccessLogsBucket1E788CBC": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
-        "AccessControl": "LogDeliveryWrite",
         "BucketEncryption": Object {
           "ServerSideEncryptionConfiguration": Array [
             Object {
               "ServerSideEncryptionByDefault": Object {
                 "SSEAlgorithm": "AES256",
               },
+            },
+          ],
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
             },
           ],
         },
@@ -414,6 +420,78 @@ Object {
                 },
               ],
             },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "ArnLike": Object {
+                  "aws:SourceArn": Object {
+                    "Fn::GetAtt": Array [
+                      "DefaultsWebsiteBucket3263D025",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": Object {
+                  "aws:SourceAccount": Object {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "logging.s3.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsAccessLogsBucket1E788CBC",
+                        "Arn",
+                      ],
+                    },
+                    "/website-access-logs*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "ArnLike": Object {
+                  "aws:SourceArn": Object {
+                    "Fn::GetAtt": Array [
+                      "DefaultsDistributionLogBucket7EA741E2",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": Object {
+                  "aws:SourceAccount": Object {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "logging.s3.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsAccessLogsBucket1E788CBC",
+                        "Arn",
+                      ],
+                    },
+                    "/distribution-access-logs*",
+                  ],
+                ],
+              },
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -513,6 +591,13 @@ Object {
             "Ref": "DefaultsAccessLogsBucket1E788CBC",
           },
           "LogFilePrefix": "distribution-access-logs",
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
+            },
+          ],
         },
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
@@ -1120,6 +1205,13 @@ Object {
           },
           "LogFilePrefix": "website-access-logs",
         },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
+            },
+          ],
+        },
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
           "BlockPublicPolicy": true,
@@ -1632,13 +1724,19 @@ Object {
     "DefaultsAccessLogsBucket1E788CBC": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
-        "AccessControl": "LogDeliveryWrite",
         "BucketEncryption": Object {
           "ServerSideEncryptionConfiguration": Array [
             Object {
               "ServerSideEncryptionByDefault": Object {
                 "SSEAlgorithm": "AES256",
               },
+            },
+          ],
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
             },
           ],
         },
@@ -1756,6 +1854,78 @@ Object {
                 },
               ],
             },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "ArnLike": Object {
+                  "aws:SourceArn": Object {
+                    "Fn::GetAtt": Array [
+                      "DefaultsWebsiteBucket3263D025",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": Object {
+                  "aws:SourceAccount": Object {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "logging.s3.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsAccessLogsBucket1E788CBC",
+                        "Arn",
+                      ],
+                    },
+                    "/website-access-logs*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "ArnLike": Object {
+                  "aws:SourceArn": Object {
+                    "Fn::GetAtt": Array [
+                      "DefaultsDistributionLogBucket7EA741E2",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": Object {
+                  "aws:SourceAccount": Object {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "logging.s3.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsAccessLogsBucket1E788CBC",
+                        "Arn",
+                      ],
+                    },
+                    "/distribution-access-logs*",
+                  ],
+                ],
+              },
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -1855,6 +2025,13 @@ Object {
             "Ref": "DefaultsAccessLogsBucket1E788CBC",
           },
           "LogFilePrefix": "distribution-access-logs",
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
+            },
+          ],
         },
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
@@ -2439,6 +2616,13 @@ Object {
             "Ref": "DefaultsAccessLogsBucket1E788CBC",
           },
           "LogFilePrefix": "website-access-logs",
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
+            },
+          ],
         },
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
@@ -2979,13 +3163,19 @@ Object {
     "DefaultsAccessLogsBucket1E788CBC": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
-        "AccessControl": "LogDeliveryWrite",
         "BucketEncryption": Object {
           "ServerSideEncryptionConfiguration": Array [
             Object {
               "ServerSideEncryptionByDefault": Object {
                 "SSEAlgorithm": "AES256",
               },
+            },
+          ],
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
             },
           ],
         },
@@ -3103,6 +3293,78 @@ Object {
                 },
               ],
             },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "ArnLike": Object {
+                  "aws:SourceArn": Object {
+                    "Fn::GetAtt": Array [
+                      "DefaultsWebsiteBucket3263D025",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": Object {
+                  "aws:SourceAccount": Object {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "logging.s3.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsAccessLogsBucket1E788CBC",
+                        "Arn",
+                      ],
+                    },
+                    "/website-access-logs*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "ArnLike": Object {
+                  "aws:SourceArn": Object {
+                    "Fn::GetAtt": Array [
+                      "DefaultsDistributionLogBucket7EA741E2",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": Object {
+                  "aws:SourceAccount": Object {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "logging.s3.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsAccessLogsBucket1E788CBC",
+                        "Arn",
+                      ],
+                    },
+                    "/distribution-access-logs*",
+                  ],
+                ],
+              },
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -3202,6 +3464,13 @@ Object {
             "Ref": "DefaultsAccessLogsBucket1E788CBC",
           },
           "LogFilePrefix": "distribution-access-logs",
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
+            },
+          ],
         },
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
@@ -3786,6 +4055,13 @@ Object {
             "Ref": "DefaultsAccessLogsBucket1E788CBC",
           },
           "LogFilePrefix": "website-access-logs",
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
+            },
+          ],
         },
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
@@ -4326,13 +4602,19 @@ Object {
     "DefaultsAccessLogsBucket1E788CBC": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
-        "AccessControl": "LogDeliveryWrite",
         "BucketEncryption": Object {
           "ServerSideEncryptionConfiguration": Array [
             Object {
               "ServerSideEncryptionByDefault": Object {
                 "SSEAlgorithm": "AES256",
               },
+            },
+          ],
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
             },
           ],
         },
@@ -4450,6 +4732,78 @@ Object {
                 },
               ],
             },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "ArnLike": Object {
+                  "aws:SourceArn": Object {
+                    "Fn::GetAtt": Array [
+                      "DefaultsWebsiteBucket3263D025",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": Object {
+                  "aws:SourceAccount": Object {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "logging.s3.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsAccessLogsBucket1E788CBC",
+                        "Arn",
+                      ],
+                    },
+                    "/website-access-logs*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "ArnLike": Object {
+                  "aws:SourceArn": Object {
+                    "Fn::GetAtt": Array [
+                      "DefaultsDistributionLogBucket7EA741E2",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": Object {
+                  "aws:SourceAccount": Object {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "logging.s3.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsAccessLogsBucket1E788CBC",
+                        "Arn",
+                      ],
+                    },
+                    "/distribution-access-logs*",
+                  ],
+                ],
+              },
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -4558,6 +4912,13 @@ Object {
             "Ref": "DefaultsAccessLogsBucket1E788CBC",
           },
           "LogFilePrefix": "distribution-access-logs",
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
+            },
+          ],
         },
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
@@ -5142,6 +5503,13 @@ Object {
             "Ref": "DefaultsAccessLogsBucket1E788CBC",
           },
           "LogFilePrefix": "website-access-logs",
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
+            },
+          ],
         },
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
@@ -5742,13 +6110,19 @@ Object {
         },
       },
       "Properties": Object {
-        "AccessControl": "LogDeliveryWrite",
         "BucketEncryption": Object {
           "ServerSideEncryptionConfiguration": Array [
             Object {
               "ServerSideEncryptionByDefault": Object {
                 "SSEAlgorithm": "AES256",
               },
+            },
+          ],
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
             },
           ],
         },
@@ -5886,6 +6260,78 @@ Object {
                 },
               ],
             },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "ArnLike": Object {
+                  "aws:SourceArn": Object {
+                    "Fn::GetAtt": Array [
+                      "DefaultsWebsiteBucket3263D025",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": Object {
+                  "aws:SourceAccount": Object {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "logging.s3.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsAccessLogsBucket1E788CBC",
+                        "Arn",
+                      ],
+                    },
+                    "/website-access-logs*",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "ArnLike": Object {
+                  "aws:SourceArn": Object {
+                    "Fn::GetAtt": Array [
+                      "DefaultsDistributionLogBucket7EA741E2",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": Object {
+                  "aws:SourceAccount": Object {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "logging.s3.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "DefaultsAccessLogsBucket1E788CBC",
+                        "Arn",
+                      ],
+                    },
+                    "/distribution-access-logs*",
+                  ],
+                ],
+              },
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -5999,6 +6445,13 @@ Object {
             "Ref": "DefaultsAccessLogsBucket1E788CBC",
           },
           "LogFilePrefix": "distribution-access-logs",
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
+            },
+          ],
         },
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
@@ -6659,6 +7112,13 @@ Object {
             "Ref": "DefaultsAccessLogsBucket1E788CBC",
           },
           "LogFilePrefix": "website-access-logs",
+        },
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerEnforced",
+            },
+          ],
         },
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
