@@ -2637,7 +2637,7 @@ aws-prototyping-sdk library.</p>
 <span class="w">                </span><span class="s">&quot;formats&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">DocumentationFormat</span><span class="p">.</span><span class="na">getHTML_REDOC</span><span class="p">())))</span>
 <span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 
-<span class="c1">// Create a CDK infrastructure project</span>
+<span class="c1">// Create a CDK infrastructure project. Can also consider PDKPipelineTsProject as an alternative!</span>
 <span class="n">AwsCdkTypeScriptApp</span><span class="w"> </span><span class="n">infra</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AwsCdkTypeScriptApp</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()....</span><span class="na">build</span><span class="p">();</span>
 
 <span class="c1">// Infrastructure can depend on the generated API infrastructure and runtime</span>
@@ -2647,7 +2647,7 @@ aws-prototyping-sdk library.</p>
 <span class="n">monorepo</span><span class="p">.</span><span class="na">synth</span><span class="p">();</span>
 </code></pre></div>
 <h4 id="use-the-cdk-construct">Use the CDK Construct</h4>
-<p>In your CDK application, consume the <code>Api</code> construct, vended from the generated typescript infrastructure package.</p>
+<p>In your CDK application (ie within the <code>infra</code> project we created), consume the <code>Api</code> construct, vended from the generated typescript infrastructure package.</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">software.amazon.awscdk.Stack</span><span class="p">;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">software.amazon.awscdk.StackProps</span><span class="p">;</span>
@@ -2685,7 +2685,9 @@ aws-prototyping-sdk library.</p>
 <span class="p">}</span>
 </code></pre></div>
 <h4 id="implement-a-lambda-handler">Implement a Lambda Handler</h4>
-<p>The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. You can implement your lambda handlers in any of the supported languages, and even mix and match languages for different operations if you like. In typescript, the implementation of <code>say-hello.ts</code> would look like:</p>
+<p>The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. You can implement your lambda handlers in any of the supported languages, and even mix and match languages for different operations if you like.</p>
+<p>In the above CDK application, we used <code>NodejsFunction</code> with the entry point as <code>say-hello.ts</code>, so we can define the lambda function in the same <code>infra</code> project.</p>
+<p>In typescript, the implementation of <code>say-hello.ts</code> would look like:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">myapi.typescript.runtime.sayHelloHandler.*</span><span class="p">;</span><span class="w"> </span><span class="c1">// &lt;- generated typescript runtime package</span>
 
@@ -3776,6 +3778,25 @@ aws-prototyping-sdk library.</p>
 <span class="c1">// Add a local file dependency on the built shapes jar</span>
 <span class="n">api</span><span class="p">.</span><span class="na">model</span><span class="p">.</span><span class="na">smithy</span><span class="p">.</span><span class="na">addSmithyDeps</span><span class="p">(</span><span class="n">shapes</span><span class="p">.</span><span class="na">getSmithy</span><span class="p">());</span>
 </code></pre></div>
+<h4 id="local-api-development-server">Local API Development Server</h4>
+<p>You can use the <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html">AWS SAM CLI</a> to run a local development server for your API. You can achieve this using the following steps:</p>
+<ol>
+<li>Synthesize your CDK stack containing your <code>Api</code> construct (this might be your <code>AwsCdkTypeScriptApp</code> project for example), with the context property <code>type-safe-api-local</code> set to <code>true</code>, for example:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>packages/infra
+npx<span class="w"> </span>cdk<span class="w"> </span>synth<span class="w"> </span>--context<span class="w"> </span>type-safe-api-local<span class="o">=</span><span class="nb">true</span>
+</code></pre></div>
+<ol>
+<li>Use the AWS SAM CLI to start the local development server, pointing it at the cloudformation template synthesized from the above command (note that the command will fail if docker is not running)</li>
+</ol>
+<div class="highlight"><pre><span></span><code>sam<span class="w"> </span><span class="nb">local</span><span class="w"> </span>start-api<span class="w"> </span>-t<span class="w"> </span>cdk.out/&lt;your-stack&gt;.template.json
+</code></pre></div>
+<p>You will need to repeat the above steps every time you make a code change for them to be reflected in your local development server.</p>
+<p>See the <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-start-api.html">AWS SAM CLI Reference</a> for more information on the commands to run.</p>
+<p>Make sure you do not deploy your CDK stack with <code>type-safe-api-local</code> set to <code>true</code>, since this uses an inline API definition which bloats the CloudFormation template and can exceed the maximum template size depending on the size of your API.</p>
+<h5 id="limitations">Limitations</h5>
+<p>Note that there is currently a limitation with SAM CLI where it does not support mock integrations, which means that the development server will not respond to OPTIONS requests even if you specified <code>corsOptions: { ... }</code> in your <code>Api</code> construct. This is being tracked as a <a href="https://github.com/aws/aws-sam-cli/issues/4973">feature request here</a>.</p>
+<p>Note also that your API business logic may include operations which do not work locally, or may interact with real AWS resources depending on the AWS credentials you start your local development server with.</p>
 <h1 id="api-reference">API Reference <a name="API Reference" id="api-reference"></a></h1>
 <h2 id="constructs">Constructs <a name="Constructs" id="Constructs"></a></h2>
 <h3 id="typesaferestapi">TypeSafeRestApi <a name="TypeSafeRestApi" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi"></a></h3>
