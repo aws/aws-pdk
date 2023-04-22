@@ -115,7 +115,7 @@ const withTempSpec = <T>(
   }
 };
 
-describe("OpenAPI Gateway Rest Api Construct Unit Tests", () => {
+describe("Type Safe Rest Api Construct Unit Tests", () => {
   it("Synth", () => {
     const stack = new Stack(PDKNag.app());
     const func = new Function(stack, "Lambda", {
@@ -507,6 +507,29 @@ describe("OpenAPI Gateway Rest Api Construct Unit Tests", () => {
           ],
         },
       });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
+  it("Local Mode", () => {
+    const stack = new Stack();
+    stack.node.setContext("type-safe-api-local", "true");
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_18_X,
+    });
+    withTempSpec(sampleSpec, (specPath) => {
+      new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func),
+          },
+        },
+      });
+
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     });
   });

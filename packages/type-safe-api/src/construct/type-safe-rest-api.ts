@@ -316,10 +316,12 @@ export class TypeSafeRestApi extends Construct {
     // Create the api gateway resources from the spec, augmenting the spec with the properties specific to api gateway
     // such as integrations or auth types
     this.api = new SpecRestApi(this, id, {
-      apiDefinition: ApiDefinition.fromBucket(
-        inputSpecAsset.bucket,
-        prepareSpecCustomResource.getAttString("outputSpecKey")
-      ),
+      apiDefinition: this.node.tryGetContext("type-safe-api-local")
+        ? ApiDefinition.fromInline(preparedSpec)
+        : ApiDefinition.fromBucket(
+            inputSpecAsset.bucket,
+            prepareSpecCustomResource.getAttString("outputSpecKey")
+          ),
       deployOptions: {
         accessLogDestination: new LogGroupLogDestination(
           new LogGroup(this, `AccessLogs`)
