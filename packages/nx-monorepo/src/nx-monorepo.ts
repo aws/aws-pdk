@@ -620,8 +620,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       id: dependee.name,
       url: `file://${path.join(
         path.relative(dependent.outdir, dependee.outdir),
-        "dist",
-        "java"
+        dependee.packaging.distdir
       )}`,
     });
   }
