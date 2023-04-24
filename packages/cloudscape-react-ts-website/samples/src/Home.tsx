@@ -3,7 +3,6 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Container, Header, SpaceBetween } from '@cloudscape-design/components';
 import { useContext, useEffect } from 'react';
 import { AppLayoutContext } from './App';
-import { RuntimeConfigContext } from './Auth';
 
 /**
  * Component to render the home "/" route.
@@ -19,11 +18,8 @@ const Home: React.FC = () => {
 
   return (
     <SpaceBetween size="l">
-      <Container header={<Header variant={'h3'}>Runtime Config</Header>}>
-        <RuntimeConfigContext.Consumer>
-          { /* Reference runtimeConfig like so */ }
-          {({ runtimeContext }) => <pre>{JSON.stringify(runtimeContext, null, 2)}</pre>}
-        </RuntimeConfigContext.Consumer>
+      <Container header={<Header variant={'h3'}>Home</Header>}>
+        Hello!
       </Container>
     </SpaceBetween>
   );

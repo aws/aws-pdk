@@ -47,20 +47,24 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
           .readFileSync(path.resolve(__dirname, "../README.md"))
           .toString(),
       },
+      rewire: {
+        externals: {
+          "@aws-sdk/credential-provider-node": "{ defaultProvider: () => {} }",
+        },
+      },
       gitignore: ["runtime-config.json"],
     });
 
-    this.addDevDeps("@babel/plugin-proposal-private-property-in-object");
     this.addDeps(
-      "@cloudscape-design/global-styles",
+      "@aws-northstar/ui",
       "@cloudscape-design/components",
-      "@cloudscape-design/collection-hooks",
+      "@cloudscape-design/global-styles",
       "react-router-dom",
-      "aws-amplify",
-      "@aws-amplify/auth",
-      "@aws-amplify/core",
-      "@aws-amplify/ui-react",
-      "aws4fetch"
+      "amazon-cognito-identity-js",
+      "@aws-sdk/client-cognito-identity",
+      "@aws-sdk/credential-provider-cognito-identity",
+      "@aws-sdk/types",
+      "aws-sigv4-fetch"
     );
 
     this.testTask.reset();

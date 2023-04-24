@@ -46,20 +46,24 @@ class CloudscapeReactTsSampleWebsiteProject extends ReactTypeScriptProject {
       depsUpgrade: false,
       name: "@aws-prototyping-sdk/cloudscape-react-ts-sample-website",
       sampleCode: false,
+      rewire: {
+        externals: {
+          "@aws-sdk/credential-provider-node": "{ defaultProvider: () => {} }",
+        },
+      },
       jestOptions: {
         jestVersion: JEST_VERSION,
       },
-      devDeps: ["@babel/plugin-proposal-private-property-in-object"],
       deps: [
-        "@cloudscape-design/global-styles",
+        "@aws-northstar/ui",
         "@cloudscape-design/components",
-        "@cloudscape-design/collection-hooks",
+        "@cloudscape-design/global-styles",
         "react-router-dom",
-        "@aws-amplify/core",
-        "@aws-amplify/auth",
-        "aws-amplify",
-        "@aws-amplify/ui-react",
-        "aws4fetch",
+        "amazon-cognito-identity-js",
+        "@aws-sdk/client-cognito-identity",
+        "@aws-sdk/credential-provider-cognito-identity",
+        "@aws-sdk/types",
+        "aws-sigv4-fetch",
       ],
       gitignore: ["runtime-config.json"],
     });
