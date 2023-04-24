@@ -67,7 +67,7 @@ export function buildExecutableCommand(
   switch (packageManager) {
     case NodePackageManager.YARN:
     case NodePackageManager.YARN2:
-      return `yarn run ${argLiteral}`;
+      return `yarn exec ${argLiteral}`;
     case NodePackageManager.PNPM:
       return `pnpm exec ${argLiteral}`;
     default:
