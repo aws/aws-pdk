@@ -177,7 +177,7 @@ export class StaticWebsite extends Construct {
         removalPolicy: RemovalPolicy.DESTROY,
         encryption:
           props.defaultWebsiteBucketEncryption ?? BucketEncryption.S3_MANAGED,
-        objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
+        objectOwnership: ObjectOwnership.BUCKET_OWNER_PREFERRED,
         encryptionKey: props.defaultWebsiteBucketEncryptionKey,
         publicReadAccess: false,
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
