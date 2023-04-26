@@ -8,7 +8,7 @@ const execa = require("execa");
 /*
 This script links (or unlinks) CDK modules and workspace packages in yarn global via `yarn link`.
 
-This enables using local development version of aws-prototyping-sdk during development
+This enables using local development version of @aws-prototyping-sdk/* during development
 of other projects outside of this workspace.
 
 By passing `unlink` as first arg it will unlink, otherwise will link.

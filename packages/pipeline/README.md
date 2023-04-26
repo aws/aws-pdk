@@ -7,11 +7,11 @@ The pipeline module vends an extension to CDK's CodePipeline construct, named PD
 The architecture for the PDKPipeline is as follows:
 
 ```
-CodeCommit repository -> CodePipeline 
+CodeCommit repository -> CodePipeline
                              |-> EventBridge Rule (On Build Succeded) -> CodeBuild (Sonar Scan)
                              |-> Secret (sonarqube token)
 ```
-                            
+
 This module additionally vends multiple Projen Projects, one for each of the supported languages. These projects aim to bootstrap your project by providing sample code which uses the PDKPipeline construct.
 
 For example, in .projenrc.ts:
@@ -31,17 +31,17 @@ Alternatively, you can initialize a project using the cli (in an empty directory
 
 ```bash
 # Typescript
-npx projen new --from aws-prototyping-sdk pdk-pipeline-ts
+npx projen new --from @aws-prototyping-sdk/pdk-pipeline-ts
 ```
 
 ```bash
 # Python
-npx projen new --from aws-prototyping-sdk pdk-pipeline-py
+npx projen new --from @aws-prototyping-sdk/pdk-pipeline-py
 ```
 
 ```bash
 # Java
-npx projen new --from aws-prototyping-sdk pdk-pipeline-java
+npx projen new --from @aws-prototyping-sdk/pdk-pipeline-java
 ```
 
 ### CDK Nag
