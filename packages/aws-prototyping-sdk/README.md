@@ -1,3 +1,5 @@
+> **DEPRECATION NOTICE:** The `aws-prototyping-sdk` is on path to deprecation. This package is simply a wrapper around the individual `@aws-prototyping-skd/*` packages and has no unique code aside from bundling the other packages. Due to lack of significant value compared to maintenance overhead, this package will be deprecated soon in favor of using the individual packages directly. Please use the individual packages starting now to prevent future migration and loss of update capabilities.
+
 The aws-prototyping-sdk provides stable CDK and Projen constructs, allowing developers to have access to higher level abstractions than provided by the CDK or Projen alone.
 
 For detailed documentation, please refer to the [documentation website](https://aws.github.io/aws-prototyping-sdk/).

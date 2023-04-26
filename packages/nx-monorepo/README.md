@@ -8,7 +8,7 @@ The PDK itself uses the nx-monorepo project itself and is a good reference for s
 To get started simply run the following command in an empty directory:
 
 ```bash
-npx projen new --from aws-prototyping-sdk nx-monorepo
+npx projen new --from @aws-prototyping-sdk/nx-monorepo
 ```
 
 This will bootstrap a new Projen monorepo and contain the following in the .projenrc.ts:
