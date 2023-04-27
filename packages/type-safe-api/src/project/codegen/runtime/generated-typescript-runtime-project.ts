@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { NodePackageManager, NpmConfig } from "projen/lib/javascript";
+import { NodePackageManager } from "projen/lib/javascript";
 import {
   TypeScriptProject,
   TypeScriptProjectOptions,
@@ -43,11 +43,6 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
   ];
 
   /**
-   * A reference to the npm config (generated for PNPM projects)
-   */
-  public readonly npmConfig?: NpmConfig;
-
-  /**
    * Path to the openapi specification
    * @private
    */
@@ -84,8 +79,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     // Disable strict peer dependencies for pnpm as the default typescript project dependencies have type mismatches
     // (ts-jest@27 and @types/jest@28)
     if (this.package.packageManager === NodePackageManager.PNPM) {
-      this.npmConfig = new NpmConfig(this);
-      this.npmConfig.addConfig("strict-peer-dependencies", "false");
+      this.npmrc.addConfig("strict-peer-dependencies", "false");
     }
 
     // For event and context types

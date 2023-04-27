@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import path from "path";
-import { Project, IniFile } from "projen";
+import { Project } from "projen";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import {
   NxMonorepoProject,
@@ -172,9 +172,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       ".pnp.loader.cjs"
     );
 
-    const npmrc = new IniFile(this, ".npmrc", {});
-    // add local `.npmrc` to automatically avoid build hangs if npx is prompting to install a package
-    npmrc.addOverride("yes", true);
+    // add to local `.npmrc` to automatically avoid build hangs if npx is prompting to install a package
+    this.npmrc.addConfig("yes", "true");
 
     resolveDependencies(this);
 
