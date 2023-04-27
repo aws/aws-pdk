@@ -67,7 +67,7 @@ export function buildExecutableCommand(
   switch (packageManager) {
     case NodePackageManager.YARN:
     case NodePackageManager.YARN2:
-      return `yarn exec ${argLiteral}`;
+      return `yarn ${argLiteral}`;
     case NodePackageManager.PNPM:
       return `pnpm exec ${argLiteral}`;
     default:
@@ -740,7 +740,7 @@ export class NxMonorepoProject extends TypeScriptProject {
           // Create a symlink in the sub-project node_modules for all transitive deps
           // before running "package" task
           subProject.packageTask.prependExec(
-            `pdk@pnpm-link-bundled-transitive-deps ${pkgFolder}`
+            `pdk-pnpm-link-bundled-transitive-deps ${pkgFolder}`
           );
         }
       });
