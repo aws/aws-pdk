@@ -377,7 +377,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       });
     }
 
-    this.addDevDeps("nx", "@nrwl/cli", "@nrwl/workspace");
+    this.addPeerDeps("nx@^16");
     this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in aws-prototyping-sdk
     this.package.addPackageResolutions("@types/babel__traverse@7.18.2");
 
@@ -416,8 +416,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       });
     }
 
-    options.nxConfig?.nxCloudReadOnlyAccessToken &&
-      this.addDevDeps("@nrwl/nx-cloud");
+    options.nxConfig?.nxCloudReadOnlyAccessToken && this.addDevDeps("nx-cloud");
 
     new IgnoreFile(this, ".nxignore").exclude(
       "test-reports",
@@ -429,13 +428,13 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     this.nxJson = new JsonFile(this, "nx.json", {
       obj: {
-        extends: "@nrwl/workspace/presets/npm.json",
+        extends: "nx/presets/npm.json",
         npmScope: "monorepo",
         tasksRunnerOptions: {
           default: {
             runner: options.nxConfig?.nxCloudReadOnlyAccessToken
-              ? "@nrwl/nx-cloud"
-              : "@nrwl/workspace/tasks-runners/default",
+              ? "nx-cloud"
+              : "nx/tasks-runners/default",
             options: {
               useDaemonProcess: false,
               cacheableOperations: options.nxConfig?.cacheableOperations || [
@@ -451,15 +450,11 @@ export class NxMonorepoProject extends TypeScriptProject {
           default: ["{projectRoot}/**/*"],
           ...options.nxConfig?.namedInputs,
         },
-        targetDefaults: options.nxConfig?.targetDefaults,
-        targetDependencies: {
-          build: [
-            {
-              target: "build",
-              projects: "dependencies",
-            },
-          ],
-          ...(this.nxConfig?.targetDependencies || {}),
+        targetDefaults: {
+          build: {
+            dependsOn: ["^build"],
+          },
+          ...this.nxConfig?.targetDefaults,
         },
         affected: {
           defaultBase: this.nxConfig?.affectedBranch || "mainline",
@@ -764,6 +759,8 @@ export class NxMonorepoProject extends TypeScriptProject {
         subProjectPackages.push(subNodeProject.package);
         // @ts-ignore - `installDependencies` is private
         subNodeProject.package.installDependencies = () => {};
+        // @ts-ignore - `resolveDepsAndWritePackageJson` is private
+        subNodeProject.package.resolveDepsAndWritePackageJson = () => {};
       }
     });
 
@@ -776,8 +773,13 @@ export class NxMonorepoProject extends TypeScriptProject {
       // @ts-ignore - `file` is private
       subProjectPackages.find((pkg) => (pkg.file as JsonFile).changed === true)
     ) {
-      // @ts-ignore - `installDependencies` is private
-      this.package.installDependencies();
+      try {
+        // @ts-ignore - `installDependencies` is private
+        this.package.installDependencies();
+      } finally {
+        // @ts-ignore - `resolveDepsAndWritePackageJson` is private
+        this.package.resolveDepsAndWritePackageJson();
+      }
     }
   }
 
@@ -865,12 +867,9 @@ export class NxMonorepoProject extends TypeScriptProject {
       );
 
       // Update the nx.json to ensure that install-py follows dependency order
-      this.nxJson.addOverride("targetDependencies.install", [
-        {
-          target: "install",
-          projects: "dependencies",
-        },
-      ]);
+      this.nxJson.addOverride("targetDefaults.install", {
+        dependsOn: ["^install"],
+      });
     }
   }
 }

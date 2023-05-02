@@ -20,7 +20,6 @@ export class NXMonorepoProject extends PDKProject {
       devDeps: ["projen", "nx", "@types/fs-extra", "@types/semver"],
       peerDeps: ["projen"],
       bundledDeps: [
-        "@nrwl/devkit",
         "fs-extra",
         "semver",
         "@pnpm/reviewing.dependencies-hierarchy",

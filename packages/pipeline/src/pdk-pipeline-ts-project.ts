@@ -31,18 +31,36 @@ export class PDKPipelineTsProject extends AwsCdkTypeScriptApp {
       appEntrypoint: options.appEntrypoint || "pipeline.ts",
     });
 
-    this.addDeps("aws-prototyping-sdk", "cdk-nag");
+    this.addDeps(
+      "@aws-prototyping-sdk/pipeline",
+      "@aws-prototyping-sdk/pdk-nag",
+      "cdk-nag"
+    );
 
     // AwsCdkTypeScriptApp removes ts compilation - add back to err on the side of caution should infrastructure
     // include NodejsFunctions that won't be type-checked during CDK synthesis
     this.compileTask.reset("tsc --build");
 
     new SampleDir(this, this.srcdir, {
-      sourceDir: path.join(__dirname, "..", "samples", "typescript", "src"),
+      sourceDir: path.join(
+        __dirname,
+        "..",
+        "samples",
+        "pipeline",
+        "typescript",
+        "src"
+      ),
     });
 
     new SampleDir(this, this.testdir, {
-      sourceDir: path.join(__dirname, "..", "samples", "typescript", "test"),
+      sourceDir: path.join(
+        __dirname,
+        "..",
+        "samples",
+        "pipeline",
+        "typescript",
+        "test"
+      ),
     });
   }
 }

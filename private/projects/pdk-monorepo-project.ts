@@ -90,7 +90,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       monorepoUpgradeDepsOptions: {
         syncpackConfig: { ...DEFAULT_CONFIG, workspace: false },
       },
-      deps: ["fast-xml-parser", "projen", "@pnpm/types"],
+      deps: ["fast-xml-parser", "projen", "@pnpm/types@^9.0.0"],
       nxConfig: {
         // This is OK to be stored given its read only and the repository is public
         nxCloudReadOnlyAccessToken:
