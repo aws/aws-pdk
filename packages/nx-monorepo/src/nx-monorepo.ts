@@ -740,6 +740,13 @@ export class NxMonorepoProject extends TypeScriptProject {
         }
       });
     }
+
+    // Remove any subproject .npmrc files since only the root one matters
+    this.subProjects.forEach((subProject) => {
+      if (isNodeProject(subProject)) {
+        subProject.tryRemoveFile(".npmrc");
+      }
+    });
   }
 
   /**
