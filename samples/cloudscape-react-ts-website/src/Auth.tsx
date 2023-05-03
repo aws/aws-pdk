@@ -1,7 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { CognitoAuth } from '@aws-northstar/ui';
-import React, { createContext, useCallback, useEffect, useState } from 'react';
+import ErrorMessage from '@aws-northstar/ui/components/CognitoAuth/components/ErrorMessage';
+import React, { createContext, useEffect, useState } from 'react';
 import Config from './config.json';
 
 export interface RuntimeContext {
@@ -24,6 +25,7 @@ export const RuntimeConfigContext = createContext<RuntimeContext | undefined>(un
  */
 const Auth: React.FC<any> = ({ children }) => {
   const [runtimeContext, setRuntimeContext] = useState<RuntimeContext | undefined>();
+  const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
     fetch('/runtime-config.json')
@@ -37,38 +39,31 @@ const Auth: React.FC<any> = ({ children }) => {
             runtimeCtx.identityPoolId) {
           setRuntimeContext(runtimeCtx as RuntimeContext);
         } else {
-          console.warn('runtime-config.json should have region, userPoolId, userPoolWebClientId & identityPoolId.');
+          setError('runtime-config.json should have region, userPoolId, userPoolWebClientId & identityPoolId.');
         }
       })
       .catch(() => {
-        console.log('No runtime-config.json detected');
-        setRuntimeContext(undefined);
+        setError('No runtime-config.json detected');
       });
   }, [setRuntimeContext]);
 
-  const AuthWrapper: React.FC<any> = useCallback(({ children: _children }) => (runtimeContext?.userPoolId && runtimeContext?.userPoolWebClientId) ?
-    <CognitoAuth
-      header={Config.applicationName}
-      userPoolId={runtimeContext.userPoolId}
-      clientId={runtimeContext.userPoolWebClientId}
-      region={runtimeContext.region}
-      identityPoolId={runtimeContext.identityPoolId}
-    >
-      {_children}
-    </CognitoAuth> :
-    <>
-      {
-        runtimeContext ?
-          _children : <></> // Don't render anything if the context has not finalized
-      }
-    </>, [runtimeContext]);
+  if (error) {
+    return <ErrorMessage>{error}</ErrorMessage>;
+  }
 
   return (
-    <AuthWrapper>
-      <RuntimeConfigContext.Provider value={runtimeContext}>
-        {children}
-      </RuntimeConfigContext.Provider>
-    </AuthWrapper>
+    (runtimeContext?.userPoolId && runtimeContext?.userPoolWebClientId) ?
+      <CognitoAuth
+        header={Config.applicationName}
+        userPoolId={runtimeContext.userPoolId}
+        clientId={runtimeContext.userPoolWebClientId}
+        region={runtimeContext.region}
+        identityPoolId={runtimeContext.identityPoolId}
+      >
+        <RuntimeConfigContext.Provider value={runtimeContext}>
+          {children}
+        </RuntimeConfigContext.Provider>
+      </CognitoAuth> : <></>
   );
 };
 

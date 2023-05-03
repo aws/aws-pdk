@@ -56,7 +56,7 @@ const App: React.FC = () => {
         {
           NAVIGATION_ITEMS
             .filter(item => item.type === 'link')
-            .map(item => <Route path={item.type === 'link' ? item.href : ''} element={item.element} />)}
+            .map((item, idx) => <Route key={idx} path={item.type === 'link' ? item.href : ''} element={item.element} />)}
       </Routes>
     </AppLayout>
   );

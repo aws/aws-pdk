@@ -139,7 +139,7 @@ export class StaticWebsite extends Construct {
       autoDeleteObjects: true,
       removalPolicy: RemovalPolicy.DESTROY,
       encryption: BucketEncryption.S3_MANAGED,
-      objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
+      objectOwnership: ObjectOwnership.OBJECT_WRITER,
       publicReadAccess: false,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
     });
