@@ -29,6 +29,12 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
     });
 
     this.sampleProject = new CloudscapeReactTsSampleWebsiteProject(parent);
+
+    this.addPackageIgnore("!samples");
+    this.addGitIgnore("samples");
+    this.preCompileTask.exec(
+      'rm -rf samples && rsync -a ../../samples/cloudscape-react-ts-website/* ./samples --include="*/" --include="public/**" --include="src/**" --exclude="*" --prune-empty-dirs'
+    );
   }
 }
 
@@ -41,29 +47,18 @@ class CloudscapeReactTsSampleWebsiteProject extends ReactTypeScriptProject {
       parent,
       packageManager: NodePackageManager.PNPM,
       projenCommand: buildExecutableCommand(NodePackageManager.PNPM, "projen"),
-      outdir: "packages/cloudscape-react-ts-website/samples",
+      outdir: "samples/cloudscape-react-ts-website",
       defaultReleaseBranch: "mainline",
       depsUpgrade: false,
       name: "@aws-prototyping-sdk/cloudscape-react-ts-sample-website",
       sampleCode: false,
-      rewire: {
-        externals: {
-          "@aws-sdk/credential-provider-node": "{ defaultProvider: () => {} }",
-        },
-      },
       jestOptions: {
         jestVersion: JEST_VERSION,
       },
       deps: [
         "@aws-northstar/ui",
         "@cloudscape-design/components",
-        "@cloudscape-design/global-styles",
         "react-router-dom",
-        "amazon-cognito-identity-js",
-        "@aws-sdk/client-cognito-identity",
-        "@aws-sdk/credential-provider-cognito-identity",
-        "@aws-sdk/types",
-        "aws-sigv4-fetch",
       ],
       gitignore: ["runtime-config.json"],
     });

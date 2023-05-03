@@ -20,7 +20,6 @@ export class NXMonorepoProject extends PDKProject {
       devDeps: ["projen", "nx", "@types/fs-extra", "@types/semver"],
       peerDeps: ["projen"],
       bundledDeps: [
-        "@nrwl/devkit",
         "fs-extra",
         "semver",
         "@pnpm/reviewing.dependencies-hierarchy",
@@ -32,10 +31,10 @@ export class NXMonorepoProject extends PDKProject {
       'rsync -a ./src/** ./lib --include="*/" --include="**/*.js" --exclude="*" --prune-empty-dirs'
     );
 
-    this.package.addBin({ "pdk@nx-dir-hasher": "./scripts/nx-dir-hasher.js" });
+    this.package.addBin({ "pdk-nx-dir-hasher": "./scripts/nx-dir-hasher.js" });
 
     this.package.addBin({
-      "pdk@pnpm-link-bundled-transitive-deps":
+      "pdk-pnpm-link-bundled-transitive-deps":
         "./scripts/pnpm/link-bundled-transitive-deps.ts",
     });
   }
