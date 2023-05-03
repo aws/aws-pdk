@@ -129,10 +129,12 @@ export abstract class PDKProject extends JsiiProject {
 
     if (
       !this.name.match(
-        /^(@aws-prototyping-sdk\/[a-z-]+(?<!-)|aws-prototyping-sdk)$/
+        /^(@aws-prototyping-sdk\/[a-z0-9-]+(?<!-)|aws-prototyping-sdk)$/
       )
     ) {
-      throw new Error("name should be lowercase and include optional hyphens.");
+      throw new Error(
+        "name should be lowercase and include letters, and optional numbers or hyphens."
+      );
     }
 
     if (!this.parent) {

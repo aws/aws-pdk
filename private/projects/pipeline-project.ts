@@ -33,10 +33,17 @@ export class PipelineProject extends PDKProject {
       stability: Stability.STABLE,
     });
 
+    this.addPackageIgnore("!samples");
+    this.addGitIgnore("samples");
+
     this._samples.push(
       new PipelineTypescriptSampleProject(parent),
       new PipelinePythonSampleProject(parent),
       new PipelineJavaSampleProject(parent)
+    );
+
+    this.preCompileTask.exec(
+      'rm -rf samples && rsync -a ../../samples . --include="*/" --include="pipeline/typescript/src/**" --include="pipeline/typescript/test/**"  --include="pipeline/python/infra/*.py" --include="pipeline/python/tests/*.py" --include="pipeline/java/src/**" --exclude="*" --prune-empty-dirs'
     );
   }
 
@@ -54,7 +61,7 @@ export class PipelineTypescriptSampleProject extends TypeScriptProject {
       parent,
       packageManager: NodePackageManager.PNPM,
       projenCommand: buildExecutableCommand(NodePackageManager.PNPM, "projen"),
-      outdir: "packages/pipeline/samples/typescript",
+      outdir: "samples/pipeline/typescript",
       defaultReleaseBranch: "mainline",
       npmignoreEnabled: false,
       name: "pipeline-sample-ts",
@@ -63,7 +70,12 @@ export class PipelineTypescriptSampleProject extends TypeScriptProject {
       jestOptions: {
         jestVersion: JEST_VERSION,
       },
-      deps: ["aws-cdk-lib", "constructs", "aws-prototyping-sdk@0.0.0"],
+      deps: [
+        "aws-cdk-lib",
+        "constructs",
+        "@aws-prototyping-sdk/pipeline@0.0.0",
+        "@aws-prototyping-sdk/pdk-nag@0.0.0",
+      ],
     });
 
     this.package.addField("private", true);
@@ -80,7 +92,7 @@ export class PipelinePythonSampleProject extends PythonProject {
   constructor(parent: Project) {
     super({
       parent,
-      outdir: "packages/pipeline/samples/python",
+      outdir: "samples/pipeline/python",
       authorEmail: "",
       authorName: "",
       moduleName: "infra",
@@ -92,7 +104,8 @@ export class PipelinePythonSampleProject extends PythonProject {
         "aws-cdk-lib",
         "constructs",
         "pyhumps",
-        "../../../aws-prototyping-sdk/dist/python/aws_prototyping_sdk-0.0.0-py3-none-any.whl",
+        "../../../packages/pipeline/dist/python/aws_prototyping_sdk.pipeline-0.0.0-py3-none-any.whl",
+        "../../../packages/pdk-nag/dist/python/aws_prototyping_sdk.pdk_nag-0.0.0-py3-none-any.whl",
       ],
     });
 
@@ -118,7 +131,7 @@ export class PipelineJavaSampleProject extends JavaProject {
   constructor(parent: Project) {
     super({
       parent,
-      outdir: "packages/pipeline/samples/java",
+      outdir: "samples/pipeline/java",
       artifactId: "pipeline-sample-java",
       groupId: "pipeline.sample",
       name: "pipeline-sample-java",
@@ -143,12 +156,20 @@ export class PipelineJavaSampleProject extends JavaProject {
       pom.project.dependencies.dependency = [
         ...pom.project.dependencies.dependency,
         {
-          groupId: "software.aws.awsprototypingsdk",
-          artifactId: "aws-prototyping-sdk",
+          groupId: "software.aws.awsprototypingsdk.pipeline",
+          artifactId: "pipeline",
           version: "0.0.0",
           scope: "system",
           systemPath:
-            "${basedir}/../../../aws-prototyping-sdk/dist/java/software/aws/awsprototypingsdk/aws-prototyping-sdk/0.0.0/aws-prototyping-sdk-0.0.0.jar",
+            "${basedir}/../../../packages/pipeline/dist/java/software/aws/awsprototypingsdk/pipeline/0.0.0/pipeline-0.0.0.jar",
+        },
+        {
+          groupId: "software.aws.awsprototypingsdk",
+          artifactId: "pdk-nag",
+          version: "0.0.0",
+          scope: "system",
+          systemPath:
+            "${basedir}/../../../packages/pdk-nag/dist/java/software/aws/awsprototypingsdk/pdk-nag/0.0.0/pdk-nag-0.0.0.jar",
         },
       ];
 

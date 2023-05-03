@@ -2,7 +2,6 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { PDKProject } from "./private/pdk-project";
 import { AwsArchProject } from "./private/projects/aws-arch";
-import { AwsPrototypingSdkProject } from "./private/projects/aws-prototyping-sdk-project";
 import { CdkGraphProject } from "./private/projects/cdk-graph";
 import { CdkGraphPluginDiagramProject } from "./private/projects/cdk-graph-plugin-diagram";
 import { CloudscapeReactTsWebsiteProject } from "./private/projects/cloudscape-react-ts-website";
@@ -19,15 +18,10 @@ import { TypeSafeApiProject } from "./private/projects/type-safe-api-project";
 // root/parent project
 const monorepoProject = new PDKMonorepoProject();
 
-// docs
-const docsProject = new DocsProject(monorepoProject);
-
-const pdkNagProject = new PDKNagProject(monorepoProject);
+new PDKNagProject(monorepoProject);
 
 // public packages
-const nxMonorepoProject = new NXMonorepoProject(monorepoProject);
-const pipelineProject = new PipelineProject(monorepoProject);
-const awsPrototypingSdkProject = new AwsPrototypingSdkProject(monorepoProject);
+new NXMonorepoProject(monorepoProject);
 new StaticWebsiteProject(monorepoProject);
 new IdentityProject(monorepoProject);
 new OpenApiGatewayProject(monorepoProject);
@@ -36,25 +30,19 @@ new CloudscapeReactTsWebsiteProject(monorepoProject);
 new AwsArchProject(monorepoProject);
 new CdkGraphProject(monorepoProject);
 new CdkGraphPluginDiagramProject(monorepoProject);
+const pipelineProject = new PipelineProject(monorepoProject);
+
+// docs
+const docsProject = new DocsProject(monorepoProject);
 
 // implicit dependencies
 pipelineProject.samples.forEach((sample) =>
-  monorepoProject.addImplicitDependency(sample, awsPrototypingSdkProject)
+  monorepoProject.addImplicitDependency(sample, pipelineProject)
 );
 
 // Docs should have a dependency on all publishable packages
 monorepoProject.subProjects
   .filter((s: any) => s instanceof PDKProject && s.pdkRelease)
   .forEach((p) => monorepoProject.addImplicitDependency(docsProject, p));
-
-monorepoProject.addImplicitDependency(awsPrototypingSdkProject, pdkNagProject);
-monorepoProject.addImplicitDependency(
-  awsPrototypingSdkProject,
-  pipelineProject
-);
-monorepoProject.addImplicitDependency(
-  awsPrototypingSdkProject,
-  nxMonorepoProject
-);
 
 monorepoProject.synth();
