@@ -27,14 +27,24 @@ export class PDKPipelinePyProject extends AwsCdkPythonApp {
         options.appEntrypoint || `${options.moduleName}/pipeline.py`,
     });
 
-    ["aws_prototyping_sdk", "cdk-nag", "pyhumps"].forEach((dep) =>
-      this.addDependency(dep)
-    );
+    [
+      "aws-prototyping-sdk.pipeline",
+      "aws-prototyping-sdk.pdk-nag",
+      "cdk-nag",
+      "pyhumps",
+    ].forEach((dep) => this.addDependency(dep));
 
     this.addDevDependency("pytest");
 
     new SampleDir(this, this.moduleName, {
-      sourceDir: path.join(__dirname, "..", "samples", "python", "infra"),
+      sourceDir: path.join(
+        __dirname,
+        "..",
+        "samples",
+        "pipeline",
+        "python",
+        "infra"
+      ),
     });
 
     this.pytest = new Pytest(this, options.pytestOptions);
@@ -48,6 +58,7 @@ export class PDKPipelinePyProject extends AwsCdkPythonApp {
               __dirname,
               "..",
               "samples",
+              "pipeline",
               "python",
               "tests",
               "test_pipeline.py"

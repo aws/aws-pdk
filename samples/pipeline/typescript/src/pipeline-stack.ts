@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { PDKPipeline } from '@aws-prototyping-sdk/pipeline';
 import { Stack, StackProps } from 'aws-cdk-lib';
-import { PDKPipeline } from 'aws-prototyping-sdk/pipeline';
 import { Construct } from 'constructs';
 
 export class PipelineStack extends Stack {

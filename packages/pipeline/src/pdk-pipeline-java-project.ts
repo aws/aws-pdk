@@ -26,7 +26,8 @@ export class PDKPipelineJavaProject extends AwsCdkJavaApp {
           : 'software.aws.Pipeline -Dexec.classpathScope="test"',
     });
 
-    this.addDependency("software.aws.awsprototypingsdk/aws-prototyping-sdk@^0");
+    this.addDependency("software.aws.awsprototypingsdk/pipeline@^0");
+    this.addDependency("software.aws.awsprototypingsdk/pdk-nag@^0");
     this.addDependency("io.github.cdklabs/cdknag@^2");
 
     this.testTask.exec("mvn test");
@@ -46,6 +47,7 @@ export class PDKPipelineJavaProject extends AwsCdkJavaApp {
           __dirname,
           "..",
           "samples",
+          "pipeline",
           "java",
           "src",
           "main",
@@ -63,6 +65,7 @@ export class PDKPipelineJavaProject extends AwsCdkJavaApp {
           __dirname,
           "..",
           "samples",
+          "pipeline",
           "java",
           "src",
           "test",
