@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { Language } from "../../languages";
+import { Language, Library } from "../../languages";
 
 /**
  * Enum for generator directories for non-client generators
@@ -13,7 +13,10 @@ export enum NonClientGeneratorDirectory {
 /**
  * Generator directory for openapi generation containing templates, config etc.
  */
-export type GeneratorDirectory = Language | NonClientGeneratorDirectory;
+export type GeneratorDirectory =
+  | Language
+  | NonClientGeneratorDirectory
+  | Library;
 
 /**
  * Types of normalizers supported by openapi-generator

@@ -11,15 +11,18 @@ import {
   generateRuntimeProjects,
   generateDocsProjects,
   generateInfraProject,
+  generateLibraryProjects,
 } from "./codegen/generate";
 import { GeneratedJavaRuntimeProject } from "./codegen/runtime/generated-java-runtime-project";
 import { GeneratedPythonRuntimeProject } from "./codegen/runtime/generated-python-runtime-project";
 import { GeneratedTypescriptRuntimeProject } from "./codegen/runtime/generated-typescript-runtime-project";
-import { DocumentationFormat, Language } from "./languages";
+import { DocumentationFormat, Language, Library } from "./languages";
 import { TypeSafeApiModelProject } from "./model/type-safe-api-model-project";
 import {
   GeneratedCodeOptions,
   GeneratedCodeProjects,
+  GeneratedLibraryOptions,
+  GeneratedLibraryProjects,
   ModelLanguage,
   ModelOptions,
 } from "./types";
@@ -78,6 +81,20 @@ export interface DocumentationConfiguration {
 }
 
 /**
+ * Configuration for generated libraries
+ */
+export interface LibraryConfiguration {
+  /**
+   * The library to generate
+   */
+  readonly libraries: Library[];
+  /**
+   * Options for the generated library package. Note that only options for the specified libraries will apply
+   */
+  readonly options?: GeneratedLibraryOptions;
+}
+
+/**
  * Options for the TypeSafeApiProject
  */
 export interface TypeSafeApiProjectOptions extends ProjectOptions {
@@ -97,6 +114,11 @@ export interface TypeSafeApiProjectOptions extends ProjectOptions {
    * Configuration for generated documentation
    */
   readonly documentation?: DocumentationConfiguration;
+  /**
+   * Configuration for generated libraries. Libraries are projects which are generated from your model, but are not
+   * fully-fledged runtimes, for example react hooks or clients in languages that aren't supported as runtimes.
+   */
+  readonly library?: LibraryConfiguration;
 }
 
 /**
@@ -120,6 +142,10 @@ export class TypeSafeApiProject extends Project {
    * Generated infrastructure projects. Only the property corresponding to `infrastructure.language` will be defined.
    */
   public readonly infrastructure: GeneratedCodeProjects;
+  /**
+   * Generated library projects. Only the properties corresponding to specified `library.libraries` will be defined.
+   */
+  public readonly library: GeneratedLibraryProjects;
 
   constructor(options: TypeSafeApiProjectOptions) {
     super(options);
@@ -208,11 +234,42 @@ export class TypeSafeApiProject extends Project {
       ),
     });
 
-    // Ensure the generated runtime and docs projects have a dependency on the model project
+    const libraries = [...new Set(options.library?.libraries ?? [])];
+
+    const libraryDir = "libraries";
+    const libraryDirRelativeToParent = parentMonorepo
+      ? path.join(options.outdir!, libraryDir)
+      : libraryDir;
+
+    // Declare the generated runtime projects
+    const generatedLibraryProjects = generateLibraryProjects(libraries, {
+      parent: parentMonorepo ?? this,
+      parentPackageName: this.name,
+      generatedCodeDir: libraryDirRelativeToParent,
+      isWithinMonorepo: !!parentMonorepo,
+      // Spec path relative to each generated client dir
+      parsedSpecPath: path.join(
+        "..",
+        "..",
+        parsedSpecPathRelativeToProjectRoot
+      ),
+      typescriptReactQueryHooksOptions: {
+        // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
+        defaultReleaseBranch:
+          parentMonorepo?.release?.branches?.[0] ?? "mainline",
+        packageManager: parentMonorepo
+          ? parentMonorepo.package.packageManager
+          : NodePackageManager.YARN,
+        ...options.runtime.options?.typescript,
+      },
+    });
+
+    // Ensure the generated runtime, libraries and docs projects have a dependency on the model project
     if (parentMonorepo) {
       [
         ...Object.values(generatedRuntimeProjects),
         ...Object.values(generatedDocs),
+        ...Object.values(generatedLibraryProjects),
       ].forEach((project) => {
         parentMonorepo.addImplicitDependency(project, this.model);
       });
@@ -227,6 +284,16 @@ export class TypeSafeApiProject extends Project {
         : undefined,
       python: generatedRuntimeProjects[Language.PYTHON]
         ? (generatedRuntimeProjects[Language.PYTHON] as PythonProject)
+        : undefined,
+    };
+
+    this.library = {
+      typescriptReactQueryHooks: generatedLibraryProjects[
+        Library.TYPESCRIPT_REACT_QUERY_HOOKS
+      ]
+        ? (generatedLibraryProjects[
+            Library.TYPESCRIPT_REACT_QUERY_HOOKS
+          ] as TypeScriptProject)
         : undefined,
     };
 
@@ -319,6 +386,7 @@ export class TypeSafeApiProject extends Project {
         this.model,
         ...Object.values(generatedRuntimeProjects),
         infraProject,
+        ...Object.values(generatedLibraryProjects),
         ...Object.values(generatedDocs),
       ].forEach((project) => {
         this.compileTask.exec("npx projen build", {

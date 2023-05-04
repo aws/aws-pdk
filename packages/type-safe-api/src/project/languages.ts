@@ -1,12 +1,19 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 /**
- * Supported languages for code generation
+ * Supported languages for runtimes and infrastructure
  */
 export enum Language {
   TYPESCRIPT = "typescript",
   PYTHON = "python",
   JAVA = "java",
+}
+
+/**
+ * Supported libraries for code generation
+ */
+export enum Library {
+  TYPESCRIPT_REACT_QUERY_HOOKS = "typescript-react-query-hooks",
 }
 
 /**
