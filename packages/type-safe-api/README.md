@@ -52,7 +52,11 @@ const api = new TypeSafeApiProject({
   // Generate HTML documentation
   documentation: {
     formats: [DocumentationFormat.HTML_REDOC],
-  }
+  },
+  // Generate react-query hooks to interact with the UI from a React website
+  library: {
+    libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+  },
 });
 
 // Create a CDK infrastructure project. Can also consider PDKPipelineTsProject as an alternative!
@@ -250,6 +254,8 @@ The `TypeSafeApiProject` will create the following directory structure within it
     |_ html_redoc
     |_ plantuml
     |_ markdown
+|_ library/ - generated libraries if specified
+    |_ typescript-react-query-hooks
 ```
 
 
@@ -1033,6 +1039,146 @@ public class SayHelloHandler extends SayHello {
                 .build());
     }
 }
+```
+
+### Libraries
+
+Libraries are generated code projects which are not fully-fledged runtime languages.
+
+#### TypeScript React Query Hooks
+
+This library contains generated [react-query](https://tanstack.com/query/latest) hooks for interacting with your API from a React website. You can generate these by adding the following options to your `TypeSafeApiProject` in your `.projenrc`:
+
+```ts
+new TypeSafeApiProject({
+  library: {
+    libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+  },
+  ...
+});
+```
+
+##### Usage in a React Website
+
+First, make sure you create an instance of the API client (making sure to set the base URL and fetch instance). For example:
+
+```ts
+export const useMyApiClient = () => useMemo(() => new MyApi(new Configuration({
+  basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
+  fetchApi: window.fetch.bind(window),
+})), []);
+```
+
+Note that if you are using the [Cloudscape React Website](../cloudscape-react-ts-website/README.md) with [AWS NorthStar](https://aws.github.io/aws-northstar/) and IAM (Sigv4) Auth for your API, you can use NorthStar's [`useSigv4Client()` hook](https://aws.github.io/aws-northstar/?path=/story/components-cognitoauth-sigv4client-docs--page) to create
+an instance of `fetch` which will sign requests with the logged in user's credentials. For example:
+
+```ts
+export const useMyApiClient = () => {
+  const { client } = useSigv4Client();
+  return useMemo(() => client.current ? new MyApi(new Configuration({
+    basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
+    fetchApi: client.current,
+  })) : undefined, [client.current]);
+};
+```
+
+Next, instantiate the client provider above where you would like to use the hooks in your component hierarchy (such as above your router). For example:
+
+```tsx
+const api = useMyApiClient();
+
+return api ? (
+  <MyApiClientContext.Provider value={api}>
+    { /* Components within the provider may make use of the hooks */ }
+  </MyApiClientContext.Provider>
+) : <p>Loading...</p>;
+```
+
+Finally, you can import and use your generated hooks. For example:
+
+```tsx
+export const MyComponent: FC<MyComponentProps> = () => {
+  const sayHello = useSayHello({ name: 'World' });
+
+  return (
+    sayHello.isLoading ? (
+      <p>Loading...</p>
+    ) : (
+      sayHello.isError ? (
+        <p>Error!</p>
+      ) : (
+        <h1>{sayHello.data.message}</h1>
+      )
+    )
+  );
+};
+```
+
+##### Paginated Operations
+
+You can generate `useInfiniteQuery` hooks instead of `useQuery` hooks for paginated API operations, by making use of the vendor extension `x-paginated` in your operation in the OpenAPI specification. You must specify both the `inputToken` and `outputToken`, which indicate the properties from the input and output used for pagination. For example in OpenAPI:
+
+```yaml
+paths:
+  /pets:
+    get:
+      x-paginated:
+        # Input property with the token to request the next page
+        inputToken: nextToken
+        # Output property with the token to request the next page
+        outputToken: nextToken
+      parameters:
+        - in: query
+          name: nextToken
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nextToken:
+                    type: string
+```
+
+In Smithy, until [custom vendor extensions can be rendered via traits](https://github.com/awslabs/smithy/pull/1609), you can add the `x-paginated` vendor extension via `smithyBuildOptions` in your `TypeSafeApiProject`, for example:
+
+```ts
+new TypeSafeApiProject({
+  model: {
+    language: ModelLanguage.SMITHY,
+    options: {
+      smithy: {
+        serviceName: {
+          namespace: 'com.mycompany',
+          serviceName: 'MyApi',
+        },
+        smithyBuildOptions: {
+          projections: {
+            openapi: {
+              plugins: {
+                openapi: {
+                  jsonAdd: {
+                    // Add the x-paginated vendor extension to the GET /pets operation
+                    '/paths/~1pets/get/x-paginated': {
+                      inputToken: 'nextToken',
+                      outputToken: 'nextToken',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ...
+});
 ```
 
 ### Quick Start: Python

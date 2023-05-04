@@ -10,6 +10,7 @@ import { GeneratedPlantumlDocumentationProject } from "./documentation/generated
 import { GeneratedJavaCdkInfrastructureProject } from "./infrastructure/cdk/generated-java-cdk-infrastructure-project";
 import { GeneratedPythonCdkInfrastructureProject } from "./infrastructure/cdk/generated-python-cdk-infrastructure-project";
 import { GeneratedTypescriptCdkInfrastructureProject } from "./infrastructure/cdk/generated-typescript-cdk-infrastructure-project";
+import { TypescriptReactQueryHooksLibrary } from "./library/typescript-react-query-hooks-library";
 import {
   GeneratedJavaRuntimeProject,
   GeneratedJavaTypesProjectOptions,
@@ -22,7 +23,7 @@ import {
   GeneratedTypescriptRuntimeProject,
   GeneratedTypescriptTypesProjectOptions,
 } from "./runtime/generated-typescript-runtime-project";
-import { DocumentationFormat, Language } from "../languages";
+import { DocumentationFormat, Language, Library } from "../languages";
 
 const logger = getLogger();
 
@@ -36,10 +37,7 @@ type CommonProjectOptions =
   | "outdir"
   | "specPath";
 
-/**
- * Options for generating types
- */
-export interface GenerateRuntimeProjectsOptions {
+export interface GenerateProjectsOptions {
   /**
    * The parent project for the generated types
    */
@@ -61,6 +59,13 @@ export interface GenerateRuntimeProjectsOptions {
    * We use the parsed spec such that refs are resolved to support multi-file specs
    */
   readonly parsedSpecPath: string;
+}
+
+/**
+ * Options for generating types
+ */
+export interface GenerateRuntimeProjectsOptions
+  extends GenerateProjectsOptions {
   /**
    * Options for the typescript project.
    * These will override any inferred properties (such as the package name).
@@ -83,6 +88,21 @@ export interface GenerateRuntimeProjectsOptions {
    */
   readonly javaOptions: Omit<
     GeneratedJavaTypesProjectOptions,
+    CommonProjectOptions
+  >;
+}
+
+/**
+ * Options for generating libraries
+ */
+export interface GenerateLibraryProjectsOptions
+  extends GenerateProjectsOptions {
+  /**
+   * Options for the react query hooks project
+   * These will override any inferred properties (such as the package name)
+   */
+  readonly typescriptReactQueryHooksOptions: Omit<
+    GeneratedTypescriptTypesProjectOptions,
     CommonProjectOptions
   >;
 }
@@ -281,6 +301,69 @@ export const generateRuntimeProjects = (
   return generatedRuntimes;
 };
 
+/**
+ * Returns a generated client project for the given language
+ */
+const generateLibraryProject = (
+  library: Library,
+  options: GenerateLibraryProjectsOptions
+): Project => {
+  const packageName = `${options.parentPackageName}-${library}`;
+  const commonOptions = {
+    outdir: path.join(options.generatedCodeDir, library),
+    specPath: options.parsedSpecPath,
+    parent: options.parent,
+  };
+
+  switch (library) {
+    case Library.TYPESCRIPT_REACT_QUERY_HOOKS: {
+      return new TypescriptReactQueryHooksLibrary({
+        ...commonOptions,
+        name: sanitiseTypescriptPackageName(packageName),
+        ...options.typescriptReactQueryHooksOptions,
+        isWithinMonorepo: options.isWithinMonorepo,
+      });
+    }
+    default:
+      throw new Error(`Unknown library ${library}`);
+  }
+};
+
+/**
+ * Create library projects
+ * @param libraries the libraries to generate for
+ * @param options options for the projects to be created
+ */
+export const generateLibraryProjects = (
+  libraries: Library[],
+  options: GenerateLibraryProjectsOptions
+): { [library: string]: Project } => {
+  if (libraries.length > 0) {
+    new TextFile(
+      options.parent,
+      path.join(options.generatedCodeDir, "README.md"),
+      {
+        lines: [
+          "## Generated Libraries",
+          "",
+          "This directory contains generated libraries based on your API model.",
+        ],
+        readonly: true,
+      }
+    );
+  }
+
+  const generatedLibraries: { [language: string]: Project } = {};
+  libraries.forEach((library) => {
+    const project = generateLibraryProject(library, options);
+    if (project != null) {
+      generatedLibraries[library] = project;
+    }
+  });
+
+  return generatedLibraries;
+};
+
 export interface GenerateDocsProjectsOptions {
   /**
    * The parent project for the generated clients
@@ -337,18 +420,20 @@ export const generateDocsProjects = (
   formats: DocumentationFormat[],
   options: GenerateDocsProjectsOptions
 ): { [language: string]: Project } => {
-  new TextFile(
-    options.parent,
-    path.join(options.generatedDocsDir, "README.md"),
-    {
-      lines: [
-        "## Generated Documentation",
-        "",
-        "This directory contains generated documentation based on your API model.",
-      ],
-      readonly: true,
-    }
-  );
+  if (formats.length > 0) {
+    new TextFile(
+      options.parent,
+      path.join(options.generatedDocsDir, "README.md"),
+      {
+        lines: [
+          "## Generated Documentation",
+          "",
+          "This directory contains generated documentation based on your API model.",
+        ],
+        readonly: true,
+      }
+    );
+  }
 
   const generatedClients: { [language: string]: Project } = {};
   formats.forEach((format) => {

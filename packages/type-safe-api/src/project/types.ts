@@ -112,6 +112,26 @@ export interface GeneratedCodeProjects {
 }
 
 /**
+ * Options for generated libraries
+ */
+export interface GeneratedLibraryOptions {
+  /**
+   * Options for the generated typescript react-query hooks library. These override the default inferred options.
+   */
+  readonly typescriptReactQueryHooks?: TypeScriptProjectOptions;
+}
+
+/**
+ * Generated library projects
+ */
+export interface GeneratedLibraryProjects {
+  /**
+   * Generated typescript react-query hooks project
+   */
+  readonly typescriptReactQueryHooks?: TypeScriptProject;
+}
+
+/**
  * Represents a fully qualified name of a Smithy service.
  * @see https://awslabs.github.io/smithy/2.0/spec/service-types.html
  */
