@@ -306,10 +306,10 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.package.addField("private", true);
 
     // Add alias task for "projen" to synthesize workspace
-    this.addTask("synth-workspace", {
-      exec: buildExecutableCommand(this.package.packageManager, "projen"),
-      description: "Synthesize workspace",
-    });
+    this.package.setScript(
+      "synth-workspace",
+      buildExecutableCommand(this.package.packageManager, "projen")
+    );
 
     this.addTask("run-many", {
       receiveArgs: true,
@@ -724,6 +724,10 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   preSynthesize(): void {
+    // Prevent recursive projen execution by removing "projen" script, which break other other script in format "yarn projen xyz".
+    // https://github.com/projen/projen/blob/37983be94b37ee839ef3337a1b24b014a6c29f4f/src/javascript/node-project.ts#L512
+    this.package.removeScript("projen");
+
     super.preSynthesize();
 
     if (this._options.workspaceConfig?.linkLocalWorkspaceBins === true) {
@@ -749,6 +753,10 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.subProjects.forEach((subProject) => {
       if (isNodeProject(subProject)) {
         subProject.tryRemoveFile(".npmrc");
+
+        // Prevent recursive projen execution by removing "projen" script, which break other other script in format "yarn projen xyz".
+        // https://github.com/projen/projen/blob/37983be94b37ee839ef3337a1b24b014a6c29f4f/src/javascript/node-project.ts#L512
+        subProject.package.removeScript("projen");
       }
     });
   }
