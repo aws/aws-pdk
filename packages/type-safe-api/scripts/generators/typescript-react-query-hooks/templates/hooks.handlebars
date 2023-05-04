@@ -1,0 +1,94 @@
+// Import models
+{{#imports.0 ~}}
+import type {
+  {{#imports ~}}
+  {{className}},
+  {{/imports}}
+} from '../models';
+{{/imports.0}}
+// Import request parameter interfaces
+import {
+    {{#operations ~}}
+    {{#operation ~}}
+    {{#allParams.0 ~}}{{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request,{{/allParams.0}}
+    {{/operation}}
+    {{/operations}}
+} from '..';
+
+import { ResponseError } from '../runtime';
+import { {{classname}} } from './{{ classFilename }}';
+
+import {
+    useQuery,
+    UseQueryResult,
+    UseQueryOptions,
+    useInfiniteQuery,
+    UseInfiniteQueryResult,
+    UseInfiniteQueryOptions,
+    useMutation,
+    UseMutationOptions,
+    UseMutationResult
+} from "@tanstack/react-query";
+import { createContext, useContext } from "react";
+
+/**
+ * Context for the API client used by the hooks.
+ * Please instantiate a client and provider above the hooks in your component hierarchy.
+ * For example instantiating the client: `const client = new {{classname}}(...);`
+ * and the provider: `<{{classname}}ClientContext.Provider value={client}>`
+ */
+export const {{classname}}ClientContext = createContext<{{classname}} | undefined>(undefined);
+
+const NO_API_ERROR = new Error(`{{classname}} client missing. Please ensure you have instantiated the {{classname}}ClientContext.Provider with a client instance.`);
+
+{{#operations ~}}
+{{#operation ~}}
+{{#startsWith httpMethod 'GET' ~}}
+{{#if vendorExtensions.x-paginated}}
+/**
+ * useInfiniteQuery hook for the {{operationIdCamelCase}} operation
+ */
+export const use{{operationIdCamelCase}} = <TError = ResponseError>(
+{{#allParams.0}}    params: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request,{{/allParams.0}}
+    options?: Omit<UseInfiniteQueryOptions<{{#if returnType}}{{returnType}}{{else}}void{{/if}}, TError>, 'queryKey' | 'queryFn' | 'getNextPageParam'>
+): UseInfiniteQueryResult<{{#if returnType}}{{returnType}}{{else}}void{{/if}}, TError> => {
+    const api = useContext({{classname}}ClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useInfiniteQuery(["{{nickname}}"{{#allParams.0}}, params{{/allParams.0}}], ({ pageParam }) => api.{{nickname}}({ {{#allParams.0}}...params, {{/allParams.0}}{{vendorExtensions.x-paginated.inputToken}}: pageParam }), {
+        getNextPageParam: (response) => response.{{vendorExtensions.x-paginated.outputToken}},
+        ...options as any,
+    });
+};
+{{~else}}
+/**
+ * useQuery hook for the {{operationIdCamelCase}} operation
+ */
+export const use{{operationIdCamelCase}} = <TError = ResponseError>(
+{{#allParams.0}}    params: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request,{{/allParams.0}}
+    options?: Omit<UseQueryOptions<{{#if returnType}}{{returnType}}{{else}}void{{/if}}, TError>, 'queryKey' | 'queryFn'>
+): UseQueryResult<{{#if returnType}}{{returnType}}{{else}}void{{/if}}, TError> => {
+    const api = useContext({{classname}}ClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useQuery(["{{nickname}}"{{#allParams.0}}, params{{/allParams.0}}], () => api.{{nickname}}({{#allParams.0}}params{{/allParams.0}}), options);
+};
+{{/if}}
+{{~else}}
+/**
+ * useMutation hook for the {{operationIdCamelCase}} operation
+ */
+export const use{{operationIdCamelCase}} = <TError = ResponseError>(
+    options?: Omit<UseMutationOptions<{{#if returnType}}{{returnType}}{{else}}void{{/if}}, TError, {{#allParams.0}}{{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request{{/allParams.0}}{{#unless allParams.0}}void{{/unless}}>, 'mutationFn'>
+): UseMutationResult<{{#if returnType}}{{returnType}}{{else}}void{{/if}}, TError, {{#allParams.0}}{{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request{{/allParams.0}}{{#unless allParams.0}}void{{/unless}}> => {
+    const api = useContext({{classname}}ClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useMutation(({{#allParams.0}}params: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request{{/allParams.0}}) => api.{{nickname}}({{#allParams.0}}params{{/allParams.0}}), options);
+};
+{{~/startsWith}}
+{{/operation}}
+{{/operations}}

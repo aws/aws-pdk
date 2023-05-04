@@ -58,6 +58,37 @@ run_command @openapitools/openapi-generator-cli generate \
   --input-spec "$script_dir/$spec_path" \
   --output "$script_dir/$output_path"
 
+# If a .open-api-generator-ignore-handlebars ignore file exists, we run a second pass with the handlebars template engine
+handlebars_ignore_file="$script_dir/$output_path/.openapi-generator-ignore-handlebars"
+if [ -f "$handlebars_ignore_file" ]; then
+  # Save the files metadata file from our first pass
+  generated_files_metadata_file="$script_dir/$output_path/.openapi-generator/FILES"
+  if [ -f "$generated_files_metadata_file" ]; then
+    cp $generated_files_metadata_file ./first-pass-files
+  fi
+
+  # Generate again, using the handlebars engine
+  run_command @openapitools/openapi-generator-cli generate \
+    --log-to-stderr \
+    --generator-name $generator \
+    --skip-operation-example \
+    --generate-alias-as-model \
+    --minimal-update \
+    --template-dir templates \
+    --config config.final.yaml \
+    --additional-properties="$additional_properties" \
+    ${openapi_normalizer:+"--openapi-normalizer=$openapi_normalizer"} \
+    --input-spec "$script_dir/$spec_path" \
+    --output "$script_dir/$output_path" \
+    --engine handlebars \
+    --ignore-file-override "$handlebars_ignore_file"
+
+  # Write the first pass generated files to the files metadata file, so it includes what was generated in both passes
+  if [ -f "$generated_files_metadata_file" ]; then
+    cat ./first-pass-files >> $generated_files_metadata_file
+  fi
+fi
+
 echo "$generator_dir ($generator) OpenAPI generation done!"
 
 # Clean up

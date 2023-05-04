@@ -7,6 +7,7 @@ import { synthProject, synthSmithyProject } from "./snapshot-utils";
 import {
   DocumentationFormat,
   Language,
+  Library,
   ModelLanguage,
   TypeSafeApiProject,
 } from "../../src";
@@ -283,5 +284,40 @@ describe("Type Safe Api Project Unit Tests", () => {
     });
 
     expect(synthSmithyProject(monorepo)).toMatchSnapshot();
+  });
+
+  it("Smithy With TypeScript react-query hooks library", () => {
+    const project = new TypeSafeApiProject({
+      name: `smithy-typescript-react-query-hooks`,
+      outdir: path.resolve(__dirname, `smithy-typescript-react-query-hooks`),
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+      },
+      runtime: {
+        languages: [Language.TYPESCRIPT],
+      },
+      model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+          smithy: {
+            serviceName: {
+              namespace: "com.test",
+              serviceName: "MyService",
+            },
+          },
+        },
+      },
+      library: {
+        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+      },
+    });
+
+    expect(project.runtime.typescript).toBeDefined();
+    expect(project.runtime.java).not.toBeDefined();
+    expect(project.runtime.python).not.toBeDefined();
+
+    expect(project.library.typescriptReactQueryHooks).toBeDefined();
+
+    expect(synthSmithyProject(project)).toMatchSnapshot();
   });
 });
