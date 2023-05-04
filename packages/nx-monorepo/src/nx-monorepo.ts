@@ -379,7 +379,11 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     this.addPeerDeps("nx@^16");
     this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in aws-prototyping-sdk
-    this.package.addPackageResolutions("@types/babel__traverse@7.18.2");
+    this.package.addPackageResolutions(
+      "@types/babel__traverse@7.18.2",
+      "wrap-ansi@^7.0.0",
+      "@zkochan/js-yaml@npm:js-yaml@4.1.0"
+    );
 
     if (options.monorepoUpgradeDeps !== false) {
       this.addDevDeps("npm-check-updates", "syncpack");
