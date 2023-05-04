@@ -29,6 +29,12 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
     });
 
     this.sampleProject = new CloudscapeReactTsSampleWebsiteProject(parent);
+
+    this.addPackageIgnore("!samples");
+    this.addGitIgnore("samples");
+    this.preCompileTask.exec(
+      'rm -rf samples && rsync -a ../../samples/cloudscape-react-ts-website/* ./samples --include="*/" --include="public/**" --include="src/**" --exclude="*" --prune-empty-dirs'
+    );
   }
 }
 
@@ -41,7 +47,7 @@ class CloudscapeReactTsSampleWebsiteProject extends ReactTypeScriptProject {
       parent,
       packageManager: NodePackageManager.PNPM,
       projenCommand: buildExecutableCommand(NodePackageManager.PNPM, "projen"),
-      outdir: "packages/cloudscape-react-ts-website/samples",
+      outdir: "samples/cloudscape-react-ts-website",
       defaultReleaseBranch: "mainline",
       depsUpgrade: false,
       name: "@aws-prototyping-sdk/cloudscape-react-ts-sample-website",
@@ -49,17 +55,10 @@ class CloudscapeReactTsSampleWebsiteProject extends ReactTypeScriptProject {
       jestOptions: {
         jestVersion: JEST_VERSION,
       },
-      devDeps: ["@babel/plugin-proposal-private-property-in-object"],
       deps: [
-        "@cloudscape-design/global-styles",
+        "@aws-northstar/ui",
         "@cloudscape-design/components",
-        "@cloudscape-design/collection-hooks",
         "react-router-dom",
-        "@aws-amplify/core",
-        "@aws-amplify/auth",
-        "aws-amplify",
-        "@aws-amplify/ui-react",
-        "aws4fetch",
       ],
       gitignore: ["runtime-config.json"],
     });

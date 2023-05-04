@@ -50,17 +50,10 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       gitignore: ["runtime-config.json"],
     });
 
-    this.addDevDeps("@babel/plugin-proposal-private-property-in-object");
     this.addDeps(
-      "@cloudscape-design/global-styles",
+      "@aws-northstar/ui",
       "@cloudscape-design/components",
-      "@cloudscape-design/collection-hooks",
-      "react-router-dom",
-      "aws-amplify",
-      "@aws-amplify/auth",
-      "@aws-amplify/core",
-      "@aws-amplify/ui-react",
-      "aws4fetch"
+      "react-router-dom"
     );
 
     this.testTask.reset();
