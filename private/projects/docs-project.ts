@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { buildExecutableCommand } from "../../packages/nx-monorepo/src";
+import { NodePackageUtils } from "../../packages/nx-monorepo/src";
 
 /**
  * Contains configuration for the public (docs) package.
@@ -13,7 +13,7 @@ export class DocsProject extends TypeScriptProject {
     super({
       parent,
       packageManager: NodePackageManager.PNPM,
-      projenCommand: buildExecutableCommand(NodePackageManager.PNPM, "projen"),
+      projenCommand: NodePackageUtils.command.projen(NodePackageManager.PNPM),
       outdir: "public/docs", // nx has issues with root directories being called 'docs'
       defaultReleaseBranch: "mainline",
       sampleCode: false,

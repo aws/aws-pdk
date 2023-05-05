@@ -24,68 +24,7 @@ import {
 import { NxProject } from "./nx-project";
 import { Nx } from "./nx-types";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
-
-/**
- * Execute download/execute command to run based on package manager configured.
- *
- * @param packageManager package manager being used.
- * @param args args to append.
- */
-export function buildDownloadExecutableCommand(
-  packageManager: NodePackageManager,
-  ...args: string[]
-) {
-  if (args.length === 0) {
-    throw new Error("args must be specified");
-  }
-  const argLiteral = args.join(" ");
-  switch (packageManager) {
-    case NodePackageManager.YARN2:
-      return `yarn dlx ${argLiteral}`;
-    case NodePackageManager.PNPM:
-      return `pnpm dlx ${argLiteral}`;
-    case NodePackageManager.YARN:
-    default:
-      return `npx ${argLiteral}`;
-  }
-}
-
-/**
- * Execute command to run based on package manager configured.
- *
- * @param packageManager package manager being used.
- * @param args args to append.
- */
-export function buildExecutableCommand(
-  packageManager: NodePackageManager,
-  ...args: string[]
-) {
-  if (args.length === 0) {
-    throw new Error("args must be specified");
-  }
-  const argLiteral = args.join(" ");
-  switch (packageManager) {
-    case NodePackageManager.YARN:
-    case NodePackageManager.YARN2:
-      return `yarn ${argLiteral}`;
-    case NodePackageManager.PNPM:
-      return `pnpm exec ${argLiteral}`;
-    default:
-      return `npx ${argLiteral}`;
-  }
-}
-
-function binCommand(packageManager: NodePackageManager): string {
-  switch (packageManager) {
-    case NodePackageManager.YARN:
-    case NodePackageManager.YARN2:
-      return `yarn bin`;
-    case NodePackageManager.PNPM:
-      return `pnpm bin`;
-    default:
-      return `npm bin`;
-  }
-}
+import { NodePackageUtils } from "./utils";
 
 /**
  * Workspace configurations.
@@ -256,7 +195,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       github: options.github ?? false,
       package: options.package ?? false,
       projenCommand: options.packageManager
-        ? buildExecutableCommand(options.packageManager, "projen")
+        ? NodePackageUtils.command.projen(options.packageManager)
         : undefined,
       prettier: options.prettier ?? true,
       projenrcTs: true,
@@ -293,7 +232,7 @@ export class NxMonorepoProject extends TypeScriptProject {
         break;
       }
       case NodePackageManager.YARN2: {
-        this.package.addEngine("yarn", ">=2 <3");
+        this.package.addEngine("yarn", ">=2");
         break;
       }
     }
@@ -308,12 +247,12 @@ export class NxMonorepoProject extends TypeScriptProject {
     // Add alias task for "projen" to synthesize workspace
     this.package.setScript(
       "synth-workspace",
-      buildExecutableCommand(this.package.packageManager, "projen")
+      NodePackageUtils.command.projen(this.package.packageManager)
     );
 
     this.addTask("run-many", {
       receiveArgs: true,
-      exec: buildExecutableCommand(
+      exec: NodePackageUtils.command.exec(
         this.package.packageManager,
         "nx",
         "run-many"
@@ -326,7 +265,11 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     this.addTask("graph", {
       receiveArgs: true,
-      exec: buildExecutableCommand(this.package.packageManager, "nx", "graph"),
+      exec: NodePackageUtils.command.exec(
+        this.package.packageManager,
+        "nx",
+        "graph"
+      ),
       description: "Generate dependency graph for monorepo",
     });
 
@@ -392,7 +335,7 @@ export class NxMonorepoProject extends TypeScriptProject {
         options.monorepoUpgradeDepsOptions?.taskName || "upgrade-deps"
       );
       upgradeDepsTask.exec(
-        buildExecutableCommand(
+        NodePackageUtils.command.exec(
           this.package.packageManager,
           "npm-check-updates",
           "--deep",
@@ -402,7 +345,7 @@ export class NxMonorepoProject extends TypeScriptProject {
         )
       );
       upgradeDepsTask.exec(
-        buildExecutableCommand(
+        NodePackageUtils.command.exec(
           this.package.packageManager,
           "syncpack",
           "fix-mismatches"
@@ -410,7 +353,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       );
       upgradeDepsTask.exec(`${this.package.packageManager} install`);
       upgradeDepsTask.exec(
-        buildExecutableCommand(this.package.packageManager, "projen")
+        NodePackageUtils.command.exec(this.package.packageManager, "projen")
       );
 
       new JsonFile(this, ".syncpackrc.json", {
@@ -513,7 +456,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       args.push("--verbose");
     }
 
-    return buildExecutableCommand(
+    return NodePackageUtils.command.exec(
       this.package.packageManager,
       "nx",
       "run-many",
@@ -714,9 +657,10 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     const linkTask = this.addTask("workspace:bin:link", {
       steps: bins.map(([cmd, bin]) => ({
-        exec: `ln -s ${bin} $(${binCommand(
-          this.package.packageManager
-        )})/${cmd} &>/dev/null; exit 0;`,
+        exec: `ln -s ${bin} ${NodePackageUtils.command.bin(
+          this.package.packageManager,
+          cmd
+        )} &>/dev/null; exit 0;`,
       })),
     });
 
@@ -724,9 +668,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   preSynthesize(): void {
-    // Prevent recursive projen execution by removing "projen" script, which break other other script in format "yarn projen xyz".
-    // https://github.com/projen/projen/blob/37983be94b37ee839ef3337a1b24b014a6c29f4f/src/javascript/node-project.ts#L512
-    this.package.removeScript("projen");
+    NodePackageUtils.removeProjenScript(this);
 
     super.preSynthesize();
 
@@ -753,10 +695,7 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.subProjects.forEach((subProject) => {
       if (isNodeProject(subProject)) {
         subProject.tryRemoveFile(".npmrc");
-
-        // Prevent recursive projen execution by removing "projen" script, which break other other script in format "yarn projen xyz".
-        // https://github.com/projen/projen/blob/37983be94b37ee839ef3337a1b24b014a6c29f4f/src/javascript/node-project.ts#L512
-        subProject.package.removeScript("projen");
+        NodePackageUtils.removeProjenScript(subProject);
       }
     });
   }
@@ -877,7 +816,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       const monorepoInstallTask =
         this.tasks.tryFind("postinstall") ?? this.addTask("postinstall");
       monorepoInstallTask.exec(
-        buildExecutableCommand(
+        NodePackageUtils.command.exec(
           this.package.packageManager,
           `nx run-many --target install --projects ${installProjects
             .map((project) => project.name)

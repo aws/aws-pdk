@@ -15,7 +15,7 @@ import {
   JEST_VERSION,
   NX_TARGET_DEFAULTS,
 } from "./projects/pdk-monorepo-project";
-import { buildExecutableCommand } from "../packages/nx-monorepo/src";
+import { NodePackageUtils } from "../packages/nx-monorepo/src";
 import type { Nx } from "../packages/nx-monorepo/src/nx-types";
 
 export type PublishConfig = _PublishConfig & {
@@ -75,7 +75,7 @@ export abstract class PDKProject extends JsiiProject {
     super({
       ...options,
       packageManager: NodePackageManager.PNPM,
-      projenCommand: buildExecutableCommand(NodePackageManager.PNPM, "projen"),
+      projenCommand: NodePackageUtils.command.projen(NodePackageManager.PNPM),
       stability: options.stability || Stability.EXPERIMENTAL,
       github: false,
       depsUpgrade: false,
@@ -319,7 +319,7 @@ class PDKRelease extends Release {
 
     project.packageTask.reset();
     project.packageTask.exec(
-      buildExecutableCommand(
+      NodePackageUtils.command.exec(
         project.package.packageManager,
         "license-checker",
         "--summary",
