@@ -9,7 +9,7 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { JEST_VERSION } from "./pdk-monorepo-project";
-import { buildExecutableCommand } from "../../packages/nx-monorepo/src";
+import { NodePackageUtils } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
 /**
@@ -61,7 +61,7 @@ export class PipelineTypescriptSampleProject extends TypeScriptProject {
     super({
       parent,
       packageManager: NodePackageManager.PNPM,
-      projenCommand: buildExecutableCommand(NodePackageManager.PNPM, "projen"),
+      projenCommand: NodePackageUtils.command.projen(NodePackageManager.PNPM),
       outdir: "samples/pipeline/typescript",
       defaultReleaseBranch: "mainline",
       npmignoreEnabled: false,
