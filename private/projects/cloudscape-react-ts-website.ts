@@ -5,7 +5,7 @@ import { Stability } from "projen/lib/cdk";
 import { NodePackageManager } from "projen/lib/javascript";
 import { ReactTypeScriptProject } from "projen/lib/web";
 import { JEST_VERSION } from "./pdk-monorepo-project";
-import { buildExecutableCommand } from "../../packages/nx-monorepo/src";
+import { NodePackageUtils } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
 /**
@@ -46,7 +46,7 @@ class CloudscapeReactTsSampleWebsiteProject extends ReactTypeScriptProject {
     super({
       parent,
       packageManager: NodePackageManager.PNPM,
-      projenCommand: buildExecutableCommand(NodePackageManager.PNPM, "projen"),
+      projenCommand: NodePackageUtils.command.projen(NodePackageManager.PNPM),
       outdir: "samples/cloudscape-react-ts-website",
       defaultReleaseBranch: "mainline",
       depsUpgrade: false,

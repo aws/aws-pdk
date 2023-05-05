@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Component, JsonFile, Project } from "projen";
 import { NodeProject } from "projen/lib/javascript";
-import { buildDownloadExecutableCommand } from "./nx-monorepo";
+import { NodePackageUtils } from "./utils";
 
 /**
  * Component which manged the project specific NX Config and is added to all NXMonorepo subprojects.
@@ -81,7 +81,7 @@ export class NxProject extends Component {
             [c.name]: {
               executor: "nx:run-commands",
               options: {
-                command: `${buildDownloadExecutableCommand(
+                command: `${NodePackageUtils.command.downloadExec(
                   (this.project.root as NodeProject).package.packageManager,
                   `projen ${c.name}`
                 )}`,
