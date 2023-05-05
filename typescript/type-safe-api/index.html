@@ -2104,6 +2104,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#libraries" class="md-nav__link">
+    Libraries
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#quick-start-python" class="md-nav__link">
     Quick Start: Python
   </a>
@@ -2236,6 +2243,20 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#generatedlibraryoptions" class="md-nav__link">
+    GeneratedLibraryOptions 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generatedlibraryprojects" class="md-nav__link">
+    GeneratedLibraryProjects 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#infrastructureconfiguration" class="md-nav__link">
     InfrastructureConfiguration 
   </a>
@@ -2252,6 +2273,13 @@
           <li class="md-nav__item">
   <a href="#integrationrenderprops" class="md-nav__link">
     IntegrationRenderProps 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#libraryconfiguration" class="md-nav__link">
+    LibraryConfiguration 
   </a>
   
 </li>
@@ -2549,6 +2577,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#library" class="md-nav__link">
+    Library 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#modellanguage" class="md-nav__link">
     ModelLanguage 
   </a>
@@ -2640,7 +2675,11 @@ aws-prototyping-sdk library.</p>
 <span class="w">  </span><span class="c1">// Generate HTML documentation</span>
 <span class="w">  </span><span class="nx">documentation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">formats</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">DocumentationFormat</span><span class="p">.</span><span class="nx">HTML_REDOC</span><span class="p">],</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="c1">// Generate react-query hooks to interact with the UI from a React website</span>
+<span class="w">  </span><span class="nx">library</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">libraries</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Library</span><span class="p">.</span><span class="nx">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// Create a CDK infrastructure project. Can also consider PDKPipelineTsProject as an alternative!</span>
@@ -2814,6 +2853,8 @@ aws-prototyping-sdk library.</p>
     |_ html_redoc
     |_ plantuml
     |_ markdown
+|_ library/ - generated libraries if specified
+    |_ typescript-react-query-hooks
 </code></pre></div>
 <h3 id="smithy-idl">Smithy IDL</h3>
 <p>Please refer to the <a href="https://smithy.io/2.0/quickstart.html">Smithy documentation</a> for how to write models in Smithy. A basic example is provided below:</p>
@@ -3441,6 +3482,120 @@ aws-prototyping-sdk library.</p>
 <span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
+</code></pre></div>
+<h3 id="libraries">Libraries</h3>
+<p>Libraries are generated code projects which are not fully-fledged runtime languages.</p>
+<h4 id="typescript-react-query-hooks">TypeScript React Query Hooks</h4>
+<p>This library contains generated <a href="https://tanstack.com/query/latest">react-query</a> hooks for interacting with your API from a React website. You can generate these by adding the following options to your <code>TypeSafeApiProject</code> in your <code>.projenrc</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">library</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">libraries</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Library</span><span class="p">.</span><span class="nx">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="p">});</span>
+</code></pre></div>
+<h5 id="usage-in-a-react-website">Usage in a React Website</h5>
+<p>First, make sure you create an instance of the API client (making sure to set the base URL and fetch instance). For example:</p>
+<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">useMyApiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">useMemo</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApi</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">Configuration</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">basePath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://example123.execute-api.ap-southeast-2.amazonaws.com/prod&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">fetchApi</span><span class="o">:</span><span class="w"> </span><span class="kt">window.fetch.bind</span><span class="p">(</span><span class="nb">window</span><span class="p">),</span>
+<span class="p">})),</span><span class="w"> </span><span class="p">[]);</span>
+</code></pre></div>
+<p>Note that if you are using the <a href="../cloudscape-react-ts-website/README.md">Cloudscape React Website</a> with <a href="https://aws.github.io/aws-northstar/">AWS NorthStar</a> and IAM (Sigv4) Auth for your API, you can use NorthStar's <a href="https://aws.github.io/aws-northstar/?path=/story/components-cognitoauth-sigv4client-docs--page"><code>useSigv4Client()</code> hook</a> to create
+an instance of <code>fetch</code> which will sign requests with the logged in user's credentials. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">useMyApiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useSigv4Client</span><span class="p">();</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">useMemo</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">current</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApi</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">Configuration</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">basePath</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://example123.execute-api.ap-southeast-2.amazonaws.com/prod&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">fetchApi</span><span class="o">:</span><span class="w"> </span><span class="kt">client.current</span><span class="p">,</span>
+<span class="w">  </span><span class="p">}))</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kc">undefined</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">client</span><span class="p">.</span><span class="nx">current</span><span class="p">]);</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>Next, instantiate the client provider above where you would like to use the hooks in your component hierarchy (such as above your router). For example:</p>
+<div class="highlight"><pre><span></span><code>const api = useMyApiClient();
+
+return api ? (
+  &lt;MyApiClientContext.Provider value={api}&gt;
+    { /* Components within the provider may make use of the hooks */ }
+  &lt;/MyApiClientContext.Provider&gt;
+) : &lt;p&gt;Loading...&lt;/p&gt;;
+</code></pre></div>
+<p>Finally, you can import and use your generated hooks. For example:</p>
+<div class="highlight"><pre><span></span><code>export const MyComponent: FC&lt;MyComponentProps&gt; = () =&gt; {
+  const sayHello = useSayHello({ name: &#39;World&#39; });
+
+  return (
+    sayHello.isLoading ? (
+      &lt;p&gt;Loading...&lt;/p&gt;
+    ) : (
+      sayHello.isError ? (
+        &lt;p&gt;Error!&lt;/p&gt;
+      ) : (
+        &lt;h1&gt;{sayHello.data.message}&lt;/h1&gt;
+      )
+    )
+  );
+};
+</code></pre></div>
+<h5 id="paginated-operations">Paginated Operations</h5>
+<p>You can generate <code>useInfiniteQuery</code> hooks instead of <code>useQuery</code> hooks for paginated API operations, by making use of the vendor extension <code>x-paginated</code> in your operation in the OpenAPI specification. You must specify both the <code>inputToken</code> and <code>outputToken</code>, which indicate the properties from the input and output used for pagination. For example in OpenAPI:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">paths</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">/pets</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">get</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">x-paginated</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># Input property with the token to request the next page</span>
+<span class="w">        </span><span class="nt">inputToken</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nextToken</span>
+<span class="w">        </span><span class="c1"># Output property with the token to request the next page</span>
+<span class="w">        </span><span class="nt">outputToken</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nextToken</span>
+<span class="w">      </span><span class="nt">parameters</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">in</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">query</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nextToken</span>
+<span class="w">          </span><span class="nt">schema</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">          </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">responses</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">200</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Successful response</span>
+<span class="w">          </span><span class="nt">content</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">application/json</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">schema</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">                </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">nextToken</span><span class="p">:</span>
+<span class="w">                    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+</code></pre></div>
+<p>In Smithy, until <a href="https://github.com/awslabs/smithy/pull/1609">custom vendor extensions can be rendered via traits</a>, you can add the <code>x-paginated</code> vendor extension via <code>smithyBuildOptions</code> in your <code>TypeSafeApiProject</code>, for example:</p>
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelLanguage.SMITHY</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">smithy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">namespace</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;com.mycompany&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;MyApi&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nx">smithyBuildOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">projections</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">openapi</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nx">plugins</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">openapi</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                  </span><span class="nx">jsonAdd</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="c1">// Add the x-paginated vendor extension to the GET /pets operation</span>
+<span class="w">                    </span><span class="s1">&#39;/paths/~1pets/get/x-paginated&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                      </span><span class="nx">inputToken</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;nextToken&#39;</span><span class="p">,</span>
+<span class="w">                      </span><span class="nx">outputToken</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;nextToken&#39;</span><span class="p">,</span>
+<span class="w">                    </span><span class="p">},</span>
+<span class="w">                  </span><span class="p">},</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">              </span><span class="p">},</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="p">});</span>
 </code></pre></div>
 <h3 id="quick-start-python">Quick Start: Python</h3>
 <p>This guide assumes you want to write your CDK infrastructure in Python and your lambda handlers in Python, however note that you your infrastructure language and lambda handler language(s) are not tied to one another, you can mix and match as you like. Just specify the language in <code>runtime.languages</code> for any language you would like to write lambda handlers in.</p>
@@ -4831,14 +4986,81 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>Generated typescript project.</p>
 <hr />
+<h3 id="generatedlibraryoptions">GeneratedLibraryOptions <a name="GeneratedLibraryOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryOptions"></a></h3>
+<p>Options for generated libraries.</p>
+<h4 id="initializer_10">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryOptions.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">GeneratedLibraryOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">generatedLibraryOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">GeneratedLibraryOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.GeneratedLibraryOptions.property.typescriptReactQueryHooks">typescriptReactQueryHooks</a></code></td>
+<td><code>projen.typescript.TypeScriptProjectOptions</code></td>
+<td>Options for the generated typescript react-query hooks library.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="typescriptreactqueryhooksoptional"><code>typescriptReactQueryHooks</code><sup>Optional</sup> <a name="typescriptReactQueryHooks" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryOptions.property.typescriptReactQueryHooks"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">typescriptReactQueryHooks</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeScriptProjectOptions</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.typescript.TypeScriptProjectOptions</li>
+</ul>
+<p>Options for the generated typescript react-query hooks library.</p>
+<p>These override the default inferred options.</p>
+<hr />
+<h3 id="generatedlibraryprojects">GeneratedLibraryProjects <a name="GeneratedLibraryProjects" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryProjects"></a></h3>
+<p>Generated library projects.</p>
+<h4 id="initializer_11">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryProjects.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">GeneratedLibraryProjects</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">generatedLibraryProjects</span><span class="o">:</span><span class="w"> </span><span class="kt">GeneratedLibraryProjects</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="properties_12">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.GeneratedLibraryProjects.property.typescriptReactQueryHooks">typescriptReactQueryHooks</a></code></td>
+<td><code>projen.typescript.TypeScriptProject</code></td>
+<td>Generated typescript react-query hooks project.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="typescriptreactqueryhooksoptional_1"><code>typescriptReactQueryHooks</code><sup>Optional</sup> <a name="typescriptReactQueryHooks" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryProjects.property.typescriptReactQueryHooks"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">typescriptReactQueryHooks</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeScriptProject</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.typescript.TypeScriptProject</li>
+</ul>
+<p>Generated typescript react-query hooks project.</p>
+<hr />
 <h3 id="infrastructureconfiguration">InfrastructureConfiguration <a name="InfrastructureConfiguration" id="@aws-prototyping-sdk/type-safe-api.InfrastructureConfiguration"></a></h3>
 <p>Configuration for generated infrastructure.</p>
-<h4 id="initializer_10">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.InfrastructureConfiguration.Initializer"></a></h4>
+<h4 id="initializer_12">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.InfrastructureConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">InfrastructureConfiguration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">infrastructureConfiguration</span><span class="o">:</span><span class="w"> </span><span class="kt">InfrastructureConfiguration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_13">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4880,12 +5102,12 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="integrationgrantprops">IntegrationGrantProps <a name="IntegrationGrantProps" id="@aws-prototyping-sdk/type-safe-api.IntegrationGrantProps"></a></h3>
 <p>Properties for granting the API access to invoke the operation.</p>
-<h4 id="initializer_11">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.IntegrationGrantProps.Initializer"></a></h4>
+<h4 id="initializer_13">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.IntegrationGrantProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">IntegrationGrantProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">integrationGrantProps</span><span class="o">:</span><span class="w"> </span><span class="kt">IntegrationGrantProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_12">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_14">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -4965,12 +5187,12 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="integrationrenderprops">IntegrationRenderProps <a name="IntegrationRenderProps" id="@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps"></a></h3>
 <p>Properties for rendering an integration into an API Gateway OpenAPI extension.</p>
-<h4 id="initializer_12">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps.Initializer"></a></h4>
+<h4 id="initializer_14">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">IntegrationRenderProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">integrationRenderProps</span><span class="o">:</span><span class="w"> </span><span class="kt">IntegrationRenderProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_13">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_15">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5035,13 +5257,60 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>The scope in which the integration is being rendered.</p>
 <hr />
+<h3 id="libraryconfiguration">LibraryConfiguration <a name="LibraryConfiguration" id="@aws-prototyping-sdk/type-safe-api.LibraryConfiguration"></a></h3>
+<p>Configuration for generated libraries.</p>
+<h4 id="initializer_15">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.LibraryConfiguration.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">LibraryConfiguration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">libraryConfiguration</span><span class="o">:</span><span class="w"> </span><span class="kt">LibraryConfiguration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="properties_16">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.LibraryConfiguration.property.libraries">libraries</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.Library">Library</a>[]</code></td>
+<td>The library to generate.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.LibraryConfiguration.property.options">options</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.GeneratedLibraryOptions">GeneratedLibraryOptions</a></code></td>
+<td>Options for the generated library package.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="librariesrequired"><code>libraries</code><sup>Required</sup> <a name="libraries" id="@aws-prototyping-sdk/type-safe-api.LibraryConfiguration.property.libraries"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">libraries</span><span class="o">:</span><span class="w"> </span><span class="kt">Library</span><span class="p">[];</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.Library">Library</a>[]</li>
+</ul>
+<p>The library to generate.</p>
+<hr />
+<h5 id="optionsoptional_1"><code>options</code><sup>Optional</sup> <a name="options" id="@aws-prototyping-sdk/type-safe-api.LibraryConfiguration.property.options"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">GeneratedLibraryOptions</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.GeneratedLibraryOptions">GeneratedLibraryOptions</a></li>
+</ul>
+<p>Options for the generated library package.</p>
+<p>Note that only options for the specified libraries will apply</p>
+<hr />
 <h3 id="managedrule">ManagedRule <a name="ManagedRule" id="@aws-prototyping-sdk/type-safe-api.ManagedRule"></a></h3>
-<h4 id="initializer_13">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ManagedRule.Initializer"></a></h4>
+<h4 id="initializer_16">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ManagedRule.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ManagedRule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">managedRule</span><span class="o">:</span><span class="w"> </span><span class="kt">ManagedRule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_14">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_17">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5084,12 +5353,12 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="methodandpath">MethodAndPath <a name="MethodAndPath" id="@aws-prototyping-sdk/type-safe-api.MethodAndPath"></a></h3>
 <p>Structure to contain an API operation's method and path.</p>
-<h4 id="initializer_14">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.MethodAndPath.Initializer"></a></h4>
+<h4 id="initializer_17">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.MethodAndPath.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">MethodAndPath</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">methodAndPath</span><span class="o">:</span><span class="w"> </span><span class="kt">MethodAndPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_15">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_18">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5130,12 +5399,12 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="modelconfiguration">ModelConfiguration <a name="ModelConfiguration" id="@aws-prototyping-sdk/type-safe-api.ModelConfiguration"></a></h3>
 <p>Configuration for modelling the API.</p>
-<h4 id="initializer_15">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelConfiguration.Initializer"></a></h4>
+<h4 id="initializer_18">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ModelConfiguration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">modelConfiguration</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelConfiguration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_16">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_19">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5176,12 +5445,12 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="modeloptions">ModelOptions <a name="ModelOptions" id="@aws-prototyping-sdk/type-safe-api.ModelOptions"></a></h3>
 <p>Options for models.</p>
-<h4 id="initializer_16">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelOptions.Initializer"></a></h4>
+<h4 id="initializer_19">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ModelOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">modelOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_17">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_20">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5222,12 +5491,12 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="openapidefinitionoptions">OpenApiDefinitionOptions <a name="OpenApiDefinitionOptions" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions"></a></h3>
 <p>Options for the OpenAPI Spec.</p>
-<h4 id="initializer_17">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions.Initializer"></a></h4>
+<h4 id="initializer_20">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiDefinitionOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">openApiDefinitionOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiDefinitionOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_18">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_21">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5255,12 +5524,12 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="openapimodeloptions">OpenApiModelOptions <a name="OpenApiModelOptions" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions"></a></h3>
 <p>Options for the OpenAPI model.</p>
-<h4 id="initializer_18">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions.Initializer"></a></h4>
+<h4 id="initializer_21">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenApiModelOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">openApiModelOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">OpenApiModelOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_19">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_22">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5288,12 +5557,12 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="runtimeconfiguration">RuntimeConfiguration <a name="RuntimeConfiguration" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration"></a></h3>
 <p>Configuration for generated runtime projects.</p>
-<h4 id="initializer_19">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration.Initializer"></a></h4>
+<h4 id="initializer_22">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RuntimeConfiguration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">runtimeConfiguration</span><span class="o">:</span><span class="w"> </span><span class="kt">RuntimeConfiguration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_20">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_23">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5326,7 +5595,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <p>These projects can be used to provide type safety for
 both client and server projects.</p>
 <hr />
-<h5 id="optionsoptional_1"><code>options</code><sup>Optional</sup> <a name="options" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration.property.options"></a></h5>
+<h5 id="optionsoptional_2"><code>options</code><sup>Optional</sup> <a name="options" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration.property.options"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="kt">GeneratedCodeOptions</span><span class="p">;</span>
 </code></pre></div>
 <ul>
@@ -5337,12 +5606,12 @@ both client and server projects.</p>
 <hr />
 <h3 id="smithybuildoptions">SmithyBuildOptions <a name="SmithyBuildOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions"></a></h3>
 <p>Options for the smithy build files.</p>
-<h4 id="initializer_20">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions.Initializer"></a></h4>
+<h4 id="initializer_23">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyBuildOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyBuildOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyBuildOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_21">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_24">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5427,12 +5696,12 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithycommon">SmithyCommon <a name="SmithyCommon" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon"></a></h3>
 <p>Properties common to smithy plugins and the root smithy build.</p>
-<h4 id="initializer_21">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon.Initializer"></a></h4>
+<h4 id="initializer_24">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyCommon</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyCommon</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyCommon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_22">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_25">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5473,12 +5742,12 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithydefinitionoptions">SmithyDefinitionOptions <a name="SmithyDefinitionOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions"></a></h3>
 <p>Options for a smithy build project.</p>
-<h4 id="initializer_22">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions.Initializer"></a></h4>
+<h4 id="initializer_25">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyDefinitionOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyDefinitionOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyDefinitionOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_23">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_26">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5506,12 +5775,12 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithymavenconfiguration">SmithyMavenConfiguration <a name="SmithyMavenConfiguration" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration"></a></h3>
 <p>Configuration for smithy maven dependencies.</p>
-<h4 id="initializer_23">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration.Initializer"></a></h4>
+<h4 id="initializer_26">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyMavenConfiguration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyMavenConfiguration</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyMavenConfiguration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_24">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_27">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5553,12 +5822,12 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithymodeloptions">SmithyModelOptions <a name="SmithyModelOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions"></a></h3>
 <p>Options for a Smithy model.</p>
-<h4 id="initializer_24">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions.Initializer"></a></h4>
+<h4 id="initializer_27">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyModelOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyModelOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyModelOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_25">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_28">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5629,12 +5898,12 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="smithyplugin">SmithyPlugin <a name="SmithyPlugin" id="@aws-prototyping-sdk/type-safe-api.SmithyPlugin"></a></h3>
 <p>A smithy plugin.</p>
-<h4 id="initializer_25">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyPlugin.Initializer"></a></h4>
+<h4 id="initializer_28">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyPlugin.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyPlugin</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyPlugin</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyPlugin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_26">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_29">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5662,12 +5931,12 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="smithyprojection">SmithyProjection <a name="SmithyProjection" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection"></a></h3>
 <p>A smithy build projection.</p>
-<h4 id="initializer_26">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection.Initializer"></a></h4>
+<h4 id="initializer_29">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyProjection</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyProjection</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyProjection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_27">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_30">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5737,12 +6006,12 @@ of gradle to the one provided by default</p>
 <blockquote>
 <p><a href="https://awslabs.github.io/smithy/2.0/spec/service-types.html">https://awslabs.github.io/smithy/2.0/spec/service-types.html</a></p>
 </blockquote>
-<h4 id="initializer_27">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyServiceName.Initializer"></a></h4>
+<h4 id="initializer_30">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyServiceName.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyServiceName</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyServiceName</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyServiceName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_28">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_31">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5791,12 +6060,12 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="smithytransform">SmithyTransform <a name="SmithyTransform" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform"></a></h3>
 <p>A smithy build transform.</p>
-<h4 id="initializer_28">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform.Initializer"></a></h4>
+<h4 id="initializer_31">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SmithyTransform</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">smithyTransform</span><span class="o">:</span><span class="w"> </span><span class="kt">SmithyTransform</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_29">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_32">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5837,12 +6106,12 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="typesafeapiintegration">TypeSafeApiIntegration <a name="TypeSafeApiIntegration" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration"></a></h3>
 <p>Defines an integration for an individual API operation.</p>
-<h4 id="initializer_29">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.Initializer"></a></h4>
+<h4 id="initializer_32">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiIntegration</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeApiIntegration</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiIntegration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_30">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_33">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5882,12 +6151,12 @@ of gradle to the one provided by default</p>
 <p>The authorizer to use for this api operation (overrides the default).</p>
 <hr />
 <h3 id="typesafeapimodelprojectoptions">TypeSafeApiModelProjectOptions <a name="TypeSafeApiModelProjectOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions"></a></h3>
-<h4 id="initializer_30">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_33">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiModelProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeApiModelProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiModelProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_31">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_34">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6096,12 +6365,12 @@ sub-projects.</p>
 <hr />
 <h3 id="typesafeapioptions">TypeSafeApiOptions <a name="TypeSafeApiOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions"></a></h3>
 <p>Options required alongside an Open API specification to create API Gateway resources.</p>
-<h4 id="initializer_31">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.Initializer"></a></h4>
+<h4 id="initializer_34">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeApiOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_32">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_35">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6170,12 +6439,12 @@ Authorizers specified at the integration level will override this for that opera
 <hr />
 <h3 id="typesafeapiprojectoptions">TypeSafeApiProjectOptions <a name="TypeSafeApiProjectOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions"></a></h3>
 <p>Options for the TypeSafeApiProject.</p>
-<h4 id="initializer_32">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_35">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiProjectOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeApiProjectOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiProjectOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_33">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_36">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6264,6 +6533,11 @@ Authorizers specified at the integration level will override this for that opera
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions.property.documentation">documentation</a></code></td>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.DocumentationConfiguration">DocumentationConfiguration</a></code></td>
 <td>Configuration for generated documentation.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions.property.library">library</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.LibraryConfiguration">LibraryConfiguration</a></code></td>
+<td>Configuration for generated libraries.</td>
 </tr>
 </tbody>
 </table>
@@ -6410,14 +6684,24 @@ sub-projects.</p>
 </ul>
 <p>Configuration for generated documentation.</p>
 <hr />
+<h5 id="libraryoptional"><code>library</code><sup>Optional</sup> <a name="library" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions.property.library"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">library</span><span class="o">:</span><span class="w"> </span><span class="kt">LibraryConfiguration</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.LibraryConfiguration">LibraryConfiguration</a></li>
+</ul>
+<p>Configuration for generated libraries.</p>
+<p>Libraries are projects which are generated from your model, but are not
+fully-fledged runtimes, for example react hooks or clients in languages that aren't supported as runtimes.</p>
+<hr />
 <h3 id="typesafeapiwebacloptions">TypeSafeApiWebAclOptions <a name="TypeSafeApiWebAclOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions"></a></h3>
 <p>Configuration for the Web ACL associated with the API.</p>
-<h4 id="initializer_33">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions.Initializer"></a></h4>
+<h4 id="initializer_36">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeApiWebAclOptions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeApiWebAclOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiWebAclOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_34">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_37">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6476,12 +6760,12 @@ your own WebACL and associate it yourself.</p>
 <hr />
 <h3 id="typesaferestapiprops">TypeSafeRestApiProps <a name="TypeSafeRestApiProps" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps"></a></h3>
 <p>Configuration for the TypeSafeRestApi construct.</p>
-<h4 id="initializer_34">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.Initializer"></a></h4>
+<h4 id="initializer_37">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TypeSafeRestApiProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-prototyping-sdk/type-safe-api&#39;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">typeSafeRestApiProps</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeRestApiProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<h4 id="properties_35">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_38">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6815,7 +7099,7 @@ rule set will be associated with the API. These options may disable or override 
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.AuthorizerProps">AuthorizerProps</a></li>
 </ul>
 <hr />
-<h4 id="properties_36">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_39">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7011,7 +7295,7 @@ rule set will be associated with the API. These options may disable or override 
 </ul>
 <p>the scopes to apply.</p>
 <hr />
-<h4 id="properties_37">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_40">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7105,7 +7389,7 @@ rule set will be associated with the API. These options may disable or override 
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.CustomAuthorizerProps">CustomAuthorizerProps</a></li>
 </ul>
 <hr />
-<h4 id="properties_38">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_41">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7239,7 +7523,7 @@ rule set will be associated with the API. These options may disable or override 
 </tbody>
 </table>
 <hr />
-<h4 id="properties_39">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_42">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7497,7 +7781,7 @@ rule set will be associated with the API. These options may disable or override 
 </tbody>
 </table>
 <hr />
-<h4 id="properties_40">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_43">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7625,7 +7909,7 @@ rule set will be associated with the API. These options may disable or override 
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nx">synthesize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
 </code></pre></div>
 <p>Synthesizes files to the project output directory.</p>
-<h4 id="properties_41">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_44">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7767,7 +8051,7 @@ rule set will be associated with the API. These options may disable or override 
 </ul>
 <p>smithy definitions to depend on.</p>
 <hr />
-<h4 id="properties_42">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_45">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8079,7 +8363,7 @@ from the root of <em>this</em> project.</p>
 <p>If this path is relative, it will be
 resolved from the root of <em>this</em> project.</p>
 <hr />
-<h4 id="properties_43">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_46">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8736,7 +9020,7 @@ from the root of <em>this</em> project.</p>
 <p>If this path is relative, it will be
 resolved from the root of <em>this</em> project.</p>
 <hr />
-<h4 id="properties_44">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_47">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8865,6 +9149,11 @@ resolved from the root of <em>this</em> project.</p>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.property.infrastructure">infrastructure</a></code></td>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.GeneratedCodeProjects">GeneratedCodeProjects</a></code></td>
 <td>Generated infrastructure projects.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.property.library">library</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.GeneratedLibraryProjects">GeneratedLibraryProjects</a></code></td>
+<td>Generated library projects.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.property.model">model</a></code></td>
@@ -9072,6 +9361,15 @@ FQN of the project type.</p>
 <p>Generated infrastructure projects.</p>
 <p>Only the property corresponding to <code>infrastructure.language</code> will be defined.</p>
 <hr />
+<h5 id="libraryrequired"><code>library</code><sup>Required</sup> <a name="library" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.property.library"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">library</span><span class="o">:</span><span class="w"> </span><span class="kt">GeneratedLibraryProjects</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.GeneratedLibraryProjects">GeneratedLibraryProjects</a></li>
+</ul>
+<p>Generated library projects.</p>
+<p>Only the properties corresponding to specified <code>library.libraries</code> will be defined.</p>
+<hr />
 <h5 id="modelrequired_1"><code>model</code><sup>Required</sup> <a name="model" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.property.model"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="kt">TypeSafeApiModelProject</span><span class="p">;</span>
 </code></pre></div>
@@ -9205,7 +9503,7 @@ this task should synthesize the project files.</p>
 </blockquote>
 <hr />
 <h3 id="language">Language <a name="Language" id="@aws-prototyping-sdk/type-safe-api.Language"></a></h3>
-<p>Supported languages for code generation.</p>
+<p>Supported languages for runtimes and infrastructure.</p>
 <h4 id="members_2">Members <a name="Members" id="Members"></a></h4>
 <table>
 <thead>
@@ -9236,9 +9534,29 @@ this task should synthesize the project files.</p>
 <hr />
 <h5 id="java_3"><code>JAVA</code> <a name="JAVA" id="@aws-prototyping-sdk/type-safe-api.Language.JAVA"></a></h5>
 <hr />
+<h3 id="library">Library <a name="Library" id="@aws-prototyping-sdk/type-safe-api.Library"></a></h3>
+<p>Supported libraries for code generation.</p>
+<h4 id="members_3">Members <a name="Members" id="Members"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.Library.TYPESCRIPT_REACT_QUERY_HOOKS">TYPESCRIPT_REACT_QUERY_HOOKS</a></code></td>
+<td><em>No description.</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="typescript_react_query_hooks"><code>TYPESCRIPT_REACT_QUERY_HOOKS</code> <a name="TYPESCRIPT_REACT_QUERY_HOOKS" id="@aws-prototyping-sdk/type-safe-api.Library.TYPESCRIPT_REACT_QUERY_HOOKS"></a></h5>
+<hr />
 <h3 id="modellanguage">ModelLanguage <a name="ModelLanguage" id="@aws-prototyping-sdk/type-safe-api.ModelLanguage"></a></h3>
 <p>The model definition language.</p>
-<h4 id="members_3">Members <a name="Members" id="Members"></a></h4>
+<h4 id="members_4">Members <a name="Members" id="Members"></a></h4>
 <table>
 <thead>
 <tr>
