@@ -74,6 +74,9 @@ export namespace Nx {
    * @see https://nx.dev/reference/nx-json#inputs-&-namedinputs
    */
   export interface NamedInputs {
+    /**
+     * @jsii ignore
+     */
     readonly [name: string]: string[];
   }
 
@@ -82,6 +85,9 @@ export namespace Nx {
    * @see https://nx.dev/reference/nx-json#target-defaults
    */
   export interface TargetDefaults {
+    /**
+     * @jsii ignore
+     */
     readonly [name: string]: ProjectTarget;
   }
 
