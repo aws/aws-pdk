@@ -8,6 +8,8 @@ SPDX-License-Identifier: Apache-2.0 */
 export interface ICounterRecord {
   /**
    * Counter key => count value properties
+   *
+   * @jsii ignore
    */
   [key: string]: number;
 }

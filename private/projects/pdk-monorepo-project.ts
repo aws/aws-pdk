@@ -44,7 +44,6 @@ export const NX_TARGET_DEFAULTS: Nx.TargetDefaults = {
   build: NX_BUILD_TARGET_DEFAULT,
 };
 
-export const JEST_VERSION = "^27"; // This is needed due to: https://github.com/aws/jsii/issues/3619
 const HEADER_RULE = {
   "header/header": [
     2,
@@ -75,8 +74,8 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "lerna",
         "nx",
         "@nrwl/devkit",
-        "@aws-prototyping-sdk/nx-monorepo@^0.x",
-        "@aws-prototyping-sdk/pipeline@^0.x",
+        "@aws-prototyping-sdk/nx-monorepo@0.0.0",
+        "@aws-prototyping-sdk/pipeline@0.0.0",
         "@commitlint/cli",
         "@commitlint/config-conventional",
         "commitizen",
@@ -174,6 +173,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
 
     // add to local `.npmrc` to automatically avoid build hangs if npx is prompting to install a package
     this.npmrc.addConfig("yes", "true");
+    this.npmrc.addConfig("prefer-workspace-packages", "true");
 
     resolveDependencies(this);
 

@@ -8,7 +8,6 @@ import { JavaProject } from "projen/lib/java";
 import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { JEST_VERSION } from "./pdk-monorepo-project";
 import { NodePackageUtils } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
@@ -67,9 +66,6 @@ export class PipelineTypescriptSampleProject extends TypeScriptProject {
       name: "pipeline-sample-ts",
       sampleCode: false,
       depsUpgrade: false,
-      jestOptions: {
-        jestVersion: JEST_VERSION,
-      },
       deps: [
         "aws-cdk-lib",
         "constructs",

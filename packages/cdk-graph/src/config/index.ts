@@ -24,7 +24,11 @@ export interface CdkGraphConfig {
    * @default "<cdk.out>/cdkgraph"
    */
   readonly outdir?: string;
-  /** Additional configs */
+  /**
+   * Additional configs
+   *
+   * @jsii ignore
+   * */
   readonly [key: string]: any;
 }
 

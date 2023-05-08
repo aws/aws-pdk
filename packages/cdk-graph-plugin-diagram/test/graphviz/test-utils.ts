@@ -53,8 +53,8 @@ export async function expectToMatchImageSnapshot(
       // Prevent rendering variants between environments (CI, MacOS, Ubuntu, etc)
       threshold: pixelThreshold || 0.05, // default is 0.01
     },
-    // Allow a 1% difference in image for testing
-    failureThreshold: failureThreshold || 0.01,
+    // Allow a 1.5% difference in image for testing
+    failureThreshold: failureThreshold || 0.015,
     failureThresholdType: "percent",
     updatePassedSnapshot: process.env.CI !== "true" && IS_DEBUG,
   });

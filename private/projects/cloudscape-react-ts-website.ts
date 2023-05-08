@@ -4,7 +4,6 @@ import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { NodePackageManager } from "projen/lib/javascript";
 import { ReactTypeScriptProject } from "projen/lib/web";
-import { JEST_VERSION } from "./pdk-monorepo-project";
 import { NodePackageUtils } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
@@ -52,9 +51,6 @@ class CloudscapeReactTsSampleWebsiteProject extends ReactTypeScriptProject {
       depsUpgrade: false,
       name: "@aws-prototyping-sdk/cloudscape-react-ts-sample-website",
       sampleCode: false,
-      jestOptions: {
-        jestVersion: JEST_VERSION,
-      },
       deps: [
         "@aws-northstar/ui",
         "@cloudscape-design/components",
