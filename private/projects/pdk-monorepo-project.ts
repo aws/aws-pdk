@@ -7,42 +7,6 @@ import {
   NxMonorepoProject,
   DEFAULT_CONFIG,
 } from "../../packages/nx-monorepo/src";
-import { Nx } from "../../packages/nx-monorepo/src/nx-types";
-
-// Default NX outputs to cache
-export const NX_DEFAULT_OUTPUTS = [
-  "{projectRoot}/dist",
-  "{projectRoot}/lib",
-  "{projectRoot}/build",
-  "{projectRoot}/coverage",
-  "{projectRoot}/test-reports",
-  "{projectRoot}/target",
-  "{projectRoot}/LICENSE_THIRD_PARTY",
-  "{projectRoot}/.jsii",
-];
-/**
- * Workspace default NX "build" target
- *
- * @see {@link NxTargetDefaults}
- * @see {@link ProjectTarget}
- */
-export const NX_BUILD_TARGET_DEFAULT: Nx.ProjectTarget = {
-  outputs: NX_DEFAULT_OUTPUTS,
-  dependsOn: [
-    {
-      target: "build",
-      projects: Nx.TargetDependencyProject.DEPENDENCIES,
-    },
-  ],
-};
-/**
- * Workspace default NX `targetDefaults`
- *
- * @see {@link NxTargetDefaults}
- */
-export const NX_TARGET_DEFAULTS: Nx.TargetDefaults = {
-  build: NX_BUILD_TARGET_DEFAULT,
-};
 
 const HEADER_RULE = {
   "header/header": [
@@ -90,31 +54,22 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         syncpackConfig: { ...DEFAULT_CONFIG, workspace: false },
       },
       deps: ["fast-xml-parser", "projen", "@pnpm/types@^9.0.0"],
-      nxConfig: {
-        // This is OK to be stored given its read only and the repository is public
-        nxCloudReadOnlyAccessToken:
-          "OWJmZDJmZmEtNzk5MC00OGJkLTg3YjUtNmNkZDk1MmYxZDZkfHJlYWQ=",
-        cacheableOperations: ["build", "test", "generate"],
-        targetDefaults: NX_TARGET_DEFAULTS,
-        targetDependencies: {
-          "release:mainline": [
-            {
-              target: "release:mainline",
-              projects: Nx.TargetDependencyProject.DEPENDENCIES,
-            },
-          ],
-          upgrade: [
-            {
-              target: "upgrade",
-              projects: Nx.TargetDependencyProject.DEPENDENCIES,
-            },
-          ],
-        },
-      },
       workspaceConfig: {
         disableNoHoistBundled: true,
         linkLocalWorkspaceBins: true,
       },
+    });
+
+    // This is OK to be stored given its read only and the repository is public
+    this.nx.useNxCloud(
+      "OWJmZDJmZmEtNzk5MC00OGJkLTg3YjUtNmNkZDk1MmYxZDZkfHJlYWQ="
+    );
+    this.nx.cacheableOperations.push("generate");
+    this.nx.setTargetDefault("release:mainline", {
+      dependsOn: ["^release:mainline"],
+    });
+    this.nx.setTargetDefault("upgrade", {
+      dependsOn: ["^upgrade"],
     });
 
     this.eslint?.addPlugins("header");

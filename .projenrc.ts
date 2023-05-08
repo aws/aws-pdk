@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { NxProject } from "./packages/nx-monorepo/src/components/nx-project";
 import { PDKProject } from "./private/pdk-project";
 import { AwsArchProject } from "./private/projects/aws-arch";
 import { CdkGraphProject } from "./private/projects/cdk-graph";
@@ -30,19 +31,15 @@ new CloudscapeReactTsWebsiteProject(monorepoProject);
 new AwsArchProject(monorepoProject);
 new CdkGraphProject(monorepoProject);
 new CdkGraphPluginDiagramProject(monorepoProject);
-const pipelineProject = new PipelineProject(monorepoProject);
+new PipelineProject(monorepoProject);
 
 // docs
 const docsProject = new DocsProject(monorepoProject);
-
-// implicit dependencies
-pipelineProject.samples.forEach((sample) =>
-  monorepoProject.addImplicitDependency(sample, pipelineProject)
-);
-
 // Docs should have a dependency on all publishable packages
-monorepoProject.subProjects
-  .filter((s: any) => s instanceof PDKProject && s.pdkRelease)
-  .forEach((p) => monorepoProject.addImplicitDependency(docsProject, p));
+NxProject.ensure(docsProject).addImplicitDependency(
+  ...monorepoProject.subProjects.filter(
+    (s: any) => s instanceof PDKProject && s.pdkRelease
+  )
+);
 
 monorepoProject.synth();

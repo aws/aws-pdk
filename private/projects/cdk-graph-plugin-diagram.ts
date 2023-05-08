@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { JestReporter } from "projen/lib/javascript";
+import { NodePackageUtils } from "../../packages/nx-monorepo/src";
 import { CdkGraphPluginProject } from "../abstract/cdk-graph-plugin-project";
 
 /**
@@ -70,27 +71,24 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
     });
     this.packageTask.prependSpawn(sharpPrebuildTask);
     // Ensure build input + output includes `sharp:prebuild` artifacts
-    this.nxOverride(
-      "targets.build.inputs",
-      [
-        "default",
-        "^default",
-        {
-          // To ensure sharp:prebuild artifacts are included in build cache hash
-          runtime: this.buildExecuteCommand(
-            "pdk-nx-dir-hasher",
-            "{workspaceRoot}/packages/cdk-graph-plugin-diagram/node_modules/sharp"
-          ),
-        },
-      ],
-      true
-    );
-    this.nxOverride(
-      "targets.build.outputs",
-      [
-        "{projectRoot}/node_modules/sharp/build",
-        "{projectRoot}/node_modules/sharp/vendor",
-      ],
+    this.nx.setTarget(
+      "build",
+      {
+        inputs: [
+          {
+            // To ensure sharp:prebuild artifacts are included in build cache hash
+            runtime: NodePackageUtils.command.exec(
+              this.package.packageManager,
+              "pdk-nx-dir-hasher",
+              "{workspaceRoot}/packages/cdk-graph-plugin-diagram/node_modules/sharp"
+            ),
+          },
+        ],
+        outputs: [
+          "{projectRoot}/node_modules/sharp/build",
+          "{projectRoot}/node_modules/sharp/vendor",
+        ],
+      },
       true
     );
 

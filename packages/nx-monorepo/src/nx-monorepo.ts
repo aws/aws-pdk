@@ -4,7 +4,6 @@ import * as path from "path";
 import {
   Dependency,
   DependencyType,
-  IgnoreFile,
   JsonFile,
   Project,
   Task,
@@ -21,7 +20,8 @@ import {
   TypeScriptProject,
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
-import { NxProject } from "./nx-project";
+import { NxProject } from "./components/nx-project";
+import { NxWorkspace } from "./components/nx-workspace";
 import { Nx } from "./nx-types";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
 import { NodePackageUtils } from "./utils";
@@ -89,10 +89,10 @@ export interface MonorepoUpgradeDepsOptions {
  * Configuration options for the NxMonorepoProject.
  */
 export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
-  /**
-   * Configuration for NX.
-   */
-  readonly nxConfig?: Nx.WorkspaceConfig;
+  // /**
+  //  * Configuration for NX.
+  //  */
+  // readonly nxConfig?: Nx.WorkspaceConfig;
 
   /**
    * Configuration for workspace.
@@ -114,47 +114,6 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
    * @default undefined
    */
   readonly monorepoUpgradeDepsOptions?: MonorepoUpgradeDepsOptions;
-}
-
-/**
- *
- * @see https://nx.dev/packages/nx/documents/run-many#options
- */
-export interface NxRunManyOptions {
-  /** Task to run for affected projects */
-  readonly target: string;
-  /** This is the configuration to use when performing tasks on projects */
-  readonly configuration?: string;
-  /** Exclude certain projects from being processed */
-  readonly exclude?: string;
-  /**
-   * Do not stop command execution after the first failed task.
-   */
-  readonly noBail?: boolean;
-  /**
-   * Defines how Nx emits outputs tasks logs
-   * @default "stream"
-   */
-  readonly outputStyle?:
-    | "dynamic"
-    | "static"
-    | "stream"
-    | "stream-without-prefixes";
-  /**
-   * Max number of parallel processes
-   * @default 3
-   */
-  readonly parallel?: number;
-  /** Project to run as list project names and/or patterns. */
-  readonly projects?: string[];
-  /** This is the name of the tasks runner configuration in nx.json */
-  readonly runner?: string;
-  /** Rerun the tasks even when the results are available in the cache. */
-  readonly skipCache?: boolean;
-  /** Ignore cycles in the task graph */
-  readonly ignoreCycles?: boolean;
-  /** Prints additional information about the commands (e.g. stack traces). */
-  readonly verbose?: boolean;
 }
 
 /**
@@ -181,15 +140,16 @@ interface OverrideNxBuildTaskOptions {
  */
 export class NxMonorepoProject extends TypeScriptProject {
   // immutable data structures
-  private readonly nxConfig?: Nx.WorkspaceConfig;
   private readonly workspaceConfig?: WorkspaceConfig;
   private readonly workspacePackages: string[];
 
-  public readonly nxJson: JsonFile;
+  public readonly nx: NxWorkspace;
 
   private readonly _options: NxMonorepoProjectOptions;
 
   constructor(options: NxMonorepoProjectOptions) {
+    const defaultReleaseBranch = options.defaultReleaseBranch ?? "mainline";
+
     super({
       ...options,
       github: options.github ?? false,
@@ -201,7 +161,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       projenrcTs: true,
       release: options.release ?? false,
       jest: options.jest ?? false,
-      defaultReleaseBranch: options.defaultReleaseBranch ?? "mainline",
+      defaultReleaseBranch,
       sampleCode: false, // root should never have sample code,
       gitignore: [".nx/cache", ...(options.gitignore ?? [])],
       eslintOptions: options.eslintOptions ?? {
@@ -237,7 +197,6 @@ export class NxMonorepoProject extends TypeScriptProject {
       }
     }
 
-    this.nxConfig = options.nxConfig;
     this.workspaceConfig = options.workspaceConfig;
     this.workspacePackages = options.workspaceConfig?.additionalPackages ?? [];
 
@@ -348,7 +307,9 @@ export class NxMonorepoProject extends TypeScriptProject {
           "fix-mismatches"
         )
       );
-      upgradeDepsTask.exec(`${this.package.packageManager} install`);
+      upgradeDepsTask.exec(
+        NodePackageUtils.command.exec(this.package.packageManager, "install")
+      );
       upgradeDepsTask.exec(
         NodePackageUtils.command.exec(this.package.packageManager, "projen")
       );
@@ -360,70 +321,15 @@ export class NxMonorepoProject extends TypeScriptProject {
       });
     }
 
-    options.nxConfig?.nxCloudReadOnlyAccessToken && this.addDevDeps("nx-cloud");
-
-    new IgnoreFile(this, ".nxignore").exclude(
-      "test-reports",
-      "target",
-      ".env",
-      ".pytest_cache",
-      ...(this.nxConfig?.nxIgnore || [])
-    );
-
-    this.nxJson = new JsonFile(this, "nx.json", {
-      obj: {
-        extends: "nx/presets/npm.json",
-        npmScope: "monorepo",
-        tasksRunnerOptions: {
-          default: {
-            runner: options.nxConfig?.nxCloudReadOnlyAccessToken
-              ? "nx-cloud"
-              : "nx/tasks-runners/default",
-            options: {
-              useDaemonProcess: false,
-              cacheableOperations: options.nxConfig?.cacheableOperations || [
-                "build",
-                "test",
-              ],
-              accessToken: options.nxConfig?.nxCloudReadOnlyAccessToken,
-            },
-          },
-        },
-        namedInputs: {
-          // https://nx.dev/more-concepts/customizing-inputs#defaults
-          default: ["{projectRoot}/**/*"],
-          ...options.nxConfig?.namedInputs,
-        },
-        targetDefaults: {
-          build: {
-            dependsOn: ["^build"],
-          },
-          ...this.nxConfig?.targetDefaults,
-        },
-        affected: {
-          defaultBase: this.nxConfig?.affectedBranch || "mainline",
-        },
-      },
-    });
-  }
-
-  /**
-   * Ensure NXProject is added when adding subprojects to the monorepo.
-   *
-   * @internal
-   * @param subproject project to add.
-   */
-  _addSubProject(subproject: Project) {
-    !NxProject.of(subproject) &&
-      subproject._addComponent(new NxProject(subproject));
-    super._addSubProject(subproject);
+    this.nx = NxWorkspace.of(this) || new NxWorkspace(this);
+    this.nx.affected.defaultBase = options.defaultReleaseBranch;
   }
 
   /**
    * Helper to format `npx nx run-many ...` style command.
    * @param options
    */
-  public formatNxRunManyCommand(options: NxRunManyOptions): string {
+  public formatNxRunManyCommand(options: Nx.RunManyOptions): string {
     const args: string[] = [];
     if (options.configuration) {
       args.push(`--configuration=${options.configuration}`);
@@ -473,7 +379,7 @@ export class NxMonorepoProject extends TypeScriptProject {
    */
   protected _overrideNxBuildTask(
     task: Task | string | undefined,
-    options: NxRunManyOptions,
+    options: Nx.RunManyOptions,
     overrideOptions?: OverrideNxBuildTaskOptions
   ): Task | undefined {
     if (typeof task === "string") {
@@ -658,14 +564,34 @@ export class NxMonorepoProject extends TypeScriptProject {
     (this.tasks.tryFind("prepare") || this.addTask("prepare")).spawn(linkTask);
   }
 
+  /**
+   * Ensures that all non-root projects have NxProjectConfig applied.
+   */
+  protected _ensureNxProjectGraph(): void {
+    function _ensure(_project: Project) {
+      if (_project.root === _project) return;
+
+      NxProject.ensure(_project);
+
+      // @ts-ignore - private
+      const _subprojects: Project[] = _project.subprojects || [];
+
+      _subprojects.forEach((p) => {
+        _ensure(p);
+      });
+    }
+
+    this.subProjects.forEach(_ensure);
+  }
+
   preSynthesize(): void {
     NodePackageUtils.removeProjenScript(this);
 
+    // Calling being "super" to ensure proper preSynth of NxProject component and its nested components
+    this._ensureNxProjectGraph();
+
     super.preSynthesize();
 
-    if (this._options.nxConfig?.nonNativeHasher) {
-      this.tasks.addEnvironment("NX_NON_NATIVE_HASHER", "true");
-    }
     if (this._options.workspaceConfig?.linkLocalWorkspaceBins === true) {
       this.linkLocalWorkspaceBins();
     }
@@ -687,10 +613,6 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     // Remove any subproject .npmrc files since only the root one matters
     this.subProjects.forEach((subProject) => {
-      if (this._options.nxConfig?.nonNativeHasher) {
-        subProject.tasks.addEnvironment("NX_NON_NATIVE_HASHER", "true");
-      }
-
       if (isNodeProject(subProject)) {
         subProject.tryRemoveFile(".npmrc");
         NodePackageUtils.removeProjenScript(subProject);
@@ -823,7 +745,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       );
 
       // Update the nx.json to ensure that install-py follows dependency order
-      this.nxJson.addOverride("targetDefaults.install", {
+      this.nx.setTargetDefault("install", {
         dependsOn: ["^install"],
       });
     }

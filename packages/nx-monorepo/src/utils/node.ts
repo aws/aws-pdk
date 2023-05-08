@@ -1,6 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { NodePackageManager, NodeProject } from "projen/lib/javascript";
+import { Project } from "projen";
+import {
+  NodePackageManager,
+  NodeProject,
+  NodePackage,
+} from "projen/lib/javascript";
 
 /**
  * Utility functions for working with different Node package managers.
@@ -27,6 +32,45 @@ export namespace NodePackageUtils {
    */
   export function removeProjenScript(project: NodeProject): void {
     project.package.removeScript("projen");
+  }
+
+  /**
+   * Find the nearest {@link NodePackage} within scope. This will traverse parent
+   * tree until finds projen with {@link NodePackage} component, or will throw
+   * error if none found. Use {@link #tryFindNodePackage} if you do not want to
+   * throw error.
+   * @param scope The leaf project scope
+   * @returns {NodeProject} The NodeProject component for scope
+   * @throws Error if {@link NodePackage} not found in tree of scope
+   */
+  export function findNodePackage(scope: Project): NodePackage {
+    const nodePackage = tryFindNodePackage(scope);
+    if (nodePackage) {
+      return nodePackage;
+    }
+    throw new Error(
+      `Project ${scope.name} does not have NodePackage component.`
+    );
+  }
+
+  /**
+   * Try to find the nearest {@link NodePackage} within scope. This will traverse parent
+   * tree until finds projen with {@link NodePackage} component.
+   * @param scope The leaf project scope
+   * @returns {NodeProject} The NodeProject component for scope, or undefined if no projects are node based.
+   */
+  export function tryFindNodePackage(scope: Project): NodePackage | undefined {
+    let _project: Project | undefined = scope;
+    while (_project) {
+      const nodePackage = _project.components.find(
+        (c) => c instanceof NodePackage
+      ) as NodePackage | undefined;
+      if (nodePackage) {
+        return nodePackage;
+      }
+      _project = _project.parent;
+    }
+    return undefined;
   }
 
   /**
@@ -95,6 +139,21 @@ export namespace NodePackageUtils {
           return withArgs("pnpm dlx", args);
         default:
           return withArgs("npx", args);
+      }
+    }
+
+    export function execInWorkspace(
+      packageManager: NodePackageManager,
+      ...args: string[]
+    ) {
+      switch (packageManager) {
+        case NodePackageManager.YARN:
+        case NodePackageManager.YARN2:
+          return withArgs("yarn workspace", args);
+        case NodePackageManager.PNPM:
+          return withArgs("pnpm", ["--filter", ...args]);
+        default:
+          return withArgs("npx", ["-p", ...args]);
       }
     }
 

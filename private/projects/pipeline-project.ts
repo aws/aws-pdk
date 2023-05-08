@@ -9,6 +9,7 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { NodePackageUtils } from "../../packages/nx-monorepo/src";
+import { NxProject } from "../../packages/nx-monorepo/src/components/nx-project";
 import { PDKProject } from "../pdk-project";
 
 /**
@@ -39,6 +40,10 @@ export class PipelineProject extends PDKProject {
       new PipelineTypescriptSampleProject(parent),
       new PipelinePythonSampleProject(parent),
       new PipelineJavaSampleProject(parent)
+    );
+
+    this._samples.forEach((sample) =>
+      NxProject.ensure(sample).addImplicitDependency(this)
     );
 
     this.preCompileTask.exec(

@@ -1,37 +1,58 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+
+import { Obj } from "projen/lib/util";
+
 export namespace Nx {
   /**
    * Configuration for nx targetDependencies.
    */
-  export type TargetDependencies = { [target: string]: TargetDependency[] };
+  export type ITargetDependencies = { [target: string]: ITargetDependency[] };
 
   /**
    * Configuration for project specific targets.
    */
-  export type ProjectTargets = { [target: string]: ProjectTarget };
+  export type IProjectTargets = { [target: string]: IProjectTarget };
+
+  export interface IInput {
+    fileset?: string;
+    runtime?: string;
+    env?: string;
+  }
+
+  export type IInputs = (string | IInput)[];
 
   /**
    * Project Target.
    */
-  export interface ProjectTarget {
+  export interface IProjectTarget {
     /**
      * List of inputs to hash for cache key, relative to the root of the monorepo.
      *
      * note: must start with leading /
      */
-    readonly inputs?: string[];
+    inputs?: IInputs;
     /**
      * List of outputs to cache, relative to the root of the monorepo.
      *
      * note: must start with leading /
      */
-    readonly outputs?: string[];
+    outputs?: string[];
 
     /**
      * List of Target Dependencies.
      */
-    readonly dependsOn?: TargetDependency[];
+    dependsOn?: (string | ITargetDependency)[];
+
+    /**
+     * The function that Nx will invoke when you run this target
+     */
+    executor?: string;
+
+    /**
+     * Contains whatever configuration properties the executor needs to run.
+     */
+    options?: any;
   }
 
   /**
@@ -57,38 +78,119 @@ export namespace Nx {
   /**
    * Represents an NX Target Dependency.
    */
-  export interface TargetDependency {
+  export interface ITargetDependency {
     /**
      * Projen target i.e: build, test, etc
      */
-    readonly target: string;
+    target: string;
 
     /**
      * Target dependencies.
      */
-    readonly projects: TargetDependencyProject;
+    projects: TargetDependencyProject;
   }
 
   /**
    * Named inputs config
    * @see https://nx.dev/reference/nx-json#inputs-&-namedinputs
    */
-  export interface NamedInputs {
+  export interface INamedInputs {
     /**
      * @jsii ignore
      */
-    readonly [name: string]: string[];
+    [name: string]: string[];
   }
 
   /**
    * Target defaults config
    * @see https://nx.dev/reference/nx-json#target-defaults
    */
-  export interface TargetDefaults {
+  export interface ITargetDefaults {
     /**
      * @jsii ignore
      */
-    readonly [name: string]: ProjectTarget;
+    [name: string]: IProjectTarget;
+  }
+
+  /**
+   * Default options for `nx affected`
+   * @see https://github.com/nrwl/nx/blob/065477610605d5799babc3ba78f26cdfe8737250/packages/nx/src/config/nx-json.ts#L16
+   */
+  export interface INxAffectedConfig {
+    /** Default based branch used by affected commands. */
+    defaultBase?: string;
+  }
+
+  /**
+   * Where new apps + libs should be placed
+   */
+  export interface IWorkspaceLayout {
+    libsDir: string;
+    appsDir: string;
+  }
+
+  /**
+   * @see https://nx.dev/reference/nx-json
+   * @see https://github.com/nrwl/nx/blob/master/packages/nx/src/config/nx-json.ts
+   */
+  export interface NxJsonConfiguration {
+    /**
+     * Some presets use the extends property to hide some default options in a separate json file.
+     * The json file specified in the extends property is located in your node_modules folder.
+     * The Nx preset files are specified in the nx package.
+     *
+     * @default "nx/presets/npm.json"
+     */
+    readonly extends?: string;
+
+    /**
+     * Tells Nx what prefix to use when generating library imports.
+     */
+    readonly npmScope?: string;
+
+    /**
+     * Named inputs
+     * @see https://nx.dev/reference/nx-json#inputs-&-namedinputs
+     */
+    readonly namedInputs?: INamedInputs;
+
+    /**
+     * Default options for `nx affected`
+     */
+    readonly affected?: INxAffectedConfig;
+
+    /**
+     * Dependencies between different target names across all projects
+     *
+     * @see https://nx.dev/reference/nx-json#target-defaults
+     */
+    readonly targetDefaults?: ITargetDefaults;
+
+    /**
+     * Where new apps + libs should be placed
+     */
+    readonly workspaceLayout?: IWorkspaceLayout;
+
+    /**
+     * Available Task Runners
+     */
+    readonly tasksRunnerOptions?: Obj<any>;
+
+    /**
+     * Plugins for extending the project graph
+     */
+    readonly plugins?: string[];
+
+    /**
+     * Configuration for Nx Plugins
+     */
+    readonly pluginsConfig?: Obj<any>;
+
+    /**
+     * Default project. When project isn't provided, the default project
+     * will be used. Convenient for small workspaces with one main application.
+     */
+    readonly defaultProject?: string;
   }
 
   /**
@@ -98,30 +200,11 @@ export namespace Nx {
    */
   export interface WorkspaceConfig {
     /**
-     * Affected branch.
-     *
-     * @default mainline
-     */
-    readonly affectedBranch?: string;
-
-    /**
-     * Configuration for TargetDependencies.
-     *
-     * @see https://nx.dev/configuration/packagejson#target-dependencies
-     */
-    readonly targetDependencies?: TargetDependencies;
-
-    /**
      * List of patterns to include in the .nxignore file.
      *
      * @see https://nx.dev/configuration/packagejson#nxignore
      */
     readonly nxIgnore?: string[];
-
-    /**
-     * Read only access token if enabling nx cloud.
-     */
-    readonly nxCloudReadOnlyAccessToken?: string;
 
     /**
      * Defines the list of targets/operations that are cached by Nx
@@ -131,18 +214,12 @@ export namespace Nx {
      */
     readonly cacheableOperations?: string[];
 
-    /**
-     * Named inputs
-     * @see https://nx.dev/reference/nx-json#inputs-&-namedinputs
-     */
-    readonly namedInputs?: NamedInputs;
+    readonly defaultBuildOutputs?: string[];
 
     /**
-     * Target defaults
-     *
-     * @see https://nx.dev/reference/nx-json#target-defaults
+     * Read only access token if enabling nx cloud.
      */
-    readonly targetDefaults?: TargetDefaults;
+    readonly nxCloudReadOnlyAccessToken?: string;
 
     /**
      * Use non-native hasher for nx tasks.
@@ -151,39 +228,85 @@ export namespace Nx {
      * @see https://github.com/nrwl/nx/pull/15071
      */
     readonly nonNativeHasher?: boolean;
+
+    // nxJson?: INxJson;
   }
 
+  /**
+   * @see https://github.com/nrwl/nx/blob/master/packages/nx/schemas/project-schema.json
+   */
   export interface ProjectConfig {
     /**
      * Named inputs
      * @see https://nx.dev/reference/nx-json#inputs-&-namedinputs
      */
-    readonly namedInputs?: NamedInputs;
+    namedInputs?: INamedInputs;
 
     /**
      * Targets configuration
      * @see https://nx.dev/reference/project-configuration
      */
-    readonly targets?: ProjectTargets;
+    targets?: IProjectTargets;
 
     /**
      * Project tag annotations
      *
      * @see https://nx.dev/reference/project-configuration#tags
      */
-    readonly tags?: string[];
+    tags?: string[];
 
     /**
      * Implicit dependencies
      *
      * @see https://nx.dev/reference/project-configuration#implicitdependencies
      */
-    readonly implicitDependencies?: string[];
+    implicitDependencies?: string[];
 
     /**
      * Explicit list of scripts for Nx to include.
      * @see https://nx.dev/reference/project-configuration#ignoring-package.json-scripts
      */
-    readonly includedScripts?: string[];
+    includedScripts?: string[];
+  }
+
+  /**
+   *
+   * @see https://nx.dev/packages/nx/documents/run-many#options
+   */
+  export interface RunManyOptions {
+    /** Task to run for affected projects */
+    readonly target: string;
+    /** This is the configuration to use when performing tasks on projects */
+    readonly configuration?: string;
+    /** Exclude certain projects from being processed */
+    readonly exclude?: string;
+    /**
+     * Do not stop command execution after the first failed task.
+     */
+    readonly noBail?: boolean;
+    /**
+     * Defines how Nx emits outputs tasks logs
+     * @default "stream"
+     */
+    readonly outputStyle?:
+      | "dynamic"
+      | "static"
+      | "stream"
+      | "stream-without-prefixes";
+    /**
+     * Max number of parallel processes
+     * @default 3
+     */
+    readonly parallel?: number;
+    /** Project to run as list project names and/or patterns. */
+    readonly projects?: string[];
+    /** This is the name of the tasks runner configuration in nx.json */
+    readonly runner?: string;
+    /** Rerun the tasks even when the results are available in the cache. */
+    readonly skipCache?: boolean;
+    /** Ignore cycles in the task graph */
+    readonly ignoreCycles?: boolean;
+    /** Prints additional information about the commands (e.g. stack traces). */
+    readonly verbose?: boolean;
   }
 }
