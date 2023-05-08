@@ -257,9 +257,6 @@ export class NxMonorepoProject extends TypeScriptProject {
         "nx",
         "run-many"
       ),
-      env: {
-        NX_NON_NATIVE_HASHER: "true",
-      },
       description: "Run task against multiple workspace projects",
     });
 
@@ -498,9 +495,6 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     task.description += " for all affected projects";
 
-    // Fix for https://github.com/nrwl/nx/pull/15071
-    task.env("NX_NON_NATIVE_HASHER", "true");
-
     if (overrideOptions?.disableReset) {
       // Prevent any further resets of the task to force it to remain as the overridden nx build task
       task.reset = () => {};
@@ -512,13 +506,10 @@ export class NxMonorepoProject extends TypeScriptProject {
   /**
    * Add project task that executes `npx nx run-many ...` style command.
    */
-  public addNxRunManyTask(name: string, options: NxRunManyOptions): Task {
+  public addNxRunManyTask(name: string, options: Nx.RunManyOptions): Task {
     return this.addTask(name, {
       receiveArgs: true,
       exec: this.formatNxRunManyCommand(options),
-      env: {
-        NX_NON_NATIVE_HASHER: "true",
-      },
     });
   }
 
@@ -672,6 +663,9 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     super.preSynthesize();
 
+    if (this._options.nxConfig?.nonNativeHasher) {
+      this.tasks.addEnvironment("NX_NON_NATIVE_HASHER", "true");
+    }
     if (this._options.workspaceConfig?.linkLocalWorkspaceBins === true) {
       this.linkLocalWorkspaceBins();
     }
@@ -693,6 +687,10 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     // Remove any subproject .npmrc files since only the root one matters
     this.subProjects.forEach((subProject) => {
+      if (this._options.nxConfig?.nonNativeHasher) {
+        subProject.tasks.addEnvironment("NX_NON_NATIVE_HASHER", "true");
+      }
+
       if (isNodeProject(subProject)) {
         subProject.tryRemoveFile(".npmrc");
         NodePackageUtils.removeProjenScript(subProject);

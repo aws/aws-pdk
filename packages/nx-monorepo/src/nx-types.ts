@@ -143,6 +143,14 @@ export namespace Nx {
      * @see https://nx.dev/reference/nx-json#target-defaults
      */
     readonly targetDefaults?: TargetDefaults;
+
+    /**
+     * Use non-native hasher for nx tasks.
+     *
+     * Sets `NX_NON_NATIVE_HASHER=true` environment variable on nx based tasks.
+     * @see https://github.com/nrwl/nx/pull/15071
+     */
+    readonly nonNativeHasher?: boolean;
   }
 
   export interface ProjectConfig {
