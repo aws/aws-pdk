@@ -2205,6 +2205,7 @@
   <span class="n">context</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_stack_synthesizer</span><span class="p">:</span> <span class="n">IReusableStackSynthesizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">policy_validation_beta1</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">IPolicyValidationPluginBeta1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">post_cli_context</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">stack_traces</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tree_metadata</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2246,6 +2247,11 @@
 <td><code><a href="#@aws-prototyping-sdk/pdk-nag.PDKNagApp.Initializer.parameter.outdir">outdir</a></code></td>
 <td><code>str</code></td>
 <td>The output directory into which to emit synthesized artifacts.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/pdk-nag.PDKNagApp.Initializer.parameter.policyValidationBeta1">policy_validation_beta1</a></code></td>
+<td><code>typing.List[aws_cdk.IPolicyValidationPluginBeta1]</code></td>
+<td>Validation plugins to run after synthesis.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pdk-nag.PDKNagApp.Initializer.parameter.postCliContext">post_cli_context</a></code></td>
@@ -2326,6 +2332,13 @@ information, see the README of the main CDK package.</p>
 the CLI's <code>--output</code> flag will be used, and if you change it to a different
 directory the CLI will fail to pick up the generated Cloud Assembly.</p>
 <p>This property is intended for internal and testing use.</p>
+<hr />
+<h5 id="policy_validation_beta1optional"><code>policy_validation_beta1</code><sup>Optional</sup> <a name="policy_validation_beta1" id="@aws-prototyping-sdk/pdk-nag.PDKNagApp.Initializer.parameter.policyValidationBeta1"></a></h5>
+<ul>
+<li><em>Type:</em> typing.List[aws_cdk.IPolicyValidationPluginBeta1]</li>
+<li><em>Default:</em> no validation plugins</li>
+</ul>
+<p>Validation plugins to run after synthesis.</p>
 <hr />
 <h5 id="post_cli_contextoptional"><code>post_cli_context</code><sup>Optional</sup> <a name="post_cli_context" id="@aws-prototyping-sdk/pdk-nag.PDKNagApp.Initializer.parameter.postCliContext"></a></h5>
 <ul>
@@ -2606,6 +2619,11 @@ on a nested stage, returns its parent.</p>
 <td>The cloud assembly output directory.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/pdk-nag.PDKNagApp.property.policyValidationBeta1">policy_validation_beta1</a></code></td>
+<td><code>typing.List[aws_cdk.IPolicyValidationPluginBeta1]</code></td>
+<td>Validation plugins to run during synthesis.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/pdk-nag.PDKNagApp.property.stageName">stage_name</a></code></td>
 <td><code>str</code></td>
 <td>The name of the stage.</td>
@@ -2665,6 +2683,17 @@ on a nested stage, returns its parent.</p>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The cloud assembly output directory.</p>
+<hr />
+<h5 id="policy_validation_beta1required"><code>policy_validation_beta1</code><sup>Required</sup> <a name="policy_validation_beta1" id="@aws-prototyping-sdk/pdk-nag.PDKNagApp.property.policyValidationBeta1"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">policy_validation_beta1</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">IPolicyValidationPluginBeta1</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[aws_cdk.IPolicyValidationPluginBeta1]</li>
+<li><em>Default:</em> no validation plugins are used</li>
+</ul>
+<p>Validation plugins to run during synthesis.</p>
+<p>If any plugin reports any violation,
+synthesis will be interrupted and the report displayed to the user.</p>
 <hr />
 <h5 id="stage_namerequired"><code>stage_name</code><sup>Required</sup> <a name="stage_name" id="@aws-prototyping-sdk/pdk-nag.PDKNagApp.property.stageName"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">stage_name</span><span class="p">:</span> <span class="nb">str</span>
@@ -2817,6 +2846,7 @@ hypens.</p>
   <span class="n">context</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_stack_synthesizer</span><span class="p">:</span> <span class="n">IReusableStackSynthesizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">policy_validation_beta1</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">IPolicyValidationPluginBeta1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">post_cli_context</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">stack_traces</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tree_metadata</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2859,6 +2889,11 @@ hypens.</p>
 <td><code><a href="#@aws-prototyping-sdk/pdk-nag.PDKNagAppProps.property.outdir">outdir</a></code></td>
 <td><code>str</code></td>
 <td>The output directory into which to emit synthesized artifacts.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/pdk-nag.PDKNagAppProps.property.policyValidationBeta1">policy_validation_beta1</a></code></td>
+<td><code>typing.List[aws_cdk.IPolicyValidationPluginBeta1]</code></td>
+<td>Validation plugins to run after synthesis.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pdk-nag.PDKNagAppProps.property.postCliContext">post_cli_context</a></code></td>
@@ -2950,6 +2985,15 @@ the CLI's <code>--output</code> flag will be used, and if you change it to a dif
 directory the CLI will fail to pick up the generated Cloud Assembly.</p>
 <p>This property is intended for internal and testing use.</p>
 <hr />
+<h5 id="policy_validation_beta1optional_1"><code>policy_validation_beta1</code><sup>Optional</sup> <a name="policy_validation_beta1" id="@aws-prototyping-sdk/pdk-nag.PDKNagAppProps.property.policyValidationBeta1"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">policy_validation_beta1</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">IPolicyValidationPluginBeta1</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[aws_cdk.IPolicyValidationPluginBeta1]</li>
+<li><em>Default:</em> no validation plugins</li>
+</ul>
+<p>Validation plugins to run after synthesis.</p>
+<hr />
 <h5 id="post_cli_contextoptional_1"><code>post_cli_context</code><sup>Optional</sup> <a name="post_cli_context" id="@aws-prototyping-sdk/pdk-nag.PDKNagAppProps.property.postCliContext"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">post_cli_context</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span>
 </code></pre></div>
@@ -3033,7 +3077,9 @@ can make final decision over which context value to take in your app.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.pdk_nag</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">pdk_nag</span><span class="o">.</span><span class="n">AwsPrototypingChecks</span><span class="p">(</span>
+  <span class="n">additional_loggers</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">INagLogger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">log_ignores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">report_formats</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">NagReportFormat</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">reports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">suppression_ignore_condition</span><span class="p">:</span> <span class="n">INagSuppressionIgnore</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3049,14 +3095,24 @@ can make final decision over which context value to take in your app.</p>
 </thead>
 <tbody>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.Initializer.parameter.additionalLoggers">additional_loggers</a></code></td>
+<td><code>typing.List[cdk_nag.INagLogger]</code></td>
+<td>Additional NagLoggers for logging rule validation outputs.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.Initializer.parameter.logIgnores">log_ignores</a></code></td>
 <td><code>bool</code></td>
-<td>Whether or not to log triggered rules that have been suppressed as informational messages (default: false).</td>
+<td>Whether or not to log suppressed rule violations as informational messages (default: false).</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.Initializer.parameter.reportFormats">report_formats</a></code></td>
+<td><code>typing.List[cdk_nag.NagReportFormat]</code></td>
+<td>If reports are enabled, the output formats of compliance reports in the App's output directory (default: only CSV).</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.Initializer.parameter.reports">reports</a></code></td>
 <td><code>bool</code></td>
-<td>Whether or not to generate CSV compliance reports for applied Stacks in the App's output directory (default: true).</td>
+<td>Whether or not to generate compliance reports for applied Stacks in the App's output directory (default: true).</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.Initializer.parameter.suppressionIgnoreCondition">suppression_ignore_condition</a></code></td>
@@ -3071,17 +3127,29 @@ can make final decision over which context value to take in your app.</p>
 </tbody>
 </table>
 <hr />
+<h5 id="additional_loggersoptional"><code>additional_loggers</code><sup>Optional</sup> <a name="additional_loggers" id="@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.Initializer.parameter.additionalLoggers"></a></h5>
+<ul>
+<li><em>Type:</em> typing.List[cdk_nag.INagLogger]</li>
+</ul>
+<p>Additional NagLoggers for logging rule validation outputs.</p>
+<hr />
 <h5 id="log_ignoresoptional"><code>log_ignores</code><sup>Optional</sup> <a name="log_ignores" id="@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.Initializer.parameter.logIgnores"></a></h5>
 <ul>
 <li><em>Type:</em> bool</li>
 </ul>
-<p>Whether or not to log triggered rules that have been suppressed as informational messages (default: false).</p>
+<p>Whether or not to log suppressed rule violations as informational messages (default: false).</p>
+<hr />
+<h5 id="report_formatsoptional"><code>report_formats</code><sup>Optional</sup> <a name="report_formats" id="@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.Initializer.parameter.reportFormats"></a></h5>
+<ul>
+<li><em>Type:</em> typing.List[cdk_nag.NagReportFormat]</li>
+</ul>
+<p>If reports are enabled, the output formats of compliance reports in the App's output directory (default: only CSV).</p>
 <hr />
 <h5 id="reportsoptional"><code>reports</code><sup>Optional</sup> <a name="reports" id="@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.Initializer.parameter.reports"></a></h5>
 <ul>
 <li><em>Type:</em> bool</li>
 </ul>
-<p>Whether or not to generate CSV compliance reports for applied Stacks in the App's output directory (default: true).</p>
+<p>Whether or not to generate compliance reports for applied Stacks in the App's output directory (default: true).</p>
 <hr />
 <h5 id="suppression_ignore_conditionoptional"><code>suppression_ignore_condition</code><sup>Optional</sup> <a name="suppression_ignore_condition" id="@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.Initializer.parameter.suppressionIgnoreCondition"></a></h5>
 <ul>
@@ -3137,11 +3205,6 @@ can make final decision over which context value to take in your app.</p>
 <td><code>str</code></td>
 <td><em>No description.</em></td>
 </tr>
-<tr>
-<td><code><a href="#@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.property.readReportStacks">read_report_stacks</a></code></td>
-<td><code>typing.List[str]</code></td>
-<td><em>No description.</em></td>
-</tr>
 </tbody>
 </table>
 <hr />
@@ -3150,13 +3213,6 @@ can make final decision over which context value to take in your app.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> str</li>
-</ul>
-<hr />
-<h5 id="read_report_stacksrequired"><code>read_report_stacks</code><sup>Required</sup> <a name="read_report_stacks" id="@aws-prototyping-sdk/pdk-nag.AwsPrototypingChecks.property.readReportStacks"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">read_report_stacks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-</code></pre></div>
-<ul>
-<li><em>Type:</em> typing.List[str]</li>
 </ul>
 <hr />
 <h3 id="pdknag">PDKNag <a name="PDKNag" id="@aws-prototyping-sdk/pdk-nag.PDKNag"></a></h3>
@@ -3263,6 +3319,7 @@ can make final decision over which context value to take in your app.</p>
   <span class="n">context</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_stack_synthesizer</span><span class="p">:</span> <span class="n">IReusableStackSynthesizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">policy_validation_beta1</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">IPolicyValidationPluginBeta1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">post_cli_context</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">stack_traces</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tree_metadata</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3318,6 +3375,13 @@ information, see the README of the main CDK package.</p>
 the CLI's <code>--output</code> flag will be used, and if you change it to a different
 directory the CLI will fail to pick up the generated Cloud Assembly.</p>
 <p>This property is intended for internal and testing use.</p>
+<hr />
+<h6 id="policy_validation_beta1optional_2"><code>policy_validation_beta1</code><sup>Optional</sup> <a name="policy_validation_beta1" id="@aws-prototyping-sdk/pdk-nag.PDKNag.app.parameter.policyValidationBeta1"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[aws_cdk.IPolicyValidationPluginBeta1]</li>
+<li><em>Default:</em> no validation plugins</li>
+</ul>
+<p>Validation plugins to run after synthesis.</p>
 <hr />
 <h6 id="post_cli_contextoptional_2"><code>post_cli_context</code><sup>Optional</sup> <a name="post_cli_context" id="@aws-prototyping-sdk/pdk-nag.PDKNag.app.parameter.postCliContext"></a></h6>
 <ul>
@@ -3446,7 +3510,7 @@ can make final decision over which context value to take in your app.</p>
   <small>
     
       Last update:
-      2023-05-05
+      2023-05-08
     
   </small>
 </div>
