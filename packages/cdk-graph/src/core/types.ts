@@ -238,6 +238,9 @@ export namespace SerializedGraph {
    * @struct
    */
   export interface PlainObject {
+    /**
+     * @jsii ignore
+     */
     readonly [key: string]: Value;
   }
 
@@ -254,6 +257,9 @@ export namespace SerializedGraph {
   export interface Attributes {
     // readonly [CfnAttributesEnum.TYPE]?: string;
     // readonly [CfnAttributesEnum.PROPS]?: PlainObject;
+    /**
+     * @jsii ignore
+     */
     readonly [key: string]: Value;
   }
 
@@ -268,6 +274,9 @@ export namespace SerializedGraph {
    * @struct
    */
   export interface Tags {
+    /**
+     * @jsii ignore
+     */
     readonly [key: string]: string;
   }
 

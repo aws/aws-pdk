@@ -683,8 +683,11 @@ export namespace Graph {
    * An edge may reference an *OutputNode* which is just a proxy to actual *ResourceNode*, in which case
    * the target node expected is generally the *ResourceNode*. An EdgeChain defines this resolution path
    * to the expected target.
+   *
+   * Note: Due to JSII not supporting tuple types in interfaces, this has to be any[]. If using this type and need to cast to somethign specific,
+   * the ts type is: export type EdgeChain = [Edge, ...EdgeChain[]];
    */
-  export type EdgeChain = [Edge, ...EdgeChain[]];
+  export type EdgeChain = any[];
 
   /** Edge class defines a link (relationship) between nodes, as in standard [graph theory](https://en.wikipedia.org/wiki/Graph_theory) */
   export class Edge

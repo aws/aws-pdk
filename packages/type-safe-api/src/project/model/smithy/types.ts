@@ -38,6 +38,8 @@ export interface SmithyPlugin {
   readonly service?: string;
   /**
    * Other plugin settings
+   *
+   * @jsii ignore
    */
   readonly [key: string]: any;
 }

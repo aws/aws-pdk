@@ -11,10 +11,7 @@ import {
 } from "projen/lib/cdk";
 import { NodePackageManager } from "projen/lib/javascript";
 import { Release } from "projen/lib/release";
-import {
-  JEST_VERSION,
-  NX_TARGET_DEFAULTS,
-} from "./projects/pdk-monorepo-project";
+import { NX_TARGET_DEFAULTS } from "./projects/pdk-monorepo-project";
 import { NodePackageUtils } from "../packages/nx-monorepo/src";
 import type { Nx } from "../packages/nx-monorepo/src/nx-types";
 
@@ -67,10 +64,7 @@ export abstract class PDKProject extends JsiiProject {
   constructor(options: PDKProjectOptions) {
     const nameWithUnderscore = options.name.replace(/-/g, "_");
     const condensedName = options.name.replace(/-/g, "");
-    const name =
-      options.name === "aws-prototyping-sdk"
-        ? options.name
-        : `@aws-prototyping-sdk/${options.name}`;
+    const name = `@aws-prototyping-sdk/${options.name}`;
 
     super({
       ...options,
@@ -82,12 +76,9 @@ export abstract class PDKProject extends JsiiProject {
       sampleCode: false,
       docgen: false,
       prettier: true,
-      jestOptions: {
-        ...options.jestOptions,
-        jestVersion: JEST_VERSION,
-      },
       projenDevDependency: false,
       eslint: true,
+      jsiiVersion: "*",
       srcdir: "src",
       testdir: "test",
       readme: {
@@ -111,7 +102,12 @@ export abstract class PDKProject extends JsiiProject {
         }) ||
         undefined,
       gitignore: [...(options.gitignore || []), "LICENSE_THIRD_PARTY"],
+      disableTsconfigDev: false,
+      disableTsconfig: true,
     });
+
+    this.preCompileTask.prependExec("rm -f tsconfig.json");
+    this.postCompileTask.prependExec("rm -f tsconfig.json");
 
     this.options = options;
     if (
@@ -169,7 +165,7 @@ export abstract class PDKProject extends JsiiProject {
           // Only update snapshot locally
           "${CI:-'--updateSnapshot'}",
           // Always run in band for nx runner (nx run-many)
-          "${NX_INVOKED_BY_RUNNER:+'--runInBand'}",
+          "${NX_WORKSPACE_ROOT:+'--runInBand'}",
         ].join(" "),
         receiveArgs: true,
       });

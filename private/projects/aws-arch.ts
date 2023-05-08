@@ -87,7 +87,7 @@ export class AwsArchProject extends PDKProject {
     });
 
     // Invoke with nx to support caching
-    this.preCompileTask.prependExec("npx nx run generate");
+    this.preCompileTask.exec("pnpm nx run generate");
 
     const generateOutputs = [
       "{projectRoot}/assets",

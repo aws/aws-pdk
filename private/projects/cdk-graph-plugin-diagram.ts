@@ -63,10 +63,6 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
 
     this.eslint?.addIgnorePattern("scripts/**");
 
-    // ts-graphviz compiled to typescript >4.1 which includes TemplateLiterals+NamedTuples
-    // since jsii requires 3.9 we need to downlevel ts-graphviz
-    this.preCompileTask.prependExec("ts-node ./scripts/patch-ts-graphvis.ts");
-
     // Ensure sharp has cross-platform prebuilds included in bundled dependency
     // https://sharp.pixelplumbing.com/install#cross-platform
     const sharpPrebuildTask = this.addTask("sharp:prebuild", {

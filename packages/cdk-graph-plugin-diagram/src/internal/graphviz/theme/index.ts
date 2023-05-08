@@ -367,6 +367,7 @@ const GRAPH_ATTRIBUTES: Dot.GraphAttributesObject = {
   labelloc: "tc",
   nodesep: 0.6,
   pad: "%2,%1",
+  // @ts-ignore
   rankdir: "TB",
   ranksep: 0.75,
   ratio: "compress",
