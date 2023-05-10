@@ -89,11 +89,6 @@ export interface MonorepoUpgradeDepsOptions {
  * Configuration options for the NxMonorepoProject.
  */
 export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
-  // /**
-  //  * Configuration for NX.
-  //  */
-  // readonly nxConfig?: Nx.WorkspaceConfig;
-
   /**
    * Configuration for workspace.
    */
@@ -550,7 +545,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   /**
-   * Ensures that all non-root projects have NxProjectConfig applied.
+   * Ensures that all non-root projects have NxProject applied.
    * @internal
    */
   protected _ensureNxProjectGraph(): void {
@@ -570,7 +565,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   preSynthesize(): void {
     NodePackageUtils.removeProjenScript(this);
 
-    // Calling being "super" to ensure proper preSynth of NxProject component and its nested components
+    // Calling before super() to ensure proper pre-synth of NxProject component and its nested components
     this._ensureNxProjectGraph();
 
     super.preSynthesize();

@@ -21,7 +21,7 @@ const NODE_LIFECYCLE_TASKS: string[] = [
 ];
 
 /**
- * Component which manged the project specific NX Config and is added to all NXMonorepo subprojects.
+ * Component which manages the project specific NX Config and is added to all NXMonorepo subprojects.
  * @experimental
  */
 export class NxProject extends Component {
@@ -90,25 +90,45 @@ export class NxProject extends Component {
         `Project ${project.name} already has associated NxProject component.`
       );
 
+    const _existingFile = project.tryFindObjectFile("project.json");
+    if (_existingFile && _existingFile instanceof JsonFile !== true) {
+      throw new Error(
+        `Project "${project.name}" contains a "project.json" file that is not a JsonFile instance. NxProject is unable to support this project.`
+      );
+    }
+
     super(project);
 
+    const _obj: Record<keyof Nx.ProjectConfig, () => any> = {
+      name: () => this.project.name,
+      root: () => path.relative(this.project.root.outdir, this.project.outdir),
+      namedInputs: () => asUndefinedIfEmpty(this.namedInputs),
+      targets: () => asUndefinedIfEmpty(this.targets),
+      tags: () => asUndefinedIfEmpty(this.tags),
+      implicitDependencies: () => asUndefinedIfEmpty(this.implicitDependencies),
+      includedScripts: () => asUndefinedIfEmpty(this.includedScripts),
+    };
+
     this.file =
-      (project.tryFindObjectFile("project.json") as JsonFile) ||
+      (_existingFile as JsonFile) ||
       new JsonFile(project, "project.json", {
         readonly: true,
         marker: true,
-        obj: {
-          name: () => this.project.name,
-          root: () =>
-            path.relative(this.project.root.outdir, this.project.outdir),
-          namedInputs: () => asUndefinedIfEmpty(this.namedInputs),
-          targets: () => asUndefinedIfEmpty(this.targets),
-          tags: () => asUndefinedIfEmpty(this.tags),
-          implicitDependencies: () =>
-            asUndefinedIfEmpty(this.implicitDependencies),
-          includedScripts: () => asUndefinedIfEmpty(this.includedScripts),
-        },
+        obj: _obj,
       });
+
+    if (_existingFile) {
+      project.logger.warn(
+        `[NxProject] Project "${
+          project.name
+        }" defined independent project.json file, which might conflict with NxProject managed properties [${Object.keys(
+          _obj
+        ).join(",")}]`
+      );
+      Object.entries(_obj).forEach(([key, value]) => {
+        _existingFile.addOverride(key, value);
+      });
+    }
 
     if (NxWorkspace.of(project)?._autoInferProjectTargets) {
       this._inferTargets();
@@ -245,6 +265,13 @@ export class NxProject extends Component {
 
     this.project.tasks.all
       .filter((task) => {
+        if (
+          this.includedScripts.length &&
+          !this.includedScripts.includes(task.name)
+        ) {
+          // Exclude tasks that are not in explicit "includeScripts" when defined
+          return false;
+        }
         if (task.name in this.targets) {
           // always include tasks that were explicitly added to nx targets
           return true;

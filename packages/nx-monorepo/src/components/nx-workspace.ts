@@ -11,9 +11,9 @@ import { Obj } from "projen/lib/util";
 import { Nx } from "../nx-types";
 import { asUndefinedIfEmpty, deepMerge } from "../utils/common";
 
-export const ALWAYS_IGNORE: string[] = [".tmp", ".env", ".pytest_cache"];
+const ALWAYS_IGNORE: string[] = [".tmp", ".env", ".pytest_cache"];
 
-// Default NX outputs to cache
+/** Default NX outputs to cache */
 export const NX_DEFAULT_BUILD_OUTPUTS = [
   "{projectRoot}/dist",
   "{projectRoot}/lib",
@@ -26,7 +26,7 @@ export const NX_DEFAULT_BUILD_OUTPUTS = [
 ];
 
 /**
- * Component which manged the workspace specific NX Config for the root monorepo.
+ * Component which manages the workspace specific NX Config for the root monorepo.
  * @experimental
  */
 export class NxWorkspace extends Component {

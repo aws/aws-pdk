@@ -7,12 +7,12 @@ export namespace Nx {
   /**
    * Configuration for nx targetDependencies.
    */
-  export type ITargetDependencies = { [target: string]: ITargetDependency[] };
+  export type TargetDependencies = { [target: string]: ITargetDependency[] };
 
   /**
    * Configuration for project specific targets.
    */
-  export type IProjectTargets = { [target: string]: IProjectTarget };
+  export type ProjectTargets = { [target: string]: IProjectTarget };
 
   export interface IInput {
     fileset?: string;
@@ -238,6 +238,11 @@ export namespace Nx {
    * @see https://github.com/nrwl/nx/blob/master/packages/nx/schemas/project-schema.json
    */
   export interface ProjectConfig {
+    /** Name of project */
+    readonly name?: string;
+    /** Project root dir path relative to workspace */
+    readonly root?: string;
+
     /**
      * Named inputs
      * @see https://nx.dev/reference/nx-json#inputs-&-namedinputs
@@ -248,7 +253,7 @@ export namespace Nx {
      * Targets configuration
      * @see https://nx.dev/reference/project-configuration
      */
-    readonly targets?: IProjectTargets;
+    readonly targets?: ProjectTargets;
 
     /**
      * Project tag annotations

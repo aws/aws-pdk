@@ -42,6 +42,11 @@ export interface InferBuildTargetOptions {
   readonly dependsOn?: boolean | string[];
 }
 
+/**
+ * Infer nx target values for build task
+ * @experimental
+ * @internal
+ */
 export function inferBuildTarget(
   project: Project,
   options?: InferBuildTargetOptions
