@@ -24,6 +24,14 @@ export namespace NodePackageUtils {
     return cmd;
   }
 
+  /** Indicates if project is a node based project */
+  export function isNodeProject(project: Project): boolean {
+    if (project instanceof NodeProject) {
+      return true;
+    }
+    return tryFindNodePackage(project, false) != null;
+  }
+
   /**
    * Remove the "projen" script from package.json scripts, which causes recursive projen execution
    * for other scripts in format of "yarn projen [command]".
@@ -40,11 +48,15 @@ export namespace NodePackageUtils {
    * error if none found. Use {@link #tryFindNodePackage} if you do not want to
    * throw error.
    * @param scope The leaf project scope
+   * @param {boolean} [recursive=false] Indicates if ancestral tree should be traversed
    * @returns {NodeProject} The NodeProject component for scope
    * @throws Error if {@link NodePackage} not found in tree of scope
    */
-  export function findNodePackage(scope: Project): NodePackage {
-    const nodePackage = tryFindNodePackage(scope);
+  export function findNodePackage(
+    scope: Project,
+    recursive: boolean = false
+  ): NodePackage {
+    const nodePackage = tryFindNodePackage(scope, recursive);
     if (nodePackage) {
       return nodePackage;
     }
@@ -57,9 +69,13 @@ export namespace NodePackageUtils {
    * Try to find the nearest {@link NodePackage} within scope. This will traverse parent
    * tree until finds projen with {@link NodePackage} component.
    * @param scope The leaf project scope
+   * @param {boolean} [recursive=false] Indicates if ancestral tree should be traversed
    * @returns {NodeProject} The NodeProject component for scope, or undefined if no projects are node based.
    */
-  export function tryFindNodePackage(scope: Project): NodePackage | undefined {
+  export function tryFindNodePackage(
+    scope: Project,
+    recursive: boolean = false
+  ): NodePackage | undefined {
     let _project: Project | undefined = scope;
     while (_project) {
       const nodePackage = _project.components.find(
@@ -67,6 +83,9 @@ export namespace NodePackageUtils {
       ) as NodePackage | undefined;
       if (nodePackage) {
         return nodePackage;
+      }
+      if (!recursive) {
+        return undefined;
       }
       _project = _project.parent;
     }

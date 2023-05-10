@@ -10,6 +10,16 @@ import { NodePackageUtils } from "../../utils";
 import { asUndefinedIfEmpty, deepMerge } from "../../utils/common";
 import { NxWorkspace } from "../nx-workspace";
 
+// List of tasks that are excluded from nx tasks for node projects
+const NODE_LIFECYCLE_TASKS: string[] = [
+  "preinstall",
+  "install",
+  "postinstall",
+  "preinstall:ci",
+  "install:ci",
+  "postinstall:ci",
+];
+
 /**
  * Component which manged the project specific NX Config and is added to all NXMonorepo subprojects.
  * @experimental
@@ -230,22 +240,37 @@ export class NxProject extends Component {
     );
 
     const packageManager =
-      NodePackageUtils.tryFindNodePackage(this.project)?.packageManager ||
+      NodePackageUtils.tryFindNodePackage(this.project, true)?.packageManager ||
       NodePackageManager.NPM;
 
-    this.project.tasks.all.forEach((task) => {
-      const _target = this.targets[task.name] || {};
-      _target.executor = _target.executor || "nx:run-commands";
-      _target.options = {
-        command: NodePackageUtils.command.downloadExec(
-          packageManager,
-          `projen ${task.name}`
-        ),
-        cwd: projectPath,
-        ..._target.options,
-      };
-      this.targets[task.name] = _target;
-    });
+    this.project.tasks.all
+      .filter((task) => {
+        if (task.name in this.targets) {
+          // always include tasks that were explicitly added to nx targets
+          return true;
+        }
+        if (
+          NODE_LIFECYCLE_TASKS.includes(task.name) &&
+          NodePackageUtils.isNodeProject(this.project)
+        ) {
+          // exclude node lifecycle tasks for node based projects
+          return false;
+        }
+        return true;
+      })
+      .forEach((task) => {
+        const _target = this.targets[task.name] || {};
+        _target.executor = _target.executor || "nx:run-commands";
+        _target.options = {
+          command: NodePackageUtils.command.downloadExec(
+            packageManager,
+            `projen ${task.name}`
+          ),
+          cwd: projectPath,
+          ..._target.options,
+        };
+        this.targets[task.name] = _target;
+      });
 
     super.synthesize();
   }
