@@ -4,10 +4,11 @@ import * as path from "path";
 import { Component, JsonFile, Project } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { Obj } from "projen/lib/util";
-import { NxWorkspace } from "./nx-workspace";
-import { Nx } from "../nx-types";
-import { NodePackageUtils } from "../utils";
-import { asUndefinedIfEmpty, deepMerge } from "../utils/common";
+import { inferBuildTarget } from "./targets";
+import { Nx } from "../../nx-types";
+import { NodePackageUtils } from "../../utils";
+import { asUndefinedIfEmpty, deepMerge } from "../../utils/common";
+import { NxWorkspace } from "../nx-workspace";
 
 /**
  * Component which manged the project specific NX Config and is added to all NXMonorepo subprojects.
@@ -98,6 +99,22 @@ export class NxProject extends Component {
           includedScripts: () => asUndefinedIfEmpty(this.includedScripts),
         },
       });
+
+    if (NxWorkspace.of(project)?._autoInferProjectTargets) {
+      this._inferTargets();
+    }
+  }
+
+  /**
+   * Automatically infer targets based on project type.
+   * @experimental
+   * @internal
+   */
+  public _inferTargets(): void {
+    const _inferredBuildTarget = inferBuildTarget(this.project);
+    if (_inferredBuildTarget) {
+      this.targets.build = _inferredBuildTarget;
+    }
   }
 
   /** Merge configuration into existing config */
@@ -163,16 +180,45 @@ export class NxProject extends Component {
     target: Nx.IProjectTarget,
     includeDefaults: boolean | string = false
   ): void {
-    this.targets[name] = deepMerge(
-      [
-        includeDefaults
-          ? this._getTargetDefaults(
-              includeDefaults === true ? name : includeDefaults
-            )
-          : {},
-        target,
-      ],
-      { append: true }
+    let _default = {};
+    if (includeDefaults) {
+      if (this.targets[name]) {
+        _default = this.targets[name];
+      } else {
+        (_default = this._getTargetDefaults(
+          includeDefaults === true ? name : includeDefaults
+        )),
+          this.targets[name] || {};
+      }
+    }
+    this.targets[name] = deepMerge([_default, target], { append: true });
+  }
+
+  /**
+   * Add input and output files to build target
+   * @param inputs Input files
+   * @param outputs Output files
+   * @param excludeOutputs Indicates if output files are automatically excluded from input files
+   */
+  public addBuildTargetFiles(
+    inputs?: (string | Nx.IInput)[],
+    outputs?: string[],
+    excludeOutputs: boolean = false
+  ): void {
+    if (outputs && excludeOutputs) {
+      inputs = [
+        ...(inputs || []),
+        ...outputs.flatMap((o) => [`!${o}`, `!${o}/**/*`]),
+      ];
+    }
+
+    this.setTarget(
+      "build",
+      {
+        inputs: inputs || [],
+        outputs: outputs || [],
+      },
+      true
     );
   }
 

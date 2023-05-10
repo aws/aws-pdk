@@ -2,6 +2,44 @@
   "name": "@aws-prototyping-sdk/aws-arch",
   "root": "packages/aws-arch",
   "targets": {
+    "build": {
+      "inputs": [
+        "default",
+        "^default",
+        "!{projectRoot}/.jsii",
+        "!{projectRoot}/.jsii/**/*",
+        "!{projectRoot}/lib",
+        "!{projectRoot}/lib/**/*",
+        "!{projectRoot}/dist",
+        "!{projectRoot}/dist/**/*",
+        "!{projectRoot}/coverage",
+        "!{projectRoot}/coverage/**/*",
+        "!{projectRoot}/test-reports",
+        "!{projectRoot}/test-reports/**/*",
+        "!{projectRoot}/LICENSE_THIRD_PARTY",
+        "!{projectRoot}/docs/api",
+        "!{projectRoot}/docs/api/**/*"
+      ],
+      "outputs": [
+        "{projectRoot}/.jsii",
+        "{projectRoot}/lib",
+        "{projectRoot}/dist",
+        "{projectRoot}/coverage",
+        "{projectRoot}/test-reports",
+        "{projectRoot}/LICENSE_THIRD_PARTY",
+        "{projectRoot}/docs/api",
+        "{projectRoot}/assets",
+        "{projectRoot}/src/generated"
+      ],
+      "dependsOn": [
+        "^build"
+      ],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm dlx projen build",
+        "cwd": "packages/aws-arch"
+      }
+    },
     "generate": {
       "inputs": [
         "{projectRoot}/scripts/**",
@@ -16,32 +54,6 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm dlx projen generate",
-        "cwd": "packages/aws-arch"
-      }
-    },
-    "build": {
-      "inputs": [
-        "default",
-        "^default"
-      ],
-      "outputs": [
-        "{projectRoot}/dist",
-        "{projectRoot}/lib",
-        "{projectRoot}/build",
-        "{projectRoot}/coverage",
-        "{projectRoot}/test-reports",
-        "{projectRoot}/target",
-        "{projectRoot}/LICENSE_THIRD_PARTY",
-        "{projectRoot}/.jsii",
-        "{projectRoot}/assets",
-        "{projectRoot}/src/generated"
-      ],
-      "dependsOn": [
-        "^build"
-      ],
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm dlx projen build",
         "cwd": "packages/aws-arch"
       }
     },

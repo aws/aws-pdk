@@ -20,7 +20,9 @@ export namespace Nx {
     env?: string;
   }
 
-  export type IInputs = (string | IInput)[];
+  export type Inputs = (string | IInput)[];
+
+  export type Outputs = string[];
 
   /**
    * Project Target.
@@ -31,7 +33,7 @@ export namespace Nx {
      *
      * note: must start with leading /
      */
-    inputs?: IInputs;
+    inputs?: Inputs;
     /**
      * List of outputs to cache, relative to the root of the monorepo.
      *
@@ -240,33 +242,33 @@ export namespace Nx {
      * Named inputs
      * @see https://nx.dev/reference/nx-json#inputs-&-namedinputs
      */
-    namedInputs?: INamedInputs;
+    readonly namedInputs?: INamedInputs;
 
     /**
      * Targets configuration
      * @see https://nx.dev/reference/project-configuration
      */
-    targets?: IProjectTargets;
+    readonly targets?: IProjectTargets;
 
     /**
      * Project tag annotations
      *
      * @see https://nx.dev/reference/project-configuration#tags
      */
-    tags?: string[];
+    readonly tags?: string[];
 
     /**
      * Implicit dependencies
      *
      * @see https://nx.dev/reference/project-configuration#implicitdependencies
      */
-    implicitDependencies?: string[];
+    readonly implicitDependencies?: string[];
 
     /**
      * Explicit list of scripts for Nx to include.
      * @see https://nx.dev/reference/project-configuration#ignoring-package.json-scripts
      */
-    includedScripts?: string[];
+    readonly includedScripts?: string[];
   }
 
   /**

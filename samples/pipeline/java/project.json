@@ -2,6 +2,31 @@
   "name": "pipeline-sample-java",
   "root": "samples/pipeline/java",
   "targets": {
+    "build": {
+      "inputs": [
+        "default",
+        "^default",
+        "!{projectRoot}/.classpath",
+        "!{projectRoot}/.project",
+        "!{projectRoot}/.settings",
+        "!{projectRoot}/target",
+        "!{projectRoot}/target/**/*",
+        "!{projectRoot}/dist/java",
+        "!{projectRoot}/dist/java/**/*"
+      ],
+      "outputs": [
+        "{projectRoot}/target",
+        "{projectRoot}/dist/java"
+      ],
+      "dependsOn": [
+        "^build"
+      ],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm dlx projen build",
+        "cwd": "samples/pipeline/java"
+      }
+    },
     "default": {
       "executor": "nx:run-commands",
       "options": {
@@ -41,13 +66,6 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm dlx projen package",
-        "cwd": "samples/pipeline/java"
-      }
-    },
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm dlx projen build",
         "cwd": "samples/pipeline/java"
       }
     }

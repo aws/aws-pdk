@@ -163,7 +163,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       jest: options.jest ?? false,
       defaultReleaseBranch,
       sampleCode: false, // root should never have sample code,
-      gitignore: [".nx/cache", ...(options.gitignore ?? [])],
+      gitignore: [".nx/cache", ".tmp", ...(options.gitignore ?? [])],
       eslintOptions: options.eslintOptions ?? {
         dirs: ["."],
         ignorePatterns: ["packages/**/*.*"],
@@ -429,15 +429,7 @@ export class NxMonorepoProject extends TypeScriptProject {
    * @throws error if this is called on a dependent which does not have a NXProject component attached.
    */
   public addImplicitDependency(dependent: Project, dependee: Project | string) {
-    const nxProject = NxProject.of(dependent);
-
-    if (!nxProject) {
-      throw new Error(
-        `${dependent.name} does not have an NXProject associated.`
-      );
-    } else {
-      nxProject.addImplicitDependency(dependee);
-    }
+    NxProject.ensure(dependent).addImplicitDependency(dependee);
   }
 
   /**
@@ -566,6 +558,7 @@ export class NxMonorepoProject extends TypeScriptProject {
 
   /**
    * Ensures that all non-root projects have NxProjectConfig applied.
+   * @internal
    */
   protected _ensureNxProjectGraph(): void {
     function _ensure(_project: Project) {

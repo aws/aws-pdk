@@ -183,11 +183,12 @@ export abstract class PDKProject extends JsiiProject {
       ],
     });
 
-    this.pdkRelease = new PDKRelease(this, options.publishConfig);
-    new PDKDocgen(this);
-
     this.nx = NxProject.ensure(this);
     options.nx && this.nx.merge(options.nx);
+
+    // Make sure this is after NxProject so targets can be updated after inference
+    this.pdkRelease = new PDKRelease(this, options.publishConfig);
+    new PDKDocgen(this);
   }
 
   // /**
@@ -249,11 +250,9 @@ class PDKDocgen {
         `mkdir -p ${docsBasePath}/java && jsii-docgen -l java -r -o ${docsBasePath}/java/index.md`
       );
 
-    NxProject.of(project)?.setTarget(
-      "build",
-      {
-        outputs: [`{projectRoot}/${docsBasePath}`],
-      },
+    NxProject.of(project)?.addBuildTargetFiles(
+      [],
+      [`{projectRoot}/${docsBasePath}`],
       true
     );
 
@@ -311,6 +310,11 @@ class PDKRelease extends Release {
       access: "public",
       ...publishConfig,
     });
+
+    NxProject.of(project)?.addBuildTargetFiles(
+      ["!{projectRoot}/LICENSE_THIRD_PARTY"],
+      ["{projectRoot}/LICENSE_THIRD_PARTY"]
+    );
   }
 }
 

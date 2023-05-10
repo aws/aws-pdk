@@ -11,7 +11,7 @@ import { Obj } from "projen/lib/util";
 import { Nx } from "../nx-types";
 import { asUndefinedIfEmpty, deepMerge } from "../utils/common";
 
-export const ALWAYS_IGNORE: string[] = [".env", ".pytest_cache"];
+export const ALWAYS_IGNORE: string[] = [".tmp", ".env", ".pytest_cache"];
 
 // Default NX outputs to cache
 export const NX_DEFAULT_BUILD_OUTPUTS = [
@@ -55,6 +55,13 @@ export class NxWorkspace extends Component {
    * .nxignore file
    */
   public readonly nxIgnore: IgnoreFile;
+
+  /**
+   * Automatically infer NxProject targets based on project type.
+   * @experimental
+   * @internal
+   */
+  public _autoInferProjectTargets: boolean = false;
 
   /**
    * Indicates if non-native nx hasher will be used.

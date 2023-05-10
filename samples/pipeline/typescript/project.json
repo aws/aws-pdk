@@ -2,6 +2,28 @@
   "name": "pipeline-sample-ts",
   "root": "samples/pipeline/typescript",
   "targets": {
+    "build": {
+      "inputs": [
+        "default",
+        "^default",
+        "!{projectRoot}/coverage",
+        "!{projectRoot}/coverage/**/*",
+        "!{projectRoot}/test-reports",
+        "!{projectRoot}/test-reports/**/*"
+      ],
+      "outputs": [
+        "{projectRoot}/coverage",
+        "{projectRoot}/test-reports"
+      ],
+      "dependsOn": [
+        "^build"
+      ],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm dlx projen build",
+        "cwd": "samples/pipeline/typescript"
+      }
+    },
     "default": {
       "executor": "nx:run-commands",
       "options": {
@@ -41,13 +63,6 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm dlx projen package",
-        "cwd": "samples/pipeline/typescript"
-      }
-    },
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm dlx projen build",
         "cwd": "samples/pipeline/typescript"
       }
     },

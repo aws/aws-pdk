@@ -2,6 +2,42 @@
   "name": "@aws-prototyping-sdk/static-website",
   "root": "packages/static-website",
   "targets": {
+    "build": {
+      "inputs": [
+        "default",
+        "^default",
+        "!{projectRoot}/.jsii",
+        "!{projectRoot}/.jsii/**/*",
+        "!{projectRoot}/lib",
+        "!{projectRoot}/lib/**/*",
+        "!{projectRoot}/dist",
+        "!{projectRoot}/dist/**/*",
+        "!{projectRoot}/coverage",
+        "!{projectRoot}/coverage/**/*",
+        "!{projectRoot}/test-reports",
+        "!{projectRoot}/test-reports/**/*",
+        "!{projectRoot}/LICENSE_THIRD_PARTY",
+        "!{projectRoot}/docs/api",
+        "!{projectRoot}/docs/api/**/*"
+      ],
+      "outputs": [
+        "{projectRoot}/.jsii",
+        "{projectRoot}/lib",
+        "{projectRoot}/dist",
+        "{projectRoot}/coverage",
+        "{projectRoot}/test-reports",
+        "{projectRoot}/LICENSE_THIRD_PARTY",
+        "{projectRoot}/docs/api"
+      ],
+      "dependsOn": [
+        "^build"
+      ],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm dlx projen build",
+        "cwd": "packages/static-website"
+      }
+    },
     "default": {
       "executor": "nx:run-commands",
       "options": {
@@ -41,13 +77,6 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm dlx projen package",
-        "cwd": "packages/static-website"
-      }
-    },
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm dlx projen build",
         "cwd": "packages/static-website"
       }
     },
