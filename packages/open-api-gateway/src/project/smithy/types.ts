@@ -31,18 +31,16 @@ export interface SmithyCommon {
 /**
  * A smithy plugin
  */
-export interface SmithyPlugin {
+export type SmithyPlugin = {
   /**
    * The service to which the plugin should apply
    */
   readonly service?: string;
   /**
    * Other plugin settings
-   *
-   * @jsii ignore
    */
   readonly [key: string]: any;
-}
+};
 
 /**
  * A smithy build projection

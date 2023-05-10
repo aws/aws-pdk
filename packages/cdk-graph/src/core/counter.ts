@@ -5,14 +5,12 @@ SPDX-License-Identifier: Apache-2.0 */
  *
  * The record is a mapping of `key => count` values.
  */
-export interface ICounterRecord {
+export type ICounterRecord = {
   /**
    * Counter key => count value properties
-   *
-   * @jsii ignore
    */
   [key: string]: number;
-}
+};
 
 /**
  * Counter class provides utils for adding/subtracting key based counts.

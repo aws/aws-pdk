@@ -13,7 +13,7 @@ export const CDK_OUTDIR_VAR = "<cdk.out>";
 export const DEFAULT_OUTDIR = `${CDK_OUTDIR_VAR}/cdkgraph`;
 
 /** CdkGraph configuration definition */
-export interface CdkGraphConfig {
+export type CdkGraphConfig = {
   /**
    * Directory where artifacts are written.
    *
@@ -26,11 +26,9 @@ export interface CdkGraphConfig {
   readonly outdir?: string;
   /**
    * Additional configs
-   *
-   * @jsii ignore
-   * */
+   */
   readonly [key: string]: any;
-}
+};
 
 /** Default CdkGraph configuration */
 const DEFAULT_CONFIG: CdkGraphConfig = {

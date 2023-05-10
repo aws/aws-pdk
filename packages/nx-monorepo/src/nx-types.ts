@@ -96,23 +96,13 @@ export namespace Nx {
    * Named inputs config
    * @see https://nx.dev/reference/nx-json#inputs-&-namedinputs
    */
-  export interface INamedInputs {
-    /**
-     * @jsii ignore
-     */
-    [name: string]: string[];
-  }
+  export type INamedInputs = { [name: string]: string[] };
 
   /**
    * Target defaults config
    * @see https://nx.dev/reference/nx-json#target-defaults
    */
-  export interface ITargetDefaults {
-    /**
-     * @jsii ignore
-     */
-    [name: string]: IProjectTarget;
-  }
+  export type ITargetDefaults = { [name: string]: IProjectTarget };
 
   /**
    * Default options for `nx affected`
