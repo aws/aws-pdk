@@ -149,7 +149,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
    * @inheritDoc
    */
   synth() {
-    this.subProjects.forEach((subProject) => {
+    this.subprojects.forEach((subProject) => {
       resolveDependencies(subProject);
       updateJsPackageTask(subProject);
       updateJavaPackageTask(subProject);

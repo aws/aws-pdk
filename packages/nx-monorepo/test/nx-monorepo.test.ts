@@ -208,10 +208,7 @@ describe("NX Monorepo Unit Tests", () => {
 
     synthSnapshot(project);
 
-    // @ts-ignore accessing private subprojects which projen uses for synth order
-    const subProjects: TypeScriptProject[] = project.subprojects;
-
-    expect(subProjects.map((p) => p.name)).toEqual([
+    expect(project.subprojects.map((p) => p.name)).toEqual([
       "one",
       "two",
       "three",

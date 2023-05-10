@@ -232,11 +232,7 @@ export class NxWorkspace extends Component {
     if (this.nonNativeHasher) {
       this._applyNonNativeHasher(this.project);
 
-      if ("subprojects" in this.project) {
-        // @ts-ignore - private
-        const subprojects: Project[] = this.project.subprojects;
-        subprojects.forEach(this._applyNonNativeHasher);
-      }
+      this.project.subprojects.forEach(this._applyNonNativeHasher);
     }
   }
 

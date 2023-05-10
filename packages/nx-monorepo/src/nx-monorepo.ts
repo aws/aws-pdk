@@ -492,10 +492,9 @@ export class NxMonorepoProject extends TypeScriptProject {
   public addWorkspacePackages(...packageGlobs: string[]) {
     // Any subprojects that were added since the last call to this method need to be added first, in order to ensure
     // we add the workspace packages in a sane order.
-    const relativeSubProjectWorkspacePackages =
-      this.instantiationOrderSubProjects.map((project) =>
-        path.relative(this.outdir, project.outdir)
-      );
+    const relativeSubProjectWorkspacePackages = this.sortedSubProjects.map(
+      (project) => path.relative(this.outdir, project.outdir)
+    );
     const existingWorkspacePackages = new Set(this.workspacePackages);
     this.workspacePackages.push(
       ...relativeSubProjectWorkspacePackages.filter(
@@ -507,17 +506,11 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.workspacePackages.push(...packageGlobs);
   }
 
-  // Remove this hack once subProjects is made public in Projen
-  private get instantiationOrderSubProjects(): Project[] {
-    // @ts-ignore
-    const subProjects: Project[] = this.subprojects || [];
-    return subProjects;
-  }
-
-  public get subProjects(): Project[] {
-    return [...this.instantiationOrderSubProjects].sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
+  /** Get consistently sorted list of subprojects */
+  public get sortedSubProjects(): Project[] {
+    return this.subprojects
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   /**
@@ -527,7 +520,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   protected linkLocalWorkspaceBins(): void {
     const bins: [string, string][] = [];
 
-    this.subProjects.forEach((subProject) => {
+    this.subprojects.forEach((subProject) => {
       if (subProject instanceof NodeProject) {
         const pkgBins: Record<string, string> =
           subProject.package.manifest.bin() || {};
@@ -566,15 +559,12 @@ export class NxMonorepoProject extends TypeScriptProject {
 
       NxProject.ensure(_project);
 
-      // @ts-ignore - private
-      const _subprojects: Project[] = _project.subprojects || [];
-
-      _subprojects.forEach((p) => {
+      _project.subprojects.forEach((p) => {
         _ensure(p);
       });
     }
 
-    this.subProjects.forEach(_ensure);
+    this.subprojects.forEach(_ensure);
   }
 
   preSynthesize(): void {
@@ -592,7 +582,7 @@ export class NxMonorepoProject extends TypeScriptProject {
     if (this.package.packageManager === NodePackageManager.PNPM) {
       // PNPM hoisting hides transitive bundled dependencies which results in
       // transitive dependencies being packed incorrectly.
-      this.subProjects.forEach((subProject) => {
+      this.subprojects.forEach((subProject) => {
         if (isNodeProject(subProject) && getBundledDeps(subProject).length) {
           const pkgFolder = path.relative(this.root.outdir, subProject.outdir);
           // Create a symlink in the sub-project node_modules for all transitive deps
@@ -605,7 +595,7 @@ export class NxMonorepoProject extends TypeScriptProject {
     }
 
     // Remove any subproject .npmrc files since only the root one matters
-    this.subProjects.forEach((subProject) => {
+    this.subprojects.forEach((subProject) => {
       if (isNodeProject(subProject)) {
         subProject.tryRemoveFile(".npmrc");
         NodePackageUtils.removeProjenScript(subProject);
@@ -624,7 +614,7 @@ export class NxMonorepoProject extends TypeScriptProject {
     // Prevent sub NodeProject packages from `postSynthesis` which will cause individual/extraneous installs.
     // The workspace package install will handle all the sub NodeProject packages automatically.
     const subProjectPackages: NodePackage[] = [];
-    this.subProjects.forEach((subProject) => {
+    this.subprojects.forEach((subProject) => {
       if (isNodeProject(subProject)) {
         const subNodeProject: NodeProject = subProject as NodeProject;
         subProjectPackages.push(subNodeProject.package);
@@ -658,7 +648,7 @@ export class NxMonorepoProject extends TypeScriptProject {
    * Ensures subprojects don't have a default task and that all packages use the same package manager.
    */
   private validateSubProjects() {
-    this.subProjects.forEach((subProject: any) => {
+    this.subprojects.forEach((subProject: any) => {
       // Disable default task on subprojects as this isn't supported in a monorepo
       subProject.defaultTask?.reset();
 
@@ -684,7 +674,7 @@ export class NxMonorepoProject extends TypeScriptProject {
     let noHoist = this.workspaceConfig?.noHoist;
     // Automatically add all sub-project "bundledDependencies" to workspace "hohoist", otherwise they are not bundled in npm package
     if (this.workspaceConfig?.disableNoHoistBundled !== true) {
-      const noHoistBundled = this.subProjects.flatMap((sub) => {
+      const noHoistBundled = this.subprojects.flatMap((sub) => {
         if (sub instanceof NodeProject) {
           return getBundledDeps(sub).flatMap((dep) => [
             `${sub.name}/${dep.name}`,
@@ -720,7 +710,7 @@ export class NxMonorepoProject extends TypeScriptProject {
    * @private
    */
   private installNonNodeDependencies() {
-    const installProjects = this.subProjects.filter(
+    const installProjects = this.subprojects.filter(
       (project) =>
         !(project instanceof NodeProject) && project.tasks.tryFind("install")
     );

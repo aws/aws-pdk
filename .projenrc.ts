@@ -37,7 +37,7 @@ new PipelineProject(monorepoProject);
 const docsProject = new DocsProject(monorepoProject);
 // Docs should have a dependency on all publishable packages
 NxProject.ensure(docsProject).addImplicitDependency(
-  ...monorepoProject.subProjects.filter(
+  ...monorepoProject.sortedSubProjects.filter(
     (s: any) => s instanceof PDKProject && s.pdkRelease
   )
 );
