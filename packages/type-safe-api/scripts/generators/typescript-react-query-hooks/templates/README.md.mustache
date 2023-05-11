@@ -4,7 +4,21 @@ This project contains [react-query](https://tanstack.com/query/latest) hooks for
 
 ## Usage
 
-First, make sure you create an instance of the API client (making sure to set the base URL and fetch instance). For example:
+First, make sure you add a dependency on the generated hooks library, eg in your `.projenrc`:
+
+```ts
+const api = new TypeSafeApiProject({ ... });
+
+new CloudscapeReactTsWebsite({
+  ...,
+  deps: [
+    ...
+    api.library.typescriptReactQueryHooks!.package.packageName,
+  ],
+});
+```
+
+Next, create an instance of the API client (making sure to set the base URL and fetch instance). For example:
 
 ```ts
 export const use{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}Client = () => useMemo(() => new {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}(new Configuration({
@@ -19,10 +33,10 @@ an instance of `fetch` which will sign requests with the logged in user's creden
 ```ts
 export const use{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}Client = () => {
     const client = useSigv4Client();
-    return useMemo(() => client ? new {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}(new Configuration({
+    return useMemo(() => new {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}(new Configuration({
         basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
         fetchApi: client,
-    })) : undefined, [client]);
+    })), [client]);
 };
 ```
 
@@ -44,16 +58,12 @@ Finally, you can import and use your generated hooks. For example:
 export const MyComponent: FC<MyComponentProps> = () => {
     const sayHello = useSayHello({ name: 'World' });
 
-    return (
-        sayHello.isLoading ? (
-            <p>Loading...</p>
-        ) : (
-            sayHello.isError ? (
-                <p>Error!</p>
-            ) : (
-                <h1>{sayHello.data.message}</h1>
-            )
-        )
+    return sayHello.isLoading ? (
+        <p>Loading...</p>
+    ) : sayHello.isError ? (
+        <p>Error!</p>
+    ) : (
+        <h1>{sayHello.data.message}</h1>
     );
 };
 ```

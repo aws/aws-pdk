@@ -6,36 +6,36 @@ import { TypescriptReactQueryHooksLibrary } from "../../../src/project/codegen/l
 import { withTmpDirSnapshot } from "../../project/snapshot-utils";
 
 describe("Typescript React Query Hooks Code Generation Script Unit Tests", () => {
-  it("Generates With single-pagination.yaml", () => {
-    const specPath = path.resolve(
-      __dirname,
-      `../../resources/specs/single-pagination.yaml`
-    );
+  it.each(["single-pagination.yaml", "multiple-tags.yaml"])(
+    "Generates With %s",
+    (spec) => {
+      const specPath = path.resolve(__dirname, `../../resources/specs/${spec}`);
 
-    expect(
-      withTmpDirSnapshot(
-        path.resolve(__dirname),
-        (outdir) => {
-          const project = new TypescriptReactQueryHooksLibrary({
-            name: "test",
-            defaultReleaseBranch: "main",
-            outdir,
-            specPath: path.relative(outdir, specPath),
-          });
-          // Synth the project so that the generate command honours the .openapi-generator-ignore-handlebars file
-          project.synth();
-          const command = project.buildGenerateCommand();
-          exec(command.command, {
-            cwd: command.workingDir,
-          });
-        },
-        {
-          excludeGlobs: [
-            ...TypescriptReactQueryHooksLibrary.openApiIgnorePatterns,
-            ".projen/*",
-          ],
-        }
-      )
-    ).toMatchSnapshot();
-  });
+      expect(
+        withTmpDirSnapshot(
+          path.resolve(__dirname),
+          (outdir) => {
+            const project = new TypescriptReactQueryHooksLibrary({
+              name: "test",
+              defaultReleaseBranch: "main",
+              outdir,
+              specPath: path.relative(outdir, specPath),
+            });
+            // Synth the project so that the generate command honours the .openapi-generator-ignore-handlebars file
+            project.synth();
+            const command = project.buildGenerateCommand();
+            exec(command.command, {
+              cwd: command.workingDir,
+            });
+          },
+          {
+            excludeGlobs: [
+              ...TypescriptReactQueryHooksLibrary.openApiIgnorePatterns,
+              ".projen/*",
+            ],
+          }
+        )
+      ).toMatchSnapshot();
+    }
+  );
 });

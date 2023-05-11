@@ -3,32 +3,43 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { {{ classFilename }} } from "./{{ classFilename }}";
-import { {{ classFilename }}ClientContext } from "./{{ classFilename }}Hooks";
+import { {{ classname }} } from "./{{ classFilename }}";
+import { {{ classname }}ClientContext } from "./{{ classFilename }}Hooks";
 
 const queryClient = new QueryClient();
-export const defaultContext = React.createContext<QueryClient | undefined>(
+
+/**
+ * Default QueryClient context for {{classname}}
+ */
+export const {{classname}}DefaultContext = React.createContext<QueryClient | undefined>(
   undefined
 );
 
-export interface {{ classFilename }}ClientProviderProps {
-  readonly apiClient: {{ classFilename }};
+/**
+ * Properties for the {{ classname }}ClientProvider
+ */
+export interface {{ classname }}ClientProviderProps {
+  readonly apiClient: {{ classname }};
   readonly client?: QueryClient;
   readonly context?: React.Context<QueryClient | undefined>;
   readonly children?: React.ReactNode;
 }
 
-export const {{ classFilename }}ClientProvider = ({
+/**
+ * Provider for the API Client and Query Client used by the hooks.
+ * This must parent any components which make use of the hooks.
+ */
+export const {{ classname }}ClientProvider = ({
   apiClient,
   client = queryClient,
-  context = defaultContext,
+  context = {{classname}}DefaultContext,
   children,
-}: {{ classFilename }}ClientProviderProps): JSX.Element => {
+}: {{ classname }}ClientProviderProps): JSX.Element => {
   return (
     <QueryClientProvider client={client} context={context}>
-      <{{ classFilename }}ClientContext.Provider value={apiClient}>
+      <{{ classname }}ClientContext.Provider value={apiClient}>
         {children}
-      </{{ classFilename }}ClientContext.Provider>
+      </{{ classname }}ClientContext.Provider>
     </QueryClientProvider>
   );
 };
