@@ -113,6 +113,13 @@ export interface PDKPipelineProps extends CodePipelineProps {
    * @default undefined
    */
   readonly branchNamePrefixes?: string[];
+
+  /**
+   * CDK command. Override the command used to call cdk for synth and deploy.
+   *
+   * @default 'npx cdk'
+   */
+  readonly cdkCommand?: string;
 }
 
 /**
@@ -329,13 +336,14 @@ export class PDKPipeline extends Construct {
           .split("/")
           .slice(0, -1)
           .join("/"),
-        buildCommands: commands,
+        synthShellStepPartialProps: props.synthShellStepPartialProps,
+        cdkCommand: props.cdkCommand,
         branchNamePrefixes: props.branchNamePrefixes,
         defaultBranchName: props.defaultBranchName || DEFAULT_BRANCH_NAME,
         codeBuildDefaults: props.codeBuildDefaults,
         dockerEnabledForSynth: props.dockerEnabledForSynth,
       });
-    } else {
+    } else if (props.branchNamePrefixes) {
       Tags.of(Stack.of(this)).add("FeatureBranch", branch);
       Tags.of(Stack.of(this)).add("RepoName", this.repositoryName);
     }

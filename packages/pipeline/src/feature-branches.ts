@@ -15,7 +15,7 @@ import { IRepository } from "aws-cdk-lib/aws-codecommit";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
-import { CodePipelineProps } from "aws-cdk-lib/pipelines";
+import { CodePipelineProps, ShellStepProps } from "aws-cdk-lib/pipelines";
 import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
 
@@ -65,9 +65,19 @@ export interface FeatureBranchesProps
   readonly defaultBranchName: string;
 
   /**
-   * Build commands to override the PDKPipeline defaults for an NX Monorepo.
+   * PDKPipeline by default assumes a NX Monorepo structure for it's codebase and
+   * uses sane defaults for the install and run commands. To override these defaults
+   * and/or provide additional inputs, specify env settings, etc you can provide
+   * a partial ShellStepProps.
    */
-  readonly buildCommands?: string[];
+  readonly synthShellStepPartialProps?: ShellStepProps;
+
+  /**
+   * CDK command. Override the command used to call cdk for synth and deploy.
+   *
+   * @default 'npx cdk'
+   */
+  readonly cdkCommand?: string;
 }
 
 export class FeatureBranches extends Construct {
@@ -75,9 +85,21 @@ export class FeatureBranches extends Construct {
     super(scope, id);
 
     const buildCommands: string[] =
-      props.buildCommands && props.buildCommands.length > 0
-        ? props.buildCommands
+      props.synthShellStepPartialProps?.commands &&
+      props.synthShellStepPartialProps.commands.length > 0
+        ? props.synthShellStepPartialProps.commands
         : ["npx nx run-many --target=build --all"];
+
+    const installCommands: string[] =
+      props.synthShellStepPartialProps?.installCommands &&
+      props.synthShellStepPartialProps.installCommands.length > 0
+        ? props.synthShellStepPartialProps.installCommands
+        : [
+            "npm install -g aws-cdk",
+            "yarn install --frozen-lockfile || npx projen && yarn install --frozen-lockfile",
+          ];
+
+    const cdkCommand = props.cdkCommand ?? "npx cdk";
 
     const createFeatureBranchProject = new Project(
       this,
@@ -96,17 +118,14 @@ export class FeatureBranches extends Construct {
           version: "0.2",
           phases: {
             install: {
-              commands: [
-                "npm install -g aws-cdk",
-                "yarn install --frozen-lockfile || npx projen && yarn install --frozen-lockfile",
-              ],
+              commands: installCommands,
             },
             build: {
               commands: [
                 ...buildCommands,
                 `cd ${props.cdkSrcDir}`,
-                "npx cdk synth",
-                "npx cdk deploy --require-approval=never",
+                `${cdkCommand} synth`,
+                `${cdkCommand} deploy --require-approval=never`,
               ],
             },
           },
