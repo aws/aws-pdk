@@ -158,7 +158,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       jest: options.jest ?? false,
       defaultReleaseBranch,
       sampleCode: false, // root should never have sample code,
-      gitignore: [".tmp", ...(options.gitignore ?? [])],
+      gitignore: [".tmp", ".nx/cache", ...(options.gitignore ?? [])],
       eslintOptions: options.eslintOptions ?? {
         dirs: ["."],
         ignorePatterns: ["packages/**/*.*"],
@@ -321,10 +321,21 @@ export class NxMonorepoProject extends TypeScriptProject {
   }
 
   /**
-   * Helper to format `npx nx run-many ...` style command.
+   * Helper to format `npx nx run-many ...` style command execution in package manager.
    * @param options
    */
-  public formatNxRunManyCommand(options: Nx.RunManyOptions): string {
+  public execNxRunManyCommand(options: Nx.RunManyOptions): string {
+    return NodePackageUtils.command.exec(
+      this.package.packageManager,
+      ...this.composeNxRunManyCommand(options)
+    );
+  }
+
+  /**
+   * Helper to format `npx nx run-many ...` style command
+   * @param options
+   */
+  public composeNxRunManyCommand(options: Nx.RunManyOptions): string[] {
     const args: string[] = [];
     if (options.configuration) {
       args.push(`--configuration=${options.configuration}`);
@@ -354,14 +365,13 @@ export class NxMonorepoProject extends TypeScriptProject {
       args.push("--verbose");
     }
 
-    return NodePackageUtils.command.exec(
-      this.package.packageManager,
+    return [
       "nx",
       "run-many",
       `--target=${options.target}`,
       `--output-style=${options.outputStyle || "stream"}`,
-      ...args
-    );
+      ...args,
+    ];
   }
 
   /**
@@ -390,7 +400,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       task._locked = false;
     }
 
-    task.reset(this.formatNxRunManyCommand(options), {
+    task.reset(this.execNxRunManyCommand(options), {
       receiveArgs: true,
     });
 
@@ -410,7 +420,7 @@ export class NxMonorepoProject extends TypeScriptProject {
   public addNxRunManyTask(name: string, options: Nx.RunManyOptions): Task {
     return this.addTask(name, {
       receiveArgs: true,
-      exec: this.formatNxRunManyCommand(options),
+      exec: this.execNxRunManyCommand(options),
     });
   }
 
@@ -711,14 +721,21 @@ export class NxMonorepoProject extends TypeScriptProject {
     );
 
     if (installProjects.length > 0) {
-      const monorepoInstallTask =
+      // TODO: Install error on clean repo for postinstall (https://cloud.nx.app/runs/MptQr0BxgF) (https://github.com/nrwl/nx/issues/11210)
+      const postinstallTask =
         this.tasks.tryFind("postinstall") ?? this.addTask("postinstall");
-      monorepoInstallTask.exec(
-        this.formatNxRunManyCommand({
-          target: "install",
-          projects: installProjects.map((project) => project.name),
-          parallel: 1,
-        })
+
+      const nxRunManyInstall = this.composeNxRunManyCommand({
+        target: "install",
+        projects: installProjects.map((project) => project.name),
+        parallel: 1,
+      });
+
+      postinstallTask.exec(
+        NodePackageUtils.command.downloadExec(
+          this.package.packageManager,
+          ...nxRunManyInstall
+        )
       );
 
       // Ensure that install-py follows dependency order

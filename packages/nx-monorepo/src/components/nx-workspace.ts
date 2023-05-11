@@ -62,7 +62,11 @@ export class NxWorkspace extends Component {
    */
   public autoInferProjectTargets: boolean = false;
 
-  public cacheDirectory: string = ".nx/cache";
+  /**
+   * Override the default nx cacheDirectory
+   * @experimental May cause `Could not find 'nx' module in this workspace.` [issue](https://github.com/nrwl/nx/issues/8929). If you experience this issue, please remove `cacheDirectory` override.
+   */
+  public cacheDirectory?: string;
 
   /**
    * Indicates if non-native nx hasher will be used.
@@ -222,21 +226,48 @@ export class NxWorkspace extends Component {
       { append: true }
     );
   }
+
+  /** @internal */
+  protected _recursivelyApplyToProject(
+    project: Project,
+    fn: (project: Project) => void
+  ): void {
+    fn(project);
+    project.subprojects.forEach(fn);
+  }
+
   /** @internal */
   protected _applyNonNativeHasher(project: Project): void {
     project.tasks.addEnvironment("NX_NON_NATIVE_HASHER", "true");
+  }
+  /** @internal */
+  protected _applyCacheDirectory(project: Project): void {
+    this.cacheDirectory &&
+      project.tasks.addEnvironment("NX_CACHE_DIRECTORY", this.cacheDirectory);
   }
 
   /** @inheritdoc */
   preSynthesize(): void {
     super.preSynthesize();
 
-    this.project.addGitIgnore(this.cacheDirectory);
+    if (this.cacheDirectory) {
+      this.project.logger.warn(
+        "[NxWorkspace] Overriding nx cacheDirectory is experimental and may cause `Could not find 'nx' module in this workspace.` issue. \nIf you experience this issue, please remove cacheDirectory override. \nhttps://github.com/nrwl/nx/issues/8929"
+      );
+      this.project.addGitIgnore(this.cacheDirectory);
+      // https://github.com/nrwl/nx/issues/8929
+      // For cacheDirectory override to propagate during initialization we need to set as env var
+      this._recursivelyApplyToProject(
+        this.project,
+        this._applyCacheDirectory.bind(this)
+      );
+    }
 
     if (this.nonNativeHasher) {
-      this._applyNonNativeHasher(this.project);
-
-      this.project.subprojects.forEach(this._applyNonNativeHasher);
+      this._recursivelyApplyToProject(
+        this.project,
+        this._applyNonNativeHasher.bind(this)
+      );
     }
   }
 
