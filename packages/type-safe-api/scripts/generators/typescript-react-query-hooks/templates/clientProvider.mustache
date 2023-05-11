@@ -1,0 +1,34 @@
+import * as React from "react";
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import { {{ classFilename }} } from "./{{ classFilename }}";
+import { {{ classFilename }}ClientContext } from "./{{ classFilename }}Hooks";
+
+const queryClient = new QueryClient();
+export const defaultContext = React.createContext<QueryClient | undefined>(
+  undefined
+);
+
+export interface {{ classFilename }}ClientProviderProps {
+  readonly apiClient: {{ classFilename }};
+  readonly client?: QueryClient;
+  readonly context?: React.Context<QueryClient | undefined>;
+  readonly children?: React.ReactNode;
+}
+
+export const {{ classFilename }}ClientProvider = ({
+  apiClient,
+  client = queryClient,
+  context = defaultContext,
+  children,
+}: {{ classFilename }}ClientProviderProps): JSX.Element => {
+  return (
+    <QueryClientProvider client={client} context={context}>
+      <{{ classFilename }}ClientContext.Provider value={apiClient}>
+        {children}
+      </{{ classFilename }}ClientContext.Provider>
+    </QueryClientProvider>
+  );
+};

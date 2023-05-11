@@ -382,6 +382,7 @@ tsconfig.esm.json
 README.md
 README.md
 src/apis/DefaultApi.ts
+src/apis/DefaultApiClientProvider.tsx
 src/apis/index.ts
 src/apis/index.ts
 src/index.ts
@@ -630,11 +631,11 @@ an instance of \`fetch\` which will sign requests with the logged in user's cred
 
 \`\`\`ts
 export const useDefaultApiClient = () => {
-    const { client: fetchApi } = useSigv4Client();
-    return useMemo(() => client.current ? new DefaultApi(new Configuration({
+    const client = useSigv4Client();
+    return useMemo(() => client ? new DefaultApi(new Configuration({
         basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
-        fetchApi: client.current,
-    })) : undefined, [client.current]);
+        fetchApi: client,
+    })) : undefined, [client]);
 };
 \`\`\`
 
@@ -644,9 +645,9 @@ Next, instantiate the client provider above where you would like to use the hook
 const api = useDefaultApiClient();
 
 return (
-    <DefaultApiClientContext.Provider value={api}>
+    <DefaultApiClientProvider apiClient={api}>
         { /* Components within the provider may make use of the hooks */ }
-    </DefaultApiClientContext.Provider>
+    </DefaultApiClientProvider>
 );
 \`\`\`
 
@@ -967,6 +968,41 @@ export class DefaultApi extends runtime.BaseAPI {
 
 }
 ",
+  "src/apis/DefaultApiClientProvider.tsx": "import * as React from "react";
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import { DefaultApi } from "./DefaultApi";
+import { DefaultApiClientContext } from "./DefaultApiHooks";
+
+const queryClient = new QueryClient();
+export const defaultContext = React.createContext<QueryClient | undefined>(
+  undefined
+);
+
+export interface DefaultApiClientProviderProps {
+  readonly apiClient: DefaultApi;
+  readonly client?: QueryClient;
+  readonly context?: React.Context<QueryClient | undefined>;
+  readonly children?: React.ReactNode;
+}
+
+export const DefaultApiClientProvider = ({
+  apiClient,
+  client = queryClient,
+  context = defaultContext,
+  children,
+}: DefaultApiClientProviderProps): JSX.Element => {
+  return (
+    <QueryClientProvider client={client} context={context}>
+      <DefaultApiClientContext.Provider value={apiClient}>
+        {children}
+      </DefaultApiClientContext.Provider>
+    </QueryClientProvider>
+  );
+};
+",
   "src/apis/DefaultApiHooks.ts": "// Import models
 import type {
   ApiError,
@@ -992,6 +1028,7 @@ import {
 
 import { ResponseError } from '../runtime';
 import { DefaultApi } from './DefaultApi';
+import { defaultContext } from "./DefaultApiClientProvider";
 
 import {
     useQuery,
@@ -1027,7 +1064,10 @@ export const useAnyRequestResponse = <TError = ResponseError>(
     if (!api) {
         throw NO_API_ERROR;
     }
-    return useMutation((params: AnyRequestResponseRequest) => api.anyRequestResponse(params), options);
+    return useMutation((params: AnyRequestResponseRequest) => api.anyRequestResponse(params), {
+        context: defaultContext,
+        ...options,
+    });
 };
 
 /**
@@ -1040,7 +1080,10 @@ export const useEmpty = <TError = ResponseError>(
     if (!api) {
         throw NO_API_ERROR;
     }
-    return useMutation(() => api.empty(), options);
+    return useMutation(() => api.empty(), {
+        context: defaultContext,
+        ...options,
+    });
 };
 
 /**
@@ -1053,7 +1096,10 @@ export const useMediaTypes = <TError = ResponseError>(
     if (!api) {
         throw NO_API_ERROR;
     }
-    return useMutation((params: MediaTypesRequest) => api.mediaTypes(params), options);
+    return useMutation((params: MediaTypesRequest) => api.mediaTypes(params), {
+        context: defaultContext,
+        ...options,
+    });
 };
 
 /**
@@ -1066,7 +1112,10 @@ export const useOperationOne = <TError = ResponseError>(
     if (!api) {
         throw NO_API_ERROR;
     }
-    return useMutation((params: OperationOneRequest) => api.operationOne(params), options);
+    return useMutation((params: OperationOneRequest) => api.operationOne(params), {
+        context: defaultContext,
+        ...options,
+    });
 };
 
 /**
@@ -1082,6 +1131,7 @@ export const usePaginatedGet = <TError = ResponseError>(
     }
     return useInfiniteQuery(["paginatedGet", params], ({ pageParam }) => api.paginatedGet({ ...params, inputNextToken: pageParam }), {
         getNextPageParam: (response) => response.outputNextToken,
+        context: defaultContext,
         ...options as any,
     });
 };
@@ -1097,7 +1147,10 @@ export const useRegularGet = <TError = ResponseError>(
     if (!api) {
         throw NO_API_ERROR;
     }
-    return useQuery(["regularGet"], () => api.regularGet(), options);
+    return useQuery(["regularGet"], () => api.regularGet(), {
+        context: defaultContext,
+        ...options,
+    });
 };
 
 
@@ -1111,7 +1164,10 @@ export const useWithoutOperationIdDelete = <TError = ResponseError>(
     if (!api) {
         throw NO_API_ERROR;
     }
-    return useMutation(() => api.withoutOperationIdDelete(), options);
+    return useMutation(() => api.withoutOperationIdDelete(), {
+        context: defaultContext,
+        ...options,
+    });
 };
 
 ",
@@ -1119,6 +1175,7 @@ export const useWithoutOperationIdDelete = <TError = ResponseError>(
 /* eslint-disable */
 export * from './DefaultApi';
 export * from './DefaultApiHooks';
+export * from './DefaultApiClientProvider';
 ",
   "src/index.ts": "/* tslint:disable */
 /* eslint-disable */
@@ -1978,6 +2035,7 @@ export class TextApiResponse {
       "experimentalDecorators": true,
       "inlineSourceMap": true,
       "inlineSources": true,
+      "jsx": "react",
       "lib": [
         "dom",
         "es2019",

@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { NodePackageManager } from "projen/lib/javascript";
+import { NodePackageManager, TypeScriptJsxMode } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Library } from "../../languages";
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
@@ -39,6 +39,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
       tsconfig: {
         ...options.tsconfig,
         compilerOptions: {
+          jsx: TypeScriptJsxMode.REACT,
           lib: ["dom", "es2019"],
           // Generated code isn't very strict!
           strict: false,

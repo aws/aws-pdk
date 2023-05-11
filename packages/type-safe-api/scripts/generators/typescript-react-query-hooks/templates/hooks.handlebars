@@ -17,6 +17,7 @@ import {
 
 import { ResponseError } from '../runtime';
 import { {{classname}} } from './{{ classFilename }}';
+import { defaultContext } from "./{{ classFilename }}ClientProvider";
 
 import {
     useQuery,
@@ -58,6 +59,7 @@ export const use{{operationIdCamelCase}} = <TError = ResponseError>(
     }
     return useInfiniteQuery(["{{nickname}}"{{#allParams.0}}, params{{/allParams.0}}], ({ pageParam }) => api.{{nickname}}({ {{#allParams.0}}...params, {{/allParams.0}}{{vendorExtensions.x-paginated.inputToken}}: pageParam }), {
         getNextPageParam: (response) => response.{{vendorExtensions.x-paginated.outputToken}},
+        context: defaultContext,
         ...options as any,
     });
 };
@@ -73,7 +75,10 @@ export const use{{operationIdCamelCase}} = <TError = ResponseError>(
     if (!api) {
         throw NO_API_ERROR;
     }
-    return useQuery(["{{nickname}}"{{#allParams.0}}, params{{/allParams.0}}], () => api.{{nickname}}({{#allParams.0}}params{{/allParams.0}}), options);
+    return useQuery(["{{nickname}}"{{#allParams.0}}, params{{/allParams.0}}], () => api.{{nickname}}({{#allParams.0}}params{{/allParams.0}}), {
+        context: defaultContext,
+        ...options,
+    });
 };
 {{/if}}
 {{~else}}
@@ -87,7 +92,10 @@ export const use{{operationIdCamelCase}} = <TError = ResponseError>(
     if (!api) {
         throw NO_API_ERROR;
     }
-    return useMutation(({{#allParams.0}}params: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request{{/allParams.0}}) => api.{{nickname}}({{#allParams.0}}params{{/allParams.0}}), options);
+    return useMutation(({{#allParams.0}}params: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request{{/allParams.0}}) => api.{{nickname}}({{#allParams.0}}params{{/allParams.0}}), {
+        context: defaultContext,
+        ...options,
+    });
 };
 {{~/startsWith}}
 {{/operation}}
