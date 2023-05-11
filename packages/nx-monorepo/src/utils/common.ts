@@ -50,14 +50,12 @@ export interface DeepMergeOptions {
 }
 
 /**
- * Recursively merge objects together into a new object.
+ * Recursively merge objects together into a new object with extends support for appending arrays.
  *
- * By default, arrays are not merged
- * but overwritten just like scalars. Use the `append=true` flag to append array values.
+ * This is a clone of [projen/lib/util#deepMerge](https://github.com/projen/projen/blob/55ac3657a270285db63e1a6008b3848b36775626/src/util.ts#L218-L281)
+ * with added functionality to support appending arrays.
  *
- * If an object is merged into a non-object, the non-object is lost.
- *
- * `undefined`s will cause a value to be deleted if destructive is enabled.
+ * @see [projen/lib/util#deepMerge](https://github.com/projen/projen/blob/55ac3657a270285db63e1a6008b3848b36775626/src/util.ts#L218-L281)
  */
 export function deepMerge(
   objects: Array<Obj<any>>,

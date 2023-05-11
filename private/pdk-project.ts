@@ -251,9 +251,8 @@ class PDKDocgen {
       );
 
     NxProject.of(project)?.addBuildTargetFiles(
-      [],
-      [`{projectRoot}/${docsBasePath}`],
-      true
+      [`!{projectRoot}/${docsBasePath}/**/*`],
+      [`{projectRoot}/${docsBasePath}`]
     );
 
     // spawn docgen after compilation (requires the .jsii manifest).

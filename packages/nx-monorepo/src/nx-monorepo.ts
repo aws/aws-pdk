@@ -158,7 +158,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       jest: options.jest ?? false,
       defaultReleaseBranch,
       sampleCode: false, // root should never have sample code,
-      gitignore: [".nx/cache", ".tmp", ...(options.gitignore ?? [])],
+      gitignore: [".tmp", ...(options.gitignore ?? [])],
       eslintOptions: options.eslintOptions ?? {
         dirs: ["."],
         ignorePatterns: ["packages/**/*.*"],
@@ -271,7 +271,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       });
     }
 
-    this.addPeerDeps("nx@^16");
+    this.addPeerDeps("nx");
     this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in aws-prototyping-sdk
     this.package.addPackageResolutions(
       "@types/babel__traverse@7.18.2",

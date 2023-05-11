@@ -7,22 +7,103 @@ import { Jest } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { Nx } from "../../nx-types";
 
-function projectRoot(fileset: string): string {
-  const inverse = fileset.startsWith("!");
-  if (inverse) {
-    fileset = fileset.substring(1);
+/**
+ * Defines a fileset for target inputs and outputs.
+ * @experimental
+ * @internal
+ */
+class TargetFileset {
+  static File(
+    fileset: string,
+    isWorkspaceRoot: boolean = false
+  ): TargetFileset {
+    return new TargetFileset(fileset, false, isWorkspaceRoot);
   }
-  if (fileset.startsWith("{")) {
-    return fileset;
+  static Directory(
+    fileset: string,
+    isWorkspaceRoot: boolean = false
+  ): TargetFileset {
+    return new TargetFileset(fileset, true, isWorkspaceRoot);
   }
-  if (!fileset.startsWith("/")) {
-    fileset = "/" + fileset;
+
+  static resolveInputs(values: (string | TargetFileset)[]): string[] {
+    return values.map((v) => (typeof v === "string" ? v : v.filesetStarIfDir));
   }
-  fileset = "{projectRoot}" + fileset;
-  if (inverse) {
-    return "!" + fileset;
+
+  static resolveOutputs(values: (string | TargetFileset)[]): string[] {
+    return values.map((v) => (typeof v === "string" ? v : v.fileset));
   }
-  return fileset;
+
+  static outputsToInputs(values: (string | TargetFileset)[]): string[] {
+    return values.map((v) =>
+      typeof v === "string" ? v : v.inverse().filesetStarIfDir
+    );
+  }
+
+  /** The glob pattern for the fileset */
+  private readonly _fileset: string;
+  /** Indicates if fileset is for a directory */
+  public readonly isDirectory: boolean;
+  /** Indicates if fileset is excluded (starts with !) */
+  public readonly isExclude: boolean;
+  /** Indicates if fileset is for workspace root, if not is considered project root */
+  public readonly isWorkspaceRoot: boolean;
+
+  private constructor(
+    fileset: string,
+    isDirectory: boolean,
+    isWorkspaceRoot: boolean
+  ) {
+    this._fileset = fileset;
+    this.isDirectory = isDirectory;
+    this.isExclude = this._fileset.startsWith("!");
+    this.isWorkspaceRoot = isWorkspaceRoot;
+  }
+
+  private _ensureWildcards(fileset: string): string {
+    if (fileset.endsWith("*")) {
+      return fileset;
+    }
+    if (fileset.endsWith("/")) {
+      return fileset + "**/*";
+    }
+    return fileset + "/**/*";
+  }
+
+  get fileset(): string {
+    let fileset = this.isExclude ? this._fileset.substring(1) : this._fileset;
+    if (fileset.startsWith("/")) {
+      fileset = fileset.substring(1);
+    }
+    if (this.isWorkspaceRoot) {
+      return `${this.isExclude ? "!" : ""}{workspaceRoot}/${fileset}`;
+    }
+    return `${this.isExclude ? "!" : ""}{projectRoot}/${fileset}`;
+  }
+
+  inverse(): TargetFileset {
+    if (this.isExclude) {
+      return new TargetFileset(
+        this._fileset.substring(1),
+        this.isDirectory,
+        this.isWorkspaceRoot
+      );
+    }
+
+    return new TargetFileset(
+      "!" + this._fileset,
+      this.isDirectory,
+      this.isWorkspaceRoot
+    );
+  }
+
+  get filesetStarIfDir(): string {
+    if (this.isDirectory) {
+      return this._ensureWildcards(this.fileset);
+    }
+
+    return this.fileset;
+  }
 }
 
 /** @struct */
@@ -54,7 +135,7 @@ export function inferBuildTarget(
   const { inputs = [], outputs = [] } = _inferBuildTargetIO(project);
 
   if (options?.excludeOutputs !== false) {
-    inputs.push(...outputs.flatMap((o) => [`!${o}`, `!${o}/**/*`]));
+    inputs.push(...TargetFileset.outputsToInputs(outputs));
   }
 
   let dependsOn: string[] | undefined = ["^build"];
@@ -71,36 +152,55 @@ export function inferBuildTarget(
   }
 
   return {
-    inputs,
-    outputs,
+    inputs: TargetFileset.resolveInputs(inputs),
+    outputs: TargetFileset.resolveOutputs(outputs),
     dependsOn,
   };
 }
 
+interface InferedTargetFilesets {
+  readonly inputs: (TargetFileset | string)[];
+  readonly outputs: (TargetFileset | string)[];
+}
+
 /** @internal */
-function _inferBuildTargetIO(project: Project): Nx.IProjectTarget {
-  const inputs: Nx.Inputs = [];
-  const outputs: Nx.Outputs = [];
+function _inferBuildTargetIO(project: Project): InferedTargetFilesets {
+  const inputs: (TargetFileset | string)[] = [];
+  const outputs: (TargetFileset | string)[] = [];
   let includeDefaultInputs = true;
 
   if (project instanceof JsiiProject) {
     outputs.push(
-      ...[".jsii", project.libdir, project.artifactsDirectory].map(projectRoot)
+      TargetFileset.File(".jsii"),
+      TargetFileset.Directory(project.libdir),
+      TargetFileset.Directory(project.artifactsDirectory)
     );
   }
 
   if (Jest.of(project)) {
-    outputs.push(...["coverage", "test-reports"].map(projectRoot));
+    outputs.push(
+      TargetFileset.Directory("coverage"),
+      TargetFileset.Directory("test-reports")
+    );
   }
 
   if (project instanceof PythonProject) {
-    inputs.push(...["!.env", "!.pytest_cache"].map(projectRoot));
-    // TODO: are there any outputs for python project?
+    inputs.push(
+      TargetFileset.Directory("!.env"),
+      TargetFileset.Directory("!.pytest_cache")
+    );
   }
 
   if (project instanceof JavaProject) {
-    inputs.push(...["!.classpath", "!.project", "!.settings"].map(projectRoot));
-    outputs.push(...["target", "dist/java"].map(projectRoot));
+    inputs.push(
+      TargetFileset.File("!.classpath"),
+      TargetFileset.File("!.project"),
+      TargetFileset.File("!.settings")
+    );
+    outputs.push(
+      TargetFileset.Directory("target"),
+      TargetFileset.Directory("dist/java")
+    );
   }
 
   if (includeDefaultInputs) {

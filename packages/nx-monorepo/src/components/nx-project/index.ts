@@ -130,17 +130,16 @@ export class NxProject extends Component {
       });
     }
 
-    if (NxWorkspace.of(project)?._autoInferProjectTargets) {
-      this._inferTargets();
+    if (NxWorkspace.of(project)?.autoInferProjectTargets) {
+      this.inferTargets();
     }
   }
 
   /**
    * Automatically infer targets based on project type.
    * @experimental
-   * @internal
    */
-  public _inferTargets(): void {
+  public inferTargets(): void {
     const _inferredBuildTarget = inferBuildTarget(this.project);
     if (_inferredBuildTarget) {
       this.targets.build = _inferredBuildTarget;
@@ -228,20 +227,11 @@ export class NxProject extends Component {
    * Add input and output files to build target
    * @param inputs Input files
    * @param outputs Output files
-   * @param excludeOutputs Indicates if output files are automatically excluded from input files
    */
   public addBuildTargetFiles(
     inputs?: (string | Nx.IInput)[],
-    outputs?: string[],
-    excludeOutputs: boolean = false
+    outputs?: string[]
   ): void {
-    if (outputs && excludeOutputs) {
-      inputs = [
-        ...(inputs || []),
-        ...outputs.flatMap((o) => [`!${o}`, `!${o}/**/*`]),
-      ];
-    }
-
     this.setTarget(
       "build",
       {
@@ -258,6 +248,8 @@ export class NxProject extends Component {
       this.project.root.outdir,
       this.project.outdir
     );
+
+    const isNodeProject = NodePackageUtils.isNodeProject(this.project);
 
     const packageManager =
       NodePackageUtils.tryFindNodePackage(this.project, true)?.packageManager ||
@@ -286,13 +278,19 @@ export class NxProject extends Component {
         return true;
       })
       .forEach((task) => {
+        // Non-NodeProject don't have package.json so exec bubbles to the root.
+        const command = isNodeProject
+          ? NodePackageUtils.command.projen(packageManager, task.name)
+          : NodePackageUtils.command.downloadExec(
+              packageManager,
+              "projen",
+              task.name
+            );
+
         const _target = this.targets[task.name] || {};
         _target.executor = _target.executor || "nx:run-commands";
         _target.options = {
-          command: NodePackageUtils.command.downloadExec(
-            packageManager,
-            `projen ${task.name}`
-          ),
+          command,
           cwd: projectPath,
           ..._target.options,
         };

@@ -20,8 +20,10 @@ export namespace Nx {
     env?: string;
   }
 
+  /** Inputs type */
   export type Inputs = (string | IInput)[];
 
+  /** Output type */
   export type Outputs = string[];
 
   /**

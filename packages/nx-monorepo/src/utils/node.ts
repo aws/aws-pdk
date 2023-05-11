@@ -26,10 +26,10 @@ export namespace NodePackageUtils {
 
   /** Indicates if project is a node based project */
   export function isNodeProject(project: Project): boolean {
-    if (project instanceof NodeProject) {
-      return true;
-    }
-    return tryFindNodePackage(project, false) != null;
+    return (
+      project instanceof NodeProject ||
+      tryFindNodePackage(project, false) != null
+    );
   }
 
   /**
@@ -163,16 +163,21 @@ export namespace NodePackageUtils {
 
     export function execInWorkspace(
       packageManager: NodePackageManager,
+      packageName: string,
       ...args: string[]
     ) {
       switch (packageManager) {
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
-          return withArgs("yarn workspace", args);
+          return withArgs("yarn workspace", [packageName, ...args]);
         case NodePackageManager.PNPM:
-          return withArgs("pnpm", ["--filter", ...args]);
+          return withArgs("pnpm", [
+            `--filter "${packageName}"`,
+            "exec",
+            ...args,
+          ]);
         default:
-          return withArgs("npx", ["-p", ...args]);
+          return withArgs("npx", ["-p", packageName, ...args]);
       }
     }
 

@@ -59,9 +59,10 @@ export class NxWorkspace extends Component {
   /**
    * Automatically infer NxProject targets based on project type.
    * @experimental
-   * @internal
    */
-  public _autoInferProjectTargets: boolean = false;
+  public autoInferProjectTargets: boolean = false;
+
+  public cacheDirectory: string = ".nx/cache";
 
   /**
    * Indicates if non-native nx hasher will be used.
@@ -135,6 +136,7 @@ export class NxWorkspace extends Component {
   public defaultTaskRunnerOptions: Obj<any> = {
     useDaemonProcess: false,
     cacheableOperations: () => this.cacheableOperations,
+    cacheDirectory: () => this.cacheDirectory,
   };
 
   /**
@@ -228,6 +230,8 @@ export class NxWorkspace extends Component {
   /** @inheritdoc */
   preSynthesize(): void {
     super.preSynthesize();
+
+    this.project.addGitIgnore(this.cacheDirectory);
 
     if (this.nonNativeHasher) {
       this._applyNonNativeHasher(this.project);

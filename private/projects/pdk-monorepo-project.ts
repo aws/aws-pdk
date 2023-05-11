@@ -61,7 +61,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     });
 
     // Turn on automatic target inference for this repo
-    this.nx._autoInferProjectTargets = true;
+    this.nx.autoInferProjectTargets = true;
     // This is OK to be stored given its read only and the repository is public
     this.nx.useNxCloud(
       "OWJmZDJmZmEtNzk5MC00OGJkLTg3YjUtNmNkZDk1MmYxZDZkfHJlYWQ="

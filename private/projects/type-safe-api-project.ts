@@ -61,7 +61,7 @@ export class TypeSafeApiProject extends PDKProject {
       },
     });
 
-    this.gitignore.exclude("**/tmp.*/**/*");
+    this.gitignore.exclude("tmp\\.*");
     this.eslint?.addRules({ "import/no-unresolved": ["off"] });
     this.tsconfigEslint!.addInclude("scripts");
   }
