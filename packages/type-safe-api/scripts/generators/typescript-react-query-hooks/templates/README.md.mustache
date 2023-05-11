@@ -18,11 +18,11 @@ an instance of `fetch` which will sign requests with the logged in user's creden
 
 ```ts
 export const use{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}Client = () => {
-    const { client: fetchApi } = useSigv4Client();
-    return useMemo(() => client.current ? new {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}(new Configuration({
+    const client = useSigv4Client();
+    return useMemo(() => client ? new {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}(new Configuration({
         basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
-        fetchApi: client.current,
-    })) : undefined, [client.current]);
+        fetchApi: client,
+    })) : undefined, [client]);
 };
 ```
 
@@ -32,9 +32,9 @@ Next, instantiate the client provider above where you would like to use the hook
 const api = use{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}Client();
 
 return (
-    <{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ClientContext.Provider value={api}>
+    <{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ClientProvider apiClient={api}>
         { /* Components within the provider may make use of the hooks */ }
-    </{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ClientContext.Provider>
+    </{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ClientProvider>
 );
 ```
 

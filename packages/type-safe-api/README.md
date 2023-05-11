@@ -74,20 +74,20 @@ monorepo.synth();
 In your CDK application (ie within the `infra` project we created), consume the `Api` construct, vended from the generated typescript infrastructure package.
 
 ```ts
-import { Stack, StackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
+import { Stack, StackProps } from "aws-cdk-lib";
+import { Construct } from "constructs";
 import { Api } from "myapi-typescript-infra"; // <- generated typescript infrastructure package
 import { Authorizers, Integrations } from "@aws-prototyping-sdk/type-safe-api";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Cors } from "aws-cdk-lib/aws-apigateway";
-import * as path from 'path';
+import * as path from "path";
 
 export class MyStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
     super(scope, id, props);
 
     // Instantiate the generated CDK construct to deploy an API Gateway API based on your model
-    new Api(this, 'MyApi', {
+    new Api(this, "MyApi", {
       defaultAuthorizer: Authorizers.iam(),
       corsOptions: {
         allowOrigins: Cors.ALL_ORIGINS,
@@ -96,9 +96,11 @@ export class MyStack extends Stack {
       // Supply an integration for every operation
       integrations: {
         sayHello: {
-          integration: Integrations.lambda(new NodejsFunction(this, 'SayHelloLambda', {
-            entry: path.resolve(__dirname, 'say-hello.ts'),
-          })),
+          integration: Integrations.lambda(
+            new NodejsFunction(this, "SayHelloLambda", {
+              entry: path.resolve(__dirname, "say-hello.ts"),
+            })
+          ),
         },
       },
     });
@@ -132,10 +134,10 @@ export const handler = sayHelloHandler(async ({ input }) => {
 
 The `TypeSafeApiProject` projen project sets up the project structure for you. You have a few parameters to consider when creating the project:
 
-* `model` - Configure the API model. Select a `language` for the model of either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and supply `options.smithy` or `options.openapi` depending on your choice.
-* `runtime` - Configure the generated runtime projects. Include one or more `languages` you wish to write your client and server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation.
-* `infrastructure` - Pick the `language` you are writing your CDK infrastructure in. A construct will be generated in this language which can be used to deploy the API.
-* `documentation` - Specify `formats` to generate documentation in.
+- `model` - Configure the API model. Select a `language` for the model of either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and supply `options.smithy` or `options.openapi` depending on your choice.
+- `runtime` - Configure the generated runtime projects. Include one or more `languages` you wish to write your client and server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation.
+- `infrastructure` - Pick the `language` you are writing your CDK infrastructure in. A construct will be generated in this language which can be used to deploy the API.
+- `documentation` - Specify `formats` to generate documentation in.
 
 It's recommended that these projects are used as part of an `nx-monorepo` project (eg. by specifying `parent: myMonorepoProject`), as it makes setting up dependencies much easier, particularly when extending your project further with a CDK app and lambda functions.
 
@@ -258,7 +260,6 @@ The `TypeSafeApiProject` will create the following directory structure within it
     |_ typescript-react-query-hooks
 ```
 
-
 ### Smithy IDL
 
 Please refer to the [Smithy documentation](https://smithy.io/2.0/quickstart.html) for how to write models in Smithy. A basic example is provided below:
@@ -343,12 +344,12 @@ paths:
             type: string
           required: true
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
-            'application/json':
+            "application/json":
               schema:
-                $ref: '#/components/schemas/HelloResponse'
+                $ref: "#/components/schemas/HelloResponse"
 components:
   schemas:
     HelloResponse:
@@ -383,10 +384,10 @@ info:
   version: 1.0.0
   title: Example API
 paths:
-  $ref: './paths/index.yaml'
+  $ref: "./paths/index.yaml"
 components:
   schemas:
-    $ref: './schemas/index.yaml'
+    $ref: "./schemas/index.yaml"
 ```
 
 `paths/index.yaml`:
@@ -394,7 +395,7 @@ components:
 ```yaml
 /hello:
   get:
-    $ref: './sayHello.yaml'
+    $ref: "./sayHello.yaml"
 ```
 
 `paths/sayHello.yaml`:
@@ -402,25 +403,25 @@ components:
 ```yaml
 operationId: sayHello
 parameters:
- - in: query
-   name: name
-   schema:
-     type: string
-   required: true
+  - in: query
+    name: name
+    schema:
+      type: string
+    required: true
 responses:
-  '200':
+  "200":
     description: Successful response
     content:
-      'application/json':
+      "application/json":
         schema:
-          $ref: '../schemas/helloResponse.yaml'
+          $ref: "../schemas/helloResponse.yaml"
 ```
 
 `schemas/index.yaml`:
 
 ```yaml
 HelloResponse:
-  $ref: './helloResponse.yaml'
+  $ref: "./helloResponse.yaml"
 ```
 
 `schemas/helloResponse.yaml`:
@@ -441,10 +442,10 @@ A CDK construct is generated in the `infrastructure/<language>` directory which 
 You can extend or instantiate this construct in your CDK infrastructure project. You'll get a type error if you forget to define an integration for an operation defined in your api.
 
 ```ts
-import { Authorizers, Integrations } from '@aws-prototyping-sdk/type-safe-api';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Construct } from 'constructs';
-import { Api } from 'myapi-typescript-infra';
+import { Authorizers, Integrations } from "@aws-prototyping-sdk/type-safe-api";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { Construct } from "constructs";
+import { Api } from "myapi-typescript-infra";
 
 /**
  * An example of how to wire lambda handler functions to the API
@@ -456,7 +457,9 @@ export class SampleApi extends Api {
       integrations: {
         // Every operation defined in your API must have an integration defined!
         sayHello: {
-          integration: Integrations.lambda(new NodejsFunction(scope, 'say-hello')),
+          integration: Integrations.lambda(
+            new NodejsFunction(scope, "say-hello")
+          ),
         },
       },
     });
@@ -469,11 +472,11 @@ export class SampleApi extends Api {
 If you would like to use the same integration for every operation (for example you'd like to use a single lambda function to service all requests with the in-built [handler router](#handler-router)), you can use the `Operations.all` method from a generated runtime project to save repeating yourself:
 
 ```ts
-import { Operations } from 'myapi-typescript-runtime';
-import { Authorizers, Integrations } from '@aws-prototyping-sdk/type-safe-api';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Construct } from 'constructs';
-import { Api } from 'myapi-typescript-infra';
+import { Operations } from "myapi-typescript-runtime";
+import { Authorizers, Integrations } from "@aws-prototyping-sdk/type-safe-api";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { Construct } from "constructs";
+import { Api } from "myapi-typescript-infra";
 
 export class SampleApi extends Api {
   constructor(scope: Construct, id: string) {
@@ -481,7 +484,7 @@ export class SampleApi extends Api {
       defaultAuthorizer: Authorizers.iam(),
       // Use the same integration for every operation.
       integrations: Operations.all({
-        integration: Integrations.lambda(new NodejsFunction(scope, 'router')),
+        integration: Integrations.lambda(new NodejsFunction(scope, "router")),
       }),
     });
   }
@@ -494,10 +497,10 @@ TypeScript is demonstrated above, but this is also available in Java and Python.
 
 The `Api` construct allows you to define one or more authorizers for securing your API. An integration will use the `defaultAuthorizer` unless an `authorizer` is specified at the integration level. The following authorizers are supported:
 
-* `Authorizers.none` - No auth
-* `Authorizers.iam` - AWS IAM (Signature Version 4)
-* `Authorizers.cognito` - Cognito user pool
-* `Authorizers.custom` - A custom authorizer
+- `Authorizers.none` - No auth
+- `Authorizers.iam` - AWS IAM (Signature Version 4)
+- `Authorizers.cognito` - Cognito user pool
+- `Authorizers.custom` - A custom authorizer
 
 ##### Cognito Authorizer
 
@@ -507,8 +510,8 @@ To use the Cognito authorizer, one or more user pools must be provided. You can 
 export class SampleApi extends Api {
   constructor(scope: Construct, id: string) {
     const cognitoAuthorizer = Authorizers.cognito({
-      authorizerId: 'myCognitoAuthorizer',
-      userPools: [new UserPool(scope, 'UserPool')],
+      authorizerId: "myCognitoAuthorizer",
+      userPools: [new UserPool(scope, "UserPool")],
     });
 
     super(scope, id, {
@@ -516,12 +519,18 @@ export class SampleApi extends Api {
       integrations: {
         // Everyone in the user pool can call this operation:
         sayHello: {
-          integration: Integrations.lambda(new NodejsFunction(scope, 'say-hello')),
+          integration: Integrations.lambda(
+            new NodejsFunction(scope, "say-hello")
+          ),
         },
         // Only users with the given scopes can call this operation
         myRestrictedOperation: {
-          integration: Integrations.lambda(new NodejsFunction(scope, 'my-restricted-operation')),
-          authorizer: cognitoAuthorizer.withScopes('my-resource-server/my-scope'),
+          integration: Integrations.lambda(
+            new NodejsFunction(scope, "my-restricted-operation")
+          ),
+          authorizer: cognitoAuthorizer.withScopes(
+            "my-resource-server/my-scope"
+          ),
         },
       },
     });
@@ -539,8 +548,8 @@ An example token-based authorizer (default):
 
 ```ts
 Authorizers.custom({
-  authorizerId: 'myTokenAuthorizer',
-  function: new NodejsFunction(scope, 'authorizer'),
+  authorizerId: "myTokenAuthorizer",
+  function: new NodejsFunction(scope, "authorizer"),
 });
 ```
 
@@ -548,10 +557,11 @@ An example request-based handler. By default the identitySource will be `method.
 
 ```ts
 Authorizers.custom({
-  authorizerId: 'myRequestAuthorizer',
+  authorizerId: "myRequestAuthorizer",
   type: CustomAuthorizerType.REQUEST,
-  identitySource: 'method.request.header.MyCustomHeader, method.request.querystring.myQueryString',
-  function: new NodejsFunction(scope, 'authorizer'),
+  identitySource:
+    "method.request.header.MyCustomHeader, method.request.querystring.myQueryString",
+  function: new NodejsFunction(scope, "authorizer"),
 });
 ```
 
@@ -582,10 +592,12 @@ Example usage of the client in a website:
 ```ts
 import { Configuration, DefaultApi } from "myapi-typescript-runtime";
 
-const client = new DefaultApi(new Configuration({
-  basePath: "https://xxxxxxxxxx.execute-api.ap-southeast-2.amazonaws.com",
-  fetchApi: window.fetch.bind(window),
-}));
+const client = new DefaultApi(
+  new Configuration({
+    basePath: "https://xxxxxxxxxx.execute-api.ap-southeast-2.amazonaws.com",
+    fetchApi: window.fetch.bind(window),
+  })
+);
 
 await client.sayHello({ name: "Jack" });
 ```
@@ -661,7 +673,11 @@ export const handler = sayHelloHandler(async ({ input }) => {
 The lambda handler wrappers can be used in isolation as handler methods for separate lambdas. If you would like to use a single lambda function to serve all requests, you can do so with the `handlerRouter`.
 
 ```ts
-import { handlerRouter, sayHelloHandler, sayGoodbyeHandler } from "myapi-typescript-runtime";
+import {
+  handlerRouter,
+  sayHelloHandler,
+  sayGoodbyeHandler,
+} from "myapi-typescript-runtime";
 import { corsInterceptor } from "./interceptors";
 import { sayGoodbye } from "./handlers/say-goodbye";
 
@@ -795,36 +811,57 @@ import {
 } from "myapi-typescript-runtime";
 
 // Interceptor to wrap invocations in a try/catch, returning a 500 error for any unhandled exceptions.
-const tryCatchInterceptor = async <RequestParameters, RequestArrayParameters, RequestBody, Response>(
-  request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>
+const tryCatchInterceptor = async <
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response
+>(
+  request: ChainedRequestInput<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >
 ): Promise<Response | OperationResponse<500, { errorMessage: string }>> => {
   try {
     return await request.chain.next(request);
   } catch (e: any) {
-    return { statusCode: 500, body: { errorMessage: e.message }};
+    return { statusCode: 500, body: { errorMessage: e.message } };
   }
 };
 
 // tryCatchInterceptor is passed first, so it runs first and calls the second argument function (the request handler) via chain.next
-export const handler = sayHelloHandler(tryCatchInterceptor, async ({ input }) => {
-  return {
-    statusCode: 200,
-    body: {
-      message: `Hello ${input.requestParameters.name}!`,
-    },
-  };
-});
+export const handler = sayHelloHandler(
+  tryCatchInterceptor,
+  async ({ input }) => {
+    return {
+      statusCode: 200,
+      body: {
+        message: `Hello ${input.requestParameters.name}!`,
+      },
+    };
+  }
+);
 ```
 
 Another example interceptor might be to record request time metrics. The example below includes the full generic type signature for an interceptor:
 
 ```ts
-import {
-  ChainedRequestInput,
-} from 'myapi-typescript-runtime';
+import { ChainedRequestInput } from "myapi-typescript-runtime";
 
-const timingInterceptor = async <RequestParameters, RequestArrayParameters, RequestBody, Response>(
-  request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>
+const timingInterceptor = async <
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response
+>(
+  request: ChainedRequestInput<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >
 ): Promise<Response> => {
   const start = Date.now();
   const response = await request.chain.next(request);
@@ -840,10 +877,20 @@ Interceptors may mutate the `interceptorContext` to pass state to further interc
 import {
   LambdaRequestParameters,
   LambdaHandlerChain,
-} from 'myapi-typescript-runtime';
+} from "myapi-typescript-runtime";
 
-const identityInterceptor = async <RequestParameters, RequestArrayParameters, RequestBody, Response>(
-  request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>
+const identityInterceptor = async <
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response
+>(
+  request: ChainedRequestInput<
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response
+  >
 ): Promise<Response> => {
   const authenticatedUser = await getAuthenticatedUser(request.event);
   return await request.chain.next({
@@ -1063,10 +1110,18 @@ new TypeSafeApiProject({
 First, make sure you create an instance of the API client (making sure to set the base URL and fetch instance). For example:
 
 ```ts
-export const useMyApiClient = () => useMemo(() => new MyApi(new Configuration({
-  basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
-  fetchApi: window.fetch.bind(window),
-})), []);
+export const useMyApiClient = () =>
+  useMemo(
+    () =>
+      new MyApi(
+        new Configuration({
+          basePath:
+            "https://example123.execute-api.ap-southeast-2.amazonaws.com/prod",
+          fetchApi: window.fetch.bind(window),
+        })
+      ),
+    []
+  );
 ```
 
 Note that if you are using the [Cloudscape React Website](../cloudscape-react-ts-website/README.md) with [AWS NorthStar](https://aws.github.io/aws-northstar/) and IAM (Sigv4) Auth for your API, you can use NorthStar's [`useSigv4Client()` hook](https://aws.github.io/aws-northstar/?path=/story/components-cognitoauth-sigv4client-docs--page) to create
@@ -1074,42 +1129,51 @@ an instance of `fetch` which will sign requests with the logged in user's creden
 
 ```ts
 export const useMyApiClient = () => {
-  const { client } = useSigv4Client();
-  return useMemo(() => client.current ? new MyApi(new Configuration({
-    basePath: 'https://example123.execute-api.ap-southeast-2.amazonaws.com/prod',
-    fetchApi: client.current,
-  })) : undefined, [client.current]);
+  const client = useSigv4Client();
+  return useMemo(
+    () =>
+      client
+        ? new MyApi(
+            new Configuration({
+              basePath:
+                "https://example123.execute-api.ap-southeast-2.amazonaws.com/prod",
+              fetchApi: client,
+            })
+          )
+        : undefined,
+    [client]
+  );
 };
 ```
 
 Next, instantiate the client provider above where you would like to use the hooks in your component hierarchy (such as above your router). For example:
 
 ```tsx
+import { DefaultApiClientProvider } from "myapi-typescript-react-query-hooks";
+
 const api = useMyApiClient();
 
 return api ? (
-  <MyApiClientContext.Provider value={api}>
-    { /* Components within the provider may make use of the hooks */ }
-  </MyApiClientContext.Provider>
-) : <p>Loading...</p>;
+  <DefaultApiClientProvider apiClient={api}>
+    {/* Components within the provider may make use of the hooks */}
+  </DefaultApiClientProvider>
+) : (
+  <p>Loading...</p>
+);
 ```
 
 Finally, you can import and use your generated hooks. For example:
 
 ```tsx
 export const MyComponent: FC<MyComponentProps> = () => {
-  const sayHello = useSayHello({ name: 'World' });
+  const sayHello = useSayHello({ name: "World" });
 
-  return (
-    sayHello.isLoading ? (
-      <p>Loading...</p>
-    ) : (
-      sayHello.isError ? (
-        <p>Error!</p>
-      ) : (
-        <h1>{sayHello.data.message}</h1>
-      )
-    )
+  return sayHello.isLoading ? (
+    <p>Loading...</p>
+  ) : sayHello.isError ? (
+    <p>Error!</p>
+  ) : (
+    <h1>{sayHello.data.message}</h1>
   );
 };
 ```
@@ -1197,7 +1261,7 @@ import { PythonProject } from "projen/lib/python";
 
 // Create the monorepo
 const monorepo = new NxMonorepoProject({
-  name: 'monorepo',
+  name: "monorepo",
   defaultReleaseBranch: "main",
 });
 
@@ -1205,15 +1269,15 @@ const monorepo = new NxMonorepoProject({
 const api = new TypeSafeApiProject({
   name: "myapi",
   parent: monorepo,
-  outdir: 'packages/api',
+  outdir: "packages/api",
   // Smithy as the model language. You can also use ModelLanguage.OPENAPI
   model: {
     language: ModelLanguage.SMITHY,
     options: {
       smithy: {
         serviceName: {
-          namespace: 'com.mycompany',
-          serviceName: 'MyApi',
+          namespace: "com.mycompany",
+          serviceName: "MyApi",
         },
       },
     },
@@ -1228,7 +1292,7 @@ const api = new TypeSafeApiProject({
   },
   // Generate HTML documentation
   documentation: {
-    formats: [DocumentationFormat.HTML_REDOC]
+    formats: [DocumentationFormat.HTML_REDOC],
   },
 });
 
@@ -1236,7 +1300,7 @@ const api = new TypeSafeApiProject({
 const lambdas = new PythonProject({
   name: "lambdas",
   parent: monorepo,
-  outdir: 'packages/lambdas',
+  outdir: "packages/lambdas",
   authorEmail: "me@example.com",
   authorName: "me",
   moduleName: "lambdas",
@@ -1250,16 +1314,22 @@ monorepo.addPythonPoetryDependency(lambdas, api.runtime.python!);
 
 // Add commands to the lambda project's package task to create a distributable which can be deployed to AWS Lambda
 lambdas.packageTask.exec(`mkdir -p lambda-dist && rm -rf lambda-dist/*`);
-lambdas.packageTask.exec(`cp -r ${lambdas.moduleName} lambda-dist/${lambdas.moduleName}`);
-lambdas.packageTask.exec(`poetry export --without-hashes --format=requirements.txt > lambda-dist/requirements.txt`);
-lambdas.packageTask.exec(`pip install -r lambda-dist/requirements.txt --target lambda-dist --upgrade`);
-lambdas.gitignore.addPatterns('lambda-dist');
+lambdas.packageTask.exec(
+  `cp -r ${lambdas.moduleName} lambda-dist/${lambdas.moduleName}`
+);
+lambdas.packageTask.exec(
+  `poetry export --without-hashes --format=requirements.txt > lambda-dist/requirements.txt`
+);
+lambdas.packageTask.exec(
+  `pip install -r lambda-dist/requirements.txt --target lambda-dist --upgrade`
+);
+lambdas.gitignore.addPatterns("lambda-dist");
 
 // Create a CDK infrastructure project
 const infra = new AwsCdkPythonApp({
   name: "infra",
   parent: monorepo,
-  outdir: 'packages/infra',
+  outdir: "packages/infra",
   authorEmail: "me@example.com",
   authorName: "me",
   cdkVersion: "2.0.0",
@@ -1347,7 +1417,7 @@ import { JavaProject } from "projen/lib/java";
 
 // Create the monorepo
 const monorepo = new NxMonorepoProject({
-  name: 'monorepo',
+  name: "monorepo",
   defaultReleaseBranch: "main",
 });
 
@@ -1355,15 +1425,15 @@ const monorepo = new NxMonorepoProject({
 const api = new TypeSafeApiProject({
   name: "myapi",
   parent: monorepo,
-  outdir: 'packages/api',
+  outdir: "packages/api",
   // Smithy as the model language. You can also use ModelLanguage.OPENAPI
   model: {
     language: ModelLanguage.SMITHY,
     options: {
       smithy: {
         serviceName: {
-          namespace: 'com.mycompany',
-          serviceName: 'MyApi',
+          namespace: "com.mycompany",
+          serviceName: "MyApi",
         },
       },
     },
@@ -1385,7 +1455,7 @@ const api = new TypeSafeApiProject({
 const lambdas = new JavaProject({
   name: "lambdas",
   parent: monorepo,
-  outdir: 'packages/lambdas',
+  outdir: "packages/lambdas",
   artifactId: "lambdas",
   groupId: "com.my.api",
   version: "1.0.0",
@@ -1411,7 +1481,7 @@ lambdas.pom.addPlugin("org.apache.maven.plugins/maven-shade-plugin@3.3.0", {
 const infra = new AwsCdkJavaApp({
   name: "infra",
   parent: monorepo,
-  outdir: 'packages/infra',
+  outdir: "packages/infra",
   artifactId: "infra",
   groupId: "com.my.api",
   mainClass: "com.my.api.MyApp",
@@ -1513,7 +1583,6 @@ public class SayHelloHandler extends SayHello {
 
 ```
 
-
 ### Other Details
 
 #### Customising Generated Types/Infrastructure Projects
@@ -1553,9 +1622,9 @@ You can remove the Web ACL entirely with `webAclOptions: { disable: true }` - yo
 
 The Smithy-based projects are compatible with the [Smithy IntelliJ Plugin](https://github.com/iancaffey/smithy-intellij-plugin), which provides syntax highlighting and auto-complete for your Smithy model. To make use of it, perform the following steps:
 
-* Install the "Smithy" plugin (under `Preferences -> Plugins`)
-* Right-click on the `smithy/build.gradle` file in your Smithy API project
-* Select "Link Gradle Project"
+- Install the "Smithy" plugin (under `Preferences -> Plugins`)
+- Right-click on the `smithy/build.gradle` file in your Smithy API project
+- Select "Link Gradle Project"
 
 #### Tagging Operations
 
@@ -1587,7 +1656,7 @@ Multiple tags are still useful for documentation generation, for example `Docume
 
 If you would like to introduce tags without breaking existing clients, we recommend first adding a tag named `default` to all operations.
 
-⚠️ __Important Note__: Smithy versions below `1.28.0` sort tags in alphabetical order and so the "first" tag will be the earliest in the alphabet. Therefore, if using tags with older versions of Smithy, we recommend prefixing your desired first tag with an underscore (for example `_default`). This is rectified in `1.28.0`, where tag order from the `@tags` trait is preserved.
+⚠️ **Important Note**: Smithy versions below `1.28.0` sort tags in alphabetical order and so the "first" tag will be the earliest in the alphabet. Therefore, if using tags with older versions of Smithy, we recommend prefixing your desired first tag with an underscore (for example `_default`). This is rectified in `1.28.0`, where tag order from the `@tags` trait is preserved.
 
 #### Smithy Model Libraries and Dependencies
 
