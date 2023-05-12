@@ -235,12 +235,9 @@ export namespace SerializedGraph {
 
   /**
    * Serializable plain object value (JSII supported)
-   * @struct
    */
   export interface PlainObject {
-    /**
-     * @jsii ignore
-     */
+    /** @jsii ignore */
     readonly [key: string]: Value;
   }
 
@@ -254,14 +251,9 @@ export namespace SerializedGraph {
    * Serializable attributes mapping
    * @struct
    */
-  export interface Attributes {
-    // readonly [CfnAttributesEnum.TYPE]?: string;
-    // readonly [CfnAttributesEnum.PROPS]?: PlainObject;
-    /**
-     * @jsii ignore
-     */
+  export type Attributes = {
     readonly [key: string]: Value;
-  }
+  };
 
   /** Serializable metadata entry */
   export type MetadataEntry = CdkMetadataEntry;
@@ -273,12 +265,9 @@ export namespace SerializedGraph {
    * Serializable dictionary of tags (key value pairs)
    * @struct
    */
-  export interface Tags {
-    /**
-     * @jsii ignore
-     */
+  export type Tags = {
     readonly [key: string]: string;
-  }
+  };
 
   /**
    * Serializable graph entity

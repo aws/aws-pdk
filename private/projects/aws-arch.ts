@@ -94,7 +94,7 @@ export class AwsArchProject extends PDKProject {
       "{projectRoot}/src/generated",
     ];
 
-    this.nxOverride("targets.generate", {
+    this.nx.setTarget("generate", {
       inputs: [
         "{projectRoot}/scripts/**",
         "{projectRoot}/static/**",
@@ -103,6 +103,13 @@ export class AwsArchProject extends PDKProject {
       ],
       outputs: generateOutputs,
     });
-    this.nxOverride("targets.build.outputs", generateOutputs, true);
+
+    this.nx.setTarget(
+      "build",
+      {
+        outputs: generateOutputs,
+      },
+      true
+    );
   }
 }

@@ -11,8 +11,8 @@ import {
 } from "projen/lib/cdk";
 import { NodePackageManager } from "projen/lib/javascript";
 import { Release } from "projen/lib/release";
-import { NX_TARGET_DEFAULTS } from "./projects/pdk-monorepo-project";
 import { NodePackageUtils } from "../packages/nx-monorepo/src";
+import { NxProject } from "../packages/nx-monorepo/src/components/nx-project";
 import type { Nx } from "../packages/nx-monorepo/src/nx-types";
 
 export type PublishConfig = _PublishConfig & {
@@ -60,6 +60,7 @@ export interface PDKProjectOptions extends JsiiProjectOptions {
 export abstract class PDKProject extends JsiiProject {
   public readonly pdkRelease: PDKRelease;
   public readonly options: PDKProjectOptions;
+  public readonly nx: NxProject;
 
   constructor(options: PDKProjectOptions) {
     const nameWithUnderscore = options.name.replace(/-/g, "_");
@@ -182,86 +183,50 @@ export abstract class PDKProject extends JsiiProject {
       ],
     });
 
+    this.nx = NxProject.ensure(this);
+    options.nx && this.nx.merge(options.nx);
+
+    // Make sure this is after NxProject so targets can be updated after inference
     this.pdkRelease = new PDKRelease(this, options.publishConfig);
     new PDKDocgen(this);
-
-    if (options.nx) {
-      this.nx = options.nx;
-    }
   }
 
-  /**
-   * Builds a command to execute in a particular workspace.
-   *
-   * @param args args to append to command.
-   * @protected
-   */
-  protected buildExecuteInWorkspaceCommand(...args: string[]) {
-    switch (this.package.packageManager) {
-      case NodePackageManager.YARN:
-      case NodePackageManager.YARN2:
-        return `yarn workspace ${args.join(" ")}`;
-      case NodePackageManager.PNPM:
-        return `pnpm --filter ${args.join(" ")}`;
-      default:
-        return `npx -p ${args.join(" ")}`;
-    }
-  }
+  // /**
+  //  * Get Nx project configuration.
+  //  *
+  //  * If project does not have explicit Nx configuration, the workspace defaults
+  //  * will be returned.
+  //  *
+  //  * @see https://nx.dev/reference/project-configuration
+  //  */
+  // public get nx(): Nx.ProjectConfig | undefined {
+  //   return this.manifest.nx || cloneDeep({ targets: NX_TARGET_DEFAULTS });
+  // }
 
-  /**
-   * Builds a command to execute using current package manager (npx, yarn, pnpm).
-   *
-   * @param args args to append to command.
-   * @protected
-   */
-  protected buildExecuteCommand(...args: string[]) {
-    switch (this.package.packageManager) {
-      case NodePackageManager.YARN:
-      case NodePackageManager.YARN2:
-        return `yarn run ${args.join(" ")}`;
-      case NodePackageManager.PNPM:
-        return `pnpm exec ${args.join(" ")}`;
-      default:
-        return `npx ${args.join(" ")}`;
-    }
-  }
+  // /**
+  //  * Set Nx project configuration.
+  //  *
+  //  * This will overwrite the entire configuration and replace any workspace
+  //  * defaults of same key.
+  //  *
+  //  * @see https://nx.dev/reference/project-configuration
+  //  */
+  // public set nx(config: Nx.ProjectConfig | undefined) {
+  //   this.package.addField("nx", config);
+  // }
 
-  /**
-   * Get Nx project configuration.
-   *
-   * If project does not have explicit Nx configuration, the workspace defaults
-   * will be returned.
-   *
-   * @see https://nx.dev/reference/project-configuration
-   */
-  public get nx(): Nx.ProjectConfig | undefined {
-    return this.manifest.nx || cloneDeep({ targets: NX_TARGET_DEFAULTS });
-  }
+  // /**
+  //  * Override specific Nx config value for specific path.
+  //  * @param path Key path to override value
+  //  * @param value Value to override
+  //  * @param {boolean} [append=false] Indicates if array values are appended to, rather than overwritten.
+  //  */
+  // public nxOverride(path: string, value: any, append?: boolean): void {
+  //   const nx = cloneDeep(this.nx);
+  //   overrideField(nx, path, value, append);
 
-  /**
-   * Set Nx project configuration.
-   *
-   * This will overwrite the entire configuration and replace any workspace
-   * defaults of same key.
-   *
-   * @see https://nx.dev/reference/project-configuration
-   */
-  public set nx(config: Nx.ProjectConfig | undefined) {
-    this.package.addField("nx", config);
-  }
-
-  /**
-   * Override specific Nx config value for specific path.
-   * @param path Key path to override value
-   * @param value Value to override
-   * @param {boolean} [append=false] Indicates if array values are appended to, rather than overwritten.
-   */
-  public nxOverride(path: string, value: any, append?: boolean): void {
-    const nx = cloneDeep(this.nx);
-    overrideField(nx, path, value, append);
-
-    this.nx = nx;
-  }
+  //   this.nx = nx;
+  // }
 }
 
 class PDKDocgen {
@@ -285,10 +250,9 @@ class PDKDocgen {
         `mkdir -p ${docsBasePath}/java && jsii-docgen -l java -r -o ${docsBasePath}/java/index.md`
       );
 
-    project.nxOverride(
-      "targets.build.outputs",
-      [`{projectRoot}/${docsBasePath}`],
-      true
+    NxProject.of(project)?.addBuildTargetFiles(
+      [`!{projectRoot}/${docsBasePath}/**/*`],
+      [`{projectRoot}/${docsBasePath}`]
     );
 
     // spawn docgen after compilation (requires the .jsii manifest).
@@ -345,16 +309,12 @@ class PDKRelease extends Release {
       access: "public",
       ...publishConfig,
     });
-  }
-}
 
-/**
- * Utility to deeply clone a value
- * @param value Value to clone
- * @returns Cloned value
- */
-export function cloneDeep(value: any): any {
-  return JSON.parse(JSON.stringify(value));
+    NxProject.of(project)?.addBuildTargetFiles(
+      ["!{projectRoot}/LICENSE_THIRD_PARTY"],
+      ["{projectRoot}/LICENSE_THIRD_PARTY"]
+    );
+  }
 }
 
 /**

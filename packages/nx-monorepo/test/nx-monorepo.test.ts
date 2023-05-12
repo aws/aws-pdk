@@ -20,11 +20,9 @@ describe("NX Monorepo Unit Tests", () => {
     const project = new NxMonorepoProject({
       defaultReleaseBranch: "mainline",
       name: "IgnorePatterns",
-      nxConfig: {
-        nxIgnore: ["pattern1.txt", "**/foo.ts"],
-      },
       gitignore: ["another"],
     });
+    project.nx.nxIgnore.addPatterns("pattern1.txt", "**/foo.ts");
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
 
@@ -32,19 +30,14 @@ describe("NX Monorepo Unit Tests", () => {
     const project = new NxMonorepoProject({
       defaultReleaseBranch: "mainline",
       name: "TargetDependencies",
-      nxConfig: {
-        targetDependencies: {
-          test: [
-            {
-              target: "test",
-              projects: Nx.TargetDependencyProject.DEPENDENCIES,
-            },
-          ],
-          eslint: [
-            { target: "eslint", projects: Nx.TargetDependencyProject.SELF },
-          ],
-        },
-      },
+    });
+    project.nx.setTargetDefault("test", {
+      dependsOn: ["^test"],
+    });
+    project.nx.setTargetDefault("eslint", {
+      dependsOn: [
+        { target: "eslint", projects: Nx.TargetDependencyProject.SELF },
+      ],
     });
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
@@ -53,10 +46,8 @@ describe("NX Monorepo Unit Tests", () => {
     const project = new NxMonorepoProject({
       defaultReleaseBranch: "main",
       name: "AffectedBranch",
-      nxConfig: {
-        affectedBranch: "main",
-      },
     });
+    project.nx.affected.defaultBase = "main";
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
 
@@ -217,10 +208,7 @@ describe("NX Monorepo Unit Tests", () => {
 
     synthSnapshot(project);
 
-    // @ts-ignore accessing private subprojects which projen uses for synth order
-    const subProjects: TypeScriptProject[] = project.subprojects;
-
-    expect(subProjects.map((p) => p.name)).toEqual([
+    expect(project.subprojects.map((p) => p.name)).toEqual([
       "one",
       "two",
       "three",
