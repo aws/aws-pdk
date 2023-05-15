@@ -17,7 +17,7 @@ import {
 
 import { ResponseError } from '../runtime';
 import { {{classname}} } from './{{ classFilename }}';
-import { defaultContext } from "./{{ classFilename }}ClientProvider";
+import { {{classname}}DefaultContext } from "./{{ classFilename }}ClientProvider";
 
 import {
     useQuery,
@@ -34,13 +34,10 @@ import { createContext, useContext } from "react";
 
 /**
  * Context for the API client used by the hooks.
- * Please instantiate a client and provider above the hooks in your component hierarchy.
- * For example instantiating the client: `const client = new {{classname}}(...);`
- * and the provider: `<{{classname}}ClientContext.Provider value={client}>`
  */
 export const {{classname}}ClientContext = createContext<{{classname}} | undefined>(undefined);
 
-const NO_API_ERROR = new Error(`{{classname}} client missing. Please ensure you have instantiated the {{classname}}ClientContext.Provider with a client instance.`);
+const NO_API_ERROR = new Error(`{{classname}} client missing. Please ensure you have instantiated the {{classname}}ClientProvider with a client instance.`);
 
 {{#operations ~}}
 {{#operation ~}}
@@ -59,7 +56,7 @@ export const use{{operationIdCamelCase}} = <TError = ResponseError>(
     }
     return useInfiniteQuery(["{{nickname}}"{{#allParams.0}}, params{{/allParams.0}}], ({ pageParam }) => api.{{nickname}}({ {{#allParams.0}}...params, {{/allParams.0}}{{vendorExtensions.x-paginated.inputToken}}: pageParam }), {
         getNextPageParam: (response) => response.{{vendorExtensions.x-paginated.outputToken}},
-        context: defaultContext,
+        context: {{classname}}DefaultContext,
         ...options as any,
     });
 };
@@ -76,7 +73,7 @@ export const use{{operationIdCamelCase}} = <TError = ResponseError>(
         throw NO_API_ERROR;
     }
     return useQuery(["{{nickname}}"{{#allParams.0}}, params{{/allParams.0}}], () => api.{{nickname}}({{#allParams.0}}params{{/allParams.0}}), {
-        context: defaultContext,
+        context: {{classname}}DefaultContext,
         ...options,
     });
 };
@@ -93,7 +90,7 @@ export const use{{operationIdCamelCase}} = <TError = ResponseError>(
         throw NO_API_ERROR;
     }
     return useMutation(({{#allParams.0}}params: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request{{/allParams.0}}) => api.{{nickname}}({{#allParams.0}}params{{/allParams.0}}), {
-        context: defaultContext,
+        context: {{classname}}DefaultContext,
         ...options,
     });
 };

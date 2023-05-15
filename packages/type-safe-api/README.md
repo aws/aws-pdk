@@ -1107,13 +1107,30 @@ new TypeSafeApiProject({
 
 ##### Usage in a React Website
 
-First, make sure you create an instance of the API client (making sure to set the base URL and fetch instance). For example:
+First, make sure you add a dependency on the generated hooks library, eg in your `.projenrc`:
 
 ```ts
-export const useMyApiClient = () =>
+const api = new TypeSafeApiProject({ ... });
+
+new CloudscapeReactTsWebsite({
+  ...,
+  deps: [
+    ...
+    api.library.typescriptReactQueryHooks!.package.packageName,
+  ],
+});
+```
+
+Next, create an instance of the API client (making sure to set the base URL and fetch instance). For example:
+
+```ts
+// NB: client may be named differently if you have tagged your operations
+import { DefaultApi } from "myapi-typescript-react-query-hooks";
+
+export const useApiClient = () =>
   useMemo(
     () =>
-      new MyApi(
+      new DefaultApi(
         new Configuration({
           basePath:
             "https://example123.execute-api.ap-southeast-2.amazonaws.com/prod",
@@ -1128,19 +1145,17 @@ Note that if you are using the [Cloudscape React Website](../cloudscape-react-ts
 an instance of `fetch` which will sign requests with the logged in user's credentials. For example:
 
 ```ts
-export const useMyApiClient = () => {
+export const useApiClient = () => {
   const client = useSigv4Client();
   return useMemo(
     () =>
-      client
-        ? new MyApi(
-            new Configuration({
-              basePath:
-                "https://example123.execute-api.ap-southeast-2.amazonaws.com/prod",
-              fetchApi: client,
-            })
-          )
-        : undefined,
+      new DefaultApi(
+        new Configuration({
+          basePath:
+            "https://example123.execute-api.ap-southeast-2.amazonaws.com/prod",
+          fetchApi: client,
+        })
+      ),
     [client]
   );
 };
@@ -1149,22 +1164,23 @@ export const useMyApiClient = () => {
 Next, instantiate the client provider above where you would like to use the hooks in your component hierarchy (such as above your router). For example:
 
 ```tsx
+// NB: client provider may be named differently if you have tagged your operations
 import { DefaultApiClientProvider } from "myapi-typescript-react-query-hooks";
 
-const api = useMyApiClient();
+const api = useApiClient();
 
-return api ? (
+return (
   <DefaultApiClientProvider apiClient={api}>
     {/* Components within the provider may make use of the hooks */}
   </DefaultApiClientProvider>
-) : (
-  <p>Loading...</p>
 );
 ```
 
 Finally, you can import and use your generated hooks. For example:
 
 ```tsx
+import { useSayHello } from "myapi-typescript-react-query-hooks";
+
 export const MyComponent: FC<MyComponentProps> = () => {
   const sayHello = useSayHello({ name: "World" });
 
@@ -1243,6 +1259,23 @@ new TypeSafeApiProject({
   },
   ...
 });
+```
+
+##### Custom QueryClient
+
+If you wish to customise the react-query `QueryClient`, pass a custom instance to the client provider, eg:
+
+```tsx
+import { DefaultApiClientProvider } from "myapi-typescript-react-query-hooks";
+import { QueryClient } from "@tanstack/react-query";
+
+const queryClient = new QueryClient({ ... });
+
+return (
+  <DefaultApiClientProvider apiClient={api} client={queryClient}>
+    {/* Components within the provider may make use of the hooks */}
+  </DefaultApiClientProvider>
+);
 ```
 
 ### Quick Start: Python
