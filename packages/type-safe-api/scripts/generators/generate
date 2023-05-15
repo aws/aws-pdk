@@ -44,6 +44,10 @@ install_packages @openapitools/openapi-generator-cli@2.5.1
 # Support a special placeholder of {{src}} in config.yaml to ensure our custom templates get written to the correct folder
 sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
 
+# Workaround for code generation with JDK 11+
+# See: https://github.com/OpenAPITools/openapi-generator/issues/13684
+export JAVA_OPTS="--add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED"
+
 # Generate the client
 run_command @openapitools/openapi-generator-cli generate \
   --log-to-stderr \
