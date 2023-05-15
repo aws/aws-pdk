@@ -25,6 +25,7 @@ public class PipelineStack extends Stack {
         SonarCodeScannerConfig sonarConfig = null;
         Object sonarCtx = this.getNode().tryGetContext("sonarqubeScannerConfig");
         String repositoryName = (String) this.getNode().tryGetContext("repositoryName");
+        String defaultBranchName = (String) this.getNode().tryGetContext("defaultBranchName");
 
         if (sonarCtx != null) {
             JsonNode ctxJson = JsiiObjectMapper.valueToTree(sonarCtx).get("$jsii.map");
@@ -44,6 +45,7 @@ public class PipelineStack extends Stack {
         this.pipeline = new PDKPipeline(this, "ApplicationPipeline", PDKPipelineProps.builder()
                 .primarySynthDirectory("packages/infra/cdk.out")
                 .repositoryName(repositoryName != null ? repositoryName : "monorepo")
+                .defaultBranchName(defaultBranchName != null ? defaultBranchName : PDKPipeline.DEFAULT_BRANCH_NAME)
                 .publishAssetsInParallel(false)
                 .crossAccountKeys(true)
                 .sonarCodeScannerConfig(sonarConfig)
