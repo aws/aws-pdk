@@ -39,6 +39,10 @@ export interface ModelConfiguration {
    * Options for the API model.
    */
   readonly options: ModelOptions;
+  /**
+   * Options for the API model project, these override the defaults if specified
+   */
+  readonly projectOptions?: ProjectOptions;
 }
 
 /**
@@ -160,6 +164,7 @@ export class TypeSafeApiProject extends Project {
       name: `${options.name}-model`,
       modelLanguage: options.model.language,
       modelOptions: options.model.options,
+      ...options.model.projectOptions,
     });
     const parsedSpecPathRelativeToProjectRoot = path.join(
       modelDir,
