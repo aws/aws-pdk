@@ -3536,11 +3536,25 @@ aws-prototyping-sdk library.</p>
 <span class="p">});</span>
 </code></pre></div>
 <h5 id="usage-in-a-react-website">Usage in a React Website</h5>
-<p>First, make sure you create an instance of the API client (making sure to set the base URL and fetch instance). For example:</p>
-<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">useMyApiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span>
+<p>First, make sure you add a dependency on the generated hooks library, eg in your <code>.projenrc</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">CloudscapeReactTsWebsite</span><span class="p">({</span>
+<span class="w">  </span><span class="p">...,</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">    </span><span class="nx">api</span><span class="p">.</span><span class="nx">library</span><span class="p">.</span><span class="nx">typescriptReactQueryHooks</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Next, create an instance of the API client (making sure to set the base URL and fetch instance). For example:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// NB: client may be named differently if you have tagged your operations</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">DefaultApi</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-react-query-hooks&quot;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">useApiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span>
 <span class="w">  </span><span class="nx">useMemo</span><span class="p">(</span>
 <span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span>
-<span class="w">      </span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApi</span><span class="p">(</span>
+<span class="w">      </span><span class="ow">new</span><span class="w"> </span><span class="nx">DefaultApi</span><span class="p">(</span>
 <span class="w">        </span><span class="ow">new</span><span class="w"> </span><span class="nx">Configuration</span><span class="p">({</span>
 <span class="w">          </span><span class="nx">basePath</span><span class="o">:</span>
 <span class="w">            </span><span class="s2">&quot;https://example123.execute-api.ap-southeast-2.amazonaws.com/prod&quot;</span><span class="p">,</span>
@@ -3552,38 +3566,37 @@ aws-prototyping-sdk library.</p>
 </code></pre></div>
 <p>Note that if you are using the <a href="../cloudscape-react-ts-website/README.md">Cloudscape React Website</a> with <a href="https://aws.github.io/aws-northstar/">AWS NorthStar</a> and IAM (Sigv4) Auth for your API, you can use NorthStar's <a href="https://aws.github.io/aws-northstar/?path=/story/components-cognitoauth-sigv4client-docs--page"><code>useSigv4Client()</code> hook</a> to create
 an instance of <code>fetch</code> which will sign requests with the logged in user's credentials. For example:</p>
-<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">useMyApiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">useApiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useSigv4Client</span><span class="p">();</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">useMemo</span><span class="p">(</span>
 <span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span>
-<span class="w">      </span><span class="nx">client</span>
-<span class="w">        </span><span class="o">?</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApi</span><span class="p">(</span>
-<span class="w">            </span><span class="ow">new</span><span class="w"> </span><span class="nx">Configuration</span><span class="p">({</span>
-<span class="w">              </span><span class="nx">basePath</span><span class="o">:</span>
-<span class="w">                </span><span class="s2">&quot;https://example123.execute-api.ap-southeast-2.amazonaws.com/prod&quot;</span><span class="p">,</span>
-<span class="w">              </span><span class="nx">fetchApi</span><span class="o">:</span><span class="w"> </span><span class="kt">client</span><span class="p">,</span>
-<span class="w">            </span><span class="p">})</span>
-<span class="w">          </span><span class="p">)</span>
-<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="kc">undefined</span><span class="p">,</span>
+<span class="w">      </span><span class="ow">new</span><span class="w"> </span><span class="nx">DefaultApi</span><span class="p">(</span>
+<span class="w">        </span><span class="ow">new</span><span class="w"> </span><span class="nx">Configuration</span><span class="p">({</span>
+<span class="w">          </span><span class="nx">basePath</span><span class="o">:</span>
+<span class="w">            </span><span class="s2">&quot;https://example123.execute-api.ap-southeast-2.amazonaws.com/prod&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">fetchApi</span><span class="o">:</span><span class="w"> </span><span class="kt">client</span><span class="p">,</span>
+<span class="w">        </span><span class="p">})</span>
+<span class="w">      </span><span class="p">),</span>
 <span class="w">    </span><span class="p">[</span><span class="nx">client</span><span class="p">]</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="p">};</span>
 </code></pre></div>
 <p>Next, instantiate the client provider above where you would like to use the hooks in your component hierarchy (such as above your router). For example:</p>
-<div class="highlight"><pre><span></span><code>import { DefaultApiClientProvider } from &quot;myapi-typescript-react-query-hooks&quot;;
+<div class="highlight"><pre><span></span><code>// NB: client provider may be named differently if you have tagged your operations
+import { DefaultApiClientProvider } from &quot;myapi-typescript-react-query-hooks&quot;;
 
-const api = useMyApiClient();
+const api = useApiClient();
 
-return api ? (
+return (
   &lt;DefaultApiClientProvider apiClient={api}&gt;
     {/* Components within the provider may make use of the hooks */}
   &lt;/DefaultApiClientProvider&gt;
-) : (
-  &lt;p&gt;Loading...&lt;/p&gt;
 );
 </code></pre></div>
 <p>Finally, you can import and use your generated hooks. For example:</p>
-<div class="highlight"><pre><span></span><code>export const MyComponent: FC&lt;MyComponentProps&gt; = () =&gt; {
+<div class="highlight"><pre><span></span><code>import { useSayHello } from &quot;myapi-typescript-react-query-hooks&quot;;
+
+export const MyComponent: FC&lt;MyComponentProps&gt; = () =&gt; {
   const sayHello = useSayHello({ name: &quot;World&quot; });
 
   return sayHello.isLoading ? (
@@ -3654,6 +3667,19 @@ return api ? (
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="p">...</span>
 <span class="p">});</span>
+</code></pre></div>
+<h5 id="custom-queryclient">Custom QueryClient</h5>
+<p>If you wish to customise the react-query <code>QueryClient</code>, pass a custom instance to the client provider, eg:</p>
+<div class="highlight"><pre><span></span><code>import { DefaultApiClientProvider } from &quot;myapi-typescript-react-query-hooks&quot;;
+import { QueryClient } from &quot;@tanstack/react-query&quot;;
+
+const queryClient = new QueryClient({ ... });
+
+return (
+  &lt;DefaultApiClientProvider apiClient={api} client={queryClient}&gt;
+    {/* Components within the provider may make use of the hooks */}
+  &lt;/DefaultApiClientProvider&gt;
+);
 </code></pre></div>
 <h3 id="quick-start-python">Quick Start: Python</h3>
 <p>This guide assumes you want to write your CDK infrastructure in Python and your lambda handlers in Python, however note that you your infrastructure language and lambda handler language(s) are not tied to one another, you can mix and match as you like. Just specify the language in <code>runtime.languages</code> for any language you would like to write lambda handlers in.</p>

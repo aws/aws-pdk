@@ -3494,12 +3494,26 @@ aws-prototyping-sdk library.</p>
 <span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <h5 id="usage-in-a-react-website">Usage in a React Website</h5>
-<p>First, make sure you create an instance of the API client (making sure to set the base URL and fetch instance). For example:</p>
+<p>First, make sure you add a dependency on the generated hooks library, eg in your <code>.projenrc</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span>
-<span class="n">__function</span><span class="w"> </span><span class="n">useMyApiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="n">Object</span><span class="w"> </span><span class="n">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TypeSafeApiProject</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()....</span><span class="na">build</span><span class="p">();</span>
+
+<span class="n">CloudscapeReactTsWebsite</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()...</span>
+<span class="w">        </span><span class="p">.</span><span class="na">deps</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">            </span><span class="p">(</span><span class="n">SpreadElement</span><span class="w"> </span><span class="p">...</span>
+<span class="w">                </span><span class="n">api</span><span class="p">.</span><span class="na">library</span><span class="p">.</span><span class="na">typescriptReactQueryHooks</span><span class="o">!</span><span class="p">.</span><span class="na">package</span><span class="p">.</span><span class="na">packageName</span>
+<span class="w">              </span><span class="n">api</span><span class="p">.</span><span class="na">getLibrary</span><span class="p">().</span><span class="na">getTypescriptReactQueryHooks</span><span class="p">().</span><span class="na">getPackage</span><span class="p">().</span><span class="na">getPackageName</span><span class="p">())))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</code></pre></div>
+<p>Next, create an instance of the API client (making sure to set the base URL and fetch instance). For example:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="c1">// NB: client may be named differently if you have tagged your operations</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">myapi.typescript.react.query.hooks.DefaultApi</span><span class="p">;</span>
+
+<span class="n">__function</span><span class="w"> </span><span class="n">useApiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span>
 <span class="w">  </span><span class="n">useMemo</span><span class="p">(</span>
 <span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span>
-<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">MyApi</span><span class="p">(</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">DefaultApi</span><span class="p">(</span>
 <span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">Configuration</span><span class="p">({</span>
 <span class="w">          </span><span class="n">basePath</span><span class="p">:</span>
 <span class="w">            </span><span class="s">&quot;https://example123.execute-api.ap-southeast-2.amazonaws.com/prod&quot;</span><span class="p">,</span>
@@ -3512,38 +3526,37 @@ aws-prototyping-sdk library.</p>
 <p>Note that if you are using the <a href="../cloudscape-react-ts-website/README.md">Cloudscape React Website</a> with <a href="https://aws.github.io/aws-northstar/">AWS NorthStar</a> and IAM (Sigv4) Auth for your API, you can use NorthStar's <a href="https://aws.github.io/aws-northstar/?path=/story/components-cognitoauth-sigv4client-docs--page"><code>useSigv4Client()</code> hook</a> to create
 an instance of <code>fetch</code> which will sign requests with the logged in user's credentials. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Example automatically generated from non-compiling source. May contain errors.</span>
-<span class="n">__function</span><span class="w"> </span><span class="n">useMyApiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="n">__function</span><span class="w"> </span><span class="n">useApiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">useSigv4Client</span><span class="p">();</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">useMemo</span><span class="p">(</span>
 <span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span>
-<span class="w">      </span><span class="n">client</span>
-<span class="w">        </span><span class="o">?</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MyApi</span><span class="p">(</span>
-<span class="w">            </span><span class="k">new</span><span class="w"> </span><span class="n">Configuration</span><span class="p">({</span>
-<span class="w">              </span><span class="n">basePath</span><span class="p">:</span>
-<span class="w">                </span><span class="s">&quot;https://example123.execute-api.ap-southeast-2.amazonaws.com/prod&quot;</span><span class="p">,</span>
-<span class="w">              </span><span class="n">fetchApi</span><span class="p">:</span><span class="w"> </span><span class="n">client</span><span class="p">,</span>
-<span class="w">            </span><span class="p">})</span>
-<span class="w">          </span><span class="p">)</span>
-<span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="n">undefined</span><span class="p">,</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">DefaultApi</span><span class="p">(</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">Configuration</span><span class="p">({</span>
+<span class="w">          </span><span class="n">basePath</span><span class="p">:</span>
+<span class="w">            </span><span class="s">&quot;https://example123.execute-api.ap-southeast-2.amazonaws.com/prod&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="n">fetchApi</span><span class="p">:</span><span class="w"> </span><span class="n">client</span><span class="p">,</span>
+<span class="w">        </span><span class="p">})</span>
+<span class="w">      </span><span class="p">),</span>
 <span class="w">    </span><span class="o">[</span><span class="n">client</span><span class="o">]</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="p">};</span>
 </code></pre></div>
 <p>Next, instantiate the client provider above where you would like to use the hooks in your component hierarchy (such as above your router). For example:</p>
-<div class="highlight"><pre><span></span><code>import { DefaultApiClientProvider } from &quot;myapi-typescript-react-query-hooks&quot;;
+<div class="highlight"><pre><span></span><code>// NB: client provider may be named differently if you have tagged your operations
+import { DefaultApiClientProvider } from &quot;myapi-typescript-react-query-hooks&quot;;
 
-const api = useMyApiClient();
+const api = useApiClient();
 
-return api ? (
+return (
   &lt;DefaultApiClientProvider apiClient={api}&gt;
     {/* Components within the provider may make use of the hooks */}
   &lt;/DefaultApiClientProvider&gt;
-) : (
-  &lt;p&gt;Loading...&lt;/p&gt;
 );
 </code></pre></div>
 <p>Finally, you can import and use your generated hooks. For example:</p>
-<div class="highlight"><pre><span></span><code>export const MyComponent: FC&lt;MyComponentProps&gt; = () =&gt; {
+<div class="highlight"><pre><span></span><code>import { useSayHello } from &quot;myapi-typescript-react-query-hooks&quot;;
+
+export const MyComponent: FC&lt;MyComponentProps&gt; = () =&gt; {
   const sayHello = useSayHello({ name: &quot;World&quot; });
 
   return sayHello.isLoading ? (
@@ -3603,6 +3616,19 @@ return api ? (
 <span class="w">                                                                                        </span><span class="s">&quot;inputToken&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nextToken&quot;</span><span class="p">,</span>
 <span class="w">                                                                                        </span><span class="s">&quot;outputToken&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nextToken&quot;</span><span class="p">)))))))))))...</span>
 <span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</code></pre></div>
+<h5 id="custom-queryclient">Custom QueryClient</h5>
+<p>If you wish to customise the react-query <code>QueryClient</code>, pass a custom instance to the client provider, eg:</p>
+<div class="highlight"><pre><span></span><code>import { DefaultApiClientProvider } from &quot;myapi-typescript-react-query-hooks&quot;;
+import { QueryClient } from &quot;@tanstack/react-query&quot;;
+
+const queryClient = new QueryClient({ ... });
+
+return (
+  &lt;DefaultApiClientProvider apiClient={api} client={queryClient}&gt;
+    {/* Components within the provider may make use of the hooks */}
+  &lt;/DefaultApiClientProvider&gt;
+);
 </code></pre></div>
 <h3 id="quick-start-python">Quick Start: Python</h3>
 <p>This guide assumes you want to write your CDK infrastructure in Python and your lambda handlers in Python, however note that you your infrastructure language and lambda handler language(s) are not tied to one another, you can mix and match as you like. Just specify the language in <code>runtime.languages</code> for any language you would like to write lambda handlers in.</p>
