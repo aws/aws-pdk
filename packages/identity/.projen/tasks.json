@@ -21,23 +21,6 @@
         }
       ]
     },
-    "bump": {
-      "name": "bump",
-      "description": "Bumps version based on latest git tag and generates a changelog entry",
-      "env": {
-        "OUTFILE": "package.json",
-        "CHANGELOG": "dist/changelog.md",
-        "BUMPFILE": "dist/version.txt",
-        "RELEASETAG": "dist/releasetag.txt",
-        "RELEASE_TAG_PREFIX": ""
-      },
-      "steps": [
-        {
-          "builtin": "release/bump-version"
-        }
-      ],
-      "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
-    },
     "compat": {
       "name": "compat",
       "description": "Perform API compatibility check against latest version",
@@ -157,6 +140,10 @@
         },
         {
           "exec": "jsii-pacmak -v --target java --maven-local-repository=../../node_modules/.cache/.m2/repository --pack-command='pnpm pack'"
+        },
+        {
+          "exec": "zip -FSr ../java.zip .",
+          "cwd": "dist/java"
         }
       ]
     },
@@ -166,6 +153,10 @@
       "steps": [
         {
           "exec": "jsii-pacmak -v --target js --pack-command='pnpm pack'"
+        },
+        {
+          "exec": "zip -FSr ../js.zip .",
+          "cwd": "dist/js"
         }
       ]
     },
@@ -175,6 +166,10 @@
       "steps": [
         {
           "exec": "jsii-pacmak -v --target python --pack-command='pnpm pack'"
+        },
+        {
+          "exec": "zip -FSr ../python.zip .",
+          "cwd": "dist/python"
         }
       ]
     },
@@ -199,35 +194,51 @@
         }
       ]
     },
-    "release:mainline": {
-      "name": "release:mainline",
-      "description": "Prepare a release from \"mainline\" branch",
-      "env": {
-        "RELEASE": "true"
-      },
+    "release:create": {
+      "name": "release:create",
       "steps": [
         {
-          "exec": "rm -rf dist"
+          "exec": "pnpm exec nx run @aws-prototyping-sdk/identity:\"release:github\""
+        }
+      ],
+      "condition": "[ \"${CI:-false}\" = \"true\" ] && [ -f \"dist/.release.env\" ]"
+    },
+    "release:init": {
+      "name": "release:init",
+      "description": "Initialize the package for release by ensuring initial tag",
+      "steps": [
+        {
+          "exec": "git tag -f @aws-prototyping-sdk/identity-0.0.0 last-release^{}"
+        }
+      ],
+      "condition": "[[ ! $(git tag -l \"@aws-prototyping-sdk/identity-0.*\") ]]"
+    },
+    "release:prepare": {
+      "name": "release:prepare",
+      "steps": [
+        {
+          "exec": "rm -rf dist && mkdir dist"
         },
         {
-          "spawn": "bump"
-        },
-        {
-          "spawn": "pre-compile"
-        },
-        {
-          "spawn": "compile"
-        },
-        {
-          "spawn": "post-compile"
-        },
-        {
-          "spawn": "package"
-        },
-        {
-          "spawn": "unbump"
+          "spawn": "release:init"
         }
       ]
+    },
+    "release:publish": {
+      "name": "release:publish",
+      "description": "Publish artifacts",
+      "steps": [
+        {
+          "exec": "pnpm --package=publib@latest dlx publib-npm"
+        },
+        {
+          "exec": "pnpm --package=publib@latest dlx publib-maven"
+        },
+        {
+          "exec": "pnpm --package=publib@latest dlx publib-pypi"
+        }
+      ],
+      "condition": "[ \"${CI:-false}\" = \"true\" ] && [ -f \"dist/.release.env\" ]"
     },
     "test": {
       "name": "test",
@@ -247,22 +258,6 @@
       "steps": [
         {
           "exec": "jest --watch"
-        }
-      ]
-    },
-    "unbump": {
-      "name": "unbump",
-      "description": "Restores version to 0.0.0",
-      "env": {
-        "OUTFILE": "package.json",
-        "CHANGELOG": "dist/changelog.md",
-        "BUMPFILE": "dist/version.txt",
-        "RELEASETAG": "dist/releasetag.txt",
-        "RELEASE_TAG_PREFIX": ""
-      },
-      "steps": [
-        {
-          "builtin": "release/reset-version"
         }
       ]
     },

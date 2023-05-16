@@ -193,6 +193,54 @@
         }
       ]
     },
+    "release": {
+      "name": "release",
+      "steps": [
+        {
+          "spawn": "release:init"
+        },
+        {
+          "exec": "pnpm exec nx affected --base=last-release --nx-bail --output-style=stream --exclude='tag:sample' --target=release:prepare"
+        },
+        {
+          "exec": "pnpm exec nx affected --base=last-release --nx-bail --output-style=stream --exclude='tag:sample' --parallel=1 --target=release:version"
+        },
+        {
+          "exec": "pnpm exec pdk-release-version-sync"
+        },
+        {
+          "exec": "pnpm exec nx run-many --target=build --output-style=stream --nx-bail --exclude='tag:sample'"
+        },
+        {
+          "exec": "pnpm exec nx affected --base=last-release --nx-bail --output-style=stream --exclude='tag:sample' --target=release:create"
+        },
+        {
+          "exec": "pnpm exec nx affected --base=last-release --nx-bail --output-style=stream --exclude='tag:sample' --target=release:publish"
+        },
+        {
+          "spawn": "release:tag"
+        }
+      ]
+    },
+    "release:init": {
+      "name": "release:init",
+      "description": "Initialize the repository for release by ensuring release tag",
+      "steps": [
+        {
+          "exec": "git tag -f last-release $(git rev-list --max-parents=0 HEAD)^{}"
+        }
+      ],
+      "condition": "[[ ! $(git tag -l \"last-release\") ]]"
+    },
+    "release:tag": {
+      "name": "release:tag",
+      "steps": [
+        {
+          "exec": "git tag -f last-release && git push origin last-release --force"
+        }
+      ],
+      "condition": "[ \"${CI:-false}\" = \"true\" ]"
+    },
     "run-many": {
       "name": "run-many",
       "description": "Run task against multiple workspace projects",
@@ -251,6 +299,12 @@
         },
         {
           "exec": "ln -s $PWD/packages/nx-monorepo/scripts/pnpm/link-bundled-transitive-deps.ts $(pnpm bin)/pdk-pnpm-link-bundled-transitive-deps &>/dev/null; exit 0;"
+        },
+        {
+          "exec": "ln -s $PWD/packages/nx-monorepo/scripts/release-version-post.ts $(pnpm bin)/pdk-release-version-post &>/dev/null; exit 0;"
+        },
+        {
+          "exec": "ln -s $PWD/packages/nx-monorepo/scripts/release-version-sync.ts $(pnpm bin)/pdk-release-version-sync &>/dev/null; exit 0;"
         }
       ]
     }

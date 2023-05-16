@@ -26,6 +26,15 @@ export const NX_DEFAULT_BUILD_OUTPUTS = [
   "{projectRoot}/.jsii",
 ];
 
+/** Project callback */
+export interface ProjectCallback {
+  (project: Project): void;
+}
+/** Project predicate callback */
+export interface ProjectPredicateCallback {
+  (project: Project): boolean;
+}
+
 /**
  * Component which manages the workspace specific NX Config for the root monorepo.
  * @experimental
@@ -154,6 +163,14 @@ export class NxWorkspace extends Component {
     },
   };
 
+  /**
+   * Get the default base branch
+   * @default "mainline"
+   */
+  public get baseBranch(): string {
+    return this.affected.defaultBase || "mainline";
+  }
+
   constructor(project: Project) {
     // Make sure only being added to the root project.
     if (project.root !== project) {
@@ -228,13 +245,33 @@ export class NxWorkspace extends Component {
     );
   }
 
-  /** @internal */
-  protected _recursivelyApplyToProject(
+  /**
+   * Recursively apply a function to a project and its subprojects.
+   * @param project Base project to apply function and recursively  its subprojects
+   * @param fn The function to apply to project
+   * @param predicate Predicate to match projects to apply function to
+   */
+  public recursivelyApplyToProject(
     project: Project,
-    fn: (project: Project) => void
+    fn: ProjectCallback,
+    predicate?: ProjectPredicateCallback
   ): void {
-    fn(project);
-    project.subprojects.forEach(fn);
+    (!predicate || predicate(project)) && fn(project);
+    this.recursivelyApplyToProjects(project.subprojects, fn, predicate);
+  }
+
+  /**
+   * Recursively apply a function a list of projects and their subprojects
+   * @param projects List of project to apply function and traverse
+   * @param fn The function to apply to project
+   * @param predicate Predicate to match projects to apply function to
+   */
+  public recursivelyApplyToProjects(
+    projects: Project[],
+    fn: ProjectCallback,
+    predicate?: ProjectPredicateCallback
+  ): void {
+    projects.forEach((p) => this.recursivelyApplyToProject(p, fn, predicate));
   }
 
   /** @internal */
@@ -258,14 +295,14 @@ export class NxWorkspace extends Component {
       this.project.addGitIgnore(this.cacheDirectory);
       // https://github.com/nrwl/nx/issues/8929
       // For cacheDirectory override to propagate during initialization we need to set as env var
-      this._recursivelyApplyToProject(
+      this.recursivelyApplyToProject(
         this.project,
         this._applyCacheDirectory.bind(this)
       );
     }
 
     if (this.nonNativeHasher) {
-      this._recursivelyApplyToProject(
+      this.recursivelyApplyToProject(
         this.project,
         this._applyNonNativeHasher.bind(this)
       );

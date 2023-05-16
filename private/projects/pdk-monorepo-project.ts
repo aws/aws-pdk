@@ -7,6 +7,7 @@ import {
   NxMonorepoProject,
   DEFAULT_CONFIG,
 } from "../../packages/nx-monorepo/src";
+import { NxRelease } from "../../packages/nx-monorepo/src/components/release";
 
 const HEADER_RULE = {
   "header/header": [
@@ -125,7 +126,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
       ".yarn/cache",
       ".yarn/__virtual__",
       ".pnp.cjs",
-      ".pnp.loader.cjs"
+      ".pnp.loader.cjs",
     );
 
     // add to local `.npmrc` to automatically avoid build hangs if npx is prompting to install a package
@@ -143,6 +144,10 @@ export class PDKMonorepoProject extends NxMonorepoProject {
     this.addTask("dev:workspace:unlink", {
       exec: "./scripts/dev/link-workspace.js unlink",
     });
+
+    const nxRelease = NxRelease.of(this) || new NxRelease(this);
+    // Exclude samples because they have explicit relative paths to 0.0.0 version artifacts for local development
+    nxRelease.nxArgs = ["--exclude='tag:sample'"];
   }
 
   /**

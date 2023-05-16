@@ -93,6 +93,16 @@ export namespace NodePackageUtils {
   }
 
   /**
+   * Gets the NodePackageManager for a given project if available or default.
+   */
+  export function resolvePackageManager(
+    project: Project,
+    defaultValue: NodePackageManager = NodePackageManager.NPM
+  ): NodePackageManager {
+    return tryFindNodePackage(project, true)?.packageManager || defaultValue;
+  }
+
+  /**
    * Command based utilities
    */
   export namespace command {
@@ -158,6 +168,29 @@ export namespace NodePackageUtils {
           return withArgs("pnpm dlx", args);
         default:
           return withArgs("npx", args);
+      }
+    }
+
+    /**
+     * Get command to run a package in a temporary environment from
+     * package(s) that are installed before executing.
+     */
+    export function downloadExecPkg(
+      packageManager: NodePackageManager,
+      pkg: string | string[],
+      ...args: string[]
+    ): string {
+      const _pkgs: string[] = (Array.isArray(pkg) ? pkg : [pkg]).map(
+        (p) => `--package=${p}`
+      );
+
+      switch (packageManager) {
+        case NodePackageManager.YARN2:
+          return withArgs("yarn", [..._pkgs, "dlx", ...args]);
+        case NodePackageManager.PNPM:
+          return withArgs("pnpm", [..._pkgs, "dlx", ...args]);
+        default:
+          return withArgs("npx", [..._pkgs, ...args]);
       }
     }
 

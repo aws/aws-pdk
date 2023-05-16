@@ -31,6 +31,9 @@ export class NXMonorepoProject extends PDKProject {
       'rsync -a ./src/** ./lib --include="*/" --include="**/*.js" --exclude="*" --prune-empty-dirs'
     );
 
+    this.package.addBin({ "pdk-release-version-post": "./scripts/release-version-post.ts" });
+    this.package.addBin({ "pdk-release-version-sync": "./scripts/release-version-sync.ts" });
+
     this.package.addBin({ "pdk-nx-dir-hasher": "./scripts/nx-dir-hasher.js" });
 
     this.package.addBin({
