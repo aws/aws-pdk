@@ -223,16 +223,28 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
               )
             );
 
-            await fs.ensureDir(path.dirname(pngFile));
+            try {
+              await fs.ensureDir(path.dirname(pngFile));
 
-            await convertSvg(svg, pngFile);
+              await convertSvg(svg, pngFile);
 
-            context.logArtifact(
-              this,
-              CdkGraphDiagramPlugin.artifactId(config.name, DiagramFormat.PNG),
-              pngFile,
-              `Diagram generated "png" file for ${config.name} - "${config.title}"`
-            );
+              context.logArtifact(
+                this,
+                CdkGraphDiagramPlugin.artifactId(
+                  config.name,
+                  DiagramFormat.PNG
+                ),
+                pngFile,
+                `Diagram generated "png" file for ${config.name} - "${config.title}"`
+              );
+            } catch (error) {
+              console.error(error);
+              throw new Error(
+                `Failed to generate PNG diagram for ${
+                  config.name
+                } at "${pngFile}" - ${String(error)}`
+              );
+            }
           }
         }
       }
