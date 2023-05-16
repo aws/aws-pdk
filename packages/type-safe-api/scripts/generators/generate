@@ -39,7 +39,7 @@ log "generate :: tmp_dir :: $tmp_dir"
 cp -r $script_dir/$generator_dir/* .
 
 # Install dependencies
-install_packages @openapitools/openapi-generator-cli@2.5.1
+install_packages @openapitools/openapi-generator-cli@2.6.0
 
 # Support a special placeholder of {{src}} in config.yaml to ensure our custom templates get written to the correct folder
 sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
@@ -48,19 +48,23 @@ sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
 # See: https://github.com/OpenAPITools/openapi-generator/issues/13684
 export JAVA_OPTS="--add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED"
 
+openapi_generate() {
+  run_command openapi-generator-cli generate \
+    --log-to-stderr \
+    --generator-name $generator \
+    --skip-operation-example \
+    --generate-alias-as-model \
+    --minimal-update \
+    --template-dir templates \
+    --config config.final.yaml \
+    --additional-properties="$additional_properties" \
+    ${openapi_normalizer:+"--openapi-normalizer=$openapi_normalizer"} \
+    --input-spec "$script_dir/$spec_path" \
+    --output "$script_dir/$output_path" $@
+}
+
 # Generate the client
-run_command @openapitools/openapi-generator-cli generate \
-  --log-to-stderr \
-  --generator-name $generator \
-  --skip-operation-example \
-  --generate-alias-as-model \
-  --minimal-update \
-  --template-dir templates \
-  --config config.final.yaml \
-  --additional-properties="$additional_properties" \
-  ${openapi_normalizer:+"--openapi-normalizer=$openapi_normalizer"} \
-  --input-spec "$script_dir/$spec_path" \
-  --output "$script_dir/$output_path"
+openapi_generate
 
 # If a .open-api-generator-ignore-handlebars ignore file exists, we run a second pass with the handlebars template engine
 handlebars_ignore_file="$script_dir/$output_path/.openapi-generator-ignore-handlebars"
@@ -72,18 +76,7 @@ if [ -f "$handlebars_ignore_file" ]; then
   fi
 
   # Generate again, using the handlebars engine
-  run_command @openapitools/openapi-generator-cli generate \
-    --log-to-stderr \
-    --generator-name $generator \
-    --skip-operation-example \
-    --generate-alias-as-model \
-    --minimal-update \
-    --template-dir templates \
-    --config config.final.yaml \
-    --additional-properties="$additional_properties" \
-    ${openapi_normalizer:+"--openapi-normalizer=$openapi_normalizer"} \
-    --input-spec "$script_dir/$spec_path" \
-    --output "$script_dir/$output_path" \
+  openapi_generate \
     --engine handlebars \
     --ignore-file-override "$handlebars_ignore_file"
 
