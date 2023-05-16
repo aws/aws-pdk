@@ -40,8 +40,10 @@ export async function convertSvgImageDefsFromSvgToPng(
   for (const def of defs) {
     const assetKey = def.attributes.id as string;
     const png = sharp(
-      AwsArchitecture.resolveAssetPath(
-        AwsArchitecture.formatAssetPath(assetKey, "png")
+      await fs.readFile(
+        AwsArchitecture.resolveAssetPath(
+          AwsArchitecture.formatAssetPath(assetKey, "png")
+        )
       ),
       { limitInputPixels: false }
     );
