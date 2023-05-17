@@ -571,7 +571,15 @@ Integrations are used by API Gateway to service requests.
 
 ##### Lambda Integration
 
-Currently, the only built-in integration is a lambda integration. You can construct one using `Integrations.lambda(yourLambdaFunction)`.
+For integrating an API operation with a lambda, you can use `Integrations.lambda(yourLambdaFunction)`.
+
+##### Mock Integration
+
+To mock an API operation, you can use `Integrations.mock`. API gateway will respond with the status code and body provided, eg:
+
+```ts
+Integrations.mock({ statusCode: 200, body: JSON.stringify({ message: "hello world!" }) })
+```
 
 ##### Custom Integrations
 

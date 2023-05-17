@@ -6,8 +6,9 @@ import { ApiGatewayIntegration } from "../integrations";
 import type {
   Method,
   MethodAndPath,
-  TypeSafeApiIntegrations,
   OperationLookup,
+  SerializedCorsOptions,
+  TypeSafeApiIntegrations,
 } from "../spec";
 import { SerialisedAuthorizerReference } from "../spec/api-gateway-auth";
 
@@ -29,28 +30,6 @@ export interface SerializedMethodIntegration {
    * The authorizer (if any) to apply to the method
    */
   readonly methodAuthorizer?: SerialisedAuthorizerReference;
-}
-
-/**
- * Cross-origin resource sharing options
- */
-export interface SerializedCorsOptions {
-  /**
-   * HTTP methods to allow
-   */
-  readonly allowMethods: string[];
-  /**
-   * Headers to allow
-   */
-  readonly allowHeaders: string[];
-  /**
-   * Origins to allow
-   */
-  readonly allowOrigins: string[];
-  /**
-   * HTTP status code to be returned by preflight requests
-   */
-  readonly statusCode: number;
 }
 
 /**
@@ -180,7 +159,7 @@ const generateCorsResponseHeaders = (
   "Access-Control-Allow-Origin": `'${corsOptions.allowOrigins.join(",")}'`,
 });
 
-const generateCorsResponseParameters = (
+export const generateCorsResponseParameters = (
   corsOptions: SerializedCorsOptions,
   prefix: string = "method.response.header"
 ): { [key: string]: string } =>
