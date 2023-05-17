@@ -48,10 +48,10 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
     this.generatedPythonTypes = options.generatedPythonTypes;
 
     [
-      "aws_prototyping_sdk.type_safe_api@^0.0.0",
-      "constructs@^10.0.0",
-      "aws-cdk-lib@^2.0.0",
-      "cdk-nag@^2.0.0",
+      "aws_prototyping_sdk.type_safe_api@^0",
+      "constructs@^10",
+      "aws-cdk-lib@^2",
+      "cdk-nag@^2",
       `${options.generatedPythonTypes.name}@{path="${path.relative(
         this.outdir,
         options.generatedPythonTypes.outdir
@@ -71,6 +71,17 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
 
     // Ignore the generated code
     this.gitignore.addPatterns(this.moduleName);
+
+    // The poetry install that runs as part of post synthesis expects there to be some code present, but code isn't
+    // generated until build time. This means that the first install will fail when either generating the project for
+    // the first time or checking out a fresh copy (since generated code is not checked in to version control). We
+    // therefore add a blank __init__.py as our first install step to keep poetry happy until the generator overwrites
+    // it.
+    this.tasks
+      .tryFind("install")
+      ?.prependExec(
+        `mkdir -p ${this.moduleName} && touch ${this.moduleName}/__init__.py`
+      );
   }
 
   public buildGenerateCommand = () => {
