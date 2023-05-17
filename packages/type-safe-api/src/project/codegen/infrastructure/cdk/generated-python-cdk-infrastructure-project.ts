@@ -3,8 +3,12 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType } from "projen";
 import { PythonProject, PythonProjectOptions } from "projen/lib/python";
-import { Language } from "../../../languages";
-import { buildGenerateCdkInfrastructureCommand } from "../../components/utils";
+import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
+import {
+  buildCleanOpenApiGeneratedCodeCommand,
+  buildInvokeOpenApiGeneratorCommand,
+  OtherGenerators,
+} from "../../components/utils";
 import { GeneratedPythonRuntimeProject } from "../../runtime/generated-python-runtime-project";
 
 export interface GeneratedPythonCdkInfrastructureProjectOptions
@@ -60,9 +64,23 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
       .filter((dep) => !this.deps.tryGetDependency(dep, DependencyType.RUNTIME))
       .forEach((dep) => this.addDependency(dep));
 
+    // Ignore everything but the target files
+    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
+    openapiGeneratorIgnore.addPatterns(
+      "/*",
+      "**/*",
+      "*",
+      `!${this.moduleName}/__init__.py`,
+      `!${this.moduleName}/api.py`
+    );
+
     const generateInfraCommand = this.buildGenerateCommand();
+    const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);
 
     const generateTask = this.addTask("generate");
+    generateTask.exec(cleanCommand.command, {
+      cwd: path.relative(this.outdir, cleanCommand.workingDir),
+    });
     generateTask.exec(generateInfraCommand.command, {
       cwd: path.relative(this.outdir, generateInfraCommand.workingDir),
     });
@@ -70,7 +88,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
     this.preCompileTask.spawn(generateTask);
 
     // Ignore the generated code
-    this.gitignore.addPatterns(this.moduleName);
+    this.gitignore.addPatterns(this.moduleName, ".openapi-generator");
 
     // The poetry install that runs as part of post synthesis expects there to be some code present, but code isn't
     // generated until build time. This means that the first install will fail when either generating the project for
@@ -85,13 +103,21 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
   }
 
   public buildGenerateCommand = () => {
-    return buildGenerateCdkInfrastructureCommand({
-      language: Language.PYTHON,
-      sourcePath: path.join(this.outdir, this.moduleName),
-      generatedTypesPackage: this.generatedPythonTypes.moduleName,
-      infraPackage: this.moduleName,
-      // Spec path relative to the source directory
-      specPath: path.join("..", this.specPath),
+    return buildInvokeOpenApiGeneratorCommand({
+      generator: "python",
+      specPath: this.specPath,
+      outputPath: this.outdir,
+      generatorDirectory: OtherGenerators.PYTHON_CDK_INFRASTRUCTURE,
+      // Tell the generator where python source files live
+      srcDir: this.moduleName,
+      normalizers: {
+        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
+      },
+      extraVendorExtensions: {
+        "x-runtime-module-name": this.generatedPythonTypes.moduleName,
+        // Spec path relative to the source directory
+        "x-relative-spec-path": path.join("..", this.specPath),
+      },
     });
   };
 }

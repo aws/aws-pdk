@@ -1,15 +1,10 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Python Infra Generation Script Unit Tests Generates 1`] = `
-{
-  "infra/test_infra/__init__.py": "#",
-  "infra/test_infra/api.py": "from dataclasses import fields
+from dataclasses import fields
 from aws_prototyping_sdk.type_safe_api import TypeSafeRestApi, TypeSafeApiIntegration
-from test_client.apis.tags.default_api_operation_config import OperationLookup, OperationConfig
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.apis.tags.default_api_operation_config import OperationLookup, OperationConfig
 from os import path
 from pathlib import Path
 
-SPEC_PATH = path.join(str(Path(__file__).absolute().parent), "../../../../../../../resources/specs/single.yaml")
+SPEC_PATH = path.join(str(Path(__file__).absolute().parent), "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-relative-spec-path}}{{/apis.0}}{{/apiInfo}}")
 
 class Api(TypeSafeRestApi):
     """
@@ -23,6 +18,3 @@ class Api(TypeSafeRestApi):
             spec_path=SPEC_PATH,
             operation_lookup=OperationLookup,
         )
-",
-}
-`;

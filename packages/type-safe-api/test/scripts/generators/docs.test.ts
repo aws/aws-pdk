@@ -2,11 +2,11 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { exec } from "projen/lib/util";
+import { DocumentationFormat } from "../../../src";
 import {
   buildInvokeOpenApiGeneratorCommand,
-  NonClientGeneratorDirectory,
-} from "../../../lib/project/codegen/components/utils";
-import { DocumentationFormat } from "../../../src";
+  OtherGenerators,
+} from "../../../src/project/codegen/components/utils";
 import { withTmpDirSnapshot } from "../../project/snapshot-utils";
 
 describe("Docs Generation Script Unit Tests", () => {
@@ -26,7 +26,7 @@ describe("Docs Generation Script Unit Tests", () => {
           generator,
           specPath: path.relative(outdir, specPath),
           outputPath: outdir,
-          generatorDirectory: NonClientGeneratorDirectory.DOCS,
+          generatorDirectory: OtherGenerators.DOCS,
         });
         exec(command.command, {
           cwd: command.workingDir,

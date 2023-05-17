@@ -22,7 +22,7 @@ describe("Typescript Client Code Generation Script Unit Tests", () => {
               specPath: path.relative(outdir, specPath),
             });
             const command = project.buildGenerateCommand();
-            exec(command.command, {
+            exec(`TYPE_SAFE_API_DEBUG=1 ${command.command}`, {
               cwd: command.workingDir,
             });
           },
