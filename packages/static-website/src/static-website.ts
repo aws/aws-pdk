@@ -315,63 +315,79 @@ export class StaticWebsite extends Construct {
 
     ["AwsSolutions-L1", "AwsPrototyping-LambdaLatestVersion"].forEach(
       (RuleId) => {
-        NagSuppressions.addStackSuppressions(stack, [
-          {
-            id: RuleId,
-            reason:
-              "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-          },
-        ]);
+        NagSuppressions.addResourceSuppressions(
+          this,
+          [
+            {
+              id: RuleId,
+              reason:
+                "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+          ],
+          true
+        );
       }
     );
 
     ["AwsSolutions-IAM5", "AwsPrototyping-IAMNoWildcardPermissions"].forEach(
       (RuleId) => {
-        NagSuppressions.addStackSuppressions(stack, [
-          {
-            id: RuleId,
-            reason:
-              "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            appliesTo: [
-              {
-                regex: "/^Action::s3:.*$/g",
-              },
-              {
-                regex: `/^Resource::.*$/g`,
-              },
-            ],
-          },
-        ]);
+        NagSuppressions.addResourceSuppressions(
+          this,
+          [
+            {
+              id: RuleId,
+              reason:
+                "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+              appliesTo: [
+                {
+                  regex: "/^Action::s3:.*$/g",
+                },
+                {
+                  regex: `/^Resource::.*$/g`,
+                },
+              ],
+            },
+          ],
+          true
+        );
       }
     );
 
     ["AwsSolutions-IAM4", "AwsPrototyping-IAMNoManagedPolicies"].forEach(
       (RuleId) => {
-        NagSuppressions.addStackSuppressions(stack, [
-          {
-            id: RuleId,
-            reason:
-              "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            appliesTo: [
-              {
-                regex: `/^Policy::arn:${PDKNag.getStackPartitionRegex(
-                  stack
-                )}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g`,
-              },
-            ],
-          },
-        ]);
+        NagSuppressions.addResourceSuppressions(
+          this,
+          [
+            {
+              id: RuleId,
+              reason:
+                "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+              appliesTo: [
+                {
+                  regex: `/^Policy::arn:${PDKNag.getStackPartitionRegex(
+                    stack
+                  )}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g`,
+                },
+              ],
+            },
+          ],
+          true
+        );
       }
     );
 
     ["AwsSolutions-S1", "AwsPrototyping-S3BucketLoggingEnabled"].forEach(
       (RuleId) => {
-        NagSuppressions.addStackSuppressions(stack, [
-          {
-            id: RuleId,
-            reason: "Access Log buckets should not have s3 bucket logging",
-          },
-        ]);
+        NagSuppressions.addResourceSuppressions(
+          this,
+          [
+            {
+              id: RuleId,
+              reason: "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+          true
+        );
       }
     );
   };
