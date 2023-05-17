@@ -53,10 +53,21 @@ export interface MethodAndPath {
 }
 
 /**
+ * Details about an API operation
+ */
+export interface OperationDetails extends MethodAndPath {
+  /**
+   * Content types accepted by this operation
+   * @default application/json
+   */
+  readonly contentTypes?: string[];
+}
+
+/**
  * Type for the generated Operation Lookup structure, providing details about the method and path of each API operation
  */
 export type OperationLookup = {
-  readonly [operationId: string]: MethodAndPath;
+  readonly [operationId: string]: OperationDetails;
 };
 
 /**
@@ -80,4 +91,26 @@ export interface TypeSafeApiOptions {
    * Cross Origin Resource Sharing options for the API
    */
   readonly corsOptions?: CorsOptions;
+}
+
+/**
+ * Cross-origin resource sharing options
+ */
+export interface SerializedCorsOptions {
+  /**
+   * HTTP methods to allow
+   */
+  readonly allowMethods: string[];
+  /**
+   * Headers to allow
+   */
+  readonly allowHeaders: string[];
+  /**
+   * Origins to allow
+   */
+  readonly allowOrigins: string[];
+  /**
+   * HTTP status code to be returned by preflight requests
+   */
+  readonly statusCode: number;
 }

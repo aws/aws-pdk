@@ -232,6 +232,48 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     });
   });
 
+  it("With Mock Integration", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.mock({
+              statusCode: 200,
+              body: JSON.stringify({ message: "message" }),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
+  it("With Mock Integration and CORS", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        corsOptions: {
+          allowOrigins: Cors.ALL_ORIGINS,
+          allowMethods: Cors.ALL_METHODS,
+        },
+        integrations: {
+          testOperation: {
+            integration: Integrations.mock({
+              statusCode: 200,
+              body: JSON.stringify({ message: "message" }),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
   it("With IAM Auth and CORS", () => {
     const stack = new Stack();
     withTempSpec(sampleSpec, (specPath) => {

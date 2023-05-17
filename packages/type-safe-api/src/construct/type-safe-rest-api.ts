@@ -41,7 +41,7 @@ import {
   prepareApiSpec,
   PrepareApiSpecOptions,
 } from "./prepare-spec-event-handler/prepare-spec";
-import { TypeSafeApiOptions } from "./spec";
+import { SerializedCorsOptions, TypeSafeApiOptions } from "./spec";
 import {
   prepareSecuritySchemes,
   serializeAsAuthorizerReference,
@@ -254,6 +254,17 @@ export class TypeSafeRestApi extends Construct {
       }
     );
 
+    const serializedCorsOptions: SerializedCorsOptions | undefined =
+      corsOptions && {
+        allowHeaders: corsOptions.allowHeaders || [
+          ...Cors.DEFAULT_HEADERS,
+          "x-amz-content-sha256",
+        ],
+        allowMethods: corsOptions.allowMethods || Cors.ALL_METHODS,
+        allowOrigins: corsOptions.allowOrigins,
+        statusCode: corsOptions.statusCode || 204,
+      };
+
     const prepareSpecOptions: PrepareApiSpecOptions = {
       defaultAuthorizerReference:
         serializeAsAuthorizerReference(defaultAuthorizer),
@@ -266,6 +277,7 @@ export class TypeSafeRestApi extends Construct {
                 operationId,
                 scope: this,
                 ...operationLookup[operationId],
+                corsOptions: serializedCorsOptions,
               }),
               methodAuthorizer: serializeAsAuthorizerReference(authorizer),
             },
@@ -277,15 +289,7 @@ export class TypeSafeRestApi extends Construct {
         integrations,
         defaultAuthorizer
       ),
-      corsOptions: corsOptions && {
-        allowHeaders: corsOptions.allowHeaders || [
-          ...Cors.DEFAULT_HEADERS,
-          "x-amz-content-sha256",
-        ],
-        allowMethods: corsOptions.allowMethods || Cors.ALL_METHODS,
-        allowOrigins: corsOptions.allowOrigins,
-        statusCode: corsOptions.statusCode || 204,
-      },
+      corsOptions: serializedCorsOptions,
       operationLookup,
     };
 

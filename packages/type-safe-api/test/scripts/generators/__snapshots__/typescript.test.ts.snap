@@ -167,18 +167,22 @@ export const OperationLookup = {
     neither: {
         path: '/neither',
         method: 'GET',
+        contentTypes: ['application/json'],
     },
     both: {
         path: '/both',
         method: 'GET',
+        contentTypes: ['application/json'],
     },
     tag1: {
         path: '/tag1',
         method: 'GET',
+        contentTypes: ['application/json'],
     },
     tag2: {
         path: '/tag2',
         method: 'GET',
+        contentTypes: ['application/json'],
     },
 };
 
@@ -1325,6 +1329,10 @@ export interface MediaTypesRequest {
     body: Blob;
 }
 
+export interface MultipleContentTypesRequest {
+    testRequest: TestRequest;
+}
+
 export interface OperationOneRequest {
     param1: string;
     param2: Array<string>;
@@ -1417,6 +1425,37 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async mediaTypes(requestParameters: MediaTypesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.mediaTypesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async multipleContentTypesRaw(requestParameters: MultipleContentTypesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        if (requestParameters.testRequest === null || requestParameters.testRequest === undefined) {
+            throw new runtime.RequiredError('testRequest','Required parameter requestParameters.testRequest was null or undefined when calling multipleContentTypes.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: \`/multiple-content-types\`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: TestRequestToJSON(requestParameters.testRequest),
+        }, initOverrides);
+
+        return new runtime.TextApiResponse(response) as any;
+    }
+
+    /**
+     */
+    async multipleContentTypes(requestParameters: MultipleContentTypesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.multipleContentTypesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -1529,6 +1568,7 @@ import {
     AnyRequestResponseRequest,
     
     MediaTypesRequest,
+    MultipleContentTypesRequest,
     OperationOneRequest,
     
 } from '..';
@@ -1541,6 +1581,7 @@ export interface OperationConfig<T> {
     anyRequestResponse: T;
     empty: T;
     mediaTypes: T;
+    multipleContentTypes: T;
     operationOne: T;
     withoutOperationIdDelete: T;
 }
@@ -1550,22 +1591,32 @@ export const OperationLookup = {
     anyRequestResponse: {
         path: '/any-request-response',
         method: 'PUT',
+        contentTypes: ['application/json',],
     },
     empty: {
         path: '/empty-response',
         method: 'PUT',
+        contentTypes: ['application/json'],
     },
     mediaTypes: {
         path: '/different-media-type',
         method: 'POST',
+        contentTypes: ['application/pdf',],
+    },
+    multipleContentTypes: {
+        path: '/multiple-content-types',
+        method: 'POST',
+        contentTypes: ['application/json','application/pdf',],
     },
     operationOne: {
         path: '/path/{pathParam}',
         method: 'POST',
+        contentTypes: ['application/json',],
     },
     withoutOperationIdDelete: {
         path: '/without-operation-id',
         method: 'DELETE',
+        contentTypes: ['application/json'],
     },
 };
 
@@ -1603,7 +1654,7 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
-type OperationIds = | 'anyRequestResponse' | 'empty' | 'mediaTypes' | 'operationOne' | 'withoutOperationIdDelete';
+type OperationIds = | 'anyRequestResponse' | 'empty' | 'mediaTypes' | 'multipleContentTypes' | 'operationOne' | 'withoutOperationIdDelete';
 type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
 
 // Api gateway lambda handler type
@@ -1902,6 +1953,80 @@ export const mediaTypesHandler = (
     };
 };
 /**
+ * Single-value path/query parameters for MultipleContentTypes
+ */
+export interface MultipleContentTypesRequestParameters {
+}
+
+/**
+ * Multi-value query parameters for MultipleContentTypes
+ */
+export interface MultipleContentTypesRequestArrayParameters {
+}
+
+/**
+ * Request body parameter for MultipleContentTypes
+ */
+export type MultipleContentTypesRequestBody = TestRequest;
+
+export type MultipleContentTypes200OperationResponse = OperationResponse<200, string>;
+export type MultipleContentTypesOperationResponses = | MultipleContentTypes200OperationResponse ;
+
+// Type that the handler function provided to the wrapper must conform to
+export type MultipleContentTypesHandlerFunction = LambdaHandlerFunction<MultipleContentTypesRequestParameters, MultipleContentTypesRequestArrayParameters, MultipleContentTypesRequestBody, MultipleContentTypesOperationResponses>;
+export type MultipleContentTypesChainedHandlerFunction = ChainedLambdaHandlerFunction<MultipleContentTypesRequestParameters, MultipleContentTypesRequestArrayParameters, MultipleContentTypesRequestBody, MultipleContentTypesOperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of multipleContentTypes
+ */
+export const multipleContentTypesHandler = (
+    firstHandler: MultipleContentTypesChainedHandlerFunction,
+    ...remainingHandlers: MultipleContentTypesChainedHandlerFunction[]
+): OperationApiGatewayLambdaHandler<'multipleContentTypes'> => async (event: any, context: any, _callback?: any, additionalInterceptors: MultipleContentTypesChainedHandlerFunction[] = []): Promise<any> => {
+    const requestParameters = decodeRequestParameters({
+        ...(event.pathParameters || {}),
+        ...(event.queryStringParameters || {}),
+    }) as unknown as MultipleContentTypesRequestParameters;
+
+    const requestArrayParameters = decodeRequestParameters({
+        ...(event.multiValueQueryStringParameters || {}),
+    }) as unknown as MultipleContentTypesRequestArrayParameters;
+
+    const demarshal = (bodyString: string): any => {
+        return TestRequestFromJSON(JSON.parse(bodyString));
+    };
+    const body = parseBody(event.body, demarshal, ['application/json','application/pdf',]) as MultipleContentTypesRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            requestArrayParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: {},
+    });
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+            case 200:
+                break;
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    return {
+        ...response,
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
+/**
  * Single-value path/query parameters for OperationOne
  */
 export interface OperationOneRequestParameters {
@@ -2065,14 +2190,15 @@ export interface HandlerRouterHandlers {
   readonly anyRequestResponse: OperationApiGatewayLambdaHandler<'anyRequestResponse'>;
   readonly empty: OperationApiGatewayLambdaHandler<'empty'>;
   readonly mediaTypes: OperationApiGatewayLambdaHandler<'mediaTypes'>;
+  readonly multipleContentTypes: OperationApiGatewayLambdaHandler<'multipleContentTypes'>;
   readonly operationOne: OperationApiGatewayLambdaHandler<'operationOne'>;
   readonly withoutOperationIdDelete: OperationApiGatewayLambdaHandler<'withoutOperationIdDelete'>;
 }
 
-export type AnyOperationRequestParameters = | AnyRequestResponseRequestParameters| EmptyRequestParameters| MediaTypesRequestParameters| OperationOneRequestParameters| WithoutOperationIdDeleteRequestParameters;
-export type AnyOperationRequestArrayParameters = | AnyRequestResponseRequestArrayParameters| EmptyRequestArrayParameters| MediaTypesRequestArrayParameters| OperationOneRequestArrayParameters| WithoutOperationIdDeleteRequestArrayParameters;
-export type AnyOperationRequestBodies = | AnyRequestResponseRequestBody| EmptyRequestBody| MediaTypesRequestBody| OperationOneRequestBody| WithoutOperationIdDeleteRequestBody;
-export type AnyOperationResponses = | AnyRequestResponseOperationResponses| EmptyOperationResponses| MediaTypesOperationResponses| OperationOneOperationResponses| WithoutOperationIdDeleteOperationResponses;
+export type AnyOperationRequestParameters = | AnyRequestResponseRequestParameters| EmptyRequestParameters| MediaTypesRequestParameters| MultipleContentTypesRequestParameters| OperationOneRequestParameters| WithoutOperationIdDeleteRequestParameters;
+export type AnyOperationRequestArrayParameters = | AnyRequestResponseRequestArrayParameters| EmptyRequestArrayParameters| MediaTypesRequestArrayParameters| MultipleContentTypesRequestArrayParameters| OperationOneRequestArrayParameters| WithoutOperationIdDeleteRequestArrayParameters;
+export type AnyOperationRequestBodies = | AnyRequestResponseRequestBody| EmptyRequestBody| MediaTypesRequestBody| MultipleContentTypesRequestBody| OperationOneRequestBody| WithoutOperationIdDeleteRequestBody;
+export type AnyOperationResponses = | AnyRequestResponseOperationResponses| EmptyOperationResponses| MediaTypesOperationResponses| MultipleContentTypesOperationResponses| OperationOneOperationResponses| WithoutOperationIdDeleteOperationResponses;
 
 export interface HandlerRouterProps<
   RequestParameters,

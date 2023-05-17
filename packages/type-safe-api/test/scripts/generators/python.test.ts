@@ -16,8 +16,8 @@ describe("Python Client Code Generation Script Unit Tests", () => {
           path.resolve(__dirname),
           (outdir) => {
             const project = new GeneratedPythonRuntimeProject({
-              name: "test",
-              moduleName: "test",
+              name: "test_project",
+              moduleName: "test_project",
               authorEmail: "me@example.com",
               authorName: "test",
               version: "1.0.0",

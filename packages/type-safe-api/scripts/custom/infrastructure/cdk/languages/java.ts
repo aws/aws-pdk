@@ -65,7 +65,7 @@ public class ApiProps implements RestApiBaseProps {
     `package ${options.infraPackage};
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import software.aws.awsprototypingsdk.typesafeapi.MethodAndPath;
+import software.aws.awsprototypingsdk.typesafeapi.OperationDetails;
 import software.aws.awsprototypingsdk.typesafeapi.TypeSafeRestApi;
 import software.aws.awsprototypingsdk.typesafeapi.TypeSafeRestApiProps;
 import software.constructs.Construct;
@@ -111,9 +111,10 @@ public class Api extends TypeSafeRestApi {
                 .operationLookup(OperationLookup.getOperationLookup()
                         .entrySet()
                         .stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, e -> MethodAndPath.builder()
-                                .method(e.getValue().get("method"))
-                                .path(e.getValue().get("path"))
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> OperationDetails.builder()
+                                .method(e.getValue().getMethod())
+                                .path(e.getValue().getPath())
+                                .contentTypes(e.getValue().getContentTypes())
                                 .build())))
                 .specPath(SpecDetails.specPath)
                 .integrations(props.getIntegrations().asMap())

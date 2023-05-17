@@ -5,7 +5,7 @@ exports[`Java Infra Generation Script Unit Tests Generates 1`] = `
   "infra/src/main/java/test/test-infra/infra/Api.java": "package test.test-infra.infra;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import software.aws.awsprototypingsdk.typesafeapi.MethodAndPath;
+import software.aws.awsprototypingsdk.typesafeapi.OperationDetails;
 import software.aws.awsprototypingsdk.typesafeapi.TypeSafeRestApi;
 import software.aws.awsprototypingsdk.typesafeapi.TypeSafeRestApiProps;
 import software.constructs.Construct;
@@ -51,9 +51,10 @@ public class Api extends TypeSafeRestApi {
                 .operationLookup(OperationLookup.getOperationLookup()
                         .entrySet()
                         .stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, e -> MethodAndPath.builder()
-                                .method(e.getValue().get("method"))
-                                .path(e.getValue().get("path"))
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> OperationDetails.builder()
+                                .method(e.getValue().getMethod())
+                                .path(e.getValue().getPath())
+                                .contentTypes(e.getValue().getContentTypes())
                                 .build())))
                 .specPath(SpecDetails.specPath)
                 .integrations(props.getIntegrations().asMap())
@@ -214,6 +215,26 @@ paths:
           description: Success
           content:
             application/x-mpegurl:
+              schema:
+                type: string
+  /multiple-content-types:
+    post:
+      operationId: multipleContentTypes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRequest'
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
               schema:
                 type: string
 components:

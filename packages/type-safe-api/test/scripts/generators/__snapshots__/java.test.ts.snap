@@ -4760,21 +4760,46 @@ import test.test.runtime.model.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.Arrays;
 
 
 // Look up path and http method for a given operation name
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
 public class OperationLookup {
-    /**
-     * Returns the operation lookup information for the OpenApiGatewayLambdaApi construct
-     */
-    public static Map<String, Map<String, String>> getOperationLookup() {
-        final Map<String, Map<String, String>> config = new HashMap<>();
+    @lombok.Builder @lombok.Getter
+    public static class OperationLookupEntry {
+        private String method;
+        private String path;
+        private List<String> contentTypes;
+    }
 
-        config.put("neither", new HashMap<String, String>() { { put("path", "/neither"); put("method", "GET"); } });
-        config.put("both", new HashMap<String, String>() { { put("path", "/both"); put("method", "GET"); } });
-        config.put("tag1", new HashMap<String, String>() { { put("path", "/tag1"); put("method", "GET"); } });
-        config.put("tag2", new HashMap<String, String>() { { put("path", "/tag2"); put("method", "GET"); } });
+    /**
+     * Returns the operation lookup information for the TypeSafeRestApi construct
+     */
+    public static Map<String, OperationLookupEntry> getOperationLookup() {
+        final Map<String, OperationLookupEntry> config = new HashMap<>();
+
+        config.put("neither", OperationLookupEntry.builder()
+            .path("/neither")
+            .method("GET")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
+        config.put("both", OperationLookupEntry.builder()
+            .path("/both")
+            .method("GET")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
+        config.put("tag1", OperationLookupEntry.builder()
+            .path("/tag1")
+            .method("GET")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
+        config.put("tag2", OperationLookupEntry.builder()
+            .path("/tag2")
+            .method("GET")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
 
         return config;
     }
@@ -6014,6 +6039,7 @@ Class | Method | HTTP request | Description
 *DefaultApi* | [**anyRequestResponse**](docs/DefaultApi.md#anyRequestResponse) | **PUT** /any-request-response | 
 *DefaultApi* | [**empty**](docs/DefaultApi.md#empty) | **PUT** /empty-response | 
 *DefaultApi* | [**mediaTypes**](docs/DefaultApi.md#mediaTypes) | **POST** /different-media-type | 
+*DefaultApi* | [**multipleContentTypes**](docs/DefaultApi.md#multipleContentTypes) | **POST** /multiple-content-types | 
 *DefaultApi* | [**operationOne**](docs/DefaultApi.md#operationOne) | **POST** /path/{pathParam} | 
 *DefaultApi* | [**withoutOperationIdDelete**](docs/DefaultApi.md#withoutOperationIdDelete) | **DELETE** /without-operation-id | 
 
@@ -6160,6 +6186,28 @@ paths:
           description: Success
       x-content-type: application/pdf
       x-accepts: application/x-mpegurl
+  /multiple-content-types:
+    post:
+      operationId: multipleContentTypes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRequest'
+          application/pdf:
+            schema:
+              format: binary
+              type: string
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Success
+      x-content-type: application/json
+      x-accepts: application/json
 components:
   schemas:
     ApiError:
@@ -6217,6 +6265,7 @@ All URIs are relative to *http://localhost*
 | [**anyRequestResponse**](DefaultApi.md#anyRequestResponse) | **PUT** /any-request-response |  |
 | [**empty**](DefaultApi.md#empty) | **PUT** /empty-response |  |
 | [**mediaTypes**](DefaultApi.md#mediaTypes) | **POST** /different-media-type |  |
+| [**multipleContentTypes**](DefaultApi.md#multipleContentTypes) | **POST** /multiple-content-types |  |
 | [**operationOne**](DefaultApi.md#operationOne) | **POST** /path/{pathParam} |  |
 | [**withoutOperationIdDelete**](DefaultApi.md#withoutOperationIdDelete) | **DELETE** /without-operation-id |  |
 
@@ -6394,6 +6443,67 @@ No authorization required
 
  - **Content-Type**: application/pdf
  - **Accept**: application/x-mpegurl
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Success |  -  |
+
+<a name="multipleContentTypes"></a>
+# **multipleContentTypes**
+> String multipleContentTypes(testRequest).execute();
+
+
+
+### Example
+\`\`\`java
+// Import classes:
+import test.test.runtime.ApiClient;
+import test.test.runtime.ApiException;
+import test.test.runtime.Configuration;
+import test.test.runtime.models.*;
+import test.test.runtime.api.DefaultApi;
+
+public class Example {
+  public static void main(String[] args) {
+    ApiClient defaultClient = Configuration.getDefaultApiClient();
+    defaultClient.setBasePath("http://localhost");
+
+    DefaultApi apiInstance = new DefaultApi(defaultClient);
+    TestRequest testRequest = new TestRequest(); // TestRequest | 
+    try {
+      String result = apiInstance.multipleContentTypes(testRequest)
+            .execute();
+      System.out.println(result);
+    } catch (ApiException e) {
+      System.err.println("Exception when calling DefaultApi#multipleContentTypes");
+      System.err.println("Status code: " + e.getCode());
+      System.err.println("Reason: " + e.getResponseBody());
+      System.err.println("Response headers: " + e.getResponseHeaders());
+      e.printStackTrace();
+    }
+  }
+}
+\`\`\`
+
+### Parameters
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **testRequest** | [**TestRequest**](TestRequest.md)|  | |
+
+### Return type
+
+**String**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json, application/pdf
+ - **Accept**: application/json
 
 ### HTTP response details
 | Status code | Description | Response headers |
@@ -9853,6 +9963,159 @@ public class DefaultApi {
     public APImediaTypesRequest mediaTypes(File body) {
         return new APImediaTypesRequest(body);
     }
+    private okhttp3.Call multipleContentTypesCall(TestRequest testRequest, final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = testRequest;
+
+        // create path and map variables
+        String localVarPath = "/multiple-content-types";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            "application/json",
+            "application/pdf"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call multipleContentTypesValidateBeforeCall(TestRequest testRequest, final ApiCallback _callback) throws ApiException {
+        // verify the required parameter 'testRequest' is set
+        if (testRequest == null) {
+            throw new ApiException("Missing the required parameter 'testRequest' when calling multipleContentTypes(Async)");
+        }
+
+        return multipleContentTypesCall(testRequest, _callback);
+
+    }
+
+
+    private ApiResponse<String> multipleContentTypesWithHttpInfo(TestRequest testRequest) throws ApiException {
+        okhttp3.Call localVarCall = multipleContentTypesValidateBeforeCall(testRequest, null);
+        Type localVarReturnType = new TypeToken<String>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    private okhttp3.Call multipleContentTypesAsync(TestRequest testRequest, final ApiCallback<String> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = multipleContentTypesValidateBeforeCall(testRequest, _callback);
+        Type localVarReturnType = new TypeToken<String>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+
+    public class APImultipleContentTypesRequest {
+        private final TestRequest testRequest;
+
+        private APImultipleContentTypesRequest(TestRequest testRequest) {
+            this.testRequest = testRequest;
+        }
+
+        /**
+         * Build call for multipleContentTypes
+         * @param _callback ApiCallback API callback
+         * @return Call to execute
+         * @throws ApiException If fail to serialize the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Success </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call buildCall(final ApiCallback _callback) throws ApiException {
+            return multipleContentTypesCall(testRequest, _callback);
+        }
+
+        /**
+         * Execute multipleContentTypes request
+         * @return String
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Success </td><td>  -  </td></tr>
+         </table>
+         */
+        public String execute() throws ApiException {
+            ApiResponse<String> localVarResp = multipleContentTypesWithHttpInfo(testRequest);
+            return localVarResp.getData();
+        }
+
+        /**
+         * Execute multipleContentTypes request with HTTP info returned
+         * @return ApiResponse&lt;String&gt;
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Success </td><td>  -  </td></tr>
+         </table>
+         */
+        public ApiResponse<String> executeWithHttpInfo() throws ApiException {
+            return multipleContentTypesWithHttpInfo(testRequest);
+        }
+
+        /**
+         * Execute multipleContentTypes request (asynchronously)
+         * @param _callback The callback to be executed when the API call finishes
+         * @return The request call
+         * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Success </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call executeAsync(final ApiCallback<String> _callback) throws ApiException {
+            return multipleContentTypesAsync(testRequest, _callback);
+        }
+    }
+
+    /**
+     * 
+     * 
+     * @param testRequest  (required)
+     * @return APImultipleContentTypesRequest
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> Success </td><td>  -  </td></tr>
+     </table>
+     */
+    public APImultipleContentTypesRequest multipleContentTypes(TestRequest testRequest) {
+        return new APImultipleContentTypesRequest(testRequest);
+    }
     private okhttp3.Call operationOneCall(String param1, List<String> param2, BigDecimal param3, String pathParam, TestRequest testRequest, String param4, final ApiCallback _callback) throws ApiException {
         String basePath = null;
         // Operation Servers
@@ -11112,6 +11375,235 @@ public class Handlers {
     }
 
     /**
+     * Response for the multipleContentTypes operation
+     */
+    public static interface MultipleContentTypesResponse extends Response {}
+
+    /**
+     * Response with status code 200 for the multipleContentTypes operation
+     */
+    public static class MultipleContentTypes200Response implements MultipleContentTypesResponse {
+        private String body;
+        private Map<String, String> headers;
+
+        private MultipleContentTypes200Response(final String body, final Map<String, String> headers) {
+            this.body = body;
+            this.headers = headers;
+        }
+
+        @Override
+        public int getStatusCode() {
+            return 200;
+        }
+
+        @Override
+        public String getBody() {
+            return this.body;
+        }
+
+        @Override
+        public Map<String, String> getHeaders() {
+            return this.headers;
+        }
+
+        /**
+         * Create a MultipleContentTypes200Response with a body
+         */
+        public static MultipleContentTypes200Response of(final String body) {
+            return new MultipleContentTypes200Response(body, new HashMap<>());
+        }
+
+        /**
+         * Create a MultipleContentTypes200Response with a body and headers
+         */
+        public static MultipleContentTypes200Response of(final String body, final Map<String, String> headers) {
+            return new MultipleContentTypes200Response(body, headers);
+        }
+    }
+
+    /**
+     * Single-value query and path parameters for the multipleContentTypes operation
+     */
+    public static class MultipleContentTypesRequestParameters {
+
+        public MultipleContentTypesRequestParameters(final APIGatewayProxyRequestEvent event) {
+            Map<String, String> parameters = new HashMap<>();
+            putAllFromNullableMap(event.getPathParameters(), parameters);
+            putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            Map<String, String> decodedParameters = decodeRequestParameters(parameters);
+
+        }
+
+    }
+
+    /**
+     * Multi-value query parameters for the multipleContentTypes operation
+     */
+    public static class MultipleContentTypesRequestArrayParameters {
+
+        public MultipleContentTypesRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
+            Map<String, List<String>> parameters = new HashMap<>();
+            putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
+
+        }
+
+    }
+
+    /**
+     * Input for the multipleContentTypes operation
+     */
+    public static class MultipleContentTypesInput {
+        private MultipleContentTypesRequestParameters requestParameters;
+        private MultipleContentTypesRequestArrayParameters requestArrayParameters;
+        private TestRequest body;
+
+        public MultipleContentTypesInput(final APIGatewayProxyRequestEvent event) {
+            this.requestParameters = new MultipleContentTypesRequestParameters(event);
+            this.requestArrayParameters = new MultipleContentTypesRequestArrayParameters(event);
+            try {
+                this.body = TestRequest.fromJson(event.getBody());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            };
+        }
+
+        public MultipleContentTypesRequestParameters getRequestParameters() {
+            return this.requestParameters;
+        }
+
+        public MultipleContentTypesRequestArrayParameters getRequestArrayParameters() {
+            return this.requestArrayParameters;
+        }
+
+        public TestRequest getBody() {
+            return this.body;
+        }
+    }
+
+    /**
+     * Full request input for the multipleContentTypes operation, including the raw API Gateway event
+     */
+    public static class MultipleContentTypesRequestInput implements RequestInput<MultipleContentTypesInput> {
+        private APIGatewayProxyRequestEvent event;
+        private Context context;
+        private Map<String, Object> interceptorContext;
+        private MultipleContentTypesInput input;
+
+        public MultipleContentTypesRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final MultipleContentTypesInput input) {
+            this.event = event;
+            this.context = context;
+            this.interceptorContext = interceptorContext;
+            this.input = input;
+        }
+
+        /**
+         * Returns the typed request input, with path, query and body parameters
+         */
+        public MultipleContentTypesInput getInput() {
+            return this.input;
+        }
+
+        /**
+         * Returns the raw API Gateway event
+         */
+        public APIGatewayProxyRequestEvent getEvent() {
+            return this.event;
+        }
+
+        /**
+         * Returns the lambda context
+         */
+        public Context getContext() {
+            return this.context;
+        }
+
+        /**
+         * Returns the interceptor context, which may contain values set by request interceptors
+         */
+        public Map<String, Object> getInterceptorContext() {
+            return this.interceptorContext;
+        }
+    }
+
+    /**
+     * Lambda handler wrapper for the multipleContentTypes operation
+     */
+    public static abstract class MultipleContentTypes implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+        /**
+         * Handle the request for the multipleContentTypes operation
+         */
+        public abstract MultipleContentTypesResponse handle(final MultipleContentTypesRequestInput request);
+
+        /**
+         * For more complex interceptors that require instantiation with parameters, you may override this method to
+         * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+         * prefer the @Interceptors annotation.
+         */
+        public List<Interceptor<MultipleContentTypesInput>> getInterceptors() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+        }
+
+        public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<MultipleContentTypesInput>> additionalInterceptors) {
+            final Map<String, Object> interceptorContext = new HashMap<>();
+
+            List<Interceptor<MultipleContentTypesInput>> interceptors = new ArrayList<>();
+            interceptors.addAll(additionalInterceptors);
+
+            List<Interceptor<MultipleContentTypesInput>> annotationInterceptors = getAnnotationInterceptors(this.getClass());
+
+            interceptors.addAll(annotationInterceptors);
+            interceptors.addAll(this.getInterceptors());
+
+            final HandlerChain chain = buildHandlerChain(interceptors, new HandlerChain<MultipleContentTypesInput>() {
+                @Override
+                public Response next(ChainedRequestInput<MultipleContentTypesInput> input) {
+                    return handle(new MultipleContentTypesRequestInput(input.getEvent(), input.getContext(), input.getInterceptorContext(), input.getInput()));
+                }
+            });
+
+            final Response response = chain.next(new ChainedRequestInput<MultipleContentTypesInput>() {
+                @Override
+                public HandlerChain getChain() {
+                    // The chain's next method ignores the chain given as input, and is pre-built to follow the remaining
+                    // chain.
+                    return null;
+                }
+
+                @Override
+                public APIGatewayProxyRequestEvent getEvent() {
+                    return event;
+                }
+
+                @Override
+                public Context getContext() {
+                    return context;
+                }
+
+                @Override
+                public MultipleContentTypesInput getInput() {
+                    return new MultipleContentTypesInput(event);
+                }
+
+                @Override
+                public Map<String, Object> getInterceptorContext() {
+                    return interceptorContext;
+                }
+            });
+
+            return new APIGatewayProxyResponseEvent()
+                    .withStatusCode(response.getStatusCode())
+                    .withHeaders(response.getHeaders())
+                    .withBody(response.getBody());
+        }
+    }
+
+    /**
      * Response for the operationOne operation
      */
     public static interface OperationOneResponse extends Response {}
@@ -11631,12 +12123,14 @@ public class Handlers {
         private static final String anyRequestResponseMethodAndPath = concatMethodAndPath("PUT", "/any-request-response");
         private static final String emptyMethodAndPath = concatMethodAndPath("PUT", "/empty-response");
         private static final String mediaTypesMethodAndPath = concatMethodAndPath("POST", "/different-media-type");
+        private static final String multipleContentTypesMethodAndPath = concatMethodAndPath("POST", "/multiple-content-types");
         private static final String operationOneMethodAndPath = concatMethodAndPath("POST", "/path/{pathParam}");
         private static final String withoutOperationIdDeleteMethodAndPath = concatMethodAndPath("DELETE", "/without-operation-id");
 
         private final AnyRequestResponse constructedAnyRequestResponse;
         private final Empty constructedEmpty;
         private final MediaTypes constructedMediaTypes;
+        private final MultipleContentTypes constructedMultipleContentTypes;
         private final OperationOne constructedOperationOne;
         private final WithoutOperationIdDelete constructedWithoutOperationIdDelete;
 
@@ -11653,6 +12147,10 @@ public class Handlers {
          */
         public abstract MediaTypes mediaTypes();
         /**
+         * This method must return your implementation of the MultipleContentTypes operation
+         */
+        public abstract MultipleContentTypes multipleContentTypes();
+        /**
          * This method must return your implementation of the OperationOne operation
          */
         public abstract OperationOne operationOne();
@@ -11665,6 +12163,7 @@ public class Handlers {
             anyRequestResponseRoute,
             emptyRoute,
             mediaTypesRoute,
+            multipleContentTypesRoute,
             operationOneRoute,
             withoutOperationIdDeleteRoute,
         }
@@ -11678,6 +12177,7 @@ public class Handlers {
             this.routes.put(anyRequestResponseMethodAndPath, Route.anyRequestResponseRoute);
             this.routes.put(emptyMethodAndPath, Route.emptyRoute);
             this.routes.put(mediaTypesMethodAndPath, Route.mediaTypesRoute);
+            this.routes.put(multipleContentTypesMethodAndPath, Route.multipleContentTypesRoute);
             this.routes.put(operationOneMethodAndPath, Route.operationOneRoute);
             this.routes.put(withoutOperationIdDeleteMethodAndPath, Route.withoutOperationIdDeleteRoute);
             // Handlers are all constructed in the router's constructor such that lambda behaviour remains consistent;
@@ -11686,6 +12186,7 @@ public class Handlers {
             this.constructedAnyRequestResponse = this.anyRequestResponse();
             this.constructedEmpty = this.empty();
             this.constructedMediaTypes = this.mediaTypes();
+            this.constructedMultipleContentTypes = this.multipleContentTypes();
             this.constructedOperationOne = this.operationOne();
             this.constructedWithoutOperationIdDelete = this.withoutOperationIdDelete();
         }
@@ -11719,6 +12220,10 @@ public class Handlers {
                     List<Interceptor<MediaTypesInput>> mediaTypesInterceptors = getAnnotationInterceptors(this.getClass());
                     mediaTypesInterceptors.addAll(this.getInterceptors());
                     return this.constructedMediaTypes.handleRequestWithAdditionalInterceptors(event, context, mediaTypesInterceptors);
+                case multipleContentTypesRoute:
+                    List<Interceptor<MultipleContentTypesInput>> multipleContentTypesInterceptors = getAnnotationInterceptors(this.getClass());
+                    multipleContentTypesInterceptors.addAll(this.getInterceptors());
+                    return this.constructedMultipleContentTypes.handleRequestWithAdditionalInterceptors(event, context, multipleContentTypesInterceptors);
                 case operationOneRoute:
                     List<Interceptor<OperationOneInput>> operationOneInterceptors = getAnnotationInterceptors(this.getClass());
                     operationOneInterceptors.addAll(this.getInterceptors());
@@ -11753,6 +12258,7 @@ public class OperationConfig<T> {
     private T anyRequestResponse;
     private T empty;
     private T mediaTypes;
+    private T multipleContentTypes;
     private T operationOne;
     private T withoutOperationIdDelete;
 
@@ -11761,6 +12267,7 @@ public class OperationConfig<T> {
         map.put("anyRequestResponse", this.anyRequestResponse);
         map.put("empty", this.empty);
         map.put("mediaTypes", this.mediaTypes);
+        map.put("multipleContentTypes", this.multipleContentTypes);
         map.put("operationOne", this.operationOne);
         map.put("withoutOperationIdDelete", this.withoutOperationIdDelete);
         return map;
@@ -11779,22 +12286,56 @@ import test.test.runtime.model.TestResponse;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.Arrays;
 
 
 // Look up path and http method for a given operation name
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
 public class OperationLookup {
-    /**
-     * Returns the operation lookup information for the OpenApiGatewayLambdaApi construct
-     */
-    public static Map<String, Map<String, String>> getOperationLookup() {
-        final Map<String, Map<String, String>> config = new HashMap<>();
+    @lombok.Builder @lombok.Getter
+    public static class OperationLookupEntry {
+        private String method;
+        private String path;
+        private List<String> contentTypes;
+    }
 
-        config.put("anyRequestResponse", new HashMap<String, String>() { { put("path", "/any-request-response"); put("method", "PUT"); } });
-        config.put("empty", new HashMap<String, String>() { { put("path", "/empty-response"); put("method", "PUT"); } });
-        config.put("mediaTypes", new HashMap<String, String>() { { put("path", "/different-media-type"); put("method", "POST"); } });
-        config.put("operationOne", new HashMap<String, String>() { { put("path", "/path/{pathParam}"); put("method", "POST"); } });
-        config.put("withoutOperationIdDelete", new HashMap<String, String>() { { put("path", "/without-operation-id"); put("method", "DELETE"); } });
+    /**
+     * Returns the operation lookup information for the TypeSafeRestApi construct
+     */
+    public static Map<String, OperationLookupEntry> getOperationLookup() {
+        final Map<String, OperationLookupEntry> config = new HashMap<>();
+
+        config.put("anyRequestResponse", OperationLookupEntry.builder()
+            .path("/any-request-response")
+            .method("PUT")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
+        config.put("empty", OperationLookupEntry.builder()
+            .path("/empty-response")
+            .method("PUT")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
+        config.put("mediaTypes", OperationLookupEntry.builder()
+            .path("/different-media-type")
+            .method("POST")
+            .contentTypes(Arrays.asList("application/pdf"))
+            .build());
+        config.put("multipleContentTypes", OperationLookupEntry.builder()
+            .path("/multiple-content-types")
+            .method("POST")
+            .contentTypes(Arrays.asList("application/json","application/pdf"))
+            .build());
+        config.put("operationOne", OperationLookupEntry.builder()
+            .path("/path/{pathParam}")
+            .method("POST")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
+        config.put("withoutOperationIdDelete", OperationLookupEntry.builder()
+            .path("/without-operation-id")
+            .method("DELETE")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
 
         return config;
     }
@@ -11814,6 +12355,7 @@ public class Operations {
                 .anyRequestResponse(value)
                 .empty(value)
                 .mediaTypes(value)
+                .multipleContentTypes(value)
                 .operationOne(value)
                 .withoutOperationIdDelete(value)
                 ;
