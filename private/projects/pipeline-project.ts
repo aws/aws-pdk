@@ -111,10 +111,10 @@ export class PipelinePythonSampleProject extends PythonProject {
     installTask.reset();
     installTask.exec("pip install --upgrade pip");
     installTask.exec(
-      'cat requirements.txt | cut -f1 -d"#" | xargs -n 1 pip install || echo "\\033[33mInstalled with some errors\\033[0m"'
+      'cat requirements.txt | cut -f1 -d"#" | xargs -n 1 pip install --force-reinstall || echo "\\033[33mInstalled with some errors\\033[0m"'
     );
     installTask.exec(
-      'cat requirements-dev.txt | cut -f1 -d"#" | xargs -n 1 pip install || echo "\\033[33mInstalled with some errors\\033[0m"'
+      'cat requirements-dev.txt | cut -f1 -d"#" | xargs -n 1 pip install --force-reinstall || echo "\\033[33mInstalled with some errors\\033[0m"'
     );
 
     this.preCompileTask.spawn(installTask);

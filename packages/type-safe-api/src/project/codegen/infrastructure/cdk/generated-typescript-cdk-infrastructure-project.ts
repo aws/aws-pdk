@@ -57,6 +57,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
           lib: ["dom", "es2019"],
         },
       },
+      npmignoreEnabled: false,
     });
     this.specPath = options.specPath;
     this.generatedTypescriptTypes = options.generatedTypescriptTypes;

@@ -26,6 +26,15 @@ describe("NX Monorepo Unit Tests", () => {
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
 
+  it("Disable Node Warnings", () => {
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "mainline",
+      name: "DisableNodeWarnings",
+      disableNodeWarnings: true,
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
   it("Target Dependencies", () => {
     const project = new NxMonorepoProject({
       defaultReleaseBranch: "mainline",
