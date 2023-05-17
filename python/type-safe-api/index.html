@@ -2299,6 +2299,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#mockintegrationresponse" class="md-nav__link">
+    MockIntegrationResponse 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#modelconfiguration" class="md-nav__link">
     ModelConfiguration 
   </a>
@@ -2327,8 +2334,22 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#operationdetails" class="md-nav__link">
+    OperationDetails 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#runtimeconfiguration" class="md-nav__link">
     RuntimeConfiguration 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serializedcorsoptions" class="md-nav__link">
+    SerializedCorsOptions 
   </a>
   
 </li>
@@ -2496,6 +2517,13 @@
           <li class="md-nav__item">
   <a href="#lambdaintegration" class="md-nav__link">
     LambdaIntegration 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mockintegration" class="md-nav__link">
+    MockIntegration 
   </a>
   
 </li>
@@ -3092,7 +3120,12 @@ aws-prototyping-sdk library.</p>
 <h4 id="integrations">Integrations</h4>
 <p>Integrations are used by API Gateway to service requests.</p>
 <h5 id="lambda-integration">Lambda Integration</h5>
-<p>Currently, the only built-in integration is a lambda integration. You can construct one using <code>Integrations.lambda(yourLambdaFunction)</code>.</p>
+<p>For integrating an API operation with a lambda, you can use <code>Integrations.lambda(yourLambdaFunction)</code>.</p>
+<h5 id="mock-integration">Mock Integration</h5>
+<p>To mock an API operation, you can use <code>Integrations.mock</code>. API gateway will respond with the status code and body provided, eg:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="n">Integrations</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">JSON</span><span class="o">.</span><span class="n">stringify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;hello world!&quot;</span><span class="p">}))</span>
+</code></pre></div>
 <h5 id="custom-integrations">Custom Integrations</h5>
 <p>You can implement your own integrations by inheriting the <code>Integration</code> class and implementing its <code>render</code> method. This method is responsible for returning a snippet of OpenAPI which will be added as the <code>x-amazon-apigateway-integration</code> for an operation. Please refer to the <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html">API Gateway Swagger Extensions documentation</a> for more details.</p>
 <p>You can also optionally override the <code>grant</code> method if you need to use CDK to grant API Gateway access to invoke your integration.</p>
@@ -4094,7 +4127,7 @@ npx<span class="w"> </span>cdk<span class="w"> </span>synth<span class="w"> </sp
   <span class="n">rest_api_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">retain_deployments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">integrations</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">TypeSafeApiIntegration</span><span class="p">],</span>
-  <span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">MethodAndPath</span><span class="p">],</span>
+  <span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">OperationDetails</span><span class="p">],</span>
   <span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">spec_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -4192,7 +4225,7 @@ npx<span class="w"> </span>cdk<span class="w"> </span>synth<span class="w"> </sp
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.Initializer.parameter.operationLookup">operation_lookup</a></code></td>
-<td><code>typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.MethodAndPath">MethodAndPath</a>]</code></td>
+<td><code>typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails">OperationDetails</a>]</code></td>
 <td>Details about each operation.</td>
 </tr>
 <tr>
@@ -4354,7 +4387,7 @@ Console.</p>
 <hr />
 <h5 id="operation_lookuprequired"><code>operation_lookup</code><sup>Required</sup> <a name="operation_lookup" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.Initializer.parameter.operationLookup"></a></h5>
 <ul>
-<li><em>Type:</em> typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.MethodAndPath">MethodAndPath</a>]</li>
+<li><em>Type:</em> typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails">OperationDetails</a>]</li>
 </ul>
 <p>Details about each operation.</p>
 <hr />
@@ -5502,6 +5535,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">IntegrationGrantProps</span><span class="p">(</span>
   <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">api</span><span class="p">:</span> <span class="n">SpecRestApi</span><span class="p">,</span>
   <span class="n">operation_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span>
@@ -5526,6 +5560,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.IntegrationGrantProps.property.path">path</a></code></td>
 <td><code>str</code></td>
 <td>The path of this operation in the api.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.IntegrationGrantProps.property.contentTypes">content_types</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Content types accepted by this operation.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.IntegrationGrantProps.property.api">api</a></code></td>
@@ -5561,6 +5600,15 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>The path of this operation in the api.</p>
 <hr />
+<h5 id="content_typesoptional"><code>content_types</code><sup>Optional</sup> <a name="content_types" id="@aws-prototyping-sdk/type-safe-api.IntegrationGrantProps.property.contentTypes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> application/json</li>
+</ul>
+<p>Content types accepted by this operation.</p>
+<hr />
 <h5 id="apirequired_1"><code>api</code><sup>Required</sup> <a name="api" id="@aws-prototyping-sdk/type-safe-api.IntegrationGrantProps.property.api"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">api</span><span class="p">:</span> <span class="n">SpecRestApi</span>
 </code></pre></div>
@@ -5593,8 +5641,10 @@ applied to all methods without an authorizer at the integration level.</p>
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">IntegrationRenderProps</span><span class="p">(</span>
   <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">operation_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-  <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span>
+  <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span><span class="p">,</span>
+  <span class="n">cors_options</span><span class="p">:</span> <span class="n">SerializedCorsOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
 <h4 id="properties_15">Properties <a name="Properties" id="Properties"></a></h4>
@@ -5618,6 +5668,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td>The path of this operation in the api.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps.property.contentTypes">content_types</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Content types accepted by this operation.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps.property.operationId">operation_id</a></code></td>
 <td><code>str</code></td>
 <td>The ID of the operation being rendered.</td>
@@ -5626,6 +5681,11 @@ applied to all methods without an authorizer at the integration level.</p>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps.property.scope">scope</a></code></td>
 <td><code>constructs.Construct</code></td>
 <td>The scope in which the integration is being rendered.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps.property.corsOptions">cors_options</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions">SerializedCorsOptions</a></code></td>
+<td>Cross Origin Resource Sharing options for the API.</td>
 </tr>
 </tbody>
 </table>
@@ -5646,6 +5706,15 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>The path of this operation in the api.</p>
 <hr />
+<h5 id="content_typesoptional_1"><code>content_types</code><sup>Optional</sup> <a name="content_types" id="@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps.property.contentTypes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> application/json</li>
+</ul>
+<p>Content types accepted by this operation.</p>
+<hr />
 <h5 id="operation_idrequired_1"><code>operation_id</code><sup>Required</sup> <a name="operation_id" id="@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps.property.operationId"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">operation_id</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
@@ -5661,6 +5730,14 @@ applied to all methods without an authorizer at the integration level.</p>
 <li><em>Type:</em> constructs.Construct</li>
 </ul>
 <p>The scope in which the integration is being rendered.</p>
+<hr />
+<h5 id="cors_optionsoptional_1"><code>cors_options</code><sup>Optional</sup> <a name="cors_options" id="@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps.property.corsOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">cors_options</span><span class="p">:</span> <span class="n">SerializedCorsOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions">SerializedCorsOptions</a></li>
+</ul>
+<p>Cross Origin Resource Sharing options for the API.</p>
 <hr />
 <h3 id="libraryconfiguration">LibraryConfiguration <a name="LibraryConfiguration" id="@aws-prototyping-sdk/type-safe-api.LibraryConfiguration"></a></h3>
 <p>Configuration for generated libraries.</p>
@@ -5811,9 +5888,58 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>The path of this operation in the api.</p>
 <hr />
+<h3 id="mockintegrationresponse">MockIntegrationResponse <a name="MockIntegrationResponse" id="@aws-prototyping-sdk/type-safe-api.MockIntegrationResponse"></a></h3>
+<p>Properties for a mock integration response.</p>
+<h4 id="initializer_18">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.MockIntegrationResponse.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
+
+<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">MockIntegrationResponse</span><span class="p">(</span>
+  <span class="n">status_code</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+  <span class="n">body</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="properties_19">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.MockIntegrationResponse.property.statusCode">status_code</a></code></td>
+<td><code>typing.Union[int, float]</code></td>
+<td>HTTP response status code.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.MockIntegrationResponse.property.body">body</a></code></td>
+<td><code>str</code></td>
+<td>Response body.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="status_coderequired_1"><code>status_code</code><sup>Required</sup> <a name="status_code" id="@aws-prototyping-sdk/type-safe-api.MockIntegrationResponse.property.statusCode"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">status_code</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+</ul>
+<p>HTTP response status code.</p>
+<hr />
+<h5 id="bodyoptional"><code>body</code><sup>Optional</sup> <a name="body" id="@aws-prototyping-sdk/type-safe-api.MockIntegrationResponse.property.body"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">body</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Response body.</p>
+<hr />
 <h3 id="modelconfiguration">ModelConfiguration <a name="ModelConfiguration" id="@aws-prototyping-sdk/type-safe-api.ModelConfiguration"></a></h3>
 <p>Configuration for modelling the API.</p>
-<h4 id="initializer_18">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelConfiguration.Initializer"></a></h4>
+<h4 id="initializer_19">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">ModelConfiguration</span><span class="p">(</span>
@@ -5821,7 +5947,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">options</span><span class="p">:</span> <span class="n">ModelOptions</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_19">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_20">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5862,7 +5988,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="modeloptions">ModelOptions <a name="ModelOptions" id="@aws-prototyping-sdk/type-safe-api.ModelOptions"></a></h3>
 <p>Options for models.</p>
-<h4 id="initializer_19">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelOptions.Initializer"></a></h4>
+<h4 id="initializer_20">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">ModelOptions</span><span class="p">(</span>
@@ -5870,7 +5996,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">smithy</span><span class="p">:</span> <span class="n">SmithyModelOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_20">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_21">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5911,14 +6037,14 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="openapidefinitionoptions">OpenApiDefinitionOptions <a name="OpenApiDefinitionOptions" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions"></a></h3>
 <p>Options for the OpenAPI Spec.</p>
-<h4 id="initializer_20">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions.Initializer"></a></h4>
+<h4 id="initializer_21">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">OpenApiDefinitionOptions</span><span class="p">(</span>
   <span class="n">open_api_options</span><span class="p">:</span> <span class="n">OpenApiModelOptions</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_21">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_22">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5946,14 +6072,14 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="openapimodeloptions">OpenApiModelOptions <a name="OpenApiModelOptions" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions"></a></h3>
 <p>Options for the OpenAPI model.</p>
-<h4 id="initializer_21">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions.Initializer"></a></h4>
+<h4 id="initializer_22">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">OpenApiModelOptions</span><span class="p">(</span>
   <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_22">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_23">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5979,9 +6105,73 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>The title in the OpenAPI specification.</p>
 <hr />
+<h3 id="operationdetails">OperationDetails <a name="OperationDetails" id="@aws-prototyping-sdk/type-safe-api.OperationDetails"></a></h3>
+<p>Details about an API operation.</p>
+<h4 id="initializer_23">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OperationDetails.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
+
+<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">OperationDetails</span><span class="p">(</span>
+  <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="properties_24">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails.property.method">method</a></code></td>
+<td><code>str</code></td>
+<td>The http method of this operation.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails.property.path">path</a></code></td>
+<td><code>str</code></td>
+<td>The path of this operation in the api.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails.property.contentTypes">content_types</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Content types accepted by this operation.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="methodrequired_3"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/type-safe-api.OperationDetails.property.method"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">method</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The http method of this operation.</p>
+<hr />
+<h5 id="pathrequired_3"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/type-safe-api.OperationDetails.property.path"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The path of this operation in the api.</p>
+<hr />
+<h5 id="content_typesoptional_2"><code>content_types</code><sup>Optional</sup> <a name="content_types" id="@aws-prototyping-sdk/type-safe-api.OperationDetails.property.contentTypes"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> application/json</li>
+</ul>
+<p>Content types accepted by this operation.</p>
+<hr />
 <h3 id="runtimeconfiguration">RuntimeConfiguration <a name="RuntimeConfiguration" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration"></a></h3>
 <p>Configuration for generated runtime projects.</p>
-<h4 id="initializer_22">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration.Initializer"></a></h4>
+<h4 id="initializer_24">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">RuntimeConfiguration</span><span class="p">(</span>
@@ -5989,7 +6179,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">options</span><span class="p">:</span> <span class="n">GeneratedCodeOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_23">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_25">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6031,9 +6221,86 @@ both client and server projects.</p>
 <p>Options for the generated runtimes.</p>
 <p>Note that only options provided for the specified languages will apply.</p>
 <hr />
+<h3 id="serializedcorsoptions">SerializedCorsOptions <a name="SerializedCorsOptions" id="@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions"></a></h3>
+<p>Cross-origin resource sharing options.</p>
+<h4 id="initializer_25">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
+
+<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SerializedCorsOptions</span><span class="p">(</span>
+  <span class="n">allow_headers</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+  <span class="n">allow_methods</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+  <span class="n">allow_origins</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+  <span class="n">status_code</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="properties_26">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions.property.allowHeaders">allow_headers</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Headers to allow.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions.property.allowMethods">allow_methods</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>HTTP methods to allow.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions.property.allowOrigins">allow_origins</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>Origins to allow.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions.property.statusCode">status_code</a></code></td>
+<td><code>typing.Union[int, float]</code></td>
+<td>HTTP status code to be returned by preflight requests.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="allow_headersrequired"><code>allow_headers</code><sup>Required</sup> <a name="allow_headers" id="@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions.property.allowHeaders"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">allow_headers</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>Headers to allow.</p>
+<hr />
+<h5 id="allow_methodsrequired"><code>allow_methods</code><sup>Required</sup> <a name="allow_methods" id="@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions.property.allowMethods"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">allow_methods</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>HTTP methods to allow.</p>
+<hr />
+<h5 id="allow_originsrequired"><code>allow_origins</code><sup>Required</sup> <a name="allow_origins" id="@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions.property.allowOrigins"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">allow_origins</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+</ul>
+<p>Origins to allow.</p>
+<hr />
+<h5 id="status_coderequired_2"><code>status_code</code><sup>Required</sup> <a name="status_code" id="@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions.property.statusCode"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">status_code</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+</ul>
+<p>HTTP status code to be returned by preflight requests.</p>
+<hr />
 <h3 id="smithybuildoptions">SmithyBuildOptions <a name="SmithyBuildOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions"></a></h3>
 <p>Options for the smithy build files.</p>
-<h4 id="initializer_23">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions.Initializer"></a></h4>
+<h4 id="initializer_26">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyBuildOptions</span><span class="p">(</span>
@@ -6044,7 +6311,7 @@ both client and server projects.</p>
   <span class="n">projections</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">SmithyProjection</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_24">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_27">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6129,7 +6396,7 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithycommon">SmithyCommon <a name="SmithyCommon" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon"></a></h3>
 <p>Properties common to smithy plugins and the root smithy build.</p>
-<h4 id="initializer_24">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon.Initializer"></a></h4>
+<h4 id="initializer_27">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyCommon</span><span class="p">(</span>
@@ -6137,7 +6404,7 @@ even if a plugin can't be found on the classpath.</p>
   <span class="n">plugins</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_25">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_28">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6178,14 +6445,14 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithydefinitionoptions">SmithyDefinitionOptions <a name="SmithyDefinitionOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions"></a></h3>
 <p>Options for a smithy build project.</p>
-<h4 id="initializer_25">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions.Initializer"></a></h4>
+<h4 id="initializer_28">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyDefinitionOptions</span><span class="p">(</span>
   <span class="n">smithy_options</span><span class="p">:</span> <span class="n">SmithyModelOptions</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_26">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_29">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6213,7 +6480,7 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithymavenconfiguration">SmithyMavenConfiguration <a name="SmithyMavenConfiguration" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration"></a></h3>
 <p>Configuration for smithy maven dependencies.</p>
-<h4 id="initializer_26">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration.Initializer"></a></h4>
+<h4 id="initializer_29">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyMavenConfiguration</span><span class="p">(</span>
@@ -6221,7 +6488,7 @@ even if a plugin can't be found on the classpath.</p>
   <span class="n">repository_urls</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_27">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_30">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6263,7 +6530,7 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithymodeloptions">SmithyModelOptions <a name="SmithyModelOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions"></a></h3>
 <p>Options for a Smithy model.</p>
-<h4 id="initializer_27">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions.Initializer"></a></h4>
+<h4 id="initializer_30">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyModelOptions</span><span class="p">(</span>
@@ -6273,7 +6540,7 @@ even if a plugin can't be found on the classpath.</p>
   <span class="n">smithy_build_options</span><span class="p">:</span> <span class="n">SmithyBuildOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_28">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_31">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6344,7 +6611,7 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="smithyprojection">SmithyProjection <a name="SmithyProjection" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection"></a></h3>
 <p>A smithy build projection.</p>
-<h4 id="initializer_28">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection.Initializer"></a></h4>
+<h4 id="initializer_31">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyProjection</span><span class="p">(</span>
@@ -6354,7 +6621,7 @@ of gradle to the one provided by default</p>
   <span class="n">transforms</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">SmithyTransform</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_29">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_32">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6424,7 +6691,7 @@ of gradle to the one provided by default</p>
 <blockquote>
 <p><a href="https://awslabs.github.io/smithy/2.0/spec/service-types.html">https://awslabs.github.io/smithy/2.0/spec/service-types.html</a></p>
 </blockquote>
-<h4 id="initializer_29">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyServiceName.Initializer"></a></h4>
+<h4 id="initializer_32">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyServiceName.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyServiceName</span><span class="p">(</span>
@@ -6432,7 +6699,7 @@ of gradle to the one provided by default</p>
   <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_30">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_33">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6481,7 +6748,7 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="smithytransform">SmithyTransform <a name="SmithyTransform" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform"></a></h3>
 <p>A smithy build transform.</p>
-<h4 id="initializer_30">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform.Initializer"></a></h4>
+<h4 id="initializer_33">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyTransform</span><span class="p">(</span>
@@ -6489,7 +6756,7 @@ of gradle to the one provided by default</p>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_31">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_34">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6530,7 +6797,7 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="typesafeapiintegration">TypeSafeApiIntegration <a name="TypeSafeApiIntegration" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration"></a></h3>
 <p>Defines an integration for an individual API operation.</p>
-<h4 id="initializer_31">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.Initializer"></a></h4>
+<h4 id="initializer_34">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiIntegration</span><span class="p">(</span>
@@ -6538,7 +6805,7 @@ of gradle to the one provided by default</p>
   <span class="n">authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_32">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_35">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6578,7 +6845,7 @@ of gradle to the one provided by default</p>
 <p>The authorizer to use for this api operation (overrides the default).</p>
 <hr />
 <h3 id="typesafeapimodelprojectoptions">TypeSafeApiModelProjectOptions <a name="TypeSafeApiModelProjectOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions"></a></h3>
-<h4 id="initializer_32">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_35">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiModelProjectOptions</span><span class="p">(</span>
@@ -6598,7 +6865,7 @@ of gradle to the one provided by default</p>
   <span class="n">model_options</span><span class="p">:</span> <span class="n">ModelOptions</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_33">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_36">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6807,17 +7074,17 @@ sub-projects.</p>
 <hr />
 <h3 id="typesafeapioptions">TypeSafeApiOptions <a name="TypeSafeApiOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions"></a></h3>
 <p>Options required alongside an Open API specification to create API Gateway resources.</p>
-<h4 id="initializer_33">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.Initializer"></a></h4>
+<h4 id="initializer_36">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiOptions</span><span class="p">(</span>
   <span class="n">integrations</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">TypeSafeApiIntegration</span><span class="p">],</span>
-  <span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">MethodAndPath</span><span class="p">],</span>
+  <span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">OperationDetails</span><span class="p">],</span>
   <span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_34">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_37">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6834,7 +7101,7 @@ sub-projects.</p>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.property.operationLookup">operation_lookup</a></code></td>
-<td><code>typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.MethodAndPath">MethodAndPath</a>]</code></td>
+<td><code>typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails">OperationDetails</a>]</code></td>
 <td>Details about each operation.</td>
 </tr>
 <tr>
@@ -6859,14 +7126,14 @@ sub-projects.</p>
 <p>A mapping of API operation to its integration.</p>
 <hr />
 <h5 id="operation_lookuprequired_1"><code>operation_lookup</code><sup>Required</sup> <a name="operation_lookup" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.property.operationLookup"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">MethodAndPath</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">OperationDetails</span><span class="p">]</span>
 </code></pre></div>
 <ul>
-<li><em>Type:</em> typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.MethodAndPath">MethodAndPath</a>]</li>
+<li><em>Type:</em> typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails">OperationDetails</a>]</li>
 </ul>
 <p>Details about each operation.</p>
 <hr />
-<h5 id="cors_optionsoptional_1"><code>cors_options</code><sup>Optional</sup> <a name="cors_options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.property.corsOptions"></a></h5>
+<h5 id="cors_optionsoptional_2"><code>cors_options</code><sup>Optional</sup> <a name="cors_options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.property.corsOptions"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span>
 </code></pre></div>
 <ul>
@@ -6886,7 +7153,7 @@ Authorizers specified at the integration level will override this for that opera
 <hr />
 <h3 id="typesafeapiprojectoptions">TypeSafeApiProjectOptions <a name="TypeSafeApiProjectOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions"></a></h3>
 <p>Options for the TypeSafeApiProject.</p>
-<h4 id="initializer_34">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_37">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiProjectOptions</span><span class="p">(</span>
@@ -6909,7 +7176,7 @@ Authorizers specified at the integration level will override this for that opera
   <span class="n">library</span><span class="p">:</span> <span class="n">LibraryConfiguration</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_35">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_38">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7161,7 +7428,7 @@ fully-fledged runtimes, for example react hooks or clients in languages that are
 <hr />
 <h3 id="typesafeapiwebacloptions">TypeSafeApiWebAclOptions <a name="TypeSafeApiWebAclOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions"></a></h3>
 <p>Configuration for the Web ACL associated with the API.</p>
-<h4 id="initializer_35">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions.Initializer"></a></h4>
+<h4 id="initializer_38">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiWebAclOptions</span><span class="p">(</span>
@@ -7170,7 +7437,7 @@ fully-fledged runtimes, for example react hooks or clients in languages that are
   <span class="n">managed_rules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ManagedRule</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_36">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_39">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7229,7 +7496,7 @@ your own WebACL and associate it yourself.</p>
 <hr />
 <h3 id="typesaferestapiprops">TypeSafeRestApiProps <a name="TypeSafeRestApiProps" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps"></a></h3>
 <p>Configuration for the TypeSafeRestApi construct.</p>
-<h4 id="initializer_36">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.Initializer"></a></h4>
+<h4 id="initializer_39">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeRestApiProps</span><span class="p">(</span>
@@ -7247,14 +7514,14 @@ your own WebACL and associate it yourself.</p>
   <span class="n">rest_api_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">retain_deployments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">integrations</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">TypeSafeApiIntegration</span><span class="p">],</span>
-  <span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">MethodAndPath</span><span class="p">],</span>
+  <span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">OperationDetails</span><span class="p">],</span>
   <span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">spec_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">web_acl_options</span><span class="p">:</span> <span class="n">TypeSafeApiWebAclOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_37">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_40">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7336,7 +7603,7 @@ your own WebACL and associate it yourself.</p>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.property.operationLookup">operation_lookup</a></code></td>
-<td><code>typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.MethodAndPath">MethodAndPath</a>]</code></td>
+<td><code>typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails">OperationDetails</a>]</code></td>
 <td>Details about each operation.</td>
 </tr>
 <tr>
@@ -7515,14 +7782,14 @@ Console.</p>
 <p>A mapping of API operation to its integration.</p>
 <hr />
 <h5 id="operation_lookuprequired_2"><code>operation_lookup</code><sup>Required</sup> <a name="operation_lookup" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.property.operationLookup"></a></h5>
-<div class="highlight"><pre><span></span><code><span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">MethodAndPath</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">OperationDetails</span><span class="p">]</span>
 </code></pre></div>
 <ul>
-<li><em>Type:</em> typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.MethodAndPath">MethodAndPath</a>]</li>
+<li><em>Type:</em> typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails">OperationDetails</a>]</li>
 </ul>
 <p>Details about each operation.</p>
 <hr />
-<h5 id="cors_optionsoptional_2"><code>cors_options</code><sup>Optional</sup> <a name="cors_options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.property.corsOptions"></a></h5>
+<h5 id="cors_optionsoptional_3"><code>cors_options</code><sup>Optional</sup> <a name="cors_options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.property.corsOptions"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span>
 </code></pre></div>
 <ul>
@@ -7615,7 +7882,7 @@ rule set will be associated with the API. These options may disable or override 
 </ul>
 <p>Scopes for the authorizer, if any.</p>
 <hr />
-<h4 id="properties_38">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_41">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7909,7 +8176,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>the scopes to apply.</p>
 <hr />
-<h4 id="properties_39">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_42">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8063,7 +8330,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type</a></p>
 </blockquote>
 <hr />
-<h4 id="properties_40">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_43">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8197,7 +8464,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </tbody>
 </table>
 <hr />
-<h4 id="properties_41">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_44">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8298,23 +8565,31 @@ applied to all methods without an authorizer at the integration level.</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">grant</span><span class="p">(</span>
   <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">api</span><span class="p">:</span> <span class="n">SpecRestApi</span><span class="p">,</span>
   <span class="n">operation_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 <p>Grant permissions for the API to invoke the integration.</p>
-<h6 id="methodrequired_3"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/type-safe-api.Integration.grant.parameter.method"></a></h6>
+<h6 id="methodrequired_4"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/type-safe-api.Integration.grant.parameter.method"></a></h6>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The http method of this operation.</p>
 <hr />
-<h6 id="pathrequired_3"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/type-safe-api.Integration.grant.parameter.path"></a></h6>
+<h6 id="pathrequired_4"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/type-safe-api.Integration.grant.parameter.path"></a></h6>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The path of this operation in the api.</p>
+<hr />
+<h6 id="content_typesoptional_3"><code>content_types</code><sup>Optional</sup> <a name="content_types" id="@aws-prototyping-sdk/type-safe-api.Integration.grant.parameter.contentTypes"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> application/json</li>
+</ul>
+<p>Content types accepted by this operation.</p>
 <hr />
 <h6 id="apirequired_2"><code>api</code><sup>Required</sup> <a name="api" id="@aws-prototyping-sdk/type-safe-api.Integration.grant.parameter.api"></a></h6>
 <ul>
@@ -8338,22 +8613,31 @@ applied to all methods without an authorizer at the integration level.</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">render</span><span class="p">(</span>
   <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">operation_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-  <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span>
+  <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span><span class="p">,</span>
+  <span class="n">cors_options</span><span class="p">:</span> <span class="n">SerializedCorsOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiGatewayIntegration</span>
 </code></pre></div>
 <p>Render the integration into an API Gateway OpenAPI extension.</p>
-<h6 id="methodrequired_4"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/type-safe-api.Integration.render.parameter.method"></a></h6>
+<h6 id="methodrequired_5"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/type-safe-api.Integration.render.parameter.method"></a></h6>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The http method of this operation.</p>
 <hr />
-<h6 id="pathrequired_4"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/type-safe-api.Integration.render.parameter.path"></a></h6>
+<h6 id="pathrequired_5"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/type-safe-api.Integration.render.parameter.path"></a></h6>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The path of this operation in the api.</p>
+<hr />
+<h6 id="content_typesoptional_4"><code>content_types</code><sup>Optional</sup> <a name="content_types" id="@aws-prototyping-sdk/type-safe-api.Integration.render.parameter.contentTypes"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> application/json</li>
+</ul>
+<p>Content types accepted by this operation.</p>
 <hr />
 <h6 id="operation_idrequired_3"><code>operation_id</code><sup>Required</sup> <a name="operation_id" id="@aws-prototyping-sdk/type-safe-api.Integration.render.parameter.operationId"></a></h6>
 <ul>
@@ -8366,6 +8650,12 @@ applied to all methods without an authorizer at the integration level.</p>
 <li><em>Type:</em> constructs.Construct</li>
 </ul>
 <p>The scope in which the integration is being rendered.</p>
+<hr />
+<h6 id="cors_optionsoptional_4"><code>cors_options</code><sup>Optional</sup> <a name="cors_options" id="@aws-prototyping-sdk/type-safe-api.Integration.render.parameter.corsOptions"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions">SerializedCorsOptions</a></li>
+</ul>
+<p>Cross Origin Resource Sharing options for the API.</p>
 <hr />
 <h3 id="integrations_1">Integrations <a name="Integrations" id="@aws-prototyping-sdk/type-safe-api.Integrations"></a></h3>
 <p>A collection of integrations to connect API operations with a backend to service requests.</p>
@@ -8404,6 +8694,10 @@ applied to all methods without an authorizer at the integration level.</p>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.Integrations.lambda">lambda</a></code></td>
 <td>An integration that invokes a lambda function to service the request.</td>
 </tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.Integrations.mock">mock</a></code></td>
+<td>An integration that returns a hardcoded response.</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -8420,6 +8714,27 @@ applied to all methods without an authorizer at the integration level.</p>
 <li><em>Type:</em> aws_cdk.aws_lambda.IFunction</li>
 </ul>
 <p>the function to invoke.</p>
+<hr />
+<h5 id="mock"><code>mock</code> <a name="mock" id="@aws-prototyping-sdk/type-safe-api.Integrations.mock"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
+
+<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">Integrations</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span>
+  <span class="n">status_code</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+  <span class="n">body</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>An integration that returns a hardcoded response.</p>
+<h6 id="status_coderequired_3"><code>status_code</code><sup>Required</sup> <a name="status_code" id="@aws-prototyping-sdk/type-safe-api.Integrations.mock.parameter.statusCode"></a></h6>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+</ul>
+<p>HTTP response status code.</p>
+<hr />
+<h6 id="bodyoptional_1"><code>body</code><sup>Optional</sup> <a name="body" id="@aws-prototyping-sdk/type-safe-api.Integrations.mock.parameter.body"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Response body.</p>
 <hr />
 <h3 id="lambdaintegration">LambdaIntegration <a name="LambdaIntegration" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration"></a></h3>
 <p>A lambda integration.</p>
@@ -8476,23 +8791,31 @@ applied to all methods without an authorizer at the integration level.</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">grant</span><span class="p">(</span>
   <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">api</span><span class="p">:</span> <span class="n">SpecRestApi</span><span class="p">,</span>
   <span class="n">operation_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 <p>Grant API Gateway permissions to invoke the lambda.</p>
-<h6 id="methodrequired_5"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.grant.parameter.method"></a></h6>
+<h6 id="methodrequired_6"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.grant.parameter.method"></a></h6>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The http method of this operation.</p>
 <hr />
-<h6 id="pathrequired_5"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.grant.parameter.path"></a></h6>
+<h6 id="pathrequired_6"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.grant.parameter.path"></a></h6>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The path of this operation in the api.</p>
+<hr />
+<h6 id="content_typesoptional_5"><code>content_types</code><sup>Optional</sup> <a name="content_types" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.grant.parameter.contentTypes"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> application/json</li>
+</ul>
+<p>Content types accepted by this operation.</p>
 <hr />
 <h6 id="apirequired_3"><code>api</code><sup>Required</sup> <a name="api" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.grant.parameter.api"></a></h6>
 <ul>
@@ -8516,22 +8839,31 @@ applied to all methods without an authorizer at the integration level.</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">render</span><span class="p">(</span>
   <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">operation_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-  <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span>
+  <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span><span class="p">,</span>
+  <span class="n">cors_options</span><span class="p">:</span> <span class="n">SerializedCorsOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiGatewayIntegration</span>
 </code></pre></div>
 <p>Render the lambda integration as a snippet of OpenAPI.</p>
-<h6 id="methodrequired_6"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.render.parameter.method"></a></h6>
+<h6 id="methodrequired_7"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.render.parameter.method"></a></h6>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The http method of this operation.</p>
 <hr />
-<h6 id="pathrequired_6"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.render.parameter.path"></a></h6>
+<h6 id="pathrequired_7"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.render.parameter.path"></a></h6>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
 <p>The path of this operation in the api.</p>
+<hr />
+<h6 id="content_typesoptional_6"><code>content_types</code><sup>Optional</sup> <a name="content_types" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.render.parameter.contentTypes"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> application/json</li>
+</ul>
+<p>Content types accepted by this operation.</p>
 <hr />
 <h6 id="operation_idrequired_5"><code>operation_id</code><sup>Required</sup> <a name="operation_id" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.render.parameter.operationId"></a></h6>
 <ul>
@@ -8545,9 +8877,178 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>The scope in which the integration is being rendered.</p>
 <hr />
+<h6 id="cors_optionsoptional_5"><code>cors_options</code><sup>Optional</sup> <a name="cors_options" id="@aws-prototyping-sdk/type-safe-api.LambdaIntegration.render.parameter.corsOptions"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions">SerializedCorsOptions</a></li>
+</ul>
+<p>Cross Origin Resource Sharing options for the API.</p>
+<hr />
+<h3 id="mockintegration">MockIntegration <a name="MockIntegration" id="@aws-prototyping-sdk/type-safe-api.MockIntegration"></a></h3>
+<p>A mock integration to return a hardcoded response.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integration.html">https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integration.html</a></p>
+</blockquote>
+<h4 id="initializers_9">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
+
+<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">MockIntegration</span><span class="p">(</span>
+  <span class="n">status_code</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+  <span class="n">body</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.MockIntegration.Initializer.parameter.statusCode">status_code</a></code></td>
+<td><code>typing.Union[int, float]</code></td>
+<td>HTTP response status code.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.MockIntegration.Initializer.parameter.body">body</a></code></td>
+<td><code>str</code></td>
+<td>Response body.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="status_coderequired_4"><code>status_code</code><sup>Required</sup> <a name="status_code" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.Initializer.parameter.statusCode"></a></h5>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+</ul>
+<p>HTTP response status code.</p>
+<hr />
+<h5 id="bodyoptional_2"><code>body</code><sup>Optional</sup> <a name="body" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.Initializer.parameter.body"></a></h5>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>Response body.</p>
+<hr />
+<h4 id="methods_4">Methods <a name="Methods" id="Methods"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.MockIntegration.grant">grant</a></code></td>
+<td>Grant permissions for the API to invoke the integration.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.MockIntegration.render">render</a></code></td>
+<td>Render the integration into an API Gateway OpenAPI extension.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="grant_2"><code>grant</code> <a name="grant" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.grant"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">grant</span><span class="p">(</span>
+  <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">api</span><span class="p">:</span> <span class="n">SpecRestApi</span><span class="p">,</span>
+  <span class="n">operation_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+<p>Grant permissions for the API to invoke the integration.</p>
+<h6 id="methodrequired_8"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.grant.parameter.method"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The http method of this operation.</p>
+<hr />
+<h6 id="pathrequired_8"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.grant.parameter.path"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The path of this operation in the api.</p>
+<hr />
+<h6 id="content_typesoptional_7"><code>content_types</code><sup>Optional</sup> <a name="content_types" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.grant.parameter.contentTypes"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> application/json</li>
+</ul>
+<p>Content types accepted by this operation.</p>
+<hr />
+<h6 id="apirequired_4"><code>api</code><sup>Required</sup> <a name="api" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.grant.parameter.api"></a></h6>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_apigateway.SpecRestApi</li>
+</ul>
+<p>The api to grant permissions for.</p>
+<hr />
+<h6 id="operation_idrequired_6"><code>operation_id</code><sup>Required</sup> <a name="operation_id" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.grant.parameter.operationId"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The ID of the operation for which permissions are being granted.</p>
+<hr />
+<h6 id="scoperequired_7"><code>scope</code><sup>Required</sup> <a name="scope" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.grant.parameter.scope"></a></h6>
+<ul>
+<li><em>Type:</em> constructs.Construct</li>
+</ul>
+<p>The scope in which permission resources can be created.</p>
+<hr />
+<h5 id="render_2"><code>render</code> <a name="render" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.render"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">render</span><span class="p">(</span>
+  <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">operation_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span><span class="p">,</span>
+  <span class="n">cors_options</span><span class="p">:</span> <span class="n">SerializedCorsOptions</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiGatewayIntegration</span>
+</code></pre></div>
+<p>Render the integration into an API Gateway OpenAPI extension.</p>
+<h6 id="methodrequired_9"><code>method</code><sup>Required</sup> <a name="method" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.render.parameter.method"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The http method of this operation.</p>
+<hr />
+<h6 id="pathrequired_9"><code>path</code><sup>Required</sup> <a name="path" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.render.parameter.path"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The path of this operation in the api.</p>
+<hr />
+<h6 id="content_typesoptional_8"><code>content_types</code><sup>Optional</sup> <a name="content_types" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.render.parameter.contentTypes"></a></h6>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> application/json</li>
+</ul>
+<p>Content types accepted by this operation.</p>
+<hr />
+<h6 id="operation_idrequired_7"><code>operation_id</code><sup>Required</sup> <a name="operation_id" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.render.parameter.operationId"></a></h6>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
+<p>The ID of the operation being rendered.</p>
+<hr />
+<h6 id="scoperequired_8"><code>scope</code><sup>Required</sup> <a name="scope" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.render.parameter.scope"></a></h6>
+<ul>
+<li><em>Type:</em> constructs.Construct</li>
+</ul>
+<p>The scope in which the integration is being rendered.</p>
+<hr />
+<h6 id="cors_optionsoptional_6"><code>cors_options</code><sup>Optional</sup> <a name="cors_options" id="@aws-prototyping-sdk/type-safe-api.MockIntegration.render.parameter.corsOptions"></a></h6>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions">SerializedCorsOptions</a></li>
+</ul>
+<p>Cross Origin Resource Sharing options for the API.</p>
+<hr />
 <h3 id="noneauthorizer">NoneAuthorizer <a name="NoneAuthorizer" id="@aws-prototyping-sdk/type-safe-api.NoneAuthorizer"></a></h3>
 <p>No authorizer.</p>
-<h4 id="initializers_9">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.NoneAuthorizer.Initializer"></a></h4>
+<h4 id="initializers_10">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.NoneAuthorizer.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">NoneAuthorizer</span><span class="p">()</span>
@@ -8569,7 +9070,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </tbody>
 </table>
 <hr />
-<h4 id="properties_42">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_45">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8623,7 +9124,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="openapidefinition">OpenApiDefinition <a name="OpenApiDefinition" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition"></a></h3>
 <p>The OpenAPI Spec.</p>
-<h4 id="initializers_10">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.Initializer"></a></h4>
+<h4 id="initializers_11">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinition.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">OpenApiDefinition</span><span class="p">(</span>
@@ -8664,7 +9165,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>Options for the openapi model.</p>
 <hr />
-<h4 id="methods_4">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_5">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8701,7 +9202,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">synthesize</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 <p>Synthesizes files to the project output directory.</p>
-<h4 id="properties_43">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_46">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8741,7 +9242,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="smithydefinition">SmithyDefinition <a name="SmithyDefinition" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition"></a></h3>
 <p>Creates a project which transforms a Smithy model to OpenAPI.</p>
-<h4 id="initializers_11">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.Initializer"></a></h4>
+<h4 id="initializers_12">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinition.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyDefinition</span><span class="p">(</span>
@@ -8782,7 +9283,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>Smithy engine options.</p>
 <hr />
-<h4 id="methods_5">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_6">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8851,7 +9352,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>smithy definitions to depend on.</p>
 <hr />
-<h4 id="properties_44">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_47">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -8903,7 +9404,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <p>Path to the generated OpenAPI specification, relative to the project outdir.</p>
 <hr />
 <h3 id="typesafeapimodelproject">TypeSafeApiModelProject <a name="TypeSafeApiModelProject" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject"></a></h3>
-<h4 id="initializers_12">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.Initializer"></a></h4>
+<h4 id="initializers_13">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiModelProject</span><span class="p">(</span>
@@ -9101,7 +9602,7 @@ sub-projects.</p>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.ModelOptions">ModelOptions</a></li>
 </ul>
 <hr />
-<h4 id="methods_6">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_7">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -9432,7 +9933,7 @@ from the root of <em>this</em> project.</p>
 <p>If this path is relative, it will be
 resolved from the root of <em>this</em> project.</p>
 <hr />
-<h4 id="properties_45">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_48">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -9842,7 +10343,7 @@ this task should synthesize the project files.</p>
 <h3 id="typesafeapiproject">TypeSafeApiProject <a name="TypeSafeApiProject" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject"></a></h3>
 <p>Project for a type-safe API, defined using Smithy or OpenAPI.</p>
 <p>Generates a CDK construct to deploy your API, as well as client and server code to help build your API quickly.</p>
-<h4 id="initializers_13">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.Initializer"></a></h4>
+<h4 id="initializers_14">Initializers <a name="Initializers" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProject.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiProject</span><span class="p">(</span>
@@ -10080,7 +10581,7 @@ sub-projects.</p>
 <p>Libraries are projects which are generated from your model, but are not
 fully-fledged runtimes, for example react hooks or clients in languages that aren't supported as runtimes.</p>
 <hr />
-<h4 id="methods_7">Methods <a name="Methods" id="Methods"></a></h4>
+<h4 id="methods_8">Methods <a name="Methods" id="Methods"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10411,7 +10912,7 @@ from the root of <em>this</em> project.</p>
 <p>If this path is relative, it will be
 resolved from the root of <em>this</em> project.</p>
 <hr />
-<h4 id="properties_46">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_49">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
