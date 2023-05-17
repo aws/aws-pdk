@@ -50,8 +50,7 @@ run_command() {
   cmd="$@"
 
   if [ "$pkg_manager" == "pnpm" ]; then
-    # pnpx cli was deprecated in v6 --> use pnpm dlx
-    runner="pnpm dlx"
+    runner="pnpm exec"
   else
     runner="npx"
   fi
