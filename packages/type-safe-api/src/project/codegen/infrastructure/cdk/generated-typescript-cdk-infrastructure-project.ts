@@ -7,8 +7,12 @@ import {
   TypeScriptProject,
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
-import { Language } from "../../../languages";
-import { buildGenerateCdkInfrastructureCommand } from "../../components/utils";
+import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
+import {
+  buildCleanOpenApiGeneratedCodeCommand,
+  buildInvokeOpenApiGeneratorCommand,
+  OtherGenerators,
+} from "../../components/utils";
 import { GeneratedTypescriptRuntimeProject } from "../../runtime/generated-typescript-runtime-project";
 
 export interface GeneratedTypescriptCdkInfrastructureProjectOptions
@@ -78,9 +82,23 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       )
     );
 
+    // Ignore everything but the target files
+    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
+    openapiGeneratorIgnore.addPatterns(
+      "/*",
+      "**/*",
+      "*",
+      `!${this.srcdir}/index.ts`,
+      `!${this.srcdir}/api.ts`
+    );
+
     const generateInfraCommand = this.buildGenerateCommand();
+    const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);
 
     const generateTask = this.addTask("generate");
+    generateTask.exec(cleanCommand.command, {
+      cwd: path.relative(this.outdir, cleanCommand.workingDir),
+    });
     generateTask.exec(generateInfraCommand.command, {
       cwd: path.relative(this.outdir, generateInfraCommand.workingDir),
     });
@@ -88,7 +106,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
     this.preCompileTask.spawn(generateTask);
 
     // Ignore the generated code
-    this.gitignore.addPatterns("src");
+    this.gitignore.addPatterns(this.srcdir, ".openapi-generator");
 
     // If we're not in a monorepo, we need to link the generated types such that the local dependency can be resolved
     if (!options.isWithinMonorepo) {
@@ -121,13 +139,21 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
   }
 
   public buildGenerateCommand = () => {
-    return buildGenerateCdkInfrastructureCommand({
-      language: Language.TYPESCRIPT,
-      sourcePath: path.join(this.outdir, this.srcdir),
-      generatedTypesPackage: this.generatedTypescriptTypes.package.packageName,
-      infraPackage: this.package.packageName,
-      // Spec path relative to the source directory
-      specPath: path.join("..", this.specPath),
+    return buildInvokeOpenApiGeneratorCommand({
+      generator: "typescript-fetch",
+      specPath: this.specPath,
+      outputPath: this.outdir,
+      generatorDirectory: OtherGenerators.TYPESCRIPT_CDK_INFRASTRUCTURE,
+      srcDir: this.srcdir,
+      normalizers: {
+        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
+      },
+      extraVendorExtensions: {
+        "x-runtime-package-name":
+          this.generatedTypescriptTypes.package.packageName,
+        // Spec path relative to the source directory
+        "x-relative-spec-path": path.join("..", this.specPath),
+      },
     });
   };
 }

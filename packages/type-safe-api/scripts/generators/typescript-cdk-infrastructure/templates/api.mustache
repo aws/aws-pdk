@@ -1,10 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Typescript Infra Generation Script Unit Tests Generates 1`] = `
-{
-  "infra/src/api.ts": "import { TypeSafeRestApi, TypeSafeRestApiProps, TypeSafeApiIntegration } from "@aws-prototyping-sdk/type-safe-api";
+import { TypeSafeRestApi, TypeSafeRestApiProps, TypeSafeApiIntegration } from "@aws-prototyping-sdk/type-safe-api";
 import { Construct } from "constructs";
-import { OperationLookup, OperationConfig } from "test-client";
+import { OperationLookup, OperationConfig } from "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package-name}}{{/apis.0}}{{/apiInfo}}";
 import * as path from "path";
 
 export type ApiIntegrations = OperationConfig<TypeSafeApiIntegration>;
@@ -22,12 +18,8 @@ export class Api extends TypeSafeRestApi {
     super(scope, id, {
       ...props,
       integrations: props.integrations as any,
-      specPath: path.resolve(__dirname, "../../../../../../../resources/specs/single.yaml"),
+      specPath: path.resolve(__dirname, "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-relative-spec-path}}{{/apis.0}}{{/apiInfo}}"),
       operationLookup: OperationLookup as any,
     });
   }
 }
-",
-  "infra/src/index.ts": "export * from "./api"",
-}
-`;

@@ -10,6 +10,7 @@ generator_dir=''
 additional_properties=''
 openapi_normalizer=''
 src_dir='src'
+extra_vendor_extensions=''
 while [[ "$#" -gt 0 ]]; do case $1 in
   --spec-path) spec_path="$2"; shift;;
   --output-path) output_path="$2"; shift;;
@@ -18,6 +19,7 @@ while [[ "$#" -gt 0 ]]; do case $1 in
   --additional-properties) additional_properties="$2"; shift;;
   --openapi-normalizer) openapi_normalizer="$2"; shift;;
   --src-dir) src_dir="$2"; shift;;
+  --extra-vendor-extensions) extra_vendor_extensions="$2"; shift;;
 esac; shift; done
 
 echo "Generating OpenAPI $generator_dir ($generator)..."
@@ -39,7 +41,21 @@ log "generate :: tmp_dir :: $tmp_dir"
 cp -r $script_dir/$generator_dir/* .
 
 # Install dependencies
-install_packages @openapitools/openapi-generator-cli@2.6.0
+install_packages \
+  @openapitools/openapi-generator-cli@2.6.0 \
+  typescript@5.0.4 \
+  @types/node@20.1.5 \
+  ts-node@10.9.1 \
+  ts-command-line-args@2.4.2 \
+  @apidevtools/swagger-parser@10.1.0 \
+  openapi-types@12.1.0
+
+# Pre-process the spec to add any extra vendor extensions used for code generation only.
+# This allows for custom parameters to be passed to the code generation templates.
+log "preprocess spec :: $spec_path"
+processed_spec_path="$tmp_dir/.preprocessed-api.json"
+cp $script_dir/pre-process-spec.ts .
+run_command ts-node pre-process-spec.ts --specPath="$script_dir/$spec_path" --outputSpecPath="$processed_spec_path" --extraVendorExtensions="$extra_vendor_extensions"
 
 # Support a special placeholder of {{src}} in config.yaml to ensure our custom templates get written to the correct folder
 sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
@@ -59,7 +75,7 @@ openapi_generate() {
     --config config.final.yaml \
     --additional-properties="$additional_properties" \
     ${openapi_normalizer:+"--openapi-normalizer=$openapi_normalizer"} \
-    --input-spec "$script_dir/$spec_path" \
+    --input-spec "$processed_spec_path" \
     --output "$script_dir/$output_path" $@
 }
 

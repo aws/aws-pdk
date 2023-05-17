@@ -1,75 +1,14 @@
-/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
-SPDX-License-Identifier: Apache-2.0 */
-import * as fs from "fs";
-import * as path from "path";
-import { writeFile } from "projen/lib/util";
-import { ConstructGenerationArguments } from "../types";
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
-export const generateJavaTypeSafeCdkConstruct = (
-  options: ConstructGenerationArguments
-) => {
-  // Write the parsed spec to the resources directory, so it can be packaged into the jar
-  writeFile(
-    path.join(options.resourcePath, ".api.json"),
-    fs.readFileSync(options.specPath, "utf-8"),
-    { readonly: true }
-  );
-  writeFile(
-    path.join(options.sourcePath, "ApiProps.java"),
-    `package ${options.infraPackage};
-
-import software.amazon.awscdk.services.apigateway.CorsOptions;
-import software.amazon.awscdk.services.apigateway.StageOptions;
-import software.amazon.awscdk.services.apigateway.RestApiBaseProps;
-import software.amazon.awscdk.services.apigateway.DomainNameOptions;
-import software.amazon.awscdk.services.apigateway.EndpointType;
-import software.amazon.awscdk.services.iam.PolicyDocument;
-import software.aws.awsprototypingsdk.typesafeapi.Authorizer;
-import software.aws.awsprototypingsdk.typesafeapi.TypeSafeApiIntegration;
-
-import ${options.generatedTypesPackage}.api.OperationConfig;
-
-import java.util.List;
-import java.util.Map;
-
-/**
- * Properties for the Api construct
- */
-@lombok.Builder @lombok.Getter
-public class ApiProps implements RestApiBaseProps {
-    public OperationConfig<TypeSafeApiIntegration> integrations;
-    public Authorizer defaultAuthorizer;
-    public CorsOptions corsOptions;
-
-    // Rest API Props
-    public Boolean cloudWatchRole;
-    public Boolean deploy;
-    public StageOptions deployOptions;
-    public String description;
-    public Boolean disableExecuteApiEndpoint;
-    public DomainNameOptions domainName;
-    public String endpointExportName;
-    public List<EndpointType> endpointTypes;
-    public Boolean failOnWarnings;
-    public Map<String, String> parameters;
-    public PolicyDocument policy;
-    public String restApiName;
-    public Boolean retainDeployments;
-}
-`,
-    { readonly: true }
-  );
-
-  writeFile(
-    path.join(options.sourcePath, "Api.java"),
-    `package ${options.infraPackage};
+exports[`Java Infrastructure Code Generation Script Unit Tests Generates With single.yaml 1`] = `
+"package test.test-infra.infra;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import software.aws.awsprototypingsdk.typesafeapi.OperationDetails;
 import software.aws.awsprototypingsdk.typesafeapi.TypeSafeRestApi;
 import software.aws.awsprototypingsdk.typesafeapi.TypeSafeRestApiProps;
 import software.constructs.Construct;
-import ${options.generatedTypesPackage}.api.OperationLookup;
+import test.test-client.runtime.api.OperationLookup;
 
 import java.io.IOException;
 import java.net.URL;
@@ -135,7 +74,49 @@ public class Api extends TypeSafeRestApi {
                 .build());
     }
 }
-`,
-    { readonly: true }
-  );
-};
+"
+`;
+
+exports[`Java Infrastructure Code Generation Script Unit Tests Generates With single.yaml 2`] = `
+"package test.test-infra.infra;
+
+import software.amazon.awscdk.services.apigateway.CorsOptions;
+import software.amazon.awscdk.services.apigateway.StageOptions;
+import software.amazon.awscdk.services.apigateway.RestApiBaseProps;
+import software.amazon.awscdk.services.apigateway.DomainNameOptions;
+import software.amazon.awscdk.services.apigateway.EndpointType;
+import software.amazon.awscdk.services.iam.PolicyDocument;
+import software.aws.awsprototypingsdk.typesafeapi.Authorizer;
+import software.aws.awsprototypingsdk.typesafeapi.TypeSafeApiIntegration;
+
+import test.test-client.runtime.api.OperationConfig;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Properties for the Api construct
+ */
+@lombok.Builder @lombok.Getter
+public class ApiProps implements RestApiBaseProps {
+    public OperationConfig<TypeSafeApiIntegration> integrations;
+    public Authorizer defaultAuthorizer;
+    public CorsOptions corsOptions;
+
+    // Rest API Props
+    public Boolean cloudWatchRole;
+    public Boolean deploy;
+    public StageOptions deployOptions;
+    public String description;
+    public Boolean disableExecuteApiEndpoint;
+    public DomainNameOptions domainName;
+    public String endpointExportName;
+    public List<EndpointType> endpointTypes;
+    public Boolean failOnWarnings;
+    public Map<String, String> parameters;
+    public PolicyDocument policy;
+    public String restApiName;
+    public Boolean retainDeployments;
+}
+"
+`;

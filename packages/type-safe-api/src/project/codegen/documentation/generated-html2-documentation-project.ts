@@ -5,7 +5,7 @@ import { Project, ProjectOptions, Task } from "projen";
 import { DocumentationFormat } from "../../languages";
 import {
   buildInvokeOpenApiGeneratorCommand,
-  NonClientGeneratorDirectory,
+  OtherGenerators,
 } from "../components/utils";
 
 export interface GeneratedHtml2DocumentationProjectOptions
@@ -28,7 +28,7 @@ export class GeneratedHtml2DocumentationProject extends Project {
       generator: DocumentationFormat.HTML2,
       specPath: options.specPath,
       outputPath: this.outdir,
-      generatorDirectory: NonClientGeneratorDirectory.DOCS,
+      generatorDirectory: OtherGenerators.DOCS,
     });
     this.generateTask.exec(cmd.command, {
       cwd: path.relative(this.outdir, cmd.workingDir),

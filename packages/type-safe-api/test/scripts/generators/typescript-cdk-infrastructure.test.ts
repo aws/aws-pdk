@@ -2,16 +2,13 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { exec } from "projen/lib/util";
-import { GeneratedTypescriptCdkInfrastructureProject } from "../../../../../src/project/codegen/infrastructure/cdk/generated-typescript-cdk-infrastructure-project";
-import { GeneratedTypescriptRuntimeProject } from "../../../../../src/project/codegen/runtime/generated-typescript-runtime-project";
-import { withTmpDirSnapshot } from "../../../../project/snapshot-utils";
+import { GeneratedTypescriptCdkInfrastructureProject } from "../../../src/project/codegen/infrastructure/cdk/generated-typescript-cdk-infrastructure-project";
+import { GeneratedTypescriptRuntimeProject } from "../../../src/project/codegen/runtime/generated-typescript-runtime-project";
+import { withTmpDirSnapshot } from "../../project/snapshot-utils";
 
-describe("Typescript Infra Generation Script Unit Tests", () => {
-  it("Generates", () => {
-    const specPath = path.resolve(
-      __dirname,
-      `../../../../resources/specs/single.yaml`
-    );
+describe("Typescript Infrastructure Code Generation Script Unit Tests", () => {
+  it.each(["single.yaml"])("Generates With %s", (spec) => {
+    const specPath = path.resolve(__dirname, `../../resources/specs/${spec}`);
 
     expect(
       withTmpDirSnapshot(path.resolve(__dirname), (outdir) => {
@@ -30,11 +27,12 @@ describe("Typescript Infra Generation Script Unit Tests", () => {
           specPath: path.relative(infraOutdir, specPath),
           generatedTypescriptTypes: client,
         });
+
         const command = project.buildGenerateCommand();
-        exec(command.command, {
+        exec(`TYPE_SAFE_API_DEBUG=1 ${command.command}`, {
           cwd: command.workingDir,
         });
-      })
+      })["infra/src/api.ts"]
     ).toMatchSnapshot();
   });
 });

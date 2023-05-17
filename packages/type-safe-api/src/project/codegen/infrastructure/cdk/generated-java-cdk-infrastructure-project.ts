@@ -3,8 +3,12 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType } from "projen";
 import { JavaProject, JavaProjectOptions } from "projen/lib/java";
-import { Language } from "../../../languages";
-import { buildGenerateCdkInfrastructureCommand } from "../../components/utils";
+import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
+import {
+  buildCleanOpenApiGeneratedCodeCommand,
+  buildInvokeOpenApiGeneratorCommand,
+  OtherGenerators,
+} from "../../components/utils";
 import { GeneratedJavaRuntimeProject } from "../../runtime/generated-java-runtime-project";
 
 export interface GeneratedJavaCdkInfrastructureProjectOptions
@@ -32,6 +36,18 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
    */
   private readonly generatedJavaTypes: GeneratedJavaRuntimeProject;
 
+  /**
+   * Source directory
+   * @private
+   */
+  private readonly srcDir: string;
+
+  /**
+   * Java package name
+   * @private
+   */
+  private readonly packageName: string;
+
   constructor(options: GeneratedJavaCdkInfrastructureProjectOptions) {
     super({
       ...options,
@@ -40,6 +56,13 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     });
     this.specPath = options.specPath;
     this.generatedJavaTypes = options.generatedJavaTypes;
+    this.packageName = `${this.pom.groupId}.${this.name}.infra`;
+    this.srcDir = path.join(
+      "src",
+      "main",
+      "java",
+      ...this.packageName.split(".")
+    );
 
     [
       "software.aws.awsprototypingsdk/type-safe-api@^0",
@@ -69,40 +92,49 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
       id: `${options.generatedJavaTypes.pom.groupId}-${options.generatedJavaTypes.pom.artifactId}-repo`,
     });
 
+    // Ignore everything but the target files
+    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
+    openapiGeneratorIgnore.addPatterns(
+      "/*",
+      "**/*",
+      "*",
+      `!${this.srcDir}/Api.java`,
+      `!${this.srcDir}/ApiProps.java`
+    );
+
     const generateInfraCommand = this.buildGenerateCommand();
+    const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);
 
     const generateTask = this.addTask("generate");
+    generateTask.exec(cleanCommand.command, {
+      cwd: path.relative(this.outdir, cleanCommand.workingDir),
+    });
     generateTask.exec(generateInfraCommand.command, {
       cwd: path.relative(this.outdir, generateInfraCommand.workingDir),
     });
+    // Copy the parsed spec into the resources directory so that it's included in the jar
+    generateTask.exec(`cp -f ${this.specPath} src/main/resources/.api.json`);
 
     this.preCompileTask.spawn(generateTask);
 
     // Ignore the generated code
-    this.gitignore.addPatterns("src");
+    this.gitignore.addPatterns("src", ".openapi-generator");
   }
 
   public buildGenerateCommand = () => {
-    const infraPackage = `${this.pom.groupId}.${this.name}.infra`;
-
-    const relativeSourcePathParts = [
-      "src",
-      "main",
-      "java",
-      ...infraPackage.split("."),
-    ];
-
-    return buildGenerateCdkInfrastructureCommand({
-      language: Language.JAVA,
-      sourcePath: path.join(this.outdir, ...relativeSourcePathParts),
-      resourcePath: path.join(this.outdir, "src", "main", "resources"),
-      generatedTypesPackage: this.generatedJavaTypes.packageName,
-      infraPackage,
-      // Spec path relative to the source directory
-      specPath: path.join(
-        ...relativeSourcePathParts.map(() => ".."),
-        this.specPath
-      ),
+    return buildInvokeOpenApiGeneratorCommand({
+      generator: "java",
+      specPath: this.specPath,
+      outputPath: this.outdir,
+      generatorDirectory: OtherGenerators.JAVA_CDK_INFRASTRUCTURE,
+      srcDir: this.srcDir,
+      normalizers: {
+        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
+      },
+      extraVendorExtensions: {
+        "x-infrastructure-package": this.packageName,
+        "x-runtime-package": this.generatedJavaTypes.packageName,
+      },
     });
   };
 }

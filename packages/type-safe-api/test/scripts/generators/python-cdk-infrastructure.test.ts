@@ -2,16 +2,13 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { exec } from "projen/lib/util";
-import { GeneratedPythonCdkInfrastructureProject } from "../../../../../src/project/codegen/infrastructure/cdk/generated-python-cdk-infrastructure-project";
-import { GeneratedPythonRuntimeProject } from "../../../../../src/project/codegen/runtime/generated-python-runtime-project";
-import { withTmpDirSnapshot } from "../../../../project/snapshot-utils";
+import { GeneratedPythonCdkInfrastructureProject } from "../../../src/project/codegen/infrastructure/cdk/generated-python-cdk-infrastructure-project";
+import { GeneratedPythonRuntimeProject } from "../../../src/project/codegen/runtime/generated-python-runtime-project";
+import { withTmpDirSnapshot } from "../../project/snapshot-utils";
 
-describe("Python Infra Generation Script Unit Tests", () => {
-  it("Generates", () => {
-    const specPath = path.resolve(
-      __dirname,
-      `../../../../resources/specs/single.yaml`
-    );
+describe("Python Infrastructure Code Generation Script Unit Tests", () => {
+  it.each(["single.yaml"])("Generates With %s", (spec) => {
+    const specPath = path.resolve(__dirname, `../../resources/specs/${spec}`);
 
     expect(
       withTmpDirSnapshot(path.resolve(__dirname), (outdir) => {
@@ -40,7 +37,7 @@ describe("Python Infra Generation Script Unit Tests", () => {
         exec(command.command, {
           cwd: command.workingDir,
         });
-      })
+      })["infra/test_infra/api.py"]
     ).toMatchSnapshot();
   });
 });
