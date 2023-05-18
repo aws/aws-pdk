@@ -21,6 +21,7 @@ import { TypeSafeApiModelProject } from "./model/type-safe-api-model-project";
 import {
   GeneratedCodeOptions,
   GeneratedCodeProjects,
+  GeneratedDocumentationProjects,
   GeneratedLibraryOptions,
   GeneratedLibraryProjects,
   ModelLanguage,
@@ -146,6 +147,10 @@ export class TypeSafeApiProject extends Project {
    * Generated library projects. Only the properties corresponding to specified `library.libraries` will be defined.
    */
   public readonly library: GeneratedLibraryProjects;
+  /**
+   * Generated documentation projects. Only the properties corresponding to specified `documentation.formats` will be defined.
+   */
+  public readonly documentation: GeneratedDocumentationProjects;
 
   constructor(options: TypeSafeApiProjectOptions) {
     super(options);
@@ -233,6 +238,13 @@ export class TypeSafeApiProject extends Project {
         parsedSpecPathRelativeToProjectRoot
       ),
     });
+
+    this.documentation = {
+      htmlRedoc: generatedDocs[DocumentationFormat.HTML_REDOC],
+      html2: generatedDocs[DocumentationFormat.HTML2],
+      markdown: generatedDocs[DocumentationFormat.MARKDOWN],
+      plantuml: generatedDocs[DocumentationFormat.PLANTUML],
+    };
 
     const libraries = [...new Set(options.library?.libraries ?? [])];
 

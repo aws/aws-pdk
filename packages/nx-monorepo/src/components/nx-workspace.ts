@@ -21,6 +21,7 @@ export const NX_DEFAULT_BUILD_OUTPUTS = [
   "{projectRoot}/coverage",
   "{projectRoot}/test-reports",
   "{projectRoot}/target",
+  "{projectRoot}/cdk.out",
   "{projectRoot}/LICENSE_THIRD_PARTY",
   "{projectRoot}/.jsii",
 ];
