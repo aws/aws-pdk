@@ -7,7 +7,13 @@ import { SmithyDefinition } from "./smithy/smithy-definition";
 import { ModelLanguage, ModelOptions } from "../types";
 
 export interface TypeSafeApiModelProjectOptions extends ProjectOptions {
+  /**
+   * Language the model is defined in
+   */
   readonly modelLanguage: ModelLanguage;
+  /**
+   * Options for the model
+   */
   readonly modelOptions: ModelOptions;
 }
 

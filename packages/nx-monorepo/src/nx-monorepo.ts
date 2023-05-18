@@ -283,7 +283,9 @@ export class NxMonorepoProject extends TypeScriptProject {
       });
     }
 
-    this.addPeerDeps("nx");
+    // Add dependency on nx 16
+    this.addPeerDeps("nx@^16");
+    this.addDevDeps("nx@^16");
     this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in aws-prototyping-sdk
     this.package.addPackageResolutions(
       "@types/babel__traverse@7.18.2",

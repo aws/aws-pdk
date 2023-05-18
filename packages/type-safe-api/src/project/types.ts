@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { Project } from "projen";
 import { JavaProject, JavaProjectOptions } from "projen/lib/java";
 import { PythonProject, PythonProjectOptions } from "projen/lib/python";
 import {
@@ -129,6 +130,25 @@ export interface GeneratedLibraryProjects {
    * Generated typescript react-query hooks project
    */
   readonly typescriptReactQueryHooks?: TypeScriptProject;
+}
+
+export interface GeneratedDocumentationProjects {
+  /**
+   * Generated html redoc documentation project
+   */
+  readonly htmlRedoc?: Project;
+  /**
+   * Generated html2 documentation project
+   */
+  readonly html2?: Project;
+  /**
+   * Generated markdown documentation project
+   */
+  readonly markdown?: Project;
+  /**
+   * Generated plantuml documentation project
+   */
+  readonly plantuml?: Project;
 }
 
 /**
