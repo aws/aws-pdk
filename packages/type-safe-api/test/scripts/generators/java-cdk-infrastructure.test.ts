@@ -52,5 +52,10 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
     expect(
       snapshot["infra/src/main/java/test/test-infra/infra/ApiProps.java"]
     ).toMatchSnapshot();
+    expect(
+      snapshot[
+        "infra/src/main/java/test/test-infra/infra/MockIntegrations.java"
+      ]
+    ).toMatchSnapshot();
   });
 });

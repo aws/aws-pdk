@@ -28,3 +28,99 @@ export class Api extends TypeSafeRestApi {
 }
 "
 `;
+
+exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates With single.yaml 2`] = `
+"import {
+  ApiError,
+  ApiErrorToJSON,
+  TestRequest,
+  TestRequestToJSON,
+  TestResponse,
+  TestResponseToJSON,
+  TestResponseMessagesInner,
+  TestResponseMessagesInnerToJSON,
+} from "test-client";
+import { Integrations, MockIntegration } from "@aws-prototyping-sdk/type-safe-api";
+
+/**
+ * Type-safe mock integrations for API operations
+ */
+export class MockIntegrations {
+  /**
+   * Mock integration to return a 200 response from the anyRequestResponse operation
+   */
+  public static anyRequestResponse200(body: string): MockIntegration {
+    return Integrations.mock({
+      statusCode: 200,
+      body,
+    });
+  }
+
+  /**
+   * Mock integration to return a 204 response from the empty operation
+   */
+  public static empty204(): MockIntegration {
+    return Integrations.mock({
+      statusCode: 204,
+    });
+  }
+
+  /**
+   * Mock integration to return a 200 response from the mediaTypes operation
+   */
+  public static mediaTypes200(body: string): MockIntegration {
+    return Integrations.mock({
+      statusCode: 200,
+      body,
+    });
+  }
+
+  /**
+   * Mock integration to return a 200 response from the multipleContentTypes operation
+   */
+  public static multipleContentTypes200(body: string): MockIntegration {
+    return Integrations.mock({
+      statusCode: 200,
+      body,
+    });
+  }
+
+  /**
+   * Mock integration to return a 200 response from the operationOne operation
+   */
+  public static operationOne200(body: TestResponse): MockIntegration {
+    return Integrations.mock({
+      statusCode: 200,
+      body: JSON.stringify(TestResponseToJSON(body)),
+    });
+  }
+
+  /**
+   * Mock integration to return a 400 response from the operationOne operation
+   */
+  public static operationOne400(body: ApiError): MockIntegration {
+    return Integrations.mock({
+      statusCode: 400,
+      body: JSON.stringify(ApiErrorToJSON(body)),
+    });
+  }
+
+  /**
+   * Mock integration to return a 200 response from the withoutOperationIdDelete operation
+   */
+  public static withoutOperationIdDelete200(body: TestResponse): MockIntegration {
+    return Integrations.mock({
+      statusCode: 200,
+      body: JSON.stringify(TestResponseToJSON(body)),
+    });
+  }
+
+}
+"
+`;
+
+exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates With single.yaml 3`] = `
+"export * from "./api";
+export * from "./mock-integrations";
+"
+`;

@@ -101,7 +101,8 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
       "**/*",
       "*",
       `!${this.srcDir}/Api.java`,
-      `!${this.srcDir}/ApiProps.java`
+      `!${this.srcDir}/ApiProps.java`,
+      `!${this.srcDir}/MockIntegrations.java`
     );
 
     // Add OpenAPI Generator cli configuration

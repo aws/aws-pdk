@@ -73,7 +73,8 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
       "**/*",
       "*",
       `!${this.moduleName}/__init__.py`,
-      `!${this.moduleName}/api.py`
+      `!${this.moduleName}/api.py`,
+      `!${this.moduleName}/mock_integrations.py`
     );
 
     // Add OpenAPI Generator cli configuration

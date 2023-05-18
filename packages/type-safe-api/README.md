@@ -575,7 +575,23 @@ For integrating an API operation with a lambda, you can use `Integrations.lambda
 
 ##### Mock Integration
 
-To mock an API operation, you can use `Integrations.mock`. API gateway will respond with the status code and body provided, eg:
+To mock an API operation, you can use the `MockIntegrations` class which you'll find in your generated infrastructure package. This contains an integration for every response that can be returned by your operations.
+
+For example:
+
+```ts
+import { Api, MockIntegrations } from "myapi-typescript-infra";
+
+new Api(this, "Api", {
+  integrations: {
+    sayHello: {
+      integration: MockIntegrations.sayHello200({ message: "This is a mocked successful response!" }),
+    },
+  },
+});
+```
+
+If you're using the `TypeSafeRestApi` construct directly without generated infrastructure, or need to mock a response not defined in your model, you can use `Integrations.mock`. API gateway will respond with the status code and body provided, eg:
 
 ```ts
 Integrations.mock({ statusCode: 200, body: JSON.stringify({ message: "hello world!" }) })
