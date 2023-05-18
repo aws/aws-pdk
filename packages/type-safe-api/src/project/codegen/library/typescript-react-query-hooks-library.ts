@@ -57,6 +57,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
       eslint: false,
       // Disable tests unless explicitly enabled
       jest: options.jest ?? false,
+      npmignoreEnabled: false,
     });
 
     this.specPath = options.specPath;

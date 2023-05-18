@@ -109,6 +109,12 @@ export interface NxMonorepoProjectOptions extends TypeScriptProjectOptions {
    * @default undefined
    */
   readonly monorepoUpgradeDepsOptions?: MonorepoUpgradeDepsOptions;
+
+  /**
+   * Disable node warnings from being emitted during build tasks
+   * @default false
+   */
+  readonly disableNodeWarnings?: boolean;
 }
 
 /**
@@ -188,6 +194,12 @@ export class NxMonorepoProject extends TypeScriptProject {
       }
       case NodePackageManager.YARN2: {
         this.package.addEngine("yarn", ">=2");
+        this.gitignore.addPatterns(
+          ".yarn/*",
+          ".pnp.cjs",
+          "!.yarn/releases",
+          "!.yarn/plugins"
+        );
         break;
       }
     }
@@ -616,6 +628,11 @@ export class NxMonorepoProject extends TypeScriptProject {
     this.updateWorkspace();
     this.installNonNodeDependencies();
 
+    // Disable node warnings if configured
+    if (this._options.disableNodeWarnings) {
+      this.disableNodeWarnings();
+    }
+
     // Prevent sub NodeProject packages from `postSynthesis` which will cause individual/extraneous installs.
     // The workspace package install will handle all the sub NodeProject packages automatically.
     const subProjectPackages: NodePackage[] = [];
@@ -745,6 +762,16 @@ export class NxMonorepoProject extends TypeScriptProject {
         });
       });
     }
+  }
+
+  /**
+   * Suppress Node warnings from being presented in the console when running builds.
+   */
+  private disableNodeWarnings() {
+    this.tasks.addEnvironment("NODE_NO_WARNINGS", "1");
+    this.subprojects.forEach((subProject) =>
+      subProject.tasks.addEnvironment("NODE_NO_WARNINGS", "1")
+    );
   }
 }
 
