@@ -1759,3 +1759,56 @@ Make sure you do not deploy your CDK stack with `type-safe-api-local` set to `tr
 Note that there is currently a limitation with SAM CLI where it does not support mock integrations, which means that the development server will not respond to OPTIONS requests even if you specified `corsOptions: { ... }` in your `Api` construct. This is being tracked as a [feature request here](https://github.com/aws/aws-sam-cli/issues/4973).
 
 Note also that your API business logic may include operations which do not work locally, or may interact with real AWS resources depending on the AWS credentials you start your local development server with.
+
+#### Customising OpenAPI Generator CLI
+
+[OpenAPI Generator CLI](https://github.com/OpenAPITools/openapi-generator-cli) is used to generate the infrastructure, runtime and library projects. You can customise some of its properties for specific projects if you like. Note that changing the `version` may cause generated code to be broken, since it's written assuming the default version.
+
+For example, to customise the maven repository used to pull the OpenAPI Generator jar, you can configure the `TypeSafeApiProject` as follows:
+
+```ts
+const openApiGeneratorCliConfig: OpenApiGeneratorCliConfig = {
+  repository: {
+    downloadUrl:
+      "https://my.custom.maven.repo/maven2/${groupId}/${artifactId}/${versionName}/${artifactId}-${versionName}.jar",
+  },
+};
+
+const project = new TypeSafeApiProject({
+  infrastructure: {
+    language: Language.TYPESCRIPT,
+    options: {
+      // Note here the options are typed as "GeneratedTypeScriptProjectOptions" but you can
+      // pass a partial one to avoid having to specify a custom project name etc
+      typescript: {
+        openApiGeneratorCliConfig,
+      } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
+    },
+  },
+  runtime: {
+    languages: [Language.TYPESCRIPT],
+    options: {
+      typescript: {
+        openApiGeneratorCliConfig,
+      } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
+    },
+  },
+  library: {
+    libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+    options: {
+      typescriptReactQueryHooks: {
+        openApiGeneratorCliConfig,
+      } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
+    },
+  },
+  documentation: {
+    formats: [DocumentationFormat.HTML2],
+    options: {
+      html2: {
+        openApiGeneratorCliConfig,
+      },
+    },
+  },
+  ...
+});
+```

@@ -2,12 +2,11 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { NodePackageManager } from "projen/lib/javascript";
-import {
-  TypeScriptProject,
-  TypeScriptProjectOptions,
-} from "projen/lib/typescript";
+import { TypeScriptProject } from "projen/lib/typescript";
 import { Language } from "../../languages";
+import { GeneratedTypeScriptProjectOptions } from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
+import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommand,
@@ -17,7 +16,7 @@ import {
  * Configuration for the generated typescript client project
  */
 export interface GeneratedTypescriptTypesProjectOptions
-  extends TypeScriptProjectOptions {
+  extends GeneratedTypeScriptProjectOptions {
   /**
    * The path to the OpenAPI specification, relative to this project's outdir
    */
@@ -90,6 +89,11 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
     openapiGeneratorIgnore.addPatterns(
       ...GeneratedTypescriptRuntimeProject.openApiIgnorePatterns
+    );
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
+      options.openApiGeneratorCliConfig
     );
 
     const generateCodeCommand = this.buildGenerateCommand();

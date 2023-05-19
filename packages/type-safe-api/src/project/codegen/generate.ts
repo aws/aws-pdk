@@ -24,6 +24,7 @@ import {
   GeneratedTypescriptTypesProjectOptions,
 } from "./runtime/generated-typescript-runtime-project";
 import { DocumentationFormat, Language, Library } from "../languages";
+import { GeneratedDocumentationOptions } from "../types";
 
 const logger = getLogger();
 
@@ -382,6 +383,10 @@ export interface GenerateDocsProjectsOptions {
    * We use the parsed spec such that refs are resolved to support multi-file specs
    */
   readonly parsedSpecPath: string;
+  /**
+   * User-specified options for generated documentation
+   */
+  readonly documentationOptions?: GeneratedDocumentationOptions;
 }
 
 const generateDocsProject = (
@@ -400,16 +405,28 @@ const generateDocsProject = (
 
   switch (format) {
     case DocumentationFormat.HTML2: {
-      return new GeneratedHtml2DocumentationProject(commonProps);
+      return new GeneratedHtml2DocumentationProject({
+        ...commonProps,
+        ...options.documentationOptions?.html2,
+      });
     }
     case DocumentationFormat.HTML_REDOC: {
-      return new GeneratedHtmlRedocDocumentationProject(commonProps);
+      return new GeneratedHtmlRedocDocumentationProject({
+        ...commonProps,
+        ...options.documentationOptions?.htmlRedoc,
+      });
     }
     case DocumentationFormat.MARKDOWN: {
-      return new GeneratedMarkdownDocumentationProject(commonProps);
+      return new GeneratedMarkdownDocumentationProject({
+        ...commonProps,
+        ...options.documentationOptions?.markdown,
+      });
     }
     case DocumentationFormat.PLANTUML: {
-      return new GeneratedPlantumlDocumentationProject(commonProps);
+      return new GeneratedPlantumlDocumentationProject({
+        ...commonProps,
+        ...options.documentationOptions?.plantuml,
+      });
     }
     default:
       throw new Error(`Unknown documentation format ${format}`);

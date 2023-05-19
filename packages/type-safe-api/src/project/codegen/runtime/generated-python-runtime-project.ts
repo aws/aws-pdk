@@ -1,9 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { PythonProject, PythonProjectOptions } from "projen/lib/python";
+import { PythonProject } from "projen/lib/python";
 import { Language } from "../../languages";
+import { GeneratedPythonProjectOptions } from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
+import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommand,
@@ -13,7 +15,7 @@ import {
  * Configuration for the generated python types project
  */
 export interface GeneratedPythonTypesProjectOptions
-  extends PythonProjectOptions {
+  extends GeneratedPythonProjectOptions {
   /**
    * The path to the OpenAPI specification, relative to this project's outdir
    */
@@ -74,6 +76,11 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
     const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
     openapiGeneratorIgnore.addPatterns(
       ...GeneratedPythonRuntimeProject.openApiIgnorePatterns
+    );
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
+      options.openApiGeneratorCliConfig
     );
 
     const generateCodeCommand = this.buildGenerateCommand();

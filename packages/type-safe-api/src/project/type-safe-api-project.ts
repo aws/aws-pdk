@@ -21,6 +21,7 @@ import { TypeSafeApiModelProject } from "./model/type-safe-api-model-project";
 import {
   GeneratedCodeOptions,
   GeneratedCodeProjects,
+  GeneratedDocumentationOptions,
   GeneratedDocumentationProjects,
   GeneratedLibraryOptions,
   GeneratedLibraryProjects,
@@ -79,6 +80,10 @@ export interface DocumentationConfiguration {
    * Formats for generated documentation
    */
   readonly formats: DocumentationFormat[];
+  /**
+   * Options for the generated documentation projects. Note that only those provided for the specified formats will apply
+   */
+  readonly options?: GeneratedDocumentationOptions;
 }
 
 /**
@@ -237,6 +242,7 @@ export class TypeSafeApiProject extends Project {
         "..",
         parsedSpecPathRelativeToProjectRoot
       ),
+      documentationOptions: options.documentation?.options,
     });
 
     this.documentation = {

@@ -2,10 +2,13 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Project, ProjectOptions, Task } from "projen";
+import { GeneratedHtmlRedocDocumentationOptions } from "../../types";
+import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import { buildInvokeCustomDocsGeneratorCommand } from "../components/utils";
 
 export interface GeneratedHtmlRedocDocumentationProjectOptions
-  extends ProjectOptions {
+  extends ProjectOptions,
+    GeneratedHtmlRedocDocumentationOptions {
   /**
    * Path to the OpenAPI Specification for which to generate docs, relative to the project outdir
    */
@@ -17,6 +20,11 @@ export class GeneratedHtmlRedocDocumentationProject extends Project {
 
   constructor(options: GeneratedHtmlRedocDocumentationProjectOptions) {
     super(options);
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
+      options.openApiGeneratorCliConfig
+    );
 
     this.generateTask = this.addTask("generate");
 
