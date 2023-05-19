@@ -60,6 +60,9 @@ run_command ts-node pre-process-spec.ts --specPath="$script_dir/$spec_path" --ou
 # Support a special placeholder of {{src}} in config.yaml to ensure our custom templates get written to the correct folder
 sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
 
+# Copy the openapitools.json config into the working directory so it's honoured by the generator cli
+cp $script_dir/$output_path/openapitools.json .
+
 # Workaround for code generation with JDK 11+
 # See: https://github.com/OpenAPITools/openapi-generator/issues/13684
 export JAVA_OPTS="--add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED"

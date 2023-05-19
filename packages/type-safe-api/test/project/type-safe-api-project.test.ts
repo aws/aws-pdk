@@ -5,6 +5,10 @@ import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
 import { NodePackageManager } from "projen/lib/javascript";
 import { synthProject, synthSmithyProject } from "./snapshot-utils";
 import {
+  GeneratedTypeScriptProjectOptions,
+  OpenApiGeneratorCliConfig,
+} from "../../lib";
+import {
   DocumentationFormat,
   Language,
   Library,
@@ -319,5 +323,87 @@ describe("Type Safe Api Project Unit Tests", () => {
     expect(project.library.typescriptReactQueryHooks).toBeDefined();
 
     expect(synthSmithyProject(project)).toMatchSnapshot();
+  });
+
+  it("Custom OpenAPI Generator CLI Configuration", () => {
+    const openApiGeneratorCliConfig: OpenApiGeneratorCliConfig = {
+      version: "6.2.0",
+      storageDir: "~/.my-storage-dir",
+      repository: {
+        downloadUrl:
+          "https://my.custom.maven.repo/maven2/${groupId}/${artifactId}/${versionName}/${artifactId}-${versionName}.jar",
+      },
+      useDocker: true,
+    };
+
+    const project = new TypeSafeApiProject({
+      name: `custom-openapi-generator-cli-configuration`,
+      outdir: path.resolve(
+        __dirname,
+        `custom-openapi-generator-cli-configuration`
+      ),
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+        options: {
+          typescript: {
+            openApiGeneratorCliConfig,
+          } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
+        },
+      },
+      runtime: {
+        languages: [Language.TYPESCRIPT],
+        options: {
+          typescript: {
+            openApiGeneratorCliConfig,
+          } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
+        },
+      },
+      model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+          smithy: {
+            serviceName: {
+              namespace: "com.test",
+              serviceName: "MyService",
+            },
+          },
+        },
+      },
+      library: {
+        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+        options: {
+          typescriptReactQueryHooks: {
+            openApiGeneratorCliConfig,
+          } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
+        },
+      },
+      documentation: {
+        formats: [DocumentationFormat.HTML2],
+        options: {
+          html2: {
+            openApiGeneratorCliConfig,
+          },
+        },
+      },
+    });
+
+    expect(project.runtime.typescript).toBeDefined();
+    expect(project.runtime.java).not.toBeDefined();
+    expect(project.runtime.python).not.toBeDefined();
+
+    expect(project.library.typescriptReactQueryHooks).toBeDefined();
+
+    expect(project.documentation.html2).toBeDefined();
+
+    const snapshot = synthSmithyProject(project);
+
+    expect(
+      snapshot["infrastructure/typescript/openapitools.json"]
+    ).toMatchSnapshot();
+    expect(snapshot["runtime/typescript/openapitools.json"]).toMatchSnapshot();
+    expect(
+      snapshot["libraries/typescript-react-query-hooks/openapitools.json"]
+    ).toMatchSnapshot();
+    expect(snapshot["documentation/html2/openapitools.json"]).toMatchSnapshot();
   });
 });

@@ -77,21 +77,97 @@ export interface ModelOptions {
 }
 
 /**
+ * Maven repository info for fetching the OpenAPI Generator jar
+ * @see https://github.com/OpenAPITools/openapi-generator-cli#using-custom--private-maven-registry
+ */
+export interface OpenApiGeneratorCliConfigRepository {
+  /**
+   * Maven repository URL for downloading the OpenAPI Generator jar.
+   * This must specify the full url, and can include placeholders for the groupId, artifactId and versionName.
+   * For example: https://private.maven.intern/maven2/${groupId}/${artifactId}/${versionName}/${artifactId}-${versionName}.jar
+   * @see https://github.com/OpenAPITools/openapi-generator-cli#using-custom--private-maven-registry
+   */
+  readonly downloadUrl: string;
+}
+
+/**
+ * Configuration for the OpenAPI Generator CLI
+ * @see https://github.com/OpenAPITools/openapi-generator-cli#configuration
+ */
+export interface OpenApiGeneratorCliConfig {
+  /**
+   * OpenAPI Generator version to use. Edit with caution - using the non-default
+   * version may result in broken generated code.
+   * @default 6.3.0
+   */
+  readonly version?: string;
+  /**
+   * The directory in which OpenAPI Generator jars are cached
+   * @default ~/.open-api-generator-cli
+   */
+  readonly storageDir?: string;
+  /**
+   * Maven repository info for fetching the OpenAPI Generator jar
+   * @see https://github.com/OpenAPITools/openapi-generator-cli#using-custom--private-maven-registry
+   * @default public maven repository
+   */
+  readonly repository?: OpenApiGeneratorCliConfigRepository;
+  /**
+   * Use docker instead of your locally installed Java version
+   * @see https://github.com/OpenAPITools/openapi-generator-cli#use-docker-instead-of-running-java-locally
+   * @default false
+   */
+  readonly useDocker?: boolean;
+}
+
+/**
+ * Options for a code project generated with OpenAPI Generator
+ */
+export interface GeneratedWithOpenApiGeneratorOptions {
+  /**
+   * Configuration for the OpenAPI Generator CLI. Overrides default values if specified.
+   * @see https://github.com/OpenAPITools/openapi-generator-cli#configuration
+   */
+  readonly openApiGeneratorCliConfig?: OpenApiGeneratorCliConfig;
+}
+
+/**
+ * Options for configuring a generated typescript project
+ */
+export interface GeneratedTypeScriptProjectOptions
+  extends TypeScriptProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions {}
+
+/**
+ * Options for configuring a generated python project
+ */
+export interface GeneratedPythonProjectOptions
+  extends PythonProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions {}
+
+/**
+ * Options for configuring a generated java project
+ */
+export interface GeneratedJavaProjectOptions
+  extends JavaProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions {}
+
+/**
  * Options for generated clients
  */
 export interface GeneratedCodeOptions {
   /**
    * Options for a generated typescript project. These override the default inferred options.
    */
-  readonly typescript?: TypeScriptProjectOptions;
+  readonly typescript?: GeneratedTypeScriptProjectOptions;
   /**
    * Options for a generated python project. These override the default inferred options.
    */
-  readonly python?: PythonProjectOptions;
+  readonly python?: GeneratedPythonProjectOptions;
   /**
    * Options for a generated java project. These override the default inferred options.
    */
-  readonly java?: JavaProjectOptions;
+  readonly java?: GeneratedJavaProjectOptions;
 }
 
 /**
@@ -119,7 +195,7 @@ export interface GeneratedLibraryOptions {
   /**
    * Options for the generated typescript react-query hooks library. These override the default inferred options.
    */
-  readonly typescriptReactQueryHooks?: TypeScriptProjectOptions;
+  readonly typescriptReactQueryHooks?: GeneratedTypeScriptProjectOptions;
 }
 
 /**
@@ -132,6 +208,55 @@ export interface GeneratedLibraryProjects {
   readonly typescriptReactQueryHooks?: TypeScriptProject;
 }
 
+/**
+ * Options for the html redoc documentation project
+ */
+export interface GeneratedHtmlRedocDocumentationOptions
+  extends GeneratedWithOpenApiGeneratorOptions {}
+
+/**
+ * Options for the html2 documentation project
+ */
+export interface GeneratedHtml2DocumentationOptions
+  extends GeneratedWithOpenApiGeneratorOptions {}
+
+/**
+ * Options for the markdown documentation project
+ */
+export interface GeneratedMarkdownDocumentationOptions
+  extends GeneratedWithOpenApiGeneratorOptions {}
+
+/**
+ * Options for the plantuml documentation project
+ */
+export interface GeneratedPlantumlDocumentationOptions
+  extends GeneratedWithOpenApiGeneratorOptions {}
+
+/**
+ * Options for generated documentation projects
+ */
+export interface GeneratedDocumentationOptions {
+  /**
+   * Generated html redoc documentation project options
+   */
+  readonly htmlRedoc?: GeneratedHtmlRedocDocumentationOptions;
+  /**
+   * Generated html2 documentation project options
+   */
+  readonly html2?: GeneratedHtml2DocumentationOptions;
+  /**
+   * Generated markdown documentation project options
+   */
+  readonly markdown?: GeneratedMarkdownDocumentationOptions;
+  /**
+   * Generated plantuml documentation project options
+   */
+  readonly plantuml?: GeneratedPlantumlDocumentationOptions;
+}
+
+/**
+ * Generated documentation project references
+ */
 export interface GeneratedDocumentationProjects {
   /**
    * Generated html redoc documentation project

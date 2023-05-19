@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { exec } from "projen/lib/util";
+import { OpenApiToolsJsonFile } from "../../../src/project/codegen/components/open-api-tools-json-file";
 import { GeneratedPythonRuntimeProject } from "../../../src/project/codegen/runtime/generated-python-runtime-project";
 import { withTmpDirSnapshot } from "../../project/snapshot-utils";
 
@@ -24,6 +25,8 @@ describe("Python Client Code Generation Script Unit Tests", () => {
               outdir,
               specPath: path.relative(outdir, specPath),
             });
+            // Synth the openapitools.json since it's used by the generate command
+            OpenApiToolsJsonFile.of(project)!.synthesize();
             const command = project.buildGenerateCommand();
             exec(command.command, {
               cwd: command.workingDir,

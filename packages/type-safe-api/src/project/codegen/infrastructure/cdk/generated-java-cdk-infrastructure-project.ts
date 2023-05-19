@@ -2,8 +2,10 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType } from "projen";
-import { JavaProject, JavaProjectOptions } from "projen/lib/java";
+import { JavaProject } from "projen/lib/java";
+import { GeneratedJavaProjectOptions } from "../../../types";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
+import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommand,
@@ -12,7 +14,7 @@ import {
 import { GeneratedJavaRuntimeProject } from "../../runtime/generated-java-runtime-project";
 
 export interface GeneratedJavaCdkInfrastructureProjectOptions
-  extends JavaProjectOptions {
+  extends GeneratedJavaProjectOptions {
   /**
    * OpenAPI spec path, relative to the project outdir
    */
@@ -100,6 +102,11 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
       "*",
       `!${this.srcDir}/Api.java`,
       `!${this.srcDir}/ApiProps.java`
+    );
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
+      options.openApiGeneratorCliConfig
     );
 
     const generateInfraCommand = this.buildGenerateCommand();

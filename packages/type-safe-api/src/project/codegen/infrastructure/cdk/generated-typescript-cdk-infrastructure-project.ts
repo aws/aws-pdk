@@ -3,11 +3,10 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
-import {
-  TypeScriptProject,
-  TypeScriptProjectOptions,
-} from "projen/lib/typescript";
+import { TypeScriptProject } from "projen/lib/typescript";
+import { GeneratedTypeScriptProjectOptions } from "../../../types";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
+import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommand,
@@ -16,7 +15,7 @@ import {
 import { GeneratedTypescriptRuntimeProject } from "../../runtime/generated-typescript-runtime-project";
 
 export interface GeneratedTypescriptCdkInfrastructureProjectOptions
-  extends TypeScriptProjectOptions {
+  extends GeneratedTypeScriptProjectOptions {
   /**
    * OpenAPI spec path, relative to the project outdir
    */
@@ -91,6 +90,11 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       "*",
       `!${this.srcdir}/index.ts`,
       `!${this.srcdir}/api.ts`
+    );
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
+      options.openApiGeneratorCliConfig
     );
 
     const generateInfraCommand = this.buildGenerateCommand();

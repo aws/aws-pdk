@@ -2,8 +2,10 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType } from "projen";
-import { PythonProject, PythonProjectOptions } from "projen/lib/python";
+import { PythonProject } from "projen/lib/python";
+import { GeneratedPythonProjectOptions } from "../../../types";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
+import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommand,
@@ -12,7 +14,7 @@ import {
 import { GeneratedPythonRuntimeProject } from "../../runtime/generated-python-runtime-project";
 
 export interface GeneratedPythonCdkInfrastructureProjectOptions
-  extends PythonProjectOptions {
+  extends GeneratedPythonProjectOptions {
   /**
    * OpenAPI spec path, relative to the project outdir
    */
@@ -72,6 +74,11 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
       "*",
       `!${this.moduleName}/__init__.py`,
       `!${this.moduleName}/api.py`
+    );
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
+      options.openApiGeneratorCliConfig
     );
 
     const generateInfraCommand = this.buildGenerateCommand();

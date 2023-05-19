@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { exec } from "projen/lib/util";
+import { OpenApiToolsJsonFile } from "../../../src/project/codegen/components/open-api-tools-json-file";
 import { GeneratedJavaCdkInfrastructureProject } from "../../../src/project/codegen/infrastructure/cdk/generated-java-cdk-infrastructure-project";
 import { GeneratedJavaRuntimeProject } from "../../../src/project/codegen/runtime/generated-java-runtime-project";
 import { withTmpDirSnapshot } from "../../project/snapshot-utils";
@@ -32,6 +33,8 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
           specPath: path.relative(infraOutdir, specPath),
           generatedJavaTypes: client,
         });
+        // Synth the openapitools.json since it's used by the generate command
+        OpenApiToolsJsonFile.of(project)!.synthesize();
         const command = project.buildGenerateCommand();
         exec(command.command, {
           cwd: command.workingDir,

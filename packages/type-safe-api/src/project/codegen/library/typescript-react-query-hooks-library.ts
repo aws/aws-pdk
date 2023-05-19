@@ -6,6 +6,7 @@ import { TypeScriptProject } from "projen/lib/typescript";
 import { Library } from "../../languages";
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
+import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommand,
@@ -85,6 +86,11 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
     // The hooks are generated using the handlebars templating engine, so we include a handlebars ignore file
     const handlebarsIgnore = new OpenApiGeneratorHandlebarsIgnoreFile(this);
     handlebarsIgnore.addPatterns(`!${hooksPattern}`);
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
+      options.openApiGeneratorCliConfig
+    );
 
     const generateCodeCommand = this.buildGenerateCommand();
     const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);

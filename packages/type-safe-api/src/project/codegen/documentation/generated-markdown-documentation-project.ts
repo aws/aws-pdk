@@ -3,13 +3,16 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Project, ProjectOptions, Task } from "projen";
 import { DocumentationFormat } from "../../languages";
+import { GeneratedMarkdownDocumentationOptions } from "../../types";
+import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
   buildInvokeOpenApiGeneratorCommand,
   OtherGenerators,
 } from "../components/utils";
 
 export interface GeneratedMarkdownDocumentationProjectOptions
-  extends ProjectOptions {
+  extends ProjectOptions,
+    GeneratedMarkdownDocumentationOptions {
   /**
    * Path to the OpenAPI Specification for which to generate docs, relative to the project outdir
    */
@@ -21,6 +24,11 @@ export class GeneratedMarkdownDocumentationProject extends Project {
 
   constructor(options: GeneratedMarkdownDocumentationProjectOptions) {
     super(options);
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
+      options.openApiGeneratorCliConfig
+    );
 
     this.generateTask = this.addTask("generate");
 
