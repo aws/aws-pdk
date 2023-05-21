@@ -156,7 +156,17 @@ export class PDKPipeline extends Construct {
   }
 
   /**
-   * A helper function to determine if the current banch is the default branch.
+   * A helper function to determine if the current branch is the default branch.
+   *
+   * If there is no BRANCH environment variable, then assume this is the default
+   * branch. Otherwise, check that BRANCH matches the default branch name.
+   *
+   * The default branch name is determined in the following priority:
+   *
+   * 1. defaultBranchName property
+   * 2. defaultBranchName context
+   * 3. PDKPipeline.defaultBranchName constant
+   *
    * @param props? {
    *    defaultBranchName? Specify the default branch name without context.
    *    node? The current app to fetch defaultBranchName from context.
@@ -169,13 +179,14 @@ export class PDKPipeline extends Construct {
       node: undefined,
     }
   ): boolean {
-    return process.env.BRANCH &&
-      process.env.BRANCH !==
-        (props.defaultBranchName ||
-          (props.node && props.node.tryGetContext("defaultBranchName")) ||
-          PDKPipeline.defaultBranchName)
-      ? false
-      : true;
+    if (!process.env.BRANCH) {
+      return true;
+    }
+    const defaultBranchName: string =
+      props.defaultBranchName ||
+      (props.node && props.node.tryGetContext("defaultBranchName")) ||
+      PDKPipeline.defaultBranchName;
+    return defaultBranchName === process.env.BRANCH;
   }
 
   /**
@@ -287,9 +298,12 @@ export class PDKPipeline extends Construct {
 
     const synthShellStep = new ShellStep("Synth", {
       input: CodePipelineSource.codeCommit(codeRepository, branch),
-      env: {
-        BRANCH: branch,
-      },
+      env:
+        props.branchNamePrefixes && props.branchNamePrefixes.length > 0
+          ? {
+              BRANCH: branch,
+            }
+          : undefined,
       installCommands: [
         "npm install -g aws-cdk",
         "yarn install --frozen-lockfile || npx projen && yarn install --frozen-lockfile",
