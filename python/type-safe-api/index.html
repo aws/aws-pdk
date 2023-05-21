@@ -3206,7 +3206,20 @@ aws-prototyping-sdk library.</p>
 <h5 id="lambda-integration">Lambda Integration</h5>
 <p>For integrating an API operation with a lambda, you can use <code>Integrations.lambda(yourLambdaFunction)</code>.</p>
 <h5 id="mock-integration">Mock Integration</h5>
-<p>To mock an API operation, you can use <code>Integrations.mock</code>. API gateway will respond with the status code and body provided, eg:</p>
+<p>To mock an API operation, you can use the <code>MockIntegrations</code> class which you'll find in your generated infrastructure package. This contains an integration for every response that can be returned by your operations.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
+<span class="kn">from</span> <span class="nn">myapi_typescript_infra</span> <span class="kn">import</span> <span class="n">Api</span><span class="p">,</span> <span class="n">MockIntegrations</span>
+
+<span class="n">Api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Api&quot;</span><span class="p">,</span>
+    <span class="n">integrations</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;say_hello&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;integration&quot;</span><span class="p">:</span> <span class="n">MockIntegrations</span><span class="o">.</span><span class="n">say_hello200</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;This is a mocked successful response!&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>If you're using the <code>TypeSafeRestApi</code> construct directly without generated infrastructure, or need to mock a response not defined in your model, you can use <code>Integrations.mock</code>. API gateway will respond with the status code and body provided, eg:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Example automatically generated from non-compiling source. May contain errors.</span>
 <span class="n">Integrations</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">JSON</span><span class="o">.</span><span class="n">stringify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;hello world!&quot;</span><span class="p">}))</span>
 </code></pre></div>
