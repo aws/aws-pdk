@@ -54,6 +54,10 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       tsconfig: {
         compilerOptions: {
           lib: ["dom", "es2019"],
+          // Generated code imports all models, and may not reference them all
+          noUnusedLocals: false,
+          noUnusedParameters: false,
+          ...options?.tsconfig?.compilerOptions,
         },
       },
       npmignoreEnabled: false,
@@ -89,7 +93,8 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       "**/*",
       "*",
       `!${this.srcdir}/index.ts`,
-      `!${this.srcdir}/api.ts`
+      `!${this.srcdir}/api.ts`,
+      `!${this.srcdir}/mock-integrations.ts`
     );
 
     // Add OpenAPI Generator cli configuration

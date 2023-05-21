@@ -1,0 +1,45 @@
+package {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-infrastructure-package}}{{/apis.0}}{{/apiInfo}};
+
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.JSON;
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.model.*;
+import software.aws.awsprototypingsdk.typesafeapi.Integrations;
+import software.aws.awsprototypingsdk.typesafeapi.MockIntegration;
+import software.aws.awsprototypingsdk.typesafeapi.MockIntegrationResponse;
+
+/**
+ * Type-safe mock integrations for API operations
+ */
+public class MockIntegrations {
+    static {
+        // Instantiate json instance so that any .toJson() methods can be used
+        new JSON();
+    }
+
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    {{#responses}}
+    /**
+     * Mock integration to return a {{code}} response from the {{nickname}} operation
+     */
+    public static MockIntegration {{nickname}}{{code}}({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body{{/dataType}}) {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode({{code}})
+                {{#dataType}}
+                {{#isPrimitiveType}}
+                .body(body)
+                {{/isPrimitiveType}}
+                {{^isPrimitiveType}}
+                .body(body.toJson())
+                {{/isPrimitiveType}}
+                {{/dataType}}
+                .build());
+    }
+
+    {{/responses}}
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+}

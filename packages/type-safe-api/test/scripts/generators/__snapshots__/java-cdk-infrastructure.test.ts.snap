@@ -120,3 +120,94 @@ public class ApiProps implements RestApiBaseProps {
 }
 "
 `;
+
+exports[`Java Infrastructure Code Generation Script Unit Tests Generates With single.yaml 3`] = `
+"package test.test-infra.infra;
+
+import test.test-client.runtime.JSON;
+import test.test-client.runtime.model.*;
+import software.aws.awsprototypingsdk.typesafeapi.Integrations;
+import software.aws.awsprototypingsdk.typesafeapi.MockIntegration;
+import software.aws.awsprototypingsdk.typesafeapi.MockIntegrationResponse;
+
+/**
+ * Type-safe mock integrations for API operations
+ */
+public class MockIntegrations {
+    static {
+        // Instantiate json instance so that any .toJson() methods can be used
+        new JSON();
+    }
+
+    /**
+     * Mock integration to return a 200 response from the anyRequestResponse operation
+     */
+    public static MockIntegration anyRequestResponse200(final String body) {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(200)
+                .body(body)
+                .build());
+    }
+
+    /**
+     * Mock integration to return a 204 response from the empty operation
+     */
+    public static MockIntegration empty204() {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(204)
+                .build());
+    }
+
+    /**
+     * Mock integration to return a 200 response from the mediaTypes operation
+     */
+    public static MockIntegration mediaTypes200(final String body) {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(200)
+                .body(body)
+                .build());
+    }
+
+    /**
+     * Mock integration to return a 200 response from the multipleContentTypes operation
+     */
+    public static MockIntegration multipleContentTypes200(final String body) {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(200)
+                .body(body)
+                .build());
+    }
+
+    /**
+     * Mock integration to return a 200 response from the operationOne operation
+     */
+    public static MockIntegration operationOne200(final TestResponse body) {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(200)
+                .body(body.toJson())
+                .build());
+    }
+
+    /**
+     * Mock integration to return a 400 response from the operationOne operation
+     */
+    public static MockIntegration operationOne400(final ApiError body) {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(400)
+                .body(body.toJson())
+                .build());
+    }
+
+    /**
+     * Mock integration to return a 200 response from the withoutOperationIdDelete operation
+     */
+    public static MockIntegration withoutOperationIdDelete200(final TestResponse body) {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(200)
+                .body(body.toJson())
+                .build());
+    }
+
+}
+"
+`;

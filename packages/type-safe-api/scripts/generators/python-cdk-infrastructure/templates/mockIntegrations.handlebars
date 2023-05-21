@@ -1,0 +1,36 @@
+import json
+from aws_prototyping_sdk.type_safe_api import Integrations, MockIntegration
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.models import *
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.api_client import JSONEncoder
+
+class MockIntegrations:
+    """
+    Type-safe mock integrations for API operations
+    """
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    {{#responses}}
+    @staticmethod
+    def {{operationId}}_{{code}}({{^simpleType}}body: {{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/simpleType}}) -> MockIntegration:
+        """
+        Mock integration to return a {{code}} response from the {{nickname}} operation
+        """
+        return Integrations.mock(
+            status_code={{code}},
+            {{^simpleType}}
+            {{^isPrimitiveType}}
+            body=json.dumps(JSONEncoder().default(body)),
+            {{/isPrimitiveType}}
+            {{#isPrimitiveType}}
+            body=body,
+            {{/isPrimitiveType}}
+            {{/simpleType}}
+        )
+
+    {{/responses}}
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}

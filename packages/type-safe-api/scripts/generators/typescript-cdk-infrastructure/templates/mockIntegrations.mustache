@@ -1,0 +1,44 @@
+import {
+  {{#apiInfo}}
+  {{#models}}
+  {{#model}}
+  {{classname}},
+  {{classname}}ToJSON,
+  {{/model}}
+  {{/models}}
+  {{/apiInfo}}
+} from "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package-name}}{{/apis.0}}{{/apiInfo}}";
+import { Integrations, MockIntegration } from "@aws-prototyping-sdk/type-safe-api";
+
+/**
+ * Type-safe mock integrations for API operations
+ */
+export class MockIntegrations {
+  {{#apiInfo}}
+  {{#apis}}
+  {{#operations}}
+  {{#operation}}
+  {{#responses}}
+  /**
+   * Mock integration to return a {{code}} response from the {{nickname}} operation
+   */
+  public static {{nickname}}{{code}}({{#dataType}}body: {{#isPrimitiveType}}string{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}}{{/dataType}}): MockIntegration {
+    return Integrations.mock({
+      statusCode: {{code}},
+      {{#dataType}}
+      {{#isPrimitiveType}}
+      body,
+      {{/isPrimitiveType}}
+      {{^isPrimitiveType}}
+      body: JSON.stringify({{dataType}}ToJSON(body)),
+      {{/isPrimitiveType}}
+      {{/dataType}}
+    });
+  }
+
+  {{/responses}}
+  {{/operation}}
+  {{/operations}}
+  {{/apis}}
+  {{/apiInfo}}
+}
