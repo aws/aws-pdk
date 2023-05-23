@@ -209,7 +209,7 @@
           "exec": "pnpm exec pdk-release-version-sync"
         },
         {
-          "exec": "pnpm exec nx run-many --target=build --output-style=stream --nx-bail --exclude='tag:sample'"
+          "exec": "release:build"
         },
         {
           "exec": "pnpm exec nx affected --base=last-release --nx-bail --output-style=stream --exclude='tag:sample' --target=release:create"
@@ -219,6 +219,17 @@
         },
         {
           "spawn": "release:tag"
+        }
+      ]
+    },
+    "release:build": {
+      "name": "release:build",
+      "env": {
+        "SKIP_TEST": "true"
+      },
+      "steps": [
+        {
+          "exec": "pnpm exec nx run-many --target=build --output-style=stream --nx-bail --exclude='tag:sample'"
         }
       ]
     },
@@ -237,6 +248,9 @@
       "steps": [
         {
           "exec": "git tag -f last-release && git push origin last-release --force"
+        },
+        {
+          "exec": "git tag --list --contains `git rev-parse HEAD`"
         }
       ],
       "condition": "[ \"${CI:-false}\" = \"true\" ]"
