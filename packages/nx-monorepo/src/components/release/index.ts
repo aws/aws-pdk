@@ -117,7 +117,7 @@ export class NxRelease extends Component {
         },
         {
           // rebuild everything after versioning
-          exec: buildTask.name,
+          spawn: buildTask.name,
         },
         {
           // create github releases
