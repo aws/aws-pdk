@@ -32,6 +32,40 @@
         "cwd": "packages/type-safe-api"
       }
     },
+    "release:version:post": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec pdk-release-version-post false \"${projectName}\" \"${version}\" \"${tag}\" \"${previousTag}\" # ",
+        "cwd": "packages/type-safe-api"
+      }
+    },
+    "release:version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "baseBranch": "mainline",
+        "postTargets": [
+          "@aws-prototyping-sdk/type-safe-api:\"release:version:post\""
+        ],
+        "noVerify": true,
+        "push": false,
+        "trackDeps": true,
+        "skipCommit": true,
+        "changelogHeader": "# Changelog \n## Package `@aws-prototyping-sdk/type-safe-api` (**EXPERIMENTAL**) \n\n- **NPM:** [@aws-prototyping-sdk/type-safe-api](https://www.npmjs.com/package/@aws-prototyping-sdk/type-safe-api)\n- **Maven:** [software.aws.awsprototypingsdk.typesafeapi](https://central.sonatype.com/artifact/software.aws.awsprototypingsdk/type-safe-api)\n- **Pypi:** *aws_prototyping_sdk.type_safe_api*\n",
+        "cwd": "packages/type-safe-api"
+      }
+    },
+    "release:github": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "git push origin $RELEASE_TAG",
+          "gh release create $RELEASE_TAG CHANGELOG.md dist/js.zip dist/java.zip dist/python.zip --title \"$RELEASE_TAG\" --notes-file CHANGELOG.md"
+        ],
+        "envFile": "dist/.release.env",
+        "parallel": false,
+        "cwd": "packages/type-safe-api"
+      }
+    },
     "default": {
       "executor": "nx:run-commands",
       "options": {
@@ -144,31 +178,38 @@
         "cwd": "packages/type-safe-api"
       }
     },
-    "bump": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen bump",
-        "cwd": "packages/type-safe-api"
-      }
-    },
-    "unbump": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen unbump",
-        "cwd": "packages/type-safe-api"
-      }
-    },
-    "release:mainline": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen release:mainline",
-        "cwd": "packages/type-safe-api"
-      }
-    },
     "docgen": {
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm exec projen docgen",
+        "cwd": "packages/type-safe-api"
+      }
+    },
+    "release:prepare": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:prepare",
+        "cwd": "packages/type-safe-api"
+      }
+    },
+    "release:init": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:init",
+        "cwd": "packages/type-safe-api"
+      }
+    },
+    "release:publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:publish",
+        "cwd": "packages/type-safe-api"
+      }
+    },
+    "release:create": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:create",
         "cwd": "packages/type-safe-api"
       }
     }

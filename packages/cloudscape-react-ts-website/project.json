@@ -32,6 +32,40 @@
         "cwd": "packages/cloudscape-react-ts-website"
       }
     },
+    "release:version:post": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec pdk-release-version-post false \"${projectName}\" \"${version}\" \"${tag}\" \"${previousTag}\" # ",
+        "cwd": "packages/cloudscape-react-ts-website"
+      }
+    },
+    "release:version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "baseBranch": "mainline",
+        "postTargets": [
+          "@aws-prototyping-sdk/cloudscape-react-ts-website:\"release:version:post\""
+        ],
+        "noVerify": true,
+        "push": false,
+        "trackDeps": true,
+        "skipCommit": true,
+        "changelogHeader": "# Changelog \n## Package `@aws-prototyping-sdk/cloudscape-react-ts-website` (**EXPERIMENTAL**) \n\n- **NPM:** [@aws-prototyping-sdk/cloudscape-react-ts-website](https://www.npmjs.com/package/@aws-prototyping-sdk/cloudscape-react-ts-website)\n- **Maven:** [software.aws.awsprototypingsdk.cloudscapereacttswebsite](https://central.sonatype.com/artifact/software.aws.awsprototypingsdk/cloudscape-react-ts-website)\n- **Pypi:** *aws_prototyping_sdk.cloudscape_react_ts_website*\n",
+        "cwd": "packages/cloudscape-react-ts-website"
+      }
+    },
+    "release:github": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "git push origin $RELEASE_TAG",
+          "gh release create $RELEASE_TAG CHANGELOG.md dist/js.zip dist/java.zip dist/python.zip --title \"$RELEASE_TAG\" --notes-file CHANGELOG.md"
+        ],
+        "envFile": "dist/.release.env",
+        "parallel": false,
+        "cwd": "packages/cloudscape-react-ts-website"
+      }
+    },
     "default": {
       "executor": "nx:run-commands",
       "options": {
@@ -144,31 +178,38 @@
         "cwd": "packages/cloudscape-react-ts-website"
       }
     },
-    "bump": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen bump",
-        "cwd": "packages/cloudscape-react-ts-website"
-      }
-    },
-    "unbump": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen unbump",
-        "cwd": "packages/cloudscape-react-ts-website"
-      }
-    },
-    "release:mainline": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen release:mainline",
-        "cwd": "packages/cloudscape-react-ts-website"
-      }
-    },
     "docgen": {
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm exec projen docgen",
+        "cwd": "packages/cloudscape-react-ts-website"
+      }
+    },
+    "release:prepare": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:prepare",
+        "cwd": "packages/cloudscape-react-ts-website"
+      }
+    },
+    "release:init": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:init",
+        "cwd": "packages/cloudscape-react-ts-website"
+      }
+    },
+    "release:publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:publish",
+        "cwd": "packages/cloudscape-react-ts-website"
+      }
+    },
+    "release:create": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:create",
         "cwd": "packages/cloudscape-react-ts-website"
       }
     }

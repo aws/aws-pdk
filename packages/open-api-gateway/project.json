@@ -32,6 +32,40 @@
         "cwd": "packages/open-api-gateway"
       }
     },
+    "release:version:post": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec pdk-release-version-post false \"${projectName}\" \"${version}\" \"${tag}\" \"${previousTag}\" # ",
+        "cwd": "packages/open-api-gateway"
+      }
+    },
+    "release:version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "baseBranch": "mainline",
+        "postTargets": [
+          "@aws-prototyping-sdk/open-api-gateway:\"release:version:post\""
+        ],
+        "noVerify": true,
+        "push": false,
+        "trackDeps": true,
+        "skipCommit": true,
+        "changelogHeader": "# Changelog \n## Package `@aws-prototyping-sdk/open-api-gateway` (**EXPERIMENTAL**) \n\n- **NPM:** [@aws-prototyping-sdk/open-api-gateway](https://www.npmjs.com/package/@aws-prototyping-sdk/open-api-gateway)\n- **Maven:** [software.aws.awsprototypingsdk.openapigateway](https://central.sonatype.com/artifact/software.aws.awsprototypingsdk/open-api-gateway)\n- **Pypi:** *aws_prototyping_sdk.open_api_gateway*\n",
+        "cwd": "packages/open-api-gateway"
+      }
+    },
+    "release:github": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "git push origin $RELEASE_TAG",
+          "gh release create $RELEASE_TAG CHANGELOG.md dist/js.zip dist/java.zip dist/python.zip --title \"$RELEASE_TAG\" --notes-file CHANGELOG.md"
+        ],
+        "envFile": "dist/.release.env",
+        "parallel": false,
+        "cwd": "packages/open-api-gateway"
+      }
+    },
     "default": {
       "executor": "nx:run-commands",
       "options": {
@@ -144,31 +178,38 @@
         "cwd": "packages/open-api-gateway"
       }
     },
-    "bump": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen bump",
-        "cwd": "packages/open-api-gateway"
-      }
-    },
-    "unbump": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen unbump",
-        "cwd": "packages/open-api-gateway"
-      }
-    },
-    "release:mainline": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen release:mainline",
-        "cwd": "packages/open-api-gateway"
-      }
-    },
     "docgen": {
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm exec projen docgen",
+        "cwd": "packages/open-api-gateway"
+      }
+    },
+    "release:prepare": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:prepare",
+        "cwd": "packages/open-api-gateway"
+      }
+    },
+    "release:init": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:init",
+        "cwd": "packages/open-api-gateway"
+      }
+    },
+    "release:publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:publish",
+        "cwd": "packages/open-api-gateway"
+      }
+    },
+    "release:create": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:create",
         "cwd": "packages/open-api-gateway"
       }
     }

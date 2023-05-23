@@ -7,7 +7,7 @@ import { Obj } from "projen/lib/util";
 import { inferBuildTarget } from "./targets";
 import { Nx } from "../../nx-types";
 import { NodePackageUtils } from "../../utils";
-import { asUndefinedIfEmpty, deepMerge } from "../../utils/common";
+import { asUndefinedIfEmpty, cloneDeep, deepMerge } from "../../utils/common";
 import { NxWorkspace } from "../nx-workspace";
 
 // List of tasks that are excluded from nx tasks for node projects
@@ -209,18 +209,20 @@ export class NxProject extends Component {
     target: Nx.IProjectTarget,
     includeDefaults: boolean | string = false
   ): void {
-    let _default = {};
+    let _default: any;
     if (includeDefaults) {
       if (this.targets[name]) {
         _default = this.targets[name];
       } else {
-        (_default = this._getTargetDefaults(
+        _default = this._getTargetDefaults(
           includeDefaults === true ? name : includeDefaults
-        )),
-          this.targets[name] || {};
+        );
       }
     }
-    this.targets[name] = deepMerge([_default, target], { append: true });
+
+    this.targets[name] = _default
+      ? deepMerge([_default, target], { append: true })
+      : cloneDeep(target);
   }
 
   /**

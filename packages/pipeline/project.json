@@ -32,6 +32,40 @@
         "cwd": "packages/pipeline"
       }
     },
+    "release:version:post": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec pdk-release-version-post false \"${projectName}\" \"${version}\" \"${tag}\" \"${previousTag}\" # ",
+        "cwd": "packages/pipeline"
+      }
+    },
+    "release:version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "baseBranch": "mainline",
+        "postTargets": [
+          "@aws-prototyping-sdk/pipeline:\"release:version:post\""
+        ],
+        "noVerify": true,
+        "push": false,
+        "trackDeps": true,
+        "skipCommit": true,
+        "changelogHeader": "# Changelog \n## Package `@aws-prototyping-sdk/pipeline` (**STABLE**) \n\n- **NPM:** [@aws-prototyping-sdk/pipeline](https://www.npmjs.com/package/@aws-prototyping-sdk/pipeline)\n- **Maven:** [software.aws.awsprototypingsdk.pipeline](https://central.sonatype.com/artifact/software.aws.awsprototypingsdk/pipeline)\n- **Pypi:** *aws_prototyping_sdk.pipeline*\n",
+        "cwd": "packages/pipeline"
+      }
+    },
+    "release:github": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "git push origin $RELEASE_TAG",
+          "gh release create $RELEASE_TAG CHANGELOG.md dist/js.zip dist/java.zip dist/python.zip --title \"$RELEASE_TAG\" --notes-file CHANGELOG.md"
+        ],
+        "envFile": "dist/.release.env",
+        "parallel": false,
+        "cwd": "packages/pipeline"
+      }
+    },
     "default": {
       "executor": "nx:run-commands",
       "options": {
@@ -144,31 +178,38 @@
         "cwd": "packages/pipeline"
       }
     },
-    "bump": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen bump",
-        "cwd": "packages/pipeline"
-      }
-    },
-    "unbump": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen unbump",
-        "cwd": "packages/pipeline"
-      }
-    },
-    "release:mainline": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen release:mainline",
-        "cwd": "packages/pipeline"
-      }
-    },
     "docgen": {
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm exec projen docgen",
+        "cwd": "packages/pipeline"
+      }
+    },
+    "release:prepare": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:prepare",
+        "cwd": "packages/pipeline"
+      }
+    },
+    "release:init": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:init",
+        "cwd": "packages/pipeline"
+      }
+    },
+    "release:publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:publish",
+        "cwd": "packages/pipeline"
+      }
+    },
+    "release:create": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:create",
         "cwd": "packages/pipeline"
       }
     }

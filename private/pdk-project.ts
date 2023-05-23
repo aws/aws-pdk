@@ -10,9 +10,9 @@ import {
   Stability,
 } from "projen/lib/cdk";
 import { NodePackageManager } from "projen/lib/javascript";
-import { Release } from "projen/lib/release";
 import { NodePackageUtils } from "../packages/nx-monorepo/src";
 import { NxProject } from "../packages/nx-monorepo/src/components/nx-project";
+import { NxReleaseProject } from "../packages/nx-monorepo/src/components/release";
 import type { Nx } from "../packages/nx-monorepo/src/nx-types";
 
 export type PublishConfig = _PublishConfig & {
@@ -58,7 +58,6 @@ export interface PDKProjectOptions extends JsiiProjectOptions {
  * This project handles correct naming for the PDK, along with validation and auto publishing of artifacts to the various package managers.
  */
 export abstract class PDKProject extends JsiiProject {
-  public readonly pdkRelease: PDKRelease;
   public readonly options: PDKProjectOptions;
   public readonly nx: NxProject;
 
@@ -183,50 +182,45 @@ export abstract class PDKProject extends JsiiProject {
       ],
     });
 
+    this.addDevDeps("license-checker");
+
+    this.packageTask.reset();
+    this.packageTask.exec(
+      NodePackageUtils.command.exec(
+        this.package.packageManager,
+        "license-checker",
+        "--summary",
+        "--production",
+        "--onlyAllow",
+        "'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
+      )
+    );
+    // this.packageTask.exec(
+    //     `${execute(project.package.packageManager)} generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution`
+    // );
+    this.packageTask.spawn(this.tasks.tryFind("package-all")!);
+    this.npmignore?.addPatterns("!LICENSE_THIRD_PARTY");
+
+    this.package.addField("publishConfig", {
+      access: "public",
+      ...options.publishConfig,
+    });
+
     this.nx = NxProject.ensure(this);
     options.nx && this.nx.merge(options.nx);
 
+    this.nx.addBuildTargetFiles(
+      ["!{projectRoot}/LICENSE_THIRD_PARTY"],
+      ["{projectRoot}/LICENSE_THIRD_PARTY"]
+    );
+
     // Make sure this is after NxProject so targets can be updated after inference
-    this.pdkRelease = new PDKRelease(this, options.publishConfig);
+   const release =  NxReleaseProject.ensure(this);
+   // TODO: remove this once we start graduating packages to 1.x, for now this will force all packages to 0.x
+   release.stable = false; // overrides project stability value for versioning
+
     new PDKDocgen(this);
   }
-
-  // /**
-  //  * Get Nx project configuration.
-  //  *
-  //  * If project does not have explicit Nx configuration, the workspace defaults
-  //  * will be returned.
-  //  *
-  //  * @see https://nx.dev/reference/project-configuration
-  //  */
-  // public get nx(): Nx.ProjectConfig | undefined {
-  //   return this.manifest.nx || cloneDeep({ targets: NX_TARGET_DEFAULTS });
-  // }
-
-  // /**
-  //  * Set Nx project configuration.
-  //  *
-  //  * This will overwrite the entire configuration and replace any workspace
-  //  * defaults of same key.
-  //  *
-  //  * @see https://nx.dev/reference/project-configuration
-  //  */
-  // public set nx(config: Nx.ProjectConfig | undefined) {
-  //   this.package.addField("nx", config);
-  // }
-
-  // /**
-  //  * Override specific Nx config value for specific path.
-  //  * @param path Key path to override value
-  //  * @param value Value to override
-  //  * @param {boolean} [append=false] Indicates if array values are appended to, rather than overwritten.
-  //  */
-  // public nxOverride(path: string, value: any, append?: boolean): void {
-  //   const nx = cloneDeep(this.nx);
-  //   overrideField(nx, path, value, append);
-
-  //   this.nx = nx;
-  // }
 }
 
 class PDKDocgen {
@@ -259,61 +253,6 @@ class PDKDocgen {
     project.postCompileTask.spawn(docgen);
     project.gitignore.exclude(`/${docsBasePath}`);
     project.annotateGenerated(`/${docsBasePath}`);
-  }
-}
-
-/**
- * Enforces licenses and attribution are checked and included as part of the release distributable. Sets up a release:mainline task which
- * bumps package versions using semantic versioning.
- */
-class PDKRelease extends Release {
-  constructor(project: PDKProject, publishConfig?: PublishConfig) {
-    super(project, {
-      versionFile: "package.json",
-      task: project.buildTask,
-      branch: "mainline",
-      artifactsDirectory: project.artifactsDirectory,
-    });
-
-    project.addDevDeps("license-checker");
-
-    project.packageTask.reset();
-    project.packageTask.exec(
-      NodePackageUtils.command.exec(
-        project.package.packageManager,
-        "license-checker",
-        "--summary",
-        "--production",
-        "--onlyAllow",
-        "'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
-      )
-    );
-    // project.packageTask.exec(
-    //     `${execute(project.package.packageManager)} generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution`
-    // );
-    project.packageTask.spawn(project.tasks.tryFind("package-all")!);
-    project.npmignore?.addPatterns("!LICENSE_THIRD_PARTY");
-
-    const releaseTask = project.tasks.tryFind("release:mainline")!;
-    releaseTask.reset();
-    releaseTask.env("RELEASE", "true");
-    releaseTask.exec("rm -rf dist");
-    releaseTask.spawn(project.tasks.tryFind("bump")!);
-    releaseTask.spawn(project.preCompileTask);
-    releaseTask.spawn(project.compileTask);
-    releaseTask.spawn(project.postCompileTask);
-    releaseTask.spawn(project.packageTask);
-    releaseTask.spawn(project.tasks.tryFind("unbump")!);
-
-    project.package.addField("publishConfig", {
-      access: "public",
-      ...publishConfig,
-    });
-
-    NxProject.of(project)?.addBuildTargetFiles(
-      ["!{projectRoot}/LICENSE_THIRD_PARTY"],
-      ["{projectRoot}/LICENSE_THIRD_PARTY"]
-    );
   }
 }
 

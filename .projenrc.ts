@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { NxProject } from "./packages/nx-monorepo/src/components/nx-project";
-import { PDKProject } from "./private/pdk-project";
+import { NxReleaseProject } from "./packages/nx-monorepo/src/components/release";
 import { AwsArchProject } from "./private/projects/aws-arch";
 import { CdkGraphProject } from "./private/projects/cdk-graph";
 import { CdkGraphPluginDiagramProject } from "./private/projects/cdk-graph-plugin-diagram";
@@ -37,8 +37,8 @@ new PipelineProject(monorepoProject);
 const docsProject = new DocsProject(monorepoProject);
 // Docs should have a dependency on all publishable packages
 NxProject.ensure(docsProject).addImplicitDependency(
-  ...monorepoProject.sortedSubProjects.filter(
-    (s: any) => s instanceof PDKProject && s.pdkRelease
+  ...monorepoProject.sortedSubProjects.filter((s: any) =>
+    NxReleaseProject.of(s)
   )
 );
 

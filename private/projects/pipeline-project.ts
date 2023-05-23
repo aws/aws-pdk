@@ -8,7 +8,7 @@ import { JavaProject } from "projen/lib/java";
 import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { NodePackageUtils } from "../../packages/nx-monorepo/src";
+import { NodePackageUtils, NxProject } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
 /**
@@ -41,6 +41,11 @@ export class PipelineProject extends PDKProject {
       new PipelinePythonSampleProject(parent),
       new PipelineJavaSampleProject(parent)
     );
+
+    this._samples.forEach((sample) => {
+      NxProject.ensure(sample).addImplicitDependency(this);
+      NxProject.ensure(sample).addTag("sample");
+    })
 
     this.preCompileTask.exec(
       'rm -rf samples && rsync -a ../../samples . --include="*/" --include="pipeline/typescript/src/**" --include="pipeline/typescript/test/**"  --include="pipeline/python/infra/*.py" --include="pipeline/python/tests/*.py" --include="pipeline/java/src/**" --exclude="*" --prune-empty-dirs'

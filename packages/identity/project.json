@@ -32,6 +32,40 @@
         "cwd": "packages/identity"
       }
     },
+    "release:version:post": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec pdk-release-version-post false \"${projectName}\" \"${version}\" \"${tag}\" \"${previousTag}\" # ",
+        "cwd": "packages/identity"
+      }
+    },
+    "release:version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "baseBranch": "mainline",
+        "postTargets": [
+          "@aws-prototyping-sdk/identity:\"release:version:post\""
+        ],
+        "noVerify": true,
+        "push": false,
+        "trackDeps": true,
+        "skipCommit": true,
+        "changelogHeader": "# Changelog \n## Package `@aws-prototyping-sdk/identity` (**EXPERIMENTAL**) \n\n- **NPM:** [@aws-prototyping-sdk/identity](https://www.npmjs.com/package/@aws-prototyping-sdk/identity)\n- **Maven:** [software.aws.awsprototypingsdk.identity](https://central.sonatype.com/artifact/software.aws.awsprototypingsdk/identity)\n- **Pypi:** *aws_prototyping_sdk.identity*\n",
+        "cwd": "packages/identity"
+      }
+    },
+    "release:github": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "git push origin $RELEASE_TAG",
+          "gh release create $RELEASE_TAG CHANGELOG.md dist/js.zip dist/java.zip dist/python.zip --title \"$RELEASE_TAG\" --notes-file CHANGELOG.md"
+        ],
+        "envFile": "dist/.release.env",
+        "parallel": false,
+        "cwd": "packages/identity"
+      }
+    },
     "default": {
       "executor": "nx:run-commands",
       "options": {
@@ -144,31 +178,38 @@
         "cwd": "packages/identity"
       }
     },
-    "bump": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen bump",
-        "cwd": "packages/identity"
-      }
-    },
-    "unbump": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen unbump",
-        "cwd": "packages/identity"
-      }
-    },
-    "release:mainline": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec projen release:mainline",
-        "cwd": "packages/identity"
-      }
-    },
     "docgen": {
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm exec projen docgen",
+        "cwd": "packages/identity"
+      }
+    },
+    "release:prepare": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:prepare",
+        "cwd": "packages/identity"
+      }
+    },
+    "release:init": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:init",
+        "cwd": "packages/identity"
+      }
+    },
+    "release:publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:publish",
+        "cwd": "packages/identity"
+      }
+    },
+    "release:create": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec projen release:create",
         "cwd": "packages/identity"
       }
     }

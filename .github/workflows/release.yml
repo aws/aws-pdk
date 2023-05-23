@@ -1,22 +1,39 @@
 name: release
+# Ensure each release is completed before next is performed
+concurrency: release_mainline
 on:
   push:
     branches:
       - mainline
   workflow_dispatch: {}
-env:
-  NX_BRANCH: mainline
-  NX_RUN_GROUP: ${{ github.run_id }}
-  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    outputs:
-      latest_commit: ${{ steps.git_remote.outputs.latest_commit }}
     env:
-      CI: "true"
+      # NX
+      NX_BRANCH: mainline
+      NX_RUN_GROUP: ${{ github.run_id }}
+      NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+      # GITHUB
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_REF: ${{ github.ref }}
+      # NPM
+      NPM_DIST_TAG: latest
+      NPM_REGISTRY: registry.npmjs.org
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # MAVEN
+      MAVEN_ENDPOINT: https://aws.oss.sonatype.org
+      MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+      MAVEN_GPG_PRIVATE_KEY_PASSPHRASE: ${{ secrets.MAVEN_GPG_PRIVATE_KEY_PASSPHRASE }}
+      MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+      MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+      MAVEN_STAGING_PROFILE_ID: ${{ secrets.MAVEN_STAGING_PROFILE_ID }}
+      # PYPI
+      TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+      TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -25,7 +42,7 @@ jobs:
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         uses: nrwl/nx-set-shas@v2
         with:
-          main-branch-name: 'mainline'
+          main-branch-name: "mainline"
       - name: Set git identity
         run: |-
           git config user.name "github-actions"
@@ -35,160 +52,47 @@ jobs:
       - name: Build
         run: NX_CLOUD_NO_TIMEOUTS=true pnpm build
       - name: Release
-        run: pnpm run-many --target=release:mainline --all --parallel=4 --output-style stream --nx-bail
+        run: pnpm exec release
       - name: Check for mutations
         run: git diff --ignore-space-at-eol --exit-code
-      - name: Check for new commits
-        id: git_remote
-        run: echo ::set-output name=latest_commit::"$(git ls-remote origin -h ${{ github.ref }} | cut -f1)"
-      - name: Extract Dists
-        run: rsync -a . ./dist --include="*/" --include="/public/docs/dist/**" --include="/packages/*/dist/**" --exclude="*" --prune-empty-dirs
-      - name: Upload artifact
-        if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
-        uses: actions/upload-artifact@v2.1.1
+      - name: Tag last-release
+        shell: bash
+        run: |
+          git tag -f last-release
+          git push origin last-release --force
+      - name: Print release tags
+        run: git tag --list --contains `git rev-parse HEAD`
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v2
         with:
-          name: build-artifact
-          path: dist
-  release_github:
-    name: Publish to GitHub Releases
-    needs: release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    if: needs.release.outputs.latest_commit == github.sha
-    steps:
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 14.x
-      - name: Download build artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: build-artifact
-          path: dist
-      - name: Release
-        run: errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY -F dist/changelog.md -t $(cat dist/releasetag.txt) --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode -ne 0 ] && ! grep -q "Release.tag_name already exists" $errout; then cat $errout; exit $exitcode; fi
-        working-directory: dist/packages/nx-monorepo
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_REF: ${{ github.ref }}
-  release_npm:
-    name: Publish to npm
-    needs: release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    if: needs.release.outputs.latest_commit == github.sha
-    steps:
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install pnpm
-        run: npm install -g pnpm
-      - name: Download build artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: build-artifact
-          path: dist
-      - name: Release
-        working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/js" ] && pnpm --package publib@latest dlx publib-npm || echo "Ignore `basename $PWD` - no dist/js" ) && cd ..; done;
-        env:
-          NPM_DIST_TAG: latest
-          NPM_REGISTRY: registry.npmjs.org
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-  release_maven:
-    name: Publish to Maven Central
-    needs: release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    if: needs.release.outputs.latest_commit == github.sha
-    steps:
-      - uses: actions/setup-java@v2
-        with:
-          distribution: temurin
-          java-version: 11.x
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install pnpm
-        run: npm install -g pnpm
-      - name: Download build artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: build-artifact
-          path: dist
-      - name: Release
-        working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/java" ] && pnpm --package publib@latest dlx publib-maven || echo "Ignore `basename $PWD` - no dist/java" ) && cd ..; done;
-        env:
-          MAVEN_ENDPOINT: https://aws.oss.sonatype.org
-          MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-          MAVEN_GPG_PRIVATE_KEY_PASSPHRASE: ${{ secrets.MAVEN_GPG_PRIVATE_KEY_PASSPHRASE }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-          MAVEN_STAGING_PROFILE_ID: ${{ secrets.MAVEN_STAGING_PROFILE_ID }}
-  release_pypi:
-    name: Publish to PyPI
-    needs: release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    if: needs.release.outputs.latest_commit == github.sha
-    steps:
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install pnpm
-        run: npm install -g pnpm
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-      - name: Download build artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: build-artifact
-          path: dist
-      - name: Release
-        working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/python" ] && pnpm --package publib@latest dlx publib-pypi || echo "Ignore `basename $PWD` - no dist/python" ) && cd ..; done;
-        env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+          name: docs-artifact
+          # Only include the docs dist, which is the root of gh-pages branch
+          path: public/docs/dist
   release_docs:
-    needs: release_github
+    needs: release
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: needs.release.outputs.latest_commit == github.sha
+    env:
+      # GITHUB
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
     steps:
       - name: Check out
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
         with:
           ref: gh-pages
           fetch-depth: 0
       - name: Download build artifacts
         uses: actions/download-artifact@v2
         with:
-          name: build-artifact
-          path: dist
+          name: docs-artifact
       - name: Configure Git
         run: |-
           git config user.name "AWS PDK Automation"
           git config user.email "aws-pdk+automation@amazon.com"
-      - name: Upload docs to Github
-        run: zip -r docs.zip dist/public/docs/dist/docs/* && gh release upload $(cat dist/packages/nx-monorepo/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
       - name: Prepare Commit
         run: |-
-          mv dist/public/docs/dist ${{ runner.temp }}/dist
-          rsync --delete --exclude=.git --recursive ${{ runner.temp }}/dist/docs/ .
           touch .nojekyll
           git add .
           git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')

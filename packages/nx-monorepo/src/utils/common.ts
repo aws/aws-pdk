@@ -1,6 +1,17 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { relative } from "node:path";
+import { Project } from "projen";
 import { Obj, deepMerge as _deepMerge, isObject } from "projen/lib/util";
+
+/** Get the relative output directory from the workspace root */
+export function relativeOutdir(project: Project): string {
+  if (project.root === project) {
+    return "./";
+  }
+
+  return relative(project.root.outdir, project.outdir);
+}
 
 /**
  * Utility to deeply clone a value
