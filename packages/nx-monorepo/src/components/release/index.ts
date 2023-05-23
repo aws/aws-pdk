@@ -37,6 +37,13 @@ export class NxRelease extends Component {
    */
   nxArgs?: string[];
 
+  /**
+   * Indicates if test task is skipping during release build.
+   *
+   * @default true
+   */
+  skipTestDuringBuild: boolean = true;
+
   constructor(project: Project) {
     // Make sure only being added to the root project.
     if (project.root !== project) {
@@ -74,6 +81,17 @@ export class NxRelease extends Component {
       this.lastReleaseTag
     } --nx-bail --output-style=stream ${(this.nxArgs || []).join(" ")}`;
 
+    const buildTask = this.project.addTask("release:build", {
+      env: {
+        SKIP_TEST: "true",
+      },
+      exec: NodePackageUtils.command.exec(
+        NodePackageUtils.resolvePackageManager(this.project),
+        "nx run-many --target=build --output-style=stream --nx-bail",
+        ...(this.nxArgs || [])
+      ),
+    });
+
     const releaseTask = this.project.addTask("release", {
       steps: [
         {
@@ -99,11 +117,7 @@ export class NxRelease extends Component {
         },
         {
           // rebuild everything after versioning
-          exec: NodePackageUtils.command.exec(
-            NodePackageUtils.resolvePackageManager(this.project),
-            "nx run-many --target=build --output-style=stream --nx-bail",
-            ...(this.nxArgs || [])
-          ),
+          exec: buildTask.name,
         },
         {
           // create github releases
@@ -129,6 +143,8 @@ export class NxRelease extends Component {
       exec: `git tag -f ${this.lastReleaseTag} && git push origin ${this.lastReleaseTag} --force`,
       condition: `[ "\${CI:-false}" = "true" ]`,
     });
+    // print all local tags for this release
+    tagTask.exec("git tag --list --contains `git rev-parse HEAD`");
     releaseTask.spawn(tagTask);
 
     const initTask = this.project.addTask("release:init", {
@@ -180,6 +196,13 @@ export class NxReleaseProject extends Component {
    * Will default to the project's `stability` property or `false` if project does not have stability defined.
    */
   stable?: boolean;
+
+  /**
+   * Indicates if test task is skipping during release build.
+   *
+   * @default {boolean} {@link NxRelease.skipTestDuringBuild}
+   */
+  skipTestDuringBuild?: boolean;
 
   constructor(project: Project) {
     // Make sure we only ever have 1 instance of NxReleaseProject component per project
@@ -373,6 +396,18 @@ export class NxReleaseProject extends Component {
       ),
       condition: `[ "\${CI:-false}" = "true" ] && [ -f "${RELEASE_ENV}" ]`,
     });
+
+    if (
+      this.skipTestDuringBuild === true ||
+      (this.skipTestDuringBuild == null && release.skipTestDuringBuild === true)
+    ) {
+      const condition =
+        (this.project.testTask.condition
+          ? `${this.project.testTask.condition} && `
+          : "") + '[ "${SKIP_TEST:-false}" = "true" ]';
+      // @ts-ignore - private
+      this.project.testTask.condition = condition;
+    }
   }
 }
 

@@ -16,6 +16,7 @@ jobs:
       NX_BRANCH: mainline
       NX_RUN_GROUP: ${{ github.run_id }}
       NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+      NX_CLOUD_NO_TIMEOUTS: true
       # GITHUB
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_REPOSITORY: ${{ github.repository }}
@@ -39,6 +40,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         uses: nrwl/nx-set-shas@v2
         with:
@@ -50,18 +52,9 @@ jobs:
       - name: PDK Init
         uses: ./.github/actions/pdk-init
       - name: Build
-        run: NX_CLOUD_NO_TIMEOUTS=true pnpm build
+        run: pnpm build
       - name: Release
         run: pnpm release
-      - name: Check for mutations
-        run: git diff --ignore-space-at-eol --exit-code
-      - name: Tag last-release
-        shell: bash
-        run: |
-          git tag -f last-release
-          git push origin last-release --force
-      - name: Print release tags
-        run: git tag --list --contains `git rev-parse HEAD`
       - name: Upload docs artifact
         uses: actions/upload-artifact@v2
         with:
