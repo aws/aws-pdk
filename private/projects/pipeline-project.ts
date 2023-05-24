@@ -45,7 +45,7 @@ export class PipelineProject extends PDKProject {
     this._samples.forEach((sample) => {
       NxProject.ensure(sample).addImplicitDependency(this);
       NxProject.ensure(sample).addTag("sample");
-    })
+    });
 
     this.preCompileTask.exec(
       'rm -rf samples && rsync -a ../../samples . --include="*/" --include="pipeline/typescript/src/**" --include="pipeline/typescript/test/**"  --include="pipeline/python/infra/*.py" --include="pipeline/python/tests/*.py" --include="pipeline/java/src/**" --exclude="*" --prune-empty-dirs'
@@ -111,18 +111,15 @@ export class PipelinePythonSampleProject extends PythonProject {
       ],
     });
 
-    const installTask =
-      this.tasks.tryFind("install") ?? this.addTask("install");
-    installTask.reset();
-    installTask.exec("pip install --upgrade pip");
-    installTask.exec(
+    this.tasks.tryFind("install")?.reset();
+    this.preCompileTask.reset();
+    this.preCompileTask.exec("pip install --upgrade pip");
+    this.preCompileTask.exec(
       'cat requirements.txt | cut -f1 -d"#" | xargs -n 1 pip install --force-reinstall || echo "\\033[33mInstalled with some errors\\033[0m"'
     );
-    installTask.exec(
+    this.preCompileTask.exec(
       'cat requirements-dev.txt | cut -f1 -d"#" | xargs -n 1 pip install --force-reinstall || echo "\\033[33mInstalled with some errors\\033[0m"'
     );
-
-    this.preCompileTask.spawn(installTask);
   }
 }
 

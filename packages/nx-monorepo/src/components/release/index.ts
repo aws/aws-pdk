@@ -404,7 +404,7 @@ export class NxReleaseProject extends Component {
       const condition =
         (this.project.testTask.condition
           ? `${this.project.testTask.condition} && `
-          : "") + '[ "${SKIP_TEST:-false}" = "true" ]';
+          : "") + '[ "${SKIP_TEST:-false}" != "true" ]';
       // @ts-ignore - private
       this.project.testTask.condition = condition;
     }
