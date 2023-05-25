@@ -152,7 +152,7 @@ export class NxRelease extends Component {
         "Initialize the repository for release by ensuring release tag",
       // Do not push this tag, we just need it locally
       exec: `git tag -f ${this.lastReleaseTag} $(git rev-list --max-parents=0 HEAD)^{}`,
-      condition: `[[ ! $(git tag -l "${this.lastReleaseTag}") ]]`,
+      condition: `[ -z "$(git tag -l '${this.lastReleaseTag}')" ]`,
     });
 
     releaseTask.prependSpawn(initTask);
@@ -264,9 +264,9 @@ export class NxReleaseProject extends Component {
         },
       ],
       // only need to create tag if none exist for minVersion major
-      condition: `[[ ! $(git tag -l "${this.project.name}-${
+      condition: `[ -z "$(git tag -l '${this.project.name}-${
         stable ? "1" : "0"
-      }.*") ]]`,
+      }.*')" ]`,
     });
     prepareTask.spawn(initTask);
 
