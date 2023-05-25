@@ -112,7 +112,10 @@ describe("NX Monorepo Unit Tests", () => {
       devDeps: [],
       deps: ["jest"],
     });
+    const ciEnv = process.env.CI;
+    process.env.CI = "";
     project.synth();
+    process.env.CI = ciEnv;
     expect(tryReadFileSync(project.package.file.absolutePath)).toMatchSnapshot(
       "parent"
     );
