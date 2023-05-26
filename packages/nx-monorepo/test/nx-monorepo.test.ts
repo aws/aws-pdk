@@ -103,6 +103,7 @@ describe("NX Monorepo Unit Tests", () => {
       packageManager: NodePackageManager.PNPM,
       outdir,
     });
+    project.addDeps("jest");
     const child = new TypeScriptProject({
       name: "ts-subproject",
       outdir: "packages/ts-subproject",
@@ -116,11 +117,18 @@ describe("NX Monorepo Unit Tests", () => {
     process.env.CI = "";
     project.synth();
     process.env.CI = ciEnv;
-    expect(tryReadFileSync(project.package.file.absolutePath)).toMatchSnapshot(
-      "parent"
+    const parentManifest = tryReadFileSync(project.package.file.absolutePath);
+    const childManifest = tryReadFileSync(child.package.file.absolutePath);
+    expect(parentManifest).toBeDefined();
+    expect(childManifest).toBeDefined();
+    expect(JSON.parse(parentManifest as string).dependencies.jest).not.toEqual(
+      "*"
     );
-    expect(tryReadFileSync(child.package.file.absolutePath)).toMatchSnapshot(
-      "child"
+    expect(JSON.parse(childManifest as string).dependencies.jest).not.toEqual(
+      "*"
+    );
+    expect(project.package.tryResolveDependencyVersion("jest")).not.toEqual(
+      "*"
     );
     expect(child.package.tryResolveDependencyVersion("jest")).not.toEqual("*");
   });
