@@ -69,7 +69,7 @@ async function linkBundledTransitiveDeps(workspaceDir: string, pkgFolder: string
         throw new Error(`Pnpm dependency path not found: ${dep.path}`);
       }
 
-      await fs.createSymlink(dep.path, _dest, "dir");
+      fs.copySync(dep.path, _dest, { dereference: true });
     }
   }
 
