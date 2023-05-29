@@ -184,6 +184,12 @@ export abstract class PDKProject extends JsiiProject {
 
     this.addDevDeps("license-checker");
 
+    // Ensure all linked files are converted before packaging!
+    const resolveSymlinksTask = this.addTask("resolve-symlinks", {
+      exec: `find . -type l -execdir bash -c 'P=$(readlink "$1") && rm -rf $1 && cp -r $P $1' bash {} \\;`,
+      condition: `[ "\${CI:-false}" = "true" ] && [ "\${RELEASE:-false}" = "true" ]`,
+    });
+
     this.packageTask.reset();
     this.packageTask.exec(
       NodePackageUtils.command.exec(
@@ -198,6 +204,7 @@ export abstract class PDKProject extends JsiiProject {
     // this.packageTask.exec(
     //     `${execute(project.package.packageManager)} generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution`
     // );
+    this.packageTask.spawn(resolveSymlinksTask);
     this.packageTask.spawn(this.tasks.tryFind("package-all")!);
     this.npmignore?.addPatterns("!LICENSE_THIRD_PARTY");
 
@@ -215,9 +222,9 @@ export abstract class PDKProject extends JsiiProject {
     );
 
     // Make sure this is after NxProject so targets can be updated after inference
-   const release =  NxReleaseProject.ensure(this);
-   // TODO: remove this once we start graduating packages to 1.x, for now this will force all packages to 0.x
-   release.stable = false; // overrides project stability value for versioning
+    const release = NxReleaseProject.ensure(this);
+    // TODO: remove this once we start graduating packages to 1.x, for now this will force all packages to 0.x
+    release.stable = false; // overrides project stability value for versioning
 
     new PDKDocgen(this);
   }
