@@ -5883,6 +5883,8 @@ build.gradle
 build.sbt
 docs/ApiError.md
 docs/DefaultApi.md
+docs/MapResponse200Response.md
+docs/MapResponse200ResponseMapPropertyValue.md
 docs/TestRequest.md
 docs/TestResponse.md
 docs/TestResponseMessagesInner.md
@@ -5919,11 +5921,15 @@ src/main/java/test/test/runtime/auth/HttpBasicAuth.java
 src/main/java/test/test/runtime/auth/HttpBearerAuth.java
 src/main/java/test/test/runtime/model/AbstractOpenApiSchema.java
 src/main/java/test/test/runtime/model/ApiError.java
+src/main/java/test/test/runtime/model/MapResponse200Response.java
+src/main/java/test/test/runtime/model/MapResponse200ResponseMapPropertyValue.java
 src/main/java/test/test/runtime/model/TestRequest.java
 src/main/java/test/test/runtime/model/TestResponse.java
 src/main/java/test/test/runtime/model/TestResponseMessagesInner.java
 src/test/java/test/test/runtime/api/DefaultApiTest.java
 src/test/java/test/test/runtime/model/ApiErrorTest.java
+src/test/java/test/test/runtime/model/MapResponse200ResponseMapPropertyValueTest.java
+src/test/java/test/test/runtime/model/MapResponse200ResponseTest.java
 src/test/java/test/test/runtime/model/TestRequestTest.java
 src/test/java/test/test/runtime/model/TestResponseMessagesInnerTest.java
 src/test/java/test/test/runtime/model/TestResponseTest.java
@@ -6048,6 +6054,7 @@ Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *DefaultApi* | [**anyRequestResponse**](docs/DefaultApi.md#anyRequestResponse) | **PUT** /any-request-response | 
 *DefaultApi* | [**empty**](docs/DefaultApi.md#empty) | **PUT** /empty-response | 
+*DefaultApi* | [**mapResponse**](docs/DefaultApi.md#mapResponse) | **GET** /map-response | 
 *DefaultApi* | [**mediaTypes**](docs/DefaultApi.md#mediaTypes) | **POST** /different-media-type | 
 *DefaultApi* | [**multipleContentTypes**](docs/DefaultApi.md#multipleContentTypes) | **POST** /multiple-content-types | 
 *DefaultApi* | [**operationOne**](docs/DefaultApi.md#operationOne) | **POST** /path/{pathParam} | 
@@ -6057,6 +6064,8 @@ Class | Method | HTTP request | Description
 ## Documentation for Models
 
  - [ApiError](docs/ApiError.md)
+ - [MapResponse200Response](docs/MapResponse200Response.md)
+ - [MapResponse200ResponseMapPropertyValue](docs/MapResponse200ResponseMapPropertyValue.md)
  - [TestRequest](docs/TestRequest.md)
  - [TestResponse](docs/TestResponse.md)
  - [TestResponseMessagesInner](docs/TestResponseMessagesInner.md)
@@ -6162,6 +6171,17 @@ paths:
         "204":
           description: No response body!
       x-accepts: application/json
+  /map-response:
+    get:
+      operationId: mapResponse
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mapResponse_200_response'
+          description: Successful response
+      x-accepts: application/json
   /any-request-response:
     put:
       operationId: anyRequestResponse
@@ -6241,6 +6261,24 @@ components:
       required:
       - messages
       type: object
+    mapResponse_200_response_mapProperty_value:
+      properties:
+        a:
+          type: string
+        b:
+          type: string
+      required:
+      - a
+      type: object
+    mapResponse_200_response:
+      properties:
+        mapProperty:
+          additionalProperties:
+            $ref: '#/components/schemas/mapResponse_200_response_mapProperty_value'
+          type: object
+      required:
+      - mapProperty
+      type: object
     TestResponse_messages_inner:
       properties:
         message:
@@ -6274,6 +6312,7 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 | [**anyRequestResponse**](DefaultApi.md#anyRequestResponse) | **PUT** /any-request-response |  |
 | [**empty**](DefaultApi.md#empty) | **PUT** /empty-response |  |
+| [**mapResponse**](DefaultApi.md#mapResponse) | **GET** /map-response |  |
 | [**mediaTypes**](DefaultApi.md#mediaTypes) | **POST** /different-media-type |  |
 | [**multipleContentTypes**](DefaultApi.md#multipleContentTypes) | **POST** /multiple-content-types |  |
 | [**operationOne**](DefaultApi.md#operationOne) | **POST** /path/{pathParam} |  |
@@ -6397,6 +6436,63 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **204** | No response body! |  -  |
+
+<a name="mapResponse"></a>
+# **mapResponse**
+> MapResponse200Response mapResponse().execute();
+
+
+
+### Example
+\`\`\`java
+// Import classes:
+import test.test.runtime.ApiClient;
+import test.test.runtime.ApiException;
+import test.test.runtime.Configuration;
+import test.test.runtime.models.*;
+import test.test.runtime.api.DefaultApi;
+
+public class Example {
+  public static void main(String[] args) {
+    ApiClient defaultClient = Configuration.getDefaultApiClient();
+    defaultClient.setBasePath("http://localhost");
+
+    DefaultApi apiInstance = new DefaultApi(defaultClient);
+    try {
+      MapResponse200Response result = apiInstance.mapResponse()
+            .execute();
+      System.out.println(result);
+    } catch (ApiException e) {
+      System.err.println("Exception when calling DefaultApi#mapResponse");
+      System.err.println("Status code: " + e.getCode());
+      System.err.println("Reason: " + e.getResponseBody());
+      System.err.println("Response headers: " + e.getResponseHeaders());
+      e.printStackTrace();
+    }
+  }
+}
+\`\`\`
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**MapResponse200Response**](MapResponse200Response.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful response |  -  |
 
 <a name="mediaTypes"></a>
 # **mediaTypes**
@@ -6649,6 +6745,35 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Successful response |  -  |
+
+",
+  "docs/MapResponse200Response.md": "
+
+# MapResponse200Response
+
+
+## Properties
+
+| Name | Type | Description | Notes |
+|------------ | ------------- | ------------- | -------------|
+|**mapProperty** | [**Map&lt;String, MapResponse200ResponseMapPropertyValue&gt;**](MapResponse200ResponseMapPropertyValue.md) |  |  |
+
+
+
+",
+  "docs/MapResponse200ResponseMapPropertyValue.md": "
+
+# MapResponse200ResponseMapPropertyValue
+
+
+## Properties
+
+| Name | Type | Description | Notes |
+|------------ | ------------- | ------------- | -------------|
+|**a** | **String** |  |  |
+|**b** | **String** |  |  [optional] |
+
+
 
 ",
   "docs/TestRequest.md": "
@@ -8780,6 +8905,8 @@ public class JSON {
         gsonBuilder.registerTypeAdapter(LocalDate.class, localDateTypeAdapter);
         gsonBuilder.registerTypeAdapter(byte[].class, byteArrayAdapter);
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.ApiError.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.MapResponse200Response.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.MapResponse200ResponseMapPropertyValue.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.TestRequest.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.TestResponse.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new test.test.runtime.model.TestResponseMessagesInner.CustomTypeAdapterFactory());
@@ -9491,6 +9618,7 @@ import java.io.IOException;
 import test.test.runtime.model.ApiError;
 import java.math.BigDecimal;
 import java.io.File;
+import test.test.runtime.model.MapResponse200Response;
 import test.test.runtime.model.TestRequest;
 import test.test.runtime.model.TestResponse;
 
@@ -9830,6 +9958,149 @@ public class DefaultApi {
      */
     public APIemptyRequest empty() {
         return new APIemptyRequest();
+    }
+    private okhttp3.Call mapResponseCall(final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = null;
+
+        // create path and map variables
+        String localVarPath = "/map-response";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call mapResponseValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+        return mapResponseCall(_callback);
+
+    }
+
+
+    private ApiResponse<MapResponse200Response> mapResponseWithHttpInfo() throws ApiException {
+        okhttp3.Call localVarCall = mapResponseValidateBeforeCall(null);
+        Type localVarReturnType = new TypeToken<MapResponse200Response>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    private okhttp3.Call mapResponseAsync(final ApiCallback<MapResponse200Response> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = mapResponseValidateBeforeCall(_callback);
+        Type localVarReturnType = new TypeToken<MapResponse200Response>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+
+    public class APImapResponseRequest {
+
+        private APImapResponseRequest() {
+        }
+
+        /**
+         * Build call for mapResponse
+         * @param _callback ApiCallback API callback
+         * @return Call to execute
+         * @throws ApiException If fail to serialize the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Successful response </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call buildCall(final ApiCallback _callback) throws ApiException {
+            return mapResponseCall(_callback);
+        }
+
+        /**
+         * Execute mapResponse request
+         * @return MapResponse200Response
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Successful response </td><td>  -  </td></tr>
+         </table>
+         */
+        public MapResponse200Response execute() throws ApiException {
+            ApiResponse<MapResponse200Response> localVarResp = mapResponseWithHttpInfo();
+            return localVarResp.getData();
+        }
+
+        /**
+         * Execute mapResponse request with HTTP info returned
+         * @return ApiResponse&lt;MapResponse200Response&gt;
+         * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Successful response </td><td>  -  </td></tr>
+         </table>
+         */
+        public ApiResponse<MapResponse200Response> executeWithHttpInfo() throws ApiException {
+            return mapResponseWithHttpInfo();
+        }
+
+        /**
+         * Execute mapResponse request (asynchronously)
+         * @param _callback The callback to be executed when the API call finishes
+         * @return The request call
+         * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+         * @http.response.details
+         <table summary="Response Details" border="1">
+            <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+            <tr><td> 200 </td><td> Successful response </td><td>  -  </td></tr>
+         </table>
+         */
+        public okhttp3.Call executeAsync(final ApiCallback<MapResponse200Response> _callback) throws ApiException {
+            return mapResponseAsync(_callback);
+        }
+    }
+
+    /**
+     * 
+     * 
+     * @return APImapResponseRequest
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> Successful response </td><td>  -  </td></tr>
+     </table>
+     */
+    public APImapResponseRequest mapResponse() {
+        return new APImapResponseRequest();
     }
     private okhttp3.Call mediaTypesCall(File body, final ApiCallback _callback) throws ApiException {
         String basePath = null;
@@ -10528,6 +10799,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import test.test.runtime.model.ApiError;
 import java.math.BigDecimal;
 import java.io.File;
+import test.test.runtime.model.MapResponse200Response;
 import test.test.runtime.model.TestRequest;
 import test.test.runtime.model.TestResponse;
 
@@ -11154,6 +11426,226 @@ public class Handlers {
                 @Override
                 public EmptyInput getInput() {
                     return new EmptyInput(event);
+                }
+
+                @Override
+                public Map<String, Object> getInterceptorContext() {
+                    return interceptorContext;
+                }
+            });
+
+            return new APIGatewayProxyResponseEvent()
+                    .withStatusCode(response.getStatusCode())
+                    .withHeaders(response.getHeaders())
+                    .withBody(response.getBody());
+        }
+    }
+
+    /**
+     * Response for the mapResponse operation
+     */
+    public static interface MapResponseResponse extends Response {}
+
+    /**
+     * Response with status code 200 for the mapResponse operation
+     */
+    public static class MapResponse200Response implements MapResponseResponse {
+        private String body;
+        private Map<String, String> headers;
+
+        private MapResponse200Response(final MapResponse200Response body, final Map<String, String> headers) {
+            this.body = body.toJson();
+            this.headers = headers;
+        }
+
+        @Override
+        public int getStatusCode() {
+            return 200;
+        }
+
+        @Override
+        public String getBody() {
+            return this.body;
+        }
+
+        @Override
+        public Map<String, String> getHeaders() {
+            return this.headers;
+        }
+
+        /**
+         * Create a MapResponse200Response with a body
+         */
+        public static MapResponse200Response of(final MapResponse200Response body) {
+            return new MapResponse200Response(body, new HashMap<>());
+        }
+
+        /**
+         * Create a MapResponse200Response with a body and headers
+         */
+        public static MapResponse200Response of(final MapResponse200Response body, final Map<String, String> headers) {
+            return new MapResponse200Response(body, headers);
+        }
+    }
+
+    /**
+     * Single-value query and path parameters for the mapResponse operation
+     */
+    public static class MapResponseRequestParameters {
+
+        public MapResponseRequestParameters(final APIGatewayProxyRequestEvent event) {
+            Map<String, String> parameters = new HashMap<>();
+            putAllFromNullableMap(event.getPathParameters(), parameters);
+            putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            Map<String, String> decodedParameters = decodeRequestParameters(parameters);
+
+        }
+
+    }
+
+    /**
+     * Multi-value query parameters for the mapResponse operation
+     */
+    public static class MapResponseRequestArrayParameters {
+
+        public MapResponseRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
+            Map<String, List<String>> parameters = new HashMap<>();
+            putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
+
+        }
+
+    }
+
+    /**
+     * Input for the mapResponse operation
+     */
+    public static class MapResponseInput {
+        private MapResponseRequestParameters requestParameters;
+        private MapResponseRequestArrayParameters requestArrayParameters;
+
+        public MapResponseInput(final APIGatewayProxyRequestEvent event) {
+            this.requestParameters = new MapResponseRequestParameters(event);
+            this.requestArrayParameters = new MapResponseRequestArrayParameters(event);
+        }
+
+        public MapResponseRequestParameters getRequestParameters() {
+            return this.requestParameters;
+        }
+
+        public MapResponseRequestArrayParameters getRequestArrayParameters() {
+            return this.requestArrayParameters;
+        }
+
+    }
+
+    /**
+     * Full request input for the mapResponse operation, including the raw API Gateway event
+     */
+    public static class MapResponseRequestInput implements RequestInput<MapResponseInput> {
+        private APIGatewayProxyRequestEvent event;
+        private Context context;
+        private Map<String, Object> interceptorContext;
+        private MapResponseInput input;
+
+        public MapResponseRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final MapResponseInput input) {
+            this.event = event;
+            this.context = context;
+            this.interceptorContext = interceptorContext;
+            this.input = input;
+        }
+
+        /**
+         * Returns the typed request input, with path, query and body parameters
+         */
+        public MapResponseInput getInput() {
+            return this.input;
+        }
+
+        /**
+         * Returns the raw API Gateway event
+         */
+        public APIGatewayProxyRequestEvent getEvent() {
+            return this.event;
+        }
+
+        /**
+         * Returns the lambda context
+         */
+        public Context getContext() {
+            return this.context;
+        }
+
+        /**
+         * Returns the interceptor context, which may contain values set by request interceptors
+         */
+        public Map<String, Object> getInterceptorContext() {
+            return this.interceptorContext;
+        }
+    }
+
+    /**
+     * Lambda handler wrapper for the mapResponse operation
+     */
+    public static abstract class MapResponse implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+        /**
+         * Handle the request for the mapResponse operation
+         */
+        public abstract MapResponseResponse handle(final MapResponseRequestInput request);
+
+        /**
+         * For more complex interceptors that require instantiation with parameters, you may override this method to
+         * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+         * prefer the @Interceptors annotation.
+         */
+        public List<Interceptor<MapResponseInput>> getInterceptors() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+            return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+        }
+
+        public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<MapResponseInput>> additionalInterceptors) {
+            final Map<String, Object> interceptorContext = new HashMap<>();
+
+            List<Interceptor<MapResponseInput>> interceptors = new ArrayList<>();
+            interceptors.addAll(additionalInterceptors);
+
+            List<Interceptor<MapResponseInput>> annotationInterceptors = getAnnotationInterceptors(this.getClass());
+
+            interceptors.addAll(annotationInterceptors);
+            interceptors.addAll(this.getInterceptors());
+
+            final HandlerChain chain = buildHandlerChain(interceptors, new HandlerChain<MapResponseInput>() {
+                @Override
+                public Response next(ChainedRequestInput<MapResponseInput> input) {
+                    return handle(new MapResponseRequestInput(input.getEvent(), input.getContext(), input.getInterceptorContext(), input.getInput()));
+                }
+            });
+
+            final Response response = chain.next(new ChainedRequestInput<MapResponseInput>() {
+                @Override
+                public HandlerChain getChain() {
+                    // The chain's next method ignores the chain given as input, and is pre-built to follow the remaining
+                    // chain.
+                    return null;
+                }
+
+                @Override
+                public APIGatewayProxyRequestEvent getEvent() {
+                    return event;
+                }
+
+                @Override
+                public Context getContext() {
+                    return context;
+                }
+
+                @Override
+                public MapResponseInput getInput() {
+                    return new MapResponseInput(event);
                 }
 
                 @Override
@@ -12142,6 +12634,7 @@ public class Handlers {
     public static abstract class HandlerRouter implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
         private static final String anyRequestResponseMethodAndPath = concatMethodAndPath("PUT", "/any-request-response");
         private static final String emptyMethodAndPath = concatMethodAndPath("PUT", "/empty-response");
+        private static final String mapResponseMethodAndPath = concatMethodAndPath("GET", "/map-response");
         private static final String mediaTypesMethodAndPath = concatMethodAndPath("POST", "/different-media-type");
         private static final String multipleContentTypesMethodAndPath = concatMethodAndPath("POST", "/multiple-content-types");
         private static final String operationOneMethodAndPath = concatMethodAndPath("POST", "/path/{pathParam}");
@@ -12149,6 +12642,7 @@ public class Handlers {
 
         private final AnyRequestResponse constructedAnyRequestResponse;
         private final Empty constructedEmpty;
+        private final MapResponse constructedMapResponse;
         private final MediaTypes constructedMediaTypes;
         private final MultipleContentTypes constructedMultipleContentTypes;
         private final OperationOne constructedOperationOne;
@@ -12162,6 +12656,10 @@ public class Handlers {
          * This method must return your implementation of the Empty operation
          */
         public abstract Empty empty();
+        /**
+         * This method must return your implementation of the MapResponse operation
+         */
+        public abstract MapResponse mapResponse();
         /**
          * This method must return your implementation of the MediaTypes operation
          */
@@ -12182,6 +12680,7 @@ public class Handlers {
         private static enum Route {
             anyRequestResponseRoute,
             emptyRoute,
+            mapResponseRoute,
             mediaTypesRoute,
             multipleContentTypesRoute,
             operationOneRoute,
@@ -12196,6 +12695,7 @@ public class Handlers {
         public HandlerRouter() {
             this.routes.put(anyRequestResponseMethodAndPath, Route.anyRequestResponseRoute);
             this.routes.put(emptyMethodAndPath, Route.emptyRoute);
+            this.routes.put(mapResponseMethodAndPath, Route.mapResponseRoute);
             this.routes.put(mediaTypesMethodAndPath, Route.mediaTypesRoute);
             this.routes.put(multipleContentTypesMethodAndPath, Route.multipleContentTypesRoute);
             this.routes.put(operationOneMethodAndPath, Route.operationOneRoute);
@@ -12205,6 +12705,7 @@ public class Handlers {
             // https://docs.aws.amazon.com/lambda/latest/dg/java-handler.html
             this.constructedAnyRequestResponse = this.anyRequestResponse();
             this.constructedEmpty = this.empty();
+            this.constructedMapResponse = this.mapResponse();
             this.constructedMediaTypes = this.mediaTypes();
             this.constructedMultipleContentTypes = this.multipleContentTypes();
             this.constructedOperationOne = this.operationOne();
@@ -12236,6 +12737,10 @@ public class Handlers {
                     List<Interceptor<EmptyInput>> emptyInterceptors = getAnnotationInterceptors(this.getClass());
                     emptyInterceptors.addAll(this.getInterceptors());
                     return this.constructedEmpty.handleRequestWithAdditionalInterceptors(event, context, emptyInterceptors);
+                case mapResponseRoute:
+                    List<Interceptor<MapResponseInput>> mapResponseInterceptors = getAnnotationInterceptors(this.getClass());
+                    mapResponseInterceptors.addAll(this.getInterceptors());
+                    return this.constructedMapResponse.handleRequestWithAdditionalInterceptors(event, context, mapResponseInterceptors);
                 case mediaTypesRoute:
                     List<Interceptor<MediaTypesInput>> mediaTypesInterceptors = getAnnotationInterceptors(this.getClass());
                     mediaTypesInterceptors.addAll(this.getInterceptors());
@@ -12265,6 +12770,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.model.ApiError;
 import java.math.BigDecimal;
 import java.io.File;
+import test.test.runtime.model.MapResponse200Response;
 import test.test.runtime.model.TestRequest;
 import test.test.runtime.model.TestResponse;
 
@@ -12277,6 +12783,7 @@ import java.util.Map;
 public class OperationConfig<T> {
     private T anyRequestResponse;
     private T empty;
+    private T mapResponse;
     private T mediaTypes;
     private T multipleContentTypes;
     private T operationOne;
@@ -12286,6 +12793,7 @@ public class OperationConfig<T> {
         Map<String, T> map = new HashMap<>();
         map.put("anyRequestResponse", this.anyRequestResponse);
         map.put("empty", this.empty);
+        map.put("mapResponse", this.mapResponse);
         map.put("mediaTypes", this.mediaTypes);
         map.put("multipleContentTypes", this.multipleContentTypes);
         map.put("operationOne", this.operationOne);
@@ -12301,6 +12809,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.model.ApiError;
 import java.math.BigDecimal;
 import java.io.File;
+import test.test.runtime.model.MapResponse200Response;
 import test.test.runtime.model.TestRequest;
 import test.test.runtime.model.TestResponse;
 
@@ -12334,6 +12843,11 @@ public class OperationLookup {
         config.put("empty", OperationLookupEntry.builder()
             .path("/empty-response")
             .method("PUT")
+            .contentTypes(Arrays.asList("application/json"))
+            .build());
+        config.put("mapResponse", OperationLookupEntry.builder()
+            .path("/map-response")
+            .method("GET")
             .contentTypes(Arrays.asList("application/json"))
             .build());
         config.put("mediaTypes", OperationLookupEntry.builder()
@@ -12374,6 +12888,7 @@ public class Operations {
         return OperationConfig.<T>builder()
                 .anyRequestResponse(value)
                 .empty(value)
+                .mapResponse(value)
                 .mediaTypes(value)
                 .multipleContentTypes(value)
                 .operationOne(value)
@@ -12979,6 +13494,473 @@ public class ApiError {
 
  /**
   * Convert an instance of ApiError to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
+  }
+}
+
+",
+  "src/main/java/test/test/runtime/model/MapResponse200Response.java": "/*
+ * Example API
+ * No description provided (generated by Openapi Generator https://github.com/openapitools/openapi-generator)
+ *
+ * The version of the OpenAPI document: 1.0.0
+ * 
+ *
+ * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
+ * https://openapi-generator.tech
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.model;
+
+import java.util.Objects;
+import java.util.Arrays;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import test.test.runtime.model.MapResponse200ResponseMapPropertyValue;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import test.test.runtime.JSON;
+
+/**
+ * MapResponse200Response
+ */
+@lombok.AllArgsConstructor @lombok.experimental.SuperBuilder
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+public class MapResponse200Response {
+  public static final String SERIALIZED_NAME_MAP_PROPERTY = "mapProperty";
+  @SerializedName(SERIALIZED_NAME_MAP_PROPERTY)
+  private Map<String, MapResponse200ResponseMapPropertyValue> mapProperty = new HashMap<>();
+
+  public MapResponse200Response() {
+  }
+
+  public MapResponse200Response mapProperty(Map<String, MapResponse200ResponseMapPropertyValue> mapProperty) {
+    
+    this.mapProperty = mapProperty;
+    return this;
+  }
+
+  public MapResponse200Response putMapPropertyItem(String key, MapResponse200ResponseMapPropertyValue mapPropertyItem) {
+    this.mapProperty.put(key, mapPropertyItem);
+    return this;
+  }
+
+   /**
+   * Get mapProperty
+   * @return mapProperty
+  **/
+  @javax.annotation.Nonnull
+
+  public Map<String, MapResponse200ResponseMapPropertyValue> getMapProperty() {
+    return mapProperty;
+  }
+
+
+  public void setMapProperty(Map<String, MapResponse200ResponseMapPropertyValue> mapProperty) {
+    this.mapProperty = mapProperty;
+  }
+
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MapResponse200Response mapResponse200Response = (MapResponse200Response) o;
+    return Objects.equals(this.mapProperty, mapResponse200Response.mapProperty);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(mapProperty);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class MapResponse200Response {\\n");
+    sb.append("    mapProperty: ").append(toIndentedString(mapProperty)).append("\\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\\n", "\\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("mapProperty");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("mapProperty");
+  }
+
+ /**
+  * Validates the JSON Object and throws an exception if issues found
+  *
+  * @param jsonObj JSON Object
+  * @throws IOException if the JSON Object is invalid with respect to MapResponse200Response
+  */
+  public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+      if (jsonObj == null) {
+        if (!MapResponse200Response.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in MapResponse200Response is not found in the empty JSON string", MapResponse200Response.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Entry<String, JsonElement> entry : entries) {
+        if (!MapResponse200Response.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field \`%s\` in the JSON string is not defined in the \`MapResponse200Response\` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        }
+      }
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : MapResponse200Response.openapiRequiredFields) {
+        if (jsonObj.get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field \`%s\` is not found in the JSON string: %s", requiredField, jsonObj.toString()));
+        }
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!MapResponse200Response.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'MapResponse200Response' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<MapResponse200Response> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(MapResponse200Response.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<MapResponse200Response>() {
+           @Override
+           public void write(JsonWriter out, MapResponse200Response value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public MapResponse200Response read(JsonReader in) throws IOException {
+             JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+             validateJsonObject(jsonObj);
+             return thisAdapter.fromJsonTree(jsonObj);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of MapResponse200Response given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of MapResponse200Response
+  * @throws IOException if the JSON string is invalid with respect to MapResponse200Response
+  */
+  public static MapResponse200Response fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, MapResponse200Response.class);
+  }
+
+ /**
+  * Convert an instance of MapResponse200Response to an JSON string
+  *
+  * @return JSON string
+  */
+  public String toJson() {
+    return JSON.getGson().toJson(this);
+  }
+}
+
+",
+  "src/main/java/test/test/runtime/model/MapResponse200ResponseMapPropertyValue.java": "/*
+ * Example API
+ * No description provided (generated by Openapi Generator https://github.com/openapitools/openapi-generator)
+ *
+ * The version of the OpenAPI document: 1.0.0
+ * 
+ *
+ * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
+ * https://openapi-generator.tech
+ * Do not edit the class manually.
+ */
+
+
+package test.test.runtime.model;
+
+import java.util.Objects;
+import java.util.Arrays;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import test.test.runtime.JSON;
+
+/**
+ * MapResponse200ResponseMapPropertyValue
+ */
+@lombok.AllArgsConstructor @lombok.experimental.SuperBuilder
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+public class MapResponse200ResponseMapPropertyValue {
+  public static final String SERIALIZED_NAME_A = "a";
+  @SerializedName(SERIALIZED_NAME_A)
+  private String a;
+
+  public static final String SERIALIZED_NAME_B = "b";
+  @SerializedName(SERIALIZED_NAME_B)
+  private String b;
+
+  public MapResponse200ResponseMapPropertyValue() {
+  }
+
+  public MapResponse200ResponseMapPropertyValue a(String a) {
+    
+    this.a = a;
+    return this;
+  }
+
+   /**
+   * Get a
+   * @return a
+  **/
+  @javax.annotation.Nonnull
+
+  public String getA() {
+    return a;
+  }
+
+
+  public void setA(String a) {
+    this.a = a;
+  }
+
+
+  public MapResponse200ResponseMapPropertyValue b(String b) {
+    
+    this.b = b;
+    return this;
+  }
+
+   /**
+   * Get b
+   * @return b
+  **/
+  @javax.annotation.Nullable
+
+  public String getB() {
+    return b;
+  }
+
+
+  public void setB(String b) {
+    this.b = b;
+  }
+
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MapResponse200ResponseMapPropertyValue mapResponse200ResponseMapPropertyValue = (MapResponse200ResponseMapPropertyValue) o;
+    return Objects.equals(this.a, mapResponse200ResponseMapPropertyValue.a) &&
+        Objects.equals(this.b, mapResponse200ResponseMapPropertyValue.b);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(a, b);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class MapResponse200ResponseMapPropertyValue {\\n");
+    sb.append("    a: ").append(toIndentedString(a)).append("\\n");
+    sb.append("    b: ").append(toIndentedString(b)).append("\\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\\n", "\\n    ");
+  }
+
+
+  public static HashSet<String> openapiFields;
+  public static HashSet<String> openapiRequiredFields;
+
+  static {
+    // a set of all properties/fields (JSON key names)
+    openapiFields = new HashSet<String>();
+    openapiFields.add("a");
+    openapiFields.add("b");
+
+    // a set of required properties/fields (JSON key names)
+    openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("a");
+  }
+
+ /**
+  * Validates the JSON Object and throws an exception if issues found
+  *
+  * @param jsonObj JSON Object
+  * @throws IOException if the JSON Object is invalid with respect to MapResponse200ResponseMapPropertyValue
+  */
+  public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+      if (jsonObj == null) {
+        if (!MapResponse200ResponseMapPropertyValue.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in MapResponse200ResponseMapPropertyValue is not found in the empty JSON string", MapResponse200ResponseMapPropertyValue.openapiRequiredFields.toString()));
+        }
+      }
+
+      Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
+      // check to see if the JSON string contains additional fields
+      for (Entry<String, JsonElement> entry : entries) {
+        if (!MapResponse200ResponseMapPropertyValue.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field \`%s\` in the JSON string is not defined in the \`MapResponse200ResponseMapPropertyValue\` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        }
+      }
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : MapResponse200ResponseMapPropertyValue.openapiRequiredFields) {
+        if (jsonObj.get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field \`%s\` is not found in the JSON string: %s", requiredField, jsonObj.toString()));
+        }
+      }
+      if (!jsonObj.get("a").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field \`a\` to be a primitive type in the JSON string but got \`%s\`", jsonObj.get("a").toString()));
+      }
+      if ((jsonObj.get("b") != null && !jsonObj.get("b").isJsonNull()) && !jsonObj.get("b").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field \`b\` to be a primitive type in the JSON string but got \`%s\`", jsonObj.get("b").toString()));
+      }
+  }
+
+  public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+       if (!MapResponse200ResponseMapPropertyValue.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'MapResponse200ResponseMapPropertyValue' and its subtypes
+       }
+       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+       final TypeAdapter<MapResponse200ResponseMapPropertyValue> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(MapResponse200ResponseMapPropertyValue.class));
+
+       return (TypeAdapter<T>) new TypeAdapter<MapResponse200ResponseMapPropertyValue>() {
+           @Override
+           public void write(JsonWriter out, MapResponse200ResponseMapPropertyValue value) throws IOException {
+             JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+             elementAdapter.write(out, obj);
+           }
+
+           @Override
+           public MapResponse200ResponseMapPropertyValue read(JsonReader in) throws IOException {
+             JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+             validateJsonObject(jsonObj);
+             return thisAdapter.fromJsonTree(jsonObj);
+           }
+
+       }.nullSafe();
+    }
+  }
+
+ /**
+  * Create an instance of MapResponse200ResponseMapPropertyValue given an JSON string
+  *
+  * @param jsonString JSON string
+  * @return An instance of MapResponse200ResponseMapPropertyValue
+  * @throws IOException if the JSON string is invalid with respect to MapResponse200ResponseMapPropertyValue
+  */
+  public static MapResponse200ResponseMapPropertyValue fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, MapResponse200ResponseMapPropertyValue.class);
+  }
+
+ /**
+  * Convert an instance of MapResponse200ResponseMapPropertyValue to an JSON string
   *
   * @return JSON string
   */
