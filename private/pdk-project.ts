@@ -186,7 +186,7 @@ export abstract class PDKProject extends JsiiProject {
 
     // Ensure all linked files are converted before packaging!
     const resolveSymlinksTask = this.addTask("resolve-symlinks", {
-      exec: `find . -type l -execdir bash -c 'P=$(readlink "$1") && rm -rf $1 && cp -r $P $1' bash {} \\;`,
+      exec: `find . -type l -exec bash -c 'P=$(readlink -f "$1") && rm -rf $1 && cp -r $P $1' bash {} \\;`,
       condition: `[ "\${CI:-false}" = "true" ] && [ "\${RELEASE:-false}" = "true" ]`,
     });
 
