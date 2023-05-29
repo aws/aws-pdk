@@ -120,6 +120,9 @@
           "exec": "pnpm exec license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
         },
         {
+          "spawn": "resolve-symlinks"
+        },
+        {
           "spawn": "package-all"
         }
       ]
@@ -209,6 +212,15 @@
         }
       ],
       "condition": "[ \"${CI:-false}\" = \"true\" ] && [ -f \"dist/.release.env\" ]"
+    },
+    "resolve-symlinks": {
+      "name": "resolve-symlinks",
+      "steps": [
+        {
+          "exec": "find . -type l -execdir bash -c 'P=$(readlink \"$1\") && rm -rf $1 && cp -r $P $1' bash {} \\;"
+        }
+      ],
+      "condition": "[ \"${CI:-false}\" = \"true\" ] && [ \"${RELEASE:-false}\" = \"true\" ]"
     },
     "sharp:prebuild": {
       "name": "sharp:prebuild",

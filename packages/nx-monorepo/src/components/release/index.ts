@@ -93,6 +93,9 @@ export class NxRelease extends Component {
     });
 
     const releaseTask = this.project.addTask("release", {
+      env: {
+        RELEASE: "true",
+      },
       steps: [
         {
           // prepare for release
