@@ -87,7 +87,7 @@ export class NxRelease extends Component {
       },
       exec: NodePackageUtils.command.exec(
         NodePackageUtils.resolvePackageManager(this.project),
-        "nx run-many --target=build --output-style=stream --nx-bail",
+        "nx run-many --target=build --output-style=stream --nx-bail --skip-nx-cache",
         ...(this.nxArgs || [])
       ),
     });
