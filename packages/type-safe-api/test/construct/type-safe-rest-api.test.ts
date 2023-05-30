@@ -5,13 +5,19 @@ import * as path from "path";
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
 import { Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
-import { Cors } from "aws-cdk-lib/aws-apigateway";
+import { ApiKeySourceType, Cors } from "aws-cdk-lib/aws-apigateway";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 import { NagSuppressions } from "cdk-nag";
+import * as _ from "lodash";
 import { OpenAPIV3 } from "openapi-types";
 import { Integrations } from "../../lib";
-import { MethodAndPath, TypeSafeRestApi } from "../../src/construct";
+import {
+  MethodAndPath,
+  TypeSafeRestApi,
+  ApiKeyOptions,
+  TypeSafeApiIntegrationOptions,
+} from "../../src/construct";
 import { Authorizers, Authorizer } from "../../src/construct/authorizers";
 import { CustomAuthorizerType } from "../../src/construct/authorizers/authorizers";
 
@@ -115,6 +121,21 @@ const withTempSpec = <T>(
   }
 };
 
+const snapshotExtendedSpec = (api: TypeSafeRestApi) => {
+  const specWithoutTokens = _.cloneDeepWith(
+    api.extendedApiSpecification,
+    (v) => {
+      if (_.isString(v)) {
+        // Replace any CDK tokens since these have non-deterministic identifiers which
+        // would change the snapshot every time
+        return (v as string).replace(/Token\[[^\]]+]/g, "<TOKEN>");
+      }
+      return undefined;
+    }
+  );
+  expect(specWithoutTokens).toMatchSnapshot();
+};
+
 describe("Type Safe Rest Api Construct Unit Tests", () => {
   it("Synth", () => {
     const stack = new Stack(PDKNag.app());
@@ -124,7 +145,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       runtime: Runtime.NODEJS_16_X,
     });
     withTempSpec(sampleSpec, (specPath) => {
-      new TypeSafeRestApi(stack, "ApiTest", {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
         specPath,
         operationLookup,
         integrations: {
@@ -148,6 +169,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         }
       );
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
     });
   });
 
@@ -213,7 +235,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     };
 
     withTempSpec(spec, (specPath) => {
-      new TypeSafeRestApi(stack, "ApiTest", {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
         specPath,
         operationLookup: {
           testOperation: {
@@ -229,13 +251,14 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       });
 
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
     });
   });
 
   it("With Mock Integration", () => {
     const stack = new Stack();
     withTempSpec(sampleSpec, (specPath) => {
-      new TypeSafeRestApi(stack, "ApiTest", {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
         specPath,
         operationLookup,
         integrations: {
@@ -248,13 +271,14 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         },
       });
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
     });
   });
 
   it("With Mock Integration and CORS", () => {
     const stack = new Stack();
     withTempSpec(sampleSpec, (specPath) => {
-      new TypeSafeRestApi(stack, "ApiTest", {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
         specPath,
         operationLookup,
         corsOptions: {
@@ -271,13 +295,14 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         },
       });
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
     });
   });
 
   it("With IAM Auth and CORS", () => {
     const stack = new Stack();
     withTempSpec(sampleSpec, (specPath) => {
-      new TypeSafeRestApi(stack, "ApiTest", {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
         defaultAuthorizer: Authorizers.iam(),
         corsOptions: {
           allowOrigins: Cors.ALL_ORIGINS,
@@ -300,6 +325,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         },
       });
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
     });
   });
 
@@ -312,7 +338,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     });
 
     withTempSpec(sampleSpec, (specPath) => {
-      new TypeSafeRestApi(stack, "ApiTest", {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
         defaultAuthorizer: authorizer,
         specPath,
         operationLookup,
@@ -329,6 +355,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         },
       });
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
     });
   });
 
@@ -345,7 +372,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     });
 
     withTempSpec(sampleSpec, (specPath) => {
-      new TypeSafeRestApi(stack, "ApiTest", {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
         defaultAuthorizer: authorizer,
         specPath,
         operationLookup,
@@ -362,6 +389,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         },
       });
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
     });
   });
 
@@ -396,7 +424,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     });
 
     withTempSpec(multiOperationSpec, (specPath) => {
-      new TypeSafeRestApi(stack, "ApiTest", {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
         defaultAuthorizer: Authorizers.iam(),
         specPath,
         operationLookup: multiOperationLookup as any,
@@ -420,6 +448,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         },
       });
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
     });
   });
 
@@ -865,4 +894,178 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       }).toThrow(/Path \/unsupported\/method contains unsupported method any./);
     });
   });
+
+  interface ApiKeyTestCase {
+    defaultAuthorizer?: Authorizer;
+    apiKeyOptions?: ApiKeyOptions;
+    methodAuthorizer?: Authorizer;
+    methodOptions?: TypeSafeApiIntegrationOptions;
+  }
+
+  const happyApiKeyCases: { [key: string]: ApiKeyTestCase } = {
+    "01. Empty": {},
+    "02. Header": {
+      apiKeyOptions: {
+        source: ApiKeySourceType.HEADER,
+      },
+    },
+    "03. Authorizer": {
+      apiKeyOptions: {
+        source: ApiKeySourceType.AUTHORIZER,
+      },
+    },
+    "04. Header Required": {
+      apiKeyOptions: {
+        source: ApiKeySourceType.HEADER,
+      },
+      methodOptions: { apiKeyRequired: true },
+    },
+    "05. Header Not Required": {
+      apiKeyOptions: {
+        source: ApiKeySourceType.HEADER,
+      },
+      methodOptions: { apiKeyRequired: false },
+    },
+    "06. Header Required And Default Authorizer": {
+      defaultAuthorizer: Authorizers.iam(),
+      apiKeyOptions: {
+        source: ApiKeySourceType.HEADER,
+      },
+      methodOptions: { apiKeyRequired: true },
+    },
+    "07. Header Not Required And Default Authorizer": {
+      defaultAuthorizer: Authorizers.iam(),
+      apiKeyOptions: {
+        source: ApiKeySourceType.HEADER,
+      },
+      methodOptions: { apiKeyRequired: false },
+    },
+    "08. Header Required And Method Authorizer": {
+      apiKeyOptions: {
+        source: ApiKeySourceType.HEADER,
+      },
+      methodOptions: { apiKeyRequired: true },
+      methodAuthorizer: Authorizers.iam(),
+    },
+    "09. Header Not Required And Method Authorizer": {
+      apiKeyOptions: {
+        source: ApiKeySourceType.HEADER,
+      },
+      methodOptions: { apiKeyRequired: false },
+      methodAuthorizer: Authorizers.iam(),
+    },
+    "10. Header Required By Default": {
+      apiKeyOptions: {
+        source: ApiKeySourceType.HEADER,
+        requiredByDefault: true,
+      },
+    },
+    "11. Header Required By Default But Not Required For Method": {
+      apiKeyOptions: {
+        source: ApiKeySourceType.HEADER,
+        requiredByDefault: true,
+      },
+      methodOptions: { apiKeyRequired: false },
+    },
+    "12. Header Required By Default With Default Authorizer": {
+      defaultAuthorizer: Authorizers.iam(),
+      apiKeyOptions: {
+        source: ApiKeySourceType.HEADER,
+        requiredByDefault: true,
+      },
+    },
+    "13. Header Required By Default With Method Authorizer": {
+      apiKeyOptions: {
+        source: ApiKeySourceType.HEADER,
+        requiredByDefault: true,
+      },
+      methodAuthorizer: Authorizers.iam(),
+    },
+    "14. Header Required By Default With Default Authorizer But Not Required For Method":
+      {
+        defaultAuthorizer: Authorizers.iam(),
+        apiKeyOptions: {
+          source: ApiKeySourceType.HEADER,
+          requiredByDefault: true,
+        },
+        methodOptions: { apiKeyRequired: false },
+      },
+  };
+
+  it.each(Object.keys(happyApiKeyCases).sort())(
+    "Synth With ApiKey Configuration %s",
+    (caseName) => {
+      const stack = new Stack();
+      const testCase = happyApiKeyCases[caseName];
+      withTempSpec(sampleSpec, (specPath) => {
+        const api = new TypeSafeRestApi(stack, "ApiTest", {
+          defaultAuthorizer: testCase.defaultAuthorizer,
+          specPath,
+          operationLookup,
+          apiKeyOptions: testCase.apiKeyOptions,
+          integrations: {
+            testOperation: {
+              integration: Integrations.lambda(
+                new Function(stack, "Lambda", {
+                  code: Code.fromInline("code"),
+                  handler: "handler",
+                  runtime: Runtime.NODEJS_16_X,
+                })
+              ),
+              authorizer: testCase.methodAuthorizer,
+              options: testCase.methodOptions,
+            },
+          },
+        });
+        snapshotExtendedSpec(api);
+      });
+    }
+  );
+
+  const sadApiKeyCases: { [key: string]: ApiKeyTestCase } = {
+    "01. Authorizer Required": {
+      apiKeyOptions: { source: ApiKeySourceType.AUTHORIZER },
+      methodOptions: { apiKeyRequired: true },
+    },
+    "02. Api Key Required Without Api Key Options": {
+      methodOptions: { apiKeyRequired: true },
+    },
+    "03. Authorizer Required By Default": {
+      apiKeyOptions: {
+        source: ApiKeySourceType.AUTHORIZER,
+        requiredByDefault: true,
+      },
+    },
+  };
+
+  it.each(Object.keys(sadApiKeyCases).sort())(
+    "Fails To Synth With ApiKey Configuration %s",
+    (caseName) => {
+      const stack = new Stack();
+      const testCase = sadApiKeyCases[caseName];
+      withTempSpec(sampleSpec, (specPath) => {
+        expect(() => {
+          new TypeSafeRestApi(stack, "ApiTest", {
+            defaultAuthorizer: testCase.defaultAuthorizer,
+            specPath,
+            operationLookup,
+            apiKeyOptions: testCase.apiKeyOptions,
+            integrations: {
+              testOperation: {
+                integration: Integrations.lambda(
+                  new Function(stack, "Lambda", {
+                    code: Code.fromInline("code"),
+                    handler: "handler",
+                    runtime: Runtime.NODEJS_16_X,
+                  })
+                ),
+                authorizer: testCase.methodAuthorizer,
+                options: testCase.methodOptions,
+              },
+            },
+          });
+        }).toThrow();
+      });
+    }
+  );
 });

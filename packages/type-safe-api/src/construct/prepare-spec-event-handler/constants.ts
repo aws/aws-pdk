@@ -20,4 +20,5 @@ export enum HttpMethods {
 export enum DefaultAuthorizerIds {
   NONE = "none",
   IAM = "aws.auth.sigv4",
+  API_KEY = "api_key",
 }

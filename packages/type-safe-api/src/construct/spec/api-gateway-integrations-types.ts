@@ -1,21 +1,37 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { CorsOptions } from "aws-cdk-lib/aws-apigateway";
+import { ApiKeySourceType, CorsOptions } from "aws-cdk-lib/aws-apigateway";
 import { Authorizer } from "../authorizers";
 import { Integration } from "../integrations";
+
+/**
+ * Options for an integration
+ */
+export interface TypeSafeApiIntegrationOptions {
+  /**
+   * Require an API key to invoke this operation. Overrides the default setting if present.
+   * This is only applicable when the API key source is HEADER.
+   * @default false
+   */
+  readonly apiKeyRequired?: boolean;
+}
 
 /**
  * Defines an integration for an individual API operation
  */
 export interface TypeSafeApiIntegration {
   /**
-   * The lambda function to service the api operation
+   * The integration to service the api operation
    */
   readonly integration: Integration;
   /**
    * The authorizer to use for this api operation (overrides the default)
    */
   readonly authorizer?: Authorizer;
+  /**
+   * Options for the integration
+   */
+  readonly options?: TypeSafeApiIntegrationOptions;
 }
 
 /**
@@ -71,6 +87,21 @@ export type OperationLookup = {
 };
 
 /**
+ * Options for API keys
+ */
+export interface ApiKeyOptions {
+  /**
+   * Source type for an API key
+   */
+  readonly source: ApiKeySourceType;
+  /**
+   * Set to true to require an API key on all operations by default.
+   * Only applicable when the source is HEADER.
+   */
+  readonly requiredByDefault?: boolean;
+}
+
+/**
  * Options required alongside an Open API specification to create API Gateway resources
  */
 export interface TypeSafeApiOptions {
@@ -91,6 +122,10 @@ export interface TypeSafeApiOptions {
    * Cross Origin Resource Sharing options for the API
    */
   readonly corsOptions?: CorsOptions;
+  /**
+   * Options for API keys
+   */
+  readonly apiKeyOptions?: ApiKeyOptions;
 }
 
 /**

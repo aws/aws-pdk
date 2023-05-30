@@ -8,7 +8,7 @@ import { JavaProject } from "projen/lib/java";
 import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { NodePackageUtils, NxProject } from "../../packages/nx-monorepo/src";
+import { NodePackageUtils } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
 /**
@@ -41,11 +41,6 @@ export class PipelineProject extends PDKProject {
       new PipelinePythonSampleProject(parent),
       new PipelineJavaSampleProject(parent)
     );
-
-    this._samples.forEach((sample) => {
-      NxProject.ensure(sample).addImplicitDependency(this);
-      NxProject.ensure(sample).addTag("sample");
-    });
 
     this.preCompileTask.exec(
       'rm -rf samples && rsync -a ../../samples . --include="*/" --include="pipeline/typescript/src/**" --include="pipeline/typescript/test/**"  --include="pipeline/python/infra/*.py" --include="pipeline/python/tests/*.py" --include="pipeline/java/src/**" --exclude="*" --prune-empty-dirs'
@@ -111,15 +106,18 @@ export class PipelinePythonSampleProject extends PythonProject {
       ],
     });
 
-    this.tasks.tryFind("install")?.reset();
-    this.preCompileTask.reset();
-    this.preCompileTask.exec("pip install --upgrade pip");
-    this.preCompileTask.exec(
+    const installTask =
+      this.tasks.tryFind("install") ?? this.addTask("install");
+    installTask.reset();
+    installTask.exec("pip install --upgrade pip");
+    installTask.exec(
       'cat requirements.txt | cut -f1 -d"#" | xargs -n 1 pip install --force-reinstall || echo "\\033[33mInstalled with some errors\\033[0m"'
     );
-    this.preCompileTask.exec(
+    installTask.exec(
       'cat requirements-dev.txt | cut -f1 -d"#" | xargs -n 1 pip install --force-reinstall || echo "\\033[33mInstalled with some errors\\033[0m"'
     );
+
+    this.preCompileTask.spawn(installTask);
   }
 }
 
