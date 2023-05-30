@@ -69,7 +69,20 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
     const sharpPrebuildTask = this.addTask("sharp:prebuild", {
       exec: "ts-node ./scripts/sharp-prebuild.ts",
     });
-    this.packageTask.prependSpawn(sharpPrebuildTask);
+    const steps = this.packageTask.steps;
+    this.packageTask.reset();
+    steps.forEach((step) => {
+      if (step.exec) {
+        this.packageTask.exec(step.exec, step);
+      } else if (step.spawn) {
+        this.packageTask.spawn(this.tasks.tryFind(step.spawn)!, step);
+        step.spawn === "resolve-symlinks" &&
+          this.packageTask.spawn(sharpPrebuildTask);
+      } else {
+        throw new Error("unknown task");
+      }
+    });
+
     // Ensure build input + output includes `sharp:prebuild` artifacts
     this.nx.setTarget(
       "build",

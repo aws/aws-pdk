@@ -51,10 +51,15 @@ const SHARP_PREBUILDS: Record<string, SharpPrebuild> = {
   "win32-x64": {
     platform: "win32",
     arch: "x64",
-  }
+  },
 };
 
 (async () => {
+  // Ensure only the root sharp package exists otherwise rebuild will fail!
+  await execa.command(
+    `find . -type d -regex '^.*/node_modules/sharp$' | grep -v "^./node_modules/sharp" | xargs rm -rf $1`,
+    { stdio: "inherit", shell: true }
+  );
   for (const [name, prebuild] of Object.entries(SHARP_PREBUILDS)) {
     const { platform, arch, armVersion, libc, force } = prebuild;
     let cmd = `npm rebuild --platform=${platform} --arch=${arch}`;
@@ -73,12 +78,23 @@ const SHARP_PREBUILDS: Record<string, SharpPrebuild> = {
 
     console.log(`sharp:prebuild: "${name}"`, prebuild);
 
-    await execa.command(`${cmd} sharp`, { stdio: "inherit", cwd: __dirname })
+    await execa.command(`${cmd} sharp`, { stdio: "inherit", cwd: __dirname });
   }
 
   // Ensure vendor and build folders are included in bundle!
   // https://github.blog/changelog/2022-10-24-npm-v9-0-0-released/#%E2%9A%A0%EF%B8%8F-notable-breaking-changes
-  const sharpPackageJson = `${require.resolve("sharp").replace(/sharp\/.*/, "sharp")}/package.json`;
-  const sharpPackage =  fs.readJsonSync(sharpPackageJson);
-  fs.writeJsonSync(sharpPackageJson, {...sharpPackage, files: Array.from(new Set([...sharpPackage.files, 'build/**', 'vendor/**']))}, {spaces: 2});
+  const sharpPackageJson = `${require
+    .resolve("sharp")
+    .replace(/sharp\/.*/, "sharp")}/package.json`;
+  const sharpPackage = fs.readJsonSync(sharpPackageJson);
+  fs.writeJsonSync(
+    sharpPackageJson,
+    {
+      ...sharpPackage,
+      files: Array.from(
+        new Set([...sharpPackage.files, "build/**", "vendor/**"])
+      ),
+    },
+    { spaces: 2 }
+  );
 })();
