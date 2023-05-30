@@ -2194,6 +2194,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#apikeyoptions" class="md-nav__link">
+    ApiKeyOptions 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#authorizerprops" class="md-nav__link">
     AuthorizerProps 
   </a>
@@ -2497,6 +2504,13 @@
           <li class="md-nav__item">
   <a href="#typesafeapiintegration" class="md-nav__link">
     TypeSafeApiIntegration 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typesafeapiintegrationoptions" class="md-nav__link">
+    TypeSafeApiIntegrationOptions 
   </a>
   
 </li>
@@ -4275,6 +4289,7 @@ npx<span class="w"> </span>cdk<span class="w"> </span>synth<span class="w"> </sp
   <span class="n">retain_deployments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">integrations</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">TypeSafeApiIntegration</span><span class="p">],</span>
   <span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">OperationDetails</span><span class="p">],</span>
+  <span class="n">api_key_options</span><span class="p">:</span> <span class="n">ApiKeyOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">spec_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -4374,6 +4389,11 @@ npx<span class="w"> </span>cdk<span class="w"> </span>synth<span class="w"> </sp
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.Initializer.parameter.operationLookup">operation_lookup</a></code></td>
 <td><code>typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails">OperationDetails</a>]</code></td>
 <td>Details about each operation.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.Initializer.parameter.apiKeyOptions">api_key_options</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.ApiKeyOptions">ApiKeyOptions</a></code></td>
+<td>Options for API keys.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.Initializer.parameter.corsOptions">cors_options</a></code></td>
@@ -4538,6 +4558,12 @@ Console.</p>
 </ul>
 <p>Details about each operation.</p>
 <hr />
+<h5 id="api_key_optionsoptional"><code>api_key_options</code><sup>Optional</sup> <a name="api_key_options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.Initializer.parameter.apiKeyOptions"></a></h5>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.ApiKeyOptions">ApiKeyOptions</a></li>
+</ul>
+<p>Options for API keys.</p>
+<hr />
 <h5 id="cors_optionsoptional"><code>cors_options</code><sup>Optional</sup> <a name="cors_options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.Initializer.parameter.corsOptions"></a></h5>
 <ul>
 <li><em>Type:</em> aws_cdk.aws_apigateway.CorsOptions</li>
@@ -4646,22 +4672,27 @@ this type-testing method instead.</p>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.property.api">api</a></code></td>
 <td><code>aws_cdk.aws_apigateway.SpecRestApi</code></td>
-<td><em>No description.</em></td>
+<td>Underlying API Gateway API construct.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.property.extendedApiSpecification">extended_api_specification</a></code></td>
+<td><code>typing.Any</code></td>
+<td>The OpenAPI specification with applied API gateway extensions.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.property.ipSet">ip_set</a></code></td>
 <td><code>aws_cdk.aws_wafv2.CfnIPSet</code></td>
-<td><em>No description.</em></td>
+<td>Reference to the IP set if created.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.property.webAcl">web_acl</a></code></td>
 <td><code>aws_cdk.aws_wafv2.CfnWebACL</code></td>
-<td><em>No description.</em></td>
+<td>Reference to the webacl, if created.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.property.webAclAssociation">web_acl_association</a></code></td>
 <td><code>aws_cdk.aws_wafv2.CfnWebACLAssociation</code></td>
-<td><em>No description.</em></td>
+<td>Reference to the web acl association if created.</td>
 </tr>
 </tbody>
 </table>
@@ -4680,6 +4711,15 @@ this type-testing method instead.</p>
 <ul>
 <li><em>Type:</em> aws_cdk.aws_apigateway.SpecRestApi</li>
 </ul>
+<p>Underlying API Gateway API construct.</p>
+<hr />
+<h5 id="extended_api_specificationrequired"><code>extended_api_specification</code><sup>Required</sup> <a name="extended_api_specification" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.property.extendedApiSpecification"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">extended_api_specification</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.Any</li>
+</ul>
+<p>The OpenAPI specification with applied API gateway extensions.</p>
 <hr />
 <h5 id="ip_setoptional"><code>ip_set</code><sup>Optional</sup> <a name="ip_set" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.property.ipSet"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">ip_set</span><span class="p">:</span> <span class="n">CfnIPSet</span>
@@ -4687,6 +4727,7 @@ this type-testing method instead.</p>
 <ul>
 <li><em>Type:</em> aws_cdk.aws_wafv2.CfnIPSet</li>
 </ul>
+<p>Reference to the IP set if created.</p>
 <hr />
 <h5 id="web_acloptional"><code>web_acl</code><sup>Optional</sup> <a name="web_acl" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.property.webAcl"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">web_acl</span><span class="p">:</span> <span class="n">CfnWebACL</span>
@@ -4694,6 +4735,7 @@ this type-testing method instead.</p>
 <ul>
 <li><em>Type:</em> aws_cdk.aws_wafv2.CfnWebACL</li>
 </ul>
+<p>Reference to the webacl, if created.</p>
 <hr />
 <h5 id="web_acl_associationoptional"><code>web_acl_association</code><sup>Optional</sup> <a name="web_acl_association" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApi.property.webAclAssociation"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">web_acl_association</span><span class="p">:</span> <span class="n">CfnWebACLAssociation</span>
@@ -4701,6 +4743,7 @@ this type-testing method instead.</p>
 <ul>
 <li><em>Type:</em> aws_cdk.aws_wafv2.CfnWebACLAssociation</li>
 </ul>
+<p>Reference to the web acl association if created.</p>
 <hr />
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
 <h3 id="apigatewayintegration">ApiGatewayIntegration <a name="ApiGatewayIntegration" id="@aws-prototyping-sdk/type-safe-api.ApiGatewayIntegration"></a></h3>
@@ -5101,9 +5144,59 @@ signed by private certificate authorities, or certificates that are self-signed.
 performs basic certificate validation, which includes checking the certificate's expiration date, hostname, and
 presence of a root certificate authority. Supported only for HTTP and HTTP_PROXY integrations.</p>
 <hr />
+<h3 id="apikeyoptions">ApiKeyOptions <a name="ApiKeyOptions" id="@aws-prototyping-sdk/type-safe-api.ApiKeyOptions"></a></h3>
+<p>Options for API keys.</p>
+<h4 id="initializer_3">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ApiKeyOptions.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
+
+<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">ApiKeyOptions</span><span class="p">(</span>
+  <span class="n">source</span><span class="p">:</span> <span class="n">ApiKeySourceType</span><span class="p">,</span>
+  <span class="n">required_by_default</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.ApiKeyOptions.property.source">source</a></code></td>
+<td><code>aws_cdk.aws_apigateway.ApiKeySourceType</code></td>
+<td>Source type for an API key.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.ApiKeyOptions.property.requiredByDefault">required_by_default</a></code></td>
+<td><code>bool</code></td>
+<td>Set to true to require an API key on all operations by default.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="sourcerequired"><code>source</code><sup>Required</sup> <a name="source" id="@aws-prototyping-sdk/type-safe-api.ApiKeyOptions.property.source"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">source</span><span class="p">:</span> <span class="n">ApiKeySourceType</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_apigateway.ApiKeySourceType</li>
+</ul>
+<p>Source type for an API key.</p>
+<hr />
+<h5 id="required_by_defaultoptional"><code>required_by_default</code><sup>Optional</sup> <a name="required_by_default" id="@aws-prototyping-sdk/type-safe-api.ApiKeyOptions.property.requiredByDefault"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">required_by_default</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+</ul>
+<p>Set to true to require an API key on all operations by default.</p>
+<p>Only applicable when the source is HEADER.</p>
+<hr />
 <h3 id="authorizerprops">AuthorizerProps <a name="AuthorizerProps" id="@aws-prototyping-sdk/type-safe-api.AuthorizerProps"></a></h3>
 <p>Properties for an authorizer.</p>
-<h4 id="initializer_3">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.AuthorizerProps.Initializer"></a></h4>
+<h4 id="initializer_4">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.AuthorizerProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">AuthorizerProps</span><span class="p">(</span>
@@ -5112,7 +5205,7 @@ presence of a root certificate authority. Supported only for HTTP and HTTP_PROXY
   <span class="n">authorization_scopes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5166,7 +5259,7 @@ presence of a root certificate authority. Supported only for HTTP and HTTP_PROXY
 <hr />
 <h3 id="cidrallowlist">CidrAllowList <a name="CidrAllowList" id="@aws-prototyping-sdk/type-safe-api.CidrAllowList"></a></h3>
 <p>Representation of a CIDR range.</p>
-<h4 id="initializer_4">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.CidrAllowList.Initializer"></a></h4>
+<h4 id="initializer_5">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.CidrAllowList.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">CidrAllowList</span><span class="p">(</span>
@@ -5174,7 +5267,7 @@ presence of a root certificate authority. Supported only for HTTP and HTTP_PROXY
   <span class="n">cidr_type</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5222,7 +5315,7 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
 <hr />
 <h3 id="cognitoauthorizerprops">CognitoAuthorizerProps <a name="CognitoAuthorizerProps" id="@aws-prototyping-sdk/type-safe-api.CognitoAuthorizerProps"></a></h3>
 <p>Properties used to configure a cognito authorizer.</p>
-<h4 id="initializer_5">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.CognitoAuthorizerProps.Initializer"></a></h4>
+<h4 id="initializer_6">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.CognitoAuthorizerProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">CognitoAuthorizerProps</span><span class="p">(</span>
@@ -5231,7 +5324,7 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
   <span class="n">authorization_scopes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5291,7 +5384,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="customauthorizerprops">CustomAuthorizerProps <a name="CustomAuthorizerProps" id="@aws-prototyping-sdk/type-safe-api.CustomAuthorizerProps"></a></h3>
 <p>Properties used to configure a custom authorizer.</p>
-<h4 id="initializer_6">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.CustomAuthorizerProps.Initializer"></a></h4>
+<h4 id="initializer_7">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.CustomAuthorizerProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">CustomAuthorizerProps</span><span class="p">(</span>
@@ -5302,7 +5395,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="nb">type</span><span class="p">:</span> <span class="n">CustomAuthorizerType</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_8">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5391,7 +5484,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="documentationconfiguration">DocumentationConfiguration <a name="DocumentationConfiguration" id="@aws-prototyping-sdk/type-safe-api.DocumentationConfiguration"></a></h3>
 <p>Configuration for generated documentation.</p>
-<h4 id="initializer_7">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.DocumentationConfiguration.Initializer"></a></h4>
+<h4 id="initializer_8">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.DocumentationConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">DocumentationConfiguration</span><span class="p">(</span>
@@ -5399,7 +5492,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">options</span><span class="p">:</span> <span class="n">GeneratedDocumentationOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_8">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_9">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5441,7 +5534,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="generatedcodeoptions">GeneratedCodeOptions <a name="GeneratedCodeOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedCodeOptions"></a></h3>
 <p>Options for generated clients.</p>
-<h4 id="initializer_8">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedCodeOptions.Initializer"></a></h4>
+<h4 id="initializer_9">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedCodeOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedCodeOptions</span><span class="p">(</span>
@@ -5450,7 +5543,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">typescript</span><span class="p">:</span> <span class="n">GeneratedTypeScriptProjectOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_9">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_10">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5507,7 +5600,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="generatedcodeprojects">GeneratedCodeProjects <a name="GeneratedCodeProjects" id="@aws-prototyping-sdk/type-safe-api.GeneratedCodeProjects"></a></h3>
 <p>Generated code projects.</p>
-<h4 id="initializer_9">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedCodeProjects.Initializer"></a></h4>
+<h4 id="initializer_10">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedCodeProjects.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedCodeProjects</span><span class="p">(</span>
@@ -5516,7 +5609,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">typescript</span><span class="p">:</span> <span class="n">TypeScriptProject</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_10">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5570,7 +5663,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="generateddocumentationoptions">GeneratedDocumentationOptions <a name="GeneratedDocumentationOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedDocumentationOptions"></a></h3>
 <p>Options for generated documentation projects.</p>
-<h4 id="initializer_10">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedDocumentationOptions.Initializer"></a></h4>
+<h4 id="initializer_11">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedDocumentationOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedDocumentationOptions</span><span class="p">(</span>
@@ -5580,7 +5673,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">plantuml</span><span class="p">:</span> <span class="n">GeneratedPlantumlDocumentationOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_11">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_12">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5647,7 +5740,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="generateddocumentationprojects">GeneratedDocumentationProjects <a name="GeneratedDocumentationProjects" id="@aws-prototyping-sdk/type-safe-api.GeneratedDocumentationProjects"></a></h3>
 <p>Generated documentation project references.</p>
-<h4 id="initializer_11">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedDocumentationProjects.Initializer"></a></h4>
+<h4 id="initializer_12">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedDocumentationProjects.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedDocumentationProjects</span><span class="p">(</span>
@@ -5657,7 +5750,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">plantuml</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_12">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_13">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5724,14 +5817,14 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="generatedhtml2documentationoptions">GeneratedHtml2DocumentationOptions <a name="GeneratedHtml2DocumentationOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedHtml2DocumentationOptions"></a></h3>
 <p>Options for the html2 documentation project.</p>
-<h4 id="initializer_12">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedHtml2DocumentationOptions.Initializer"></a></h4>
+<h4 id="initializer_13">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedHtml2DocumentationOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedHtml2DocumentationOptions</span><span class="p">(</span>
   <span class="n">open_api_generator_cli_config</span><span class="p">:</span> <span class="n">OpenApiGeneratorCliConfig</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_13">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_14">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5763,14 +5856,14 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="generatedhtmlredocdocumentationoptions">GeneratedHtmlRedocDocumentationOptions <a name="GeneratedHtmlRedocDocumentationOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedHtmlRedocDocumentationOptions"></a></h3>
 <p>Options for the html redoc documentation project.</p>
-<h4 id="initializer_13">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedHtmlRedocDocumentationOptions.Initializer"></a></h4>
+<h4 id="initializer_14">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedHtmlRedocDocumentationOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedHtmlRedocDocumentationOptions</span><span class="p">(</span>
   <span class="n">open_api_generator_cli_config</span><span class="p">:</span> <span class="n">OpenApiGeneratorCliConfig</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_14">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_15">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -5802,7 +5895,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <hr />
 <h3 id="generatedjavaprojectoptions">GeneratedJavaProjectOptions <a name="GeneratedJavaProjectOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedJavaProjectOptions"></a></h3>
 <p>Options for configuring a generated java project.</p>
-<h4 id="initializer_14">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedJavaProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_15">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedJavaProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedJavaProjectOptions</span><span class="p">(</span>
@@ -5855,7 +5948,7 @@ applied to all methods without an authorizer at the integration level.</p>
   <span class="n">open_api_generator_cli_config</span><span class="p">:</span> <span class="n">OpenApiGeneratorCliConfig</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_15">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_16">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6597,14 +6690,14 @@ will compile &amp; execute <code>main()</code> from <code>src/main/java/projenrc
 <hr />
 <h3 id="generatedlibraryoptions">GeneratedLibraryOptions <a name="GeneratedLibraryOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryOptions"></a></h3>
 <p>Options for generated libraries.</p>
-<h4 id="initializer_15">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryOptions.Initializer"></a></h4>
+<h4 id="initializer_16">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedLibraryOptions</span><span class="p">(</span>
   <span class="n">typescript_react_query_hooks</span><span class="p">:</span> <span class="n">GeneratedTypeScriptProjectOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_16">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_17">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6633,14 +6726,14 @@ will compile &amp; execute <code>main()</code> from <code>src/main/java/projenrc
 <hr />
 <h3 id="generatedlibraryprojects">GeneratedLibraryProjects <a name="GeneratedLibraryProjects" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryProjects"></a></h3>
 <p>Generated library projects.</p>
-<h4 id="initializer_16">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryProjects.Initializer"></a></h4>
+<h4 id="initializer_17">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedLibraryProjects.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedLibraryProjects</span><span class="p">(</span>
   <span class="n">typescript_react_query_hooks</span><span class="p">:</span> <span class="n">TypeScriptProject</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_17">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_18">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6668,14 +6761,14 @@ will compile &amp; execute <code>main()</code> from <code>src/main/java/projenrc
 <hr />
 <h3 id="generatedmarkdowndocumentationoptions">GeneratedMarkdownDocumentationOptions <a name="GeneratedMarkdownDocumentationOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedMarkdownDocumentationOptions"></a></h3>
 <p>Options for the markdown documentation project.</p>
-<h4 id="initializer_17">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedMarkdownDocumentationOptions.Initializer"></a></h4>
+<h4 id="initializer_18">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedMarkdownDocumentationOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedMarkdownDocumentationOptions</span><span class="p">(</span>
   <span class="n">open_api_generator_cli_config</span><span class="p">:</span> <span class="n">OpenApiGeneratorCliConfig</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_18">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_19">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6707,14 +6800,14 @@ will compile &amp; execute <code>main()</code> from <code>src/main/java/projenrc
 <hr />
 <h3 id="generatedplantumldocumentationoptions">GeneratedPlantumlDocumentationOptions <a name="GeneratedPlantumlDocumentationOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedPlantumlDocumentationOptions"></a></h3>
 <p>Options for the plantuml documentation project.</p>
-<h4 id="initializer_18">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedPlantumlDocumentationOptions.Initializer"></a></h4>
+<h4 id="initializer_19">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedPlantumlDocumentationOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedPlantumlDocumentationOptions</span><span class="p">(</span>
   <span class="n">open_api_generator_cli_config</span><span class="p">:</span> <span class="n">OpenApiGeneratorCliConfig</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_19">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_20">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -6746,7 +6839,7 @@ will compile &amp; execute <code>main()</code> from <code>src/main/java/projenrc
 <hr />
 <h3 id="generatedpythonprojectoptions">GeneratedPythonProjectOptions <a name="GeneratedPythonProjectOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedPythonProjectOptions"></a></h3>
 <p>Options for configuring a generated python project.</p>
-<h4 id="initializer_19">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedPythonProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_20">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedPythonProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedPythonProjectOptions</span><span class="p">(</span>
@@ -6809,7 +6902,7 @@ will compile &amp; execute <code>main()</code> from <code>src/main/java/projenrc
   <span class="n">open_api_generator_cli_config</span><span class="p">:</span> <span class="n">OpenApiGeneratorCliConfig</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_20">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_21">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -7661,7 +7754,7 @@ and use <code>ts-node</code> in the default task to parse the project source fil
 <hr />
 <h3 id="generatedtypescriptprojectoptions">GeneratedTypeScriptProjectOptions <a name="GeneratedTypeScriptProjectOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedTypeScriptProjectOptions"></a></h3>
 <p>Options for configuring a generated typescript project.</p>
-<h4 id="initializer_20">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedTypeScriptProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_21">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedTypeScriptProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedTypeScriptProjectOptions</span><span class="p">(</span>
@@ -7805,7 +7898,7 @@ and use <code>ts-node</code> in the default task to parse the project source fil
   <span class="n">open_api_generator_cli_config</span><span class="p">:</span> <span class="n">OpenApiGeneratorCliConfig</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_21">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_22">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -9870,14 +9963,14 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="generatedwithopenapigeneratoroptions">GeneratedWithOpenApiGeneratorOptions <a name="GeneratedWithOpenApiGeneratorOptions" id="@aws-prototyping-sdk/type-safe-api.GeneratedWithOpenApiGeneratorOptions"></a></h3>
 <p>Options for a code project generated with OpenAPI Generator.</p>
-<h4 id="initializer_21">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedWithOpenApiGeneratorOptions.Initializer"></a></h4>
+<h4 id="initializer_22">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.GeneratedWithOpenApiGeneratorOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">GeneratedWithOpenApiGeneratorOptions</span><span class="p">(</span>
   <span class="n">open_api_generator_cli_config</span><span class="p">:</span> <span class="n">OpenApiGeneratorCliConfig</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_22">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_23">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -9909,7 +10002,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="infrastructureconfiguration">InfrastructureConfiguration <a name="InfrastructureConfiguration" id="@aws-prototyping-sdk/type-safe-api.InfrastructureConfiguration"></a></h3>
 <p>Configuration for generated infrastructure.</p>
-<h4 id="initializer_22">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.InfrastructureConfiguration.Initializer"></a></h4>
+<h4 id="initializer_23">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.InfrastructureConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">InfrastructureConfiguration</span><span class="p">(</span>
@@ -9917,7 +10010,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">options</span><span class="p">:</span> <span class="n">GeneratedCodeOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_23">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_24">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -9959,7 +10052,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="integrationgrantprops">IntegrationGrantProps <a name="IntegrationGrantProps" id="@aws-prototyping-sdk/type-safe-api.IntegrationGrantProps"></a></h3>
 <p>Properties for granting the API access to invoke the operation.</p>
-<h4 id="initializer_23">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.IntegrationGrantProps.Initializer"></a></h4>
+<h4 id="initializer_24">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.IntegrationGrantProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">IntegrationGrantProps</span><span class="p">(</span>
@@ -9971,7 +10064,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_24">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_25">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10065,7 +10158,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="integrationrenderprops">IntegrationRenderProps <a name="IntegrationRenderProps" id="@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps"></a></h3>
 <p>Properties for rendering an integration into an API Gateway OpenAPI extension.</p>
-<h4 id="initializer_24">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps.Initializer"></a></h4>
+<h4 id="initializer_25">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.IntegrationRenderProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">IntegrationRenderProps</span><span class="p">(</span>
@@ -10077,7 +10170,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">cors_options</span><span class="p">:</span> <span class="n">SerializedCorsOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_25">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_26">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10171,7 +10264,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="libraryconfiguration">LibraryConfiguration <a name="LibraryConfiguration" id="@aws-prototyping-sdk/type-safe-api.LibraryConfiguration"></a></h3>
 <p>Configuration for generated libraries.</p>
-<h4 id="initializer_25">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.LibraryConfiguration.Initializer"></a></h4>
+<h4 id="initializer_26">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.LibraryConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">LibraryConfiguration</span><span class="p">(</span>
@@ -10179,7 +10272,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">options</span><span class="p">:</span> <span class="n">GeneratedLibraryOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_26">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_27">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10220,7 +10313,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <p>Note that only options for the specified libraries will apply</p>
 <hr />
 <h3 id="managedrule">ManagedRule <a name="ManagedRule" id="@aws-prototyping-sdk/type-safe-api.ManagedRule"></a></h3>
-<h4 id="initializer_26">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ManagedRule.Initializer"></a></h4>
+<h4 id="initializer_27">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ManagedRule.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">ManagedRule</span><span class="p">(</span>
@@ -10228,7 +10321,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">vendor</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_27">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_28">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10271,7 +10364,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="methodandpath">MethodAndPath <a name="MethodAndPath" id="@aws-prototyping-sdk/type-safe-api.MethodAndPath"></a></h3>
 <p>Structure to contain an API operation's method and path.</p>
-<h4 id="initializer_27">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.MethodAndPath.Initializer"></a></h4>
+<h4 id="initializer_28">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.MethodAndPath.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">MethodAndPath</span><span class="p">(</span>
@@ -10279,7 +10372,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_28">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_29">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10320,7 +10413,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="mockintegrationresponse">MockIntegrationResponse <a name="MockIntegrationResponse" id="@aws-prototyping-sdk/type-safe-api.MockIntegrationResponse"></a></h3>
 <p>Properties for a mock integration response.</p>
-<h4 id="initializer_28">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.MockIntegrationResponse.Initializer"></a></h4>
+<h4 id="initializer_29">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.MockIntegrationResponse.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">MockIntegrationResponse</span><span class="p">(</span>
@@ -10328,7 +10421,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">body</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_29">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_30">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10369,7 +10462,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="modelconfiguration">ModelConfiguration <a name="ModelConfiguration" id="@aws-prototyping-sdk/type-safe-api.ModelConfiguration"></a></h3>
 <p>Configuration for modelling the API.</p>
-<h4 id="initializer_29">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelConfiguration.Initializer"></a></h4>
+<h4 id="initializer_30">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">ModelConfiguration</span><span class="p">(</span>
@@ -10377,7 +10470,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">options</span><span class="p">:</span> <span class="n">ModelOptions</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_30">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_31">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10418,7 +10511,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="modeloptions">ModelOptions <a name="ModelOptions" id="@aws-prototyping-sdk/type-safe-api.ModelOptions"></a></h3>
 <p>Options for models.</p>
-<h4 id="initializer_30">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelOptions.Initializer"></a></h4>
+<h4 id="initializer_31">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.ModelOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">ModelOptions</span><span class="p">(</span>
@@ -10426,7 +10519,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">smithy</span><span class="p">:</span> <span class="n">SmithyModelOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_31">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_32">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10467,14 +10560,14 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <hr />
 <h3 id="openapidefinitionoptions">OpenApiDefinitionOptions <a name="OpenApiDefinitionOptions" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions"></a></h3>
 <p>Options for the OpenAPI Spec.</p>
-<h4 id="initializer_31">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions.Initializer"></a></h4>
+<h4 id="initializer_32">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiDefinitionOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">OpenApiDefinitionOptions</span><span class="p">(</span>
   <span class="n">open_api_options</span><span class="p">:</span> <span class="n">OpenApiModelOptions</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_32">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_33">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10505,7 +10598,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <blockquote>
 <p><a class="magiclink magiclink-github magiclink-repository" href="https://github.com/OpenAPITools/openapi-generator-cli#configuration" title="GitHub Repository: OpenAPITools/openapi-generator-cli#configuration">OpenAPITools/openapi-generator-cli#configuration</a></p>
 </blockquote>
-<h4 id="initializer_32">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiGeneratorCliConfig.Initializer"></a></h4>
+<h4 id="initializer_33">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiGeneratorCliConfig.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">OpenApiGeneratorCliConfig</span><span class="p">(</span>
@@ -10515,7 +10608,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_33">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_34">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10597,14 +10690,14 @@ version may result in broken generated code.</p>
 <blockquote>
 <p><a class="magiclink magiclink-github magiclink-repository" href="https://github.com/OpenAPITools/openapi-generator-cli#using-custom--private-maven-registry" title="GitHub Repository: OpenAPITools/openapi-generator-cli#using-custom--private-maven-registry">OpenAPITools/openapi-generator-cli#using-custom--private-maven-registry</a></p>
 </blockquote>
-<h4 id="initializer_33">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiGeneratorCliConfigRepository.Initializer"></a></h4>
+<h4 id="initializer_34">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiGeneratorCliConfigRepository.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">OpenApiGeneratorCliConfigRepository</span><span class="p">(</span>
   <span class="n">download_url</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_34">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_35">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10637,14 +10730,14 @@ For example: <a href="https://private.maven.intern/maven2/${groupId}/${artifactI
 <hr />
 <h3 id="openapimodeloptions">OpenApiModelOptions <a name="OpenApiModelOptions" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions"></a></h3>
 <p>Options for the OpenAPI model.</p>
-<h4 id="initializer_34">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions.Initializer"></a></h4>
+<h4 id="initializer_35">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OpenApiModelOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">OpenApiModelOptions</span><span class="p">(</span>
   <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_35">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_36">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10672,7 +10765,7 @@ For example: <a href="https://private.maven.intern/maven2/${groupId}/${artifactI
 <hr />
 <h3 id="operationdetails">OperationDetails <a name="OperationDetails" id="@aws-prototyping-sdk/type-safe-api.OperationDetails"></a></h3>
 <p>Details about an API operation.</p>
-<h4 id="initializer_35">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OperationDetails.Initializer"></a></h4>
+<h4 id="initializer_36">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.OperationDetails.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">OperationDetails</span><span class="p">(</span>
@@ -10681,7 +10774,7 @@ For example: <a href="https://private.maven.intern/maven2/${groupId}/${artifactI
   <span class="n">content_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_36">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_37">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10736,7 +10829,7 @@ For example: <a href="https://private.maven.intern/maven2/${groupId}/${artifactI
 <hr />
 <h3 id="runtimeconfiguration">RuntimeConfiguration <a name="RuntimeConfiguration" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration"></a></h3>
 <p>Configuration for generated runtime projects.</p>
-<h4 id="initializer_36">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration.Initializer"></a></h4>
+<h4 id="initializer_37">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.RuntimeConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">RuntimeConfiguration</span><span class="p">(</span>
@@ -10744,7 +10837,7 @@ For example: <a href="https://private.maven.intern/maven2/${groupId}/${artifactI
   <span class="n">options</span><span class="p">:</span> <span class="n">GeneratedCodeOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_37">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_38">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10788,7 +10881,7 @@ both client and server projects.</p>
 <hr />
 <h3 id="serializedcorsoptions">SerializedCorsOptions <a name="SerializedCorsOptions" id="@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions"></a></h3>
 <p>Cross-origin resource sharing options.</p>
-<h4 id="initializer_37">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions.Initializer"></a></h4>
+<h4 id="initializer_38">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SerializedCorsOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SerializedCorsOptions</span><span class="p">(</span>
@@ -10798,7 +10891,7 @@ both client and server projects.</p>
   <span class="n">status_code</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_38">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_39">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10865,7 +10958,7 @@ both client and server projects.</p>
 <hr />
 <h3 id="smithybuildoptions">SmithyBuildOptions <a name="SmithyBuildOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions"></a></h3>
 <p>Options for the smithy build files.</p>
-<h4 id="initializer_38">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions.Initializer"></a></h4>
+<h4 id="initializer_39">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyBuildOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyBuildOptions</span><span class="p">(</span>
@@ -10876,7 +10969,7 @@ both client and server projects.</p>
   <span class="n">projections</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">SmithyProjection</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_39">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_40">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -10961,7 +11054,7 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithycommon">SmithyCommon <a name="SmithyCommon" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon"></a></h3>
 <p>Properties common to smithy plugins and the root smithy build.</p>
-<h4 id="initializer_39">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon.Initializer"></a></h4>
+<h4 id="initializer_40">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyCommon.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyCommon</span><span class="p">(</span>
@@ -10969,7 +11062,7 @@ even if a plugin can't be found on the classpath.</p>
   <span class="n">plugins</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_40">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_41">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -11010,14 +11103,14 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithydefinitionoptions">SmithyDefinitionOptions <a name="SmithyDefinitionOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions"></a></h3>
 <p>Options for a smithy build project.</p>
-<h4 id="initializer_40">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions.Initializer"></a></h4>
+<h4 id="initializer_41">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyDefinitionOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyDefinitionOptions</span><span class="p">(</span>
   <span class="n">smithy_options</span><span class="p">:</span> <span class="n">SmithyModelOptions</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_41">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_42">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -11045,7 +11138,7 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithymavenconfiguration">SmithyMavenConfiguration <a name="SmithyMavenConfiguration" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration"></a></h3>
 <p>Configuration for smithy maven dependencies.</p>
-<h4 id="initializer_41">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration.Initializer"></a></h4>
+<h4 id="initializer_42">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyMavenConfiguration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyMavenConfiguration</span><span class="p">(</span>
@@ -11053,7 +11146,7 @@ even if a plugin can't be found on the classpath.</p>
   <span class="n">repository_urls</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_42">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_43">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -11095,7 +11188,7 @@ even if a plugin can't be found on the classpath.</p>
 <hr />
 <h3 id="smithymodeloptions">SmithyModelOptions <a name="SmithyModelOptions" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions"></a></h3>
 <p>Options for a Smithy model.</p>
-<h4 id="initializer_42">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions.Initializer"></a></h4>
+<h4 id="initializer_43">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyModelOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyModelOptions</span><span class="p">(</span>
@@ -11105,7 +11198,7 @@ even if a plugin can't be found on the classpath.</p>
   <span class="n">smithy_build_options</span><span class="p">:</span> <span class="n">SmithyBuildOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_43">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_44">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -11176,7 +11269,7 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="smithyprojection">SmithyProjection <a name="SmithyProjection" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection"></a></h3>
 <p>A smithy build projection.</p>
-<h4 id="initializer_43">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection.Initializer"></a></h4>
+<h4 id="initializer_44">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyProjection.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyProjection</span><span class="p">(</span>
@@ -11186,7 +11279,7 @@ of gradle to the one provided by default</p>
   <span class="n">transforms</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">SmithyTransform</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_44">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_45">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -11256,7 +11349,7 @@ of gradle to the one provided by default</p>
 <blockquote>
 <p><a href="https://awslabs.github.io/smithy/2.0/spec/service-types.html">https://awslabs.github.io/smithy/2.0/spec/service-types.html</a></p>
 </blockquote>
-<h4 id="initializer_44">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyServiceName.Initializer"></a></h4>
+<h4 id="initializer_45">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyServiceName.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyServiceName</span><span class="p">(</span>
@@ -11264,7 +11357,7 @@ of gradle to the one provided by default</p>
   <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_45">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_46">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -11313,7 +11406,7 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="smithytransform">SmithyTransform <a name="SmithyTransform" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform"></a></h3>
 <p>A smithy build transform.</p>
-<h4 id="initializer_45">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform.Initializer"></a></h4>
+<h4 id="initializer_46">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.SmithyTransform.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">SmithyTransform</span><span class="p">(</span>
@@ -11321,7 +11414,7 @@ of gradle to the one provided by default</p>
   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_46">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_47">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -11362,15 +11455,16 @@ of gradle to the one provided by default</p>
 <hr />
 <h3 id="typesafeapiintegration">TypeSafeApiIntegration <a name="TypeSafeApiIntegration" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration"></a></h3>
 <p>Defines an integration for an individual API operation.</p>
-<h4 id="initializer_46">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.Initializer"></a></h4>
+<h4 id="initializer_47">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiIntegration</span><span class="p">(</span>
   <span class="n">integration</span><span class="p">:</span> <span class="n">Integration</span><span class="p">,</span>
-  <span class="n">authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="n">authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">options</span><span class="p">:</span> <span class="n">TypeSafeApiIntegrationOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_47">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_48">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -11383,12 +11477,17 @@ of gradle to the one provided by default</p>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.property.integration">integration</a></code></td>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.Integration">Integration</a></code></td>
-<td>The lambda function to service the api operation.</td>
+<td>The integration to service the api operation.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.property.authorizer">authorizer</a></code></td>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.Authorizer">Authorizer</a></code></td>
 <td>The authorizer to use for this api operation (overrides the default).</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.property.options">options</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegrationOptions">TypeSafeApiIntegrationOptions</a></code></td>
+<td>Options for the integration.</td>
 </tr>
 </tbody>
 </table>
@@ -11399,7 +11498,7 @@ of gradle to the one provided by default</p>
 <ul>
 <li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.Integration">Integration</a></li>
 </ul>
-<p>The lambda function to service the api operation.</p>
+<p>The integration to service the api operation.</p>
 <hr />
 <h5 id="authorizeroptional"><code>authorizer</code><sup>Optional</sup> <a name="authorizer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.property.authorizer"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">authorizer</span><span class="p">:</span> <span class="n">Authorizer</span>
@@ -11409,8 +11508,54 @@ of gradle to the one provided by default</p>
 </ul>
 <p>The authorizer to use for this api operation (overrides the default).</p>
 <hr />
+<h5 id="optionsoptional_4"><code>options</code><sup>Optional</sup> <a name="options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegration.property.options"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">options</span><span class="p">:</span> <span class="n">TypeSafeApiIntegrationOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegrationOptions">TypeSafeApiIntegrationOptions</a></li>
+</ul>
+<p>Options for the integration.</p>
+<hr />
+<h3 id="typesafeapiintegrationoptions">TypeSafeApiIntegrationOptions <a name="TypeSafeApiIntegrationOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegrationOptions"></a></h3>
+<p>Options for an integration.</p>
+<h4 id="initializer_48">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegrationOptions.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
+
+<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiIntegrationOptions</span><span class="p">(</span>
+  <span class="n">api_key_required</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="properties_49">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegrationOptions.property.apiKeyRequired">api_key_required</a></code></td>
+<td><code>bool</code></td>
+<td>Require an API key to invoke this operation.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="api_key_requiredoptional"><code>api_key_required</code><sup>Optional</sup> <a name="api_key_required" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiIntegrationOptions.property.apiKeyRequired"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">api_key_required</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> false</li>
+</ul>
+<p>Require an API key to invoke this operation.</p>
+<p>Overrides the default setting if present.
+This is only applicable when the API key source is HEADER.</p>
+<hr />
 <h3 id="typesafeapimodelprojectoptions">TypeSafeApiModelProjectOptions <a name="TypeSafeApiModelProjectOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions"></a></h3>
-<h4 id="initializer_47">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_49">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiModelProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiModelProjectOptions</span><span class="p">(</span>
@@ -11430,7 +11575,7 @@ of gradle to the one provided by default</p>
   <span class="n">model_options</span><span class="p">:</span> <span class="n">ModelOptions</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_48">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_50">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -11641,17 +11786,18 @@ sub-projects.</p>
 <hr />
 <h3 id="typesafeapioptions">TypeSafeApiOptions <a name="TypeSafeApiOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions"></a></h3>
 <p>Options required alongside an Open API specification to create API Gateway resources.</p>
-<h4 id="initializer_48">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.Initializer"></a></h4>
+<h4 id="initializer_50">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiOptions</span><span class="p">(</span>
   <span class="n">integrations</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">TypeSafeApiIntegration</span><span class="p">],</span>
   <span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">OperationDetails</span><span class="p">],</span>
+  <span class="n">api_key_options</span><span class="p">:</span> <span class="n">ApiKeyOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_49">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_51">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -11670,6 +11816,11 @@ sub-projects.</p>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.property.operationLookup">operation_lookup</a></code></td>
 <td><code>typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails">OperationDetails</a>]</code></td>
 <td>Details about each operation.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.property.apiKeyOptions">api_key_options</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.ApiKeyOptions">ApiKeyOptions</a></code></td>
+<td>Options for API keys.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.property.corsOptions">cors_options</a></code></td>
@@ -11700,6 +11851,14 @@ sub-projects.</p>
 </ul>
 <p>Details about each operation.</p>
 <hr />
+<h5 id="api_key_optionsoptional_1"><code>api_key_options</code><sup>Optional</sup> <a name="api_key_options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.property.apiKeyOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">api_key_options</span><span class="p">:</span> <span class="n">ApiKeyOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.ApiKeyOptions">ApiKeyOptions</a></li>
+</ul>
+<p>Options for API keys.</p>
+<hr />
 <h5 id="cors_optionsoptional_2"><code>cors_options</code><sup>Optional</sup> <a name="cors_options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiOptions.property.corsOptions"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span>
 </code></pre></div>
@@ -11720,7 +11879,7 @@ Authorizers specified at the integration level will override this for that opera
 <hr />
 <h3 id="typesafeapiprojectoptions">TypeSafeApiProjectOptions <a name="TypeSafeApiProjectOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions"></a></h3>
 <p>Options for the TypeSafeApiProject.</p>
-<h4 id="initializer_49">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions.Initializer"></a></h4>
+<h4 id="initializer_51">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiProjectOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiProjectOptions</span><span class="p">(</span>
@@ -11743,7 +11902,7 @@ Authorizers specified at the integration level will override this for that opera
   <span class="n">library</span><span class="p">:</span> <span class="n">LibraryConfiguration</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_50">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_52">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -11995,7 +12154,7 @@ fully-fledged runtimes, for example react hooks or clients in languages that are
 <hr />
 <h3 id="typesafeapiwebacloptions">TypeSafeApiWebAclOptions <a name="TypeSafeApiWebAclOptions" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions"></a></h3>
 <p>Configuration for the Web ACL associated with the API.</p>
-<h4 id="initializer_50">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions.Initializer"></a></h4>
+<h4 id="initializer_52">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeApiWebAclOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeApiWebAclOptions</span><span class="p">(</span>
@@ -12004,7 +12163,7 @@ fully-fledged runtimes, for example react hooks or clients in languages that are
   <span class="n">managed_rules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ManagedRule</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_51">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_53">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12063,7 +12222,7 @@ your own WebACL and associate it yourself.</p>
 <hr />
 <h3 id="typesaferestapiprops">TypeSafeRestApiProps <a name="TypeSafeRestApiProps" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps"></a></h3>
 <p>Configuration for the TypeSafeRestApi construct.</p>
-<h4 id="initializer_51">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.Initializer"></a></h4>
+<h4 id="initializer_53">Initializer <a name="Initializer" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">type_safe_api</span><span class="o">.</span><span class="n">TypeSafeRestApiProps</span><span class="p">(</span>
@@ -12082,13 +12241,14 @@ your own WebACL and associate it yourself.</p>
   <span class="n">retain_deployments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">integrations</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">TypeSafeApiIntegration</span><span class="p">],</span>
   <span class="n">operation_lookup</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">OperationDetails</span><span class="p">],</span>
+  <span class="n">api_key_options</span><span class="p">:</span> <span class="n">ApiKeyOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_authorizer</span><span class="p">:</span> <span class="n">Authorizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">spec_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">web_acl_options</span><span class="p">:</span> <span class="n">TypeSafeApiWebAclOptions</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_52">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_54">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12172,6 +12332,11 @@ your own WebACL and associate it yourself.</p>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.property.operationLookup">operation_lookup</a></code></td>
 <td><code>typing.Mapping[<a href="#@aws-prototyping-sdk/type-safe-api.OperationDetails">OperationDetails</a>]</code></td>
 <td>Details about each operation.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.property.apiKeyOptions">api_key_options</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/type-safe-api.ApiKeyOptions">ApiKeyOptions</a></code></td>
+<td>Options for API keys.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.property.corsOptions">cors_options</a></code></td>
@@ -12356,6 +12521,14 @@ Console.</p>
 </ul>
 <p>Details about each operation.</p>
 <hr />
+<h5 id="api_key_optionsoptional_2"><code>api_key_options</code><sup>Optional</sup> <a name="api_key_options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.property.apiKeyOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">api_key_options</span><span class="p">:</span> <span class="n">ApiKeyOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/type-safe-api.ApiKeyOptions">ApiKeyOptions</a></li>
+</ul>
+<p>Options for API keys.</p>
+<hr />
 <h5 id="cors_optionsoptional_3"><code>cors_options</code><sup>Optional</sup> <a name="cors_options" id="@aws-prototyping-sdk/type-safe-api.TypeSafeRestApiProps.property.corsOptions"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">cors_options</span><span class="p">:</span> <span class="n">CorsOptions</span>
 </code></pre></div>
@@ -12449,7 +12622,7 @@ rule set will be associated with the API. These options may disable or override 
 </ul>
 <p>Scopes for the authorizer, if any.</p>
 <hr />
-<h4 id="properties_53">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_55">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12743,7 +12916,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>the scopes to apply.</p>
 <hr />
-<h4 id="properties_54">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_56">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -12897,7 +13070,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <p><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type">https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html#cfn-apigateway-authorizer-type</a></p>
 </blockquote>
 <hr />
-<h4 id="properties_55">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_57">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -13031,7 +13204,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </tbody>
 </table>
 <hr />
-<h4 id="properties_56">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_58">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -13637,7 +13810,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </tbody>
 </table>
 <hr />
-<h4 id="properties_57">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_59">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -13769,7 +13942,7 @@ applied to all methods without an authorizer at the integration level.</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">synthesize</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 <p>Synthesizes files to the project output directory.</p>
-<h4 id="properties_58">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_60">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -13919,7 +14092,7 @@ applied to all methods without an authorizer at the integration level.</p>
 </ul>
 <p>smithy definitions to depend on.</p>
 <hr />
-<h4 id="properties_59">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_61">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -14502,7 +14675,7 @@ from the root of <em>this</em> project.</p>
 <p>If this path is relative, it will be
 resolved from the root of <em>this</em> project.</p>
 <hr />
-<h4 id="properties_60">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_62">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -15481,7 +15654,7 @@ from the root of <em>this</em> project.</p>
 <p>If this path is relative, it will be
 resolved from the root of <em>this</em> project.</p>
 <hr />
-<h4 id="properties_61">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_63">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -16082,7 +16255,7 @@ this task should synthesize the project files.</p>
   <small>
     
       Last update:
-      2023-05-21
+      2023-05-30
     
   </small>
 </div>
