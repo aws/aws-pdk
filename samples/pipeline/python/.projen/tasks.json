@@ -31,7 +31,18 @@
     },
     "install": {
       "name": "install",
-      "description": "Install and upgrade dependencies"
+      "description": "Install and upgrade dependencies",
+      "steps": [
+        {
+          "exec": "pip install --upgrade pip"
+        },
+        {
+          "exec": "cat requirements.txt | cut -f1 -d\"#\" | xargs -n 1 pip install --force-reinstall || echo \"\\033[33mInstalled with some errors\\033[0m\""
+        },
+        {
+          "exec": "cat requirements-dev.txt | cut -f1 -d\"#\" | xargs -n 1 pip install --force-reinstall || echo \"\\033[33mInstalled with some errors\\033[0m\""
+        }
+      ]
     },
     "package": {
       "name": "package",
@@ -46,13 +57,7 @@
       "description": "Prepare the project for compilation",
       "steps": [
         {
-          "exec": "pip install --upgrade pip"
-        },
-        {
-          "exec": "cat requirements.txt | cut -f1 -d\"#\" | xargs -n 1 pip install --force-reinstall || echo \"\\033[33mInstalled with some errors\\033[0m\""
-        },
-        {
-          "exec": "cat requirements-dev.txt | cut -f1 -d\"#\" | xargs -n 1 pip install --force-reinstall || echo \"\\033[33mInstalled with some errors\\033[0m\""
+          "spawn": "install"
         }
       ]
     },

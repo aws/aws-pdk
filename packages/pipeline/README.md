@@ -20,7 +20,7 @@ For example, in .projenrc.ts:
 new PDKPipelineTsProject({
   cdkVersion: "2.1.0",
   defaultReleaseBranch: "mainline",
-  devDeps: ["@aws-prototyping-sdk/pdk-pipeline-ts"],
+  devDeps: ["aws-prototyping-sdk"],
   name: "my-pipeline",
 });
 ```

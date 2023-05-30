@@ -88,7 +88,7 @@ In the output directory (`outdir`), you'll find a few files to get you started.
         |_ spec.yaml - The OpenAPI specification - edit this to define your API
         |_ .parsed-spec.json - A json spec generated from your spec.yaml.
     |_ api/
-        |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API.
+        |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API. 
         |           This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
         |           to your API. You shouldn't need to modify this, instead just extend it as in sample-api.ts.
         |_ sample-api.ts - Example usage of the construct defined in api.ts.
@@ -145,7 +145,7 @@ This will result in a directory structure similar to the following:
     |_ spec/
         |_ .parsed-spec.json - A json spec generated from your Smithy model.
     |_ api/
-        |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API.
+        |_ api.ts - A CDK construct which defines the API Gateway resources to deploy your API. 
         |           This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
         |           to your API. You shouldn't need to modify this, instead just extend it as in sample-api.ts.
         |_ sample-api.ts - Example usage of the construct defined in api.ts.
@@ -272,13 +272,13 @@ new OpenApiGatewayPythonProject({
 You will need to set up a shared virtual environment and configure dependencies via the monorepo (see README.md for the nx-monorepo package). An example of a full `.projenrc.ts` might be:
 
 ```ts
-import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+import { nx_monorepo } from "aws-prototyping-sdk";
 import { ClientLanguage, OpenApiGatewayPythonProject } from "@aws-prototyping-sdk/open-api-gateway";
 import { AwsCdkPythonApp } from "projen/lib/awscdk";
 
-const monorepo = new NxMonorepoProject({
+const monorepo = new nx_monorepo.NxMonorepoProject({
   defaultReleaseBranch: "main",
-  devDeps: ["@aws-prototyping-sdk/nx-monorepo", "@aws-prototyping-sdk/open-api-gateway"],
+  devDeps: ["aws-prototyping-sdk", "@aws-prototyping-sdk/open-api-gateway"],
   name: "open-api-test",
 });
 
@@ -329,7 +329,7 @@ You'll find the following directory structure in `packages/myapi`:
         |_ spec.yaml - The OpenAPI specification - edit this to define your API
         |_ .parsed-spec.json - A json spec generated from your spec.yaml.
     |_ api/
-        |_ api.py - A CDK construct which defines the API Gateway resources to deploy your API.
+        |_ api.py - A CDK construct which defines the API Gateway resources to deploy your API. 
         |           This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
         |           to your API. You shouldn't need to modify this, instead just extend it as in sample_api.py.
         |_ sample_api.py - Example usage of the construct defined in api.py.
@@ -376,7 +376,7 @@ The output directory will look a little like this:
     |_ main/
         |_ java/
             |_ api/
-                |_ Api.java - A CDK construct which defines the API Gateway resources to deploy your API.
+                |_ Api.java - A CDK construct which defines the API Gateway resources to deploy your API. 
                 |             This wraps the OpenApiGatewayRestApi construct and provides typed interfaces for integrations specific
                 |             to your API. You shouldn't need to modify this, instead just extend it as in SampleApi.java.
                 |_ ApiProps.java - Defines properties for the CDK construct in Api.java
