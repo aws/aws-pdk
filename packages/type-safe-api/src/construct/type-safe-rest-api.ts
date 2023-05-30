@@ -71,9 +71,25 @@ export interface TypeSafeRestApiProps
  * A construct for creating an api gateway rest api based on the definition in the OpenAPI spec.
  */
 export class TypeSafeRestApi extends Construct {
+  /**
+   * Underlying API Gateway API construct
+   */
   public readonly api: SpecRestApi;
+  /**
+   * The OpenAPI specification with applied API gateway extensions
+   */
+  readonly extendedApiSpecification: any;
+  /**
+   * Reference to the webacl, if created
+   */
   readonly webAcl?: CfnWebACL;
+  /**
+   * Reference to the IP set if created
+   */
   readonly ipSet?: CfnIPSet;
+  /**
+   * Reference to the web acl association if created
+   */
   readonly webAclAssociation?: CfnWebACLAssociation;
 
   constructor(scope: Construct, id: string, props: TypeSafeRestApiProps) {
@@ -269,34 +285,37 @@ export class TypeSafeRestApi extends Construct {
       defaultAuthorizerReference:
         serializeAsAuthorizerReference(defaultAuthorizer),
       integrations: Object.fromEntries(
-        Object.entries(integrations).map(
-          ([operationId, { authorizer, integration }]) => [
-            operationId,
-            {
-              integration: integration.render({
-                operationId,
-                scope: this,
-                ...operationLookup[operationId],
-                corsOptions: serializedCorsOptions,
-              }),
-              methodAuthorizer: serializeAsAuthorizerReference(authorizer),
-            },
-          ]
-        )
+        Object.entries(integrations).map(([operationId, integration]) => [
+          operationId,
+          {
+            integration: integration.integration.render({
+              operationId,
+              scope: this,
+              ...operationLookup[operationId],
+              corsOptions: serializedCorsOptions,
+            }),
+            methodAuthorizer: serializeAsAuthorizerReference(
+              integration.authorizer
+            ),
+            options: integration.options,
+          },
+        ])
       ),
       securitySchemes: prepareSecuritySchemes(
         this,
         integrations,
-        defaultAuthorizer
+        defaultAuthorizer,
+        options.apiKeyOptions
       ),
       corsOptions: serializedCorsOptions,
       operationLookup,
+      apiKeyOptions: options.apiKeyOptions,
     };
 
     // Spec preparation will happen in a custom resource lambda so that references to lambda integrations etc can be
     // resolved. However, we also prepare inline to perform some additional validation at synth time.
     const spec = JSON.parse(fs.readFileSync(specPath, "utf-8"));
-    const preparedSpec = prepareApiSpec(spec, prepareSpecOptions);
+    this.extendedApiSpecification = prepareApiSpec(spec, prepareSpecOptions);
 
     const prepareApiSpecCustomResourceProperties: PrepareApiSpecCustomResourceProperties =
       {
@@ -324,7 +343,7 @@ export class TypeSafeRestApi extends Construct {
     // such as integrations or auth types
     this.api = new SpecRestApi(this, id, {
       apiDefinition: this.node.tryGetContext("type-safe-api-local")
-        ? ApiDefinition.fromInline(preparedSpec)
+        ? ApiDefinition.fromInline(this.extendedApiSpecification)
         : ApiDefinition.fromBucket(
             inputSpecAsset.bucket,
             prepareSpecCustomResource.getAttString("outputSpecKey")
@@ -344,7 +363,7 @@ export class TypeSafeRestApi extends Construct {
     // While the api will be updated when the output path from the custom resource changes, CDK still needs to know when
     // to redeploy the api. This is achieved by including a hash of the spec in the logical id (internalised in the
     // addToLogicalId method since this is how changes of individual resources/methods etc trigger redeployments in CDK)
-    this.api.latestDeployment?.addToLogicalId(preparedSpec);
+    this.api.latestDeployment?.addToLogicalId(this.extendedApiSpecification);
 
     // Grant API Gateway permission to invoke the integrations
     Object.keys(integrations).forEach((operationId) => {
