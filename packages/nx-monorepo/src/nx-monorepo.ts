@@ -301,7 +301,8 @@ export class NxMonorepoProject extends TypeScriptProject {
       );
       upgradeDepsTask.exec(
         NodePackageUtils.command.exec(
-          this.package.packageManager,
+          NodePackageManager.NPM, // npm-check-updates needs npx
+          "-y",
           "npm-check-updates",
           "--deep",
           "--rejectVersion",
@@ -317,7 +318,7 @@ export class NxMonorepoProject extends TypeScriptProject {
         )
       );
       upgradeDepsTask.exec(
-        NodePackageUtils.command.exec(this.package.packageManager, "install")
+        NodePackageUtils.command.install(this.package.packageManager)
       );
       upgradeDepsTask.exec(
         NodePackageUtils.command.exec(this.package.packageManager, "projen")
