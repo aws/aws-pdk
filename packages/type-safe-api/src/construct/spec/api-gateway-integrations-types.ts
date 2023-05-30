@@ -126,6 +126,10 @@ export interface TypeSafeApiOptions {
    * Options for API keys
    */
   readonly apiKeyOptions?: ApiKeyOptions;
+
+  // IMPORTANT NOTE! If adding a new property here, make sure you update the Java infrastructure
+  // generator's api.mustache and apiProps.mustache to ensure the generated construct can pass
+  // the new property to the TypeSafeRestApi construct.
 }
 
 /**
