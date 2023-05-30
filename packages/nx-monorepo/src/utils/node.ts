@@ -160,6 +160,23 @@ export namespace NodePackageUtils {
           return withArgs("npx", args);
       }
     }
+    /**
+     * Get command to install a package
+     */
+    export function install(
+      packageManager: NodePackageManager,
+      ...args: string[]
+    ): string {
+      switch (packageManager) {
+        case NodePackageManager.YARN:
+        case NodePackageManager.YARN2:
+          return withArgs("yarn install", args);
+        case NodePackageManager.PNPM:
+          return withArgs("pnpm i", args);
+        default:
+          return withArgs("npm install", args);
+      }
+    }
 
     export function execInWorkspace(
       packageManager: NodePackageManager,
