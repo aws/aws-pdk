@@ -1,9 +1,15 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { AuthorizationType } from "aws-cdk-lib/aws-apigateway";
+import {
+  ApiKeySourceType,
+  AuthorizationType,
+} from "aws-cdk-lib/aws-apigateway";
 import { Construct } from "constructs";
 import { OpenAPIV3 } from "openapi-types";
-import { TypeSafeApiIntegrations } from "./api-gateway-integrations-types";
+import {
+  ApiKeyOptions,
+  TypeSafeApiIntegrations,
+} from "./api-gateway-integrations-types";
 import { functionInvocationUri } from "./utils";
 import {
   Authorizer,
@@ -16,6 +22,7 @@ import {
   isCustomAuthorizer,
   isIamAuthorizer,
 } from "../authorizers/predicates";
+import { DefaultAuthorizerIds } from "../prepare-spec-event-handler/constants";
 
 /**
  * Snippet of OpenAPI API Gateway extension for a cognito x-amazon-apigateway-authorizer
@@ -138,6 +145,18 @@ const iamSecurityScheme = (): IamSecurityScheme => ({
 });
 
 /**
+ * Create an API key security scheme
+ * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-key-source.html
+ */
+const apiKeySecurityScheme = (): OpenAPIV3.ApiKeySecurityScheme => ({
+  type: "apiKey",
+  // Header must be x-api-key for API Gateway
+  // See: https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-key-source.html
+  name: "x-api-key",
+  in: "header",
+});
+
+/**
  * Create an OpenAPI security scheme definition for a cognito authorizer
  * @param authorizer cognito authorizer
  */
@@ -217,7 +236,8 @@ export const getAllAuthorizers = (
 export const prepareSecuritySchemes = (
   scope: Construct,
   integrations: TypeSafeApiIntegrations,
-  defaultAuthorizer?: Authorizer
+  defaultAuthorizer?: Authorizer,
+  apiKeyOptions?: ApiKeyOptions
 ): { [key: string]: OpenAPIV3.SecuritySchemeObject } => {
   // All the defined authorizers
   const allAuthorizers = getAllAuthorizers(integrations, defaultAuthorizer);
@@ -245,5 +265,11 @@ export const prepareSecuritySchemes = (
         .filter((authorizer) => isIamAuthorizer(authorizer))
         .map((authorizer) => [authorizer.authorizerId, iamSecurityScheme()])
     ),
+    // A security scheme must be defined if the api key is in the header
+    ...(apiKeyOptions?.source === ApiKeySourceType.HEADER
+      ? {
+          [DefaultAuthorizerIds.API_KEY]: apiKeySecurityScheme(),
+        }
+      : {}),
   };
 };

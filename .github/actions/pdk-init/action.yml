@@ -1,5 +1,5 @@
-name: "PDK Init"
-description: "Initialize the PDK monorepo by installing engines, dependencies, and synthesizing project."
+name: 'PDK Init'
+description: 'Initialize the PDK monorepo by installing engines, dependencies, and synthesizing project.'
 runs:
   using: "composite"
   steps:
@@ -7,13 +7,6 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: 18
-    - uses: actions/setup-java@v2
-      with:
-        distribution: temurin
-        java-version: 11.x
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.x
     # https://github.com/pnpm/action-setup
     - uses: pnpm/action-setup@v2
       name: Install pnpm
@@ -33,9 +26,6 @@ runs:
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-store-
-    - name: Install npm
-      shell: bash
-      run: npm install -g npm@8.19.4
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile --prefer-offline
@@ -43,4 +33,4 @@ runs:
       shell: bash
       run: pnpm projen
       env:
-        HUSKY: "0" # By default do not run HUSKY install
+        HUSKY: '0' # By default do not run HUSKY install

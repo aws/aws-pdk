@@ -8,6 +8,7 @@ import type {
   MethodAndPath,
   OperationLookup,
   SerializedCorsOptions,
+  TypeSafeApiIntegrationOptions,
   TypeSafeApiIntegrations,
 } from "../spec";
 import { SerialisedAuthorizerReference } from "../spec/api-gateway-auth";
@@ -30,6 +31,25 @@ export interface SerializedMethodIntegration {
    * The authorizer (if any) to apply to the method
    */
   readonly methodAuthorizer?: SerialisedAuthorizerReference;
+  /**
+   * Options for the integration
+   */
+  readonly options?: TypeSafeApiIntegrationOptions;
+}
+
+/**
+ * Options for API keys
+ */
+export interface SerializedApiKeyOptions {
+  /**
+   * Source type for an API key
+   */
+  readonly source: string;
+  /**
+   * Set to true to require an API key on all operations by default.
+   * Only applicable when the source is HEADER.
+   */
+  readonly requiredByDefault?: boolean;
 }
 
 /**
@@ -56,33 +76,62 @@ export interface PrepareApiSpecOptions {
    * The default authorizer to reference
    */
   readonly defaultAuthorizerReference?: SerialisedAuthorizerReference;
+  /**
+   * Default options for API keys
+   */
+  readonly apiKeyOptions?: SerializedApiKeyOptions;
 }
 
-// Add to methods to ensure no auth is added
-const NO_AUTH_SPEC_SNIPPET = {
-  security: [],
+/**
+ * API key options when rendering an authorizer
+ */
+interface AuthorizerApiKeyOptions {
+  /**
+   * Whether an api key is required for the method
+   */
+  readonly apiKeyRequired?: boolean;
+}
+
+/**
+ * Return an array of security scheme references including the api key one if required
+ */
+const apiKeySecurityReference = (options?: AuthorizerApiKeyOptions) =>
+  options?.apiKeyRequired ? [{ [DefaultAuthorizerIds.API_KEY]: [] }] : [];
+
+/**
+ * Generate a "no auth" spec snippet
+ */
+const noAuthSpecSnippet = (options?: AuthorizerApiKeyOptions) => ({
+  security: apiKeySecurityReference(options),
   "x-amazon-apigateway-auth": {
     type: "NONE",
   },
-};
+});
 
 /**
  * Create the OpenAPI definition with api gateway extensions for the given authorizer
  * @param methodAuthorizer the authorizer used for the method
+ * @param options api integration options
  */
 const applyMethodAuthorizer = (
-  methodAuthorizer?: SerialisedAuthorizerReference
+  methodAuthorizer?: SerialisedAuthorizerReference,
+  options?: AuthorizerApiKeyOptions
 ) => {
-  if (methodAuthorizer) {
-    if (methodAuthorizer.authorizerId === DefaultAuthorizerIds.NONE) {
-      return NO_AUTH_SPEC_SNIPPET;
+  if (methodAuthorizer || options) {
+    if (methodAuthorizer?.authorizerId === DefaultAuthorizerIds.NONE) {
+      return noAuthSpecSnippet(options);
     } else {
       return {
         security: [
-          {
-            [methodAuthorizer.authorizerId]:
-              methodAuthorizer.authorizationScopes || [],
-          },
+          ...(methodAuthorizer
+            ? [
+                {
+                  [methodAuthorizer.authorizerId]:
+                    methodAuthorizer.authorizationScopes || [],
+                },
+              ]
+            : []),
+          ...apiKeySecurityReference(options),
         ],
       };
     }
@@ -96,7 +145,12 @@ const applyMethodAuthorizer = (
 const applyMethodIntegration = (
   path: string,
   method: Method,
-  { integrations, corsOptions }: PrepareApiSpecOptions,
+  {
+    integrations,
+    corsOptions,
+    apiKeyOptions,
+    defaultAuthorizerReference,
+  }: PrepareApiSpecOptions,
   operation: OpenAPIV3.OperationObject,
   getOperationName: (methodAndPath: MethodAndPath) => string
 ): OpenAPIV3.OperationObject | undefined => {
@@ -107,7 +161,7 @@ const applyMethodIntegration = (
     );
   }
 
-  const { methodAuthorizer, integration } =
+  let { methodAuthorizer, integration, options } =
     integrations[operationName as keyof TypeSafeApiIntegrations];
 
   validateAuthorizerReference(
@@ -115,6 +169,28 @@ const applyMethodIntegration = (
     operation.security,
     operationName
   );
+
+  let methodApiKeyOptions: AuthorizerApiKeyOptions | undefined = options;
+
+  // When no API key options are present on the method, require the API key if it's
+  // required by default
+  if (!methodApiKeyOptions && apiKeyOptions?.requiredByDefault) {
+    methodApiKeyOptions = { apiKeyRequired: true };
+  }
+
+  // Can only "require" an API key if it's in a header, since we only define the security
+  // scheme we'd reference in this case.
+  if (
+    apiKeyOptions?.source !== "HEADER" &&
+    methodApiKeyOptions?.apiKeyRequired
+  ) {
+    throw new Error(
+      `Cannot require an API Key when API Key source is not HEADER: ${operationName} (${method} ${path})`
+    );
+  }
+
+  // Apply the default authorizer unless a method authorizer is defined
+  methodAuthorizer = methodAuthorizer ?? defaultAuthorizerReference;
 
   return {
     ...operation,
@@ -133,7 +209,7 @@ const applyMethodIntegration = (
     ),
     // https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html
     "x-amazon-apigateway-integration": integration,
-    ...applyMethodAuthorizer(methodAuthorizer),
+    ...applyMethodAuthorizer(methodAuthorizer, methodApiKeyOptions),
   } as any;
 };
 
@@ -211,7 +287,7 @@ const generateCorsOptionsMethod = (
         },
       },
       // No auth for CORS options requests
-      ...NO_AUTH_SPEC_SNIPPET,
+      ...noAuthSpecSnippet(),
     },
   };
 };
@@ -467,9 +543,11 @@ export const prepareApiSpec = (
         ...options.securitySchemes,
       },
     },
-    // Apply the default authorizer at the top level
-    ...(options.defaultAuthorizerReference
-      ? applyMethodAuthorizer(options.defaultAuthorizerReference)
+    ...(options.apiKeyOptions
+      ? {
+          // https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-api-key-source.html
+          "x-amazon-apigateway-api-key-source": options.apiKeyOptions.source,
+        }
       : {}),
   } as any;
 };

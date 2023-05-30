@@ -4,7 +4,7 @@ import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { NodePackageManager } from "projen/lib/javascript";
 import { ReactTypeScriptProject } from "projen/lib/web";
-import { NodePackageUtils, NxProject } from "../../packages/nx-monorepo/src";
+import { NodePackageUtils } from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
 /**
@@ -28,9 +28,6 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
     });
 
     this.sampleProject = new CloudscapeReactTsSampleWebsiteProject(parent);
-
-    NxProject.ensure(this.sampleProject).addImplicitDependency(this);
-    NxProject.ensure(this.sampleProject).addTag("sample");
 
     this.addPackageIgnore("!samples");
     this.addGitIgnore("samples");
