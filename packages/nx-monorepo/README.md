@@ -14,12 +14,12 @@ npx projen new --from @aws-prototyping-sdk/nx-monorepo
 This will bootstrap a new Projen monorepo and contain the following in the .projenrc.ts:
 
 ```ts
-import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+import { nx_monorepo } from "aws-prototyping-sdk";
 
-const project = new NxMonorepoProject({
+const project = new nx_monorepo.NxMonorepoProject({
   defaultReleaseBranch: "main",
   deps: ["aws-cdk-lib", "constructs", "cdk-nag"],
-  devDeps: ["@aws-prototyping-sdk/nx-monorepo"],
+  devDeps: ["aws-prototyping-sdk"],
   name: "my-package",
 });
 
@@ -29,12 +29,12 @@ project.synth();
 To add new packages to the monorepo, you can simply add them as a child to the monorepo. To demonstrate, lets add a PDK Pipeline TS Project as a child as follows:
 
 ```ts
-import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+import { nx_monorepo } from "aws-prototyping-sdk";
 
-const project = new NxMonorepoProject({
+const project = new nx_monorepo.NxMonorepoProject({
   defaultReleaseBranch: "main",
   deps: ["aws-cdk-lib", "constructs", "cdk-nag"],
-  devDeps: ["@aws-prototyping-sdk/nx-monorepo"],
+  devDeps: ["aws-prototyping-sdk"],
   name: "my-package",
 });
 
@@ -54,14 +54,14 @@ Once added, run `npx projen` from the root directory. You will now notice a new 
 Now let's add a python project to the monorepo and add an inter-language build dependency.
 
 ```ts
-import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
-import { PDKPipelineTsProject } from "@aws-prototyping-sdk/pipeline";
+import { nx_monorepo } from "aws-prototyping-sdk";
+import { PDKPipelineTsProject } from "aws-prototyping-sdk/pipeline";
 import { PythonProject } from "projen/lib/python";
 
-const project = new NxMonorepoProject({
+const project = new nx_monorepo.NxMonorepoProject({
   defaultReleaseBranch: "main",
   deps: ["aws-cdk-lib", "constructs", "cdk-nag"],
-  devDeps: ["@aws-prototyping-sdk/nx-monorepo"],
+  devDeps: ["aws-prototyping-sdk"],
   name: "test",
 });
 
