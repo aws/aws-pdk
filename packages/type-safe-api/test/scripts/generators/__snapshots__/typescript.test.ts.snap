@@ -1239,6 +1239,12 @@ src/index.ts
 src/models/ApiError.ts
 src/models/ApiError.ts
 src/models/ApiError.ts
+src/models/MapResponse200Response.ts
+src/models/MapResponse200Response.ts
+src/models/MapResponse200Response.ts
+src/models/MapResponse200ResponseMapPropertyValue.ts
+src/models/MapResponse200ResponseMapPropertyValue.ts
+src/models/MapResponse200ResponseMapPropertyValue.ts
 src/models/TestRequest.ts
 src/models/TestRequest.ts
 src/models/TestRequest.ts
@@ -1327,12 +1333,15 @@ npm install PATH_TO_GENERATED_PACKAGE --save
 import * as runtime from '../runtime';
 import type {
   ApiError,
+  MapResponse200Response,
   TestRequest,
   TestResponse,
 } from '../models';
 import {
     ApiErrorFromJSON,
     ApiErrorToJSON,
+    MapResponse200ResponseFromJSON,
+    MapResponse200ResponseToJSON,
     TestRequestFromJSON,
     TestRequestToJSON,
     TestResponseFromJSON,
@@ -1413,6 +1422,30 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async empty(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.emptyRaw(initOverrides);
+    }
+
+    /**
+     */
+    async mapResponseRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MapResponse200Response>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: \`/map-response\`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => MapResponse200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async mapResponse(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MapResponse200Response> {
+        const response = await this.mapResponseRaw(initOverrides);
+        return await response.value();
     }
 
     /**
@@ -1571,6 +1604,12 @@ import {
     ApiError,
     ApiErrorFromJSON,
     ApiErrorToJSON,
+    MapResponse200Response,
+    MapResponse200ResponseFromJSON,
+    MapResponse200ResponseToJSON,
+    MapResponse200ResponseMapPropertyValue,
+    MapResponse200ResponseMapPropertyValueFromJSON,
+    MapResponse200ResponseMapPropertyValueToJSON,
     TestRequest,
     TestRequestFromJSON,
     TestRequestToJSON,
@@ -1585,6 +1624,7 @@ import {
 import {
     AnyRequestResponseRequest,
     
+    
     MediaTypesRequest,
     MultipleContentTypesRequest,
     OperationOneRequest,
@@ -1598,6 +1638,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda
 export interface OperationConfig<T> {
     anyRequestResponse: T;
     empty: T;
+    mapResponse: T;
     mediaTypes: T;
     multipleContentTypes: T;
     operationOne: T;
@@ -1614,6 +1655,11 @@ export const OperationLookup = {
     empty: {
         path: '/empty-response',
         method: 'PUT',
+        contentTypes: ['application/json'],
+    },
+    mapResponse: {
+        path: '/map-response',
+        method: 'GET',
         contentTypes: ['application/json'],
     },
     mediaTypes: {
@@ -1672,7 +1718,7 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
-type OperationIds = | 'anyRequestResponse' | 'empty' | 'mediaTypes' | 'multipleContentTypes' | 'operationOne' | 'withoutOperationIdDelete';
+type OperationIds = | 'anyRequestResponse' | 'empty' | 'mapResponse' | 'mediaTypes' | 'multipleContentTypes' | 'operationOne' | 'withoutOperationIdDelete';
 type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
 
 // Api gateway lambda handler type
@@ -1883,6 +1929,81 @@ export const emptyHandler = (
         let marshalledBody = responseBody;
         switch(statusCode) {
             case 204:
+                break;
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    return {
+        ...response,
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
+/**
+ * Single-value path/query parameters for MapResponse
+ */
+export interface MapResponseRequestParameters {
+}
+
+/**
+ * Multi-value query parameters for MapResponse
+ */
+export interface MapResponseRequestArrayParameters {
+}
+
+/**
+ * Request body parameter for MapResponse
+ */
+export type MapResponseRequestBody = never;
+
+export type MapResponse200OperationResponse = OperationResponse<200, MapResponse200Response>;
+export type MapResponseOperationResponses = | MapResponse200OperationResponse ;
+
+// Type that the handler function provided to the wrapper must conform to
+export type MapResponseHandlerFunction = LambdaHandlerFunction<MapResponseRequestParameters, MapResponseRequestArrayParameters, MapResponseRequestBody, MapResponseOperationResponses>;
+export type MapResponseChainedHandlerFunction = ChainedLambdaHandlerFunction<MapResponseRequestParameters, MapResponseRequestArrayParameters, MapResponseRequestBody, MapResponseOperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of mapResponse
+ */
+export const mapResponseHandler = (
+    firstHandler: MapResponseChainedHandlerFunction,
+    ...remainingHandlers: MapResponseChainedHandlerFunction[]
+): OperationApiGatewayLambdaHandler<'mapResponse'> => async (event: any, context: any, _callback?: any, additionalInterceptors: MapResponseChainedHandlerFunction[] = []): Promise<any> => {
+    const requestParameters = decodeRequestParameters({
+        ...(event.pathParameters || {}),
+        ...(event.queryStringParameters || {}),
+    }) as unknown as MapResponseRequestParameters;
+
+    const requestArrayParameters = decodeRequestParameters({
+        ...(event.multiValueQueryStringParameters || {}),
+    }) as unknown as MapResponseRequestArrayParameters;
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as MapResponseRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            requestArrayParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: {},
+    });
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+            case 200:
+                marshalledBody = JSON.stringify(MapResponse200ResponseToJSON(marshalledBody));
                 break;
             default:
                 break;
@@ -2207,16 +2328,17 @@ export const withoutOperationIdDeleteHandler = (
 export interface HandlerRouterHandlers {
   readonly anyRequestResponse: OperationApiGatewayLambdaHandler<'anyRequestResponse'>;
   readonly empty: OperationApiGatewayLambdaHandler<'empty'>;
+  readonly mapResponse: OperationApiGatewayLambdaHandler<'mapResponse'>;
   readonly mediaTypes: OperationApiGatewayLambdaHandler<'mediaTypes'>;
   readonly multipleContentTypes: OperationApiGatewayLambdaHandler<'multipleContentTypes'>;
   readonly operationOne: OperationApiGatewayLambdaHandler<'operationOne'>;
   readonly withoutOperationIdDelete: OperationApiGatewayLambdaHandler<'withoutOperationIdDelete'>;
 }
 
-export type AnyOperationRequestParameters = | AnyRequestResponseRequestParameters| EmptyRequestParameters| MediaTypesRequestParameters| MultipleContentTypesRequestParameters| OperationOneRequestParameters| WithoutOperationIdDeleteRequestParameters;
-export type AnyOperationRequestArrayParameters = | AnyRequestResponseRequestArrayParameters| EmptyRequestArrayParameters| MediaTypesRequestArrayParameters| MultipleContentTypesRequestArrayParameters| OperationOneRequestArrayParameters| WithoutOperationIdDeleteRequestArrayParameters;
-export type AnyOperationRequestBodies = | AnyRequestResponseRequestBody| EmptyRequestBody| MediaTypesRequestBody| MultipleContentTypesRequestBody| OperationOneRequestBody| WithoutOperationIdDeleteRequestBody;
-export type AnyOperationResponses = | AnyRequestResponseOperationResponses| EmptyOperationResponses| MediaTypesOperationResponses| MultipleContentTypesOperationResponses| OperationOneOperationResponses| WithoutOperationIdDeleteOperationResponses;
+export type AnyOperationRequestParameters = | AnyRequestResponseRequestParameters| EmptyRequestParameters| MapResponseRequestParameters| MediaTypesRequestParameters| MultipleContentTypesRequestParameters| OperationOneRequestParameters| WithoutOperationIdDeleteRequestParameters;
+export type AnyOperationRequestArrayParameters = | AnyRequestResponseRequestArrayParameters| EmptyRequestArrayParameters| MapResponseRequestArrayParameters| MediaTypesRequestArrayParameters| MultipleContentTypesRequestArrayParameters| OperationOneRequestArrayParameters| WithoutOperationIdDeleteRequestArrayParameters;
+export type AnyOperationRequestBodies = | AnyRequestResponseRequestBody| EmptyRequestBody| MapResponseRequestBody| MediaTypesRequestBody| MultipleContentTypesRequestBody| OperationOneRequestBody| WithoutOperationIdDeleteRequestBody;
+export type AnyOperationResponses = | AnyRequestResponseOperationResponses| EmptyOperationResponses| MapResponseOperationResponses| MediaTypesOperationResponses| MultipleContentTypesOperationResponses| OperationOneOperationResponses| WithoutOperationIdDeleteOperationResponses;
 
 export interface HandlerRouterProps<
   RequestParameters,
@@ -2334,6 +2456,157 @@ export function ApiErrorToJSON(value?: ApiError | null): any {
     return {
         
         'errorMessage': value.errorMessage,
+    };
+}
+
+",
+  "src/models/MapResponse200Response.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Example API
+ * No description provided (generated by Openapi Generator https://github.com/openapitools/openapi-generator)
+ *
+ * The version of the OpenAPI document: 1.0.0
+ * 
+ *
+ * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
+ * https://openapi-generator.tech
+ * Do not edit the class manually.
+ */
+
+import { exists, mapValues } from '../runtime';
+import type { MapResponse200ResponseMapPropertyValue } from './MapResponse200ResponseMapPropertyValue';
+import {
+    MapResponse200ResponseMapPropertyValueFromJSON,
+    MapResponse200ResponseMapPropertyValueFromJSONTyped,
+    MapResponse200ResponseMapPropertyValueToJSON,
+} from './MapResponse200ResponseMapPropertyValue';
+
+/**
+ * 
+ * @export
+ * @interface MapResponse200Response
+ */
+export interface MapResponse200Response {
+    /**
+     * 
+     * @type {{ [key: string]: MapResponse200ResponseMapPropertyValue; }}
+     * @memberof MapResponse200Response
+     */
+    mapProperty: { [key: string]: MapResponse200ResponseMapPropertyValue; };
+}
+
+
+/**
+ * Check if a given object implements the MapResponse200Response interface.
+ */
+export function instanceOfMapResponse200Response(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "mapProperty" in value;
+
+    return isInstance;
+}
+
+export function MapResponse200ResponseFromJSON(json: any): MapResponse200Response {
+    return MapResponse200ResponseFromJSONTyped(json, false);
+}
+
+export function MapResponse200ResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): MapResponse200Response {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+        
+        'mapProperty': (mapValues(json['mapProperty'], MapResponse200ResponseMapPropertyValueFromJSON)),
+    };
+}
+
+export function MapResponse200ResponseToJSON(value?: MapResponse200Response | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+        
+        'mapProperty': (mapValues(value.mapProperty, MapResponse200ResponseMapPropertyValueToJSON)),
+    };
+}
+
+",
+  "src/models/MapResponse200ResponseMapPropertyValue.ts": "/* tslint:disable */
+/* eslint-disable */
+/**
+ * Example API
+ * No description provided (generated by Openapi Generator https://github.com/openapitools/openapi-generator)
+ *
+ * The version of the OpenAPI document: 1.0.0
+ * 
+ *
+ * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
+ * https://openapi-generator.tech
+ * Do not edit the class manually.
+ */
+
+import { exists, mapValues } from '../runtime';
+/**
+ * 
+ * @export
+ * @interface MapResponse200ResponseMapPropertyValue
+ */
+export interface MapResponse200ResponseMapPropertyValue {
+    /**
+     * 
+     * @type {string}
+     * @memberof MapResponse200ResponseMapPropertyValue
+     */
+    a: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof MapResponse200ResponseMapPropertyValue
+     */
+    b?: string;
+}
+
+
+/**
+ * Check if a given object implements the MapResponse200ResponseMapPropertyValue interface.
+ */
+export function instanceOfMapResponse200ResponseMapPropertyValue(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "a" in value;
+
+    return isInstance;
+}
+
+export function MapResponse200ResponseMapPropertyValueFromJSON(json: any): MapResponse200ResponseMapPropertyValue {
+    return MapResponse200ResponseMapPropertyValueFromJSONTyped(json, false);
+}
+
+export function MapResponse200ResponseMapPropertyValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): MapResponse200ResponseMapPropertyValue {
+    if ((json === undefined) || (json === null)) {
+        return json;
+    }
+    return {
+        
+        'a': json['a'],
+        'b': !exists(json, 'b') ? undefined : json['b'],
+    };
+}
+
+export function MapResponse200ResponseMapPropertyValueToJSON(value?: MapResponse200ResponseMapPropertyValue | null): any {
+    if (value === undefined) {
+        return undefined;
+    }
+    if (value === null) {
+        return null;
+    }
+    return {
+        
+        'a': value.a,
+        'b': value.b,
     };
 }
 
@@ -2559,6 +2832,8 @@ export function TestResponseMessagesInnerToJSON(value?: TestResponseMessagesInne
   "src/models/index.ts": "/* tslint:disable */
 /* eslint-disable */
 export * from './ApiError';
+export * from './MapResponse200Response';
+export * from './MapResponse200ResponseMapPropertyValue';
 export * from './TestRequest';
 export * from './TestResponse';
 export * from './TestResponseMessagesInner';

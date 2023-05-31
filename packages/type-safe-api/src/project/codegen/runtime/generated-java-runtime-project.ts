@@ -156,6 +156,8 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
       normalizers: {
         KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
       },
+      // Do not generate map/list types. Generator will use built in HashMap, ArrayList instead
+      generateAliasAsModel: false,
     });
   };
 }

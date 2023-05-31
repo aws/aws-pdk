@@ -143,6 +143,8 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
         "x-infrastructure-package": this.packageName,
         "x-runtime-package": this.generatedJavaTypes.packageName,
       },
+      // Do not generate map/list types. Generator will use built in HashMap, ArrayList instead
+      generateAliasAsModel: false,
     });
   };
 }

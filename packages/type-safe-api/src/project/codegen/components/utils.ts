@@ -65,6 +65,13 @@ export interface GenerationOptions {
    * Keys should begin with "x-"
    */
   readonly extraVendorExtensions?: Record<string, string>;
+  /**
+   * Generate alias as model.
+   * Defines whether "primitive types" defined at the model/schema level will be wrapped in a model (ie maps/lists)
+   * @see https://openapi-generator.tech/docs/globals/
+   * @default true
+   */
+  readonly generateAliasAsModel?: boolean;
 }
 
 const serializeProperties = (properties: { [key: string]: string }) =>
@@ -104,6 +111,9 @@ export const buildInvokeOpenApiGeneratorCommand = (
       )}'`
     : "";
 
+  const generateAliasAsModel =
+    options.generateAliasAsModel ?? true ? " --generate-alias-as-model" : "";
+
   const workingDir = path.resolve(
     __dirname,
     "..",
@@ -120,7 +130,7 @@ export const buildInvokeOpenApiGeneratorCommand = (
   const outputPath = path.relative(workingDir, options.outputPath);
 
   return {
-    command: `./generate --generator ${options.generator} --spec-path ${specPath} --output-path ${outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${additionalProperties}${normalizers}${extensions}`,
+    command: `./generate --generator ${options.generator} --spec-path ${specPath} --output-path ${outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${additionalProperties}${normalizers}${extensions}${generateAliasAsModel}`,
     workingDir,
   };
 };
