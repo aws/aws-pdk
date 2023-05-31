@@ -237,17 +237,17 @@ class PDKDocgen {
 
     const docgen = project.addTask("docgen", {
       description: "Generate API docs from .jsii manifest",
-      exec: `mkdir -p ${docsBasePath}/typescript && jsii-docgen -r -o ${docsBasePath}/typescript/index.md`,
+      exec: `mkdir -p ${docsBasePath}/typescript && jsii-docgen -r=false -o ${docsBasePath}/typescript/index.md`,
     });
 
     project.options.publishToPypiConfig !== false &&
       docgen.exec(
-        `mkdir -p ${docsBasePath}/python && jsii-docgen -l python -r -o ${docsBasePath}/python/index.md`
+        `mkdir -p ${docsBasePath}/python && jsii-docgen -l python -r=false -o ${docsBasePath}/python/index.md`
       );
 
     project.options.publishToMavenConfig !== false &&
       docgen.exec(
-        `mkdir -p ${docsBasePath}/java && jsii-docgen -l java -r -o ${docsBasePath}/java/index.md`
+        `mkdir -p ${docsBasePath}/java && jsii-docgen -l java -r=false -o ${docsBasePath}/java/index.md`
       );
 
     NxProject.of(project)?.addBuildTargetFiles(

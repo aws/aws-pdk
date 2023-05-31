@@ -1,4 +1,5 @@
 ## Diagram Plugin - Cdk Graph
+
 `@aws-prototyping-sdk/cdk-graph-plugin-diagram`
 
 ![experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
@@ -10,17 +11,18 @@ This plugin generates diagrams utilizing the [cdk-graph](https://aws.github.io/a
 
 > More comprehensive documentation to come as this package stabilizes.
 
-> **Disclaimer:** This is the first **cdk graph** plugin, it is highly *experimental*, and subject to major refactors as we gain feedback from the community.
+> **Disclaimer:** This is the first **cdk graph** plugin, it is highly _experimental_, and subject to major refactors as we gain feedback from the community.
 
 > **BREAKING CHANGES** (pre-release)
+>
 > - `<= v0.14.8`: Only the last stage of a multi stage app will be rendered by default, which is commonly the production stage. Use the `theme.rendering.stage` config option to override this for each graph or in defaults.
 
-| | |
-| --- | --- |
-| <img src="docs/examples/default.png" width="300" /> | <img src="docs/examples/dark.png" width="300" /> |
-
+|                                                                            |                                                                         |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| <img src="docs/assets/cdk-graph-plugin-diagram/default.png" width="300" /> | <img src="docs/assets/cdk-graph-plugin-diagram/dark.png" width="300" /> |
 
 ### Quick Start
+
 ```ts
 // bin/app.ts
 
@@ -36,29 +38,31 @@ This plugin generates diagrams utilizing the [cdk-graph](https://aws.github.io/a
 
   // async cdk-graph reporting hook
   await graph.report();
-})()
+})();
 
 // => cdk.out/diagram.dot
 // => cdk.out/diagram.svg
 // => cdk.out/diagram.png
 ```
 
-> This plugin currently only supports `async report()` generation following the above example. **Make sure to wrap the cdk app with *async IIFE*.**
+> This plugin currently only supports `async report()` generation following the above example. **Make sure to wrap the cdk app with _async IIFE_.**
 
 ### Supported Formats
-| Format | Status | Extends | Provider |
-| --- | --- | --- | --- |
-| [DOT](https://graphviz.org/docs/outputs/canon/) | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | - | [Graphviz](docs/graphviz/README.md)
-| [SVG](https://graphviz.org/docs/outputs/svg/) | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | [DOT](https://graphviz.org/docs/outputs/canon/) | [Graphviz](docs/graphviz/README.md)
-| [PNG](https://graphviz.org/docs/outputs/png/) | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | [SVG](https://graphviz.org/docs/outputs/canon/) | [Graphviz](docs/graphviz/README.md)
+
+| Format                                          | Status                                                     | Extends                                         | Provider                            |
+| ----------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------- | ----------------------------------- |
+| [DOT](https://graphviz.org/docs/outputs/canon/) | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | -                                               | [Graphviz](docs/graphviz/README.md) |
+| [SVG](https://graphviz.org/docs/outputs/svg/)   | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | [DOT](https://graphviz.org/docs/outputs/canon/) | [Graphviz](docs/graphviz/README.md) |
+| [PNG](https://graphviz.org/docs/outputs/png/)   | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | [SVG](https://graphviz.org/docs/outputs/canon/) | [Graphviz](docs/graphviz/README.md) |
 
 ---
+
 ### Diagram Providers
 
-| Provider | Status | Formats |
-| --- | --- | --- |
+| Provider                            | Status                                                         | Formats                                                                                                                                       |
+| ----------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | [Graphviz](docs/graphviz/README.md) | ![alpha](https://img.shields.io/badge/status-alpha-orange.svg) | [DOT](https://graphviz.org/docs/outputs/canon/), [SVG](https://graphviz.org/docs/outputs/svg/), [PNG](https://graphviz.org/docs/outputs/png/) |
-| [Drawio](docs/drawio/README.md) | ![design](https://img.shields.io/badge/status-design-tan.svg) | _TBD: very early stage design and development_ |
+| [Drawio](docs/drawio/README.md)     | ![design](https://img.shields.io/badge/status-design-tan.svg)  | _TBD: very early stage design and development_                                                                                                |
 
 ---
 
@@ -81,8 +85,8 @@ new CdkGraphDiagramPlugin({
     theme: "dark",
     filterPlan: {
       preset: FilterPreset.NONE,
-    }
-  }
+    },
+  },
 });
 
 // => results in a single diagram that is "verbose" and "dark", since no resources are filtered
@@ -121,6 +125,7 @@ new CdkGraphDiagramPlugin({
 ```
 
 #### Example Diagram Configs (expand below)
+
 The below examples define individual diagram configs in the `diagrams` options of the plugin as described above.
 
 ```ts
@@ -136,7 +141,7 @@ new CdkGraphDiagramPlugin({
 <details>
 <summary>Preset: compact</summary>
 
-[<img src="docs/examples/compact.png" height="200" />](docs/examples/compact.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/compact.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/compact.png)
 
 ```ts
 {
@@ -147,12 +152,13 @@ new CdkGraphDiagramPlugin({
   },
 },
 ```
+
 </details>
 
 <details>
 <summary>Preset: verbose</summary>
 
-[<img src="docs/examples/verbose.png" height="200" />](docs/examples/verbose.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/verbose.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/verbose.png)
 
 ```ts
 {
@@ -162,6 +168,7 @@ new CdkGraphDiagramPlugin({
   ignoreDefaults: true,
 },
 ```
+
 </details>
 
 ##### **Focus**
@@ -169,7 +176,7 @@ new CdkGraphDiagramPlugin({
 <details>
 <summary>Focus: hoist</summary>
 
-[<img src="docs/examples/focus.png" height="200" />](docs/examples/focus.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/focus.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/focus.png)
 
 ```ts
 {
@@ -183,12 +190,13 @@ new CdkGraphDiagramPlugin({
   ignoreDefaults: true,
 },
 ```
+
 </details>
 
 <details>
 <summary>Focus: no hoist</summary>
 
-[<img src="docs/examples/focus-nohoist.png" height="200" />](docs/examples/focus-nohoist.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/focus-nohoist.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/focus-nohoist.png)
 
 ```ts
 {
@@ -204,6 +212,7 @@ new CdkGraphDiagramPlugin({
   ignoreDefaults: true,
 },
 ```
+
 </details>
 
 ##### **Filters**
@@ -211,7 +220,7 @@ new CdkGraphDiagramPlugin({
 <details>
 <summary>Filter: Include specific cfn resource types</summary>
 
-[<img src="docs/examples/filter-cfntype-include.png" height="200" />](docs/examples/filter-cfntype-include.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/filter-cfntype-include.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/filter-cfntype-include.png)
 
 ```ts
 {
@@ -229,12 +238,13 @@ new CdkGraphDiagramPlugin({
   },
 },
 ```
+
 </details>
 
 <details>
 <summary>Filter: Exclude specific cfn resource types</summary>
 
-[<img src="docs/examples/filter-cfntype-exclude.png" height="200" />](docs/examples/filter-cfntype-exclude.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/filter-cfntype-exclude.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/filter-cfntype-exclude.png)
 
 ```ts
 {
@@ -251,12 +261,13 @@ new CdkGraphDiagramPlugin({
   },
 },
 ```
+
 </details>
 
 <details>
 <summary>Filter: Include specific graph node types</summary>
 
-[<img src="docs/examples/filter-nodetype-include.png" height="200" />](docs/examples/filter-nodetype-include.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/filter-nodetype-include.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/filter-nodetype-include.png)
 
 ```ts
 {
@@ -273,12 +284,13 @@ new CdkGraphDiagramPlugin({
   },
 },
 ```
+
 </details>
 
 <details>
 <summary>Filter: Include specific graph node types</summary>
 
-[<img src="docs/examples/filter-nodetype-include.png" height="200" />](docs/examples/filter-nodetype-include.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/filter-nodetype-include.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/filter-nodetype-include.png)
 
 ```ts
 {
@@ -295,12 +307,13 @@ new CdkGraphDiagramPlugin({
   },
 },
 ```
+
 </details>
 
 <details>
 <summary>Filter: Exclude specific graph node types</summary>
 
-[<img src="docs/examples/filter-nodetype-exclude.png" height="200" />](docs/examples/filter-nodetype-exclude.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/filter-nodetype-exclude.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/filter-nodetype-exclude.png)
 
 ```ts
 {
@@ -319,6 +332,7 @@ new CdkGraphDiagramPlugin({
   },
 },
 ```
+
 </details>
 
 ##### **Themes**
@@ -326,7 +340,7 @@ new CdkGraphDiagramPlugin({
 <details>
 <summary>Theme: Dark</summary>
 
-[<img src="docs/examples/dark.png" height="200" />](docs/examples/dark.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/dark.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/dark.png)
 
 ```ts
 {
@@ -335,12 +349,13 @@ new CdkGraphDiagramPlugin({
   theme: theme,
 },
 ```
+
 </details>
 
 <details>
 <summary>Theme: Dark - render service icons</summary>
 
-[<img src="docs/examples/dark-services.png" height="200" />](docs/examples/dark-services.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/dark-services.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/dark-services.png)
 
 ```ts
 {
@@ -357,11 +372,12 @@ new CdkGraphDiagramPlugin({
   },
 },
 ```
+
 </details>
 <details>
 <summary>Theme: Dark - verbose</summary>
 
-[<img src="docs/examples/dark-verbose.png" height="200" />](docs/examples/dark-verbose.png)
+[<img src="docs/assets/cdk-graph-plugin-diagram/dark-verbose.png" height="200" />](docs/assets/cdk-graph-plugin-diagram/dark-verbose.png)
 
 ```ts
 {
@@ -371,11 +387,13 @@ new CdkGraphDiagramPlugin({
   theme: theme,
 },
 ```
+
 </details>
 
 ---
 
 ### Next Steps
+
 - [ ] Battle test in the wild and get community feedback
 - [ ] Improve image coverage and non-image node rendering
 - [ ] Add drawio support
