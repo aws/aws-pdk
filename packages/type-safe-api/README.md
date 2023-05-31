@@ -43,14 +43,13 @@ Please see the [Getting Started Guide](docs/user_guides/index.md) for how to get
 
 For more information about Type Safe API, take a look at the user guides:
 
-* [Using Smithy](docs/user_guides/using_smithy.md)
-* [Using OpenAPI](docs/user_guides/using_openapi.md)
-* [Integrations](docs/user_guides/integrations.md)
-* [Authorizers](docs/user_guides/authorizers.md)
-* [Lambda Handlers](docs/user_guides/lambda_handlers.md)
-* [React Query Hooks](docs/user_guides/typescript_react_query_hooks.md)
-* [API Keys](docs/user_guides/api_keys.md)
-* [Custom Integration: ECS and NLB](docs/user_guides/custom_integration_ecs.md)
+- [Using Smithy](docs/user_guides/using_smithy.md)
+- [Using OpenAPI](docs/user_guides/using_openapi.md)
+- [Integrations](docs/user_guides/integrations.md)
+- [Authorizers](docs/user_guides/authorizers.md)
+- [Lambda Handlers](docs/user_guides/lambda_handlers.md)
+- [React Query Hooks](docs/user_guides/typescript_react_query_hooks.md)
+- [API Keys](docs/user_guides/api_keys.md)
+- [Custom Integration: ECS and NLB](docs/user_guides/custom_integration_ecs.md)
 
 You can also check out the [Frequently Asked Questions](docs/faq.md).
-
