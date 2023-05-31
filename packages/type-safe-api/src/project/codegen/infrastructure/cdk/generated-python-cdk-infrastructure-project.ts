@@ -3,18 +3,22 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType } from "projen";
 import { PythonProject } from "projen/lib/python";
-import { GeneratedPythonProjectOptions } from "../../../types";
+import {
+  GeneratedPythonInfrastructureOptions,
+  MockResponseDataGenerationOptions,
+} from "../../../types";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
+  buildInvokeMockDataGeneratorCommand,
   buildInvokeOpenApiGeneratorCommand,
   OtherGenerators,
 } from "../../components/utils";
 import { GeneratedPythonRuntimeProject } from "../../runtime/generated-python-runtime-project";
 
 export interface GeneratedPythonCdkInfrastructureProjectOptions
-  extends GeneratedPythonProjectOptions {
+  extends GeneratedPythonInfrastructureOptions {
   /**
    * OpenAPI spec path, relative to the project outdir
    */
@@ -38,6 +42,12 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
    */
   private readonly generatedPythonTypes: GeneratedPythonRuntimeProject;
 
+  /**
+   * Mock data generator options
+   * @private
+   */
+  private readonly mockDataOptions?: MockResponseDataGenerationOptions;
+
   constructor(options: GeneratedPythonCdkInfrastructureProjectOptions) {
     super({
       sample: false,
@@ -52,6 +62,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
     });
     this.specPath = options.specPath;
     this.generatedPythonTypes = options.generatedPythonTypes;
+    this.mockDataOptions = options.mockDataOptions;
 
     [
       "aws_prototyping_sdk.type_safe_api@^0",
@@ -84,6 +95,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
 
     const generateInfraCommand = this.buildGenerateCommand();
     const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);
+    const mockDataCommand = this.buildGenerateMockDataCommand();
 
     const generateTask = this.addTask("generate");
     generateTask.exec(cleanCommand.command, {
@@ -92,11 +104,14 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
     generateTask.exec(generateInfraCommand.command, {
       cwd: path.relative(this.outdir, generateInfraCommand.workingDir),
     });
+    generateTask.exec(mockDataCommand.command, {
+      cwd: path.relative(this.outdir, mockDataCommand.workingDir),
+    });
 
     this.preCompileTask.spawn(generateTask);
 
     // Ignore the generated code
-    this.gitignore.addPatterns(this.moduleName, ".openapi-generator");
+    this.gitignore.addPatterns(this.moduleName, ".openapi-generator", "mocks");
 
     // The poetry install that runs as part of post synthesis expects there to be some code present, but code isn't
     // generated until build time. This means that the first install will fail when either generating the project for
@@ -126,6 +141,14 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         // Spec path relative to the source directory
         "x-relative-spec-path": path.join("..", this.specPath),
       },
+    });
+  };
+
+  public buildGenerateMockDataCommand = () => {
+    return buildInvokeMockDataGeneratorCommand({
+      specPath: this.specPath,
+      outdir: this.outdir,
+      ...this.mockDataOptions,
     });
   };
 }

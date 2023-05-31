@@ -133,6 +133,14 @@ import software.aws.awsprototypingsdk.typesafeapi.Integrations;
 import software.aws.awsprototypingsdk.typesafeapi.MockIntegration;
 import software.aws.awsprototypingsdk.typesafeapi.MockIntegrationResponse;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+
+
 /**
  * Type-safe mock integrations for API operations
  */
@@ -140,6 +148,22 @@ public class MockIntegrations {
     static {
         // Instantiate json instance so that any .toJson() methods can be used
         new JSON();
+    }
+
+    /**
+     * Read a mock data file for the given operation
+     */
+    private static String readMockDataFile(final String method, final String path, final int statusCode) {
+        try {
+            try (InputStream stream = MockIntegrations.class.getClassLoader()
+                    .getResourceAsStream(Paths.get("mocks", method + path.replaceAll("/", "-") + String.format("-%d.json", statusCode)).toString())) {
+                try (InputStreamReader inputStreamReader = new InputStreamReader(stream)) {
+                    return new BufferedReader(inputStreamReader).lines().collect(Collectors.joining(System.lineSeparator()));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -168,6 +192,16 @@ public class MockIntegrations {
         return Integrations.mock(MockIntegrationResponse.builder()
                 .statusCode(200)
                 .body(body.toJson())
+                .build());
+    }
+
+    /**
+     * Mock integration to return a 200 response from the mapResponse operation, with generated mock data
+     */
+    public static MockIntegration mapResponse200() {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(200)
+                .body(MockIntegrations.readMockDataFile("get", "/map-response", 200))
                 .build());
     }
 
@@ -202,6 +236,16 @@ public class MockIntegrations {
     }
 
     /**
+     * Mock integration to return a 200 response from the operationOne operation, with generated mock data
+     */
+    public static MockIntegration operationOne200() {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(200)
+                .body(MockIntegrations.readMockDataFile("post", "/path/{pathParam}", 200))
+                .build());
+    }
+
+    /**
      * Mock integration to return a 400 response from the operationOne operation
      */
     public static MockIntegration operationOne400(final ApiError body) {
@@ -212,12 +256,32 @@ public class MockIntegrations {
     }
 
     /**
+     * Mock integration to return a 400 response from the operationOne operation, with generated mock data
+     */
+    public static MockIntegration operationOne400() {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(400)
+                .body(MockIntegrations.readMockDataFile("post", "/path/{pathParam}", 400))
+                .build());
+    }
+
+    /**
      * Mock integration to return a 200 response from the withoutOperationIdDelete operation
      */
     public static MockIntegration withoutOperationIdDelete200(final TestResponse body) {
         return Integrations.mock(MockIntegrationResponse.builder()
                 .statusCode(200)
                 .body(body.toJson())
+                .build());
+    }
+
+    /**
+     * Mock integration to return a 200 response from the withoutOperationIdDelete operation, with generated mock data
+     */
+    public static MockIntegration withoutOperationIdDelete200() {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode(200)
+                .body(MockIntegrations.readMockDataFile("delete", "/without-operation-id", 200))
                 .build());
     }
 

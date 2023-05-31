@@ -440,62 +440,34 @@ When you use a handler router, you must specify the same lambda function for eve
 === "TS"
 
     ```ts
-    import { Operations } from "myapi-typescript-runtime";
-    import { Authorizers, Integrations } from "@aws-prototyping-sdk/type-safe-api";
-    import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-    import { Construct } from "constructs";
-    import { Api } from "myapi-typescript-infra";
-    
-    export class SampleApi extends Api {
-      constructor(scope: Construct, id: string) {
-        super(scope, id, {
-          defaultAuthorizer: Authorizers.iam(),
-          // Use the same integration for every operation.
-          integrations: Operations.all({
-            integration: Integrations.lambda(new NodejsFunction(scope, "router")),
-          }),
-        });
-      }
-    }
+    new Api(this, "Api", {
+      defaultAuthorizer: Authorizers.iam(),
+      // Use the same integration for every operation.
+      integrations: Operations.all({
+        integration: Integrations.lambda(new NodejsFunction(scope, "router")),
+      }),
+    });
     ```
 
 === "JAVA"
 
     ```java
-    import myapi.typescript.runtime.Operations;
-    import aws.prototyping.sdk.type.safe.api.Authorizers;
-    import aws.prototyping.sdk.type.safe.api.Integrations;
-    import software.amazon.awscdk.services.lambda.nodejs.NodejsFunction;
-    import software.constructs.Construct;
-    import myapi.typescript.infra.Api;
-    
-    public class SampleApi extends Api {
-        public SampleApi(Construct scope, String id) {
-            super(scope, id, Map.of(
-                    "defaultAuthorizer", Authorizers.iam(),
-                    // Use the same integration for every operation.
-                    "integrations", Operations.all(Map.of(
-                            "integration", Integrations.lambda(new NodejsFunction(scope, "router"))))));
-        }
-    }
+    new Api(s, "Api", ApiProps.builder()
+            .defaultAuthorizer(cognitoAuthorizer)
+            .integrations(Operations.all(TypeSafeApiIntegration.builder()
+                    .integration(Integrations.lambda(...))
+                    .build()).build())
+            .build());
     ```
 
 === "PYTHON"
 
     ```python
-    from myapi_typescript_runtime import Operations
-    from aws_prototyping_sdk.type_safe_api import Authorizers, Integrations
-    from aws_cdk.aws_lambda_nodejs import NodejsFunction
-    from constructs import Construct
-    from myapi_typescript_infra import Api
-    
-    class SampleApi(Api):
-        def __init__(self, scope, id):
-            super().__init__(scope, id,
-                default_authorizer=Authorizers.iam(),
-                # Use the same integration for every operation.
-                integrations=Operations.all(
-                    integration=Integrations.lambda_(NodejsFunction(scope, "router"))
-                )
-            )
+    Api(self, "Api",
+        default_authorizer=Authorizers.iam(),
+        # Use the same integration for every operation.
+        integrations=Operations.all(
+            integration=Integrations.lambda_(NodejsFunction(scope, "router"))
+        )
+    )
     ```

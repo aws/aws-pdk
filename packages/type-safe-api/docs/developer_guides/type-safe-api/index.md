@@ -123,25 +123,26 @@ See below for an example `.projenrc` making use of `TypeSafeApiProject`:
     // Create the API project
     TypeSafeApiProject api = TypeSafeApiProject.Builder.create()
             .name("myapi")
-            .parent(monorepo)
-            .outdir("packages/api")
-            // Smithy as the model language. You can also use ModelLanguage.OPENAPI
-            .model(Map.of(
-                    "language", ModelLanguage.getSMITHY(),
-                    "options", Map.of(
-                            "smithy", Map.of(
-                                    "serviceName", Map.of(
-                                            "namespace", "com.mycompany",
-                                            "serviceName", "MyApi")))))
-            // Generate client and server types in TypeScript, Python and Java
-            .runtime(Map.of(
-                    "languages", List.of(Language.getTYPESCRIPT(), Language.getPYTHON(), Language.getJAVA())))
-            // Generate CDK infrastructure in Java
-            .infrastructure(Map.of(
-                    "language", Language.getJAVA()))
-            // Generate HTML documentation
-            .documentation(Map.of(
-                    "formats", List.of(DocumentationFormat.getHTML_REDOC())))
+            .model(ModelConfiguration.builder()
+                    .language(ModelLanguage.SMITHY)
+                    .options(ModelOptions.builder()
+                            .smithy(SmithyModelOptions.builder()
+                                    .serviceName(SmithyServiceName.builder()
+                                            .namespace("com.mycompany")
+                                            .serviceName("MyApi")
+                                            .build())
+                                    .build())
+                            .build())
+                    .build())
+            .runtime(RuntimeConfiguration.builder()
+                    .languages(Arrays.asList(Language.TYPESCRIPT, Language.PYTHON, Language.JAVA))
+                    .build())
+            .infrastructure(InfrastructureConfiguration.builder()
+                    .language(Language.JAVA)
+                    .build())
+            .documentation(DocumentationConfiguration.builder()
+                    .formats(Arrays.asList(DocumentationFormat.HTML_REDOC))
+                    .build())
             .build();
 
     JavaProject lambdas = JavaProject.Builder.create()
@@ -354,7 +355,7 @@ In your CDK application, consume the `Api` construct, which is vended from the g
             Stack s = new Stack(app, "infra");
 
             // Declare the API construct to deploy the API Gateway resources
-            new Api(s, "Api", ApiProps.builder()
+            new Api(this, "Api", ApiProps.builder()
                     .defaultAuthorizer(Authorizers.iam())
                     .corsOptions(CorsOptions.builder()
                             .allowOrigins(Arrays.asList("*"))
@@ -621,7 +622,7 @@ In your CDK application, add an integration for your new operation in the `Api` 
 === "JAVA"
 
     ```java
-    new Api(s, "Api", ApiProps.builder()
+    new Api(this, "Api", ApiProps.builder()
             ...
             .integrations(OperationConfig.<TypeSafeApiIntegration>builder()
                     .sayHello(TypeSafeApiIntegration.builder()

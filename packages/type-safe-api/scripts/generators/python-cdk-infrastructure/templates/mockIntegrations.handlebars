@@ -2,6 +2,10 @@ import json
 from aws_prototyping_sdk.type_safe_api import Integrations, MockIntegration
 from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.models import *
 from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.api_client import JSONEncoder
+from os import path
+from pathlib import Path
+
+MOCK_DATA_PATH = path.join(str(Path(__file__).absolute().parent), "..", "mocks")
 
 class MockIntegrations:
     """
@@ -13,15 +17,30 @@ class MockIntegrations:
     {{#operation}}
     {{#responses}}
     @staticmethod
-    def {{operationId}}_{{code}}({{^simpleType}}body: {{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/simpleType}}) -> MockIntegration:
+    def {{operationId}}_{{code}}({{^simpleType}}body: {{^isPrimitiveType}}{{dataType}} = None{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/simpleType}}) -> MockIntegration:
         """
         Mock integration to return a {{code}} response from the {{nickname}} operation
+        {{^simpleType}}
+        {{^isPrimitiveType}}
+        Call this with no arguments to use a generated mock response
+        {{/isPrimitiveType}}
+        {{/simpleType}}
         """
+        {{^simpleType}}
+        {{^isPrimitiveType}}
+        response_body = None
+        if body is None:
+            with open(path.join(MOCK_DATA_PATH, "{{httpMethod}}{}-{{code}}.json".format("{{path}}".replace("/", "-"))), "r") as f:
+                response_body = f.read()
+        else:
+            response_body = json.dumps(JSONEncoder().default(body))
+        {{/isPrimitiveType}}
+        {{/simpleType}}
         return Integrations.mock(
             status_code={{code}},
             {{^simpleType}}
             {{^isPrimitiveType}}
-            body=json.dumps(JSONEncoder().default(body)),
+            body=response_body,
             {{/isPrimitiveType}}
             {{#isPrimitiveType}}
             body=body,

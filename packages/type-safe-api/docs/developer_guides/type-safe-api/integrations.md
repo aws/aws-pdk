@@ -22,22 +22,26 @@ For example:
 === "JAVA"
 
     ```java
-    Api.Builder.create(this, "Api")
-            .integrations(Map.of(
-                    "sayHello", Map.of(
-                            "integration", Integrations.lambda(...))))
-        .build();
+    new Api(this, "Api", ApiProps.builder()
+            .integrations(OperationConfig.<TypeSafeApiIntegration>builder()
+                    .sayHello(TypeSafeApiIntegration.builder()
+                            .integration(Integrations.lambda(...))
+                            .build())
+                    .build())
+            .build());
     ```
 
 === "PYTHON"
 
     ```python
     Api(self, "Api",
-        integrations={
-            "say_hello": {
-                "integration": Integrations.lambda_(...)
-            }
-        }
+        default_authorizer=cognito_authorizer,
+        integrations=OperationConfig(
+            # Everyone in the user pool can call this operation:
+            say_hello=TypeSafeApiIntegration(
+                integration=Integrations.lambda_(...),
+            ),
+        ),
     )
     ```
 
@@ -47,70 +51,9 @@ For integrating an API operation with a lambda, you can use the `Integrations.la
 
 ## Mock Integration
 
-To mock an API operation, you can use the `MockIntegrations` class which you'll find in your generated infrastructure package. This contains an integration for every response that can be returned by your operations.
+To mock an API operation, you can use the `MockIntegrations` class which you'll find in your generated infrastructure package. This contains an integration for every response that can be returned by your operations. You can also use `Integrations.mock` for a less type-safe alternative if you are using `TypeSafeApi` directly or need to mock a response not defined in your model.
 
-For example:
-
-=== "TS"
-
-    ```ts
-    import { Api, MockIntegrations } from "myapi-typescript-infra";
-
-    new Api(this, "Api", {
-      integrations: {
-        sayHello: {
-          integration: MockIntegrations.sayHello200({ message: "This is a mocked successful response!" }),
-        },
-      },
-    });
-    ```
-
-=== "JAVA"
-
-    ```java
-    import myapi.typescript.infra.Api;
-    import myapi.typescript.infra.MockIntegrations;
-
-    Api.Builder.create(this, "Api")
-            .integrations(Map.of(
-                    "sayHello", Map.of(
-                            "integration", MockIntegrations.sayHello200(Map.of("message", "This is a mocked successful response!")))))
-            .build();
-    ```
-
-=== "PYTHON"
-
-    ```python
-    from myapi_typescript_infra import Api, MockIntegrations
-
-    Api(self, "Api",
-        integrations={
-            "say_hello": {
-                "integration": MockIntegrations.say_hello200(message="This is a mocked successful response!")
-            }
-        }
-    )
-    ```
-
-If you're using the `TypeSafeRestApi` construct directly without generated infrastructure, or need to mock a response not defined in your model, you can use `Integrations.mock`. API gateway will respond with the status code and body provided, eg:
-
-=== "TS"
-
-    ```ts
-    Integrations.mock({ statusCode: 200, body: JSON.stringify({ message: "hello world!" }) })
-    ```
-
-=== "JAVA"
-
-    ```java
-    Integrations.mock(Map.of("statusCode", 200, "body", JSON.stringify(Map.of("message", "hello world!"))))
-    ```
-
-=== "PYTHON"
-
-    ```python
-    Integrations.mock(status_code=200, body=JSON.stringify({"message": "hello world!"}))
-    ```
+For more details, please see the [Mocking Responses developer guide](mocking_responses.md).
 
 ## Custom Integrations
 

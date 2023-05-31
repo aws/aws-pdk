@@ -3,18 +3,22 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType } from "projen";
 import { JavaProject } from "projen/lib/java";
-import { GeneratedJavaProjectOptions } from "../../../types";
+import {
+  GeneratedJavaInfrastructureOptions,
+  MockResponseDataGenerationOptions,
+} from "../../../types";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
+  buildInvokeMockDataGeneratorCommand,
   buildInvokeOpenApiGeneratorCommand,
   OtherGenerators,
 } from "../../components/utils";
 import { GeneratedJavaRuntimeProject } from "../../runtime/generated-java-runtime-project";
 
 export interface GeneratedJavaCdkInfrastructureProjectOptions
-  extends GeneratedJavaProjectOptions {
+  extends GeneratedJavaInfrastructureOptions {
   /**
    * OpenAPI spec path, relative to the project outdir
    */
@@ -50,6 +54,12 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
    */
   private readonly packageName: string;
 
+  /**
+   * Mock data generator options
+   * @private
+   */
+  private readonly mockDataOptions?: MockResponseDataGenerationOptions;
+
   constructor(options: GeneratedJavaCdkInfrastructureProjectOptions) {
     super({
       ...options,
@@ -58,6 +68,7 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     });
     this.specPath = options.specPath;
     this.generatedJavaTypes = options.generatedJavaTypes;
+    this.mockDataOptions = options.mockDataOptions;
     this.packageName = `${this.pom.groupId}.${this.name}.infra`;
     this.srcDir = path.join(
       "src",
@@ -112,6 +123,7 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
 
     const generateInfraCommand = this.buildGenerateCommand();
     const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);
+    const mockDataCommand = this.buildGenerateMockDataCommand();
 
     const generateTask = this.addTask("generate");
     generateTask.exec(cleanCommand.command, {
@@ -122,6 +134,9 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     });
     // Copy the parsed spec into the resources directory so that it's included in the jar
     generateTask.exec(`cp -f ${this.specPath} src/main/resources/.api.json`);
+    generateTask.exec(mockDataCommand.command, {
+      cwd: path.relative(this.outdir, mockDataCommand.workingDir),
+    });
 
     this.preCompileTask.spawn(generateTask);
 
@@ -145,6 +160,16 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
       },
       // Do not generate map/list types. Generator will use built in HashMap, ArrayList instead
       generateAliasAsModel: false,
+    });
+  };
+
+  public buildGenerateMockDataCommand = () => {
+    return buildInvokeMockDataGeneratorCommand({
+      specPath: this.specPath,
+      outdir: this.outdir,
+      // Write the mocks to the resources directory
+      outputSubDir: "src/main/resources",
+      ...this.mockDataOptions,
     });
   };
 }

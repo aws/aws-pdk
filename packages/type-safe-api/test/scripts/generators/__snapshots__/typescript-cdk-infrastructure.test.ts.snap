@@ -45,6 +45,8 @@ exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates W
   TestResponseMessagesInnerToJSON,
 } from "test-client";
 import { Integrations, MockIntegration } from "@aws-prototyping-sdk/type-safe-api";
+import * as fs from "fs";
+import * as path from "path";
 
 /**
  * Type-safe mock integrations for API operations
@@ -71,11 +73,14 @@ export class MockIntegrations {
 
   /**
    * Mock integration to return a 200 response from the mapResponse operation
+   * Call this with no arguments to use a generated mock response
    */
-  public static mapResponse200(body: MapResponse200Response): MockIntegration {
+  public static mapResponse200(body?: MapResponse200Response): MockIntegration {
     return Integrations.mock({
       statusCode: 200,
-      body: JSON.stringify(MapResponse200ResponseToJSON(body)),
+      body: body === undefined
+        ? fs.readFileSync(path.join(__dirname, "..", "mocks", \`get\${"/map-response".replace(/\\//g, "-")}-200.json\`), "utf-8")
+        : JSON.stringify(MapResponse200ResponseToJSON(body)),
     });
   }
 
@@ -101,31 +106,40 @@ export class MockIntegrations {
 
   /**
    * Mock integration to return a 200 response from the operationOne operation
+   * Call this with no arguments to use a generated mock response
    */
-  public static operationOne200(body: TestResponse): MockIntegration {
+  public static operationOne200(body?: TestResponse): MockIntegration {
     return Integrations.mock({
       statusCode: 200,
-      body: JSON.stringify(TestResponseToJSON(body)),
+      body: body === undefined
+        ? fs.readFileSync(path.join(__dirname, "..", "mocks", \`post\${"/path/{pathParam}".replace(/\\//g, "-")}-200.json\`), "utf-8")
+        : JSON.stringify(TestResponseToJSON(body)),
     });
   }
 
   /**
    * Mock integration to return a 400 response from the operationOne operation
+   * Call this with no arguments to use a generated mock response
    */
-  public static operationOne400(body: ApiError): MockIntegration {
+  public static operationOne400(body?: ApiError): MockIntegration {
     return Integrations.mock({
       statusCode: 400,
-      body: JSON.stringify(ApiErrorToJSON(body)),
+      body: body === undefined
+        ? fs.readFileSync(path.join(__dirname, "..", "mocks", \`post\${"/path/{pathParam}".replace(/\\//g, "-")}-400.json\`), "utf-8")
+        : JSON.stringify(ApiErrorToJSON(body)),
     });
   }
 
   /**
    * Mock integration to return a 200 response from the withoutOperationIdDelete operation
+   * Call this with no arguments to use a generated mock response
    */
-  public static withoutOperationIdDelete200(body: TestResponse): MockIntegration {
+  public static withoutOperationIdDelete200(body?: TestResponse): MockIntegration {
     return Integrations.mock({
       statusCode: 200,
-      body: JSON.stringify(TestResponseToJSON(body)),
+      body: body === undefined
+        ? fs.readFileSync(path.join(__dirname, "..", "mocks", \`_delete\${"/without-operation-id".replace(/\\//g, "-")}-200.json\`), "utf-8")
+        : JSON.stringify(TestResponseToJSON(body)),
     });
   }
 

@@ -17,8 +17,9 @@ You can generate [react-query](https://tanstack.com/query/latest) hooks for inte
 
     ```java
     TypeSafeApiProject.Builder.create()
-            .library(Map.of(
-                    "libraries", List.of(Library.getTYPESCRIPT_REACT_QUERY_HOOKS())))
+            .library(LibraryConfiguration.builder()
+                    .libraries(Arrays.asList(Library.TYPESCRIPT_REACT_QUERY_HOOKS))
+                    .build())
             ...
             .build();
     ```
@@ -225,25 +226,32 @@ In Smithy, until [custom vendor extensions can be rendered via traits](https://g
 
     ```java
     TypeSafeApiProject.Builder.create()
-            .model(Map.of(
-                    "language", ModelLanguage.getSMITHY(),
-                    "options", Map.of(
-                            "smithy", Map.of(
-                                    "serviceName", Map.of(
-                                            "namespace", "com.mycompany",
-                                            "serviceName", "MyApi"),
-                                    "smithyBuildOptions", Map.of(
-                                            "projections", Map.of(
-                                                    "openapi", Map.of(
-                                                            "plugins", Map.of(
+            .model(ModelConfiguration.builder()
+                    .language(ModelLanguage.SMITHY)
+                    .options(ModelOptions.builder()
+                            .smithy(SmithyModelOptions.builder()
+                                    .smithyBuildOptions(SmithyBuildOptions.builder()
+                                            .projections(Map.of(
+                                                    "openapi", SmithyProjection.builder()
+                                                            .plugins(Map.of(
                                                                     "openapi", Map.of(
                                                                             "jsonAdd", Map.of(
                                                                                     // Add the x-paginated vendor extension to the GET /pets operation
                                                                                     "/paths/~1pets/get/x-paginated", Map.of(
                                                                                             "inputToken", "nextToken",
-                                                                                            "outputToken", "nextToken")))))))))))
+                                                                                            "outputToken", "nextToken")
+                                                                            )
+                                                                    )
+                                                            ))
+                                                            .build()
+                                            ))
+                                            .build())
+                                    .build())
+                            .build())
+                    .build())
             ...
-            .build();
+            .build())
+    .build();
     ```
 
 === "PYTHON"

@@ -4,18 +4,22 @@ import * as path from "path";
 import { DependencyType } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { GeneratedTypeScriptProjectOptions } from "../../../types";
+import {
+  GeneratedTypeScriptInfrastructureOptions,
+  MockResponseDataGenerationOptions,
+} from "../../../types";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
+  buildInvokeMockDataGeneratorCommand,
   buildInvokeOpenApiGeneratorCommand,
   OtherGenerators,
 } from "../../components/utils";
 import { GeneratedTypescriptRuntimeProject } from "../../runtime/generated-typescript-runtime-project";
 
 export interface GeneratedTypescriptCdkInfrastructureProjectOptions
-  extends GeneratedTypeScriptProjectOptions {
+  extends GeneratedTypeScriptInfrastructureOptions {
   /**
    * OpenAPI spec path, relative to the project outdir
    */
@@ -44,6 +48,12 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
    */
   private readonly generatedTypescriptTypes: GeneratedTypescriptRuntimeProject;
 
+  /**
+   * Mock data generator options
+   * @private
+   */
+  private readonly mockDataOptions?: MockResponseDataGenerationOptions;
+
   constructor(options: GeneratedTypescriptCdkInfrastructureProjectOptions) {
     super({
       ...options,
@@ -64,6 +74,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
     });
     this.specPath = options.specPath;
     this.generatedTypescriptTypes = options.generatedTypescriptTypes;
+    this.mockDataOptions = options.mockDataOptions;
 
     this.addDeps(
       ...[
@@ -104,6 +115,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
 
     const generateInfraCommand = this.buildGenerateCommand();
     const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);
+    const mockDataCommand = this.buildGenerateMockDataCommand();
 
     const generateTask = this.addTask("generate");
     generateTask.exec(cleanCommand.command, {
@@ -112,11 +124,14 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
     generateTask.exec(generateInfraCommand.command, {
       cwd: path.relative(this.outdir, generateInfraCommand.workingDir),
     });
+    generateTask.exec(mockDataCommand.command, {
+      cwd: path.relative(this.outdir, mockDataCommand.workingDir),
+    });
 
     this.preCompileTask.spawn(generateTask);
 
     // Ignore the generated code
-    this.gitignore.addPatterns(this.srcdir, ".openapi-generator");
+    this.gitignore.addPatterns(this.srcdir, ".openapi-generator", "mocks");
 
     // If we're not in a monorepo, we need to link the generated types such that the local dependency can be resolved
     if (!options.isWithinMonorepo) {
@@ -164,6 +179,14 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
         // Spec path relative to the source directory
         "x-relative-spec-path": path.join("..", this.specPath),
       },
+    });
+  };
+
+  public buildGenerateMockDataCommand = () => {
+    return buildInvokeMockDataGeneratorCommand({
+      specPath: this.specPath,
+      outdir: this.outdir,
+      ...this.mockDataOptions,
     });
   };
 }

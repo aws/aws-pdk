@@ -14,78 +14,72 @@ To use the Cognito authorizer, one or more user pools must be provided. You can 
 === "TS"
 
     ```ts
-    export class SampleApi extends Api {
-      constructor(scope: Construct, id: string) {
-        const cognitoAuthorizer = Authorizers.cognito({
-          authorizerId: "myCognitoAuthorizer",
-          userPools: [new UserPool(scope, "UserPool")],
-        });
-    
-        super(scope, id, {
-          defaultAuthorizer: cognitoAuthorizer,
-          integrations: {
-            // Everyone in the user pool can call this operation:
-            sayHello: {
-              integration: Integrations.lambda(...),
-            },
-            // Only users with the given scopes can call this operation
-            myRestrictedOperation: {
-              integration: Integrations.lambda(...),
-              authorizer: cognitoAuthorizer.withScopes(
-                "my-resource-server/my-scope"
-              ),
-            },
-          },
-        });
-      }
-    }
+    const cognitoAuthorizer = Authorizers.cognito({
+      authorizerId: "myCognitoAuthorizer",
+      userPools: [new UserPool(scope, "UserPool")],
+    });
+
+    new Api(this, "Api", {
+      defaultAuthorizer: cognitoAuthorizer,
+      integrations: {
+        // Everyone in the user pool can call this operation:
+        sayHello: {
+          integration: Integrations.lambda(...),
+        },
+        // Only users with the given scopes can call this operation
+        myRestrictedOperation: {
+          integration: Integrations.lambda(...),
+          authorizer: cognitoAuthorizer.withScopes(
+            "my-resource-server/my-scope"
+          ),
+        },
+      },
+    });
     ```
 
 === "JAVA"
 
     ```java
-    public class SampleApi extends Api {
-        public SampleApi(Construct scope, String id) {
-            Object cognitoAuthorizer = Authorizers.cognito(Map.of(
-                    "authorizerId", "myCognitoAuthorizer",
-                    "userPools", List.of(new UserPool(scope, "UserPool"))));
-    
-            super(scope, id, Map.of(
-                    "defaultAuthorizer", cognitoAuthorizer,
-                    "integrations", Map.of(
-                            // Everyone in the user pool can call this operation:
-                            "sayHello", Map.of(
-                                    "integration", Integrations.lambda(...)),
-                            // Only users with the given scopes can call this operation
-                            "myRestrictedOperation", Map.of(
-                                    "integration", Integrations.lambda(...),
-                                    "authorizer", cognitoAuthorizer.withScopes("my-resource-server/my-scope")))));
-        }
-    }
+    CognitoAuthorizer cognitoAuthorizer = Authorizers.cognito(CognitoAuthorizerProps.builder()
+            .authorizerId("myCognitoAuthorizer")
+            .userPools(Arrays.asList(new UserPool(this, "UserPool")))
+            .build());
+
+    new Api(this, "Api", ApiProps.builder()
+            .defaultAuthorizer(cognitoAuthorizer)
+            .integrations(OperationConfig.<TypeSafeApiIntegration>builder()
+                    .myRestrictedOperation(TypeSafeApiIntegration.builder()
+                            .integration(Integrations.lambda(...))
+                            .authorizer(cognitoAuthorizer.withScopes("my-resource-server/my-scope"))
+                            .build())
+                    .sayHello(TypeSafeApiIntegration.builder()
+                            .integration(Integrations.lambda(...))
+                            .build())
+                    .build())
+            .build());
     ```
+
 === "PYTHON"
 
     ```python
-    class SampleApi(Api):
-        def __init__(self, scope, id):
             cognito_authorizer = Authorizers.cognito(
                 authorizer_id="myCognitoAuthorizer",
                 user_pools=[UserPool(scope, "UserPool")]
             )
     
-            super().__init__(scope, id,
+            Api(self, "Api",
                 default_authorizer=cognito_authorizer,
-                integrations={
+                integrations=OperationConfig(
                     # Everyone in the user pool can call this operation:
-                    "say_hello": {
-                        "integration": Integrations.lambda_(...)
-                    },
+                    say_hello=TypeSafeApiIntegration(
+                        integration=Integrations.lambda_(...),
+                    ),
                     # Only users with the given scopes can call this operation
-                    "my_restricted_operation": {
-                        "integration": Integrations.lambda_(...),
-                        "authorizer": cognito_authorizer.with_scopes("my-resource-server/my-scope")
-                    }
-                }
+                    my_restricted_operation=TypeSafeApiIntegration(
+                        integration=Integrations.lambda_(...),
+                        authorizer=cognito_authorizer.with_scopes("my-resource-server/my-scope")
+                    ),
+                ),
             )
     ```
 
@@ -109,9 +103,10 @@ An example token-based authorizer (default) handled by a NodeJS lambda function:
 === "JAVA"
 
     ```java
-    Authorizers.custom(Map.of(
-            "authorizerId", "myTokenAuthorizer",
-            "function", new NodejsFunction(scope, "authorizer")));
+    Authorizers.custom(CustomAuthorizerProps.builder()
+            .authorizerId("myTokenAuthorizer")
+            .function(new NodejsFunction(this, "authorizer"))
+            .build());
     ```
 
 === "PYTHON"
@@ -140,11 +135,12 @@ An example request-based handler. By default the identitySource will be `method.
 === "JAVA"
 
     ```java
-    Authorizers.custom(Map.of(
-            "authorizerId", "myRequestAuthorizer",
-            "type", CustomAuthorizerType.getREQUEST(),
-            "identitySource", "method.request.header.MyCustomHeader, method.request.querystring.myQueryString",
-            "function", new NodejsFunction(scope, "authorizer")));
+    Authorizers.custom(CustomAuthorizerProps.builder()
+            .authorizerId("myRequestAuthorizer")
+            .type(CustomAuthorizerType.REQUEST)
+            .identitySource("method.request.header.MyCustomHeader, method.request.querystring.myQueryString")
+            .function(new NodejsFunction(this, "authorizer"))
+            .build());
     ```
 
 === "PYTHON"
@@ -157,4 +153,3 @@ An example request-based handler. By default the identitySource will be `method.
         function=NodejsFunction(scope, "authorizer")
     )
     ```
-

@@ -132,42 +132,118 @@ export interface GeneratedWithOpenApiGeneratorOptions {
 }
 
 /**
- * Options for configuring a generated typescript project
+ * Options for configuring a generated typescript runtime project
  */
-export interface GeneratedTypeScriptProjectOptions
+export interface GeneratedTypeScriptRuntimeOptions
   extends TypeScriptProjectOptions,
     GeneratedWithOpenApiGeneratorOptions {}
 
 /**
- * Options for configuring a generated python project
+ * Options for configuring a generated python runtime project
  */
-export interface GeneratedPythonProjectOptions
+export interface GeneratedPythonRuntimeOptions
   extends PythonProjectOptions,
     GeneratedWithOpenApiGeneratorOptions {}
 
 /**
- * Options for configuring a generated java project
+ * Options for configuring a generated java runtime project
  */
-export interface GeneratedJavaProjectOptions
+export interface GeneratedJavaRuntimeOptions
   extends JavaProjectOptions,
     GeneratedWithOpenApiGeneratorOptions {}
 
 /**
- * Options for generated clients
+ * Options for generating mock data
  */
-export interface GeneratedCodeOptions {
+export interface MockResponseDataGenerationOptions {
+  /**
+   * Locale of generated data
+   * @see https://fakerjs.dev/guide/localization.html#available-locales
+   * @default en
+   */
+  readonly locale?: string;
+  /**
+   * Maximum length of generated arrays
+   * @default 3
+   */
+  readonly maxArrayLength?: number;
+}
+
+/**
+ * Options for generating mock data
+ */
+export interface MockResponseGenerationOptions {
+  /**
+   * Options for the generated mock response data
+   */
+  readonly mockDataOptions?: MockResponseDataGenerationOptions;
+}
+
+/**
+ * Options for configuring a generated typescript infrastructure project
+ */
+export interface GeneratedTypeScriptInfrastructureOptions
+  extends TypeScriptProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions,
+    MockResponseGenerationOptions {}
+
+/**
+ * Options for configuring a generated python infrastructure project
+ */
+export interface GeneratedPythonInfrastructureOptions
+  extends PythonProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions,
+    MockResponseGenerationOptions {}
+
+/**
+ * Options for configuring a generated java infrastructure project
+ */
+export interface GeneratedJavaInfrastructureOptions
+  extends JavaProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions,
+    MockResponseGenerationOptions {}
+
+/**
+ * Options for configuring a generated typescript hooks library project
+ */
+export interface GeneratedTypeScriptReactQueryHooksOptions
+  extends TypeScriptProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions {}
+
+/**
+ * Options for generated runtimes
+ */
+export interface GeneratedRuntimeCodeOptions {
   /**
    * Options for a generated typescript project. These override the default inferred options.
    */
-  readonly typescript?: GeneratedTypeScriptProjectOptions;
+  readonly typescript?: GeneratedTypeScriptRuntimeOptions;
   /**
    * Options for a generated python project. These override the default inferred options.
    */
-  readonly python?: GeneratedPythonProjectOptions;
+  readonly python?: GeneratedPythonRuntimeOptions;
   /**
    * Options for a generated java project. These override the default inferred options.
    */
-  readonly java?: GeneratedJavaProjectOptions;
+  readonly java?: GeneratedJavaRuntimeOptions;
+}
+
+/**
+ * Options for generated clients
+ */
+export interface GeneratedInfrastructureCodeOptions {
+  /**
+   * Options for the generated typescript infrastructure project. These override the default inferred options.
+   */
+  readonly typescript?: GeneratedTypeScriptInfrastructureOptions;
+  /**
+   * Options for the generated python infrastructure project. These override the default inferred options.
+   */
+  readonly python?: GeneratedPythonInfrastructureOptions;
+  /**
+   * Options for the generated java infrastructure project. These override the default inferred options.
+   */
+  readonly java?: GeneratedJavaInfrastructureOptions;
 }
 
 /**
@@ -195,7 +271,7 @@ export interface GeneratedLibraryOptions {
   /**
    * Options for the generated typescript react-query hooks library. These override the default inferred options.
    */
-  readonly typescriptReactQueryHooks?: GeneratedTypeScriptProjectOptions;
+  readonly typescriptReactQueryHooks?: GeneratedTypeScriptReactQueryHooksOptions;
 }
 
 /**

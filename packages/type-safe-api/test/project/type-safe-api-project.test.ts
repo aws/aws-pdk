@@ -5,15 +5,15 @@ import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
 import { NodePackageManager } from "projen/lib/javascript";
 import { synthProject, synthSmithyProject } from "./snapshot-utils";
 import {
-  GeneratedTypeScriptProjectOptions,
-  OpenApiGeneratorCliConfig,
-} from "../../lib";
-import {
   DocumentationFormat,
   Language,
   Library,
   ModelLanguage,
   TypeSafeApiProject,
+  OpenApiGeneratorCliConfig,
+  GeneratedTypeScriptReactQueryHooksOptions,
+  GeneratedTypeScriptInfrastructureOptions,
+  GeneratedTypeScriptRuntimeOptions,
 } from "../../src";
 
 describe("Type Safe Api Project Unit Tests", () => {
@@ -347,7 +347,7 @@ describe("Type Safe Api Project Unit Tests", () => {
         options: {
           typescript: {
             openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
+          } satisfies Partial<GeneratedTypeScriptInfrastructureOptions> as any,
         },
       },
       runtime: {
@@ -355,7 +355,7 @@ describe("Type Safe Api Project Unit Tests", () => {
         options: {
           typescript: {
             openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
+          } satisfies Partial<GeneratedTypeScriptRuntimeOptions> as any,
         },
       },
       model: {
@@ -374,7 +374,7 @@ describe("Type Safe Api Project Unit Tests", () => {
         options: {
           typescriptReactQueryHooks: {
             openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
+          } satisfies Partial<GeneratedTypeScriptReactQueryHooksOptions> as any,
         },
       },
       documentation: {

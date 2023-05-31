@@ -37,19 +37,25 @@ The `TypeSafeApiProject` projen project will create the following directory stru
 
 ### Getting Started
 
-Please see the [Getting Started Guide](docs/user_guides/index.md) for how to get started!
+Please see the [Getting Started Guide](docs/developer_guides/type-safe-api/index.md) for how to get started!
 
-### User Guides
+### Developer Guides
 
-For more information about Type Safe API, take a look at the user guides:
+For more information about Type Safe API, take a look at the developer guides:
 
-- [Using Smithy](docs/user_guides/using_smithy.md)
-- [Using OpenAPI](docs/user_guides/using_openapi.md)
-- [Integrations](docs/user_guides/integrations.md)
-- [Authorizers](docs/user_guides/authorizers.md)
-- [Lambda Handlers](docs/user_guides/lambda_handlers.md)
-- [React Query Hooks](docs/user_guides/typescript_react_query_hooks.md)
-- [API Keys](docs/user_guides/api_keys.md)
-- [Custom Integration: ECS and NLB](docs/user_guides/custom_integration_ecs.md)
+- [Using Smithy](docs/developer_guides/type-safe-api/using_smithy.md)
+- [Using OpenAPI](docs/developer_guides/type-safe-api/using_openapi.md)
+- [Integrations](docs/developer_guides/type-safe-api/integrations.md)
+- [Mocking Responses](docs/developer_guides/type-safe-api/mocking_responses.md)
+- [Authorizers](docs/developer_guides/type-safe-api/authorizers.md)
+- [Lambda Handlers](docs/developer_guides/type-safe-api/lambda_handlers.md)
+- [React Query Hooks](docs/developer_guides/type-safe-api/typescript_react_query_hooks.md)
+- [API Keys](docs/developer_guides/type-safe-api/api_keys.md)
 
-You can also check out the [Frequently Asked Questions](docs/faq.md).
+### Walkthroughs
+
+For detailed end-to-end examples, take a look at the walkthroughs:
+
+- [Custom Integration: ECS and NLB](docs/walkthroughs/type-safe-api/custom_integration_ecs.md)
+
+You can also check out the [Frequently Asked Questions](docs/faqs/type-safe-api/index.md).

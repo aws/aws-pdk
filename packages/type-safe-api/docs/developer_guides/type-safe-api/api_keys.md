@@ -42,7 +42,7 @@ The below example demonstrates requiring an API Key for all operations besides t
 === "JAVA"
 
     ```java
-    Api api = new Api(s, "Api", ApiProps.builder()
+    Api api = new Api(this, "Api", ApiProps.builder()
             .apiKeyOptions(ApiKeyOptions.builder()
                     .source(ApiKeySourceType.HEADER)
                     .requiredByDefault(true)

@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { PythonProject } from "projen/lib/python";
 import { Language } from "../../languages";
-import { GeneratedPythonProjectOptions } from "../../types";
+import { GeneratedPythonRuntimeOptions } from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
@@ -15,7 +15,7 @@ import {
  * Configuration for the generated python types project
  */
 export interface GeneratedPythonTypesProjectOptions
-  extends GeneratedPythonProjectOptions {
+  extends GeneratedPythonRuntimeOptions {
   /**
    * The path to the OpenAPI specification, relative to this project's outdir
    */
