@@ -752,7 +752,7 @@ export class NxMonorepoProject extends TypeScriptProject {
       });
 
       postinstallTask.exec(
-        NodePackageUtils.command.downloadExec(
+        NodePackageUtils.command.exec(
           this.package.packageManager,
           ...nxRunManyInstall
         )
