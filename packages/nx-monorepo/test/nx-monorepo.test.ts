@@ -1,9 +1,13 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import crypto from "node:crypto";
+import os from "node:os";
+import path from "node:path";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
+import { tryReadFileSync } from "projen/lib/util";
 import { synthSnapshot } from "projen/lib/util/synth";
 import { NxMonorepoProject, Nx } from "../src";
 
@@ -85,6 +89,48 @@ describe("NX Monorepo Unit Tests", () => {
       "yet/another/package"
     );
     expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("Resolves Node Subproject Dependencies", () => {
+    const outdir = path.join(
+      os.tmpdir(),
+      "ResolvesNodeSubprojectDependencies",
+      crypto.randomUUID()
+    );
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "mainline",
+      name: "ResolvesNodeSubprojectDependencies",
+      packageManager: NodePackageManager.PNPM,
+      outdir,
+    });
+    project.addDeps("jest");
+    const child = new TypeScriptProject({
+      name: "ts-subproject",
+      outdir: "packages/ts-subproject",
+      parent: project,
+      packageManager: NodePackageManager.PNPM,
+      defaultReleaseBranch: "mainline",
+      devDeps: [],
+      deps: ["jest"],
+    });
+    const ciEnv = process.env.CI;
+    process.env.CI = "";
+    project.synth();
+    process.env.CI = ciEnv;
+    const parentManifest = tryReadFileSync(project.package.file.absolutePath);
+    const childManifest = tryReadFileSync(child.package.file.absolutePath);
+    expect(parentManifest).toBeDefined();
+    expect(childManifest).toBeDefined();
+    expect(JSON.parse(parentManifest as string).dependencies.jest).not.toEqual(
+      "*"
+    );
+    expect(JSON.parse(childManifest as string).dependencies.jest).not.toEqual(
+      "*"
+    );
+    expect(project.package.tryResolveDependencyVersion("jest")).not.toEqual(
+      "*"
+    );
+    expect(child.package.tryResolveDependencyVersion("jest")).not.toEqual("*");
   });
 
   it("Workspace Package Order", () => {

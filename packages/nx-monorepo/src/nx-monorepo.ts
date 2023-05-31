@@ -10,11 +10,7 @@ import {
   YamlFile,
 } from "projen";
 import { JavaProject } from "projen/lib/java";
-import {
-  NodePackage,
-  NodePackageManager,
-  NodeProject,
-} from "projen/lib/javascript";
+import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { Poetry, PythonProject } from "projen/lib/python";
 import {
   TypeScriptProject,
@@ -147,6 +143,8 @@ export class NxMonorepoProject extends TypeScriptProject {
   public readonly nx: NxWorkspace;
 
   private readonly _options: NxMonorepoProjectOptions;
+
+  private subNodeProjectResolves: Array<() => boolean> = [];
 
   constructor(options: NxMonorepoProjectOptions) {
     const defaultReleaseBranch = options.defaultReleaseBranch ?? "mainline";
@@ -638,35 +636,54 @@ export class NxMonorepoProject extends TypeScriptProject {
 
     // Prevent sub NodeProject packages from `postSynthesis` which will cause individual/extraneous installs.
     // The workspace package install will handle all the sub NodeProject packages automatically.
-    const subProjectPackages: NodePackage[] = [];
     this.subprojects.forEach((subProject) => {
       if (isNodeProject(subProject)) {
         const subNodeProject: NodeProject = subProject as NodeProject;
-        subProjectPackages.push(subNodeProject.package);
+        const subNodeProjectResolver =
+          // @ts-ignore - `resolveDepsAndWritePackageJson` is private
+          subNodeProject.package.resolveDepsAndWritePackageJson;
         // @ts-ignore - `installDependencies` is private
-        subNodeProject.package.installDependencies = () => {};
+        subNodeProject.package.installDependencies = () => {
+          this.subNodeProjectResolves.push(() =>
+            subNodeProjectResolver.apply(subNodeProject.package)
+          );
+        };
         // @ts-ignore - `resolveDepsAndWritePackageJson` is private
         subNodeProject.package.resolveDepsAndWritePackageJson = () => {};
       }
     });
 
     super.synth();
+  }
 
-    // Force workspace install deps if any node subproject package has changed, unless the workspace changed
-    if (
-      // @ts-ignore - `file` is private
-      (this.package.file as JsonFile).changed !== true &&
-      // @ts-ignore - `file` is private
-      subProjectPackages.find((pkg) => (pkg.file as JsonFile).changed === true)
-    ) {
-      try {
+  /**
+   * @inheritDoc
+   */
+  postSynthesize(): void {
+    super.postSynthesize();
+    this.resolveSubNodeProjects();
+  }
+
+  /**
+   * Resolve sub `NodePackage` dependencies.
+   */
+  private resolveSubNodeProjects() {
+    if (this.subNodeProjectResolves.length) {
+      if (!this.package.file.changed) {
+        // Force workspace install deps since it would not have been invoked during `postSynthesis`.
         // @ts-ignore - `installDependencies` is private
         this.package.installDependencies();
-      } finally {
-        // @ts-ignore - `resolveDepsAndWritePackageJson` is private
-        this.package.resolveDepsAndWritePackageJson();
+      }
+      const completedResolves = this.subNodeProjectResolves.map((resolve) =>
+        resolve()
+      );
+      if (completedResolves.some(Boolean)) {
+        // Indicates that a subproject dependency has been resolved from '*', so update the lockfile.
+        // @ts-ignore - `installDependencies` is private
+        this.package.installDependencies();
       }
     }
+    this.subNodeProjectResolves = [];
   }
 
   /**
