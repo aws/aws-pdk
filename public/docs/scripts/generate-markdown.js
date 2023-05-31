@@ -10,11 +10,17 @@ const generateExperimentalBanner = (pkg) => `
 \tThis package is subject to non-backward compatible changes or removal in any future version. Breaking changes
 \twill be announced in the release notes.
 \n\tWhilst you may use this package, you may need to update your
-\tsource code when upgrading to a newer version. Once we stabilize the module, it will be included into the stable
-\taws-prototyping-sdk library.\n\n
+\tsource code when upgrading to a newer version.\n\n
 !!! example "Experimental Usage"\n
 \tTo use this package, add a dependency on: \`${pkg}\`
 `;
+
+const cwd = process.cwd();
+const MONOREPO_ROOT = `${cwd}/../..`;
+const RELATIVE_PKG_ROOT = `${MONOREPO_ROOT}/packages`;
+const pkgs = fs
+  .readdirSync(RELATIVE_PKG_ROOT)
+  .filter((p) => fs.existsSync(`${RELATIVE_PKG_ROOT}/${p}/.jsii`));
 
 const PAGES_YAML_TEMPLATE = "---\nnav:\n";
 const TYPESCRIPT = "typescript";
@@ -58,66 +64,70 @@ function getArtifact(language, jsiiManifest) {
   }
 }
 
-async function main() {
-  const cwd = process.cwd();
-  const MONOREPO_ROOT = `${cwd}/../..`;
-  const RELATIVE_PKG_ROOT = `${MONOREPO_ROOT}/packages`;
-
+const cleanBuildDirectory = () => {
   fs.existsSync(`${cwd}/build`) &&
     fs.rmdirSync(`${cwd}/build`, { recursive: true });
   fs.mkdirSync(`${cwd}/build/docs`, { recursive: true });
+};
 
+const copyStaticAssets = () => {
   fs.copySync("content", `${cwd}/build/docs/content`);
   fs.copySync("mkdocs.yml", `${cwd}/build/docs/mkdocs.yml`);
+  fs.copySync(
+    `${MONOREPO_ROOT}/CONTRIBUTING.md`,
+    `${cwd}/build/docs/content/welcome/contributing.md`
+  );
+};
 
+const generateAPINav = () => {
   fs.writeFileSync(
-    `${cwd}/build/docs/content/.pages.yml`,
-    `${PAGES_YAML_TEMPLATE}${SUPPORTED_LANGUAGES.map(
-      (language) => `  - ${language}`
-    )
-      .concat("  - troubleshooting")
+    `${cwd}/build/docs/content/api/.pages.yml`,
+    `${PAGES_YAML_TEMPLATE}${[generateNavEntry("API Reference", "index.md")]
+      .concat(
+        SUPPORTED_LANGUAGES.map((language) =>
+          generateNavEntry(language, language)
+        )
+      )
       .join("\n")}`
   );
+};
 
+const generateAPIDocs = (pkg) => {
+  const pkgJsii = JSON.parse(
+    fs.readFileSync(`${RELATIVE_PKG_ROOT}/${pkg}/.jsii`).toString()
+  );
+  // Generate API Docs
   for (const language of SUPPORTED_LANGUAGES) {
-    fs.mkdirSync(`${cwd}/build/docs/content/${language}`, { recursive: true });
+    fs.mkdirSync(`${cwd}/build/docs/content/api/${language}`, {
+      recursive: true,
+    });
 
-    const pkgs = fs
-      .readdirSync(RELATIVE_PKG_ROOT)
-      .filter((p) => "aws-prototyping-sdk" !== p)
-      .filter((p) => fs.existsSync(`${RELATIVE_PKG_ROOT}/${p}/.jsii`));
-
-    for (const pkg of pkgs) {
-      const pkgJsii = JSON.parse(
-        fs.readFileSync(`${RELATIVE_PKG_ROOT}/${pkg}/.jsii`).toString()
-      );
-
-      // Ignore unsupported target languages in packages
-      if (!isPkgLanguageTarget(language, pkgJsii)) {
-        continue;
-      }
-
-      fs.mkdirSync(`${cwd}/build/docs/content/${language}/${pkg}`, {
-        recursive: true,
-      });
-
-      const filePath = `${RELATIVE_PKG_ROOT}/${pkg}/docs/api/${language}/index.md`;
-      if (fs.existsSync(filePath)) {
-        const markdown = fs.readFileSync(filePath).toString();
-
-        fs.writeFileSync(
-          `${cwd}/build/docs/content/${language}/${pkg}/index.md`,
-          includeBanner(
-            getArtifact(language, pkgJsii),
-            markdown,
-            pkgJsii.docs.stability
-          )
-        );
-      }
+    // Ignore unsupported target languages in packages
+    if (!isPkgLanguageTarget(language, pkgJsii)) {
+      continue;
     }
 
+    fs.mkdirSync(`${cwd}/build/docs/content/api/${language}/${pkg}`, {
+      recursive: true,
+    });
+
+    const filePath = `${RELATIVE_PKG_ROOT}/${pkg}/docs/api/${language}/index.md`;
+    if (fs.existsSync(filePath)) {
+      const markdown = fs.readFileSync(filePath).toString();
+
+      fs.writeFileSync(
+        `${cwd}/build/docs/content/api/${language}/${pkg}/index.md`,
+        includeBanner(
+          getArtifact(language, pkgJsii),
+          markdown,
+          pkgJsii.docs.stability
+        )
+      );
+    }
+
+    // Write API nav
     fs.writeFileSync(
-      `${cwd}/build/docs/content/${language}/.pages.yml`,
+      `${cwd}/build/docs/content/api/${language}/.pages.yml`,
       `${PAGES_YAML_TEMPLATE}${pkgs
         .map((pkg) => {
           const jsiiTargets = JSON.parse(
@@ -146,6 +156,83 @@ async function main() {
         .filter((v) => v != null)
         .join("\n")}`
     );
+  }
+};
+
+const generateDeveloperGuidesNav = () => {
+  fs.writeFileSync(
+    `${cwd}/build/docs/content/developer_guides/.pages.yml`,
+    `${PAGES_YAML_TEMPLATE}${[generateNavEntry("Developer Guides", "index.md")]
+      .concat(
+        pkgs
+          .filter((p) =>
+            fs.existsSync(
+              `${RELATIVE_PKG_ROOT}/${p}/docs/developer_guides/${p}`
+            )
+          )
+          .map((pkg) => generateNavEntry(pkg, pkg))
+      )
+      .join("\n")}`
+  );
+};
+
+const generateFAQsNav = () => {
+  fs.writeFileSync(
+    `${cwd}/build/docs/content/faqs/.pages.yml`,
+    `${PAGES_YAML_TEMPLATE}${[generateNavEntry("FAQ", "index.md")]
+      .concat(
+        pkgs
+          .filter((p) =>
+            fs.existsSync(`${RELATIVE_PKG_ROOT}/${p}/docs/faqs/${p}`)
+          )
+          .map((pkg) => generateNavEntry(pkg, pkg))
+      )
+      .join("\n")}`
+  );
+};
+
+const generateWalkthroughsNav = () => {
+  fs.writeFileSync(
+    `${cwd}/build/docs/content/walkthroughs/.pages.yml`,
+    `${PAGES_YAML_TEMPLATE}${[generateNavEntry("Walkthroughs", "index.md")]
+      .concat(
+        pkgs
+          .filter((p) =>
+            fs.existsSync(`${RELATIVE_PKG_ROOT}/${p}/docs/walkthroughs/${p}`)
+          )
+          .map((pkg) => generateNavEntry(pkg, pkg))
+      )
+      .join("\n")}`
+  );
+};
+
+const copyStaticFolder = (pkg, folder) => {
+  fs.existsSync(`${RELATIVE_PKG_ROOT}/${pkg}/docs/${folder}/${pkg}`) &&
+    fs.copySync(
+      `${RELATIVE_PKG_ROOT}/${pkg}/docs/${folder}/${pkg}`,
+      `${cwd}/build/docs/content/${folder}/${pkg}`
+    );
+};
+
+const copyPackageStaticDocs = (pkg) => {
+  copyStaticFolder(pkg, "developer_guides");
+  copyStaticFolder(pkg, "walkthroughs");
+  copyStaticFolder(pkg, "faqs");
+  copyStaticFolder(pkg, "assets");
+};
+
+async function main() {
+  cleanBuildDirectory();
+  copyStaticAssets();
+
+  generateAPINav();
+  generateDeveloperGuidesNav();
+  generateWalkthroughsNav();
+  generateFAQsNav();
+
+  for (const pkg of pkgs) {
+    generateAPIDocs(pkg);
+    copyPackageStaticDocs(pkg);
   }
 }
 
