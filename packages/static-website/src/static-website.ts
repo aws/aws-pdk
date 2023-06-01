@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
-import { RemovalPolicy, Stack } from "aws-cdk-lib";
+import { CfnOutput, RemovalPolicy, Stack } from "aws-cdk-lib";
 import {
   Distribution,
   DistributionProps,
@@ -242,6 +242,10 @@ export class StaticWebsite extends Construct {
       destinationBucket: this.websiteBucket,
       // Files in the distribution's edge caches will be invalidated after files are uploaded to the destination bucket.
       distribution: this.cloudFrontDistribution,
+    });
+
+    new CfnOutput(this, "DistributionDomainName", {
+      value: this.cloudFrontDistribution.domainName,
     });
 
     this.suppressCDKNagViolations(props);
