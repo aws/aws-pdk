@@ -1,10 +1,12 @@
 package {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-infrastructure-package}}{{/apis.0}}{{/apiInfo}};
 
 import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.JSON;
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.OperationConfig;
 import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.model.*;
 import software.aws.awsprototypingsdk.typesafeapi.Integrations;
 import software.aws.awsprototypingsdk.typesafeapi.MockIntegration;
 import software.aws.awsprototypingsdk.typesafeapi.MockIntegrationResponse;
+import software.aws.awsprototypingsdk.typesafeapi.TypeSafeApiIntegration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -80,4 +82,31 @@ public class MockIntegrations {
     {{/operations}}
     {{/apis}}
     {{/apiInfo}}
+
+    /**
+     * Mock all operations for which generated JSON data can be returned.
+     * The first available response is used for each operation. In most cases this is the successful 200 response.
+     * @return a builder which you can use to override integrations for operations before calling .build()
+     */
+    public static OperationConfig.OperationConfigBuilder<TypeSafeApiIntegration> mockAll() {
+        return OperationConfig.<TypeSafeApiIntegration>builder()
+                {{#apiInfo}}
+                {{#apis}}
+                {{#operations}}
+                {{#operation}}
+                {{#responses.0}}
+                {{#dataType}}
+                {{^isPrimitiveType}}
+                .{{nickname}}(TypeSafeApiIntegration.builder()
+                        .integration(MockIntegrations.{{nickname}}{{code}}())
+                        .build())
+                {{/isPrimitiveType}}
+                {{/dataType}}
+                {{/responses.0}}
+                {{/operation}}
+                {{/operations}}
+                {{/apis}}
+                {{/apiInfo}}
+                ;
+    }
 }

@@ -440,11 +440,16 @@ When you use a handler router, you must specify the same lambda function for eve
 === "TS"
 
     ```ts
+    import { Integrations, Authorizers } from "@aws-prototyping-sdk/type-safe-api";
+    import { Operations } from "myapi-typescript-runtime";
+    import { Api } from "myapi-typescript-infra";
+    import { NodejsFunction } from "aws-cdk-lib/aws-lambda";
+
     new Api(this, "Api", {
       defaultAuthorizer: Authorizers.iam(),
       // Use the same integration for every operation.
       integrations: Operations.all({
-        integration: Integrations.lambda(new NodejsFunction(scope, "router")),
+        integration: Integrations.lambda(new NodejsFunction(this, "router")),
       }),
     });
     ```
@@ -452,8 +457,16 @@ When you use a handler router, you must specify the same lambda function for eve
 === "JAVA"
 
     ```java
+    import software.aws.awsprototypingsdk.typesafeapi.TypeSafeApiIntegration;
+    import software.aws.awsprototypingsdk.typesafeapi.Integrations;
+    import software.aws.awsprototypingsdk.typesafeapi.Authorizers;
+
+    import com.generated.api.myapijavaruntime.runtime.api.Operations;
+    import com.generated.api.myapijavainfra.infra.Api;
+    import com.generated.api.myapijavainfra.infra.ApiProps;
+
     new Api(s, "Api", ApiProps.builder()
-            .defaultAuthorizer(cognitoAuthorizer)
+            .defaultAuthorizer(Authorizers.iam())
             .integrations(Operations.all(TypeSafeApiIntegration.builder()
                     .integration(Integrations.lambda(...))
                     .build()).build())
@@ -463,6 +476,10 @@ When you use a handler router, you must specify the same lambda function for eve
 === "PYTHON"
 
     ```python
+    from aws_prototyping_sdk.type_safe_api import Integrations, TypeSafeApiIntegration, Authorizers
+    from myapi_python_runtime.apis.tags.default_api_operation_config import Operations
+    from myapi_python_infra.api import Api
+
     Api(self, "Api",
         default_authorizer=Authorizers.iam(),
         # Use the same integration for every operation.

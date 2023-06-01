@@ -1,7 +1,8 @@
 import json
-from aws_prototyping_sdk.type_safe_api import Integrations, MockIntegration
+from aws_prototyping_sdk.type_safe_api import Integrations, MockIntegration, TypeSafeApiIntegration
 from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.models import *
 from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.api_client import JSONEncoder
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.apis.tags.default_api_operation_config import OperationConfig
 from os import path
 from pathlib import Path
 
@@ -53,3 +54,38 @@ class MockIntegrations:
     {{/operations}}
     {{/apis}}
     {{/apiInfo}}
+    @staticmethod
+    def mock_all(**kwargs) -> OperationConfig[TypeSafeApiIntegration]:
+        """
+        Mock all operations for which generated JSON data can be returned.
+        The first available response is used for each operation. In most cases this is the successful 200 response.
+        Pass any additional or overridden integrations as kwargs, for example:
+
+        MockIntegrations.mock_all(
+            say_hello=TypeSafeApiIntegration(
+                integration=Integrations.lambda_(...)
+            )
+        )
+        """
+        return OperationConfig(**{
+            **{
+                {{#apiInfo}}
+                {{#apis}}
+                {{#operations}}
+                {{#operation}}
+                {{#responses.0}}
+                {{^simpleType}}
+                {{^isPrimitiveType}}
+                "{{operationId}}": TypeSafeApiIntegration(
+                    integration=MockIntegrations.{{operationId}}_{{code}}(),
+                ),
+                {{/isPrimitiveType}}
+                {{/simpleType}}
+                {{/responses.0}}
+                {{/operation}}
+                {{/operations}}
+                {{/apis}}
+                {{/apiInfo}}
+            },
+            **kwargs
+        })

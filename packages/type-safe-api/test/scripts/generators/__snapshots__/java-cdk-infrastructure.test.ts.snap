@@ -128,10 +128,12 @@ exports[`Java Infrastructure Code Generation Script Unit Tests Generates With si
 "package test.test-infra.infra;
 
 import test.test-client.runtime.JSON;
+import test.test-client.runtime.api.OperationConfig;
 import test.test-client.runtime.model.*;
 import software.aws.awsprototypingsdk.typesafeapi.Integrations;
 import software.aws.awsprototypingsdk.typesafeapi.MockIntegration;
 import software.aws.awsprototypingsdk.typesafeapi.MockIntegrationResponse;
+import software.aws.awsprototypingsdk.typesafeapi.TypeSafeApiIntegration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -285,6 +287,25 @@ public class MockIntegrations {
                 .build());
     }
 
+
+    /**
+     * Mock all operations for which generated JSON data can be returned.
+     * The first available response is used for each operation. In most cases this is the successful 200 response.
+     * @return a builder which you can use to override integrations for operations before calling .build()
+     */
+    public static OperationConfig.OperationConfigBuilder<TypeSafeApiIntegration> mockAll() {
+        return OperationConfig.<TypeSafeApiIntegration>builder()
+                .mapResponse(TypeSafeApiIntegration.builder()
+                        .integration(MockIntegrations.mapResponse200())
+                        .build())
+                .operationOne(TypeSafeApiIntegration.builder()
+                        .integration(MockIntegrations.operationOne200())
+                        .build())
+                .withoutOperationIdDelete(TypeSafeApiIntegration.builder()
+                        .integration(MockIntegrations.withoutOperationIdDelete200())
+                        .build())
+                ;
+    }
 }
 "
 `;

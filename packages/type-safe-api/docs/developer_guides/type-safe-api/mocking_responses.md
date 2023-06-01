@@ -1,8 +1,108 @@
 # Mocking Responses
 
+You can stand up a working mocked API prior to implementing it, to allow you or others to work on components which interact with it (for example a website) sooner.
+
 To mock an API operation, you can use the `MockIntegrations` class which you'll find in your generated infrastructure package. This contains an integration for every response that can be returned by your operations.
 
 ## Auto-Generated Mock Data
+
+For operations which return JSON structures as responses, you can make use of auto-generated mock responses. 
+
+### Mock All Operations
+
+You can use `MockIntegrations.mockAll` to mock all the operations in your API by returning the first mock response (usually the HTTP 200 response).
+
+
+=== "TS"
+
+    ```ts
+    import { Api, MockIntegrations } from "myapi-typescript-infra";
+
+    new Api(this, "Api", {
+      integrations: MockIntegrations.mockAll(),
+    });
+    ```
+
+=== "JAVA"
+
+    ```java
+    import com.generated.api.myapijavainfra.infra.Api;
+    import com.generated.api.myapijavainfra.infra.ApiProps;
+    import com.generated.api.myapijavainfra.infra.MockIntegrations;
+
+    new Api(this, "Api", ApiProps.builder()
+            .integrations(MockIntegrations.mockAll().build())
+            .build());
+    ```
+
+=== "PYTHON"
+
+    ```python
+    from myapi_python_infra.api import Api
+    from myapi_python_infra.mock_integrations import MockIntegrations
+
+    Api(self, 'Api',
+        integrations=MockIntegrations.mock_all(),
+    )
+    ```
+
+Note that if you have operations which don't return JSON structures and so can't be mocked automatically, these operations will be omitted from those returned by `MockIntegrations.mockAll` so you will need to specify your own integrations in these cases. You can also use this pattern for gradually replacing mocks with real implementations.
+
+
+=== "TS"
+
+    ```ts
+    import { Integrations } from "@aws-prototyping-sdk/type-safe-api";
+    import { Api, MockIntegrations } from "myapi-typescript-infra";
+
+    new Api(this, "Api", {
+      integrations: {
+        ...MockIntegrations.mockAll(),
+        sayHello: {
+            integration: Integrations.lambda(...),
+        },
+      },
+    });
+    ```
+
+=== "JAVA"
+
+    ```java
+    import software.aws.awsprototypingsdk.typesafeapi.TypeSafeApiIntegration;
+    import software.aws.awsprototypingsdk.typesafeapi.Integrations;
+
+    import com.generated.api.myapijavainfra.infra.Api;
+    import com.generated.api.myapijavainfra.infra.ApiProps;
+    import com.generated.api.myapijavainfra.infra.MockIntegrations;
+    import com.generated.api.myapijavaruntime.runtime.api.OperationConfig;
+
+    new Api(this, "Api", ApiProps.builder()
+            .integrations(MockIntegrations.mockAll()
+                    .sayHello(TypeSafeApiIntegration.builder()
+                            .integration(Integrations.lambda(...))
+                            .build()))
+                    .build()
+            .build());
+    ```
+
+=== "PYTHON"
+
+    ```python
+    from aws_prototyping_sdk.type_safe_api import Integrations, TypeSafeApiIntegration
+    from myapi_python_runtime.apis.tags.default_api_operation_config import OperationConfig
+    from myapi_python_infra.api import Api
+    from myapi_python_infra.mock_integrations import MockIntegrations
+
+    Api(self, 'Api',
+        integrations=MockIntegrations.mock_all(
+            say_hello=TypeSafeApiIntegration(
+                integration=Integrations.lambda_(...),
+            ),
+        ),
+    )
+    ```
+
+### Mock Individual Operations
 
 For operations which return JSON structures as responses, you can make use of the auto-generated mock data by omitting arguments passed to the `MockIntegrations` methods, for example:
 
