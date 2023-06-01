@@ -106,4 +106,16 @@ describe("Static Website Unit Tests", () => {
 
     expect(Template.fromStack(nestedStack)).toMatchSnapshot();
   });
+
+  it("Disable Web ACL", () => {
+    const stack = new Stack(PDKNag.app());
+    new StaticWebsite(stack, "WithoutWebAcl", {
+      websiteContentPath: path.join(__dirname, "sample-website"),
+      webAclProps: {
+        disable: true,
+      },
+    });
+
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
 });

@@ -75,6 +75,12 @@ export interface CloudFrontWebAclProps {
    * @default - undefined
    */
   readonly cidrAllowList?: CidrAllowList;
+
+  /**
+   * Set to true to prevent creation of a web acl for the static website
+   * @default false
+   */
+  readonly disable?: boolean;
 }
 
 /**
