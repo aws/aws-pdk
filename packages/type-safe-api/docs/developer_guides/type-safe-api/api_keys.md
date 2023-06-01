@@ -37,6 +37,7 @@ The below example demonstrates requiring an API Key for all operations besides t
     const key = api.api.addApiKey("MyApiKey");
     const plan = api.api.addUsagePlan("MyUsagePlan");
     plan.addApiKey(key);
+    plan.addApiStage({ stage: api.api.deploymentStage });
     ```
 
 === "JAVA"
@@ -60,6 +61,9 @@ The below example demonstrates requiring an API Key for all operations besides t
     IApiKey key = api.getApi().addApiKey("MyApiKey");
     UsagePlan plan = api.getApi().addUsagePlan("MyUsagePlan");
     plan.addApiKey(key);
+    plan.addApiStage(UsagePlanPerApiStage.builder()
+            .stage(api.getApi().getDeploymentStage())
+            .build());
     ```
 
 === "PYTHON"
@@ -84,4 +88,5 @@ The below example demonstrates requiring an API Key for all operations besides t
     key = api.api.add_api_key("MyApiKey")
     plan = api.api.add_usage_plan("MyUsagePlan")
     plan.add_api_key(key)
+    plan.add_api_stage(stage=api.api.deployment_stage)
     ```

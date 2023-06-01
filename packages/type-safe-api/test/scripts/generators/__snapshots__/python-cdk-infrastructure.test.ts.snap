@@ -61,13 +61,20 @@ class MockIntegrations:
         )
 
     @staticmethod
-    def map_response_200(body: str) -> MockIntegration:
+    def map_response_200(body: MapResponse = None) -> MockIntegration:
         """
         Mock integration to return a 200 response from the map_response operation
+        Call this with no arguments to use a generated mock response
         """
+        response_body = None
+        if body is None:
+            with open(path.join(MOCK_DATA_PATH, "get{}-200.json".format("/map-response".replace("/", "-"))), "r") as f:
+                response_body = f.read()
+        else:
+            response_body = json.dumps(JSONEncoder().default(body))
         return Integrations.mock(
             status_code=200,
-            body=body,
+            body=response_body,
         )
 
     @staticmethod
@@ -156,6 +163,9 @@ class MockIntegrations:
         """
         return OperationConfig(**{
             **{
+                "map_response": TypeSafeApiIntegration(
+                    integration=MockIntegrations.map_response_200(),
+                ),
                 "operation_one": TypeSafeApiIntegration(
                     integration=MockIntegrations.operation_one_200(),
                 ),

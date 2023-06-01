@@ -162,3 +162,5 @@ properties:
 required:
   - message
 ```
+
+⚠️ Make sure you put all request/response body schemas in the `components` section and use `$ref` to reference them, since the Python generator may not produce expected results with inline request/response body schemas.
