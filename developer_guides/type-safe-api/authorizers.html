@@ -834,6 +834,8 @@
         
           
         
+          
+        
       
       
         
@@ -892,6 +894,20 @@
     <li class="md-nav__item">
       <a href="integrations.html" class="md-nav__link">
         Integrations
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mocking_responses.html" class="md-nav__link">
+        Mocking Responses
       </a>
     </li>
   
@@ -2878,75 +2894,68 @@
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">TS</label><label for="__tabbed_1_2">JAVA</label><label for="__tabbed_1_3">PYTHON</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">SampleApi</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Api</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">scope</span><span class="o">:</span><span class="w"> </span><span class="kt">Construct</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">cognitoAuthorizer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Authorizers</span><span class="p">.</span><span class="nx">cognito</span><span class="p">({</span>
-<span class="w">      </span><span class="nx">authorizerId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;myCognitoAuthorizer&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">userPools</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="ow">new</span><span class="w"> </span><span class="nx">UserPool</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;UserPool&quot;</span><span class="p">)],</span>
-<span class="w">    </span><span class="p">});</span>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">cognitoAuthorizer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Authorizers</span><span class="p">.</span><span class="nx">cognito</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">authorizerId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;myCognitoAuthorizer&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">userPools</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="ow">new</span><span class="w"> </span><span class="nx">UserPool</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;UserPool&quot;</span><span class="p">)],</span>
+<span class="p">});</span>
 
-<span class="w">    </span><span class="k">super</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">defaultAuthorizer</span><span class="o">:</span><span class="w"> </span><span class="kt">cognitoAuthorizer</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">integrations</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="c1">// Everyone in the user pool can call this operation:</span>
-<span class="w">        </span><span class="nx">sayHello</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nx">integration</span><span class="o">:</span><span class="w"> </span><span class="kt">Integrations.lambda</span><span class="p">(...),</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="c1">// Only users with the given scopes can call this operation</span>
-<span class="w">        </span><span class="nx">myRestrictedOperation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nx">integration</span><span class="o">:</span><span class="w"> </span><span class="kt">Integrations.lambda</span><span class="p">(...),</span>
-<span class="w">          </span><span class="nx">authorizer</span><span class="o">:</span><span class="w"> </span><span class="kt">cognitoAuthorizer.withScopes</span><span class="p">(</span>
-<span class="w">            </span><span class="s2">&quot;my-resource-server/my-scope&quot;</span>
-<span class="w">          </span><span class="p">),</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">    </span><span class="p">});</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">Api</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Api&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">defaultAuthorizer</span><span class="o">:</span><span class="w"> </span><span class="kt">cognitoAuthorizer</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">integrations</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Everyone in the user pool can call this operation:</span>
+<span class="w">    </span><span class="nx">sayHello</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">integration</span><span class="o">:</span><span class="w"> </span><span class="kt">Integrations.lambda</span><span class="p">(...),</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="c1">// Only users with the given scopes can call this operation</span>
+<span class="w">    </span><span class="nx">myRestrictedOperation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">integration</span><span class="o">:</span><span class="w"> </span><span class="kt">Integrations.lambda</span><span class="p">(...),</span>
+<span class="w">      </span><span class="nx">authorizer</span><span class="o">:</span><span class="w"> </span><span class="kt">cognitoAuthorizer.withScopes</span><span class="p">(</span>
+<span class="w">        </span><span class="s2">&quot;my-resource-server/my-scope&quot;</span>
+<span class="w">      </span><span class="p">),</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SampleApi</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">Api</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">SampleApi</span><span class="p">(</span><span class="n">Construct</span><span class="w"> </span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">Object</span><span class="w"> </span><span class="n">cognitoAuthorizer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Authorizers</span><span class="p">.</span><span class="na">cognito</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                </span><span class="s">&quot;authorizerId&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;myCognitoAuthorizer&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="s">&quot;userPools&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">UserPool</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;UserPool&quot;</span><span class="p">))));</span>
+<div class="highlight"><pre><span></span><code><span class="n">CognitoAuthorizer</span><span class="w"> </span><span class="n">cognitoAuthorizer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Authorizers</span><span class="p">.</span><span class="na">cognito</span><span class="p">(</span><span class="n">CognitoAuthorizerProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">authorizerId</span><span class="p">(</span><span class="s">&quot;myCognitoAuthorizer&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">userPools</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">UserPool</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;UserPool&quot;</span><span class="p">)))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
 
-<span class="w">        </span><span class="kd">super</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                </span><span class="s">&quot;defaultAuthorizer&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cognitoAuthorizer</span><span class="p">,</span>
-<span class="w">                </span><span class="s">&quot;integrations&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                        </span><span class="c1">// Everyone in the user pool can call this operation:</span>
-<span class="w">                        </span><span class="s">&quot;sayHello&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                </span><span class="s">&quot;integration&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Integrations</span><span class="p">.</span><span class="na">lambda</span><span class="p">(...)),</span>
-<span class="w">                        </span><span class="c1">// Only users with the given scopes can call this operation</span>
-<span class="w">                        </span><span class="s">&quot;myRestrictedOperation&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                </span><span class="s">&quot;integration&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Integrations</span><span class="p">.</span><span class="na">lambda</span><span class="p">(...),</span>
-<span class="w">                                </span><span class="s">&quot;authorizer&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cognitoAuthorizer</span><span class="p">.</span><span class="na">withScopes</span><span class="p">(</span><span class="s">&quot;my-resource-server/my-scope&quot;</span><span class="p">)))));</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
+<span class="k">new</span><span class="w"> </span><span class="n">Api</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Api&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ApiProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">defaultAuthorizer</span><span class="p">(</span><span class="n">cognitoAuthorizer</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">integrations</span><span class="p">(</span><span class="n">OperationConfig</span><span class="p">.</span><span class="o">&lt;</span><span class="n">TypeSafeApiIntegration</span><span class="o">&gt;</span><span class="n">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">myRestrictedOperation</span><span class="p">(</span><span class="n">TypeSafeApiIntegration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">integration</span><span class="p">(</span><span class="n">Integrations</span><span class="p">.</span><span class="na">lambda</span><span class="p">(...))</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">authorizer</span><span class="p">(</span><span class="n">cognitoAuthorizer</span><span class="p">.</span><span class="na">withScopes</span><span class="p">(</span><span class="s">&quot;my-resource-server/my-scope&quot;</span><span class="p">))</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">sayHello</span><span class="p">(</span><span class="n">TypeSafeApiIntegration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">integration</span><span class="p">(</span><span class="n">Integrations</span><span class="p">.</span><span class="na">lambda</span><span class="p">(...))</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">SampleApi</span><span class="p">(</span><span class="n">Api</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
-        <span class="n">cognito_authorizer</span> <span class="o">=</span> <span class="n">Authorizers</span><span class="o">.</span><span class="n">cognito</span><span class="p">(</span>
+<div class="highlight"><pre><span></span><code>        <span class="n">cognito_authorizer</span> <span class="o">=</span> <span class="n">Authorizers</span><span class="o">.</span><span class="n">cognito</span><span class="p">(</span>
             <span class="n">authorizer_id</span><span class="o">=</span><span class="s2">&quot;myCognitoAuthorizer&quot;</span><span class="p">,</span>
             <span class="n">user_pools</span><span class="o">=</span><span class="p">[</span><span class="n">UserPool</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="s2">&quot;UserPool&quot;</span><span class="p">)]</span>
         <span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span>
+        <span class="n">Api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Api&quot;</span><span class="p">,</span>
             <span class="n">default_authorizer</span><span class="o">=</span><span class="n">cognito_authorizer</span><span class="p">,</span>
-            <span class="n">integrations</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">integrations</span><span class="o">=</span><span class="n">OperationConfig</span><span class="p">(</span>
                 <span class="c1"># Everyone in the user pool can call this operation:</span>
-                <span class="s2">&quot;say_hello&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;integration&quot;</span><span class="p">:</span> <span class="n">Integrations</span><span class="o">.</span><span class="n">lambda_</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-                <span class="p">},</span>
+                <span class="n">say_hello</span><span class="o">=</span><span class="n">TypeSafeApiIntegration</span><span class="p">(</span>
+                    <span class="n">integration</span><span class="o">=</span><span class="n">Integrations</span><span class="o">.</span><span class="n">lambda_</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+                <span class="p">),</span>
                 <span class="c1"># Only users with the given scopes can call this operation</span>
-                <span class="s2">&quot;my_restricted_operation&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;integration&quot;</span><span class="p">:</span> <span class="n">Integrations</span><span class="o">.</span><span class="n">lambda_</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
-                    <span class="s2">&quot;authorizer&quot;</span><span class="p">:</span> <span class="n">cognito_authorizer</span><span class="o">.</span><span class="n">with_scopes</span><span class="p">(</span><span class="s2">&quot;my-resource-server/my-scope&quot;</span><span class="p">)</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
+                <span class="n">my_restricted_operation</span><span class="o">=</span><span class="n">TypeSafeApiIntegration</span><span class="p">(</span>
+                    <span class="n">integration</span><span class="o">=</span><span class="n">Integrations</span><span class="o">.</span><span class="n">lambda_</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+                    <span class="n">authorizer</span><span class="o">=</span><span class="n">cognito_authorizer</span><span class="o">.</span><span class="n">with_scopes</span><span class="p">(</span><span class="s2">&quot;my-resource-server/my-scope&quot;</span><span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
         <span class="p">)</span>
 </code></pre></div>
 </div>
@@ -2966,9 +2975,10 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">Authorizers</span><span class="p">.</span><span class="na">custom</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">        </span><span class="s">&quot;authorizerId&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;myTokenAuthorizer&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;function&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;authorizer&quot;</span><span class="p">)));</span>
+<div class="highlight"><pre><span></span><code><span class="n">Authorizers</span><span class="p">.</span><span class="na">custom</span><span class="p">(</span><span class="n">CustomAuthorizerProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">authorizerId</span><span class="p">(</span><span class="s">&quot;myTokenAuthorizer&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">function</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;authorizer&quot;</span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -2994,11 +3004,12 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">Authorizers</span><span class="p">.</span><span class="na">custom</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">        </span><span class="s">&quot;authorizerId&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;myRequestAuthorizer&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;type&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">CustomAuthorizerType</span><span class="p">.</span><span class="na">getREQUEST</span><span class="p">(),</span>
-<span class="w">        </span><span class="s">&quot;identitySource&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;method.request.header.MyCustomHeader, method.request.querystring.myQueryString&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;function&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;authorizer&quot;</span><span class="p">)));</span>
+<div class="highlight"><pre><span></span><code><span class="n">Authorizers</span><span class="p">.</span><span class="na">custom</span><span class="p">(</span><span class="n">CustomAuthorizerProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">authorizerId</span><span class="p">(</span><span class="s">&quot;myRequestAuthorizer&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">type</span><span class="p">(</span><span class="n">CustomAuthorizerType</span><span class="p">.</span><span class="na">REQUEST</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">identitySource</span><span class="p">(</span><span class="s">&quot;method.request.header.MyCustomHeader, method.request.querystring.myQueryString&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">function</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">NodejsFunction</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;authorizer&quot;</span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -3035,7 +3046,7 @@
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="integrations.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Integrations" rel="prev">
+        <a href="mocking_responses.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Mocking Responses" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -3044,7 +3055,7 @@
               <span class="md-footer__direction">
                 Previous
               </span>
-              Integrations
+              Mocking Responses
             </div>
           </div>
         </a>

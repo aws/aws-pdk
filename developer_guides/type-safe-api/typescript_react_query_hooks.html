@@ -834,6 +834,8 @@
         
           
         
+          
+        
       
       
         
@@ -892,6 +894,20 @@
     <li class="md-nav__item">
       <a href="integrations.html" class="md-nav__link">
         Integrations
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mocking_responses.html" class="md-nav__link">
+        Mocking Responses
       </a>
     </li>
   
@@ -2894,8 +2910,9 @@
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">TypeSafeApiProject</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span>
-<span class="w">        </span><span class="p">.</span><span class="na">library</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                </span><span class="s">&quot;libraries&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">Library</span><span class="p">.</span><span class="na">getTYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">())))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">library</span><span class="p">(</span><span class="n">LibraryConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">libraries</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Library</span><span class="p">.</span><span class="na">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
 <span class="w">        </span><span class="p">...</span>
 <span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
@@ -3078,25 +3095,32 @@ export const MyComponent: FC&lt;MyComponentProps&gt; = () =&gt; {
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">TypeSafeApiProject</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span>
-<span class="w">        </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                </span><span class="s">&quot;language&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ModelLanguage</span><span class="p">.</span><span class="na">getSMITHY</span><span class="p">(),</span>
-<span class="w">                </span><span class="s">&quot;options&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                        </span><span class="s">&quot;smithy&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                </span><span class="s">&quot;serviceName&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                        </span><span class="s">&quot;namespace&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;com.mycompany&quot;</span><span class="p">,</span>
-<span class="w">                                        </span><span class="s">&quot;serviceName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MyApi&quot;</span><span class="p">),</span>
-<span class="w">                                </span><span class="s">&quot;smithyBuildOptions&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                        </span><span class="s">&quot;projections&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                                </span><span class="s">&quot;openapi&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                                        </span><span class="s">&quot;plugins&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">        </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">ModelConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">ModelLanguage</span><span class="p">.</span><span class="na">SMITHY</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">options</span><span class="p">(</span><span class="n">ModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">smithy</span><span class="p">(</span><span class="n">SmithyModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">smithyBuildOptions</span><span class="p">(</span><span class="n">SmithyBuildOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">projections</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                                                </span><span class="s">&quot;openapi&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">SmithyProjection</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                                        </span><span class="p">.</span><span class="na">plugins</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
 <span class="w">                                                                </span><span class="s">&quot;openapi&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
 <span class="w">                                                                        </span><span class="s">&quot;jsonAdd&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
 <span class="w">                                                                                </span><span class="c1">// Add the x-paginated vendor extension to the GET /pets operation</span>
 <span class="w">                                                                                </span><span class="s">&quot;/paths/~1pets/get/x-paginated&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
 <span class="w">                                                                                        </span><span class="s">&quot;inputToken&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nextToken&quot;</span><span class="p">,</span>
-<span class="w">                                                                                        </span><span class="s">&quot;outputToken&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nextToken&quot;</span><span class="p">)))))))))))</span>
+<span class="w">                                                                                        </span><span class="s">&quot;outputToken&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nextToken&quot;</span><span class="p">)</span>
+<span class="w">                                                                        </span><span class="p">)</span>
+<span class="w">                                                                </span><span class="p">)</span>
+<span class="w">                                                        </span><span class="p">))</span>
+<span class="w">                                                        </span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
+<span class="w">                                        </span><span class="p">))</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
 <span class="w">        </span><span class="p">...</span>
-<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">

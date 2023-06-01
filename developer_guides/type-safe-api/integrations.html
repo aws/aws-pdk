@@ -834,6 +834,8 @@
         
           
         
+          
+        
       
       
         
@@ -948,6 +950,20 @@
   
 </nav>
       
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mocking_responses.html" class="md-nav__link">
+        Mocking Responses
+      </a>
     </li>
   
 
@@ -2897,20 +2913,24 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">Api</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Api&quot;</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="na">integrations</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                </span><span class="s">&quot;sayHello&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                        </span><span class="s">&quot;integration&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Integrations</span><span class="p">.</span><span class="na">lambda</span><span class="p">(...))))</span>
-<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><span class="k">new</span><span class="w"> </span><span class="n">Api</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Api&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ApiProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">integrations</span><span class="p">(</span><span class="n">OperationConfig</span><span class="p">.</span><span class="o">&lt;</span><span class="n">TypeSafeApiIntegration</span><span class="o">&gt;</span><span class="n">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">sayHello</span><span class="p">(</span><span class="n">TypeSafeApiIntegration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">integration</span><span class="p">(</span><span class="n">Integrations</span><span class="p">.</span><span class="na">lambda</span><span class="p">(...))</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">Api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Api&quot;</span><span class="p">,</span>
-    <span class="n">integrations</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;say_hello&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;integration&quot;</span><span class="p">:</span> <span class="n">Integrations</span><span class="o">.</span><span class="n">lambda_</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+    <span class="n">default_authorizer</span><span class="o">=</span><span class="n">cognito_authorizer</span><span class="p">,</span>
+    <span class="n">integrations</span><span class="o">=</span><span class="n">OperationConfig</span><span class="p">(</span>
+        <span class="c1"># Everyone in the user pool can call this operation:</span>
+        <span class="n">say_hello</span><span class="o">=</span><span class="n">TypeSafeApiIntegration</span><span class="p">(</span>
+            <span class="n">integration</span><span class="o">=</span><span class="n">Integrations</span><span class="o">.</span><span class="n">lambda_</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
 <span class="p">)</span>
 </code></pre></div>
 </div>
@@ -2919,64 +2939,8 @@
 <h2 id="lambda-integration">Lambda Integration</h2>
 <p>For integrating an API operation with a lambda, you can use the <code>Integrations.lambda(yourLambdaFunction)</code>.</p>
 <h2 id="mock-integration">Mock Integration</h2>
-<p>To mock an API operation, you can use the <code>MockIntegrations</code> class which you'll find in your generated infrastructure package. This contains an integration for every response that can be returned by your operations.</p>
-<p>For example:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">TS</label><label for="__tabbed_2_2">JAVA</label><label for="__tabbed_2_3">PYTHON</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Api</span><span class="p">,</span><span class="w"> </span><span class="nx">MockIntegrations</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-infra&quot;</span><span class="p">;</span>
-
-<span class="ow">new</span><span class="w"> </span><span class="nx">Api</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Api&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">integrations</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">sayHello</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">integration</span><span class="o">:</span><span class="w"> </span><span class="kt">MockIntegrations.sayHello200</span><span class="p">({</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;This is a mocked successful response!&quot;</span><span class="w"> </span><span class="p">}),</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">  </span><span class="p">},</span>
-<span class="p">});</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">myapi.typescript.infra.Api</span><span class="p">;</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">myapi.typescript.infra.MockIntegrations</span><span class="p">;</span>
-
-<span class="n">Api</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Api&quot;</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="na">integrations</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                </span><span class="s">&quot;sayHello&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                        </span><span class="s">&quot;integration&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">MockIntegrations</span><span class="p">.</span><span class="na">sayHello200</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;message&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;This is a mocked successful response!&quot;</span><span class="p">)))))</span>
-<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_typescript_infra</span> <span class="kn">import</span> <span class="n">Api</span><span class="p">,</span> <span class="n">MockIntegrations</span>
-
-<span class="n">Api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Api&quot;</span><span class="p">,</span>
-    <span class="n">integrations</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;say_hello&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;integration&quot;</span><span class="p">:</span> <span class="n">MockIntegrations</span><span class="o">.</span><span class="n">say_hello200</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;This is a mocked successful response!&quot;</span><span class="p">)</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
-</div>
-<p>If you're using the <code>TypeSafeRestApi</code> construct directly without generated infrastructure, or need to mock a response not defined in your model, you can use <code>Integrations.mock</code>. API gateway will respond with the status code and body provided, eg:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">TS</label><label for="__tabbed_3_2">JAVA</label><label for="__tabbed_3_3">PYTHON</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="nx">Integrations</span><span class="p">.</span><span class="nx">mock</span><span class="p">({</span><span class="w"> </span><span class="nx">statusCode</span><span class="o">:</span><span class="w"> </span><span class="kt">200</span><span class="p">,</span><span class="w"> </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="kt">JSON.stringify</span><span class="p">({</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;hello world!&quot;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">})</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">Integrations</span><span class="p">.</span><span class="na">mock</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;statusCode&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;body&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">JSON</span><span class="p">.</span><span class="na">stringify</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;message&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hello world!&quot;</span><span class="p">))))</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="n">Integrations</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">JSON</span><span class="o">.</span><span class="n">stringify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;hello world!&quot;</span><span class="p">}))</span>
-</code></pre></div>
-</div>
-</div>
-</div>
+<p>To mock an API operation, you can use the <code>MockIntegrations</code> class which you'll find in your generated infrastructure package. This contains an integration for every response that can be returned by your operations. You can also use <code>Integrations.mock</code> for a less type-safe alternative if you are using <code>TypeSafeApi</code> directly or need to mock a response not defined in your model.</p>
+<p>For more details, please see the <a href="mocking_responses.html">Mocking Responses developer guide</a>.</p>
 <h2 id="custom-integrations">Custom Integrations</h2>
 <p>You can implement your own integrations by extending the <code>Integration</code> class and implementing its <code>render</code> method. This method is responsible for returning a snippet of OpenAPI which will be added as the <code>x-amazon-apigateway-integration</code> for an operation. Please refer to the <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html">API Gateway Swagger Extensions documentation</a> for more details.</p>
 <p>You can also optionally override the <code>grant</code> method if you need to use CDK to grant API Gateway access to invoke your integration.</p>
@@ -3020,13 +2984,13 @@
       
       
         
-        <a href="authorizers.html" class="md-footer__link md-footer__link--next" aria-label="Next: Authorizers" rel="next">
+        <a href="mocking_responses.html" class="md-footer__link md-footer__link--next" aria-label="Next: Mocking Responses" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Authorizers
+              Mocking Responses
             </div>
           </div>
           <div class="md-footer__button md-icon">

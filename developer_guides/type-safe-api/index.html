@@ -834,6 +834,8 @@
         
           
         
+          
+        
       
       
         
@@ -892,6 +894,20 @@
     <li class="md-nav__item">
       <a href="integrations.html" class="md-nav__link">
         Integrations
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mocking_responses.html" class="md-nav__link">
+        Mocking Responses
       </a>
     </li>
   
@@ -2905,25 +2921,26 @@
 <span class="c1">// Create the API project</span>
 <span class="n">TypeSafeApiProject</span><span class="w"> </span><span class="n">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TypeSafeApiProject</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span>
 <span class="w">        </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;myapi&quot;</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="na">parent</span><span class="p">(</span><span class="n">monorepo</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="na">outdir</span><span class="p">(</span><span class="s">&quot;packages/api&quot;</span><span class="p">)</span>
-<span class="w">        </span><span class="c1">// Smithy as the model language. You can also use ModelLanguage.OPENAPI</span>
-<span class="w">        </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                </span><span class="s">&quot;language&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ModelLanguage</span><span class="p">.</span><span class="na">getSMITHY</span><span class="p">(),</span>
-<span class="w">                </span><span class="s">&quot;options&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                        </span><span class="s">&quot;smithy&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                </span><span class="s">&quot;serviceName&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                        </span><span class="s">&quot;namespace&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;com.mycompany&quot;</span><span class="p">,</span>
-<span class="w">                                        </span><span class="s">&quot;serviceName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MyApi&quot;</span><span class="p">)))))</span>
-<span class="w">        </span><span class="c1">// Generate client and server types in TypeScript, Python and Java</span>
-<span class="w">        </span><span class="p">.</span><span class="na">runtime</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                </span><span class="s">&quot;languages&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">getTYPESCRIPT</span><span class="p">(),</span><span class="w"> </span><span class="n">Language</span><span class="p">.</span><span class="na">getPYTHON</span><span class="p">(),</span><span class="w"> </span><span class="n">Language</span><span class="p">.</span><span class="na">getJAVA</span><span class="p">())))</span>
-<span class="w">        </span><span class="c1">// Generate CDK infrastructure in Java</span>
-<span class="w">        </span><span class="p">.</span><span class="na">infrastructure</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                </span><span class="s">&quot;language&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Language</span><span class="p">.</span><span class="na">getJAVA</span><span class="p">()))</span>
-<span class="w">        </span><span class="c1">// Generate HTML documentation</span>
-<span class="w">        </span><span class="p">.</span><span class="na">documentation</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                </span><span class="s">&quot;formats&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">DocumentationFormat</span><span class="p">.</span><span class="na">getHTML_REDOC</span><span class="p">())))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">ModelConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">ModelLanguage</span><span class="p">.</span><span class="na">SMITHY</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">options</span><span class="p">(</span><span class="n">ModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">smithy</span><span class="p">(</span><span class="n">SmithyModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="n">SmithyServiceName</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">namespace</span><span class="p">(</span><span class="s">&quot;com.mycompany&quot;</span><span class="p">)</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="s">&quot;MyApi&quot;</span><span class="p">)</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">runtime</span><span class="p">(</span><span class="n">RuntimeConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">languages</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">TYPESCRIPT</span><span class="p">,</span><span class="w"> </span><span class="n">Language</span><span class="p">.</span><span class="na">PYTHON</span><span class="p">,</span><span class="w"> </span><span class="n">Language</span><span class="p">.</span><span class="na">JAVA</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">infrastructure</span><span class="p">(</span><span class="n">InfrastructureConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">JAVA</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">documentation</span><span class="p">(</span><span class="n">DocumentationConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">formats</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">DocumentationFormat</span><span class="p">.</span><span class="na">HTML_REDOC</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
 <span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 
 <span class="n">JavaProject</span><span class="w"> </span><span class="n">lambdas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JavaProject</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span>
@@ -3129,7 +3146,7 @@
 <span class="w">        </span><span class="n">Stack</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Stack</span><span class="p">(</span><span class="n">app</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;infra&quot;</span><span class="p">);</span>
 
 <span class="w">        </span><span class="c1">// Declare the API construct to deploy the API Gateway resources</span>
-<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">Api</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Api&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ApiProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">Api</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Api&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ApiProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
 <span class="w">                </span><span class="p">.</span><span class="na">defaultAuthorizer</span><span class="p">(</span><span class="n">Authorizers</span><span class="p">.</span><span class="na">iam</span><span class="p">())</span>
 <span class="w">                </span><span class="p">.</span><span class="na">corsOptions</span><span class="p">(</span><span class="n">CorsOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
 <span class="w">                        </span><span class="p">.</span><span class="na">allowOrigins</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="s">&quot;*&quot;</span><span class="p">))</span>
@@ -3366,7 +3383,7 @@ src/main.ts(16,7): error TS2741: Property &#39;sayGoodbye&#39; is missing in typ
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="k">new</span><span class="w"> </span><span class="n">Api</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Api&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ApiProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="k">new</span><span class="w"> </span><span class="n">Api</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Api&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ApiProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
 <span class="w">        </span><span class="p">...</span>
 <span class="w">        </span><span class="p">.</span><span class="na">integrations</span><span class="p">(</span><span class="n">OperationConfig</span><span class="p">.</span><span class="o">&lt;</span><span class="n">TypeSafeApiIntegration</span><span class="o">&gt;</span><span class="n">builder</span><span class="p">()</span>
 <span class="w">                </span><span class="p">.</span><span class="na">sayHello</span><span class="p">(</span><span class="n">TypeSafeApiIntegration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>

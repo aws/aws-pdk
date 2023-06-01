@@ -834,6 +834,8 @@
         
           
         
+          
+        
       
       
         
@@ -960,6 +962,20 @@
     <li class="md-nav__item">
       <a href="integrations.html" class="md-nav__link">
         Integrations
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mocking_responses.html" class="md-nav__link">
+        Mocking Responses
       </a>
     </li>
   
@@ -2929,13 +2945,17 @@
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">TypeSafeApiProject</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span>
-<span class="w">        </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                </span><span class="s">&quot;language&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ModelLanguage</span><span class="p">.</span><span class="na">getSMITHY</span><span class="p">(),</span>
-<span class="w">                </span><span class="s">&quot;options&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                        </span><span class="s">&quot;smithy&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                </span><span class="s">&quot;serviceName&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                        </span><span class="s">&quot;namespace&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;com.mycompany&quot;</span><span class="p">,</span>
-<span class="w">                                        </span><span class="s">&quot;serviceName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MyApi&quot;</span><span class="p">)))))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">ModelConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">ModelLanguage</span><span class="p">.</span><span class="na">SMITHY</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">options</span><span class="p">(</span><span class="n">ModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">smithy</span><span class="p">(</span><span class="n">SmithyModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="n">SmithyServiceName</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">namespace</span><span class="p">(</span><span class="s">&quot;com.mycompany&quot;</span><span class="p">)</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="s">&quot;MyApi&quot;</span><span class="p">)</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
 <span class="w">        </span><span class="p">...</span>
 <span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
@@ -3083,33 +3103,45 @@
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="w"> </span><span class="n">TypeSafeApiProject</span><span class="p">.</span><span class="na">Builder</span><span class="p">.</span><span class="na">create</span><span class="p">()</span>
-<span class="w">    </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">            </span><span class="s">&quot;language&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ModelLanguage</span><span class="p">.</span><span class="na">getSMITHY</span><span class="p">(),</span>
-<span class="w">            </span><span class="s">&quot;options&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                    </span><span class="s">&quot;smithy&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                            </span><span class="s">&quot;serviceName&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                    </span><span class="s">&quot;namespace&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;com.mycompany&quot;</span><span class="p">,</span>
-<span class="w">                                    </span><span class="s">&quot;serviceName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MyApi&quot;</span><span class="p">),</span>
-<span class="w">                            </span><span class="c1">// Use smithyBuildOptions to control what is added to smithy-build.json.</span>
-<span class="w">                            </span><span class="s">&quot;smithyBuildOptions&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                    </span><span class="s">&quot;projections&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">        </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;myapi&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">ModelConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">ModelLanguage</span><span class="p">.</span><span class="na">SMITHY</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">options</span><span class="p">(</span><span class="n">ModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">smithy</span><span class="p">(</span><span class="n">SmithyModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="n">SmithyServiceName</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">namespace</span><span class="p">(</span><span class="s">&quot;com.mycompany&quot;</span><span class="p">)</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="s">&quot;MyApi&quot;</span><span class="p">)</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                                </span><span class="c1">// Use smithyBuildOptions to control what is added to smithy-build.json.</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">smithyBuildOptions</span><span class="p">(</span><span class="n">SmithyBuildOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">projections</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
 <span class="w">                                            </span><span class="c1">// You can customise the built-in openapi projection, used to generate the OpenAPI specification.</span>
-<span class="w">                                            </span><span class="s">&quot;openapi&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                                    </span><span class="s">&quot;plugins&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                                            </span><span class="s">&quot;openapi&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">SmithyProjection</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                                    </span><span class="p">.</span><span class="na">plugins</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
 <span class="w">                                                            </span><span class="s">&quot;openapi&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                                                    </span><span class="c1">// Customise the openapi projection here.</span>
-<span class="w">                                                                    </span><span class="c1">// See: https://smithy.io/2.0/guides/converting-to-openapi.html</span>
-<span class="w">                                                                    </span><span class="s">&quot;useIntegerType&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="p">...))),</span>
+<span class="w">                                                                </span><span class="s">&quot;useIntegerType&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">                                                            </span><span class="p">)</span>
+<span class="w">                                                    </span><span class="p">))</span>
+<span class="w">                                                    </span><span class="p">.</span><span class="na">build</span><span class="p">(),</span>
 <span class="w">                                            </span><span class="c1">// You can add new projections here too</span>
-<span class="w">                                            </span><span class="s">&quot;ts-client&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                                    </span><span class="s">&quot;plugins&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                                            </span><span class="s">&quot;ts-client&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">SmithyProjection</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                                    </span><span class="p">.</span><span class="na">plugins</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
 <span class="w">                                                            </span><span class="s">&quot;typescript-codegen&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
 <span class="w">                                                                    </span><span class="s">&quot;package&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;@my-test/smithy-generated-typescript-client&quot;</span><span class="p">,</span>
-<span class="w">                                                                    </span><span class="s">&quot;packageVersion&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0.0.1&quot;</span><span class="p">)))),</span>
-<span class="w">                                    </span><span class="c1">// Note that any additional dependencies required for projections/plugins can be added here, which in turn will</span>
-<span class="w">                                    </span><span class="c1">// add them to the `smithy/build.gradle` file</span>
-<span class="w">                                    </span><span class="s">&quot;maven&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
-<span class="w">                                            </span><span class="s">&quot;dependencies&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;software.amazon.smithy:smithy-validation-model:1.27.2&quot;</span><span class="p">)))))))</span>
+<span class="w">                                                                    </span><span class="s">&quot;packageVersion&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0.0.1&quot;</span><span class="p">)</span>
+<span class="w">                                                    </span><span class="p">))</span>
+<span class="w">                                                    </span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
+<span class="w">                                            </span><span class="p">))</span>
+<span class="w">                                        </span><span class="c1">// Note that any additional dependencies required for projections/plugins can be added here, which in turn will</span>
+<span class="w">                                        </span><span class="c1">// add them to the `smithy/build.gradle` file</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">maven</span><span class="p">(</span><span class="n">SmithyMavenConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                                </span><span class="p">.</span><span class="na">dependencies</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="s">&quot;software.amazon.smithy:smithy-validation-model:1.27.2&quot;</span><span class="p">))</span>
+<span class="w">                                                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                                        </span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
+
+<span class="w">                                </span><span class="p">).</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
 <span class="w">    </span><span class="p">...</span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
