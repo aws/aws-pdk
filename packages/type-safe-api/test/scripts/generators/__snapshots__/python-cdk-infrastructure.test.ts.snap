@@ -31,6 +31,10 @@ exports[`Python Infrastructure Code Generation Script Unit Tests Generates With 
 from aws_prototyping_sdk.type_safe_api import Integrations, MockIntegration
 from test_client.models import *
 from test_client.api_client import JSONEncoder
+from os import path
+from pathlib import Path
+
+MOCK_DATA_PATH = path.join(str(Path(__file__).absolute().parent), "..", "mocks")
 
 class MockIntegrations:
     """
@@ -86,33 +90,54 @@ class MockIntegrations:
         )
 
     @staticmethod
-    def operation_one_200(body: TestResponse) -> MockIntegration:
+    def operation_one_200(body: TestResponse = None) -> MockIntegration:
         """
         Mock integration to return a 200 response from the path_path_param operation
+        Call this with no arguments to use a generated mock response
         """
+        response_body = None
+        if body is None:
+            with open(path.join(MOCK_DATA_PATH, "post{}-200.json".format("/path/{pathParam}".replace("/", "-"))), "r") as f:
+                response_body = f.read()
+        else:
+            response_body = json.dumps(JSONEncoder().default(body))
         return Integrations.mock(
             status_code=200,
-            body=json.dumps(JSONEncoder().default(body)),
+            body=response_body,
         )
 
     @staticmethod
-    def operation_one_400(body: ApiError) -> MockIntegration:
+    def operation_one_400(body: ApiError = None) -> MockIntegration:
         """
         Mock integration to return a 400 response from the path_path_param operation
+        Call this with no arguments to use a generated mock response
         """
+        response_body = None
+        if body is None:
+            with open(path.join(MOCK_DATA_PATH, "post{}-400.json".format("/path/{pathParam}".replace("/", "-"))), "r") as f:
+                response_body = f.read()
+        else:
+            response_body = json.dumps(JSONEncoder().default(body))
         return Integrations.mock(
             status_code=400,
-            body=json.dumps(JSONEncoder().default(body)),
+            body=response_body,
         )
 
     @staticmethod
-    def without_operation_id_delete_200(body: TestResponse) -> MockIntegration:
+    def without_operation_id_delete_200(body: TestResponse = None) -> MockIntegration:
         """
         Mock integration to return a 200 response from the without_operation_id operation
+        Call this with no arguments to use a generated mock response
         """
+        response_body = None
+        if body is None:
+            with open(path.join(MOCK_DATA_PATH, "delete{}-200.json".format("/without-operation-id".replace("/", "-"))), "r") as f:
+                response_body = f.read()
+        else:
+            response_body = json.dumps(JSONEncoder().default(body))
         return Integrations.mock(
             status_code=200,
-            body=json.dumps(JSONEncoder().default(body)),
+            body=response_body,
         )
 
 "

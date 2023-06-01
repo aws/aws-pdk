@@ -4,7 +4,7 @@ import * as path from "path";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Language } from "../../languages";
-import { GeneratedTypeScriptProjectOptions } from "../../types";
+import { GeneratedTypeScriptRuntimeOptions } from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
@@ -16,7 +16,7 @@ import {
  * Configuration for the generated typescript client project
  */
 export interface GeneratedTypescriptTypesProjectOptions
-  extends GeneratedTypeScriptProjectOptions {
+  extends GeneratedTypeScriptRuntimeOptions {
   /**
    * The path to the OpenAPI specification, relative to this project's outdir
    */

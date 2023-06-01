@@ -6,6 +6,14 @@ import software.aws.awsprototypingsdk.typesafeapi.Integrations;
 import software.aws.awsprototypingsdk.typesafeapi.MockIntegration;
 import software.aws.awsprototypingsdk.typesafeapi.MockIntegrationResponse;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+
+
 /**
  * Type-safe mock integrations for API operations
  */
@@ -13,6 +21,22 @@ public class MockIntegrations {
     static {
         // Instantiate json instance so that any .toJson() methods can be used
         new JSON();
+    }
+
+    /**
+     * Read a mock data file for the given operation
+     */
+    private static String readMockDataFile(final String method, final String path, final int statusCode) {
+        try {
+            try (InputStream stream = MockIntegrations.class.getClassLoader()
+                    .getResourceAsStream(Paths.get("mocks", method + path.replaceAll("/", "-") + String.format("-%d.json", statusCode)).toString())) {
+                try (InputStreamReader inputStreamReader = new InputStreamReader(stream)) {
+                    return new BufferedReader(inputStreamReader).lines().collect(Collectors.joining(System.lineSeparator()));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     {{#apiInfo}}
@@ -36,6 +60,20 @@ public class MockIntegrations {
                 {{/dataType}}
                 .build());
     }
+    {{#dataType}}
+    {{^isPrimitiveType}}
+
+    /**
+     * Mock integration to return a {{code}} response from the {{nickname}} operation, with generated mock data
+     */
+    public static MockIntegration {{nickname}}{{code}}() {
+        return Integrations.mock(MockIntegrationResponse.builder()
+                .statusCode({{code}})
+                .body(MockIntegrations.readMockDataFile("{{#lambda.lowercase}}{{httpMethod}}{{/lambda.lowercase}}", "{{path}}", {{code}}))
+                .build());
+    }
+    {{/isPrimitiveType}}
+    {{/dataType}}
 
     {{/responses}}
     {{/operation}}

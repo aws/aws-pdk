@@ -24,11 +24,14 @@ You can achieve this by specifying OpenAPI as the `model.language` in your `Type
 
     ```java
     TypeSafeApiProject.Builder.create()
-            .model(Map.of(
-                    "language", ModelLanguage.getOPENAPI(),
-                    "options", Map.of(
-                            "openapi", Map.of(
-                                    "title", "MyApi"))))
+            .name("myapi")
+            .model(ModelConfiguration.builder()
+                    .language(ModelLanguage.OPENAPI)
+                    .options(ModelOptions.builder()
+                            .openapi(OpenApiModelOptions.builder()
+                                    .title("MyApi")
+                                    .build())
+                    .build())
             ...
             .build();
     ```

@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { JavaProject } from "projen/lib/java";
 import { Language } from "../../languages";
-import { GeneratedJavaProjectOptions } from "../../types";
+import { GeneratedJavaRuntimeOptions } from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
@@ -15,7 +15,7 @@ import {
  * Configuration for the generated java runtime project
  */
 export interface GeneratedJavaTypesProjectOptions
-  extends GeneratedJavaProjectOptions {
+  extends GeneratedJavaRuntimeOptions {
   /**
    * The path to the OpenAPI specification, relative to this project's outdir
    */

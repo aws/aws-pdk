@@ -27,13 +27,17 @@ You can use Smithy by specifying it as your `model.language` in `TypeSafeApiProj
 
     ```java
     TypeSafeApiProject.Builder.create()
-            .model(Map.of(
-                    "language", ModelLanguage.getSMITHY(),
-                    "options", Map.of(
-                            "smithy", Map.of(
-                                    "serviceName", Map.of(
-                                            "namespace", "com.mycompany",
-                                            "serviceName", "MyApi")))))
+            .model(ModelConfiguration.builder()
+                    .language(ModelLanguage.SMITHY)
+                    .options(ModelOptions.builder()
+                            .smithy(SmithyModelOptions.builder()
+                                    .serviceName(SmithyServiceName.builder()
+                                            .namespace("com.mycompany")
+                                            .serviceName("MyApi")
+                                            .build())
+                                    .build())
+                            .build())
+                    .build())
             ...
             .build();
     ```
@@ -203,33 +207,45 @@ When you synthesize the `TypeSafeApiProject`, it will contain a `model/smithy-bu
 
     ```java
      TypeSafeApiProject.Builder.create()
-        .model(Map.of(
-                "language", ModelLanguage.getSMITHY(),
-                "options", Map.of(
-                        "smithy", Map.of(
-                                "serviceName", Map.of(
-                                        "namespace", "com.mycompany",
-                                        "serviceName", "MyApi"),
-                                // Use smithyBuildOptions to control what is added to smithy-build.json.
-                                "smithyBuildOptions", Map.of(
-                                        "projections", Map.of(
+            .name("myapi")
+            .model(ModelConfiguration.builder()
+                    .language(ModelLanguage.SMITHY)
+                    .options(ModelOptions.builder()
+                            .smithy(SmithyModelOptions.builder()
+                                    .serviceName(SmithyServiceName.builder()
+                                            .namespace("com.mycompany")
+                                            .serviceName("MyApi")
+                                            .build())
+                                    // Use smithyBuildOptions to control what is added to smithy-build.json.
+                                    .smithyBuildOptions(SmithyBuildOptions.builder()
+                                            .projections(Map.of(
                                                 // You can customise the built-in openapi projection, used to generate the OpenAPI specification.
-                                                "openapi", Map.of(
-                                                        "plugins", Map.of(
+                                                "openapi", SmithyProjection.builder()
+                                                        .plugins(Map.of(
                                                                 "openapi", Map.of(
-                                                                        // Customise the openapi projection here.
-                                                                        // See: https://smithy.io/2.0/guides/converting-to-openapi.html
-                                                                        "useIntegerType", true, ...))),
+                                                                    "useIntegerType", true
+                                                                )
+                                                        ))
+                                                        .build(),
                                                 // You can add new projections here too
-                                                "ts-client", Map.of(
-                                                        "plugins", Map.of(
+                                                "ts-client", SmithyProjection.builder()
+                                                        .plugins(Map.of(
                                                                 "typescript-codegen", Map.of(
                                                                         "package", "@my-test/smithy-generated-typescript-client",
-                                                                        "packageVersion", "0.0.1")))),
-                                        // Note that any additional dependencies required for projections/plugins can be added here, which in turn will
-                                        // add them to the `smithy/build.gradle` file
-                                        "maven", Map.of(
-                                                "dependencies", List.of("software.amazon.smithy:smithy-validation-model:1.27.2")))))))
+                                                                        "packageVersion", "0.0.1")
+                                                        ))
+                                                        .build()
+                                                ))
+                                            // Note that any additional dependencies required for projections/plugins can be added here, which in turn will
+                                            // add them to the `smithy/build.gradle` file
+                                            .maven(SmithyMavenConfiguration.builder()
+                                                    .dependencies(Arrays.asList("software.amazon.smithy:smithy-validation-model:1.27.2"))
+                                                    .build())
+                                            .build()
+
+                                    ).build())
+                                    .build())
+                            .build())
         ...
         .build();
     ```

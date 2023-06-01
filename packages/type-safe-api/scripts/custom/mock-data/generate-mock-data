@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set -e
+
+# Parse arguments
+spec_path=''
+output_path=''
+locale='en'
+max_array_length='3'
+while [[ "$#" -gt 0 ]]; do case $1 in
+  --spec-path) spec_path="$2"; shift;;
+  --output-path) output_path="$2"; shift;;
+  --locale) locale="$2"; shift;;
+  --max-array-length) max_array_length="$2"; shift;;
+esac; shift; done
+
+echo "Generating Mock Data..."
+
+working_dir=$(pwd)
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
+
+# load common package manager helper functions
+. "$working_dir/../../common/common.sh"
+
+# Create a temporary directory
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-mock-data.XXXXXXXXX")
+cd $tmp_dir
+
+log "mock-data :: tmp_dir :: $tmp_dir"
+
+# Install dependencies
+install_packages @7nohe/openapi-mock-json-generator
+
+outdir="$script_dir/$output_path/mocks"
+
+log "mock-data :: deleting outdir :: $outdir"
+rm -rf $outdir
+
+# Generate
+log "mock-data :: generate"
+run_command openapi-json \
+  --input "$script_dir/$spec_path" \
+  --output "$script_dir/$output_path/mocks" \
+  --locale $locale \
+  --max-array-length $max_array_length
+
+echo "Mock data generation done!"
+
+# Clean up
+cd $working_dir
+rm -rf $tmp_dir

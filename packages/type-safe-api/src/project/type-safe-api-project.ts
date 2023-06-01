@@ -19,7 +19,7 @@ import { GeneratedTypescriptRuntimeProject } from "./codegen/runtime/generated-t
 import { DocumentationFormat, Language, Library } from "./languages";
 import { TypeSafeApiModelProject } from "./model/type-safe-api-model-project";
 import {
-  GeneratedCodeOptions,
+  GeneratedRuntimeCodeOptions,
   GeneratedCodeProjects,
   GeneratedDocumentationOptions,
   GeneratedDocumentationProjects,
@@ -27,6 +27,7 @@ import {
   GeneratedLibraryProjects,
   ModelLanguage,
   ModelOptions,
+  GeneratedInfrastructureCodeOptions,
 } from "./types";
 
 /**
@@ -55,7 +56,7 @@ export interface RuntimeConfiguration {
   /**
    * Options for the generated runtimes. Note that only options provided for the specified languages will apply.
    */
-  readonly options?: GeneratedCodeOptions;
+  readonly options?: GeneratedRuntimeCodeOptions;
 }
 
 /**
@@ -69,7 +70,7 @@ export interface InfrastructureConfiguration {
   /**
    * Options for the infrastructure package. Note that only those provided for the specified language will apply.
    */
-  readonly options?: GeneratedCodeOptions;
+  readonly options?: GeneratedInfrastructureCodeOptions;
 }
 
 /**

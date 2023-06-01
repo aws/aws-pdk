@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Language, Library } from "../../languages";
+import { MockResponseDataGenerationOptions } from "../../types";
 
 /**
  * Enum for generator directories for non-runtime generators
@@ -201,6 +202,64 @@ export const buildInvokeCustomDocsGeneratorCommand = (
 
   return {
     command: `./${options.generator} --spec-path ${specPath} --output-path ${outputPath}`,
+    workingDir,
+  };
+};
+
+/**
+ * Options for generating mock data json files
+ */
+export interface MockDataGenerationOptions
+  extends MockResponseDataGenerationOptions {
+  /**
+   * The path of the OpenAPI spec to generate data for
+   */
+  readonly specPath: string;
+  /**
+   * The output directory of the project
+   */
+  readonly outdir: string;
+  /**
+   * Output sub directory relative to the outdir in which to generate mock data
+   * Mock data will be written to a directory named 'mocks' within the sub directory
+   * @default .
+   */
+  readonly outputSubDir?: string;
+}
+
+/**
+ * Invoke the mock data generator script
+ */
+export const buildInvokeMockDataGeneratorCommand = (
+  options: MockDataGenerationOptions
+): CommandDetails => {
+  const workingDir = path.resolve(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "..",
+    "scripts",
+    "custom",
+    "mock-data"
+  );
+  const specPath = path.relative(
+    workingDir,
+    path.join(options.outdir, options.specPath)
+  );
+  const outputPath = path.join(
+    path.relative(workingDir, options.outdir),
+    options.outputSubDir ?? "."
+  );
+
+  const locale = options.locale ? ` --locale ${options.locale}` : "";
+  const maxArrayLength =
+    options.maxArrayLength !== undefined
+      ? ` --max-array-length ${options.maxArrayLength}`
+      : "";
+
+  return {
+    command: `./generate-mock-data --spec-path ${specPath} --output-path ${outputPath}${locale}${maxArrayLength}`,
     workingDir,
   };
 };

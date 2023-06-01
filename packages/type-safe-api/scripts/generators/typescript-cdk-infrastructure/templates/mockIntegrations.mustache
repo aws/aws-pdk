@@ -9,6 +9,8 @@ import {
   {{/apiInfo}}
 } from "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package-name}}{{/apis.0}}{{/apiInfo}}";
 import { Integrations, MockIntegration } from "@aws-prototyping-sdk/type-safe-api";
+import * as fs from "fs";
+import * as path from "path";
 
 /**
  * Type-safe mock integrations for API operations
@@ -21,8 +23,13 @@ export class MockIntegrations {
   {{#responses}}
   /**
    * Mock integration to return a {{code}} response from the {{nickname}} operation
+  {{#dataType}}
+  {{^isPrimitiveType}}
+   * Call this with no arguments to use a generated mock response
+  {{/isPrimitiveType}}
+  {{/dataType}}
    */
-  public static {{nickname}}{{code}}({{#dataType}}body: {{#isPrimitiveType}}string{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}}{{/dataType}}): MockIntegration {
+  public static {{nickname}}{{code}}({{#dataType}}body{{#isPrimitiveType}}: string{{/isPrimitiveType}}{{^isPrimitiveType}}?: {{.}}{{/isPrimitiveType}}{{/dataType}}): MockIntegration {
     return Integrations.mock({
       statusCode: {{code}},
       {{#dataType}}
@@ -30,7 +37,9 @@ export class MockIntegrations {
       body,
       {{/isPrimitiveType}}
       {{^isPrimitiveType}}
-      body: JSON.stringify({{dataType}}ToJSON(body)),
+      body: body === undefined
+        ? fs.readFileSync(path.join(__dirname, "..", "mocks", `{{#lambda.lowercase}}{{httpMethod}}{{/lambda.lowercase}}${"{{path}}".replace(/\//g, "-")}-{{code}}.json`), "utf-8")
+        : JSON.stringify({{dataType}}ToJSON(body)),
       {{/isPrimitiveType}}
       {{/dataType}}
     });

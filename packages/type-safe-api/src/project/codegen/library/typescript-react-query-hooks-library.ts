@@ -4,6 +4,7 @@ import * as path from "path";
 import { NodePackageManager, TypeScriptJsxMode } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Library } from "../../languages";
+import { GeneratedTypeScriptReactQueryHooksOptions } from "../../types";
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
@@ -11,7 +12,21 @@ import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommand,
 } from "../components/utils";
-import { GeneratedTypescriptTypesProjectOptions } from "../runtime/generated-typescript-runtime-project";
+
+/**
+ * Configuration for the generated typescript client project
+ */
+export interface GeneratedTypescriptReactQueryHooksProjectOptions
+  extends GeneratedTypeScriptReactQueryHooksOptions {
+  /**
+   * The path to the OpenAPI specification, relative to this project's outdir
+   */
+  readonly specPath: string;
+  /**
+   * Whether this project is parented by an nx-monorepo or not
+   */
+  readonly isWithinMonorepo?: boolean;
+}
 
 /**
  * Typescript project containing generated react-query hooks
@@ -33,7 +48,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
    */
   private readonly specPath: string;
 
-  constructor(options: GeneratedTypescriptTypesProjectOptions) {
+  constructor(options: GeneratedTypescriptReactQueryHooksProjectOptions) {
     super({
       ...options,
       sampleCode: false,
