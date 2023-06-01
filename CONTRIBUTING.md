@@ -22,7 +22,7 @@ Contains classes which are to be used locally by the root package.
 
 Contains configurations for each project within this monorepo.
 
-***As a rule of thumb, every package in the monorepo should correspond to a file in this directory.***
+**_As a rule of thumb, every package in the monorepo should correspond to a file in this directory._**
 
 ### **packages**
 
@@ -44,38 +44,36 @@ Create a new class as follows:
 ```ts
 import { PDKProject } from "../private/pdk-project";
 import { Project } from "projen";
-import { Stability } from 'projen/lib/cdk';
+import { Stability } from "projen/lib/cdk";
 
 export class MyPackageProject extends PDKProject {
-    constructor(parent: Project) {
-        super({
-            parent,
-            author: "<your name/org>",
-            authorAddress: "<your email>",
-            defaultReleaseBranch: "mainline",
-            name: "your-package",
-            repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-            devDeps: [
-              "projen",
-            ],
-            deps: [
-              "projen",
-              "aws-cdk-lib", // Only needed if writing a CDK construct
-              "constructs"
-            ],
-            peerDeps: [
-              "projen",
-              "aws-cdk-lib", // Only needed if writing a CDK construct
-              "constructs" // Only needed if writing a CDK construct
-            ],
-            bundledDeps: [
-                // include any non-jsii deps here
-            ],
-            stability: Stability.EXPERIMENTAL,
-        });
+  constructor(parent: Project) {
+    super({
+      parent,
+      author: "<your name/org>",
+      authorAddress: "<your email>",
+      defaultReleaseBranch: "mainline",
+      name: "your-package",
+      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+      devDeps: ["projen"],
+      deps: [
+        "projen",
+        "aws-cdk-lib", // Only needed if writing a CDK construct
+        "constructs",
+      ],
+      peerDeps: [
+        "projen",
+        "aws-cdk-lib", // Only needed if writing a CDK construct
+        "constructs", // Only needed if writing a CDK construct
+      ],
+      bundledDeps: [
+        // include any non-jsii deps here
+      ],
+      stability: Stability.EXPERIMENTAL,
+    });
 
-        // any additional config here
-    }
+    // any additional config here
+  }
 }
 ```
 
@@ -95,7 +93,7 @@ At a minimum, your package should include a `index.ts` file which exports all of
 
 Your package should also include a `README.md` file which describes your constructs at a high level and optionally provide a tutorial on how to use it. This is very important as this content will be rendered on the docuemntation website and is the first port of call for end users.
 
-In terms of testing, it is desired for each package to aim for a *minimum of 80% coverage* in unit tests.
+In terms of testing, it is desired for each package to aim for a _minimum of 80% coverage_ in unit tests.
 
 #### Testing CDK constructs
 
@@ -138,16 +136,16 @@ We welcome you to use the GitHub issue tracker to report bugs or suggest feature
 When filing an issue, please check existing open, or recently closed, issues to make sure somebody else hasn't already
 reported the issue. Please try to include as much information as you can. Details like these are incredibly useful:
 
-* A reproducible test case or series of steps
-* The version of our code being used (semver)
-* Any modifications you've made relevant to the bug
-* Anything unusual about your environment or deployment
+- A reproducible test case or series of steps
+- The version of our code being used (semver)
+- Any modifications you've made relevant to the bug
+- Anything unusual about your environment or deployment
 
 ## Contributing via Pull Requests
 
 Contributions via pull requests are much appreciated. Before sending us a pull request, please ensure that:
 
-1. You are working against the latest source on the *mainline* branch.
+1. You are working against the latest source on the _mainline_ branch.
 2. You check existing open, and recently merged, pull requests to make sure someone else hasn't addressed the problem already.
 3. You open an issue to discuss any significant work - we would hate for your time to be wasted.
 
@@ -156,8 +154,8 @@ To send us a pull request, please:
 1. Fork the repository.
 2. Modify the source; please focus on the specific change you are contributing. If you also reformat all the code, it will be hard for us to focus on your change.
 3. Run `pnpm build` to ensure everything builds and tests correctly.
-  > This will execute `pnpm nx run-many --target=build --output-style=stream --nx-bail` to build all sub-projects in the workspace.
-4. Commit to your fork on a new branch using [conventional commit messages](CONTRIBUTING.md#commits).
+   > This will execute `pnpm nx run-many --target=build --output-style=stream --nx-bail` to build all sub-projects in the workspace.
+4. Commit to your fork on a new branch using [conventional commit messages](#commits).
 5. Send us a pull request, answering any default questions in the pull request template.
 6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
 
@@ -190,23 +188,21 @@ The PDK has a full-cd release pipeline. Assuming all tests and CI workflows succ
 
 Looking at the existing issues is a great way to find something to contribute on. As our projects, by default, use the default GitHub issue labels (enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any 'help wanted' issues is a great place to start.
 
-
 ## Code of Conduct
+
 This project has adopted the [Amazon Open Source Code of Conduct](https://aws.github.io/code-of-conduct).
 For more information see the [Code of Conduct FAQ](https://aws.github.io/code-of-conduct-faq) or contact
 opensource-codeofconduct@amazon.com with any additional questions or comments.
 
-
 ## Security issue notifications
-If you discover a potential security issue in this project we ask that you notify AWS/Amazon Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not** create a public github issue.
 
+If you discover a potential security issue in this project we ask that you notify AWS/Amazon Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not** create a public github issue.
 
 ## Licensing
 
 See the [LICENSE](LICENSE) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
 
 We may ask you to sign a [Contributor License Agreement (CLA)](http://en.wikipedia.org/wiki/Contributor_License_Agreement) for larger changes.
-
 
 ## FAQ
 
