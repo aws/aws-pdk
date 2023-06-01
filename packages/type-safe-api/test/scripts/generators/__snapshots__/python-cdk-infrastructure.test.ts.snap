@@ -28,9 +28,10 @@ exports[`Python Infrastructure Code Generation Script Unit Tests Generates With 
 
 exports[`Python Infrastructure Code Generation Script Unit Tests Generates With single.yaml 3`] = `
 "import json
-from aws_prototyping_sdk.type_safe_api import Integrations, MockIntegration
+from aws_prototyping_sdk.type_safe_api import Integrations, MockIntegration, TypeSafeApiIntegration
 from test_client.models import *
 from test_client.api_client import JSONEncoder
+from test_client.apis.tags.default_api_operation_config import OperationConfig
 from os import path
 from pathlib import Path
 
@@ -140,5 +141,29 @@ class MockIntegrations:
             body=response_body,
         )
 
+    @staticmethod
+    def mock_all(**kwargs) -> OperationConfig[TypeSafeApiIntegration]:
+        """
+        Mock all operations for which generated JSON data can be returned.
+        The first available response is used for each operation. In most cases this is the successful 200 response.
+        Pass any additional or overridden integrations as kwargs, for example:
+
+        MockIntegrations.mock_all(
+            say_hello=TypeSafeApiIntegration(
+                integration=Integrations.lambda_(...)
+            )
+        )
+        """
+        return OperationConfig(**{
+            **{
+                "operation_one": TypeSafeApiIntegration(
+                    integration=MockIntegrations.operation_one_200(),
+                ),
+                "without_operation_id_delete": TypeSafeApiIntegration(
+                    integration=MockIntegrations.without_operation_id_delete_200(),
+                ),
+            },
+            **kwargs
+        })
 "
 `;

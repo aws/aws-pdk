@@ -50,4 +50,30 @@ export class MockIntegrations {
   {{/operations}}
   {{/apis}}
   {{/apiInfo}}
+
+  /**
+   * Mock all operations for which generated JSON data can be returned.
+   * The first available response is used for each operation. In most cases this is the successful 200 response.
+   */
+  public static mockAll() {
+    return {
+      {{#apiInfo}}
+      {{#apis}}
+      {{#operations}}
+      {{#operation}}
+      {{#responses.0}}
+      {{#dataType}}
+      {{^isPrimitiveType}}
+      {{nickname}}: {
+        integration: MockIntegrations.{{nickname}}{{code}}(),
+      },
+      {{/isPrimitiveType}}
+      {{/dataType}}
+      {{/responses.0}}
+      {{/operation}}
+      {{/operations}}
+      {{/apis}}
+      {{/apiInfo}}
+    };
+  }
 }
