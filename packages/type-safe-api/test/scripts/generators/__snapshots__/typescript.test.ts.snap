@@ -1239,12 +1239,12 @@ src/index.ts
 src/models/ApiError.ts
 src/models/ApiError.ts
 src/models/ApiError.ts
-src/models/MapResponse200Response.ts
-src/models/MapResponse200Response.ts
-src/models/MapResponse200Response.ts
-src/models/MapResponse200ResponseMapPropertyValue.ts
-src/models/MapResponse200ResponseMapPropertyValue.ts
-src/models/MapResponse200ResponseMapPropertyValue.ts
+src/models/MapResponse.ts
+src/models/MapResponse.ts
+src/models/MapResponse.ts
+src/models/MapResponseMapPropertyValue.ts
+src/models/MapResponseMapPropertyValue.ts
+src/models/MapResponseMapPropertyValue.ts
 src/models/TestRequest.ts
 src/models/TestRequest.ts
 src/models/TestRequest.ts
@@ -1333,15 +1333,15 @@ npm install PATH_TO_GENERATED_PACKAGE --save
 import * as runtime from '../runtime';
 import type {
   ApiError,
-  MapResponse200Response,
+  MapResponse,
   TestRequest,
   TestResponse,
 } from '../models';
 import {
     ApiErrorFromJSON,
     ApiErrorToJSON,
-    MapResponse200ResponseFromJSON,
-    MapResponse200ResponseToJSON,
+    MapResponseFromJSON,
+    MapResponseToJSON,
     TestRequestFromJSON,
     TestRequestToJSON,
     TestResponseFromJSON,
@@ -1426,7 +1426,7 @@ export class DefaultApi extends runtime.BaseAPI {
 
     /**
      */
-    async mapResponseRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MapResponse200Response>> {
+    async mapResponseRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MapResponse>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -1438,12 +1438,12 @@ export class DefaultApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => MapResponse200ResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => MapResponseFromJSON(jsonValue));
     }
 
     /**
      */
-    async mapResponse(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MapResponse200Response> {
+    async mapResponse(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MapResponse> {
         const response = await this.mapResponseRaw(initOverrides);
         return await response.value();
     }
@@ -1604,12 +1604,12 @@ import {
     ApiError,
     ApiErrorFromJSON,
     ApiErrorToJSON,
-    MapResponse200Response,
-    MapResponse200ResponseFromJSON,
-    MapResponse200ResponseToJSON,
-    MapResponse200ResponseMapPropertyValue,
-    MapResponse200ResponseMapPropertyValueFromJSON,
-    MapResponse200ResponseMapPropertyValueToJSON,
+    MapResponse,
+    MapResponseFromJSON,
+    MapResponseToJSON,
+    MapResponseMapPropertyValue,
+    MapResponseMapPropertyValueFromJSON,
+    MapResponseMapPropertyValueToJSON,
     TestRequest,
     TestRequestFromJSON,
     TestRequestToJSON,
@@ -1959,7 +1959,7 @@ export interface MapResponseRequestArrayParameters {
  */
 export type MapResponseRequestBody = never;
 
-export type MapResponse200OperationResponse = OperationResponse<200, MapResponse200Response>;
+export type MapResponse200OperationResponse = OperationResponse<200, MapResponse>;
 export type MapResponseOperationResponses = | MapResponse200OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
@@ -2003,7 +2003,7 @@ export const mapResponseHandler = (
         let marshalledBody = responseBody;
         switch(statusCode) {
             case 200:
-                marshalledBody = JSON.stringify(MapResponse200ResponseToJSON(marshalledBody));
+                marshalledBody = JSON.stringify(MapResponseToJSON(marshalledBody));
                 break;
             default:
                 break;
@@ -2460,7 +2460,7 @@ export function ApiErrorToJSON(value?: ApiError | null): any {
 }
 
 ",
-  "src/models/MapResponse200Response.ts": "/* tslint:disable */
+  "src/models/MapResponse.ts": "/* tslint:disable */
 /* eslint-disable */
 /**
  * Example API
@@ -2475,53 +2475,53 @@ export function ApiErrorToJSON(value?: ApiError | null): any {
  */
 
 import { exists, mapValues } from '../runtime';
-import type { MapResponse200ResponseMapPropertyValue } from './MapResponse200ResponseMapPropertyValue';
+import type { MapResponseMapPropertyValue } from './MapResponseMapPropertyValue';
 import {
-    MapResponse200ResponseMapPropertyValueFromJSON,
-    MapResponse200ResponseMapPropertyValueFromJSONTyped,
-    MapResponse200ResponseMapPropertyValueToJSON,
-} from './MapResponse200ResponseMapPropertyValue';
+    MapResponseMapPropertyValueFromJSON,
+    MapResponseMapPropertyValueFromJSONTyped,
+    MapResponseMapPropertyValueToJSON,
+} from './MapResponseMapPropertyValue';
 
 /**
  * 
  * @export
- * @interface MapResponse200Response
+ * @interface MapResponse
  */
-export interface MapResponse200Response {
+export interface MapResponse {
     /**
      * 
-     * @type {{ [key: string]: MapResponse200ResponseMapPropertyValue; }}
-     * @memberof MapResponse200Response
+     * @type {{ [key: string]: MapResponseMapPropertyValue; }}
+     * @memberof MapResponse
      */
-    mapProperty: { [key: string]: MapResponse200ResponseMapPropertyValue; };
+    mapProperty: { [key: string]: MapResponseMapPropertyValue; };
 }
 
 
 /**
- * Check if a given object implements the MapResponse200Response interface.
+ * Check if a given object implements the MapResponse interface.
  */
-export function instanceOfMapResponse200Response(value: object): boolean {
+export function instanceOfMapResponse(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "mapProperty" in value;
 
     return isInstance;
 }
 
-export function MapResponse200ResponseFromJSON(json: any): MapResponse200Response {
-    return MapResponse200ResponseFromJSONTyped(json, false);
+export function MapResponseFromJSON(json: any): MapResponse {
+    return MapResponseFromJSONTyped(json, false);
 }
 
-export function MapResponse200ResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): MapResponse200Response {
+export function MapResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): MapResponse {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'mapProperty': (mapValues(json['mapProperty'], MapResponse200ResponseMapPropertyValueFromJSON)),
+        'mapProperty': (mapValues(json['mapProperty'], MapResponseMapPropertyValueFromJSON)),
     };
 }
 
-export function MapResponse200ResponseToJSON(value?: MapResponse200Response | null): any {
+export function MapResponseToJSON(value?: MapResponse | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -2530,12 +2530,12 @@ export function MapResponse200ResponseToJSON(value?: MapResponse200Response | nu
     }
     return {
         
-        'mapProperty': (mapValues(value.mapProperty, MapResponse200ResponseMapPropertyValueToJSON)),
+        'mapProperty': (mapValues(value.mapProperty, MapResponseMapPropertyValueToJSON)),
     };
 }
 
 ",
-  "src/models/MapResponse200ResponseMapPropertyValue.ts": "/* tslint:disable */
+  "src/models/MapResponseMapPropertyValue.ts": "/* tslint:disable */
 /* eslint-disable */
 /**
  * Example API
@@ -2553,39 +2553,39 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface MapResponse200ResponseMapPropertyValue
+ * @interface MapResponseMapPropertyValue
  */
-export interface MapResponse200ResponseMapPropertyValue {
+export interface MapResponseMapPropertyValue {
     /**
      * 
      * @type {string}
-     * @memberof MapResponse200ResponseMapPropertyValue
+     * @memberof MapResponseMapPropertyValue
      */
     a: string;
     /**
      * 
      * @type {string}
-     * @memberof MapResponse200ResponseMapPropertyValue
+     * @memberof MapResponseMapPropertyValue
      */
     b?: string;
 }
 
 
 /**
- * Check if a given object implements the MapResponse200ResponseMapPropertyValue interface.
+ * Check if a given object implements the MapResponseMapPropertyValue interface.
  */
-export function instanceOfMapResponse200ResponseMapPropertyValue(value: object): boolean {
+export function instanceOfMapResponseMapPropertyValue(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "a" in value;
 
     return isInstance;
 }
 
-export function MapResponse200ResponseMapPropertyValueFromJSON(json: any): MapResponse200ResponseMapPropertyValue {
-    return MapResponse200ResponseMapPropertyValueFromJSONTyped(json, false);
+export function MapResponseMapPropertyValueFromJSON(json: any): MapResponseMapPropertyValue {
+    return MapResponseMapPropertyValueFromJSONTyped(json, false);
 }
 
-export function MapResponse200ResponseMapPropertyValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): MapResponse200ResponseMapPropertyValue {
+export function MapResponseMapPropertyValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): MapResponseMapPropertyValue {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -2596,7 +2596,7 @@ export function MapResponse200ResponseMapPropertyValueFromJSONTyped(json: any, i
     };
 }
 
-export function MapResponse200ResponseMapPropertyValueToJSON(value?: MapResponse200ResponseMapPropertyValue | null): any {
+export function MapResponseMapPropertyValueToJSON(value?: MapResponseMapPropertyValue | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -2832,8 +2832,8 @@ export function TestResponseMessagesInnerToJSON(value?: TestResponseMessagesInne
   "src/models/index.ts": "/* tslint:disable */
 /* eslint-disable */
 export * from './ApiError';
-export * from './MapResponse200Response';
-export * from './MapResponse200ResponseMapPropertyValue';
+export * from './MapResponse';
+export * from './MapResponseMapPropertyValue';
 export * from './TestRequest';
 export * from './TestResponse';
 export * from './TestResponseMessagesInner';
