@@ -189,6 +189,9 @@ export abstract class PDKProject extends JsiiProject {
     // Make sure this is after NxProject so targets can be updated after inference
     this.pdkRelease = new PDKRelease(this, options.publishConfig);
     new PDKDocgen(this);
+
+    // Suppress JSII upgrade warnings
+    this.tasks.addEnvironment("JSII_SUPPRESS_UPGRADE_PROMPT", "true");
   }
 
   // /**

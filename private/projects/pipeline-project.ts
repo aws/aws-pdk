@@ -8,7 +8,10 @@ import { JavaProject } from "projen/lib/java";
 import { NodePackageManager } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { NodePackageUtils } from "../../packages/nx-monorepo/src";
+import {
+  NodePackageUtils,
+  NxMonorepoProject,
+} from "../../packages/nx-monorepo/src";
 import { PDKProject } from "../pdk-project";
 
 /**
@@ -17,7 +20,7 @@ import { PDKProject } from "../pdk-project";
 export class PipelineProject extends PDKProject {
   private _samples: Project[] = [];
 
-  constructor(parent: Project) {
+  constructor(parent: NxMonorepoProject) {
     super({
       parent,
       author: "AWS APJ COPE",
@@ -41,6 +44,8 @@ export class PipelineProject extends PDKProject {
       new PipelinePythonSampleProject(parent),
       new PipelineJavaSampleProject(parent)
     );
+
+    this._samples.forEach((s) => parent.addImplicitDependency(s, this));
 
     this.preCompileTask.exec(
       'rm -rf samples && rsync -a ../../samples . --include="*/" --include="pipeline/typescript/src/**" --include="pipeline/typescript/test/**"  --include="pipeline/python/infra/*.py" --include="pipeline/python/tests/*.py" --include="pipeline/java/src/**" --exclude="*" --prune-empty-dirs'
