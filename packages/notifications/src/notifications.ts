@@ -10,7 +10,7 @@ import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import { ddb, sqs } from "./construct";
-import { functionProps } from "./lib/lambdaDefaults";
+import { functionProps } from "./handlers/lambdaDefaults";
 
 /**
  * Properties which configure the Notifications.
