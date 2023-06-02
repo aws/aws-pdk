@@ -8,6 +8,7 @@ import { CdkGraphPluginDiagramProject } from "./private/projects/cdk-graph-plugi
 import { CloudscapeReactTsWebsiteProject } from "./private/projects/cloudscape-react-ts-website";
 import { DocsProject } from "./private/projects/docs-project";
 import { IdentityProject } from "./private/projects/identity-project";
+import { NotificationsProject } from "./private/projects/notifications-projects";
 import { NXMonorepoProject } from "./private/projects/nx-monorepo-project";
 import { OpenApiGatewayProject } from "./private/projects/open-api-gateway-project";
 import { PDKMonorepoProject } from "./private/projects/pdk-monorepo-project";
@@ -32,6 +33,7 @@ new AwsArchProject(monorepoProject);
 new CdkGraphProject(monorepoProject);
 new CdkGraphPluginDiagramProject(monorepoProject);
 new PipelineProject(monorepoProject);
+new NotificationsProject(monorepoProject);
 
 // docs
 const docsProject = new DocsProject(monorepoProject);
