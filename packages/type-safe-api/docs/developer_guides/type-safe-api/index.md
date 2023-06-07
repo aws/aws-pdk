@@ -35,7 +35,7 @@ The `TypeSafeApiProject` projen project will create the following directory stru
 
 # Getting Started
 
-This section describes how to get started quickly with a brief overview. Please refer to the other user guides for more details on particular features of this library. Note that the different tabs show how to use this library in purely that language, but you can mix-and-match languages (for example you could write CDK infrastructure in Java, implement your lambda handlers in Python and write your `.projenrc` in TypeScript).
+This section describes how to get started quickly with a brief overview. Please refer to the other user guides for more details on particular features of this library. Note that the different tabs show how to use this library with infrastructure and lambda handlers in the same language, but you can mix-and-match languages (for example you could write CDK infrastructure in Java and implement your lambda handlers in Python).
 
 ## Create your API Project
 
@@ -49,31 +49,52 @@ The `TypeSafeApiProject` projen project sets up the project structure for you. Y
 
 It's recommended that these projects are used as part of an `nx-monorepo` project (eg. by specifying `parent: monorepo`), as it makes setting up dependencies much easier, particularly when extending your project further with a CDK app and lambda functions.
 
-See below for an example `.projenrc` making use of `TypeSafeApiProject`:
+You can get started with an empty `nx-monorepo` project using the command:
+
+```bash
+npx projen new --from @aws-prototyping-sdk/nx-monorepo
+```
+
+Next, you'll need to add `@aws-prototyping-sdk/type-safe-api` to your `NxMonorepoProject`'s `devDeps` and re-synthesize to install the dependency (eg `yarn projen`).
+
+See below for an example `.projenrc` making use of `TypeSafeApiProject`. Each tab shows how one might set up a project for writing infrastructure, and server-side code in the specific language.
 
 === "TS"
 
     ```ts
     import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
-    import { TypeSafeApiProject } from "@aws-prototyping-sdk/type-safe-api";
+    import {
+      DocumentationFormat,
+      Language,
+      Library,
+      ModelLanguage,
+      TypeSafeApiProject,
+    } from "@aws-prototyping-sdk/type-safe-api";
     import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
 
     // Create the monorepo
-    const monorepo = new NxMonorepoProject({ ... });
+    const monorepo = new NxMonorepoProject({
+      name: "my-project",
+      defaultReleaseBranch: "main",
+      devDeps: [
+        "@aws-prototyping-sdk/nx-monorepo",
+        "@aws-prototyping-sdk/type-safe-api",
+      ],
+    });
 
     // Create the API project
     const api = new TypeSafeApiProject({
       name: "myapi",
       parent: monorepo,
-      outdir: 'packages/api',
+      outdir: "packages/api",
       // Smithy as the model language. You can also use ModelLanguage.OPENAPI
       model: {
         language: ModelLanguage.SMITHY,
         options: {
           smithy: {
             serviceName: {
-              namespace: 'com.mycompany',
-              serviceName: 'MyApi',
+              namespace: "com.my.company",
+              serviceName: "MyApi",
             },
           },
         },
@@ -97,7 +118,16 @@ See below for an example `.projenrc` making use of `TypeSafeApiProject`:
     });
 
     // Create a CDK infrastructure project. Can also consider PDKPipelineTsProject as an alternative!
-    const infra = new AwsCdkTypeScriptApp({ ... });
+    const infra = new AwsCdkTypeScriptApp({
+      defaultReleaseBranch: "main",
+      cdkVersion: "2.0.0",
+      parent: monorepo,
+      outdir: "packages/infra",
+      name: "myinfra",
+      deps: [
+        "@aws-prototyping-sdk/type-safe-api",
+      ],
+    });
 
     // Infrastructure can depend on the generated API infrastructure and runtime
     infra.addDeps(api.infrastructure.typescript!.package.packageName);
@@ -108,79 +138,111 @@ See below for an example `.projenrc` making use of `TypeSafeApiProject`:
 
 === "JAVA"
 
-    ```java
-    import software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoProject;
-    import aws.prototyping.sdk.type.safe.api.TypeSafeApiProject;
-    import io.github.cdklabs.projen.awscdk.AwsCdkTypeScriptApp;
-    import io.github.cdklabs.projen.java.JavaProject;
+    The `.projenrc` file is written in TypeScript here in order to make use of the `nx-monorepo`, but shows an example project definition for implementing infrastructure and lambda handlers in Java.
+
+    ```ts
+    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+    import {
+      DocumentationFormat,
+      Language,
+      Library,
+      ModelLanguage,
+      TypeSafeApiProject,
+    } from "@aws-prototyping-sdk/type-safe-api";
+    import { AwsCdkJavaApp } from "projen/lib/awscdk";
+    import { JavaProject } from "projen/lib/java";
 
     // Create the monorepo
-    NxMonorepoProject monorepo = NxMonorepoProject.Builder.create()
-            .name("monorepo")
-            .defaultReleaseBranch("main")
-            .build();
+    const monorepo = new NxMonorepoProject({
+      name: "my-project",
+      defaultReleaseBranch: "main",
+      devDeps: [
+        "@aws-prototyping-sdk/nx-monorepo",
+        "@aws-prototyping-sdk/type-safe-api",
+      ],
+    });
 
     // Create the API project
-    TypeSafeApiProject api = TypeSafeApiProject.Builder.create()
-            .name("myapi")
-            .model(ModelConfiguration.builder()
-                    .language(ModelLanguage.SMITHY)
-                    .options(ModelOptions.builder()
-                            .smithy(SmithyModelOptions.builder()
-                                    .serviceName(SmithyServiceName.builder()
-                                            .namespace("com.mycompany")
-                                            .serviceName("MyApi")
-                                            .build())
-                                    .build())
-                            .build())
-                    .build())
-            .runtime(RuntimeConfiguration.builder()
-                    .languages(Arrays.asList(Language.TYPESCRIPT, Language.PYTHON, Language.JAVA))
-                    .build())
-            .infrastructure(InfrastructureConfiguration.builder()
-                    .language(Language.JAVA)
-                    .build())
-            .documentation(DocumentationConfiguration.builder()
-                    .formats(Arrays.asList(DocumentationFormat.HTML_REDOC))
-                    .build())
-            .build();
+    const api = new TypeSafeApiProject({
+      name: "myapi",
+      parent: monorepo,
+      outdir: "packages/api",
+      // Smithy as the model language. You can also use ModelLanguage.OPENAPI
+      model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+          smithy: {
+            serviceName: {
+              namespace: "com.my.company",
+              serviceName: "MyApi",
+            },
+          },
+        },
+      },
+      // Generate types, client and server code in TypeScript, Python and Java
+      runtime: {
+        languages: [Language.TYPESCRIPT, Language.PYTHON, Language.JAVA],
+      },
+      // CDK infrastructure in Java
+      infrastructure: {
+        language: Language.JAVA,
+      },
+      // Generate HTML documentation
+      documentation: {
+        formats: [DocumentationFormat.HTML_REDOC],
+      },
+      // Generate react-query hooks to interact with the UI from a React website
+      library: {
+        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+      },
+    });
 
-    JavaProject lambdas = JavaProject.Builder.create()
-            .name("lambdas")
-            .parent(monorepo)
-            .outdir("packages/lambdas")
-            .artifactId("lambdas")
-            .groupId("com.my.api")
-            .version("1.0.0")
-            .build();
+    // Create a Java project for our lambda functions which will implement the API operations
+    const lambdas = new JavaProject({
+      artifactId: "lambdas",
+      groupId: "com.my.company",
+      name: "lambdas",
+      version: "1.0.0",
+      parent: monorepo,
+      outdir: "packages/lambdas",
+      sample: false,
+    });
 
     // The lambdas package needs a dependency on the generated java runtime
-    monorepo.addJavaDependency(lambdas, api.getRuntime().getJava());
+    monorepo.addJavaDependency(lambdas, api.runtime.java!);
 
     // Use the maven shade plugin to build a "super jar" which we can deploy to AWS Lambda
-    lambdas.pom.addPlugin("org.apache.maven.plugins/maven-shade-plugin@3.3.0", PluginOptions.builder()
-            .configuration(Map.of(
-                    "createDependencyReducedPom", false))
-            .executions(List.of(PluginExecution.builder()
-                    .id("shade-task")
-                    .phase("package")
-                    .goals(List.of("shade"))
-                    .build()))
-            .build());
+    lambdas.pom.addPlugin("org.apache.maven.plugins/maven-shade-plugin@3.3.0", {
+      configuration: {
+        createDependencyReducedPom: false,
+      },
+      executions: [
+        {
+          id: "shade-task",
+          phase: "package",
+          goals: ["shade"],
+        },
+      ],
+    });
 
-    AwsCdkJavaApp infra = AwsCdkJavaApp.Builder.create()
-            .name("infra")
-            .parent(monorepo)
-            .outdir("packages/infra")
-            .artifactId("infra")
-            .groupId("com.my.api")
-            .mainClass("com.my.api.MyApp")
-            .version("1.0.0")
-            .cdkVersion("2.0.0")
-            .build();
+    // Create a CDK infrastructure project. Can also consider PDKPipelineJavaProject as an alternative!
+    const infra = new AwsCdkJavaApp({
+      artifactId: "infra",
+      groupId: "com.my.company",
+      mainClass: "com.my.company.MyApp",
+      version: "1.0.0",
+      cdkVersion: "2.0.0",
+      name: "infra",
+      parent: monorepo,
+      outdir: "packages/infra",
+      deps: [
+        "software.aws.awsprototypingsdk/type-safe-api@^0",
+      ],
+    });
 
-    // Add a dependency on the generated CDK infrastructure
-    monorepo.addJavaDependency(infra, api.getInfrastructure().getJava());
+    // Add a dependency on the generated CDK infrastructure and runtime
+    monorepo.addJavaDependency(infra, api.infrastructure.java!);
+    monorepo.addJavaDependency(infra, api.runtime.java!);
 
     // Make sure the java lambda builds before our CDK infra
     monorepo.addImplicitDependency(infra, lambdas);
@@ -190,91 +252,110 @@ See below for an example `.projenrc` making use of `TypeSafeApiProject`:
 
 === "PYTHON"
 
-    ```python
-    from aws_prototyping_sdk.nx_monorepo import NxMonorepoProject
-    from aws_prototyping_sdk.type_safe_api import TypeSafeApiProject
-    from projen.awscdk import AwsCdkTypeScriptApp
-    from projen.python import PythonProject
+    The `.projenrc` file is written in TypeScript here in order to make use of the `nx-monorepo`, but shows an example project definition for implementing infrastructure and lambda handlers in Python.
 
-    # Create the monorepo
-    monorepo = NxMonorepoProject(
-        name="monorepo",
-        default_release_branch="main"
-    )
+    ```ts
+    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+    import {
+      DocumentationFormat,
+      Language,
+      Library,
+      ModelLanguage,
+      TypeSafeApiProject,
+    } from "@aws-prototyping-sdk/type-safe-api";
+    import { AwsCdkPythonApp } from "projen/lib/awscdk";
+    import { PythonProject } from "projen/lib/python";
 
-    # Create the API project
-    api = TypeSafeApiProject(
-        name="myapi",
-        parent=monorepo,
-        outdir="packages/api",
-        # Smithy as the model language. You can also use ModelLanguage.OPENAPI
-        model={
-            "language": ModelLanguage.SMITHY,
-            "options": {
-                "smithy": {
-                    "service_name": {
-                        "namespace": "com.mycompany",
-                        "service_name": "MyApi"
-                    }
-                }
-            }
+    // Create the monorepo
+    const monorepo = new NxMonorepoProject({
+      name: "my-project",
+      defaultReleaseBranch: "main",
+      devDeps: [
+        "@aws-prototyping-sdk/nx-monorepo",
+        "@aws-prototyping-sdk/type-safe-api",
+      ],
+    });
+
+    // Create the API project
+    const api = new TypeSafeApiProject({
+      name: "myapi",
+      parent: monorepo,
+      outdir: "packages/api",
+      // Smithy as the model language. You can also use ModelLanguage.OPENAPI
+      model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+          smithy: {
+            serviceName: {
+              namespace: "com.my.company",
+              serviceName: "MyApi",
+            },
+          },
         },
-        # Generate client and server types in TypeScript, Python, and Java
-        runtime={
-            "languages": [Language.TYPESCRIPT, Language.PYTHON, Language.JAVA]
-        },
-        # Generate CDK infrastructure in Python
-        infrastructure={
-            "language": Language.PYTHON
-        },
-        # Generate HTML documentation
-        documentation={
-            "formats": [DocumentationFormat.HTML_REDOC]
-        }
-    )
+      },
+      // Generate types, client and server code in TypeScript, Python and Java
+      runtime: {
+        languages: [Language.TYPESCRIPT, Language.PYTHON, Language.JAVA],
+      },
+      // CDK infrastructure in Python
+      infrastructure: {
+        language: Language.PYTHON,
+      },
+      // Generate HTML documentation
+      documentation: {
+        formats: [DocumentationFormat.HTML_REDOC],
+      },
+      // Generate react-query hooks to interact with the UI from a React website
+      library: {
+        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+      },
+    });
 
-    # Create a project for our lambda handlers written in python
-    lambdas = PythonProject(
-        name="lambdas",
-        parent=monorepo,
-        outdir="packages/lambdas",
-        author_email="me@example.com",
-        author_name="me",
-        module_name="lambdas",
-        version="1.0.0",
-        # Poetry is used to simplify local python dependencies
-        poetry=True
-    )
+    // Create a Python project for our lambda functions which will implement the API operations
+    const lambdas = new PythonProject({
+      parent: monorepo,
+      poetry: true,
+      outdir: "packages/lambdas",
+      moduleName: "lambdas",
+      name: "lambdas",
+      version: "1.0.0",
+      authorEmail: "me@example.com",
+      authorName: "test",
+    });
 
-    # Add a local dependency on the generated python runtime
-    monorepo.add_python_poetry_dependency(lambdas, api.runtime.python)
+    // The lambdas package needs a dependency on the generated python runtime
+    monorepo.addPythonPoetryDependency(lambdas, api.runtime.python!);
 
-    # Add commands to the lambda project's package task to create a distributable which can be deployed to AWS Lambda
-    lambdas.package_task.exec("mkdir -p lambda-dist && rm -rf lambda-dist/*")
-    lambdas.package_task.exec(f"cp -r {lambdas.moduleName} lambda-dist/{lambdas.moduleName}")
-    lambdas.package_task.exec("poetry export --without-hashes --format=requirements.txt > lambda-dist/requirements.txt")
-    lambdas.package_task.exec("pip install -r lambda-dist/requirements.txt --target lambda-dist --upgrade")
-    lambdas.gitignore.add_patterns("lambda-dist")
+    // Add commands to the lambda project's package task to create a distributable which can be deployed to AWS Lambda
+    lambdas.packageTask.exec(`mkdir -p lambda-dist && rm -rf lambda-dist/*`);
+    lambdas.packageTask.exec(`cp -r ${lambdas.moduleName} lambda-dist/${lambdas.moduleName}`);
+    lambdas.packageTask.exec(`poetry export --without-hashes --format=requirements.txt > lambda-dist/requirements.txt`);
+    lambdas.packageTask.exec(`pip install -r lambda-dist/requirements.txt --target lambda-dist --upgrade`);
 
-    # Create a CDK infrastructure project
-    infra = AwsCdkPythonApp(
-        name="infra",
-        parent=monorepo,
-        outdir="packages/infra",
-        author_email="me@example.com",
-        author_name="me",
-        cdk_version="2.0.0",
-        module_name="infra",
-        version="1.0.0",
-        poetry=True
-    )
+    // Create a CDK infrastructure project. Can also consider PDKPipelinePyProject as an alternative!
+    const infra = new AwsCdkPythonApp({
+      parent: monorepo,
+      poetry: true,
+      outdir: "packages/infra",
+      moduleName: "infra",
+      name: "infra",
+      version: "1.0.0",
+      cdkVersion: "2.0.0",
+      authorEmail: "me@example.com",
+      authorName: "test",
+      deps: [
+        "aws_prototyping_sdk.type_safe_api@<1.0.0",
+      ],
+    });
 
-    # The infrastructure project depends on the python types, python infrastructure, and the lambda package
-    monorepo.add_python_poetry_dependency(infra, api.runtime.python)
-    monorepo.add_python_poetry_dependency(infra, api.infrastructure.python)
-    monorepo.add_python_poetry_dependency(infra, lambdas)
+    // Add a dependency on the generated CDK infrastructure and runtime
+    monorepo.addPythonPoetryDependency(infra, api.infrastructure.python!);
+    monorepo.addPythonPoetryDependency(infra, api.runtime.python!);
 
-    monorepo.synth()
+    // Make sure the python lambdas build before our CDK infra
+    monorepo.addImplicitDependency(infra, lambdas);
+
+    monorepo.synth();
     ```
 
 After defining your `.projenrc`, you'll need to run `projen` and `build` using the appropriate command for your package manager (eg. `yarn projen && yarn build`).

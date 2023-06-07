@@ -133,6 +133,7 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
       cwd: path.relative(this.outdir, generateInfraCommand.workingDir),
     });
     // Copy the parsed spec into the resources directory so that it's included in the jar
+    generateTask.exec("mkdir -p src/main/resources");
     generateTask.exec(`cp -f ${this.specPath} src/main/resources/.api.json`);
     generateTask.exec(mockDataCommand.command, {
       cwd: path.relative(this.outdir, mockDataCommand.workingDir),
