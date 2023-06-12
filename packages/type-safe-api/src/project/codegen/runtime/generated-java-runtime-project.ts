@@ -8,7 +8,9 @@ import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ign
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
-  buildInvokeOpenApiGeneratorCommand,
+  buildInvokeOpenApiGeneratorCommandArgs,
+  buildTypeSafeApiExecCommand,
+  TypeSafeApiScript,
 } from "../components/utils";
 
 /**
@@ -108,16 +110,14 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
     this.packageName = `${this.pom.groupId}.${this.name}.runtime`;
 
     // Generate the java code
-    const generateCodeCommand = this.buildGenerateCommand();
-    const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);
-
     const generateTask = this.addTask("generate");
-    generateTask.exec(cleanCommand.command, {
-      cwd: path.relative(this.outdir, cleanCommand.workingDir),
-    });
-    generateTask.exec(generateCodeCommand.command, {
-      cwd: path.relative(this.outdir, generateCodeCommand.workingDir),
-    });
+    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
+    generateTask.exec(
+      buildTypeSafeApiExecCommand(
+        TypeSafeApiScript.GENERATE,
+        this.buildGenerateCommandArgs()
+      )
+    );
 
     this.preCompileTask.spawn(generateTask);
 
@@ -131,11 +131,10 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
     );
   }
 
-  public buildGenerateCommand = () => {
-    return buildInvokeOpenApiGeneratorCommand({
+  public buildGenerateCommandArgs = () => {
+    return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "java",
       specPath: this.specPath,
-      outputPath: this.outdir,
       generatorDirectory: Language.JAVA,
       additionalProperties: {
         useSingleRequestParameter: "true",

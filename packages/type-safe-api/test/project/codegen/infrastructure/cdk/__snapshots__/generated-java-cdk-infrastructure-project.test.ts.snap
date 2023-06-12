@@ -324,12 +324,10 @@ src
         "name": "generate",
         "steps": [
           {
-            "cwd": "../../../../../../scripts/custom/clean-openapi-generated-code",
-            "exec": "./clean-openapi-generated-code --code-path ../../../test/project/codegen/infrastructure/cdk/java-infra",
+            "exec": "npx --yes -p @aws-prototyping-sdk/type-safe-api@0.0.0 clean-openapi-generated-code --code-path .",
           },
           {
-            "cwd": "../../../../../../scripts/generators",
-            "exec": "./generate --generator java --spec-path ../../test/project/codegen/infrastructure/cdk/java-infra/my-spec.json --output-path ../../test/project/codegen/infrastructure/cdk/java-infra --generator-dir java-cdk-infrastructure --src-dir src/main/java/test/test-java-infra/infra --openapi-normalizer "KEEP_ONLY_FIRST_TAG_IN_OPERATION=true" --extra-vendor-extensions '{"x-infrastructure-package":"test.test-java-infra.infra","x-runtime-package":"test.test-java-client.runtime"}'",
+            "exec": "npx --yes -p @aws-prototyping-sdk/type-safe-api@0.0.0 generate --generator java --spec-path my-spec.json --output-path . --generator-dir java-cdk-infrastructure --src-dir src/main/java/test/test-java-infra/infra --openapi-normalizer "KEEP_ONLY_FIRST_TAG_IN_OPERATION=true" --extra-vendor-extensions '{"x-infrastructure-package":"test.test-java-infra.infra","x-runtime-package":"test.test-java-client.runtime"}'",
           },
           {
             "exec": "mkdir -p src/main/resources",
@@ -338,8 +336,7 @@ src
             "exec": "cp -f my-spec.json src/main/resources/.api.json",
           },
           {
-            "cwd": "../../../../../../scripts/custom/mock-data",
-            "exec": "./generate-mock-data --spec-path ../../../test/project/codegen/infrastructure/cdk/java-infra/my-spec.json --output-path ../../../test/project/codegen/infrastructure/cdk/java-infra/src/main/resources",
+            "exec": "npx --yes -p @aws-prototyping-sdk/type-safe-api@0.0.0 generate-mock-data --spec-path my-spec.json --output-path src/main/resources",
           },
         ],
       },

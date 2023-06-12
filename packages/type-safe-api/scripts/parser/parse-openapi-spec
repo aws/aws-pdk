@@ -11,7 +11,7 @@ while [[ "$#" -gt 0 ]]; do case $1 in
 esac; shift; done
 
 working_dir=$(pwd)
-script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
+script_dir="$( cd -- "$(dirname $([ -L "${BASH_SOURCE[0]:-$0}" ] && readlink -f "${BASH_SOURCE[0]:-$0}" || echo "${BASH_SOURCE[0]:-$0}"))" >/dev/null 2>&1 ; pwd -P )";
 
 # load common package manager helper functions
 . "$script_dir/../common/common.sh"
@@ -37,7 +37,7 @@ install_packages \
   projen@0.71.57
 
 # Run the parse script
-run_command "ts-node parse-openapi-spec.ts --specPath=$script_dir/$spec_path --outputPath=$script_dir/$output_path"
+run_command "ts-node parse-openapi-spec.ts --specPath=$working_dir/$spec_path --outputPath=$working_dir/$output_path"
 echo "openapi-spec parsed"
 
 # Clean up

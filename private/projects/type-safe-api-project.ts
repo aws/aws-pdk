@@ -36,7 +36,13 @@ export class TypeSafeApiProject extends PDKProject {
         "@aws-prototyping-sdk/nx-monorepo@^0.x",
       ],
       deps: ["@aws-prototyping-sdk/pdk-nag@^0.x", "fs-extra"],
-      bundledDeps: ["fs-extra", "lodash", "log4js", "openapi-types"],
+      bundledDeps: [
+        "fs-extra",
+        "lodash",
+        "log4js",
+        "openapi-types",
+        "read-pkg",
+      ],
       peerDeps: ["aws-cdk-lib", "cdk-nag", "constructs", "projen"],
       stability: Stability.EXPERIMENTAL,
       eslintOptions: {
@@ -53,12 +59,22 @@ export class TypeSafeApiProject extends PDKProject {
           "scripts/custom/docs/html-redoc",
           "scripts/generators/generate",
           "scripts/parser/parse-openapi-spec",
-          "scripts/custom/infrastructure/cdk/generate-type-safe-cdk-construct",
           "scripts/custom/clean-openapi-generated-code/clean-openapi-generated-code",
           "scripts/custom/mock-data/generate-mock-data",
-          "samples/smithy/gradlew",
-          "samples/smithy/gradelw.bat",
+          "scripts/custom/gradle-wrapper/copy-gradle-wrapper",
+          "scripts/custom/gradle-wrapper/gradlew",
+          "samples/custom/gradle-wrapper/gradlew.bat",
         ],
+      },
+      bin: {
+        "parse-openapi-spec": "scripts/parser/parse-openapi-spec",
+        generate: "scripts/generators/generate",
+        "generate-mock-data": "scripts/custom/mock-data/generate-mock-data",
+        "generate-html-redoc-docs": "scripts/custom/docs/html-redoc",
+        "clean-openapi-generated-code":
+          "scripts/custom/clean-openapi-generated-code/clean-openapi-generated-code",
+        "copy-gradle-wrapper":
+          "scripts/custom/gradle-wrapper/copy-gradle-wrapper",
       },
     });
 
