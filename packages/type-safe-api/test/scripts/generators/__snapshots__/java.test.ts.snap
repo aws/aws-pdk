@@ -12172,6 +12172,9 @@ public class Handlers {
         private OperationOne400Response(final ApiError body, final Map<String, String> headers) {
             this.body = body.toJson();
             this.headers = headers;
+            if ("ApiError".endsWith("ResponseContent")) {
+                this.headers.put("x-amzn-errortype", "ApiError".substring(0, "ApiError".length() - "ResponseContent".length()));
+            }
         }
 
         @Override

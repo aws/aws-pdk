@@ -257,6 +257,11 @@ public class Handlers {
         private {{operationIdCamelCase}}{{code}}Response({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers) {
             this.body = {{#dataType}}{{#isPrimitiveType}}body{{/isPrimitiveType}}{{^isPrimitiveType}}body.toJson(){{/isPrimitiveType}}{{/dataType}}{{^dataType}}""{{/dataType}};
             this.headers = headers;
+            {{^is2xx}}
+            if ("{{dataType}}".endsWith("ResponseContent")) {
+                this.headers.put("x-amzn-errortype", "{{dataType}}".substring(0, "{{dataType}}".length() - "ResponseContent".length()));
+            }
+            {{/is2xx}}
         }
 
         @Override
