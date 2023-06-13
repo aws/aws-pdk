@@ -2419,6 +2419,7 @@ def neither_handler(_handler: NeitherHandlerFunction = None, interceptors: List[
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -2427,7 +2428,7 @@ def neither_handler(_handler: NeitherHandlerFunction = None, interceptors: List[
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper
@@ -2491,6 +2492,7 @@ def both_handler(_handler: BothHandlerFunction = None, interceptors: List[BothIn
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -2499,7 +2501,7 @@ def both_handler(_handler: BothHandlerFunction = None, interceptors: List[BothIn
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper
@@ -2563,6 +2565,7 @@ def tag1_handler(_handler: Tag1HandlerFunction = None, interceptors: List[Tag1In
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -2571,7 +2574,7 @@ def tag1_handler(_handler: Tag1HandlerFunction = None, interceptors: List[Tag1In
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper
@@ -2635,6 +2638,7 @@ def tag2_handler(_handler: Tag2HandlerFunction = None, interceptors: List[Tag2In
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -2643,7 +2647,7 @@ def tag2_handler(_handler: Tag2HandlerFunction = None, interceptors: List[Tag2In
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper
@@ -10735,6 +10739,7 @@ def any_request_response_handler(_handler: AnyRequestResponseHandlerFunction = N
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -10743,7 +10748,7 @@ def any_request_response_handler(_handler: AnyRequestResponseHandlerFunction = N
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper
@@ -10807,6 +10812,7 @@ def empty_handler(_handler: EmptyHandlerFunction = None, interceptors: List[Empt
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -10815,7 +10821,7 @@ def empty_handler(_handler: EmptyHandlerFunction = None, interceptors: List[Empt
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper
@@ -10879,6 +10885,7 @@ def map_response_handler(_handler: MapResponseHandlerFunction = None, intercepto
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -10887,7 +10894,7 @@ def map_response_handler(_handler: MapResponseHandlerFunction = None, intercepto
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper
@@ -10952,6 +10959,7 @@ def media_types_handler(_handler: MediaTypesHandlerFunction = None, interceptors
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -10960,7 +10968,7 @@ def media_types_handler(_handler: MediaTypesHandlerFunction = None, interceptors
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper
@@ -11025,6 +11033,7 @@ def multiple_content_types_handler(_handler: MultipleContentTypesHandlerFunction
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -11033,7 +11042,7 @@ def multiple_content_types_handler(_handler: MultipleContentTypesHandlerFunction
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper
@@ -11104,6 +11113,7 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -11111,10 +11121,12 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
                 response_body = json.dumps(JSONEncoder().default(response.body))
             elif response.status_code == 400:
                 response_body = json.dumps(JSONEncoder().default(response.body))
+                if "ApiError".endswith("ResponseContent"):
+                    response_headers["x-amzn-errortype"] = "ApiError"[:-len("ResponseContent")]
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper
@@ -11178,6 +11190,7 @@ def without_operation_id_delete_handler(_handler: WithoutOperationIdDeleteHandle
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -11186,7 +11199,7 @@ def without_operation_id_delete_handler(_handler: WithoutOperationIdDeleteHandle
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper

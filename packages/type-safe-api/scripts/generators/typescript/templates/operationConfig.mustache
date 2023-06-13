@@ -270,8 +270,33 @@ export const {{nickname}}Handler = (
         return marshalledBody;
     };
 
+    const errorHeaders = (statusCode: number): { [key: string]: string } => {
+        let headers = {};
+
+        switch(statusCode) {
+        {{#responses}}
+        {{^is2xx}}
+            case {{code}}: {
+                if ("{{dataType}}".endsWith("ResponseContent")) {
+                    headers["x-amzn-errortype"] = "{{dataType}}".slice(0, -"ResponseContent".length);
+                }
+                break;
+            }
+        {{/is2xx}}
+        {{/responses}}
+            default:
+                break;
+        }
+
+        return headers;
+    };
+
     return {
         ...response,
+        headers: {
+          ...errorHeaders(response.statusCode),
+          ...response.headers,
+        },
         body: response.body ? marshal(response.statusCode, response.body) : '',
     };
 };

@@ -229,6 +229,7 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
                 interceptor_context,
             ), **kwargs)
 
+            response_headers = response.headers or {}
             response_body = ''
             if response.body is None:
                 pass
@@ -236,6 +237,10 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
             elif response.status_code == {{code}}:
                 {{^isPrimitiveType}}
                 response_body = json.dumps(JSONEncoder().default(response.body))
+                {{^is2xx}}
+                if "{{dataType}}".endswith("ResponseContent"):
+                    response_headers["x-amzn-errortype"] = "{{dataType}}"[:-len("ResponseContent")]
+                {{/is2xx}}
                 {{/isPrimitiveType}}
                 {{#isPrimitiveType}}
                 response_body = response.body
@@ -244,7 +249,7 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
 
             return {
                 'statusCode': response.status_code,
-                'headers': response.headers,
+                'headers': response_headers,
                 'body': response_body,
             }
         return wrapper
