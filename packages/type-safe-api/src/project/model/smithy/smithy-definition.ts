@@ -156,6 +156,12 @@ structure ApiError {
     this.smithyBuild = new SmithyBuild(project, {
       version: "2.0",
       ...smithyOptions.smithyBuildOptions,
+      sources: [
+        modelDir,
+        ...this.asRelativePathsToProject(
+          smithyOptions.smithyBuildOptions?.additionalSources ?? []
+        ),
+      ],
       projections: {
         ...smithyOptions.smithyBuildOptions?.projections,
         openapi: {
@@ -236,6 +242,25 @@ structure ApiError {
             `${dep.gradleProjectName}.jar`
           )}`
       )
+    );
+  }
+
+  /**
+   * Add additional paths to model source files or directories.
+   * Paths should be relative to the project outdir. Any absolute paths will be
+   * resolved as relative paths.
+   */
+  public addSources(...sources: string[]) {
+    this.smithyBuild.addSources(...this.asRelativePathsToProject(sources));
+  }
+
+  /**
+   * Convert any given absolute paths to relative paths to the project outdir
+   * @private
+   */
+  private asRelativePathsToProject(paths: string[]) {
+    return paths.map((p) =>
+      path.isAbsolute(p) ? path.relative(this.project.outdir, p) : p
     );
   }
 }

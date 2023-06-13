@@ -35,6 +35,10 @@ describe("Type Safe Api Model Project Unit Tests", () => {
             serviceName: "MyService",
           },
           smithyBuildOptions: {
+            additionalSources: [
+              "foo/bar",
+              path.resolve(__dirname, "some-other-directory"),
+            ],
             projections: {
               openapi: {
                 plugins: {
@@ -49,6 +53,11 @@ describe("Type Safe Api Model Project Unit Tests", () => {
         },
       },
     });
+
+    project.smithy!.addSources(
+      "yet/another",
+      path.resolve(__dirname, "another-absolute")
+    );
 
     expect(synthSmithyProject(project)).toMatchSnapshot();
   });
