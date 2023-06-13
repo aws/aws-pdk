@@ -13,10 +13,10 @@ esac; shift; done
 echo "Generating HTML Redoc documentation..."
 
 working_dir=$(pwd)
-script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
+script_dir="$( cd -- "$(dirname $([ -L "${BASH_SOURCE[0]:-$0}" ] && readlink -f "${BASH_SOURCE[0]:-$0}" || echo "${BASH_SOURCE[0]:-$0}"))" >/dev/null 2>&1 ; pwd -P )";
 
 # load common package manager helper functions
-. "$working_dir/../../common/common.sh"
+. "$script_dir/../../common/common.sh"
 
 # Create a temporary directory
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-docs-html-redoc.XXXXXXXXX")
@@ -28,7 +28,7 @@ log "html-redoc :: tmp_dir :: $tmp_dir"
 install_packages @redocly/cli@1.0.0-beta.126
 
 # Generate
-run_command redocly build-docs "$script_dir/$spec_path" --output "$script_dir/$output_path/index.html"
+run_command redocly build-docs "$working_dir/$spec_path" --output "$working_dir/$output_path/index.html"
 
 echo "HTML Redoc documentation generation done!"
 

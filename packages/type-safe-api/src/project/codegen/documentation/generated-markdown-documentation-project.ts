@@ -1,13 +1,14 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "path";
 import { Project, ProjectOptions, Task } from "projen";
 import { DocumentationFormat } from "../../languages";
 import { GeneratedMarkdownDocumentationOptions } from "../../types";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
-  buildInvokeOpenApiGeneratorCommand,
+  buildInvokeOpenApiGeneratorCommandArgs,
+  buildTypeSafeApiExecCommand,
   OtherGenerators,
+  TypeSafeApiScript,
 } from "../components/utils";
 
 export interface GeneratedMarkdownDocumentationProjectOptions
@@ -31,16 +32,16 @@ export class GeneratedMarkdownDocumentationProject extends Project {
     );
 
     this.generateTask = this.addTask("generate");
-
-    const cmd = buildInvokeOpenApiGeneratorCommand({
-      generator: DocumentationFormat.MARKDOWN,
-      specPath: options.specPath,
-      outputPath: this.outdir,
-      generatorDirectory: OtherGenerators.DOCS,
-    });
-    this.generateTask.exec(cmd.command, {
-      cwd: path.relative(this.outdir, cmd.workingDir),
-    });
+    this.generateTask.exec(
+      buildTypeSafeApiExecCommand(
+        TypeSafeApiScript.GENERATE,
+        buildInvokeOpenApiGeneratorCommandArgs({
+          generator: DocumentationFormat.MARKDOWN,
+          specPath: options.specPath,
+          generatorDirectory: OtherGenerators.DOCS,
+        })
+      )
+    );
 
     this.compileTask.spawn(this.generateTask);
 

@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import os from "os";
 import * as path from "path";
 import { exec } from "projen/lib/util";
 import { OpenApiToolsJsonFile } from "../../../src/project/codegen/components/open-api-tools-json-file";
@@ -14,24 +15,34 @@ describe("Typescript Client Code Generation Script Unit Tests", () => {
 
       expect(
         withTmpDirSnapshot(
-          path.resolve(__dirname),
+          os.tmpdir(),
           (outdir) => {
+            exec(`cp ${specPath} ${outdir}/spec.yaml`, {
+              cwd: path.resolve(__dirname),
+            });
             const project = new GeneratedTypescriptRuntimeProject({
               name: "test",
               defaultReleaseBranch: "main",
               outdir,
-              specPath: path.relative(outdir, specPath),
+              specPath: "spec.yaml",
             });
             // Synth the openapitools.json since it's used by the generate command
             OpenApiToolsJsonFile.of(project)!.synthesize();
-            const command = project.buildGenerateCommand();
-            exec(`TYPE_SAFE_API_DEBUG=1 ${command.command}`, {
-              cwd: command.workingDir,
-            });
+            exec(
+              `TYPE_SAFE_API_DEBUG=1 ${path.resolve(
+                __dirname,
+                "../../../scripts/generators/generate"
+              )} ${project.buildGenerateCommandArgs()}`,
+              {
+                cwd: outdir,
+              }
+            );
           },
           {
-            excludeGlobs:
-              GeneratedTypescriptRuntimeProject.openApiIgnorePatterns,
+            excludeGlobs: [
+              ...GeneratedTypescriptRuntimeProject.openApiIgnorePatterns,
+              "spec.yaml",
+            ],
           }
         )
       ).toMatchSnapshot();

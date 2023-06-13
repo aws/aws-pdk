@@ -4,6 +4,10 @@ import * as path from "path";
 import { Project, ProjectOptions, SampleFile, Task } from "projen";
 import { OpenApiDefinition } from "./openapi/open-api-definition";
 import { SmithyDefinition } from "./smithy/smithy-definition";
+import {
+  buildTypeSafeApiExecCommand,
+  TypeSafeApiScript,
+} from "../codegen/components/utils";
 import { ModelLanguage, ModelOptions } from "../types";
 
 export interface TypeSafeApiModelProjectOptions extends ProjectOptions {
@@ -106,37 +110,11 @@ export class TypeSafeApiModelProject extends Project {
   };
 
   private addParseAndBundleTask = (openApiSpecificationPath: string) => {
-    const absoluteSpecParserDir = path.resolve(
-      __dirname,
-      "..",
-      "..",
-      "..",
-      "scripts",
-      "parser"
-    );
-    const absoluteOpenApiSpecificationPath = path.join(
-      this.outdir,
-      openApiSpecificationPath
-    );
-    const absoluteParsedSpecOutputPath = path.join(
-      this.outdir,
-      this.parsedSpecFile
-    );
-
-    const specPathRelativeToParserDir = path.relative(
-      absoluteSpecParserDir,
-      absoluteOpenApiSpecificationPath
-    );
-    const outputPathRelativeToParserDir = path.relative(
-      absoluteSpecParserDir,
-      absoluteParsedSpecOutputPath
-    );
-
     this.generateTask.exec(
-      `./parse-openapi-spec --spec-path ${specPathRelativeToParserDir} --output-path ${outputPathRelativeToParserDir}`,
-      {
-        cwd: path.relative(this.outdir, absoluteSpecParserDir),
-      }
+      buildTypeSafeApiExecCommand(
+        TypeSafeApiScript.PARSE_OPENAPI_SPEC,
+        `--spec-path ${openApiSpecificationPath} --output-path ${this.parsedSpecFile}`
+      )
     );
 
     this.addGitIgnore(this.parsedSpecFile);

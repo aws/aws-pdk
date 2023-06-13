@@ -12,8 +12,10 @@ import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file"
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeMockDataGeneratorCommand,
-  buildInvokeOpenApiGeneratorCommand,
+  buildInvokeOpenApiGeneratorCommandArgs,
+  buildTypeSafeApiExecCommand,
   OtherGenerators,
+  TypeSafeApiScript,
 } from "../../components/utils";
 import { GeneratedPythonRuntimeProject } from "../../runtime/generated-python-runtime-project";
 
@@ -93,20 +95,15 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
       options.openApiGeneratorCliConfig
     );
 
-    const generateInfraCommand = this.buildGenerateCommand();
-    const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);
-    const mockDataCommand = this.buildGenerateMockDataCommand();
-
     const generateTask = this.addTask("generate");
-    generateTask.exec(cleanCommand.command, {
-      cwd: path.relative(this.outdir, cleanCommand.workingDir),
-    });
-    generateTask.exec(generateInfraCommand.command, {
-      cwd: path.relative(this.outdir, generateInfraCommand.workingDir),
-    });
-    generateTask.exec(mockDataCommand.command, {
-      cwd: path.relative(this.outdir, mockDataCommand.workingDir),
-    });
+    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
+    generateTask.exec(
+      buildTypeSafeApiExecCommand(
+        TypeSafeApiScript.GENERATE,
+        this.buildGenerateCommandArgs()
+      )
+    );
+    generateTask.exec(this.buildGenerateMockDataCommand());
 
     this.preCompileTask.spawn(generateTask);
 
@@ -125,11 +122,10 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
       );
   }
 
-  public buildGenerateCommand = () => {
-    return buildInvokeOpenApiGeneratorCommand({
+  public buildGenerateCommandArgs = () => {
+    return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "python",
       specPath: this.specPath,
-      outputPath: this.outdir,
       generatorDirectory: OtherGenerators.PYTHON_CDK_INFRASTRUCTURE,
       // Tell the generator where python source files live
       srcDir: this.moduleName,
@@ -147,7 +143,6 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
   public buildGenerateMockDataCommand = () => {
     return buildInvokeMockDataGeneratorCommand({
       specPath: this.specPath,
-      outdir: this.outdir,
       ...this.mockDataOptions,
     });
   };

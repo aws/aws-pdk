@@ -17,10 +17,10 @@ esac; shift; done
 echo "Generating Mock Data..."
 
 working_dir=$(pwd)
-script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
+script_dir="$( cd -- "$(dirname $([ -L "${BASH_SOURCE[0]:-$0}" ] && readlink -f "${BASH_SOURCE[0]:-$0}" || echo "${BASH_SOURCE[0]:-$0}"))" >/dev/null 2>&1 ; pwd -P )";
 
 # load common package manager helper functions
-. "$working_dir/../../common/common.sh"
+. "$script_dir/../../common/common.sh"
 
 # Create a temporary directory
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp/}generate-mock-data.XXXXXXXXX")
@@ -31,7 +31,7 @@ log "mock-data :: tmp_dir :: $tmp_dir"
 # Install dependencies
 install_packages @7nohe/openapi-mock-json-generator
 
-outdir="$script_dir/$output_path/mocks"
+outdir="$working_dir/$output_path/mocks"
 
 log "mock-data :: deleting outdir :: $outdir"
 rm -rf $outdir
@@ -39,8 +39,8 @@ rm -rf $outdir
 # Generate
 log "mock-data :: generate"
 run_command openapi-json \
-  --input "$script_dir/$spec_path" \
-  --output "$script_dir/$output_path/mocks" \
+  --input "$working_dir/$spec_path" \
+  --output "$working_dir/$output_path/mocks" \
   --locale $locale \
   --max-array-length $max_array_length
 

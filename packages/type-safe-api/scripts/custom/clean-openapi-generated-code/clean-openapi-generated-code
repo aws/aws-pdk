@@ -10,7 +10,7 @@ while [[ "$#" -gt 0 ]]; do case $1 in
 esac; shift; done
 
 working_dir=$(pwd)
-script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
+script_dir="$( cd -- "$(dirname $([ -L "${BASH_SOURCE[0]:-$0}" ] && readlink -f "${BASH_SOURCE[0]:-$0}" || echo "${BASH_SOURCE[0]:-$0}"))" >/dev/null 2>&1 ; pwd -P )";
 
 # load common package manager helper functions
 . "$script_dir/../../common/common.sh"
@@ -32,7 +32,7 @@ install_packages \
   ts-command-line-args@2.4.2
 
 # Run the cleanup script
-run_command "ts-node clean-openapi-generated-code.ts --codePath=$script_dir/$client_path"
+run_command "ts-node clean-openapi-generated-code.ts --codePath=$working_dir/$code_path"
 
 # Clean up
 cd $working_dir

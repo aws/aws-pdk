@@ -1,10 +1,12 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "path";
 import { Project, ProjectOptions, Task } from "projen";
 import { GeneratedHtmlRedocDocumentationOptions } from "../../types";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
-import { buildInvokeCustomDocsGeneratorCommand } from "../components/utils";
+import {
+  buildTypeSafeApiExecCommand,
+  TypeSafeApiScript,
+} from "../components/utils";
 
 export interface GeneratedHtmlRedocDocumentationProjectOptions
   extends ProjectOptions,
@@ -27,16 +29,12 @@ export class GeneratedHtmlRedocDocumentationProject extends Project {
     );
 
     this.generateTask = this.addTask("generate");
-
-    const cmd = buildInvokeCustomDocsGeneratorCommand({
-      generator: "html-redoc",
-      specPath: options.specPath,
-      outputPath: this.outdir,
-    });
-    this.generateTask.exec(cmd.command, {
-      cwd: path.relative(this.outdir, cmd.workingDir),
-    });
-
+    this.generateTask.exec(
+      buildTypeSafeApiExecCommand(
+        TypeSafeApiScript.GENERATE_HTML_REDOC_DOCS,
+        `--spec-path ${options.specPath} --output-path .`
+      )
+    );
     this.compileTask.spawn(this.generateTask);
 
     this.gitignore.addPatterns("index.html");

@@ -13,8 +13,10 @@ import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file"
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeMockDataGeneratorCommand,
-  buildInvokeOpenApiGeneratorCommand,
+  buildInvokeOpenApiGeneratorCommandArgs,
+  buildTypeSafeApiExecCommand,
   OtherGenerators,
+  TypeSafeApiScript,
 } from "../../components/utils";
 import { GeneratedTypescriptRuntimeProject } from "../../runtime/generated-typescript-runtime-project";
 
@@ -113,20 +115,15 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       options.openApiGeneratorCliConfig
     );
 
-    const generateInfraCommand = this.buildGenerateCommand();
-    const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);
-    const mockDataCommand = this.buildGenerateMockDataCommand();
-
     const generateTask = this.addTask("generate");
-    generateTask.exec(cleanCommand.command, {
-      cwd: path.relative(this.outdir, cleanCommand.workingDir),
-    });
-    generateTask.exec(generateInfraCommand.command, {
-      cwd: path.relative(this.outdir, generateInfraCommand.workingDir),
-    });
-    generateTask.exec(mockDataCommand.command, {
-      cwd: path.relative(this.outdir, mockDataCommand.workingDir),
-    });
+    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
+    generateTask.exec(
+      buildTypeSafeApiExecCommand(
+        TypeSafeApiScript.GENERATE,
+        this.buildGenerateCommandArgs()
+      )
+    );
+    generateTask.exec(this.buildGenerateMockDataCommand());
 
     this.preCompileTask.spawn(generateTask);
 
@@ -163,11 +160,10 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
     }
   }
 
-  public buildGenerateCommand = () => {
-    return buildInvokeOpenApiGeneratorCommand({
+  public buildGenerateCommandArgs = () => {
+    return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
       specPath: this.specPath,
-      outputPath: this.outdir,
       generatorDirectory: OtherGenerators.TYPESCRIPT_CDK_INFRASTRUCTURE,
       srcDir: this.srcdir,
       normalizers: {
@@ -185,7 +181,6 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
   public buildGenerateMockDataCommand = () => {
     return buildInvokeMockDataGeneratorCommand({
       specPath: this.specPath,
-      outdir: this.outdir,
       ...this.mockDataOptions,
     });
   };

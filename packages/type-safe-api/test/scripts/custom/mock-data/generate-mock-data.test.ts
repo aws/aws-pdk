@@ -1,23 +1,21 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import os from "os";
 import path from "path";
-import { execScript } from "../../script-utils";
+import { exec } from "projen/lib/util";
+import { withTmpDirSnapshot } from "../../../project/snapshot-utils";
 
 describe("Generate Mock Data Unit Tests", () => {
   it("Generates Mock Data", () => {
-    const specPath = path.resolve(
-      __dirname,
-      "../../../resources/specs/single.yaml"
-    );
     expect(
-      execScript(
-        "custom/mock-data",
-        ({ outputPath, scriptPath }) =>
-          `./generate-mock-data --spec-path ${path.relative(
-            scriptPath,
-            specPath
-          )} --output-path ${path.relative(scriptPath, outputPath)}`
-      )
+      withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
+        const specPath = "../../../resources/specs/single.yaml";
+        const outputPath = path.relative(path.resolve(__dirname), tmpDir);
+        const command = `TYPE_SAFE_API_DEBUG=1 ../../../../scripts/custom/mock-data/generate-mock-data --spec-path ${specPath} --output-path ${outputPath}`;
+        exec(command, {
+          cwd: path.resolve(__dirname),
+        });
+      })
     ).toMatchSnapshot();
   });
 });

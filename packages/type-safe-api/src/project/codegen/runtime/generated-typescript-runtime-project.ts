@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "path";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Language } from "../../languages";
@@ -9,7 +8,9 @@ import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ign
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
-  buildInvokeOpenApiGeneratorCommand,
+  buildInvokeOpenApiGeneratorCommandArgs,
+  buildTypeSafeApiExecCommand,
+  TypeSafeApiScript,
 } from "../components/utils";
 
 /**
@@ -96,16 +97,14 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
       options.openApiGeneratorCliConfig
     );
 
-    const generateCodeCommand = this.buildGenerateCommand();
-    const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);
-
     const generateTask = this.addTask("generate");
-    generateTask.exec(cleanCommand.command, {
-      cwd: path.relative(this.outdir, cleanCommand.workingDir),
-    });
-    generateTask.exec(generateCodeCommand.command, {
-      cwd: path.relative(this.outdir, generateCodeCommand.workingDir),
-    });
+    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
+    generateTask.exec(
+      buildTypeSafeApiExecCommand(
+        TypeSafeApiScript.GENERATE,
+        this.buildGenerateCommandArgs()
+      )
+    );
 
     this.preCompileTask.spawn(generateTask);
 
@@ -139,11 +138,10 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     }
   }
 
-  public buildGenerateCommand = () => {
-    return buildInvokeOpenApiGeneratorCommand({
+  public buildGenerateCommandArgs = () => {
+    return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
       specPath: this.specPath,
-      outputPath: this.outdir,
       generatorDirectory: Language.TYPESCRIPT,
       additionalProperties: {
         npmName: this.package.packageName,

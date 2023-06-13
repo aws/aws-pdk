@@ -3,8 +3,11 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Component, SampleFile } from "projen";
 import { SmithyBuild } from "projen/lib/smithy/smithy-build";
-import { SampleExecutable } from "./components/sample-executable";
 import { SmithyBuildGradleFile } from "./components/smithy-build-gradle-file";
+import {
+  buildTypeSafeApiExecCommand,
+  TypeSafeApiScript,
+} from "../../codegen/components/utils";
 import { SmithyModelOptions } from "../../types";
 import { TypeSafeApiModelProject } from "../type-safe-api-model-project";
 
@@ -49,34 +52,6 @@ export class SmithyDefinition extends Component {
     super(project);
 
     const { smithyOptions } = options;
-
-    const samplePath = path.join(
-      __dirname,
-      "..",
-      "..",
-      "..",
-      "..",
-      "samples",
-      "smithy"
-    );
-
-    const gradleExecutables = ["gradlew", "gradlew.bat"];
-    const gradleFiles = [
-      "gradle/wrapper/gradle-wrapper.jar",
-      "gradle/wrapper/gradle-wrapper.properties",
-    ];
-
-    // Add gradle wrapper files and executables
-    gradleFiles.forEach((file) => {
-      new SampleFile(project, file, {
-        sourcePath: path.join(samplePath, file),
-      });
-    });
-    gradleExecutables.forEach((executable) => {
-      new SampleExecutable(project, executable, {
-        sourcePath: path.join(samplePath, executable),
-      });
-    });
 
     // Ignore gradle wrapper by default
     if (smithyOptions.ignoreGradleWrapper ?? true) {
@@ -220,19 +195,9 @@ structure ApiError {
 
     // Copy the gradle files during build if they don't exist. We don't overwrite to allow users to BYO gradle wrapper
     // and set `ignoreGradleWrapper: false`.
-    project.generateTask.exec("mkdir -p gradle/wrapper");
-    const samplePathRelativeToProjectOutdir = path.relative(
-      project.outdir,
-      path.resolve(samplePath)
+    project.generateTask.exec(
+      buildTypeSafeApiExecCommand(TypeSafeApiScript.COPY_GRADLE_WRAPPER)
     );
-    [...gradleFiles, ...gradleExecutables].forEach((file) => {
-      project.generateTask.exec(
-        `if [ ! -f ${file} ]; then cp ${path.join(
-          samplePathRelativeToProjectOutdir,
-          file
-        )} ${file}; fi`
-      );
-    });
 
     // Build with gradle to generate smithy projections, and any other tasks
     project.generateTask.exec("./gradlew build");

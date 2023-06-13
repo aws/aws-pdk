@@ -12,8 +12,10 @@ import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file"
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeMockDataGeneratorCommand,
-  buildInvokeOpenApiGeneratorCommand,
+  buildInvokeOpenApiGeneratorCommandArgs,
+  buildTypeSafeApiExecCommand,
   OtherGenerators,
+  TypeSafeApiScript,
 } from "../../components/utils";
 import { GeneratedJavaRuntimeProject } from "../../runtime/generated-java-runtime-project";
 
@@ -121,23 +123,18 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
       options.openApiGeneratorCliConfig
     );
 
-    const generateInfraCommand = this.buildGenerateCommand();
-    const cleanCommand = buildCleanOpenApiGeneratedCodeCommand(this.outdir);
-    const mockDataCommand = this.buildGenerateMockDataCommand();
-
     const generateTask = this.addTask("generate");
-    generateTask.exec(cleanCommand.command, {
-      cwd: path.relative(this.outdir, cleanCommand.workingDir),
-    });
-    generateTask.exec(generateInfraCommand.command, {
-      cwd: path.relative(this.outdir, generateInfraCommand.workingDir),
-    });
+    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
+    generateTask.exec(
+      buildTypeSafeApiExecCommand(
+        TypeSafeApiScript.GENERATE,
+        this.buildGenerateCommandArgs()
+      )
+    );
     // Copy the parsed spec into the resources directory so that it's included in the jar
     generateTask.exec("mkdir -p src/main/resources");
     generateTask.exec(`cp -f ${this.specPath} src/main/resources/.api.json`);
-    generateTask.exec(mockDataCommand.command, {
-      cwd: path.relative(this.outdir, mockDataCommand.workingDir),
-    });
+    generateTask.exec(this.buildGenerateMockDataCommand());
 
     this.preCompileTask.spawn(generateTask);
 
@@ -145,11 +142,10 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     this.gitignore.addPatterns("src", ".openapi-generator");
   }
 
-  public buildGenerateCommand = () => {
-    return buildInvokeOpenApiGeneratorCommand({
+  public buildGenerateCommandArgs = () => {
+    return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "java",
       specPath: this.specPath,
-      outputPath: this.outdir,
       generatorDirectory: OtherGenerators.JAVA_CDK_INFRASTRUCTURE,
       srcDir: this.srcDir,
       normalizers: {
@@ -164,10 +160,9 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     });
   };
 
-  public buildGenerateMockDataCommand = () => {
+  public buildGenerateMockDataCommand = (): string => {
     return buildInvokeMockDataGeneratorCommand({
       specPath: this.specPath,
-      outdir: this.outdir,
       // Write the mocks to the resources directory
       outputSubDir: "src/main/resources",
       ...this.mockDataOptions,
