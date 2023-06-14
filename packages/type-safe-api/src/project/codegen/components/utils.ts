@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as readPkg from "read-pkg";
+import * as path from "path";
+import * as readPkg from "read-pkg-up";
 import { Language, Library } from "../../languages";
 import { MockResponseDataGenerationOptions } from "../../types";
 
@@ -87,9 +88,11 @@ export const buildTypeSafeApiExecCommand = (
   script: TypeSafeApiScript,
   args?: string
 ) => {
-  const pkgInfo = readPkg.sync();
+  const { packageJson } = readPkg.sync({
+    cwd: path.resolve(__dirname),
+  })!;
   return `npx --yes -p @aws-prototyping-sdk/type-safe-api@${
-    pkgInfo.version
+    packageJson.version
   } ${script}${args ? ` ${args}` : ""}`;
 };
 
@@ -97,11 +100,6 @@ const serializeProperties = (properties: { [key: string]: string }) =>
   Object.entries(properties)
     .map(([key, value]) => `${key}=${value}`)
     .join(",");
-
-export interface CommandDetails {
-  readonly command: string;
-  readonly workingDir: string;
-}
 
 /**
  * Generate code or docs by invoking the root generate script
