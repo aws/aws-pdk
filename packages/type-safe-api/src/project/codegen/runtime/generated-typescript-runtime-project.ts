@@ -66,6 +66,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
           noUnusedParameters: false,
           strictNullChecks: false,
           strictPropertyInitialization: false,
+          skipLibCheck: true,
           ...options?.tsconfig?.compilerOptions,
         },
       },

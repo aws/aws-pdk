@@ -69,6 +69,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
           // Generated code imports all models, and may not reference them all
           noUnusedLocals: false,
           noUnusedParameters: false,
+          skipLibCheck: true,
           ...options?.tsconfig?.compilerOptions,
         },
       },

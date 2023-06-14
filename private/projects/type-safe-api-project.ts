@@ -41,7 +41,7 @@ export class TypeSafeApiProject extends PDKProject {
         "lodash",
         "log4js",
         "openapi-types",
-        "read-pkg",
+        "read-pkg-up",
       ],
       peerDeps: ["aws-cdk-lib", "cdk-nag", "constructs", "projen"],
       stability: Stability.EXPERIMENTAL,
