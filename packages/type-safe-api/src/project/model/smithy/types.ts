@@ -119,4 +119,11 @@ export interface SmithyBuildOptions extends SmithyCommon {
    * @default the default configuration required for Smithy to OpenAPI conversion
    */
   readonly maven?: SmithyMavenConfiguration;
+  /**
+   * Paths to any additional model files or directories to be used as sources for
+   * the smithy build. The src/main/smithy directory is always included.
+   * Paths must be relative to the model project directory. Absolute paths will
+   * be resolved as relative paths.
+   */
+  readonly additionalSources?: string[];
 }
