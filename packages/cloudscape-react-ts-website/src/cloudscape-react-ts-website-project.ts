@@ -88,6 +88,9 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
           .replace("<title></title>", `<title>${this.applicationName}</title>`),
       },
     });
+
+    // Linting is managed as part of the test task already, so disable react-scripts running eslint again
+    this.tasks.addEnvironment("DISABLE_ESLINT_PLUGIN", "true");
   }
 
   private buildSampleDirEntries(
