@@ -53,6 +53,13 @@ import * as path from "path";
  */
 export class MockIntegrations {
   /**
+   * Read a mock data file for the given operation
+   */
+  private static readMockDataFile(method: string, urlPath: string, statusCode: number): string {
+    return fs.readFileSync(path.join(__dirname, "..", "mocks", \`\${method.toLowerCase()}\${urlPath.replace(/\\//g, "-")}-\${statusCode}.json\`), "utf-8");
+  }
+
+  /**
    * Mock integration to return a 200 response from the anyRequestResponse operation
    */
   public static anyRequestResponse200(body: string): MockIntegration {
@@ -79,7 +86,7 @@ export class MockIntegrations {
     return Integrations.mock({
       statusCode: 200,
       body: body === undefined
-        ? fs.readFileSync(path.join(__dirname, "..", "mocks", \`get\${"/map-response".replace(/\\//g, "-")}-200.json\`), "utf-8")
+        ? MockIntegrations.readMockDataFile("GET", "/map-response", 200)
         : JSON.stringify(MapResponseToJSON(body)),
     });
   }
@@ -112,7 +119,7 @@ export class MockIntegrations {
     return Integrations.mock({
       statusCode: 200,
       body: body === undefined
-        ? fs.readFileSync(path.join(__dirname, "..", "mocks", \`post\${"/path/{pathParam}".replace(/\\//g, "-")}-200.json\`), "utf-8")
+        ? MockIntegrations.readMockDataFile("POST", "/path/{pathParam}", 200)
         : JSON.stringify(TestResponseToJSON(body)),
     });
   }
@@ -125,7 +132,7 @@ export class MockIntegrations {
     return Integrations.mock({
       statusCode: 400,
       body: body === undefined
-        ? fs.readFileSync(path.join(__dirname, "..", "mocks", \`post\${"/path/{pathParam}".replace(/\\//g, "-")}-400.json\`), "utf-8")
+        ? MockIntegrations.readMockDataFile("POST", "/path/{pathParam}", 400)
         : JSON.stringify(ApiErrorToJSON(body)),
     });
   }
@@ -138,7 +145,7 @@ export class MockIntegrations {
     return Integrations.mock({
       statusCode: 200,
       body: body === undefined
-        ? fs.readFileSync(path.join(__dirname, "..", "mocks", \`_delete\${"/without-operation-id".replace(/\\//g, "-")}-200.json\`), "utf-8")
+        ? MockIntegrations.readMockDataFile("DELETE", "/without-operation-id", 200)
         : JSON.stringify(TestResponseToJSON(body)),
     });
   }
