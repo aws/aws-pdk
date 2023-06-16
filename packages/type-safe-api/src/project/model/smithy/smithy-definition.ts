@@ -1,9 +1,10 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { Component, SampleFile } from "projen";
+import { Component, SampleDir } from "projen";
 import { SmithyBuild } from "projen/lib/smithy/smithy-build";
 import { SmithyBuildGradleFile } from "./components/smithy-build-gradle-file";
+import { SmithySettingsGradleFile } from "./components/smithy-settings-gradle-file";
 import {
   buildTypeSafeApiExecCommand,
   TypeSafeApiScript,
@@ -65,8 +66,8 @@ export class SmithyDefinition extends Component {
     this.gradleProjectName = project.name.replace(/[\/\\:<>"?\*|]/g, "-");
 
     // Add settings.gradle
-    new SampleFile(project, "settings.gradle", {
-      contents: `rootProject.name = '${this.gradleProjectName}'`,
+    new SmithySettingsGradleFile(project, {
+      gradleProjectName: this.gradleProjectName,
     });
 
     const modelDir = "src/main/smithy";
@@ -107,8 +108,9 @@ export class SmithyDefinition extends Component {
       smithyOptions.serviceName;
 
     // Create the default smithy model
-    new SampleFile(project, path.join(modelDir, "main.smithy"), {
-      contents: `$version: "2"
+    new SampleDir(project, modelDir, {
+      files: {
+        "main.smithy": `$version: "2"
 namespace ${serviceNamespace}
 
 use aws.protocols#restJson1
@@ -118,38 +120,73 @@ use aws.protocols#restJson1
 service ${serviceName} {
     version: "1.0"
     operations: [SayHello]
-}
+    errors: [
+      BadRequestError
+      NotAuthorizedError
+      InternalFailureError
+    ]
+}`,
+        "operations/say-hello.smithy": `$version: "2"
+namespace ${serviceNamespace}
 
 @readonly
 @http(method: "GET", uri: "/hello")
 operation SayHello {
-    input: SayHelloInput
-    output: SayHelloOutput
-    errors: [ApiError]
-}
-
-string Name
-string Message
-
-@input
-structure SayHelloInput {
-    @httpQuery("name")
-    @required
-    name: Name
-}
-
-@output
-structure SayHelloOutput {
-    @required
-    message: Message
-}
-
-@error("client")
-structure ApiError {
-    @required
-    errorMessage: Message
+    input := {
+        @httpQuery("name")
+        @required
+        name: String
+    }
+    output := {
+        @required
+        message: String
+    }
+    errors: [NotFoundError]
 }
 `,
+        "types/errors.smithy": `$version: "2"
+namespace ${serviceNamespace}
+
+/// An error message
+string ErrorMessage
+
+/// An internal failure at the fault of the server
+@error("server")
+@httpError(500)
+structure InternalFailureError {
+    /// Message with details about the error
+    @required
+    errorMessage: ErrorMessage
+}
+
+/// An error at the fault of the client sending invalid input
+@error("client")
+@httpError(400)
+structure BadRequestError {
+    /// Message with details about the error
+    @required
+    errorMessage: ErrorMessage
+}
+
+/// An error due to the client attempting to access a missing resource
+@error("client")
+@httpError(404)
+structure NotFoundError {
+    /// Message with details about the error
+    @required
+    errorMessage: ErrorMessage
+}
+
+/// An error due to the client not being authorized to access the resource
+@error("client")
+@httpError(403)
+structure NotAuthorizedError {
+    /// Message with details about the error
+    @required
+    errorMessage: ErrorMessage
+}
+`,
+      },
     });
 
     // Create the smithy build json file
