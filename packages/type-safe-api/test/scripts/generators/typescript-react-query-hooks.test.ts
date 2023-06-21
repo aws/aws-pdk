@@ -28,7 +28,7 @@ describe("Typescript React Query Hooks Code Generation Script Unit Tests", () =>
             // Synth the project so that the generate command honours the .openapi-generator-ignore-handlebars file
             project.synth();
             exec(
-              `TYPE_SAFE_API_DEBUG=1 ${path.resolve(
+              `${path.resolve(
                 __dirname,
                 "../../../scripts/generators/generate"
               )} ${project.buildGenerateCommandArgs()}`,

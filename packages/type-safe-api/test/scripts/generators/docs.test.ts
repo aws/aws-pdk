@@ -34,7 +34,7 @@ describe("Docs Generation Script Unit Tests", () => {
             new Project({ name: "test-project", outdir })
           ).synthesize();
           exec(
-            `TYPE_SAFE_API_DEBUG=1 ${path.resolve(
+            `${path.resolve(
               __dirname,
               "../../../scripts/generators/generate"
             )} ${buildInvokeOpenApiGeneratorCommandArgs({

@@ -3,12 +3,9 @@
 set -e
 
 ##
-# log debug messages if TYPE_SAFE_API_DEBUG env var set to 1
-# this is a helper function for debugging our scripts
+# log messages
 log() {
-  if [ "$TYPE_SAFE_API_DEBUG" == 1 ]; then
-    echo "$@"
-  fi
+  echo "$@"
 }
 
 # Determine which package manager we're using
@@ -30,17 +27,9 @@ install_packages() {
   log "installing packages :: $@"
 
   if [ "$pkg_manager" == "pnpm" ]; then
-    reporter=silent
-    if [ "$TYPE_SAFE_API_DEBUG" == 1 ]; then
-      reporter=default
-    fi
-    $pkg_manager install --reporter=$reporter "$@"
+    $pkg_manager install --reporter=default "$@"
   else
-    silent_switch="--silent"
-    if [ "$TYPE_SAFE_API_DEBUG" == 1 ]; then
-      silent_switch=""
-    fi
-    $pkg_manager install $silent_switch "$@"
+    $pkg_manager install "$@"
   fi
 }
 
@@ -57,9 +46,5 @@ run_command() {
 
   log "running command $runner $cmd"
 
-  if [ "$TYPE_SAFE_API_DEBUG" == 1 ]; then
-    $runner $cmd
-  else
-    $runner $cmd >/dev/null 2>&1
-  fi
+  $runner $cmd
 }

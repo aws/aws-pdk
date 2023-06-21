@@ -29,7 +29,7 @@ describe("Typescript Client Code Generation Script Unit Tests", () => {
             // Synth the openapitools.json since it's used by the generate command
             OpenApiToolsJsonFile.of(project)!.synthesize();
             exec(
-              `TYPE_SAFE_API_DEBUG=1 ${path.resolve(
+              `${path.resolve(
                 __dirname,
                 "../../../scripts/generators/generate"
               )} ${project.buildGenerateCommandArgs()}`,
