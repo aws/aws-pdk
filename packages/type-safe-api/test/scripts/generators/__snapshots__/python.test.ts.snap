@@ -2368,13 +2368,17 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
         return RemainingHandlerChain()
 
 
-# Request parameters are single value query params or path params
-class NeitherRequestParameters(TypedDict):
-    ...
+# Request parameters are single value query params, path params or header params
+NeitherRequestParameters = TypedDict(
+    "NeitherRequestParameters", {
+    }
+)
 
-# Request array parameters are multi-value query params
-class NeitherRequestArrayParameters(TypedDict):
-    ...
+# Request array parameters are multi-value query params or header params
+NeitherRequestArrayParameters = TypedDict(
+    "NeitherRequestArrayParameters", {
+    }
+)
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 NeitherRequestBody = Any
@@ -2402,9 +2406,11 @@ def neither_handler(_handler: NeitherHandlerFunction = None, interceptors: List[
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
+                **(event['headers'] or {}),
             })
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
+                **(event['multiValueHeaders'] or {}),
             })
             body = {}
             interceptor_context = {}
@@ -2441,13 +2447,17 @@ def neither_handler(_handler: NeitherHandlerFunction = None, interceptors: List[
     else:
         raise Exception("Positional arguments are not supported by neither_handler.")
 
-# Request parameters are single value query params or path params
-class BothRequestParameters(TypedDict):
-    ...
+# Request parameters are single value query params, path params or header params
+BothRequestParameters = TypedDict(
+    "BothRequestParameters", {
+    }
+)
 
-# Request array parameters are multi-value query params
-class BothRequestArrayParameters(TypedDict):
-    ...
+# Request array parameters are multi-value query params or header params
+BothRequestArrayParameters = TypedDict(
+    "BothRequestArrayParameters", {
+    }
+)
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 BothRequestBody = Any
@@ -2475,9 +2485,11 @@ def both_handler(_handler: BothHandlerFunction = None, interceptors: List[BothIn
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
+                **(event['headers'] or {}),
             })
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
+                **(event['multiValueHeaders'] or {}),
             })
             body = {}
             interceptor_context = {}
@@ -2514,13 +2526,17 @@ def both_handler(_handler: BothHandlerFunction = None, interceptors: List[BothIn
     else:
         raise Exception("Positional arguments are not supported by both_handler.")
 
-# Request parameters are single value query params or path params
-class Tag1RequestParameters(TypedDict):
-    ...
+# Request parameters are single value query params, path params or header params
+Tag1RequestParameters = TypedDict(
+    "Tag1RequestParameters", {
+    }
+)
 
-# Request array parameters are multi-value query params
-class Tag1RequestArrayParameters(TypedDict):
-    ...
+# Request array parameters are multi-value query params or header params
+Tag1RequestArrayParameters = TypedDict(
+    "Tag1RequestArrayParameters", {
+    }
+)
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 Tag1RequestBody = Any
@@ -2548,9 +2564,11 @@ def tag1_handler(_handler: Tag1HandlerFunction = None, interceptors: List[Tag1In
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
+                **(event['headers'] or {}),
             })
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
+                **(event['multiValueHeaders'] or {}),
             })
             body = {}
             interceptor_context = {}
@@ -2587,13 +2605,17 @@ def tag1_handler(_handler: Tag1HandlerFunction = None, interceptors: List[Tag1In
     else:
         raise Exception("Positional arguments are not supported by tag1_handler.")
 
-# Request parameters are single value query params or path params
-class Tag2RequestParameters(TypedDict):
-    ...
+# Request parameters are single value query params, path params or header params
+Tag2RequestParameters = TypedDict(
+    "Tag2RequestParameters", {
+    }
+)
 
-# Request array parameters are multi-value query params
-class Tag2RequestArrayParameters(TypedDict):
-    ...
+# Request array parameters are multi-value query params or header params
+Tag2RequestArrayParameters = TypedDict(
+    "Tag2RequestArrayParameters", {
+    }
+)
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 Tag2RequestBody = Any
@@ -2621,9 +2643,11 @@ def tag2_handler(_handler: Tag2HandlerFunction = None, interceptors: List[Tag2In
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
+                **(event['headers'] or {}),
             })
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
+                **(event['multiValueHeaders'] or {}),
             })
             body = {}
             interceptor_context = {}
@@ -8459,7 +8483,7 @@ No authorization required
 
 # **operation_one**
 <a name="operation_one"></a>
-> TestResponse operation_one(param1param2param3path_paramtest_request)
+> TestResponse operation_one(param1param2param3path_paramx_header_paramtest_request)
 
 
 
@@ -8494,6 +8518,9 @@ with test_project.ApiClient(configuration) as api_client:
     ],
         'param3': 3.14,
     }
+    header_params = {
+        'x-header-param': "x-header-param_example",
+    }
     body = TestRequest(
         my_input=3.14,
     )
@@ -8501,6 +8528,7 @@ with test_project.ApiClient(configuration) as api_client:
         api_response = api_instance.operation_one(
             path_params=path_params,
             query_params=query_params,
+            header_params=header_params,
             body=body,
         )
         pprint(api_response)
@@ -8519,6 +8547,12 @@ with test_project.ApiClient(configuration) as api_client:
         'param3': 3.14,
         'param4': "param4_example",
     }
+    header_params = {
+        'x-header-param': "x-header-param_example",
+        'x-multi-value-header-param': [
+        "x-multi-value-header-param_example"
+    ],
+    }
     body = TestRequest(
         my_input=3.14,
     )
@@ -8526,6 +8560,7 @@ with test_project.ApiClient(configuration) as api_client:
         api_response = api_instance.operation_one(
             path_params=path_params,
             query_params=query_params,
+            header_params=header_params,
             body=body,
         )
         pprint(api_response)
@@ -8538,6 +8573,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 body | typing.Union[SchemaForRequestBodyApplicationJson] | required |
 query_params | RequestQueryParams | |
+header_params | RequestHeaderParams | |
 path_params | RequestPathParams | |
 content_type | str | optional, default is 'application/json' | Selects the schema and serialization of the request body
 accept_content_types | typing.Tuple[str] | default is ('application/json', ) | Tells the server the content type(s) that are accepted by the client
@@ -8596,6 +8632,33 @@ decimal.Decimal, int, float,  | decimal.Decimal,  |  |
 Input Type | Accessed Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 str,  | str,  |  | 
+
+### header_params
+#### RequestHeaderParams
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+x-header-param | XHeaderParamSchema | | 
+x-multi-value-header-param | XMultiValueHeaderParamSchema | | optional
+
+# XHeaderParamSchema
+
+## Model Type Info
+Input Type | Accessed Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+str,  | str,  |  | 
+
+# XMultiValueHeaderParamSchema
+
+## Model Type Info
+Input Type | Accessed Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+list, tuple,  | tuple,  |  | 
+
+### Tuple Items
+Class Name | Input Type | Accessed Type | Description | Notes
+------------- | ------------- | ------------- | ------------- | -------------
+items | str,  | str,  |  | 
 
 ### path_params
 #### RequestPathParams
@@ -10687,13 +10750,17 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
         return RemainingHandlerChain()
 
 
-# Request parameters are single value query params or path params
-class AnyRequestResponseRequestParameters(TypedDict):
-    ...
+# Request parameters are single value query params, path params or header params
+AnyRequestResponseRequestParameters = TypedDict(
+    "AnyRequestResponseRequestParameters", {
+    }
+)
 
-# Request array parameters are multi-value query params
-class AnyRequestResponseRequestArrayParameters(TypedDict):
-    ...
+# Request array parameters are multi-value query params or header params
+AnyRequestResponseRequestArrayParameters = TypedDict(
+    "AnyRequestResponseRequestArrayParameters", {
+    }
+)
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 AnyRequestResponseRequestBody = str
@@ -10721,9 +10788,11 @@ def any_request_response_handler(_handler: AnyRequestResponseHandlerFunction = N
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
+                **(event['headers'] or {}),
             })
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
+                **(event['multiValueHeaders'] or {}),
             })
             # Primitive type so body is passed as the original string
             body = event['body']
@@ -10761,13 +10830,17 @@ def any_request_response_handler(_handler: AnyRequestResponseHandlerFunction = N
     else:
         raise Exception("Positional arguments are not supported by any_request_response_handler.")
 
-# Request parameters are single value query params or path params
-class EmptyRequestParameters(TypedDict):
-    ...
+# Request parameters are single value query params, path params or header params
+EmptyRequestParameters = TypedDict(
+    "EmptyRequestParameters", {
+    }
+)
 
-# Request array parameters are multi-value query params
-class EmptyRequestArrayParameters(TypedDict):
-    ...
+# Request array parameters are multi-value query params or header params
+EmptyRequestArrayParameters = TypedDict(
+    "EmptyRequestArrayParameters", {
+    }
+)
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 EmptyRequestBody = Any
@@ -10795,9 +10868,11 @@ def empty_handler(_handler: EmptyHandlerFunction = None, interceptors: List[Empt
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
+                **(event['headers'] or {}),
             })
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
+                **(event['multiValueHeaders'] or {}),
             })
             body = {}
             interceptor_context = {}
@@ -10834,13 +10909,17 @@ def empty_handler(_handler: EmptyHandlerFunction = None, interceptors: List[Empt
     else:
         raise Exception("Positional arguments are not supported by empty_handler.")
 
-# Request parameters are single value query params or path params
-class MapResponseRequestParameters(TypedDict):
-    ...
+# Request parameters are single value query params, path params or header params
+MapResponseRequestParameters = TypedDict(
+    "MapResponseRequestParameters", {
+    }
+)
 
-# Request array parameters are multi-value query params
-class MapResponseRequestArrayParameters(TypedDict):
-    ...
+# Request array parameters are multi-value query params or header params
+MapResponseRequestArrayParameters = TypedDict(
+    "MapResponseRequestArrayParameters", {
+    }
+)
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 MapResponseRequestBody = Any
@@ -10868,9 +10947,11 @@ def map_response_handler(_handler: MapResponseHandlerFunction = None, intercepto
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
+                **(event['headers'] or {}),
             })
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
+                **(event['multiValueHeaders'] or {}),
             })
             body = {}
             interceptor_context = {}
@@ -10907,13 +10988,17 @@ def map_response_handler(_handler: MapResponseHandlerFunction = None, intercepto
     else:
         raise Exception("Positional arguments are not supported by map_response_handler.")
 
-# Request parameters are single value query params or path params
-class MediaTypesRequestParameters(TypedDict):
-    ...
+# Request parameters are single value query params, path params or header params
+MediaTypesRequestParameters = TypedDict(
+    "MediaTypesRequestParameters", {
+    }
+)
 
-# Request array parameters are multi-value query params
-class MediaTypesRequestArrayParameters(TypedDict):
-    ...
+# Request array parameters are multi-value query params or header params
+MediaTypesRequestArrayParameters = TypedDict(
+    "MediaTypesRequestArrayParameters", {
+    }
+)
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 MediaTypesRequestBody = str
@@ -10941,9 +11026,11 @@ def media_types_handler(_handler: MediaTypesHandlerFunction = None, interceptors
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
+                **(event['headers'] or {}),
             })
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
+                **(event['multiValueHeaders'] or {}),
             })
             # Primitive type so body is passed as the original string
             body = event['body']
@@ -10981,13 +11068,17 @@ def media_types_handler(_handler: MediaTypesHandlerFunction = None, interceptors
     else:
         raise Exception("Positional arguments are not supported by media_types_handler.")
 
-# Request parameters are single value query params or path params
-class MultipleContentTypesRequestParameters(TypedDict):
-    ...
+# Request parameters are single value query params, path params or header params
+MultipleContentTypesRequestParameters = TypedDict(
+    "MultipleContentTypesRequestParameters", {
+    }
+)
 
-# Request array parameters are multi-value query params
-class MultipleContentTypesRequestArrayParameters(TypedDict):
-    ...
+# Request array parameters are multi-value query params or header params
+MultipleContentTypesRequestArrayParameters = TypedDict(
+    "MultipleContentTypesRequestArrayParameters", {
+    }
+)
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 MultipleContentTypesRequestBody = TestRequest
@@ -11015,9 +11106,11 @@ def multiple_content_types_handler(_handler: MultipleContentTypesHandlerFunction
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
+                **(event['headers'] or {}),
             })
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
+                **(event['multiValueHeaders'] or {}),
             })
             # Non-primitive type so parse the body into the appropriate model
             body = parse_body(event['body'], ['application/json','application/pdf',], MultipleContentTypesRequestBody)
@@ -11055,18 +11148,24 @@ def multiple_content_types_handler(_handler: MultipleContentTypesHandlerFunction
     else:
         raise Exception("Positional arguments are not supported by multiple_content_types_handler.")
 
-# Request parameters are single value query params or path params
-class OperationOneRequestParameters(TypedDict):
-    param1: str
-    param3: str
-    pathParam: str
-    param4: str
-    ...
+# Request parameters are single value query params, path params or header params
+OperationOneRequestParameters = TypedDict(
+    "OperationOneRequestParameters", {
+        "param1": str,
+        "param3": str,
+        "pathParam": str,
+        "x-header-param": str,
+        "param4": str,
+    }
+)
 
-# Request array parameters are multi-value query params
-class OperationOneRequestArrayParameters(TypedDict):
-    param2: List[str]
-    ...
+# Request array parameters are multi-value query params or header params
+OperationOneRequestArrayParameters = TypedDict(
+    "OperationOneRequestArrayParameters", {
+        "param2": List[str],
+        "x-multi-value-header-param": List[str],
+    }
+)
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 OperationOneRequestBody = TestRequest
@@ -11095,9 +11194,11 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
+                **(event['headers'] or {}),
             })
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
+                **(event['multiValueHeaders'] or {}),
             })
             # Non-primitive type so parse the body into the appropriate model
             body = parse_body(event['body'], ['application/json',], OperationOneRequestBody)
@@ -11139,13 +11240,17 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
     else:
         raise Exception("Positional arguments are not supported by operation_one_handler.")
 
-# Request parameters are single value query params or path params
-class WithoutOperationIdDeleteRequestParameters(TypedDict):
-    ...
+# Request parameters are single value query params, path params or header params
+WithoutOperationIdDeleteRequestParameters = TypedDict(
+    "WithoutOperationIdDeleteRequestParameters", {
+    }
+)
 
-# Request array parameters are multi-value query params
-class WithoutOperationIdDeleteRequestArrayParameters(TypedDict):
-    ...
+# Request array parameters are multi-value query params or header params
+WithoutOperationIdDeleteRequestArrayParameters = TypedDict(
+    "WithoutOperationIdDeleteRequestArrayParameters", {
+    }
+)
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 WithoutOperationIdDeleteRequestBody = Any
@@ -11173,9 +11278,11 @@ def without_operation_id_delete_handler(_handler: WithoutOperationIdDeleteHandle
             request_parameters = decode_request_parameters({
                 **(event['pathParameters'] or {}),
                 **(event['queryStringParameters'] or {}),
+                **(event['headers'] or {}),
             })
             request_array_parameters = decode_request_parameters({
                 **(event['multiValueQueryStringParameters'] or {}),
+                **(event['multiValueHeaders'] or {}),
             })
             body = {}
             interceptor_context = {}
@@ -15953,6 +16060,61 @@ request_query_param4 = api_client.QueryParameter(
     schema=Param4Schema,
     explode=True,
 )
+# Header params
+XHeaderParamSchema = schemas.StrSchema
+
+
+class XMultiValueHeaderParamSchema(
+    schemas.ListSchema
+):
+
+
+    class MetaOapg:
+        items = schemas.StrSchema
+
+    def __new__(
+        cls,
+        _arg: typing.Union[typing.Tuple[typing.Union[MetaOapg.items, str, ]], typing.List[typing.Union[MetaOapg.items, str, ]]],
+        _configuration: typing.Optional[schemas.Configuration] = None,
+    ) -> 'XMultiValueHeaderParamSchema':
+        return super().__new__(
+            cls,
+            _arg,
+            _configuration=_configuration,
+        )
+
+    def __getitem__(self, i: int) -> MetaOapg.items:
+        return super().__getitem__(i)
+RequestRequiredHeaderParams = typing_extensions.TypedDict(
+    'RequestRequiredHeaderParams',
+    {
+        'x-header-param': typing.Union[XHeaderParamSchema, str, ],
+    }
+)
+RequestOptionalHeaderParams = typing_extensions.TypedDict(
+    'RequestOptionalHeaderParams',
+    {
+        'x-multi-value-header-param': typing.Union[XMultiValueHeaderParamSchema, list, tuple, ],
+    },
+    total=False
+)
+
+
+class RequestHeaderParams(RequestRequiredHeaderParams, RequestOptionalHeaderParams):
+    pass
+
+
+request_header_x_header_param = api_client.HeaderParameter(
+    name="x-header-param",
+    style=api_client.ParameterStyle.SIMPLE,
+    schema=XHeaderParamSchema,
+    required=True,
+)
+request_header_x_multi_value_header_param = api_client.HeaderParameter(
+    name="x-multi-value-header-param",
+    style=api_client.ParameterStyle.SIMPLE,
+    schema=XMultiValueHeaderParamSchema,
+)
 # Path params
 PathParamSchema = schemas.StrSchema
 RequestRequiredPathParams = typing_extensions.TypedDict(
@@ -16044,6 +16206,7 @@ class BaseApi(api_client.Api):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: typing_extensions.Literal["application/json"] = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16059,6 +16222,7 @@ class BaseApi(api_client.Api):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16076,6 +16240,7 @@ class BaseApi(api_client.Api):
         skip_deserialization: typing_extensions.Literal[True],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16088,6 +16253,7 @@ class BaseApi(api_client.Api):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16103,6 +16269,7 @@ class BaseApi(api_client.Api):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = 'application/json',
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16115,6 +16282,7 @@ class BaseApi(api_client.Api):
             class instances
         """
         self._verify_typed_dict_inputs_oapg(RequestQueryParams, query_params)
+        self._verify_typed_dict_inputs_oapg(RequestHeaderParams, header_params)
         self._verify_typed_dict_inputs_oapg(RequestPathParams, path_params)
         used_path = path.value
 
@@ -16148,6 +16316,15 @@ class BaseApi(api_client.Api):
                 used_path += serialized_value
 
         _headers = HTTPHeaderDict()
+        for parameter in (
+            request_header_x_header_param,
+            request_header_x_multi_value_header_param,
+        ):
+            parameter_data = header_params.get(parameter.name, schemas.unset)
+            if parameter_data is schemas.unset:
+                continue
+            serialized_data = parameter.serialize(parameter_data)
+            _headers.extend(serialized_data)
         # TODO add cookie handling
         if accept_content_types:
             for accept_content_type in accept_content_types:
@@ -16202,6 +16379,7 @@ class OperationOne(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: typing_extensions.Literal["application/json"] = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16217,6 +16395,7 @@ class OperationOne(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16234,6 +16413,7 @@ class OperationOne(BaseApi):
         skip_deserialization: typing_extensions.Literal[True],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16246,6 +16426,7 @@ class OperationOne(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16261,6 +16442,7 @@ class OperationOne(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = 'application/json',
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16270,6 +16452,7 @@ class OperationOne(BaseApi):
         return self._operation_one_oapg(
             body=body,
             query_params=query_params,
+            header_params=header_params,
             path_params=path_params,
             content_type=content_type,
             accept_content_types=accept_content_types,
@@ -16288,6 +16471,7 @@ class ApiForpost(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: typing_extensions.Literal["application/json"] = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16303,6 +16487,7 @@ class ApiForpost(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16320,6 +16505,7 @@ class ApiForpost(BaseApi):
         skip_deserialization: typing_extensions.Literal[True],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16332,6 +16518,7 @@ class ApiForpost(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16347,6 +16534,7 @@ class ApiForpost(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = 'application/json',
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16356,6 +16544,7 @@ class ApiForpost(BaseApi):
         return self._operation_one_oapg(
             body=body,
             query_params=query_params,
+            header_params=header_params,
             path_params=path_params,
             content_type=content_type,
             accept_content_types=accept_content_types,
@@ -16472,6 +16661,61 @@ request_query_param4 = api_client.QueryParameter(
     schema=Param4Schema,
     explode=True,
 )
+# Header params
+XHeaderParamSchema = schemas.StrSchema
+
+
+class XMultiValueHeaderParamSchema(
+    schemas.ListSchema
+):
+
+
+    class MetaOapg:
+        items = schemas.StrSchema
+
+    def __new__(
+        cls,
+        _arg: typing.Union[typing.Tuple[typing.Union[MetaOapg.items, str, ]], typing.List[typing.Union[MetaOapg.items, str, ]]],
+        _configuration: typing.Optional[schemas.Configuration] = None,
+    ) -> 'XMultiValueHeaderParamSchema':
+        return super().__new__(
+            cls,
+            _arg,
+            _configuration=_configuration,
+        )
+
+    def __getitem__(self, i: int) -> MetaOapg.items:
+        return super().__getitem__(i)
+RequestRequiredHeaderParams = typing_extensions.TypedDict(
+    'RequestRequiredHeaderParams',
+    {
+        'x-header-param': typing.Union[XHeaderParamSchema, str, ],
+    }
+)
+RequestOptionalHeaderParams = typing_extensions.TypedDict(
+    'RequestOptionalHeaderParams',
+    {
+        'x-multi-value-header-param': typing.Union[XMultiValueHeaderParamSchema, list, tuple, ],
+    },
+    total=False
+)
+
+
+class RequestHeaderParams(RequestRequiredHeaderParams, RequestOptionalHeaderParams):
+    pass
+
+
+request_header_x_header_param = api_client.HeaderParameter(
+    name="x-header-param",
+    style=api_client.ParameterStyle.SIMPLE,
+    schema=XHeaderParamSchema,
+    required=True,
+)
+request_header_x_multi_value_header_param = api_client.HeaderParameter(
+    name="x-multi-value-header-param",
+    style=api_client.ParameterStyle.SIMPLE,
+    schema=XMultiValueHeaderParamSchema,
+)
 # Path params
 PathParamSchema = schemas.StrSchema
 RequestRequiredPathParams = typing_extensions.TypedDict(
@@ -16559,6 +16803,7 @@ class BaseApi(api_client.Api):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: typing_extensions.Literal["application/json"] = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16574,6 +16819,7 @@ class BaseApi(api_client.Api):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16591,6 +16837,7 @@ class BaseApi(api_client.Api):
         skip_deserialization: typing_extensions.Literal[True],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16603,6 +16850,7 @@ class BaseApi(api_client.Api):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16618,6 +16866,7 @@ class BaseApi(api_client.Api):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = 'application/json',
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16630,6 +16879,7 @@ class BaseApi(api_client.Api):
             class instances
         """
         self._verify_typed_dict_inputs_oapg(RequestQueryParams, query_params)
+        self._verify_typed_dict_inputs_oapg(RequestHeaderParams, header_params)
         self._verify_typed_dict_inputs_oapg(RequestPathParams, path_params)
         used_path = path.value
 
@@ -16663,6 +16913,15 @@ class BaseApi(api_client.Api):
                 used_path += serialized_value
 
         _headers = HTTPHeaderDict()
+        for parameter in (
+            request_header_x_header_param,
+            request_header_x_multi_value_header_param,
+        ):
+            parameter_data = header_params.get(parameter.name, schemas.unset)
+            if parameter_data is schemas.unset:
+                continue
+            serialized_data = parameter.serialize(parameter_data)
+            _headers.extend(serialized_data)
         # TODO add cookie handling
         if accept_content_types:
             for accept_content_type in accept_content_types:
@@ -16717,6 +16976,7 @@ class OperationOne(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: typing_extensions.Literal["application/json"] = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16732,6 +16992,7 @@ class OperationOne(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16749,6 +17010,7 @@ class OperationOne(BaseApi):
         skip_deserialization: typing_extensions.Literal[True],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16761,6 +17023,7 @@ class OperationOne(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16776,6 +17039,7 @@ class OperationOne(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = 'application/json',
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16785,6 +17049,7 @@ class OperationOne(BaseApi):
         return self._operation_one_oapg(
             body=body,
             query_params=query_params,
+            header_params=header_params,
             path_params=path_params,
             content_type=content_type,
             accept_content_types=accept_content_types,
@@ -16803,6 +17068,7 @@ class ApiForpost(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: typing_extensions.Literal["application/json"] = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16818,6 +17084,7 @@ class ApiForpost(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16835,6 +17102,7 @@ class ApiForpost(BaseApi):
         skip_deserialization: typing_extensions.Literal[True],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16847,6 +17115,7 @@ class ApiForpost(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = ...,
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16862,6 +17131,7 @@ class ApiForpost(BaseApi):
         body: typing.Union[SchemaForRequestBodyApplicationJson,],
         content_type: str = 'application/json',
         query_params: RequestQueryParams = frozendict.frozendict(),
+        header_params: RequestHeaderParams = frozendict.frozendict(),
         path_params: RequestPathParams = frozendict.frozendict(),
         accept_content_types: typing.Tuple[str] = _all_accept_content_types,
         stream: bool = False,
@@ -16871,6 +17141,7 @@ class ApiForpost(BaseApi):
         return self._operation_one_oapg(
             body=body,
             query_params=query_params,
+            header_params=header_params,
             path_params=path_params,
             content_type=content_type,
             accept_content_types=accept_content_types,

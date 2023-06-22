@@ -306,13 +306,13 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
 };
 
 /**
- * Single-value path/query parameters for Neither
+ * Single-value path/query/header parameters for Neither
  */
 export interface NeitherRequestParameters {
 }
 
 /**
- * Multi-value query parameters for Neither
+ * Multi-value query or header parameters for Neither
  */
 export interface NeitherRequestArrayParameters {
 }
@@ -339,10 +339,12 @@ export const neitherHandler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as NeitherRequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as NeitherRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
@@ -395,13 +397,13 @@ export const neitherHandler = (
     };
 };
 /**
- * Single-value path/query parameters for Both
+ * Single-value path/query/header parameters for Both
  */
 export interface BothRequestParameters {
 }
 
 /**
- * Multi-value query parameters for Both
+ * Multi-value query or header parameters for Both
  */
 export interface BothRequestArrayParameters {
 }
@@ -428,10 +430,12 @@ export const bothHandler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as BothRequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as BothRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
@@ -484,13 +488,13 @@ export const bothHandler = (
     };
 };
 /**
- * Single-value path/query parameters for Tag1
+ * Single-value path/query/header parameters for Tag1
  */
 export interface Tag1RequestParameters {
 }
 
 /**
- * Multi-value query parameters for Tag1
+ * Multi-value query or header parameters for Tag1
  */
 export interface Tag1RequestArrayParameters {
 }
@@ -517,10 +521,12 @@ export const tag1Handler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as Tag1RequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as Tag1RequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
@@ -573,13 +579,13 @@ export const tag1Handler = (
     };
 };
 /**
- * Single-value path/query parameters for Tag2
+ * Single-value path/query/header parameters for Tag2
  */
 export interface Tag2RequestParameters {
 }
 
 /**
- * Multi-value query parameters for Tag2
+ * Multi-value query or header parameters for Tag2
  */
 export interface Tag2RequestArrayParameters {
 }
@@ -606,10 +612,12 @@ export const tag2Handler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as Tag2RequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as Tag2RequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
@@ -1425,8 +1433,10 @@ export interface OperationOneRequest {
     param2: Array<string>;
     param3: number;
     pathParam: string;
+    xHeaderParam: string;
     testRequest: TestRequest;
     param4?: string;
+    xMultiValueHeaderParam?: Array<string>;
 }
 
 /**
@@ -1589,6 +1599,10 @@ export class DefaultApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('pathParam','Required parameter requestParameters.pathParam was null or undefined when calling operationOne.');
         }
 
+        if (requestParameters.xHeaderParam === null || requestParameters.xHeaderParam === undefined) {
+            throw new runtime.RequiredError('xHeaderParam','Required parameter requestParameters.xHeaderParam was null or undefined when calling operationOne.');
+        }
+
         if (requestParameters.testRequest === null || requestParameters.testRequest === undefined) {
             throw new runtime.RequiredError('testRequest','Required parameter requestParameters.testRequest was null or undefined when calling operationOne.');
         }
@@ -1614,6 +1628,14 @@ export class DefaultApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters.xHeaderParam !== undefined && requestParameters.xHeaderParam !== null) {
+            headerParameters['x-header-param'] = String(requestParameters.xHeaderParam);
+        }
+
+        if (requestParameters.xMultiValueHeaderParam) {
+            headerParameters['x-multi-value-header-param'] = requestParameters.xMultiValueHeaderParam.join(runtime.COLLECTION_FORMATS["csv"]);
+        }
 
         const response = await this.request({
             path: \`/path/{pathParam}\`.replace(\`{\${"pathParam"}}\`, encodeURIComponent(String(requestParameters.pathParam))),
@@ -1855,13 +1877,13 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
 };
 
 /**
- * Single-value path/query parameters for AnyRequestResponse
+ * Single-value path/query/header parameters for AnyRequestResponse
  */
 export interface AnyRequestResponseRequestParameters {
 }
 
 /**
- * Multi-value query parameters for AnyRequestResponse
+ * Multi-value query or header parameters for AnyRequestResponse
  */
 export interface AnyRequestResponseRequestArrayParameters {
 }
@@ -1888,10 +1910,12 @@ export const anyRequestResponseHandler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as AnyRequestResponseRequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as AnyRequestResponseRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
@@ -1944,13 +1968,13 @@ export const anyRequestResponseHandler = (
     };
 };
 /**
- * Single-value path/query parameters for Empty
+ * Single-value path/query/header parameters for Empty
  */
 export interface EmptyRequestParameters {
 }
 
 /**
- * Multi-value query parameters for Empty
+ * Multi-value query or header parameters for Empty
  */
 export interface EmptyRequestArrayParameters {
 }
@@ -1977,10 +2001,12 @@ export const emptyHandler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as EmptyRequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as EmptyRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
@@ -2033,13 +2059,13 @@ export const emptyHandler = (
     };
 };
 /**
- * Single-value path/query parameters for MapResponse
+ * Single-value path/query/header parameters for MapResponse
  */
 export interface MapResponseRequestParameters {
 }
 
 /**
- * Multi-value query parameters for MapResponse
+ * Multi-value query or header parameters for MapResponse
  */
 export interface MapResponseRequestArrayParameters {
 }
@@ -2066,10 +2092,12 @@ export const mapResponseHandler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as MapResponseRequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as MapResponseRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
@@ -2123,13 +2151,13 @@ export const mapResponseHandler = (
     };
 };
 /**
- * Single-value path/query parameters for MediaTypes
+ * Single-value path/query/header parameters for MediaTypes
  */
 export interface MediaTypesRequestParameters {
 }
 
 /**
- * Multi-value query parameters for MediaTypes
+ * Multi-value query or header parameters for MediaTypes
  */
 export interface MediaTypesRequestArrayParameters {
 }
@@ -2156,10 +2184,12 @@ export const mediaTypesHandler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as MediaTypesRequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as MediaTypesRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
@@ -2212,13 +2242,13 @@ export const mediaTypesHandler = (
     };
 };
 /**
- * Single-value path/query parameters for MultipleContentTypes
+ * Single-value path/query/header parameters for MultipleContentTypes
  */
 export interface MultipleContentTypesRequestParameters {
 }
 
 /**
- * Multi-value query parameters for MultipleContentTypes
+ * Multi-value query or header parameters for MultipleContentTypes
  */
 export interface MultipleContentTypesRequestArrayParameters {
 }
@@ -2245,10 +2275,12 @@ export const multipleContentTypesHandler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as MultipleContentTypesRequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as MultipleContentTypesRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
@@ -2301,20 +2333,22 @@ export const multipleContentTypesHandler = (
     };
 };
 /**
- * Single-value path/query parameters for OperationOne
+ * Single-value path/query/header parameters for OperationOne
  */
 export interface OperationOneRequestParameters {
     readonly param1: string;
     readonly param3: string;
     readonly pathParam: string;
+    readonly "x-header-param": string;
     readonly param4?: string;
 }
 
 /**
- * Multi-value query parameters for OperationOne
+ * Multi-value query or header parameters for OperationOne
  */
 export interface OperationOneRequestArrayParameters {
     readonly param2: string[];
+    readonly "x-multi-value-header-param"?: string[];
 }
 
 /**
@@ -2340,10 +2374,12 @@ export const operationOneHandler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as OperationOneRequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as OperationOneRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
@@ -2406,13 +2442,13 @@ export const operationOneHandler = (
     };
 };
 /**
- * Single-value path/query parameters for WithoutOperationIdDelete
+ * Single-value path/query/header parameters for WithoutOperationIdDelete
  */
 export interface WithoutOperationIdDeleteRequestParameters {
 }
 
 /**
- * Multi-value query parameters for WithoutOperationIdDelete
+ * Multi-value query or header parameters for WithoutOperationIdDelete
  */
 export interface WithoutOperationIdDeleteRequestArrayParameters {
 }
@@ -2439,10 +2475,12 @@ export const withoutOperationIdDeleteHandler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as WithoutOperationIdDeleteRequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as WithoutOperationIdDeleteRequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {
