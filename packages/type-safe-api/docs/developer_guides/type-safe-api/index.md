@@ -3,11 +3,11 @@
 _question: What does this refer to?_
 Define your APIs using [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated client and server types, infrastructure, documentation, and automatic input validation!
 
-The _type-safe-api_ package provides a projen project type which allows you to define an API using either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and a construct which manages deploying this API in an API Gateway, provided an integration (eg a lambda) exists for every operation.
+The _type-safe-api_ package provides a projen project type which allows you to define an API using either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and a construct which manages deploying this API in an API Gateway.
 
 ## How does it work?
 
-The project will generate runtime projects from your API definition in your desired languages, and you can use both client side for interacting with your API, or server side for implementing your API. The project also generates a type-safe CDK construct which ensures an integration is provided for every API operation.
+The project will generate runtime projects from your API definition in your desired languages, which you can use both on the client side for interacting with your API, or server side for implementing your API. The project also generates a type-safe CDK construct which ensures an integration is provided for every API operation.
 
 !!! note
 
@@ -74,7 +74,7 @@ npx projen new --from @aws-prototyping-sdk/nx-monorepo
 yarn projen
 ```
 
-The following code shows an example `.projenrc` using `TypeSafeApiProject`.
+3. Edit your `.projenrc` and configure `TypeSafeApiProject`.
 
 !!! tip
 
@@ -379,7 +379,7 @@ The following code shows an example `.projenrc` using `TypeSafeApiProject`.
     monorepo.synth();
     ```
 
-3. After you define your `.projenrc`, run `projen` and `build` (using the appropriate commands) for your package manager. For example, if you are using `yarn`, use these commands.
+4. After you define your `.projenrc`, run `projen` and `build` (using the appropriate commands for your package manager). For example, if you are using `yarn`, use these commands.
 
 ```
 yarn projen 
@@ -531,7 +531,7 @@ The generated runtime projects include lambda handler wrappers which provide typ
 
 === "TS"
 
-    In the TypeScript CDK application in the CDK construct, we used `NodejsFunction` with the entry point as `say-hello.ts`, so define the lambda function in the same `infra` project.
+    In the TypeScript CDK application in the CDK construct, we used `NodejsFunction` which allows you to write your lambda handler code in the same `infra` project. Define `say-hello.ts` and use the generated lambda handler wrapper.
 
     For example, the implementation of `packages/infra/src/say-hello.ts` may include:
 
@@ -691,7 +691,7 @@ yarn build
 
 The build will regenerate the infrastructure, runtime, documentation, and library projects based on your updated model.
 
-You may see the following build error in your CDK application.
+As you must define an integration for every operation, you may see the following build error in your CDK application.
 
 ```ts
 TSError: ⨯ Unable to compile TypeScript:
@@ -699,7 +699,7 @@ src/main.ts(16,7): error TS2741: Property 'sayGoodbye' is missing in type '{ say
 Config<TypeSafeApiIntegration>'.
 ```
 
-To troubleshoot this, we need to define an integration for every operation in our API.
+This is expected, so follow these steps to add an integration.
 
 ### Add an integration
 
