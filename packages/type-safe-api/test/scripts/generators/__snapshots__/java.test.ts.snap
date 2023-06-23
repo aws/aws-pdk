@@ -3811,7 +3811,7 @@ public class Handlers {
     }
 
     /**
-     * Single-value query and path parameters for the neither operation
+     * Single-value query, path and header parameters for the neither operation
      */
     public static class NeitherRequestParameters {
 
@@ -3819,6 +3819,7 @@ public class Handlers {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
         }
@@ -3826,13 +3827,14 @@ public class Handlers {
     }
 
     /**
-     * Multi-value query parameters for the neither operation
+     * Multi-value query and header parameters for the neither operation
      */
     public static class NeitherRequestArrayParameters {
 
         public NeitherRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
         }
@@ -4031,7 +4033,7 @@ public class Handlers {
     }
 
     /**
-     * Single-value query and path parameters for the both operation
+     * Single-value query, path and header parameters for the both operation
      */
     public static class BothRequestParameters {
 
@@ -4039,6 +4041,7 @@ public class Handlers {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
         }
@@ -4046,13 +4049,14 @@ public class Handlers {
     }
 
     /**
-     * Multi-value query parameters for the both operation
+     * Multi-value query and header parameters for the both operation
      */
     public static class BothRequestArrayParameters {
 
         public BothRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
         }
@@ -4251,7 +4255,7 @@ public class Handlers {
     }
 
     /**
-     * Single-value query and path parameters for the tag1 operation
+     * Single-value query, path and header parameters for the tag1 operation
      */
     public static class Tag1RequestParameters {
 
@@ -4259,6 +4263,7 @@ public class Handlers {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
         }
@@ -4266,13 +4271,14 @@ public class Handlers {
     }
 
     /**
-     * Multi-value query parameters for the tag1 operation
+     * Multi-value query and header parameters for the tag1 operation
      */
     public static class Tag1RequestArrayParameters {
 
         public Tag1RequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
         }
@@ -4471,7 +4477,7 @@ public class Handlers {
     }
 
     /**
-     * Single-value query and path parameters for the tag2 operation
+     * Single-value query, path and header parameters for the tag2 operation
      */
     public static class Tag2RequestParameters {
 
@@ -4479,6 +4485,7 @@ public class Handlers {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
         }
@@ -4486,13 +4493,14 @@ public class Handlers {
     }
 
     /**
-     * Multi-value query parameters for the tag2 operation
+     * Multi-value query and header parameters for the tag2 operation
      */
     public static class Tag2RequestArrayParameters {
 
         public Tag2RequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
         }
@@ -6133,6 +6141,22 @@ paths:
         schema:
           type: string
         style: simple
+      - explode: false
+        in: header
+        name: x-header-param
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: x-multi-value-header-param
+        required: false
+        schema:
+          items:
+            type: string
+          type: array
+        style: simple
       requestBody:
         content:
           application/json:
@@ -6618,7 +6642,7 @@ No authorization required
 
 <a name="operationOne"></a>
 # **operationOne**
-> TestResponse operationOne(param1, param2, param3, pathParam, testRequest).param4(param4).execute();
+> TestResponse operationOne(param1, param2, param3, pathParam, xHeaderParam, testRequest).param4(param4).xMultiValueHeaderParam(xMultiValueHeaderParam).execute();
 
 
 
@@ -6641,11 +6665,14 @@ public class Example {
     List<String> param2 = Arrays.asList(); // List<String> | 
     BigDecimal param3 = new BigDecimal(78); // BigDecimal | 
     String pathParam = "pathParam_example"; // String | 
+    String xHeaderParam = "xHeaderParam_example"; // String | 
     TestRequest testRequest = new TestRequest(); // TestRequest | 
     String param4 = "param4_example"; // String | 
+    List<String> xMultiValueHeaderParam = Arrays.asList(); // List<String> | 
     try {
-      TestResponse result = apiInstance.operationOne(param1, param2, param3, pathParam, testRequest)
+      TestResponse result = apiInstance.operationOne(param1, param2, param3, pathParam, xHeaderParam, testRequest)
             .param4(param4)
+            .xMultiValueHeaderParam(xMultiValueHeaderParam)
             .execute();
       System.out.println(result);
     } catch (ApiException e) {
@@ -6667,8 +6694,10 @@ public class Example {
 | **param2** | [**List&lt;String&gt;**](String.md)|  | |
 | **param3** | **BigDecimal**|  | |
 | **pathParam** | **String**|  | |
+| **xHeaderParam** | **String**|  | |
 | **testRequest** | [**TestRequest**](TestRequest.md)|  | |
 | **param4** | **String**|  | [optional] |
+| **xMultiValueHeaderParam** | [**List&lt;String&gt;**](String.md)|  | [optional] |
 
 ### Return type
 
@@ -10407,7 +10436,7 @@ public class DefaultApi {
     public APImultipleContentTypesRequest multipleContentTypes(TestRequest testRequest) {
         return new APImultipleContentTypesRequest(testRequest);
     }
-    private okhttp3.Call operationOneCall(String param1, List<String> param2, BigDecimal param3, String pathParam, TestRequest testRequest, String param4, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call operationOneCall(String param1, List<String> param2, BigDecimal param3, String pathParam, String xHeaderParam, TestRequest testRequest, String param4, List<String> xMultiValueHeaderParam, final ApiCallback _callback) throws ApiException {
         String basePath = null;
         // Operation Servers
         String[] localBasePaths = new String[] {  };
@@ -10449,6 +10478,14 @@ public class DefaultApi {
             localVarQueryParams.addAll(localVarApiClient.parameterToPair("param4", param4));
         }
 
+        if (xHeaderParam != null) {
+            localVarHeaderParams.put("x-header-param", localVarApiClient.parameterToString(xHeaderParam));
+        }
+
+        if (xMultiValueHeaderParam != null) {
+            localVarHeaderParams.put("x-multi-value-header-param", localVarApiClient.parameterToString(xMultiValueHeaderParam));
+        }
+
         final String[] localVarAccepts = {
             "application/json"
         };
@@ -10470,7 +10507,7 @@ public class DefaultApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call operationOneValidateBeforeCall(String param1, List<String> param2, BigDecimal param3, String pathParam, TestRequest testRequest, String param4, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call operationOneValidateBeforeCall(String param1, List<String> param2, BigDecimal param3, String pathParam, String xHeaderParam, TestRequest testRequest, String param4, List<String> xMultiValueHeaderParam, final ApiCallback _callback) throws ApiException {
         // verify the required parameter 'param1' is set
         if (param1 == null) {
             throw new ApiException("Missing the required parameter 'param1' when calling operationOne(Async)");
@@ -10491,25 +10528,30 @@ public class DefaultApi {
             throw new ApiException("Missing the required parameter 'pathParam' when calling operationOne(Async)");
         }
 
+        // verify the required parameter 'xHeaderParam' is set
+        if (xHeaderParam == null) {
+            throw new ApiException("Missing the required parameter 'xHeaderParam' when calling operationOne(Async)");
+        }
+
         // verify the required parameter 'testRequest' is set
         if (testRequest == null) {
             throw new ApiException("Missing the required parameter 'testRequest' when calling operationOne(Async)");
         }
 
-        return operationOneCall(param1, param2, param3, pathParam, testRequest, param4, _callback);
+        return operationOneCall(param1, param2, param3, pathParam, xHeaderParam, testRequest, param4, xMultiValueHeaderParam, _callback);
 
     }
 
 
-    private ApiResponse<TestResponse> operationOneWithHttpInfo(String param1, List<String> param2, BigDecimal param3, String pathParam, TestRequest testRequest, String param4) throws ApiException {
-        okhttp3.Call localVarCall = operationOneValidateBeforeCall(param1, param2, param3, pathParam, testRequest, param4, null);
+    private ApiResponse<TestResponse> operationOneWithHttpInfo(String param1, List<String> param2, BigDecimal param3, String pathParam, String xHeaderParam, TestRequest testRequest, String param4, List<String> xMultiValueHeaderParam) throws ApiException {
+        okhttp3.Call localVarCall = operationOneValidateBeforeCall(param1, param2, param3, pathParam, xHeaderParam, testRequest, param4, xMultiValueHeaderParam, null);
         Type localVarReturnType = new TypeToken<TestResponse>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
 
-    private okhttp3.Call operationOneAsync(String param1, List<String> param2, BigDecimal param3, String pathParam, TestRequest testRequest, String param4, final ApiCallback<TestResponse> _callback) throws ApiException {
+    private okhttp3.Call operationOneAsync(String param1, List<String> param2, BigDecimal param3, String pathParam, String xHeaderParam, TestRequest testRequest, String param4, List<String> xMultiValueHeaderParam, final ApiCallback<TestResponse> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = operationOneValidateBeforeCall(param1, param2, param3, pathParam, testRequest, param4, _callback);
+        okhttp3.Call localVarCall = operationOneValidateBeforeCall(param1, param2, param3, pathParam, xHeaderParam, testRequest, param4, xMultiValueHeaderParam, _callback);
         Type localVarReturnType = new TypeToken<TestResponse>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
@@ -10520,14 +10562,17 @@ public class DefaultApi {
         private final List<String> param2;
         private final BigDecimal param3;
         private final String pathParam;
+        private final String xHeaderParam;
         private final TestRequest testRequest;
         private String param4;
+        private List<String> xMultiValueHeaderParam;
 
-        private APIoperationOneRequest(String param1, List<String> param2, BigDecimal param3, String pathParam, TestRequest testRequest) {
+        private APIoperationOneRequest(String param1, List<String> param2, BigDecimal param3, String pathParam, String xHeaderParam, TestRequest testRequest) {
             this.param1 = param1;
             this.param2 = param2;
             this.param3 = param3;
             this.pathParam = pathParam;
+            this.xHeaderParam = xHeaderParam;
             this.testRequest = testRequest;
         }
 
@@ -10538,6 +10583,16 @@ public class DefaultApi {
          */
         public APIoperationOneRequest param4(String param4) {
             this.param4 = param4;
+            return this;
+        }
+
+        /**
+         * Set xMultiValueHeaderParam
+         * @param xMultiValueHeaderParam  (optional)
+         * @return APIoperationOneRequest
+         */
+        public APIoperationOneRequest xMultiValueHeaderParam(List<String> xMultiValueHeaderParam) {
+            this.xMultiValueHeaderParam = xMultiValueHeaderParam;
             return this;
         }
 
@@ -10554,7 +10609,7 @@ public class DefaultApi {
          </table>
          */
         public okhttp3.Call buildCall(final ApiCallback _callback) throws ApiException {
-            return operationOneCall(param1, param2, param3, pathParam, testRequest, param4, _callback);
+            return operationOneCall(param1, param2, param3, pathParam, xHeaderParam, testRequest, param4, xMultiValueHeaderParam, _callback);
         }
 
         /**
@@ -10569,7 +10624,7 @@ public class DefaultApi {
          </table>
          */
         public TestResponse execute() throws ApiException {
-            ApiResponse<TestResponse> localVarResp = operationOneWithHttpInfo(param1, param2, param3, pathParam, testRequest, param4);
+            ApiResponse<TestResponse> localVarResp = operationOneWithHttpInfo(param1, param2, param3, pathParam, xHeaderParam, testRequest, param4, xMultiValueHeaderParam);
             return localVarResp.getData();
         }
 
@@ -10585,7 +10640,7 @@ public class DefaultApi {
          </table>
          */
         public ApiResponse<TestResponse> executeWithHttpInfo() throws ApiException {
-            return operationOneWithHttpInfo(param1, param2, param3, pathParam, testRequest, param4);
+            return operationOneWithHttpInfo(param1, param2, param3, pathParam, xHeaderParam, testRequest, param4, xMultiValueHeaderParam);
         }
 
         /**
@@ -10601,7 +10656,7 @@ public class DefaultApi {
          </table>
          */
         public okhttp3.Call executeAsync(final ApiCallback<TestResponse> _callback) throws ApiException {
-            return operationOneAsync(param1, param2, param3, pathParam, testRequest, param4, _callback);
+            return operationOneAsync(param1, param2, param3, pathParam, xHeaderParam, testRequest, param4, xMultiValueHeaderParam, _callback);
         }
     }
 
@@ -10612,6 +10667,7 @@ public class DefaultApi {
      * @param param2  (required)
      * @param param3  (required)
      * @param pathParam  (required)
+     * @param xHeaderParam  (required)
      * @param testRequest  (required)
      * @return APIoperationOneRequest
      * @http.response.details
@@ -10621,8 +10677,8 @@ public class DefaultApi {
         <tr><td> 400 </td><td> Error response </td><td>  -  </td></tr>
      </table>
      */
-    public APIoperationOneRequest operationOne(String param1, List<String> param2, BigDecimal param3, String pathParam, TestRequest testRequest) {
-        return new APIoperationOneRequest(param1, param2, param3, pathParam, testRequest);
+    public APIoperationOneRequest operationOne(String param1, List<String> param2, BigDecimal param3, String pathParam, String xHeaderParam, TestRequest testRequest) {
+        return new APIoperationOneRequest(param1, param2, param3, pathParam, xHeaderParam, testRequest);
     }
     private okhttp3.Call withoutOperationIdDeleteCall(final ApiCallback _callback) throws ApiException {
         String basePath = null;
@@ -11044,7 +11100,7 @@ public class Handlers {
     }
 
     /**
-     * Single-value query and path parameters for the anyRequestResponse operation
+     * Single-value query, path and header parameters for the anyRequestResponse operation
      */
     public static class AnyRequestResponseRequestParameters {
 
@@ -11052,6 +11108,7 @@ public class Handlers {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
         }
@@ -11059,13 +11116,14 @@ public class Handlers {
     }
 
     /**
-     * Multi-value query parameters for the anyRequestResponse operation
+     * Multi-value query and header parameters for the anyRequestResponse operation
      */
     public static class AnyRequestResponseRequestArrayParameters {
 
         public AnyRequestResponseRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
         }
@@ -11269,7 +11327,7 @@ public class Handlers {
     }
 
     /**
-     * Single-value query and path parameters for the empty operation
+     * Single-value query, path and header parameters for the empty operation
      */
     public static class EmptyRequestParameters {
 
@@ -11277,6 +11335,7 @@ public class Handlers {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
         }
@@ -11284,13 +11343,14 @@ public class Handlers {
     }
 
     /**
-     * Multi-value query parameters for the empty operation
+     * Multi-value query and header parameters for the empty operation
      */
     public static class EmptyRequestArrayParameters {
 
         public EmptyRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
         }
@@ -11489,7 +11549,7 @@ public class Handlers {
     }
 
     /**
-     * Single-value query and path parameters for the mapResponse operation
+     * Single-value query, path and header parameters for the mapResponse operation
      */
     public static class MapResponseRequestParameters {
 
@@ -11497,6 +11557,7 @@ public class Handlers {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
         }
@@ -11504,13 +11565,14 @@ public class Handlers {
     }
 
     /**
-     * Multi-value query parameters for the mapResponse operation
+     * Multi-value query and header parameters for the mapResponse operation
      */
     public static class MapResponseRequestArrayParameters {
 
         public MapResponseRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
         }
@@ -11709,7 +11771,7 @@ public class Handlers {
     }
 
     /**
-     * Single-value query and path parameters for the mediaTypes operation
+     * Single-value query, path and header parameters for the mediaTypes operation
      */
     public static class MediaTypesRequestParameters {
 
@@ -11717,6 +11779,7 @@ public class Handlers {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
         }
@@ -11724,13 +11787,14 @@ public class Handlers {
     }
 
     /**
-     * Multi-value query parameters for the mediaTypes operation
+     * Multi-value query and header parameters for the mediaTypes operation
      */
     public static class MediaTypesRequestArrayParameters {
 
         public MediaTypesRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
         }
@@ -11934,7 +11998,7 @@ public class Handlers {
     }
 
     /**
-     * Single-value query and path parameters for the multipleContentTypes operation
+     * Single-value query, path and header parameters for the multipleContentTypes operation
      */
     public static class MultipleContentTypesRequestParameters {
 
@@ -11942,6 +12006,7 @@ public class Handlers {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
         }
@@ -11949,13 +12014,14 @@ public class Handlers {
     }
 
     /**
-     * Multi-value query parameters for the multipleContentTypes operation
+     * Multi-value query and header parameters for the multipleContentTypes operation
      */
     public static class MultipleContentTypesRequestArrayParameters {
 
         public MultipleContentTypesRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
         }
@@ -12208,23 +12274,26 @@ public class Handlers {
     }
 
     /**
-     * Single-value query and path parameters for the operationOne operation
+     * Single-value query, path and header parameters for the operationOne operation
      */
     public static class OperationOneRequestParameters {
         private String param1;
         private String param3;
         private String pathParam;
+        private String xHeaderParam;
         private Optional<String> param4;
 
         public OperationOneRequestParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
             this.param1 = decodedParameters.get("param1");
             this.param3 = decodedParameters.get("param3");
             this.pathParam = decodedParameters.get("pathParam");
+            this.xHeaderParam = decodedParameters.get("x-header-param");
             this.param4 = Optional.ofNullable(decodedParameters.get("param4"));
         }
 
@@ -12237,27 +12306,36 @@ public class Handlers {
         public String getPathParam() {
             return this.pathParam;
         }
+        public String getxHeaderParam() {
+            return this.xHeaderParam;
+        }
         public Optional<String> getParam4() {
             return this.param4;
         }
     }
 
     /**
-     * Multi-value query parameters for the operationOne operation
+     * Multi-value query and header parameters for the operationOne operation
      */
     public static class OperationOneRequestArrayParameters {
         private List<String> param2;
+        private Optional<List<String>> xMultiValueHeaderParam;
 
         public OperationOneRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
             this.param2 = decodedParameters.get("param2");
+            this.xMultiValueHeaderParam = Optional.ofNullable(decodedParameters.get("x-multi-value-header-param"));
         }
 
         public List<String> getParam2() {
             return this.param2;
+        }
+        public Optional<List<String>> getxMultiValueHeaderParam() {
+            return this.xMultiValueHeaderParam;
         }
     }
 
@@ -12462,7 +12540,7 @@ public class Handlers {
     }
 
     /**
-     * Single-value query and path parameters for the withoutOperationIdDelete operation
+     * Single-value query, path and header parameters for the withoutOperationIdDelete operation
      */
     public static class WithoutOperationIdDeleteRequestParameters {
 
@@ -12470,6 +12548,7 @@ public class Handlers {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
         }
@@ -12477,13 +12556,14 @@ public class Handlers {
     }
 
     /**
-     * Multi-value query parameters for the withoutOperationIdDelete operation
+     * Multi-value query and header parameters for the withoutOperationIdDelete operation
      */
     public static class WithoutOperationIdDeleteRequestArrayParameters {
 
         public WithoutOperationIdDeleteRequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
         }
