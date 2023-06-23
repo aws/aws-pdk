@@ -16,11 +16,11 @@ import {
   TypeScriptProject,
   TypeScriptProjectOptions,
 } from "projen/lib/typescript";
-import { NxProject } from "./components/nx-project";
-import { NxWorkspace } from "./components/nx-workspace";
-import { Nx } from "./nx-types";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
-import { NodePackageUtils } from "./utils";
+import { NxProject } from "../../components/nx-project";
+import { NxWorkspace } from "../../components/nx-workspace";
+import { Nx } from "../../nx-types";
+import { NodePackageUtils } from "../../utils";
 
 /**
  * Workspace configurations.
@@ -133,7 +133,7 @@ interface OverrideNxBuildTaskOptions {
  * This project type will bootstrap a NX based monorepo with support for polygot
  * builds, build caching, dependency graph visualization and much more.
  *
- * @pjid nx-monorepo
+ * @pjid nx-monorepo-ts
  */
 export class NxMonorepoProject extends TypeScriptProject {
   // immutable data structures

@@ -35,7 +35,11 @@ export class TypeSafeApiProject extends PDKProject {
         "@aws-sdk/client-s3",
         "@aws-prototyping-sdk/nx-monorepo@^0.x",
       ],
-      deps: ["@aws-prototyping-sdk/pdk-nag@^0.x", "fs-extra"],
+      deps: [
+        "@aws-prototyping-sdk/pdk-nag@^0.x",
+        "@aws-prototyping-sdk/nx-monorepo@^0.x",
+        "fs-extra",
+      ],
       bundledDeps: [
         "fs-extra",
         "lodash",
