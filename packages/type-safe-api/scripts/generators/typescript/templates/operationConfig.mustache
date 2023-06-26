@@ -171,26 +171,26 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
 {{#operations}}
 {{#operation}}
 /**
- * Single-value path/query parameters for {{operationIdCamelCase}}
+ * Single-value path/query/header parameters for {{operationIdCamelCase}}
  */
 export interface {{operationIdCamelCase}}RequestParameters {
 {{#allParams}}
 {{^isBodyParam}}
 {{^isArray}}
-    readonly {{baseName}}{{^required}}?{{/required}}: string;
+    readonly {{#isHeaderParam}}"{{/isHeaderParam}}{{baseName}}{{#isHeaderParam}}"{{/isHeaderParam}}{{^required}}?{{/required}}: string;
 {{/isArray}}
 {{/isBodyParam}}
 {{/allParams}}
 }
 
 /**
- * Multi-value query parameters for {{operationIdCamelCase}}
+ * Multi-value query or header parameters for {{operationIdCamelCase}}
  */
 export interface {{operationIdCamelCase}}RequestArrayParameters {
 {{#allParams}}
 {{^isBodyParam}}
 {{#isArray}}
-    readonly {{baseName}}{{^required}}?{{/required}}: string[];
+    readonly {{#isHeaderParam}}"{{/isHeaderParam}}{{baseName}}{{#isHeaderParam}}"{{/isHeaderParam}}{{^required}}?{{/required}}: string[];
 {{/isArray}}
 {{/isBodyParam}}
 {{/allParams}}
@@ -220,10 +220,12 @@ export const {{nickname}}Handler = (
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
+        ...(event.headers || {}),
     }) as unknown as {{operationIdCamelCase}}RequestParameters;
 
     const requestArrayParameters = decodeRequestParameters({
         ...(event.multiValueQueryStringParameters || {}),
+        ...(event.multiValueHeaders || {}),
     }) as unknown as {{operationIdCamelCase}}RequestArrayParameters;
 
     const demarshal = (bodyString: string): any => {

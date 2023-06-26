@@ -156,7 +156,7 @@ string ErrorMessage
 structure InternalFailureError {
     /// Message with details about the error
     @required
-    errorMessage: ErrorMessage
+    message: ErrorMessage
 }
 
 /// An error at the fault of the client sending invalid input
@@ -165,7 +165,7 @@ structure InternalFailureError {
 structure BadRequestError {
     /// Message with details about the error
     @required
-    errorMessage: ErrorMessage
+    message: ErrorMessage
 }
 
 /// An error due to the client attempting to access a missing resource
@@ -174,7 +174,7 @@ structure BadRequestError {
 structure NotFoundError {
     /// Message with details about the error
     @required
-    errorMessage: ErrorMessage
+    message: ErrorMessage
 }
 
 /// An error due to the client not being authorized to access the resource
@@ -183,7 +183,7 @@ structure NotFoundError {
 structure NotAuthorizedError {
     /// Message with details about the error
     @required
-    errorMessage: ErrorMessage
+    message: ErrorMessage
 }
 `,
       },

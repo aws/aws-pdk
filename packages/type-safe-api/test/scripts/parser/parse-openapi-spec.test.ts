@@ -14,7 +14,7 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
           path.relative(path.resolve(__dirname), tmpDir),
           ".api.json"
         );
-        const command = `TYPE_SAFE_API_DEBUG=1 ../../../scripts/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath}`;
+        const command = `../../../scripts/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });

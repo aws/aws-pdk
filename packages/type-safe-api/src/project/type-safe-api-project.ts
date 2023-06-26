@@ -1,7 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { NxProject, NxWorkspace } from "@aws-prototyping-sdk/nx-monorepo";
+import {
+  NxMonorepoProject,
+  NxProject,
+  NxWorkspace,
+} from "@aws-prototyping-sdk/nx-monorepo";
 import { Project, ProjectOptions, SampleFile } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
@@ -162,6 +166,7 @@ export class TypeSafeApiProject extends Project {
     super(options);
 
     const nxWorkspace = this.getNxWorkspace(options);
+    const isNxTsWorkspace = this.parent instanceof NxMonorepoProject;
 
     // API Definition project containing the model
     const modelDir = "model";
@@ -196,7 +201,7 @@ export class TypeSafeApiProject extends Project {
       parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: runtimeDirRelativeToParent,
-      isWithinMonorepo: !!nxWorkspace,
+      isWithinMonorepo: isNxTsWorkspace,
       // Spec path relative to each generated client dir
       parsedSpecPath: path.join(
         "..",
@@ -265,7 +270,7 @@ export class TypeSafeApiProject extends Project {
       parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: libraryDirRelativeToParent,
-      isWithinMonorepo: !!this.parent,
+      isWithinMonorepo: isNxTsWorkspace,
       // Spec path relative to each generated client dir
       parsedSpecPath: path.join(
         "..",
@@ -326,7 +331,7 @@ export class TypeSafeApiProject extends Project {
       parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: infraDirRelativeToParent,
-      isWithinMonorepo: !!this.parent,
+      isWithinMonorepo: isNxTsWorkspace,
       // Spec path relative to each generated infra package dir
       parsedSpecPath: path.join(
         "..",

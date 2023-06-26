@@ -296,13 +296,13 @@ public class Handlers {
 
     {{/responses}}
     /**
-     * Single-value query and path parameters for the {{nickname}} operation
+     * Single-value query, path and header parameters for the {{nickname}} operation
      */
     public static class {{operationIdCamelCase}}RequestParameters {
         {{#allParams}}
         {{^isBodyParam}}
         {{^isArray}}
-        private {{^required}}Optional<{{/required}}String{{^required}}>{{/required}} {{baseName}};
+        private {{^required}}Optional<{{/required}}String{{^required}}>{{/required}} {{paramName}};
         {{/isArray}}
         {{/isBodyParam}}
         {{/allParams}}
@@ -311,12 +311,13 @@ public class Handlers {
             Map<String, String> parameters = new HashMap<>();
             putAllFromNullableMap(event.getPathParameters(), parameters);
             putAllFromNullableMap(event.getQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getHeaders(), parameters);
             Map<String, String> decodedParameters = decodeRequestParameters(parameters);
 
             {{#allParams}}
             {{^isBodyParam}}
             {{^isArray}}
-            this.{{baseName}} = {{^required}}Optional.ofNullable({{/required}}decodedParameters.get("{{baseName}}"){{^required}}){{/required}};
+            this.{{paramName}} = {{^required}}Optional.ofNullable({{/required}}decodedParameters.get("{{baseName}}"){{^required}}){{/required}};
             {{/isArray}}
             {{/isBodyParam}}
             {{/allParams}}
@@ -326,7 +327,7 @@ public class Handlers {
         {{^isBodyParam}}
         {{^isArray}}
         public {{^required}}Optional<{{/required}}String{{^required}}>{{/required}} {{#schema}}{{getter}}{{/schema}}() {
-            return this.{{baseName}};
+            return this.{{paramName}};
         }
         {{/isArray}}
         {{/isBodyParam}}
@@ -334,13 +335,13 @@ public class Handlers {
     }
 
     /**
-     * Multi-value query parameters for the {{nickname}} operation
+     * Multi-value query and header parameters for the {{nickname}} operation
      */
     public static class {{operationIdCamelCase}}RequestArrayParameters {
         {{#allParams}}
         {{^isBodyParam}}
         {{#isArray}}
-        private {{^required}}Optional<{{/required}}List<String>{{^required}}>{{/required}} {{baseName}};
+        private {{^required}}Optional<{{/required}}List<String>{{^required}}>{{/required}} {{paramName}};
         {{/isArray}}
         {{/isBodyParam}}
         {{/allParams}}
@@ -348,12 +349,13 @@ public class Handlers {
         public {{operationIdCamelCase}}RequestArrayParameters(final APIGatewayProxyRequestEvent event) {
             Map<String, List<String>> parameters = new HashMap<>();
             putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
+            putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
             Map<String, List<String>> decodedParameters = decodeRequestArrayParameters(parameters);
 
             {{#allParams}}
             {{^isBodyParam}}
             {{#isArray}}
-            this.{{baseName}} = {{^required}}Optional.ofNullable({{/required}}decodedParameters.get("{{baseName}}"){{^required}}){{/required}};
+            this.{{paramName}} = {{^required}}Optional.ofNullable({{/required}}decodedParameters.get("{{baseName}}"){{^required}}){{/required}};
             {{/isArray}}
             {{/isBodyParam}}
             {{/allParams}}
@@ -363,7 +365,7 @@ public class Handlers {
         {{^isBodyParam}}
         {{#isArray}}
         public {{^required}}Optional<{{/required}}List<String>{{^required}}>{{/required}} {{#schema}}{{getter}}{{/schema}}() {
-            return this.{{baseName}};
+            return this.{{paramName}};
         }
         {{/isArray}}
         {{/isBodyParam}}

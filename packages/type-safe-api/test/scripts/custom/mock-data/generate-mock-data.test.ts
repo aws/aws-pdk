@@ -11,7 +11,7 @@ describe("Generate Mock Data Unit Tests", () => {
       withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
         const specPath = "../../../resources/specs/single.yaml";
         const outputPath = path.relative(path.resolve(__dirname), tmpDir);
-        const command = `TYPE_SAFE_API_DEBUG=1 ../../../../scripts/custom/mock-data/generate-mock-data --spec-path ${specPath} --output-path ${outputPath}`;
+        const command = `../../../../scripts/custom/mock-data/generate-mock-data --spec-path ${specPath} --output-path ${outputPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });
