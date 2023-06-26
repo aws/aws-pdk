@@ -5,3 +5,4 @@ export * from "./nx-types";
 export * from "./utils";
 export * from "./projects/typescript";
 export * from "./projects/python";
+export * from "./projects/java";
