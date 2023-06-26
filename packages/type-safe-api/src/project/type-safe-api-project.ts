@@ -1,10 +1,14 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import type { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+import {
+  NxMonorepoProject,
+  NxProject,
+  NxWorkspace,
+} from "@aws-prototyping-sdk/nx-monorepo";
 import { Project, ProjectOptions, SampleFile } from "projen";
 import { JavaProject } from "projen/lib/java";
-import { NodePackageManager } from "projen/lib/javascript";
+import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import {
@@ -161,13 +165,14 @@ export class TypeSafeApiProject extends Project {
   constructor(options: TypeSafeApiProjectOptions) {
     super(options);
 
-    const parentMonorepo = this.getParentMonorepo(options);
+    const nxWorkspace = this.getNxWorkspace(options);
+    const isNxTsWorkspace = this.parent instanceof NxMonorepoProject;
 
     // API Definition project containing the model
     const modelDir = "model";
     this.model = new TypeSafeApiModelProject({
-      parent: parentMonorepo ?? this,
-      outdir: parentMonorepo ? path.join(options.outdir!, modelDir) : modelDir,
+      parent: nxWorkspace ? this.parent : this,
+      outdir: nxWorkspace ? path.join(options.outdir!, modelDir) : modelDir,
       name: `${options.name}-model`,
       modelLanguage: options.model.language,
       modelOptions: options.model.options,
@@ -187,16 +192,16 @@ export class TypeSafeApiProject extends Project {
     ];
 
     const runtimeDir = "runtime";
-    const runtimeDirRelativeToParent = parentMonorepo
+    const runtimeDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, runtimeDir)
       : runtimeDir;
 
     // Declare the generated runtime projects
     const generatedRuntimeProjects = generateRuntimeProjects(runtimeLanguages, {
-      parent: parentMonorepo ?? this,
+      parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: runtimeDirRelativeToParent,
-      isWithinMonorepo: !!parentMonorepo,
+      isWithinMonorepo: isNxTsWorkspace,
       // Spec path relative to each generated client dir
       parsedSpecPath: path.join(
         "..",
@@ -205,11 +210,11 @@ export class TypeSafeApiProject extends Project {
       ),
       typescriptOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
-        defaultReleaseBranch:
-          parentMonorepo?.release?.branches?.[0] ?? "mainline",
-        packageManager: parentMonorepo
-          ? parentMonorepo.package.packageManager
-          : NodePackageManager.YARN,
+        defaultReleaseBranch: nxWorkspace?.affected?.defaultBase ?? "mainline",
+        packageManager:
+          this.parent && this.parent instanceof NodeProject
+            ? this.parent.package.packageManager
+            : NodePackageManager.YARN,
         ...options.runtime.options?.typescript,
       },
       pythonOptions: {
@@ -229,12 +234,12 @@ export class TypeSafeApiProject extends Project {
     ];
 
     const docsDir = "documentation";
-    const docsDirRelativeToParent = parentMonorepo
+    const docsDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, docsDir)
       : docsDir;
 
     const generatedDocs = generateDocsProjects(documentationFormats, {
-      parent: parentMonorepo ?? this,
+      parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedDocsDir: docsDirRelativeToParent,
       // Spec path relative to each generated doc format dir
@@ -256,16 +261,16 @@ export class TypeSafeApiProject extends Project {
     const libraries = [...new Set(options.library?.libraries ?? [])];
 
     const libraryDir = "libraries";
-    const libraryDirRelativeToParent = parentMonorepo
+    const libraryDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, libraryDir)
       : libraryDir;
 
     // Declare the generated runtime projects
     const generatedLibraryProjects = generateLibraryProjects(libraries, {
-      parent: parentMonorepo ?? this,
+      parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: libraryDirRelativeToParent,
-      isWithinMonorepo: !!parentMonorepo,
+      isWithinMonorepo: isNxTsWorkspace,
       // Spec path relative to each generated client dir
       parsedSpecPath: path.join(
         "..",
@@ -274,23 +279,23 @@ export class TypeSafeApiProject extends Project {
       ),
       typescriptReactQueryHooksOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
-        defaultReleaseBranch:
-          parentMonorepo?.release?.branches?.[0] ?? "mainline",
-        packageManager: parentMonorepo
-          ? parentMonorepo.package.packageManager
-          : NodePackageManager.YARN,
+        defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
+        packageManager:
+          this.parent && this.parent instanceof NodeProject
+            ? this.parent.package.packageManager
+            : NodePackageManager.YARN,
         ...options.runtime.options?.typescript,
       },
     });
 
     // Ensure the generated runtime, libraries and docs projects have a dependency on the model project
-    if (parentMonorepo) {
+    if (this.parent) {
       [
         ...Object.values(generatedRuntimeProjects),
         ...Object.values(generatedDocs),
         ...Object.values(generatedLibraryProjects),
       ].forEach((project) => {
-        parentMonorepo.addImplicitDependency(project, this.model);
+        NxProject.ensure(project).addImplicitDependency(this.model);
       });
     }
 
@@ -317,16 +322,16 @@ export class TypeSafeApiProject extends Project {
     };
 
     const infraDir = "infrastructure";
-    const infraDirRelativeToParent = parentMonorepo
+    const infraDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, infraDir)
       : infraDir;
 
     // Infrastructure project
     const infraProject = generateInfraProject(options.infrastructure.language, {
-      parent: parentMonorepo ?? this,
+      parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: infraDirRelativeToParent,
-      isWithinMonorepo: !!parentMonorepo,
+      isWithinMonorepo: isNxTsWorkspace,
       // Spec path relative to each generated infra package dir
       parsedSpecPath: path.join(
         "..",
@@ -335,11 +340,11 @@ export class TypeSafeApiProject extends Project {
       ),
       typescriptOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
-        defaultReleaseBranch:
-          parentMonorepo?.release?.branches?.[0] ?? "mainline",
-        packageManager: parentMonorepo
-          ? parentMonorepo.package.packageManager
-          : NodePackageManager.YARN,
+        defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
+        packageManager:
+          this.parent && this.parent instanceof NodeProject
+            ? this.parent.package.packageManager
+            : NodePackageManager.YARN,
         ...options.infrastructure.options?.typescript,
       },
       pythonOptions: {
@@ -370,22 +375,19 @@ export class TypeSafeApiProject extends Project {
     // Add implicit dependencies and assign the appropriate infrastructure project member
     switch (options.infrastructure.language) {
       case Language.JAVA:
-        parentMonorepo?.addImplicitDependency?.(
-          infraProject,
+        NxProject.ensure(infraProject).addImplicitDependency(
           this.runtime.java!
         );
         infraProjects.java = infraProject as JavaProject;
         break;
       case Language.PYTHON:
-        parentMonorepo?.addImplicitDependency?.(
-          infraProject,
+        NxProject.ensure(infraProject).addImplicitDependency(
           this.runtime.python!
         );
         infraProjects.python = infraProject as PythonProject;
         break;
       case Language.TYPESCRIPT:
-        parentMonorepo?.addImplicitDependency?.(
-          infraProject,
+        NxProject.ensure(infraProject).addImplicitDependency(
           this.runtime.typescript!
         );
         infraProjects.typescript = infraProject as TypeScriptProject;
@@ -397,9 +399,9 @@ export class TypeSafeApiProject extends Project {
     }
     this.infrastructure = infraProjects;
 
-    parentMonorepo?.addImplicitDependency?.(infraProject, this.model);
+    NxProject.ensure(infraProject).addImplicitDependency(this.model);
 
-    if (!parentMonorepo) {
+    if (!nxWorkspace) {
       // Add a task for the non-monorepo case to build the projects in the right order
       [
         this.model,
@@ -427,12 +429,9 @@ export class TypeSafeApiProject extends Project {
     });
   }
 
-  private getParentMonorepo = (
+  private getNxWorkspace = (
     options: TypeSafeApiProjectOptions
-  ): NxMonorepoProject | undefined => {
-    if (options.parent && "addImplicitDependency" in options.parent) {
-      return options.parent as NxMonorepoProject;
-    }
-    return undefined;
+  ): NxWorkspace | undefined => {
+    return options.parent ? NxWorkspace.of(options.parent) : undefined;
   };
 }
