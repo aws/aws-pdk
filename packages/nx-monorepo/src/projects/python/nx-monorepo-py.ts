@@ -1,10 +1,13 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "path";
 import { Project, Task } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager } from "projen/lib/javascript";
 import { Poetry, PythonProject, PythonProjectOptions } from "projen/lib/python";
+import {
+  INxProjectCore,
+  NxConfigurator,
+} from "../../components/nx-configurator";
 import { NxProject } from "../../components/nx-project";
 import { NxWorkspace } from "../../components/nx-workspace";
 import { Nx } from "../../nx-types";
@@ -23,8 +26,11 @@ export interface NxMonorepoPythonProjectOptions extends PythonProjectOptions {
  *
  * @pjid nx-monorepo-py
  */
-export class NxMonorepoPythonProject extends PythonProject {
-  public readonly nx: NxWorkspace;
+export class NxMonorepoPythonProject
+  extends PythonProject
+  implements INxProjectCore
+{
+  public readonly nxConfigurator: NxConfigurator;
   private readonly installTask?: Task;
 
   constructor(options: NxMonorepoPythonProjectOptions) {
@@ -35,184 +41,82 @@ export class NxMonorepoPythonProject extends PythonProject {
       pytest: false,
     });
 
-    this.installTask = this.tasks.tryFind("install");
     this.addDevDependency("aws-prototyping-sdk.nx-monorepo@^0.x");
 
-    this.addTask("run-many", {
-      receiveArgs: true,
-      exec: NodePackageUtils.command.exec(
-        NodePackageManager.NPM,
-        "nx",
-        "run-many"
-      ),
-      description: "Run task against multiple workspace projects",
+    this.nxConfigurator = new NxConfigurator(this, {
+      defaultReleaseBranch: options.defaultReleaseBranch,
     });
 
-    this.addTask("graph", {
-      receiveArgs: true,
-      exec: NodePackageUtils.command.exec(
-        NodePackageManager.NPM,
-        "nx",
-        "graph"
-      ),
-      description: "Generate dependency graph for monorepo",
-    });
-
-    this.nx = NxWorkspace.of(this) || new NxWorkspace(this);
-    this.nx.affected.defaultBase = options.defaultReleaseBranch ?? "mainline";
+    // Setup python NX plugin
+    this.nx.plugins.push("@nxlv/python");
+    this.installTask =
+      this.nxConfigurator.ensureNxInstallTask("@nxlv/python@^16");
   }
 
   /**
-   * Helper to format `npx nx run-many ...` style command execution in package manager.
-   * @param options
+   * @inheritdoc
+   */
+  public get nx(): NxWorkspace {
+    return this.nxConfigurator.nx;
+  }
+
+  /**
+   * @inheritdoc
    */
   public execNxRunManyCommand(options: Nx.RunManyOptions): string {
-    return NodePackageUtils.command.exec(
-      NodePackageManager.NPM,
-      ...this.composeNxRunManyCommand(options)
-    );
+    return this.nxConfigurator.execNxRunManyCommand(options);
   }
 
   /**
-   * Helper to format `npx nx run-many ...` style command
-   * @param options
+   * @inheritdoc
    */
   public composeNxRunManyCommand(options: Nx.RunManyOptions): string[] {
-    const args: string[] = [];
-    if (options.configuration) {
-      args.push(`--configuration=${options.configuration}`);
-    }
-    if (options.runner) {
-      args.push(`--runner=${options.runner}`);
-    }
-    if (options.parallel) {
-      args.push(`--parallel=${options.parallel}`);
-    }
-    if (options.skipCache) {
-      args.push("--skip-nx-cache");
-    }
-    if (options.ignoreCycles) {
-      args.push("--nx-ignore-cycles");
-    }
-    if (options.noBail !== true) {
-      args.push("--nx-bail");
-    }
-    if (options.projects && options.projects.length) {
-      args.push(`--projects=${options.projects.join(",")}`);
-    }
-    if (options.exclude) {
-      args.push(`--exclude=${options.exclude}`);
-    }
-    if (options.verbose) {
-      args.push("--verbose");
-    }
-
-    return [
-      "nx",
-      "run-many",
-      `--target=${options.target}`,
-      `--output-style=${options.outputStyle || "stream"}`,
-      ...args,
-    ];
+    return this.nxConfigurator.composeNxRunManyCommand(options);
   }
 
   /**
-   * Add project task that executes `npx nx run-many ...` style command.
+   * @inheritdoc
    */
   public addNxRunManyTask(name: string, options: Nx.RunManyOptions): Task {
-    return this.addTask(name, {
-      receiveArgs: true,
-      exec: this.execNxRunManyCommand(options),
-    });
+    return this.nxConfigurator.addNxRunManyTask(name, options);
   }
 
   /**
-   * Create an implicit dependency between two Projects. This is typically
-   * used in polygot repos where a Typescript project wants a build dependency
-   * on a Python project as an example.
-   *
-   * @param dependent project you want to have the dependency.
-   * @param dependee project you wish to depend on.
-   * @throws error if this is called on a dependent which does not have a NXProject component attached.
+   * @inheritdoc
    */
-  public addImplicitDependency(dependent: Project, dependee: Project | string) {
-    NxProject.ensure(dependent).addImplicitDependency(dependee);
+  public addImplicitDependency(
+    dependent: Project,
+    dependee: string | Project
+  ): void {
+    this.nxConfigurator.addImplicitDependency(dependent, dependee);
   }
 
   /**
-   * Adds a dependency between two Java Projects in the monorepo.
-   * @param dependent project you want to have the dependency
-   * @param dependee project you wish to depend on
+   * @inheritdoc
    */
-  public addJavaDependency(dependent: JavaProject, dependee: JavaProject) {
-    // Add implicit dependency for build order
-    this.addImplicitDependency(dependent, dependee);
-
-    // Add dependency in pom.xml
-    dependent.addDependency(
-      `${dependee.pom.groupId}/${dependee.pom.artifactId}@${dependee.pom.version}`
-    );
-
-    // Add a repository so that the dependency in the pom can be resolved
-    dependent.pom.addRepository({
-      id: dependee.name,
-      url: `file://${path.join(
-        path.relative(dependent.outdir, dependee.outdir),
-        dependee.packaging.distdir
-      )}`,
-    });
+  public addJavaDependency(
+    dependent: JavaProject,
+    dependee: JavaProject
+  ): void {
+    this.nxConfigurator.addJavaDependency(dependent, dependee);
   }
 
   /**
-   * Adds a dependency between two Python Projects in the monorepo. The dependent must have Poetry enabled.
-   * @param dependent project you want to have the dependency (must be a Poetry Python Project)
-   * @param dependee project you wish to depend on
-   * @throws error if the dependent does not have Poetry enabled
+   * @inheritdoc
    */
   public addPythonPoetryDependency(
     dependent: PythonProject,
     dependee: PythonProject
-  ) {
-    // Check we're adding the dependency to a poetry python project
-    if (!(dependent.depsManager instanceof Poetry)) {
-      throw new Error(
-        `${dependent.name} must be a PythonProject with Poetry enabled to add this dependency`
-      );
-    }
-
-    // Add implicit dependency for build order
-    this.addImplicitDependency(dependent, dependee);
-
-    // Add local path dependency
-    dependent.addDependency(
-      `${dependee.name}@{path="${path.relative(
-        dependent.outdir,
-        dependee.outdir
-      )}", develop=true}`
-    );
+  ): void {
+    this.nxConfigurator.addPythonPoetryDependency(dependent, dependee);
   }
 
   /**
-   * Ensures that all non-root projects have NxProject applied.
-   * @internal
+   * @inheritdoc
    */
-  protected _ensureNxProjectGraph(): void {
-    function _ensure(_project: Project) {
-      if (_project.root === _project) return;
-
-      NxProject.ensure(_project);
-
-      _project.subprojects.forEach((p) => {
-        _ensure(p);
-      });
-    }
-
-    this.subprojects.forEach(_ensure);
-  }
-
   preSynthesize(): void {
     // Calling before super() to ensure proper pre-synth of NxProject component and its nested components
-    this._ensureNxProjectGraph();
+    this.nxConfigurator.preSynthesize();
 
     super.preSynthesize();
   }
@@ -222,8 +126,8 @@ export class NxMonorepoPythonProject extends PythonProject {
    */
   synth() {
     this.validateSubProjects();
-    this.setupPythonNx();
     this.installPythonSubprojects();
+    this.nxConfigurator.synth();
 
     super.synth();
   }
@@ -238,14 +142,6 @@ export class NxMonorepoPythonProject extends PythonProject {
     process.env.VIRTUAL_ENV = "";
     super.postSynthesize();
     process.env.VIRTUAL_ENV = vEnv;
-  }
-
-  /**
-   * Configures the python plugin on NX and ensures local nx dependencies are installed.
-   */
-  private setupPythonNx() {
-    this.nx.plugins.push("@nxlv/python");
-    this.installTask?.exec("npm install --save-dev @nxlv/python@^16 nx@^16");
   }
 
   /**

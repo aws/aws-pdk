@@ -2,3 +2,4 @@
 SPDX-License-Identifier: Apache-2.0 */
 export * from "./nx-project";
 export * from "./nx-workspace";
+export * from "./nx-configurator";
