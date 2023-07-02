@@ -289,7 +289,7 @@ export class NxMonorepoProject
       );
       upgradeDepsTask.exec(
         NodePackageUtils.command.exec(
-          NodePackageManager.PNPM,
+          this.package.packageManager,
           "npm-check-updates",
           "--deep",
           "--rejectVersion",
