@@ -6,6 +6,7 @@ import { PDKNag, AwsPrototypingChecks } from "@aws-prototyping-sdk/pdk-nag";
 import { NestedStack, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
+import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { NagSuppressions } from "cdk-nag";
 import { StaticWebsite, StaticWebsiteOrigin } from "../src";
 
@@ -113,6 +114,18 @@ describe("Static Website Unit Tests", () => {
       websiteContentPath: path.join(__dirname, "sample-website"),
       webAclProps: {
         disable: true,
+      },
+    });
+
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("With custom bucket deployment props", () => {
+    const stack = new Stack(PDKNag.app());
+    new StaticWebsite(stack, "CustomBucketDeploymentProps", {
+      websiteContentPath: path.join(__dirname, "sample-website"),
+      bucketDeploymentProps: {
+        logRetention: RetentionDays.EIGHT_YEARS,
       },
     });
 
