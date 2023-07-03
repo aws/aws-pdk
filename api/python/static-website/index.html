@@ -2902,6 +2902,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#bucketdeploymentprops" class="md-nav__link">
+    BucketDeploymentProps 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#cidrallowlist" class="md-nav__link">
     CidrAllowList 
   </a>
@@ -3199,6 +3206,7 @@ and commonly occurring vulnerabilities described in OWASP publications such as O
   <span class="n">scope</span><span class="p">:</span> <span class="n">Construct</span><span class="p">,</span>
   <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
   <span class="n">website_content_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">bucket_deployment_props</span><span class="p">:</span> <span class="n">BucketDeploymentProps</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_website_bucket_encryption</span><span class="p">:</span> <span class="n">BucketEncryption</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_website_bucket_encryption_key</span><span class="p">:</span> <span class="n">Key</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">distribution_props</span><span class="p">:</span> <span class="n">DistributionProps</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3230,6 +3238,11 @@ and commonly occurring vulnerabilities described in OWASP publications such as O
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.websiteContentPath">website_content_path</a></code></td>
 <td><code>str</code></td>
 <td>Path to the directory containing the static website files and assets.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.bucketDeploymentProps">bucket_deployment_props</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps">BucketDeploymentProps</a></code></td>
+<td>Custom bucket deployment properties.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.defaultWebsiteBucketEncryption">default_website_bucket_encryption</a></code></td>
@@ -3280,6 +3293,14 @@ and commonly occurring vulnerabilities described in OWASP publications such as O
 </ul>
 <p>Path to the directory containing the static website files and assets.</p>
 <p>This directory must contain an index.html file.</p>
+<hr />
+<h5 id="bucket_deployment_propsoptional"><code>bucket_deployment_props</code><sup>Optional</sup> <a name="bucket_deployment_props" id="@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.bucketDeploymentProps"></a></h5>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps">BucketDeploymentProps</a></li>
+</ul>
+<p>Custom bucket deployment properties.</p>
+<div class="highlight"><pre><span></span><code>
+</code></pre></div>
 <hr />
 <h5 id="default_website_bucket_encryptionoptional"><code>default_website_bucket_encryption</code><sup>Optional</sup> <a name="default_website_bucket_encryption" id="@aws-prototyping-sdk/static-website.StaticWebsite.Initializer.parameter.defaultWebsiteBucketEncryption"></a></h5>
 <ul>
@@ -3450,9 +3471,536 @@ this type-testing method instead.</p>
 </ul>
 <hr />
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
+<h3 id="bucketdeploymentprops">BucketDeploymentProps <a name="BucketDeploymentProps" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps"></a></h3>
+<p>Bucket Deployment props.</p>
+<p>NOTE: forked from aws-cdk-lib/s3-deployment without any required props.</p>
+<h4 id="initializer">Initializer <a name="Initializer" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.Initializer"></a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.static_website</span>
+
+<span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">static_website</span><span class="o">.</span><span class="n">BucketDeploymentProps</span><span class="p">(</span>
+  <span class="n">access_control</span><span class="p">:</span> <span class="n">BucketAccessControl</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">cache_control</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">CacheControl</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">content_disposition</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">content_encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">content_language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">destination_key_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">distribution</span><span class="p">:</span> <span class="n">IDistribution</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">distribution_paths</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ephemeral_storage_size</span><span class="p">:</span> <span class="n">Size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">exclude</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">expires</span><span class="p">:</span> <span class="n">Expiration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">extract</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">include</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">log_retention</span><span class="p">:</span> <span class="n">RetentionDays</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">memory_limit</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">prune</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">retain_on_delete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">role</span><span class="p">:</span> <span class="n">IRole</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">server_side_encryption</span><span class="p">:</span> <span class="n">ServerSideEncryption</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">server_side_encryption_aws_kms_key_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">server_side_encryption_customer_algorithm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">sign_content</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">storage_class</span><span class="p">:</span> <span class="n">StorageClass</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">use_efs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">vpc</span><span class="p">:</span> <span class="n">IVpc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">vpc_subnets</span><span class="p">:</span> <span class="n">SubnetSelection</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">website_redirect_location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.accessControl">access_control</a></code></td>
+<td><code>aws_cdk.aws_s3.BucketAccessControl</code></td>
+<td>System-defined x-amz-acl metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.cacheControl">cache_control</a></code></td>
+<td><code>typing.List[aws_cdk.aws_s3_deployment.CacheControl]</code></td>
+<td>System-defined cache-control metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.contentDisposition">content_disposition</a></code></td>
+<td><code>str</code></td>
+<td>System-defined cache-disposition metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.contentEncoding">content_encoding</a></code></td>
+<td><code>str</code></td>
+<td>System-defined content-encoding metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.contentLanguage">content_language</a></code></td>
+<td><code>str</code></td>
+<td>System-defined content-language metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.contentType">content_type</a></code></td>
+<td><code>str</code></td>
+<td>System-defined content-type metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.destinationKeyPrefix">destination_key_prefix</a></code></td>
+<td><code>str</code></td>
+<td>Key prefix in the destination bucket.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.distribution">distribution</a></code></td>
+<td><code>aws_cdk.aws_cloudfront.IDistribution</code></td>
+<td>The CloudFront distribution using the destination bucket as an origin.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.distributionPaths">distribution_paths</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>The file paths to invalidate in the CloudFront distribution.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.ephemeralStorageSize">ephemeral_storage_size</a></code></td>
+<td><code>aws_cdk.Size</code></td>
+<td>The size of the AWS Lambda function’s /tmp directory in MiB.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.exclude">exclude</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>If this is set, matching files or objects will be excluded from the deployment's sync command.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.expires">expires</a></code></td>
+<td><code>aws_cdk.Expiration</code></td>
+<td>System-defined expires metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.extract">extract</a></code></td>
+<td><code>bool</code></td>
+<td>If this is set, the zip file will be synced to the destination S3 bucket and extracted.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.include">include</a></code></td>
+<td><code>typing.List[str]</code></td>
+<td>If this is set, matching files or objects will be included with the deployment's sync command.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.logRetention">log_retention</a></code></td>
+<td><code>aws_cdk.aws_logs.RetentionDays</code></td>
+<td>The number of days that the lambda function's log events are kept in CloudWatch Logs.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.memoryLimit">memory_limit</a></code></td>
+<td><code>typing.Union[int, float]</code></td>
+<td>The amount of memory (in MiB) to allocate to the AWS Lambda function which replicates the files from the CDK bucket to the destination bucket.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.metadata">metadata</a></code></td>
+<td><code>typing.Mapping[str]</code></td>
+<td>User-defined object metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.prune">prune</a></code></td>
+<td><code>bool</code></td>
+<td>If this is set to false, files in the destination bucket that do not exist in the asset, will NOT be deleted during deployment (create/update).</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.retainOnDelete">retain_on_delete</a></code></td>
+<td><code>bool</code></td>
+<td>If this is set to "false", the destination files will be deleted when the resource is deleted or the destination is updated.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.role">role</a></code></td>
+<td><code>aws_cdk.aws_iam.IRole</code></td>
+<td>Execution role associated with this function.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.serverSideEncryption">server_side_encryption</a></code></td>
+<td><code>aws_cdk.aws_s3_deployment.ServerSideEncryption</code></td>
+<td>System-defined x-amz-server-side-encryption metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.serverSideEncryptionAwsKmsKeyId">server_side_encryption_aws_kms_key_id</a></code></td>
+<td><code>str</code></td>
+<td>System-defined x-amz-server-side-encryption-aws-kms-key-id metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.serverSideEncryptionCustomerAlgorithm">server_side_encryption_customer_algorithm</a></code></td>
+<td><code>str</code></td>
+<td>System-defined x-amz-server-side-encryption-customer-algorithm metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.signContent">sign_content</a></code></td>
+<td><code>bool</code></td>
+<td>If set to true, uploads will precompute the value of <code>x-amz-content-sha256</code> and include it in the signed S3 request headers.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.storageClass">storage_class</a></code></td>
+<td><code>aws_cdk.aws_s3_deployment.StorageClass</code></td>
+<td>System-defined x-amz-storage-class metadata to be set on all objects in the deployment.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.useEfs">use_efs</a></code></td>
+<td><code>bool</code></td>
+<td>Mount an EFS file system.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.vpc">vpc</a></code></td>
+<td><code>aws_cdk.aws_ec2.IVpc</code></td>
+<td>The VPC network to place the deployment lambda handler in.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.vpcSubnets">vpc_subnets</a></code></td>
+<td><code>aws_cdk.aws_ec2.SubnetSelection</code></td>
+<td>Where in the VPC to place the deployment lambda handler.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.websiteRedirectLocation">website_redirect_location</a></code></td>
+<td><code>str</code></td>
+<td>System-defined x-amz-website-redirect-location metadata to be set on all objects in the deployment.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h5 id="access_controloptional"><code>access_control</code><sup>Optional</sup> <a name="access_control" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.accessControl"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">access_control</span><span class="p">:</span> <span class="n">BucketAccessControl</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_s3.BucketAccessControl</li>
+<li><em>Default:</em> Not set.</li>
+</ul>
+<p>System-defined x-amz-acl metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl">https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl</a></p>
+</blockquote>
+<hr />
+<h5 id="cache_controloptional"><code>cache_control</code><sup>Optional</sup> <a name="cache_control" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.cacheControl"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">cache_control</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">CacheControl</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[aws_cdk.aws_s3_deployment.CacheControl]</li>
+<li><em>Default:</em> Not set.</li>
+</ul>
+<p>System-defined cache-control metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata</a></p>
+</blockquote>
+<hr />
+<h5 id="content_dispositionoptional"><code>content_disposition</code><sup>Optional</sup> <a name="content_disposition" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.contentDisposition"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">content_disposition</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> Not set.</li>
+</ul>
+<p>System-defined cache-disposition metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata</a></p>
+</blockquote>
+<hr />
+<h5 id="content_encodingoptional"><code>content_encoding</code><sup>Optional</sup> <a name="content_encoding" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.contentEncoding"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">content_encoding</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> Not set.</li>
+</ul>
+<p>System-defined content-encoding metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata</a></p>
+</blockquote>
+<hr />
+<h5 id="content_languageoptional"><code>content_language</code><sup>Optional</sup> <a name="content_language" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.contentLanguage"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">content_language</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> Not set.</li>
+</ul>
+<p>System-defined content-language metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata</a></p>
+</blockquote>
+<hr />
+<h5 id="content_typeoptional"><code>content_type</code><sup>Optional</sup> <a name="content_type" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.contentType"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> Not set.</li>
+</ul>
+<p>System-defined content-type metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata</a></p>
+</blockquote>
+<hr />
+<h5 id="destination_key_prefixoptional"><code>destination_key_prefix</code><sup>Optional</sup> <a name="destination_key_prefix" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.destinationKeyPrefix"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">destination_key_prefix</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> "/" (unzip to root of the destination bucket)</li>
+</ul>
+<p>Key prefix in the destination bucket.</p>
+<p>Must be &lt;=104 characters</p>
+<hr />
+<h5 id="distributionoptional"><code>distribution</code><sup>Optional</sup> <a name="distribution" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.distribution"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">distribution</span><span class="p">:</span> <span class="n">IDistribution</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_cloudfront.IDistribution</li>
+<li><em>Default:</em> No invalidation occurs</li>
+</ul>
+<p>The CloudFront distribution using the destination bucket as an origin.</p>
+<p>Files in the distribution's edge caches will be invalidated after
+files are uploaded to the destination bucket.</p>
+<hr />
+<h5 id="distribution_pathsoptional"><code>distribution_paths</code><sup>Optional</sup> <a name="distribution_paths" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.distributionPaths"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">distribution_paths</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> All files under the destination bucket key prefix will be invalidated.</li>
+</ul>
+<p>The file paths to invalidate in the CloudFront distribution.</p>
+<hr />
+<h5 id="ephemeral_storage_sizeoptional"><code>ephemeral_storage_size</code><sup>Optional</sup> <a name="ephemeral_storage_size" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.ephemeralStorageSize"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">ephemeral_storage_size</span><span class="p">:</span> <span class="n">Size</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.Size</li>
+<li><em>Default:</em> 512 MiB</li>
+</ul>
+<p>The size of the AWS Lambda function’s /tmp directory in MiB.</p>
+<hr />
+<h5 id="excludeoptional"><code>exclude</code><sup>Optional</sup> <a name="exclude" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.exclude"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">exclude</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> No exclude filters are used</li>
+</ul>
+<p>If this is set, matching files or objects will be excluded from the deployment's sync command.</p>
+<p>This can be used to exclude a file from being pruned in the destination bucket.</p>
+<p>If you want to just exclude files from the deployment package (which excludes these files
+evaluated when invalidating the asset), you should leverage the <code>exclude</code> property of
+<code>AssetOptions</code> when defining your source.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/cli/latest/reference/s3/index.html#use-of-exclude-and-include-filters">https://docs.aws.amazon.com/cli/latest/reference/s3/index.html#use-of-exclude-and-include-filters</a></p>
+</blockquote>
+<hr />
+<h5 id="expiresoptional"><code>expires</code><sup>Optional</sup> <a name="expires" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.expires"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">expires</span><span class="p">:</span> <span class="n">Expiration</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.Expiration</li>
+<li><em>Default:</em> The objects in the distribution will not expire.</li>
+</ul>
+<p>System-defined expires metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata</a></p>
+</blockquote>
+<hr />
+<h5 id="extractoptional"><code>extract</code><sup>Optional</sup> <a name="extract" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.extract"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">extract</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>If this is set, the zip file will be synced to the destination S3 bucket and extracted.</p>
+<p>If false, the file will remain zipped in the destination bucket.</p>
+<hr />
+<h5 id="includeoptional"><code>include</code><sup>Optional</sup> <a name="include" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.include"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">include</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.List[str]</li>
+<li><em>Default:</em> No include filters are used and all files are included with the sync command</li>
+</ul>
+<p>If this is set, matching files or objects will be included with the deployment's sync command.</p>
+<p>Since all files from the deployment package are included by default, this property
+is usually leveraged alongside an <code>exclude</code> filter.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/cli/latest/reference/s3/index.html#use-of-exclude-and-include-filters">https://docs.aws.amazon.com/cli/latest/reference/s3/index.html#use-of-exclude-and-include-filters</a></p>
+</blockquote>
+<hr />
+<h5 id="log_retentionoptional"><code>log_retention</code><sup>Optional</sup> <a name="log_retention" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.logRetention"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">log_retention</span><span class="p">:</span> <span class="n">RetentionDays</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_logs.RetentionDays</li>
+<li><em>Default:</em> logs.RetentionDays.INFINITE</li>
+</ul>
+<p>The number of days that the lambda function's log events are kept in CloudWatch Logs.</p>
+<hr />
+<h5 id="memory_limitoptional"><code>memory_limit</code><sup>Optional</sup> <a name="memory_limit" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.memoryLimit"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">memory_limit</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.Union[int, float]</li>
+<li><em>Default:</em> 128</li>
+</ul>
+<p>The amount of memory (in MiB) to allocate to the AWS Lambda function which replicates the files from the CDK bucket to the destination bucket.</p>
+<p>If you are deploying large files, you will need to increase this number
+accordingly.</p>
+<hr />
+<h5 id="metadataoptional"><code>metadata</code><sup>Optional</sup> <a name="metadata" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.metadata"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> typing.Mapping[str]</li>
+<li><em>Default:</em> No user metadata is set</li>
+</ul>
+<p>User-defined object metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#UserMetadata">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#UserMetadata</a></p>
+</blockquote>
+<hr />
+<h5 id="pruneoptional"><code>prune</code><sup>Optional</sup> <a name="prune" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.prune"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">prune</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true</li>
+</ul>
+<p>If this is set to false, files in the destination bucket that do not exist in the asset, will NOT be deleted during deployment (create/update).</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/cli/latest/reference/s3/sync.html">https://docs.aws.amazon.com/cli/latest/reference/s3/sync.html</a></p>
+</blockquote>
+<hr />
+<h5 id="retain_on_deleteoptional"><code>retain_on_delete</code><sup>Optional</sup> <a name="retain_on_delete" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.retainOnDelete"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">retain_on_delete</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true - when resource is deleted/updated, files are retained</li>
+</ul>
+<p>If this is set to "false", the destination files will be deleted when the resource is deleted or the destination is updated.</p>
+<p>NOTICE: Configuring this to "false" might have operational implications. Please
+visit to the package documentation referred below to make sure you fully understand those implications.</p>
+<blockquote>
+<p><a href="https://github.com/aws/aws-cdk/tree/main/packages/%40aws-cdk/aws-s3-deployment#retain-on-delete">https://github.com/aws/aws-cdk/tree/main/packages/%40aws-cdk/aws-s3-deployment#retain-on-delete</a></p>
+</blockquote>
+<hr />
+<h5 id="roleoptional"><code>role</code><sup>Optional</sup> <a name="role" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.role"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">role</span><span class="p">:</span> <span class="n">IRole</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_iam.IRole</li>
+<li><em>Default:</em> A role is automatically created</li>
+</ul>
+<p>Execution role associated with this function.</p>
+<hr />
+<h5 id="server_side_encryptionoptional"><code>server_side_encryption</code><sup>Optional</sup> <a name="server_side_encryption" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.serverSideEncryption"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">server_side_encryption</span><span class="p">:</span> <span class="n">ServerSideEncryption</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_s3_deployment.ServerSideEncryption</li>
+<li><em>Default:</em> Server side encryption is not used.</li>
+</ul>
+<p>System-defined x-amz-server-side-encryption metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata</a></p>
+</blockquote>
+<hr />
+<h5 id="server_side_encryption_aws_kms_key_idoptional"><code>server_side_encryption_aws_kms_key_id</code><sup>Optional</sup> <a name="server_side_encryption_aws_kms_key_id" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.serverSideEncryptionAwsKmsKeyId"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">server_side_encryption_aws_kms_key_id</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> Not set.</li>
+</ul>
+<p>System-defined x-amz-server-side-encryption-aws-kms-key-id metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata</a></p>
+</blockquote>
+<hr />
+<h5 id="server_side_encryption_customer_algorithmoptional"><code>server_side_encryption_customer_algorithm</code><sup>Optional</sup> <a name="server_side_encryption_customer_algorithm" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.serverSideEncryptionCustomerAlgorithm"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">server_side_encryption_customer_algorithm</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> Not set.</li>
+</ul>
+<p>System-defined x-amz-server-side-encryption-customer-algorithm metadata to be set on all objects in the deployment.</p>
+<p>Warning: This is not a useful parameter until this bug is fixed: <a class="magiclink magiclink-github magiclink-issue" href="https://github.com/aws/aws-cdk/issues/6080" title="GitHub Issue: aws/aws-cdk #6080">aws-cdk#6080</a></p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html#sse-c-how-to-programmatically-intro">https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html#sse-c-how-to-programmatically-intro</a></p>
+</blockquote>
+<hr />
+<h5 id="sign_contentoptional"><code>sign_content</code><sup>Optional</sup> <a name="sign_content" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.signContent"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">sign_content</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> <code>x-amz-content-sha256</code> will not be computed</li>
+</ul>
+<p>If set to true, uploads will precompute the value of <code>x-amz-content-sha256</code> and include it in the signed S3 request headers.</p>
+<hr />
+<h5 id="storage_classoptional"><code>storage_class</code><sup>Optional</sup> <a name="storage_class" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.storageClass"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">storage_class</span><span class="p">:</span> <span class="n">StorageClass</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_s3_deployment.StorageClass</li>
+<li><em>Default:</em> Default storage-class for the bucket is used.</li>
+</ul>
+<p>System-defined x-amz-storage-class metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata</a></p>
+</blockquote>
+<hr />
+<h5 id="use_efsoptional"><code>use_efs</code><sup>Optional</sup> <a name="use_efs" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.useEfs"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">use_efs</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> No EFS. Lambda has access only to 512MB of disk space.</li>
+</ul>
+<p>Mount an EFS file system.</p>
+<p>Enable this if your assets are large and you encounter disk space errors.
+Enabling this option will require a VPC to be specified.</p>
+<hr />
+<h5 id="vpcoptional"><code>vpc</code><sup>Optional</sup> <a name="vpc" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.vpc"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">vpc</span><span class="p">:</span> <span class="n">IVpc</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_ec2.IVpc</li>
+<li><em>Default:</em> None</li>
+</ul>
+<p>The VPC network to place the deployment lambda handler in.</p>
+<p>This is required if <code>useEfs</code> is set.</p>
+<hr />
+<h5 id="vpc_subnetsoptional"><code>vpc_subnets</code><sup>Optional</sup> <a name="vpc_subnets" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.vpcSubnets"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">vpc_subnets</span><span class="p">:</span> <span class="n">SubnetSelection</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_ec2.SubnetSelection</li>
+<li><em>Default:</em> the Vpc default strategy if not specified</li>
+</ul>
+<p>Where in the VPC to place the deployment lambda handler.</p>
+<p>Only used if 'vpc' is supplied.</p>
+<hr />
+<h5 id="website_redirect_locationoptional"><code>website_redirect_location</code><sup>Optional</sup> <a name="website_redirect_location" id="@aws-prototyping-sdk/static-website.BucketDeploymentProps.property.websiteRedirectLocation"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">website_redirect_location</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+<li><em>Default:</em> No website redirection.</li>
+</ul>
+<p>System-defined x-amz-website-redirect-location metadata to be set on all objects in the deployment.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata">https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata</a></p>
+</blockquote>
+<hr />
 <h3 id="cidrallowlist">CidrAllowList <a name="CidrAllowList" id="@aws-prototyping-sdk/static-website.CidrAllowList"></a></h3>
 <p>Representation of a CIDR range.</p>
-<h4 id="initializer">Initializer <a name="Initializer" id="@aws-prototyping-sdk/static-website.CidrAllowList.Initializer"></a></h4>
+<h4 id="initializer_1">Initializer <a name="Initializer" id="@aws-prototyping-sdk/static-website.CidrAllowList.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.static_website</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">static_website</span><span class="o">.</span><span class="n">CidrAllowList</span><span class="p">(</span>
@@ -3460,7 +4008,7 @@ this type-testing method instead.</p>
   <span class="n">cidr_type</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_2">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3508,7 +4056,7 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
 <hr />
 <h3 id="cloudfrontwebaclprops">CloudFrontWebAclProps <a name="CloudFrontWebAclProps" id="@aws-prototyping-sdk/static-website.CloudFrontWebAclProps"></a></h3>
 <p>Properties to configure the web acl.</p>
-<h4 id="initializer_1">Initializer <a name="Initializer" id="@aws-prototyping-sdk/static-website.CloudFrontWebAclProps.Initializer"></a></h4>
+<h4 id="initializer_2">Initializer <a name="Initializer" id="@aws-prototyping-sdk/static-website.CloudFrontWebAclProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.static_website</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">static_website</span><span class="o">.</span><span class="n">CloudFrontWebAclProps</span><span class="p">(</span>
@@ -3517,7 +4065,7 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
   <span class="n">managed_rules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ManagedRule</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_3">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3574,7 +4122,7 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
 <hr />
 <h3 id="managedrule">ManagedRule <a name="ManagedRule" id="@aws-prototyping-sdk/static-website.ManagedRule"></a></h3>
 <p>Represents a WAF V2 managed rule.</p>
-<h4 id="initializer_2">Initializer <a name="Initializer" id="@aws-prototyping-sdk/static-website.ManagedRule.Initializer"></a></h4>
+<h4 id="initializer_3">Initializer <a name="Initializer" id="@aws-prototyping-sdk/static-website.ManagedRule.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.static_website</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">static_website</span><span class="o">.</span><span class="n">ManagedRule</span><span class="p">(</span>
@@ -3582,7 +4130,7 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
   <span class="n">vendor</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_4">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3632,7 +4180,7 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
 <span class="n">runtime_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;json_payload&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;bucket_arn&quot;</span><span class="p">:</span> <span class="n">s3_bucket</span><span class="o">.</span><span class="n">bucket_arn</span><span class="p">}}</span>
 <span class="n">StaticWebsite</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="s2">&quot;StaticWebsite&quot;</span><span class="p">,</span> <span class="n">website_content_path</span><span class="o">=</span><span class="s2">&quot;path/to/website&quot;</span><span class="p">,</span> <span class="n">runtime_config</span><span class="o">=</span><span class="n">runtime_config</span><span class="p">)</span>
 </code></pre></div>
-<h4 id="initializer_3">Initializer <a name="Initializer" id="@aws-prototyping-sdk/static-website.RuntimeOptions.Initializer"></a></h4>
+<h4 id="initializer_4">Initializer <a name="Initializer" id="@aws-prototyping-sdk/static-website.RuntimeOptions.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.static_website</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">static_website</span><span class="o">.</span><span class="n">RuntimeOptions</span><span class="p">(</span>
@@ -3640,7 +4188,7 @@ To configure AWS WAF to allow, block, or count requests that originated from IP 
   <span class="n">json_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_5">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3689,11 +4237,12 @@ are only known at deploy time.</p>
 <hr />
 <h3 id="staticwebsiteprops">StaticWebsiteProps <a name="StaticWebsiteProps" id="@aws-prototyping-sdk/static-website.StaticWebsiteProps"></a></h3>
 <p>Properties for configuring the StaticWebsite.</p>
-<h4 id="initializer_4">Initializer <a name="Initializer" id="@aws-prototyping-sdk/static-website.StaticWebsiteProps.Initializer"></a></h4>
+<h4 id="initializer_5">Initializer <a name="Initializer" id="@aws-prototyping-sdk/static-website.StaticWebsiteProps.Initializer"></a></h4>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">aws_prototyping_sdk.static_website</span>
 
 <span class="n">aws_prototyping_sdk</span><span class="o">.</span><span class="n">static_website</span><span class="o">.</span><span class="n">StaticWebsiteProps</span><span class="p">(</span>
   <span class="n">website_content_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="n">bucket_deployment_props</span><span class="p">:</span> <span class="n">BucketDeploymentProps</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_website_bucket_encryption</span><span class="p">:</span> <span class="n">BucketEncryption</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">default_website_bucket_encryption_key</span><span class="p">:</span> <span class="n">Key</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">distribution_props</span><span class="p">:</span> <span class="n">DistributionProps</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3702,7 +4251,7 @@ are only known at deploy time.</p>
   <span class="n">website_bucket</span><span class="p">:</span> <span class="n">IBucket</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
-<h4 id="properties_6">Properties <a name="Properties" id="Properties"></a></h4>
+<h4 id="properties_7">Properties <a name="Properties" id="Properties"></a></h4>
 <table>
 <thead>
 <tr>
@@ -3716,6 +4265,11 @@ are only known at deploy time.</p>
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.websiteContentPath">website_content_path</a></code></td>
 <td><code>str</code></td>
 <td>Path to the directory containing the static website files and assets.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.bucketDeploymentProps">bucket_deployment_props</a></code></td>
+<td><code><a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps">BucketDeploymentProps</a></code></td>
+<td>Custom bucket deployment properties.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.defaultWebsiteBucketEncryption">default_website_bucket_encryption</a></code></td>
@@ -3758,6 +4312,16 @@ are only known at deploy time.</p>
 </ul>
 <p>Path to the directory containing the static website files and assets.</p>
 <p>This directory must contain an index.html file.</p>
+<hr />
+<h5 id="bucket_deployment_propsoptional_1"><code>bucket_deployment_props</code><sup>Optional</sup> <a name="bucket_deployment_props" id="@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.bucketDeploymentProps"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">bucket_deployment_props</span><span class="p">:</span> <span class="n">BucketDeploymentProps</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> <a href="#@aws-prototyping-sdk/static-website.BucketDeploymentProps">BucketDeploymentProps</a></li>
+</ul>
+<p>Custom bucket deployment properties.</p>
+<div class="highlight"><pre><span></span><code>
+</code></pre></div>
 <hr />
 <h5 id="default_website_bucket_encryptionoptional_1"><code>default_website_bucket_encryption</code><sup>Optional</sup> <a name="default_website_bucket_encryption" id="@aws-prototyping-sdk/static-website.StaticWebsiteProps.property.defaultWebsiteBucketEncryption"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">default_website_bucket_encryption</span><span class="p">:</span> <span class="n">BucketEncryption</span>
