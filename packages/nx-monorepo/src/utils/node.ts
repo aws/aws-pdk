@@ -33,6 +33,21 @@ export namespace NodePackageUtils {
   }
 
   /**
+   * Finds the NodePackageManager for the given proejct or returns a default type.
+   *
+   * @param project a project to retrieve the package manager for.
+   * @returns NodePackageManager
+   */
+  export function getNodePackageManager(
+    project: Project,
+    defaultPackageManager: NodePackageManager = NodePackageManager.YARN
+  ): NodePackageManager {
+    return isNodeProject(project)
+      ? (project as NodeProject).package.packageManager
+      : defaultPackageManager;
+  }
+
+  /**
    * Remove the "projen" script from package.json scripts, which causes recursive projen execution
    * for other scripts in format of "yarn projen [command]".
    * @param project NodeProject to remove "projen" script
