@@ -47,8 +47,6 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "eslint-plugin-header",
         "husky",
         "got@^11.8.5",
-        "license-checker",
-        "oss-attribution-generator",
       ],
       monorepoUpgradeDepsOptions: {
         syncpackConfig: { ...DEFAULT_CONFIG, workspace: false },
