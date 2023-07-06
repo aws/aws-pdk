@@ -1,8 +1,6 @@
 # Using Smithy
 
-[Smithy](https://smithy.io/2.0) is an interface definition language (IDL) which you can use to model APIs. It's the language we use to define the APIs for AWS services internally.
-
-You can use Smithy by specifying it as your `model.language` in `TypeSafeApiProject`, for example:
+You can use [Smithy](https://smithy.io/2.0), an interface definition language (IDL) to model your APIs. To use Smithy, in `TypeSafeApiProject`, specify it as your `model.language`.
 
 === "TS"
 
@@ -61,9 +59,9 @@ You can use Smithy by specifying it as your `model.language` in `TypeSafeApiProj
     )
     ```
 
-## Smithy IDL
+## Using the Smithy IDL
 
-Please refer to the [Smithy documentation](https://smithy.io/2.0/quickstart.html) for how to write models in Smithy. A basic example is provided below:
+For more information on how use Smithy for writing models, refer to the [Smithy documentation](https://smithy.io/2.0/quickstart.html).
 
 ```smithy
 $version: "2"
@@ -102,7 +100,9 @@ structure ApiError {
 }
 ```
 
-You can split your model definition into multiple `.smithy` files, so long as they are in the `model/src/main/smithy` folder. For example, you may wish to structure your model as follows:
+### Splitting your model definition
+
+You can split your model definition into multiple `.smithy` files, but ensure they are in the `model/src/main/smithy` folder. For example, you can structure your model as follows:
 
 ```
 model/src/main/smithy/
@@ -113,6 +113,8 @@ model/src/main/smithy/
         |_ say-hello-output.smithy
     |_ main.smithy
 ```
+
+### Defining shapes
 
 You can reference any defined shape from any `.smithy` file in any other `.smithy` file, so long as it is defined in the same namespace.
 
@@ -138,19 +140,23 @@ structure Bar {
 }
 ```
 
-### Supported Protocols
+### Supported protocols
 
-Currently only [AWS restJson1](https://smithy.io/2.0/aws/protocols/aws-restjson1-protocol.html) is supported. Please ensure your service is annotated with the `@restJson1` trait.
+PDK only supports [AWS restJson1](https://smithy.io/2.0/aws/protocols/aws-restjson1-protocol.html) currently, so make sure your service is annotated with the `@restJson1` trait.
 
 ### Authorizers
 
-Smithy supports [adding API Gateway authorizers in the model itself](https://smithy.io/2.0/aws/aws-auth.html). Given that at model definition time one usually does not know the ARN of the user pool or lambda function for an authorizer, it is recommended to add the authorizer(s) in your Api CDK construct.
+Smithy supports [adding API Gateway authorizers in the model itself](https://smithy.io/2.0/aws/aws-auth.html). If you do not have the ARN of the user pool or lambda function for an authorizer while defining the model, we recommend adding the authorizer(s) in your API CDK construct.
 
-If using Smithy generated clients, some authorizer traits (eg sigv4) will include configuring the client for that particular method of authorization, so it can be beneficial to still define authorizers in the model. We therefore support specifying authorizers in both the model and the construct, but note that the construct will take precedence where the authorizer ID is the same.
+!!! info
 
-## Customising the Smithy Build
+    If you use Smithy generated clients, some authorizer traits such as sigv4 will include configuring the client for that particular method of authorization, so it is beneficial to define authorizers in the model. 
+    
+    PDK supports specifying authorizers in both the model and the construct, but the construct will take precedence where the authorizer ID is the same.
 
-When you synthesize the `TypeSafeApiProject`, it will contain a `model/smithy-build.json` file which customises the smithy build, for example its conversion to OpenAPI. You can customise this file by adjusting the `model.options.smithy.smithyBuildOptions`, for example:
+## Customizing the Smithy build
+
+When you synthesize the `TypeSafeApiProject`, it will contain a `model/smithy-build.json` file which customises the Smithy build, such as its conversion to OpenAPI. You can customise this file by adjusting the `model.options.smithy.smithyBuildOptions`:
 
 === "TS"
 
