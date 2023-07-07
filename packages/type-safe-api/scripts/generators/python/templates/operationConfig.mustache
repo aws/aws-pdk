@@ -200,13 +200,13 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
             request_parameters = decode_request_parameters({
-                **(event['pathParameters'] or {}),
-                **(event['queryStringParameters'] or {}),
-                **(event['headers'] or {}),
+                **(event.get('pathParameters', {})),
+                **(event.get('queryStringParameters', {})),
+                **(event.get('headers', {})),
             })
             request_array_parameters = decode_request_parameters({
-                **(event['multiValueQueryStringParameters'] or {}),
-                **(event['multiValueHeaders'] or {}),
+                **(event.get('multiValueQueryStringParameters', {})),
+                **(event.get('multiValueHeaders', {})),
             })
             {{^bodyParams.isEmpty}}
             {{#bodyParams.0}}
