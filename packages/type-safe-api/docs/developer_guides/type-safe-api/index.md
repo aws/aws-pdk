@@ -1,14 +1,18 @@
 # Type Safe API
 
-Define your APIs using [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated client and server types, infrastructure, documentation, and automatic input validation!
+The _type-safe-api_ package provides a projen project type which allows you to define an API using either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and a construct which manages deploying this API in an API Gateway.
 
-This package vends a projen project type which allows you to define an API using either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and a construct which manages deploying this API in API Gateway, given an integration (eg a lambda) for every operation.
+You can define your APIs using [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated client and server types, infrastructure, documentation, and automatic input validation.
 
-The project will generate "runtime" projects from your API definition in your desired languages, which can be utilised both client side for interacting with your API, or server side for implementing your API. The project also generates a type-safe CDK construct which ensures an integration is provided for every API operation.
+## How does it work?
 
-Code is generated at build time, so when you change your API model, just rebuild and you'll see your changes reflected in the generated code.
+The project will generate runtime projects from your API definition in your desired languages, which you can use both on the client side for interacting with your API, or server side for implementing your API. The project also generates a type-safe CDK construct which ensures an integration is provided for every API operation.
 
-The `TypeSafeApiProject` projen project will create the following directory structure within its `outdir`:
+!!! note
+
+    The code is generated at build time, so when you change your API model, you will need to rebuild to see your changes reflected in the generated code.
+
+The `TypeSafeApiProject` projen project creates the following directory structure within its `outdir`:
 
 ```
 |_ model/
@@ -33,31 +37,47 @@ The `TypeSafeApiProject` projen project will create the following directory stru
     |_ typescript-react-query-hooks
 ```
 
-# Getting Started
+## Getting started
 
-This section describes how to get started quickly with a brief overview. Please refer to the other user guides for more details on particular features of this library. Note that the different tabs show how to use this library with infrastructure and lambda handlers in the same language, but you can mix-and-match languages (for example you could write CDK infrastructure in Java and implement your lambda handlers in Python).
+This section describes how to get started with the type-safe API. For more information, refer to the other user guides on particular features of this library.
 
-## Create your API Project
+!!! info
 
-The `TypeSafeApiProject` projen project sets up the project structure for you. You have a few parameters to consider when creating the project:
+    Select the tabs to use this library with infrastructure and lambda handlers in the same language, but you can mix and match language. For example, you could write CDK infrastructure in Java and implement your lambda handlers in Python.
 
-- `model` - Configure the API model. Select a `language` for the model of either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and supply `options.smithy` or `options.openapi` depending on your choice.
-- `runtime` - Configure the generated runtime projects. Include one or more `languages` you wish to write your client and/or server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation.
-- `infrastructure` - Pick the `language` you are writing your CDK infrastructure in. A construct will be generated in this language which can be used to deploy the API.
+### Type Safe API project structure
+
+The `TypeSafeApiProject` projen project sets up the project structure for you. Consider the following parameters when creating the project:
+
+- `model` - Configure the API model. Select a `language` for the model from either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and provide `options.smithy` or `options.openapi` depending on your choice.
+- `runtime` - Configure the generated runtime projects. Include one or more `languages` you want to write your client and/or server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation.
+- `infrastructure` - Select the `language` you are writing your CDK infrastructure in. A construct will be generated in this language which can be used to deploy the API.
 - `documentation` - Specify `formats` to generate documentation in.
 - `library` - Specify additional `libraries` to generate, such as React Query hooks for use in a React website.
 
-It's recommended that these projects are used as part of an `nx-monorepo` project (eg. by specifying `parent: monorepo`), as it makes setting up dependencies much easier, particularly when extending your project further with a CDK app and lambda functions.
+## Create your API project
 
-You can get started with an empty `nx-monorepo` project using the command:
+!!! info
+
+    We recommend you use these projects as part of an `nx-monorepo` project (eg. by specifying `parent: monorepo`), as it makes setting up dependencies much easier, particularly when extending your project further with a CDK app and lambda functions.
+
+1. To start an empty `nx-monorepo` project, use this command:
 
 ```bash
 npx projen new --from @aws-prototyping-sdk/nx-monorepo
 ```
 
-Next, you'll need to add `@aws-prototyping-sdk/type-safe-api` to your `NxMonorepoProject`'s `devDeps` and re-synthesize to install the dependency (eg `yarn projen`).
+2. Add `@aws-prototyping-sdk/type-safe-api` to your `NxMonorepoProject`'s `devDeps` and re-synthesize to install the dependency.
 
-See below for an example `.projenrc` making use of `TypeSafeApiProject`. Each tab shows how one might set up a project for writing infrastructure, and server-side code in the specific language.
+```
+yarn projen
+```
+
+3. Edit your `.projenrc` and configure `TypeSafeApiProject`.
+
+!!! tip
+
+    Use the tabs to see how to set up a project for writing infrastructure, and server-side code using specfic languages (TypeScript, Java, and Python).
 
 === "TS"
 
@@ -358,15 +378,20 @@ See below for an example `.projenrc` making use of `TypeSafeApiProject`. Each ta
     monorepo.synth();
     ```
 
-After defining your `.projenrc`, you'll need to run `projen` and `build` using the appropriate command for your package manager (eg. `yarn projen && yarn build`).
+4. After you define your `.projenrc`, run `projen` and `build` (using the appropriate commands for your package manager). For example, if you are using `yarn`, use these commands.
 
-## Use the CDK Construct
+```
+yarn projen 
+yarn build
+```
 
-In your CDK application, consume the `Api` construct, which is vended from the generated infrastructure package in your chosen infrastructure language.
+## Use the CDK construct
+
+In your CDK application, using your preferred language, include the `Api` construct, vended from the generated infrastructure package.
 
 === "TS"
 
-    You can edit `packages/infra/src/main.ts` to include the `Api` construct.
+    Edit `packages/infra/src/main.ts` to include the `Api` construct.
 
     ```ts
     import { Stack, StackProps } from "aws-cdk-lib";
@@ -405,7 +430,7 @@ In your CDK application, consume the `Api` construct, which is vended from the g
 
 === "JAVA"
 
-    You can edit `packages/infra/src/main/java/com/my/api/MyApp.java` to include the `Api` construct.
+    Edit `packages/infra/src/main/java/com/my/api/MyApp.java` to include the `Api` construct.
 
     ```java
     package com.my.api;
@@ -463,7 +488,7 @@ In your CDK application, consume the `Api` construct, which is vended from the g
 
 === "PYTHON"
 
-    You can edit `packages/infra/infra/main.py` to include the `Api` construct.
+    Edit `packages/infra/infra/main.py` to include the `Api` construct.
 
     ```python
     import os
@@ -499,15 +524,15 @@ In your CDK application, consume the `Api` construct, which is vended from the g
             )
     ```
 
-## Implement a Lambda Handler
+## Implement a Lambda handler
 
-The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. You can implement your lambda handlers in any of the supported languages, and even mix and match languages for different operations if you like.
+The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. You can implement your lambda handlers in any of the supported languages, or mix and match languages for different operations if you prefer.
 
 === "TS"
 
-    In the above TypeScript CDK application, we used `NodejsFunction` with the entry point as `say-hello.ts`, so we can define the lambda function in the same `infra` project.
+    In the TypeScript CDK application in the CDK construct, we used `NodejsFunction` which allows you to write your lambda handler code in the same `infra` project. Define `say-hello.ts` and use the generated lambda handler wrapper.
 
-    The implementation of `packages/infra/src/say-hello.ts` might look as follows:
+    For example, the implementation of `packages/infra/src/say-hello.ts` may include:
 
     ```ts
     import { sayHelloHandler } from "myapi-typescript-runtime"; // <- generated typescript runtime package
@@ -525,7 +550,7 @@ The generated runtime projects include lambda handler wrappers which provide typ
 
 === "JAVA"
 
-    In your `lambdas` project you can define your lambda handler in its source directory, eg `packages/lambdas/src/main/java/com/my/api/SayHelloHandler.java`:
+    In your `lambdas` project you can define your lambda handler in its source directory, for example, `packages/lambdas/src/main/java/com/my/api/SayHelloHandler.java`:
 
     ```java
     package com.my.api;
@@ -552,7 +577,7 @@ The generated runtime projects include lambda handler wrappers which provide typ
 
 === "PYTHON"
 
-    In your `lambdas` project you can define your lambda handler in its source directory, eg `packages/lambdas/lambdas/say_hello.py`:
+    In your `lambdas` project you can define your lambda handler in its source directory, for example, `packages/lambdas/lambdas/say_hello.py`:
 
     ```python
     from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
@@ -569,11 +594,11 @@ The generated runtime projects include lambda handler wrappers which provide typ
         )
     ```
 
-## Adding an Operation
+## Add a new operation
 
-To add a new operation to your API, you can follow the below steps:
+To add a new operation to your API, follow these steps.
 
-### Define the Operation in your Model
+### Define the operation in your model
 
 Add the new operation in the `model` project, for example:
 
@@ -596,7 +621,7 @@ Add the new operation in the `model` project, for example:
     }
     ```
 
-    Then register the operation to the service in `main.smithy`:
+    Register the operation to the service in `main.smithy`:
 
     ```smithy
     @restJson1
@@ -653,24 +678,29 @@ Add the new operation in the `model` project, for example:
                     - message
     ```
 
-    Note that you may wish to split your API into multiple `yaml` files. Please see [Using OpenAPI](using_openapi.md) for details.
+    Note: You can split your API into multiple `yaml` files. For more information, refer to [Using OpenAPI](using_openapi.md).
 
-### Build your Project
+### Build your project
 
-Run a build in the root of your monorepo using your package manager's build command, eg `yarn build`.
-
-The build will regenerate the infrastructure, runtime, documentation and library projects based on your updated model.
-
-You'll most likely get a build error in your CDK application now! For example:
+To run a build in the root of your monorepo, use your package manager's build command.
 
 ```
+yarn build
+```
+
+The build will regenerate the infrastructure, runtime, documentation, and library projects based on your updated model.
+
+As you must define an integration for every operation, you may see the following build error in your CDK application.
+
+```ts
 TSError: ⨯ Unable to compile TypeScript:
-src/main.ts(16,7): error TS2741: Property 'sayGoodbye' is missing in type '{ sayHello: { integration: Integration; }; }' but required in type 'OperationConfig<TypeSafeApiIntegration>'.
+src/main.ts(16,7): error TS2741: Property 'sayGoodbye' is missing in type '{ sayHello: { integration: Integration; }; }' but required in type 'Operation
+Config<TypeSafeApiIntegration>'.
 ```
 
-This is because we need to define an integration for every operation in our API. Let's do this next!
+This is expected, so follow these steps to add an integration.
 
-### Add an Integration
+### Add an integration
 
 In your CDK application, add an integration for your new operation in the `Api` construct:
 
@@ -760,9 +790,9 @@ In your CDK application, add an integration for your new operation in the `Api` 
     )
     ```
 
-### Implement the Lambda Handler
+### Implement the Lambda handler
 
-Now that we've added the integration, we need to implement the API operation:
+After you add the integration, implement the API operation:
 
 === "TS"
 
@@ -784,7 +814,7 @@ Now that we've added the integration, we need to implement the API operation:
 
 === "JAVA"
 
-    In your `lambdas` project you can define your new lambda handler: `packages/lambdas/src/main/java/com/my/api/SayGoodbyeHandler.java`:
+    In your `lambdas` project, define your new lambda handler: `packages/lambdas/src/main/java/com/my/api/SayGoodbyeHandler.java`:
 
     ```java
     package com.my.api;
@@ -807,7 +837,7 @@ Now that we've added the integration, we need to implement the API operation:
 
 === "PYTHON"
 
-    In your `lambdas` project you can define your new lambda handler: `packages/lambdas/lambdas/say_goodbye.py`:
+    In your `lambdas` project, define your new lambda handler: `packages/lambdas/lambdas/say_goodbye.py`:
 
     ```python
     from myapi_python_runtime.model.say_goodbye_response_content import SayGoodbyeResponseContent
@@ -824,6 +854,6 @@ Now that we've added the integration, we need to implement the API operation:
         )
     ```
 
-### Deploy
+### Deploy your project
 
-Now that you've implemented your new operation, you can build your project again (eg `yarn build`), deploy, and try out your new operation!
+After you implement your new operation, build your project again using `yarn build`, deploy, and try out your new operation.
