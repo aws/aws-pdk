@@ -278,7 +278,7 @@ class PDKRelease extends Release {
       artifactsDirectory: project.artifactsDirectory,
     });
 
-    project.addDevDeps("license-checker");
+    project.addDevDeps("license-checker", "generate-license-file");
 
     project.packageTask.reset();
     project.packageTask.exec(
@@ -291,9 +291,15 @@ class PDKRelease extends Release {
         "'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
       )
     );
-    // project.packageTask.exec(
-    //     `${execute(project.package.packageManager)} generate-attribution && mv oss-attribution/attribution.txt ./LICENSE_THIRD_PARTY && rm -rf oss-attribution`
-    // );
+    project.packageTask.exec(
+      NodePackageUtils.command.exec(
+        project.package.packageManager,
+        "generate-license-file",
+        "--input package.json",
+        "--output LICENSE_THIRD_PARTY",
+        "--overwrite"
+      )
+    );
     project.packageTask.spawn(project.tasks.tryFind("package-all")!);
     project.npmignore?.addPatterns("!LICENSE_THIRD_PARTY");
 
