@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
-import { CustomResource, Duration, Stack } from "aws-cdk-lib";
+import { CustomResource, Duration, Size, Stack } from "aws-cdk-lib";
 import {
   AccessLogFormat,
   ApiDefinition,
@@ -65,6 +65,18 @@ export interface TypeSafeRestApiProps
    * rule set will be associated with the API. These options may disable or override the defaults.
    */
   readonly webAclOptions?: TypeSafeApiWebAclOptions;
+
+  /**
+   * A Size(in bytes, kibibytes, mebibytes etc) that is used to enable compression (with non-negative
+   * between 0 and 10485760 (10M) bytes, inclusive) or disable compression
+   * (when undefined) on an API. When compression is enabled, compression or
+   * decompression is not applied on the payload if the payload size is
+   * smaller than this value. Setting it to zero allows compression for any
+   * payload size.
+   *
+   * @default - Compression is disabled.
+   */
+  readonly minCompressionSize?: Size;
 }
 
 /**
