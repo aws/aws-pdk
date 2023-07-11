@@ -2858,6 +2858,110 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-does-it-work" class="md-nav__link">
+    How does it work?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    Getting started
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-safe-api-project-structure" class="md-nav__link">
+    Type Safe API project structure
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-your-api-project" class="md-nav__link">
+    Create your API project
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-the-cdk-construct" class="md-nav__link">
+    Use the CDK construct
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implement-a-lambda-handler" class="md-nav__link">
+    Implement a Lambda handler
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-new-operation" class="md-nav__link">
+    Add a new operation
+  </a>
+  
+    <nav class="md-nav" aria-label="Add a new operation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-the-operation-in-your-model" class="md-nav__link">
+    Define the operation in your model
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-your-project" class="md-nav__link">
+    Build your project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-an-integration" class="md-nav__link">
+    Add an integration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implement-the-lambda-handler" class="md-nav__link">
+    Implement the Lambda handler
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-your-project" class="md-nav__link">
+    Deploy your project
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2875,11 +2979,15 @@
 
 
 <h1 id="type-safe-api">Type Safe API</h1>
-<p>Define your APIs using <a href="https://smithy.io/2.0/">Smithy</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and leverage the power of generated client and server types, infrastructure, documentation, and automatic input validation!</p>
-<p>This package vends a projen project type which allows you to define an API using either <a href="https://smithy.io/2.0/">Smithy</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and a construct which manages deploying this API in API Gateway, given an integration (eg a lambda) for every operation.</p>
-<p>The project will generate "runtime" projects from your API definition in your desired languages, which can be utilised both client side for interacting with your API, or server side for implementing your API. The project also generates a type-safe CDK construct which ensures an integration is provided for every API operation.</p>
-<p>Code is generated at build time, so when you change your API model, just rebuild and you'll see your changes reflected in the generated code.</p>
-<p>The <code>TypeSafeApiProject</code> projen project will create the following directory structure within its <code>outdir</code>:</p>
+<p>The <em>type-safe-api</em> package provides a projen project type which allows you to define an API using either <a href="https://smithy.io/2.0/">Smithy</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and a construct which manages deploying this API in an API Gateway.</p>
+<p>You can define your APIs using <a href="https://smithy.io/2.0/">Smithy</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and leverage the power of generated client and server types, infrastructure, documentation, and automatic input validation.</p>
+<h2 id="how-does-it-work">How does it work?</h2>
+<p>The project will generate runtime projects from your API definition in your desired languages, which you can use both on the client side for interacting with your API, or server side for implementing your API. The project also generates a type-safe CDK construct which ensures an integration is provided for every API operation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The code is generated at build time, so when you change your API model, you will need to rebuild to see your changes reflected in the generated code.</p>
+</div>
+<p>The <code>TypeSafeApiProject</code> projen project creates the following directory structure within its <code>outdir</code>:</p>
 <div class="highlight"><pre><span></span><code>|_ model/
     |_ src/
         |_ main/
@@ -2901,23 +3009,43 @@
 |_ library/ - generated libraries if specified
     |_ typescript-react-query-hooks
 </code></pre></div>
-<h1 id="getting-started">Getting Started</h1>
-<p>This section describes how to get started quickly with a brief overview. Please refer to the other user guides for more details on particular features of this library. Note that the different tabs show how to use this library with infrastructure and lambda handlers in the same language, but you can mix-and-match languages (for example you could write CDK infrastructure in Java and implement your lambda handlers in Python).</p>
-<h2 id="create-your-api-project">Create your API Project</h2>
-<p>The <code>TypeSafeApiProject</code> projen project sets up the project structure for you. You have a few parameters to consider when creating the project:</p>
+<h2 id="getting-started">Getting started</h2>
+<p>This section describes how to get started with the type-safe API. For more information, refer to the other user guides on particular features of this library.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Select the tabs to use this library with infrastructure and lambda handlers in the same language, but you can mix and match language. For example, you could write CDK infrastructure in Java and implement your lambda handlers in Python.</p>
+</div>
+<h3 id="type-safe-api-project-structure">Type Safe API project structure</h3>
+<p>The <code>TypeSafeApiProject</code> projen project sets up the project structure for you. Consider the following parameters when creating the project:</p>
 <ul>
-<li><code>model</code> - Configure the API model. Select a <code>language</code> for the model of either <a href="https://smithy.io/2.0/">Smithy</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and supply <code>options.smithy</code> or <code>options.openapi</code> depending on your choice.</li>
-<li><code>runtime</code> - Configure the generated runtime projects. Include one or more <code>languages</code> you wish to write your client and/or server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation.</li>
-<li><code>infrastructure</code> - Pick the <code>language</code> you are writing your CDK infrastructure in. A construct will be generated in this language which can be used to deploy the API.</li>
+<li><code>model</code> - Configure the API model. Select a <code>language</code> for the model from either <a href="https://smithy.io/2.0/">Smithy</a> or <a href="https://swagger.io/specification/">OpenAPI v3</a>, and provide <code>options.smithy</code> or <code>options.openapi</code> depending on your choice.</li>
+<li><code>runtime</code> - Configure the generated runtime projects. Include one or more <code>languages</code> you want to write your client and/or server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation.</li>
+<li><code>infrastructure</code> - Select the <code>language</code> you are writing your CDK infrastructure in. A construct will be generated in this language which can be used to deploy the API.</li>
 <li><code>documentation</code> - Specify <code>formats</code> to generate documentation in.</li>
 <li><code>library</code> - Specify additional <code>libraries</code> to generate, such as React Query hooks for use in a React website.</li>
 </ul>
-<p>It's recommended that these projects are used as part of an <code>nx-monorepo</code> project (eg. by specifying <code>parent: monorepo</code>), as it makes setting up dependencies much easier, particularly when extending your project further with a CDK app and lambda functions.</p>
-<p>You can get started with an empty <code>nx-monorepo</code> project using the command:</p>
+<h2 id="create-your-api-project">Create your API project</h2>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>We recommend you use these projects as part of an <code>nx-monorepo</code> project (eg. by specifying <code>parent: monorepo</code>), as it makes setting up dependencies much easier, particularly when extending your project further with a CDK app and lambda functions.</p>
+</div>
+<ol>
+<li>To start an empty <code>nx-monorepo</code> project, use this command:</li>
+</ol>
 <div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>@aws-prototyping-sdk/nx-monorepo
 </code></pre></div>
-<p>Next, you'll need to add <code>@aws-prototyping-sdk/type-safe-api</code> to your <code>NxMonorepoProject</code>'s <code>devDeps</code> and re-synthesize to install the dependency (eg <code>yarn projen</code>).</p>
-<p>See below for an example <code>.projenrc</code> making use of <code>TypeSafeApiProject</code>. Each tab shows how one might set up a project for writing infrastructure, and server-side code in the specific language.</p>
+<ol>
+<li>Add <code>@aws-prototyping-sdk/type-safe-api</code> to your <code>NxMonorepoProject</code>'s <code>devDeps</code> and re-synthesize to install the dependency.</li>
+</ol>
+<div class="highlight"><pre><span></span><code>yarn projen
+</code></pre></div>
+<ol>
+<li>Edit your <code>.projenrc</code> and configure <code>TypeSafeApiProject</code>.</li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use the tabs to see how to set up a project for writing infrastructure, and server-side code using specfic languages (TypeScript, Java, and Python).</p>
+</div>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">TS</label><label for="__tabbed_1_2">JAVA</label><label for="__tabbed_1_3">PYTHON</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -3213,13 +3341,18 @@
 </div>
 </div>
 </div>
-<p>After defining your <code>.projenrc</code>, you'll need to run <code>projen</code> and <code>build</code> using the appropriate command for your package manager (eg. <code>yarn projen &amp;&amp; yarn build</code>).</p>
-<h2 id="use-the-cdk-construct">Use the CDK Construct</h2>
-<p>In your CDK application, consume the <code>Api</code> construct, which is vended from the generated infrastructure package in your chosen infrastructure language.</p>
+<ol>
+<li>After you define your <code>.projenrc</code>, run <code>projen</code> and <code>build</code> (using the appropriate commands for your package manager). For example, if you are using <code>yarn</code>, use these commands.</li>
+</ol>
+<div class="highlight"><pre><span></span><code>yarn projen 
+yarn build
+</code></pre></div>
+<h2 id="use-the-cdk-construct">Use the CDK construct</h2>
+<p>In your CDK application, using your preferred language, include the <code>Api</code> construct, vended from the generated infrastructure package.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">TS</label><label for="__tabbed_2_2">JAVA</label><label for="__tabbed_2_3">PYTHON</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>You can edit <code>packages/infra/src/main.ts</code> to include the <code>Api</code> construct.</p>
+<p>Edit <code>packages/infra/src/main.ts</code> to include the <code>Api</code> construct.</p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Stack</span><span class="p">,</span><span class="w"> </span><span class="nx">StackProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Construct</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;constructs&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Api</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-infra&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">// &lt;- generated typescript infrastructure package</span>
@@ -3255,7 +3388,7 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<p>You can edit <code>packages/infra/src/main/java/com/my/api/MyApp.java</code> to include the <code>Api</code> construct.</p>
+<p>Edit <code>packages/infra/src/main/java/com/my/api/MyApp.java</code> to include the <code>Api</code> construct.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nn">com.my.api</span><span class="p">;</span>
 
 <span class="c1">// Imports from the generated infrastructure and runtime projects</span>
@@ -3310,7 +3443,7 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<p>You can edit <code>packages/infra/infra/main.py</code> to include the <code>Api</code> construct.</p>
+<p>Edit <code>packages/infra/infra/main.py</code> to include the <code>Api</code> construct.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">aws_cdk</span> <span class="kn">import</span> <span class="n">Stack</span>
 <span class="kn">from</span> <span class="nn">constructs</span> <span class="kn">import</span> <span class="n">Construct</span>
@@ -3346,13 +3479,13 @@
 </div>
 </div>
 </div>
-<h2 id="implement-a-lambda-handler">Implement a Lambda Handler</h2>
-<p>The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. You can implement your lambda handlers in any of the supported languages, and even mix and match languages for different operations if you like.</p>
+<h2 id="implement-a-lambda-handler">Implement a Lambda handler</h2>
+<p>The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. You can implement your lambda handlers in any of the supported languages, or mix and match languages for different operations if you prefer.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">TS</label><label for="__tabbed_3_2">JAVA</label><label for="__tabbed_3_3">PYTHON</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>In the above TypeScript CDK application, we used <code>NodejsFunction</code> with the entry point as <code>say-hello.ts</code>, so we can define the lambda function in the same <code>infra</code> project.</p>
-<p>The implementation of <code>packages/infra/src/say-hello.ts</code> might look as follows:</p>
+<p>In the TypeScript CDK application in the CDK construct, we used <code>NodejsFunction</code> which allows you to write your lambda handler code in the same <code>infra</code> project. Define <code>say-hello.ts</code> and use the generated lambda handler wrapper.</p>
+<p>For example, the implementation of <code>packages/infra/src/say-hello.ts</code> may include:</p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">sayHelloHandler</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-runtime&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">// &lt;- generated typescript runtime package</span>
 
 <span class="c1">// Use the handler wrapper for type-safety to ensure you correctly implement your modelled API operation</span>
@@ -3367,7 +3500,7 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<p>In your <code>lambdas</code> project you can define your lambda handler in its source directory, eg <code>packages/lambdas/src/main/java/com/my/api/SayHelloHandler.java</code>:</p>
+<p>In your <code>lambdas</code> project you can define your lambda handler in its source directory, for example, <code>packages/lambdas/src/main/java/com/my/api/SayHelloHandler.java</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nn">com.my.api</span><span class="p">;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello</span><span class="p">;</span>
@@ -3391,7 +3524,7 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<p>In your <code>lambdas</code> project you can define your lambda handler in its source directory, eg <code>packages/lambdas/lambdas/say_hello.py</code>:</p>
+<p>In your <code>lambdas</code> project you can define your lambda handler in its source directory, for example, <code>packages/lambdas/lambdas/say_hello.py</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_runtime.model.say_hello_response_content</span> <span class="kn">import</span> <span class="n">SayHelloResponseContent</span>
 <span class="kn">from</span> <span class="nn">myapi_python_runtime.apis.tags.default_api_operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span>
     <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span><span class="p">,</span> <span class="n">ApiResponse</span>
@@ -3408,9 +3541,9 @@
 </div>
 </div>
 </div>
-<h2 id="adding-an-operation">Adding an Operation</h2>
-<p>To add a new operation to your API, you can follow the below steps:</p>
-<h3 id="define-the-operation-in-your-model">Define the Operation in your Model</h3>
+<h2 id="add-a-new-operation">Add a new operation</h2>
+<p>To add a new operation to your API, follow these steps.</p>
+<h3 id="define-the-operation-in-your-model">Define the operation in your model</h3>
 <p>Add the new operation in the <code>model</code> project, for example:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">SMITHY</label><label for="__tabbed_4_2">OPENAPI</label></div>
 <div class="tabbed-content">
@@ -3429,7 +3562,7 @@
 <span class="w">    </span>}
 }
 </code></pre></div>
-<p>Then register the operation to the service in <code>main.smithy</code>:</p>
+<p>Register the operation to the service in <code>main.smithy</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@restJson1</span>
 <span class="kd">service</span><span class="nc"> MyService</span><span class="w"> </span>{
 <span class="w">    </span><span class="nl">version:</span><span class="w"> </span><span class="s2">&quot;1.0&quot;</span>
@@ -3480,19 +3613,22 @@
 <span class="w">            </span><span class="nt">required</span><span class="p">:</span>
 <span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">message</span>
 </code></pre></div>
-<p>Note that you may wish to split your API into multiple <code>yaml</code> files. Please see <a href="using_openapi.html">Using OpenAPI</a> for details.</p>
+<p>Note: You can split your API into multiple <code>yaml</code> files. For more information, refer to <a href="using_openapi.html">Using OpenAPI</a>.</p>
 </div>
 </div>
 </div>
-<h3 id="build-your-project">Build your Project</h3>
-<p>Run a build in the root of your monorepo using your package manager's build command, eg <code>yarn build</code>.</p>
-<p>The build will regenerate the infrastructure, runtime, documentation and library projects based on your updated model.</p>
-<p>You'll most likely get a build error in your CDK application now! For example:</p>
-<div class="highlight"><pre><span></span><code>TSError: ⨯ Unable to compile TypeScript:
-src/main.ts(16,7): error TS2741: Property &#39;sayGoodbye&#39; is missing in type &#39;{ sayHello: { integration: Integration; }; }&#39; but required in type &#39;OperationConfig&lt;TypeSafeApiIntegration&gt;&#39;.
+<h3 id="build-your-project">Build your project</h3>
+<p>To run a build in the root of your monorepo, use your package manager's build command.</p>
+<div class="highlight"><pre><span></span><code>yarn build
 </code></pre></div>
-<p>This is because we need to define an integration for every operation in our API. Let's do this next!</p>
-<h3 id="add-an-integration">Add an Integration</h3>
+<p>The build will regenerate the infrastructure, runtime, documentation, and library projects based on your updated model.</p>
+<p>As you must define an integration for every operation, you may see the following build error in your CDK application.</p>
+<div class="highlight"><pre><span></span><code><span class="nx">TSError</span><span class="o">:</span><span class="w"> </span><span class="err">⨯</span><span class="w"> </span><span class="nx">Unable</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">compile</span><span class="w"> </span><span class="nx">TypeScript</span><span class="o">:</span>
+<span class="kt">src</span><span class="o">/</span><span class="nx">main</span><span class="p">.</span><span class="nx">ts</span><span class="p">(</span><span class="mf">16</span><span class="p">,</span><span class="mf">7</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="nx">TS2741</span><span class="o">:</span><span class="w"> </span><span class="kt">Property</span><span class="w"> </span><span class="s1">&#39;sayGoodbye&#39;</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">missing</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="s1">&#39;{ sayHello: { integration: Integration; }; }&#39;</span><span class="w"> </span><span class="nx">but</span><span class="w"> </span><span class="nx">required</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="s1">&#39;Operation</span>
+<span class="s1">Config&lt;TypeSafeApiIntegration&gt;&#39;</span><span class="p">.</span>
+</code></pre></div>
+<p>This is expected, so follow these steps to add an integration.</p>
+<h3 id="add-an-integration">Add an integration</h3>
 <p>In your CDK application, add an integration for your new operation in the <code>Api</code> construct:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">TS</label><label for="__tabbed_5_2">JAVA</label><label for="__tabbed_5_3">PYTHON</label></div>
 <div class="tabbed-content">
@@ -3577,8 +3713,8 @@ src/main.ts(16,7): error TS2741: Property &#39;sayGoodbye&#39; is missing in typ
 </div>
 </div>
 </div>
-<h3 id="implement-the-lambda-handler">Implement the Lambda Handler</h3>
-<p>Now that we've added the integration, we need to implement the API operation:</p>
+<h3 id="implement-the-lambda-handler">Implement the Lambda handler</h3>
+<p>After you add the integration, implement the API operation:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">TS</label><label for="__tabbed_6_2">JAVA</label><label for="__tabbed_6_3">PYTHON</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -3597,7 +3733,7 @@ src/main.ts(16,7): error TS2741: Property &#39;sayGoodbye&#39; is missing in typ
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<p>In your <code>lambdas</code> project you can define your new lambda handler: <code>packages/lambdas/src/main/java/com/my/api/SayGoodbyeHandler.java</code>:</p>
+<p>In your <code>lambdas</code> project, define your new lambda handler: <code>packages/lambdas/src/main/java/com/my/api/SayGoodbyeHandler.java</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nn">com.my.api</span><span class="p">;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.Handlers.SayGoodbye</span><span class="p">;</span>
@@ -3617,7 +3753,7 @@ src/main.ts(16,7): error TS2741: Property &#39;sayGoodbye&#39; is missing in typ
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<p>In your <code>lambdas</code> project you can define your new lambda handler: <code>packages/lambdas/lambdas/say_goodbye.py</code>:</p>
+<p>In your <code>lambdas</code> project, define your new lambda handler: <code>packages/lambdas/lambdas/say_goodbye.py</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_runtime.model.say_goodbye_response_content</span> <span class="kn">import</span> <span class="n">SayGoodbyeResponseContent</span>
 <span class="kn">from</span> <span class="nn">myapi_python_runtime.apis.tags.default_api_operation_config</span> <span class="kn">import</span> <span class="n">say_goodbye_handler</span><span class="p">,</span>
     <span class="n">SayGoodbyeRequest</span><span class="p">,</span> <span class="n">SayGoodbyeOperationResponses</span><span class="p">,</span> <span class="n">ApiResponse</span>
@@ -3634,15 +3770,15 @@ src/main.ts(16,7): error TS2741: Property &#39;sayGoodbye&#39; is missing in typ
 </div>
 </div>
 </div>
-<h3 id="deploy">Deploy</h3>
-<p>Now that you've implemented your new operation, you can build your project again (eg <code>yarn build</code>), deploy, and try out your new operation!</p>
+<h3 id="deploy-your-project">Deploy your project</h3>
+<p>After you implement your new operation, build your project again using <code>yarn build</code>, deploy, and try out your new operation.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      2023-07-10
+      2023-07-11
     
   </small>
 </div>
