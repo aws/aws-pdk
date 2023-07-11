@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
-import { Stack } from "aws-cdk-lib";
+import { Size, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { ApiKeySourceType, Cors } from "aws-cdk-lib/aws-apigateway";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
@@ -1068,4 +1068,25 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       });
     }
   );
+  it("Should enable compression", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    withTempSpec(sampleSpec, (specPath) => {
+      new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func),
+          },
+        },
+        minCompressionSize: Size.bytes(20),
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
 });
