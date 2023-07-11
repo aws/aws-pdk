@@ -1,262 +1,874 @@
 # NX Monorepo
 
-The nx-monorepo package vends a NxMonorepoProject Projen construct that adds [NX](https://nx.dev/getting-started/intro) monorepo support and manages your yarn/npm/pnpm workspaces on your behalf. This construct enables polyglot builds (and inter language build dependencies), build caching, dependency visualization and much, much more.
+The _nx-monorepo_ package provides several projen project types in either Typescript, Python or Java that can configure a [NX](https://nx.dev/getting-started/intro) monorepo that can manage all of your packages. When used, these project types enable polyglot builds, declarative dependency management, build caching, dependency visualization and much, much more.
 
-The PDK itself uses the nx-monorepo project itself and is a good reference for seeing how a complex, polyglot monorepo can be set up.
+The AWS Prototyping Development Kit (PDK) itself uses the _nx-monorepo_ package and is a good reference for seeing how a complex, polyglot monorepo can be set up.
 
-> **BREAKING CHANGES** (pre-release)
->
-> - v0.13.0: `WorkspaceConfig.nxConfig` type `NxConfig => Nx.WorkspaceConfig`, and `overrideProjectTargets` removed in favor of `PDKProject.nx` config to manage Nx project configurations. See [PR 231](https://github.com/aws/aws-prototyping-sdk/pull/231).
+## How does it work?
 
-To get started simply run the following command in an empty directory:
+The construct will set up your root project to function as a Monorepo using [NX](https://nx.dev/getting-started/intro), and as such manages all of the NX configuration for you by default. Depending on the language you decide to bootstrap your project with, a projenrc file in your preferred language will be present which will allow you to add new sub-packages to your project which will be managed by NX.
 
-```bash
-npx projen new --from @aws-prototyping-sdk/nx-monorepo
-```
+The default structure of your project will be created with the following key files as shown:
 
-This will bootstrap a new Projen monorepo and contain the following in the .projenrc.ts:
+=== "TS"
 
-```ts
-import { nx_monorepo } from "aws-prototyping-sdk";
+    ```
+    node_modules/   -- installed dependencies
+    nx.json         -- nx configuration (this file is managed by projen)
+    package.json    -- dependency declarations (this file is managed by projen)
+    .projenrc.ts    -- where your packages are defined
+    yarn.lock       -- pinned dependencies
+    ```
 
-const project = new nx_monorepo.NxMonorepoProject({
-  defaultReleaseBranch: "main",
-  deps: ["aws-cdk-lib", "constructs", "cdk-nag"],
-  devDeps: ["aws-prototyping-sdk"],
-  name: "my-package",
-});
+=== "JAVA"
 
-project.synth();
-```
+    ```
+    node_modules          -- needed as NX is deployed via npm
+    nx.json               -- nx configuration (this file is managed by projen)
+    package.json          -- nx dependency declaration (do not delete)
+    package-lock.json     -- pinned nx dependency declaration (do not delete)
+    pom.xml               -- declared maven dependencies (this file is managed by projen)
+    src/
+      test/
+        java/
+          projenrc.java   -- where your packages are defined
+    ```
 
-To add new packages to the monorepo, you can simply add them as a child to the monorepo. To demonstrate, lets add a PDK Pipeline TS Project as a child as follows:
+=== "PYTHON"
 
-```ts
-import { nx_monorepo } from "aws-prototyping-sdk";
+    ```
+    node_modules          -- needed as NX is deployed via npm
+    nx.json               -- nx configuration (this file is managed by projen)
+    package.json          -- nx dependency declaration (do not delete)
+    package-lock.json     -- pinned nx dependency declaration (do not delete)
+    pyproject.toml        -- declared pypi dependencies (this file is managed by projen)
+    ```
 
-const project = new nx_monorepo.NxMonorepoProject({
-  defaultReleaseBranch: "main",
-  deps: ["aws-cdk-lib", "constructs", "cdk-nag"],
-  devDeps: ["aws-prototyping-sdk"],
-  name: "my-package",
-});
+## Getting started
 
-new PDKPipelineTsProject({
-  parent: project,
-  outdir: "packages/cicd",
-  defaultReleaseBranch: "mainline",
-  name: "cicd",
-  cdkVersion: "2.1.0",
-});
+This section describes how to get started with _nx-monorepo_ construct. For more information, please refer to the developer guides for particular features of this construct.
 
-project.synth();
-```
+### Create your monorepo project
 
-Once added, run `npx projen` from the root directory. You will now notice a new TS package has been created under the packages/cicd path.
+To get started, simply run the following command in an empty directory to create your NX monorepo project:
 
-Now let's add a python project to the monorepo and add an inter-language build dependency.
+=== "TS"
 
-```ts
-import { nx_monorepo } from "aws-prototyping-sdk";
-import { PDKPipelineTsProject } from "aws-prototyping-sdk/pipeline";
-import { PythonProject } from "projen/lib/python";
+    ```bash
+    npx projen new --from @aws-prototyping-sdk/nx-monorepo nx-monorepo-ts
+    ```
 
-const project = new nx_monorepo.NxMonorepoProject({
-  defaultReleaseBranch: "main",
-  deps: ["aws-cdk-lib", "constructs", "cdk-nag"],
-  devDeps: ["aws-prototyping-sdk"],
-  name: "test",
-});
+    This will bootstrap your project given the above structure and contain the _.projenrc.ts_ file containing your project definition which should contain the following:
 
-const pipelineProject = new PDKPipelineTsProject({
-  parent: project,
-  outdir: "packages/cicd",
-  defaultReleaseBranch: "mainline",
-  name: "cicd",
-  cdkVersion: "2.1.0",
-});
+    ```ts
+    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "main",
+      devDeps: ["@aws-prototyping-sdk/nx-monorepo"],
+      name: "ts-bootstrap",
+      projenrcTs: true,
 
-// Standard Projen projects also work here
-const pythonlib = new PythonProject({
-  parent: project,
-  outdir: "packages/pythonlib",
-  authorEmail: "",
-  authorName: "",
-  moduleName: "pythonlib",
-  name: "pythonlib",
-  version: "0.0.0",
-});
+      // deps: [],                /* Runtime dependencies of this module. */
+      // description: undefined,  /* The description is just a string that helps people understand the purpose of the package. */
+      // packageName: undefined,  /* The "name" in package.json. */
+    });
+    project.synth();
+    ```
 
-// Pipeline project depends on pythonlib to build first
-project.addImplicitDependency(pipelineProject, pythonlib);
+=== "JAVA"
 
-project.synth();
-```
+    ```bash
+    npx projen new --from @aws-prototyping-sdk/nx-monorepo nx-monorepo-java
+    ```
 
-Run `npx projen` from the root directory. You will now notice a new Python package has been created under packages/pythonlib.
+    This will bootstrap your project given the above structure and contain the _projenrc.java_ file containing your project definition which should contain the following:
 
-To visualize our dependency graph, run the following command from the root directory: `npx nx graph`.
+    ```java
+    import software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaProject;
+    import software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaOptions;
 
-Now lets test building our project, from the root directory run `npx nx run-many --target=build --nx-bail`. As you can see, the pythonlib was built first followed by the cicd package.
+    public class projenrc {
+        public static void main(String[] args) {
+            NxMonorepoJavaProject project = new NxMonorepoJavaProject(NxMonorepoJavaOptions.builder()
+                .artifactId("my-app")
+                .groupId("org.acme")
+                .name("java-bootstrap")
+                .version("0.1.0")
+                .build());
+            project.synth();
+        }
+    }
+    ```
 
-> This is equivalent to running `yarn build`, `pnpm build`, or `npm run build` depending on your node package manager, and similarly `yarn build` also accepts the same [Nx Run-Many options](https://nx.dev/packages/nx/documents/run-many#options) (eg: `yarn build --projects=cicd`).
+=== "PYTHON"
 
-The NxMonorepoProject also manages your yarn/pnpm workspaces for you and synthesizes these into your package.json pnpm-workspace.yml respectively.
+    ```bash
+    npx projen new --from @aws-prototyping-sdk/nx-monorepo nx-monorepo-py
+    ```
 
-For more information on NX commands, refer to this [documentation](https://nx.dev/using-nx/nx-cli).
+    This will bootstrap your project given the above structure and contain the _.projenrc.py_ file containing your project definition which should contain the following:
 
-### Homogenous Dependencies
+    ```python
+    from aws_prototyping_sdk.nx_monorepo import NxMonorepoPythonProject
 
-As well as adding implicit dependencies, you can add dependencies between projects of the same language in order to have one project consume another project's code.
+    project = NxMonorepoPythonProject(
+        author_email="dimecha@amazon.com",
+        author_name="Adrian Dimech",
+        dev_deps=["@aws-prototyping-sdk/nx-monorepo"],
+        module_name="py_bootstrap",
+        name="py-bootstrap",
+        version="0.1.0",
+    )
 
-#### Typescript
+    project.synth()
+    ```
 
-Since the `NxMonorepoProject` manages a yarn/npm/pnpm workspace, configuring dependencies between Typescript projects is as straightforward as referencing them in `deps`.
+    !!! bug
 
-Note that dependencies cannot be added in the same project synthesis (`npx projen`) as when projects are created. This means a two-pass approach is recommended, first to create your new projects, and then to add the dependencies.
+        `@aws-prototyping-sdk/nx-monorepo` can be removed from _dev_deps_ as this is erroneously added by Projen due to a bug in their bootstrapping process.
 
-For example:
+To build your project, simply run `npx projen build` from the root directory.
 
-First add your new projects:
+!!! note
 
-```ts
-new TypeScriptProject({
-  parent: monorepo,
-  outdir: "packages/a",
-  defaultReleaseBranch: "main",
-  name: "project-a",
-});
+    Whenever you make a change to the _projenrc_ file, you will need to re-synthesize your project by running `npx projen` from the root directory. This will re-generate any projen managed file i.e: _nx.json_.
 
-new TypeScriptProject({
-  parent: monorepo,
-  outdir: "packages/b",
-  defaultReleaseBranch: "main",
-  name: "project-b",
-});
-```
+### Making changes to your projenrc file
 
-Synthesise, then you can set up your dependency:
+To add new packages to the monorepo, you can simply add them as a child to the monorepo. To demonstrate, lets add a _type-safe-api_ to our monorepo.
 
-```ts
-const a = new TypeScriptProject({
-  parent: monorepo,
-  outdir: "packages/a",
-  defaultReleaseBranch: "main",
-  name: "project-a",
-});
+Firstly, we need to reference the _TypeSafeApiProject_ construct which is contained within a seperate package, so firstly we need to update our _projenrc_ file to add this new dependency before we can use it.
 
-new TypeScriptProject({
-  parent: monorepo,
-  outdir: "packages/b",
-  defaultReleaseBranch: "main",
-  name: "project-b",
-  // B depends on A
-  deps: [a.package.packageName],
-});
-```
+=== "TS"
 
-#### Python
+    ```ts
+    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+    const project = new NxMonorepoProject({
+      defaultReleaseBranch: "main",
+      devDeps: [
+        "@aws-prototyping-sdk/nx-monorepo",
+        "@aws-prototyping-sdk/type-safe-api",
+      ],
+      name: "ts-bootstrap",
+      projenrcTs: true,
+    });
+    project.synth();
+    ```
 
-##### Poetry (Recommended)
+=== "JAVA"
 
-The recommended way to configure dependencies between python projects within your monorepo is to use Poetry. Poetry sets up separate virtual environments per project but also supports local file dependencies. You can use the monorepo's `addPythonPoetryDependency` method:
+    ```java
+    import software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaProject;
 
-```ts
-const a = new PythonProject({
-  parent: monorepo,
-  outdir: "packages/a",
-  moduleName: "a",
-  name: "a",
-  authorName: "jack",
-  authorEmail: "me@example.com",
-  version: "1.0.0",
-  poetry: true,
-});
+    import java.util.Arrays;
 
-const b = new PythonProject({
-  parent: monorepo,
-  outdir: "packages/b",
-  moduleName: "b",
-  name: "b",
-  authorName: "jack",
-  authorEmail: "me@example.com",
-  version: "1.0.0",
-  poetry: true,
-});
+    import software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaOptions;
 
-// b depends on a
-monorepo.addPythonPoetryDependency(b, a);
-```
+    public class projenrc {
+        public static void main(String[] args) {
+            NxMonorepoJavaProject project = new NxMonorepoJavaProject(NxMonorepoJavaOptions.builder()
+                .artifactId("my-app")
+                .groupId("org.acme")
+                .name("java-bootstrap")
+                .version("0.1.0")
+                .testDeps(Arrays.asList("software.aws.awsprototypingsdk/type-safe-api@^0"))
+                .build());
+            project.synth();
+        }
+    }
+    ```
 
-##### Pip
+=== "PYTHON"
 
-If you are using pip for your python projects, you can set up a dependency using a single shared virtual environment. You can then install packages you wish to depend on into that environment using pip's [Editable Installs](https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs).
+    ```python
+    from aws_prototyping_sdk.nx_monorepo import NxMonorepoPythonProject
 
-You will also need to add an implicit dependency to tell the monorepo the correct build order for your packages.
+    project = NxMonorepoPythonProject(
+        author_email="dimecha@amazon.com",
+        author_name="Adrian Dimech",
+        dev_deps=["aws-prototyping-sdk.type-safe-api@^0"],
+        module_name="py_bootstrap",
+        name="py-bootstrap",
+        version="0.1.0",
+    )
 
-For example:
+    project.synth()
+    ```
 
-```ts
-const sharedEnv: VenvOptions = {
-  envdir: "../../.env",
-};
+Now in order to apply the change, we need to run `npx projen` from the root of the monorepo to synthesize the dependency change. Depending on your preferred language, it will add a new entry into your dependency management file _i.e: package.json_ and install the dependency.
 
-const a = new PythonProject({
-  parent: monorepo,
-  outdir: "packages/a",
-  moduleName: "a",
-  name: "a",
-  authorName: "jack",
-  authorEmail: "me@example.com",
-  version: "1.0.0",
-  venvOptions: sharedEnv,
-});
+!!! warning
 
-// Install A into the virtual env since it is consumed by B
-a.tasks.tryFind("install")!.exec("pip install --editable .");
+    It is important that you only ever manage your dependencies from within the _projenrc_ file and never in your package manager file directly. This is because anytime you run `npx projen`, it will clobber any changes to the file.
 
-const b = new PythonProject({
-  parent: monorepo,
-  outdir: "packages/b",
-  moduleName: "b",
-  name: "b",
-  authorName: "jack",
-  authorEmail: "me@example.com",
-  version: "1.0.0",
-  venvOptions: sharedEnv,
-  // B depends on A
-  deps: [a.moduleName],
-});
+Now that our dependency on _type-safe-api_ has been installed, it is time to create our API project. To do this, create an instance of the `TypeSafeApiProject` as follows:
 
-// Add the implicit dependency so that the monorepo will build A before B
-monorepo.addImplicitDependency(b, a);
-```
+=== "TS"
 
-#### Java
+    ```ts
+    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+    import {
+      DocumentationFormat,
+      Language,
+      Library,
+      ModelLanguage,
+      TypeSafeApiProject,
+    } from "@aws-prototyping-sdk/type-safe-api";
 
-The recommended way to configure dependencies between java projects within your monorepo is to use shared maven repositories. The default java project build will already create a distributable in the correct format for a maven repository in its `dist/java` folder, so you can use this as a repository. You can use the monorepo's `addJavaDependency` method:
+    // rename our monorepo project for better readability
+    const monorepo = new NxMonorepoProject({
+      defaultReleaseBranch: "main",
+      devDeps: [
+        "@aws-prototyping-sdk/nx-monorepo",
+        "@aws-prototyping-sdk/type-safe-api",
+      ],
+      name: "ts-bootstrap",
+      projenrcTs: true,
+    });
 
-For example:
+    // Create the API project
+    new TypeSafeApiProject({
+      name: "myapi",
+      parent: monorepo,
+      outdir: "packages/api",
+      model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+          smithy: {
+            serviceName: {
+              namespace: "com.my.company",
+              serviceName: "MyApi",
+            },
+          },
+        },
+      },
+      runtime: {
+        languages: [Language.TYPESCRIPT, Language.PYTHON, Language.JAVA],
+      },
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+      },
+      documentation: {
+        formats: [DocumentationFormat.HTML_REDOC],
+      },
+      library: {
+        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+      },
+    });
 
-```ts
-const a = new JavaProject({
-  parent: monorepo,
-  outdir: "packages/a",
-  groupId: "com.mycompany",
-  artifactId: "a",
-  name: "a",
-  version: "1.0.0",
-});
+    monorepo.synth();
+    ```
 
-const b = new JavaProject({
-  parent: monorepo,
-  outdir: "packages/b",
-  groupId: "com.mycompany",
-  artifactId: "b",
-  name: "b",
-  version: "1.0.0",
-});
+=== "JAVA"
 
-// b depends on a
-monorepo.addJavaDependency(b, a);
-```
+    ```java
+    import software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaProject;
+    import software.aws.awsprototypingsdk.typesafeapi.*;
+
+    import java.util.Arrays;
+
+    import software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaOptions;
+
+    public class projenrc {
+        public static void main(String[] args) {
+            // rename our monorepo project for better readability
+            NxMonorepoJavaProject monorepo = new NxMonorepoJavaProject(NxMonorepoJavaOptions.builder()
+                .artifactId("my-app")
+                .groupId("org.acme")
+                .name("java-bootstrap")
+                .version("0.1.0")
+                .testDeps(Arrays.asList("software.aws.awsprototypingsdk/type-safe-api@^0"))
+                .build());
+
+            new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
+                .name("myapi")
+                .parent(monorepo)
+                .outdir("packages/api")
+                .model(ModelConfiguration.builder()
+                    .language(ModelLanguage.SMITHY)
+                    .options(ModelOptions.builder()
+                        .smithy(SmithyModelOptions.builder()
+                            .serviceName(SmithyServiceName.builder()
+                                .namespace("com.my.company")
+                                .serviceName("MyApi")
+                                .build())
+                            .build())
+                        .build())
+                    .build())
+                .runtime(RuntimeConfiguration.builder()
+                    .languages(Arrays.asList(Language.JAVA, Language.TYPESCRIPT, Language.PYTHON))
+                    .build())
+                .infrastructure(InfrastructureConfiguration.builder()
+                    .language(Language.JAVA)
+                    .build())
+                .documentation(DocumentationConfiguration.builder()
+                    .formats(Arrays.asList(DocumentationFormat.HTML_REDOC))
+                    .build())
+                .library(LibraryConfiguration.builder()
+                    .libraries(Arrays.asList(Library.TYPESCRIPT_REACT_QUERY_HOOKS))
+                    .build())
+                .build());
+
+            monorepo.synth();
+        }
+    }
+    ```
+
+=== "PYTHON"
+
+    ```python
+    from aws_prototyping_sdk.nx_monorepo import NxMonorepoPythonProject
+    from aws_prototyping_sdk.type_safe_api import *
+
+    # rename our monorepo project for better readability
+    monorepo = NxMonorepoPythonProject(
+        author_email="dimecha@amazon.com",
+        author_name="Adrian Dimech",
+        dev_deps=["aws-prototyping-sdk.type-safe-api@^0"],
+        module_name="py_bootstrap",
+        name="py-bootstrap",
+        version="0.1.0",
+    )
+
+    TypeSafeApiProject(
+        name="myapi",
+        parent=monorepo,
+        outdir="packages/api",
+        model=ModelConfiguration(
+            language=ModelLanguage.SMITHY,
+            options=ModelOptions(
+                smithy=SmithyModelOptions(
+                    service_name=SmithyServiceName(
+                        namespace="com.my.company",
+                        service_name="MyApi"
+                    )
+                )
+            )
+        ),
+        runtime=RuntimeConfiguration(
+            languages=[Language.PYTHON, Language.TYPESCRIPT, Language.JAVA]
+        ),
+        infrastructure=InfrastructureConfiguration(
+            language=Language.PYTHON
+        ),
+        documentation=DocumentationConfiguration(
+            formats=[DocumentationFormat.HTML_REDOC]
+        ),
+        library=LibraryConfiguration(
+            libraries=[Library.TYPESCRIPT_REACT_QUERY_HOOKS]
+        )
+    )
+
+    monorepo.synth()
+    ```
+
+Now that we have modified our _projenrc_ file, it is time to synthesize our change by running `npx projen`. You will now notice that a `packages/api` directory is now present within the monorepo which contains a series of packages that were created on your behalf. The combination of the packages represents your new API.
+
+### Building your project
+
+To build your project, simply run `npx projen build` from the root directory. You will notice that this command will delegate to NX in order to build your project in correct dependency order.
+
+### Adding homogenous project dependencies
+
+To add a project level dependency on a project of the same language, you can do so using any one of the apis located on the monorepo instance as follows:
+
+=== "TS"
+
+    ```ts
+    parentTsProject.addDeps(childTsProject.package.packageName);
+    monorepo.addJavaDependency(parentJavaProject, childJavaProject);
+    monorepo.addPythonPoetryDependency(parentPythonProject, childPythonProject);
+    ```
+
+=== "JAVA"
+
+    ```java
+    parentTsProject.addDeps(childTsProject.getPackage().getPackageName());
+    monorepo.addJavaDependency(parentJavaProject, childJavaProject);
+    monorepo.addPythonPoetryDependency(parentPythonProject, childPythonProject);
+    ```
+
+=== "PYTHON"
+
+    ```python
+    parentTsProject.add_deps(childTsProject.package.package_name)
+    monorepo.add_java_dependency(parentJavaProject, childJavaProject)
+    monorepo.add_python_poetry_dependency(parentPythonProject, childPythonProject)
+    ```
+
+For a worked example showing how these can be used, refer to the below example which creates an cdk _infra_ package with a dependency on the API infrastructure package:
+
+=== "TS"
+
+    ```ts
+    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+    import {
+      DocumentationFormat,
+      Language,
+      Library,
+      ModelLanguage,
+      TypeSafeApiProject,
+    } from "@aws-prototyping-sdk/type-safe-api";
+    import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
+
+    const monorepo = new NxMonorepoProject({
+      defaultReleaseBranch: "main",
+      devDeps: [
+        "@aws-prototyping-sdk/nx-monorepo",
+        "@aws-prototyping-sdk/type-safe-api",
+      ],
+      name: "ts-bootstrap",
+      projenrcTs: true,
+    });
+
+    const api = new TypeSafeApiProject({
+      name: "myapi",
+      parent: monorepo,
+      outdir: "packages/api",
+      model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+          smithy: {
+            serviceName: {
+              namespace: "com.my.company",
+              serviceName: "MyApi",
+            },
+          },
+        },
+      },
+      runtime: {
+        languages: [Language.TYPESCRIPT, Language.PYTHON, Language.JAVA],
+      },
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+      },
+      documentation: {
+        formats: [DocumentationFormat.HTML_REDOC],
+      },
+      library: {
+        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+      },
+    });
+
+    // Create CDK infra
+    new AwsCdkTypeScriptApp({
+      name: "infra",
+      parent: monorepo,
+      outdir: "packages/infra",
+      cdkVersion: "2.1.0",
+      defaultReleaseBranch: "mainline",
+      // Add dependency on the infrastructure ts package
+      deps: [api.infrastructure.typescript!.package.packageName],
+    });
+
+    monorepo.synth();
+    ```
+
+=== "JAVA"
+
+    ```java
+    import software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaProject;
+    import software.aws.awsprototypingsdk.typesafeapi.*;
+
+    import java.util.Arrays;
+
+    import io.github.cdklabs.projen.awscdk.AwsCdkJavaApp;
+    import io.github.cdklabs.projen.awscdk.AwsCdkJavaAppOptions;
+    import software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaOptions;
+
+    public class projenrc {
+        public static void main(String[] args) {
+            NxMonorepoJavaProject monorepo = new NxMonorepoJavaProject(NxMonorepoJavaOptions.builder()
+                .artifactId("my-app")
+                .groupId("org.acme")
+                .name("java-bootstrap")
+                .version("0.1.0")
+                .testDeps(Arrays.asList("software.aws.awsprototypingsdk/type-safe-api@^0"))
+                .build());
+
+            TypeSafeApiProject api = new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
+                .name("myapi")
+                .parent(monorepo)
+                .outdir("packages/api")
+                .model(ModelConfiguration.builder()
+                    .language(ModelLanguage.SMITHY)
+                    .options(ModelOptions.builder()
+                        .smithy(SmithyModelOptions.builder()
+                            .serviceName(SmithyServiceName.builder()
+                                .namespace("com.my.company")
+                                .serviceName("MyApi")
+                                .build())
+                            .build())
+                        .build())
+                    .build())
+                .runtime(RuntimeConfiguration.builder()
+                    .languages(Arrays.asList(Language.JAVA, Language.TYPESCRIPT, Language.PYTHON))
+                    .build())
+                .infrastructure(InfrastructureConfiguration.builder()
+                    .language(Language.JAVA)
+                    .build())
+                .documentation(DocumentationConfiguration.builder()
+                    .formats(Arrays.asList(DocumentationFormat.HTML_REDOC))
+                    .build())
+                .library(LibraryConfiguration.builder()
+                    .libraries(Arrays.asList(Library.TYPESCRIPT_REACT_QUERY_HOOKS))
+                    .build())
+                .build());
+
+            // Create CDK infra
+            AwsCdkJavaApp infra = new AwsCdkJavaApp(AwsCdkJavaAppOptions.builder()
+                .name("infra")
+                .parent(monorepo)
+                .outdir("packages/infra")
+                .cdkVersion("2.1.0")
+                .groupId("com.my.company")
+                .artifactId("infra")
+                .mainClass("com.my.company.Infra")
+                .version("0.0.0")
+                .build());
+
+            // Add dependency on the infrastructure java package
+            monorepo.addJavaDependency(infra, api.getInfrastructure().getJava());
+            monorepo.synth();
+        }
+    }
+    ```
+
+=== "PYTHON"
+
+    ```python
+    from aws_prototyping_sdk.nx_monorepo import NxMonorepoPythonProject
+    from aws_prototyping_sdk.type_safe_api import *
+    from projen.awscdk import *
+
+    monorepo = NxMonorepoPythonProject(
+        author_email="dimecha@amazon.com",
+        author_name="Adrian Dimech",
+        dev_deps=["aws-prototyping-sdk.type-safe-api@^0"],
+        module_name="py_bootstrap",
+        name="py-bootstrap",
+        version="0.1.0",
+    )
+
+    api = TypeSafeApiProject(
+        name="myapi",
+        parent=monorepo,
+        outdir="packages/api",
+        model=ModelConfiguration(
+            language=ModelLanguage.SMITHY,
+            options=ModelOptions(
+                smithy=SmithyModelOptions(
+                    service_name=SmithyServiceName(
+                        namespace="com.my.company",
+                        service_name="MyApi"
+                    )
+                )
+            )
+        ),
+        runtime=RuntimeConfiguration(
+            languages=[Language.PYTHON, Language.TYPESCRIPT, Language.JAVA]
+        ),
+        infrastructure=InfrastructureConfiguration(
+            language=Language.PYTHON
+        ),
+        documentation=DocumentationConfiguration(
+            formats=[DocumentationFormat.HTML_REDOC]
+        ),
+        library=LibraryConfiguration(
+            libraries=[Library.TYPESCRIPT_REACT_QUERY_HOOKS]
+        )
+    )
+
+    # Create CDK infra
+    infra = AwsCdkPythonApp(
+        name="infra",
+        parent=monorepo,
+        module_name="infra",
+        author_email="john@doe.com",
+        author_name="John Doe",
+        outdir="packages/infra",
+        cdk_version="2.1.0",
+        version="0.0.0",
+        poetry=True
+    )
+
+    # Add dependency on the infrastructure python package
+    monorepo.add_python_poetry_dependency(infra, api.infrastructure.python)
+
+    monorepo.synth()
+    ```
+
+As always, ensure to run `npx projen` to synthesize the new project and dependency.
+
+### Adding non-homogenous project dependencies
+
+To add a project level dependency on a project of a different language within the monorepo, you can do so using the API's found on the monorepo instance as follows:
+
+=== "TS"
+
+    ```ts
+    monorepo.addImplicitDependency(parentProject, childProject);
+
+    // or
+
+    NxProject.of(parentProject).addImplicitDependency(childProject);
+    ```
+
+=== "JAVA"
+
+    ```java
+    monorepo.addImplicitDependency(parentProject, childProject);
+
+    // or
+
+    NxProject.of(parentProject).addImplicitDependency(childProject);
+    ```
+
+=== "PYTHON"
+
+    ```python
+    monorepo.add_implicit_dependency(parentProject, childProject)
+
+    # or
+
+    NxProject.of(parentProject).add_implicit_dependency(childProject)
+    ```
+
+For a fully worked example to demonstrate, please refer to the following:
+
+=== "TS"
+
+    ```ts
+    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+    import {
+      DocumentationFormat,
+      Language,
+      Library,
+      ModelLanguage,
+      TypeSafeApiProject,
+    } from "@aws-prototyping-sdk/type-safe-api";
+    import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
+    import { PythonProject } from "projen/lib/python";
+
+    const monorepo = new NxMonorepoProject({
+      defaultReleaseBranch: "main",
+      devDeps: [
+        "@aws-prototyping-sdk/nx-monorepo",
+        "@aws-prototyping-sdk/type-safe-api",
+      ],
+      name: "ts-bootstrap",
+      projenrcTs: true,
+    });
+
+    const api = new TypeSafeApiProject({
+      name: "myapi",
+      parent: monorepo,
+      outdir: "packages/api",
+      model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+          smithy: {
+            serviceName: {
+              namespace: "com.my.company",
+              serviceName: "MyApi",
+            },
+          },
+        },
+      },
+      runtime: {
+        languages: [Language.TYPESCRIPT, Language.PYTHON, Language.JAVA],
+      },
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+      },
+      documentation: {
+        formats: [DocumentationFormat.HTML_REDOC],
+      },
+      library: {
+        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+      },
+    });
+
+    const infra = new AwsCdkTypeScriptApp({
+      name: "infra",
+      parent: monorepo,
+      outdir: "packages/infra",
+      cdkVersion: "2.1.0",
+      defaultReleaseBranch: "mainline",
+      deps: [api.infrastructure.typescript!.package.packageName],
+    });
+
+    // Create a python lib
+    const pythonLib = new PythonProject({
+      name: "pythonlib",
+      outdir: "packages/pythonlib",
+      parent: monorepo,
+      moduleName: "pythonlib",
+      authorEmail: "john@doe.com",
+      authorName: "John Doe",
+      version: "0.0.0",
+      poetry: true,
+    });
+
+    // Add a dependency on pythonLib from infra
+    monorepo.addImplicitDependency(infra, pythonLib);
+
+    monorepo.synth();
+    ```
+
+=== "JAVA"
+
+    ```java
+    import software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaProject;
+    import software.aws.awsprototypingsdk.typesafeapi.*;
+
+    import java.util.Arrays;
+
+    import io.github.cdklabs.projen.awscdk.AwsCdkJavaApp;
+    import io.github.cdklabs.projen.awscdk.AwsCdkJavaAppOptions;
+    import io.github.cdklabs.projen.typescript.TypeScriptProject;
+    import io.github.cdklabs.projen.typescript.TypeScriptProjectOptions;
+    import software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaOptions;
+
+    public class projenrc {
+        public static void main(String[] args) {
+            NxMonorepoJavaProject monorepo = new NxMonorepoJavaProject(NxMonorepoJavaOptions.builder()
+                .artifactId("my-app")
+                .groupId("org.acme")
+                .name("java-bootstrap")
+                .version("0.1.0")
+                .testDeps(Arrays.asList("software.aws.awsprototypingsdk/type-safe-api@^0"))
+                .build());
+
+            TypeSafeApiProject api = new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
+                .name("myapi")
+                .parent(monorepo)
+                .outdir("packages/api")
+                .model(ModelConfiguration.builder()
+                    .language(ModelLanguage.SMITHY)
+                    .options(ModelOptions.builder()
+                        .smithy(SmithyModelOptions.builder()
+                            .serviceName(SmithyServiceName.builder()
+                                .namespace("com.my.company")
+                                .serviceName("MyApi")
+                                .build())
+                            .build())
+                        .build())
+                    .build())
+                .runtime(RuntimeConfiguration.builder()
+                    .languages(Arrays.asList(Language.JAVA, Language.TYPESCRIPT, Language.PYTHON))
+                    .build())
+                .infrastructure(InfrastructureConfiguration.builder()
+                    .language(Language.JAVA)
+                    .build())
+                .documentation(DocumentationConfiguration.builder()
+                    .formats(Arrays.asList(DocumentationFormat.HTML_REDOC))
+                    .build())
+                .library(LibraryConfiguration.builder()
+                    .libraries(Arrays.asList(Library.TYPESCRIPT_REACT_QUERY_HOOKS))
+                    .build())
+                .build());
+
+            AwsCdkJavaApp infra = new AwsCdkJavaApp(AwsCdkJavaAppOptions.builder()
+                .name("infra")
+                .parent(monorepo)
+                .outdir("packages/infra")
+                .cdkVersion("2.1.0")
+                .groupId("com.my.company")
+                .artifactId("infra")
+                .mainClass("com.my.company.Infra")
+                .version("0.0.0")
+                .build());
+
+            // Create a ts lib
+            TypeScriptProject tsLib = new TypeScriptProject(TypeScriptProjectOptions.builder()
+                .name("tslib")
+                .parent(monorepo)
+                .outdir("packages/tslib")
+                .defaultReleaseBranch("main")
+                .build());
+
+            // Add a dependency on the tslib from infra
+            monorepo.addImplicitDependency(infra, tsLib);
+            monorepo.addJavaDependency(infra, api.getInfrastructure().getJava());
+            monorepo.synth();
+        }
+    }
+    ```
+
+=== "PYTHON"
+
+    ```python
+    from aws_prototyping_sdk.nx_monorepo import NxMonorepoPythonProject
+    from aws_prototyping_sdk.type_safe_api import *
+    from projen.awscdk import *
+    from projen.typescript import *
+
+    monorepo = NxMonorepoPythonProject(
+        author_email="dimecha@amazon.com",
+        author_name="Adrian Dimech",
+        dev_deps=["aws-prototyping-sdk.type-safe-api@^0"],
+        module_name="py_bootstrap",
+        name="py-bootstrap",
+        version="0.1.0",
+    )
+
+    api = TypeSafeApiProject(
+        name="myapi",
+        parent=monorepo,
+        outdir="packages/api",
+        model=ModelConfiguration(
+            language=ModelLanguage.SMITHY,
+            options=ModelOptions(
+                smithy=SmithyModelOptions(
+                    service_name=SmithyServiceName(
+                        namespace="com.my.company",
+                        service_name="MyApi"
+                    )
+                )
+            )
+        ),
+        runtime=RuntimeConfiguration(
+            languages=[Language.PYTHON, Language.TYPESCRIPT, Language.JAVA]
+        ),
+        infrastructure=InfrastructureConfiguration(
+            language=Language.PYTHON
+        ),
+        documentation=DocumentationConfiguration(
+            formats=[DocumentationFormat.HTML_REDOC]
+        ),
+        library=LibraryConfiguration(
+            libraries=[Library.TYPESCRIPT_REACT_QUERY_HOOKS]
+        )
+    )
+
+    infra = AwsCdkPythonApp(
+        name="infra",
+        parent=monorepo,
+        module_name="infra",
+        author_email="john@doe.com",
+        author_name="John Doe",
+        outdir="packages/infra",
+        cdk_version="2.1.0",
+        version="0.0.0",
+        poetry=True
+    )
+
+    # Create the ts lib
+    tslib = TypeScriptProject(
+        name="tslib",
+        parent=monorepo,
+        outdir="packages/tslib",
+        default_release_branch="main"
+    )
+
+    # add a dependency on tslib from infra
+    monorepo.add_implicit_dependency(infra, tslib)
+    monorepo.add_python_poetry_dependency(infra, api.infrastructure.python)
+
+    monorepo.synth()
+    ```
+
+### Visualizing your package dependencies
+
+To visualize your project graph, run `npx projen graph` from the root of the monorepo.
