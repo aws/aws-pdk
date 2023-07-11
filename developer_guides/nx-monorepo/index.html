@@ -2865,9 +2865,64 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#homogenous-dependencies" class="md-nav__link">
-    Homogenous Dependencies
+  <a href="#how-does-it-work" class="md-nav__link">
+    How does it work?
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    Getting started
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-your-monorepo-project" class="md-nav__link">
+    Create your monorepo project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#making-changes-to-your-projenrc-file" class="md-nav__link">
+    Making changes to your projenrc file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-your-project" class="md-nav__link">
+    Building your project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-homogenous-project-dependencies" class="md-nav__link">
+    Adding homogenous project dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-non-homogenous-project-dependencies" class="md-nav__link">
+    Adding non-homogenous project dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#visualizing-your-package-dependencies" class="md-nav__link">
+    Visualizing your package dependencies
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2890,222 +2945,827 @@
 
 
 <h1 id="nx-monorepo">NX Monorepo</h1>
-<p>The nx-monorepo package vends a NxMonorepoProject Projen construct that adds <a href="https://nx.dev/getting-started/intro">NX</a> monorepo support and manages your yarn/npm/pnpm workspaces on your behalf. This construct enables polyglot builds (and inter language build dependencies), build caching, dependency visualization and much, much more.</p>
-<p>The PDK itself uses the nx-monorepo project itself and is a good reference for seeing how a complex, polyglot monorepo can be set up.</p>
-<blockquote>
-<p><strong>BREAKING CHANGES</strong> (pre-release)</p>
-<ul>
-<li>v0.13.0: <code>WorkspaceConfig.nxConfig</code> type <code>NxConfig =&gt; Nx.WorkspaceConfig</code>, and <code>overrideProjectTargets</code> removed in favor of <code>PDKProject.nx</code> config to manage Nx project configurations. See <a href="https://github.com/aws/aws-prototyping-sdk/pull/231">PR 231</a>.</li>
-</ul>
-</blockquote>
-<p>To get started simply run the following command in an empty directory:</p>
-<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>@aws-prototyping-sdk/nx-monorepo
+<p>The <em>nx-monorepo</em> package provides several projen project types in either Typescript, Python or Java that can configure a <a href="https://nx.dev/getting-started/intro">NX</a> monorepo that can manage all of your packages. When used, these project types enable polyglot builds, declarative dependency management, build caching, dependency visualization and much, much more.</p>
+<p>The AWS Prototyping Development Kit (PDK) itself uses the <em>nx-monorepo</em> package and is a good reference for seeing how a complex, polyglot monorepo can be set up.</p>
+<h2 id="how-does-it-work">How does it work?</h2>
+<p>The construct will set up your root project to function as a Monorepo using <a href="https://nx.dev/getting-started/intro">NX</a>, and as such manages all of the NX configuration for you by default. Depending on the language you decide to bootstrap your project with, a projenrc file in your preferred language will be present which will allow you to add new sub-packages to your project which will be managed by NX.</p>
+<p>The default structure of your project will be created with the following key files as shown:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">TS</label><label for="__tabbed_1_2">JAVA</label><label for="__tabbed_1_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>node_modules/   -- installed dependencies
+nx.json         -- nx configuration (this file is managed by projen)
+package.json    -- dependency declarations (this file is managed by projen)
+.projenrc.ts    -- where your packages are defined
+yarn.lock       -- pinned dependencies
 </code></pre></div>
-<p>This will bootstrap a new Projen monorepo and contain the following in the .projenrc.ts:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">;</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="p">.</span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>node_modules          -- needed as NX is deployed via npm
+nx.json               -- nx configuration (this file is managed by projen)
+package.json          -- nx dependency declaration (do not delete)
+package-lock.json     -- pinned nx dependency declaration (do not delete)
+pom.xml               -- declared maven dependencies (this file is managed by projen)
+src/
+  test/
+    java/
+      projenrc.java   -- where your packages are defined
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>node_modules          -- needed as NX is deployed via npm
+nx.json               -- nx configuration (this file is managed by projen)
+package.json          -- nx dependency declaration (do not delete)
+package-lock.json     -- pinned nx dependency declaration (do not delete)
+pyproject.toml        -- declared pypi dependencies (this file is managed by projen)
+</code></pre></div>
+</div>
+</div>
+</div>
+<h2 id="getting-started">Getting started</h2>
+<p>This section describes how to get started with <em>nx-monorepo</em> construct. For more information, please refer to the developer guides for particular features of this construct.</p>
+<h3 id="create-your-monorepo-project">Create your monorepo project</h3>
+<p>To get started, simply run the following command in an empty directory to create your NX monorepo project:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">TS</label><label for="__tabbed_2_2">JAVA</label><label for="__tabbed_2_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>@aws-prototyping-sdk/nx-monorepo<span class="w"> </span>nx-monorepo-ts
+</code></pre></div>
+<p>This will bootstrap your project given the above structure and contain the <em>.projenrc.ts</em> file containing your project definition which should contain the following:</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cdk-nag&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-package&quot;</span><span class="p">,</span>
-<span class="p">});</span>
+<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ts-bootstrap&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">projenrcTs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
 
+<span class="w">  </span><span class="c1">// deps: [],                /* Runtime dependencies of this module. */</span>
+<span class="w">  </span><span class="c1">// description: undefined,  /* The description is just a string that helps people understand the purpose of the package. */</span>
+<span class="w">  </span><span class="c1">// packageName: undefined,  /* The &quot;name&quot; in package.json. */</span>
+<span class="p">});</span>
 <span class="nx">project</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
 </code></pre></div>
-<p>To add new packages to the monorepo, you can simply add them as a child to the monorepo. To demonstrate, lets add a PDK Pipeline TS Project as a child as follows:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">;</span>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>@aws-prototyping-sdk/nx-monorepo<span class="w"> </span>nx-monorepo-java
+</code></pre></div>
+<p>This will bootstrap your project given the above structure and contain the <em>projenrc.java</em> file containing your project definition which should contain the following:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaProject</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaOptions</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="p">.</span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">projenrc</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">NxMonorepoJavaProject</span><span class="w"> </span><span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NxMonorepoJavaProject</span><span class="p">(</span><span class="n">NxMonorepoJavaOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">artifactId</span><span class="p">(</span><span class="s">&quot;my-app&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">groupId</span><span class="p">(</span><span class="s">&quot;org.acme&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;java-bootstrap&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">version</span><span class="p">(</span><span class="s">&quot;0.1.0&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+<span class="w">        </span><span class="n">project</span><span class="p">.</span><span class="na">synth</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>@aws-prototyping-sdk/nx-monorepo<span class="w"> </span>nx-monorepo-py
+</code></pre></div>
+<p>This will bootstrap your project given the above structure and contain the <em>.projenrc.py</em> file containing your project definition which should contain the following:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk.nx_monorepo</span> <span class="kn">import</span> <span class="n">NxMonorepoPythonProject</span>
+
+<span class="n">project</span> <span class="o">=</span> <span class="n">NxMonorepoPythonProject</span><span class="p">(</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s2">&quot;dimecha@amazon.com&quot;</span><span class="p">,</span>
+    <span class="n">author_name</span><span class="o">=</span><span class="s2">&quot;Adrian Dimech&quot;</span><span class="p">,</span>
+    <span class="n">dev_deps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">],</span>
+    <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;py_bootstrap&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;py-bootstrap&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">project</span><span class="o">.</span><span class="n">synth</span><span class="p">()</span>
+</code></pre></div>
+<div class="admonition bug">
+<p class="admonition-title">Bug</p>
+<p><code>@aws-prototyping-sdk/nx-monorepo</code> can be removed from <em>dev_deps</em> as this is erroneously added by Projen due to a bug in their bootstrapping process.</p>
+</div>
+</div>
+</div>
+</div>
+<p>To build your project, simply run <code>npx projen build</code> from the root directory.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Whenever you make a change to the <em>projenrc</em> file, you will need to re-synthesize your project by running <code>npx projen</code> from the root directory. This will re-generate any projen managed file i.e: <em>nx.json</em>.</p>
+</div>
+<h3 id="making-changes-to-your-projenrc-file">Making changes to your projenrc file</h3>
+<p>To add new packages to the monorepo, you can simply add them as a child to the monorepo. To demonstrate, lets add a <em>type-safe-api</em> to our monorepo.</p>
+<p>Firstly, we need to reference the <em>TypeSafeApiProject</em> construct which is contained within a seperate package, so firstly we need to update our <em>projenrc</em> file to add this new dependency before we can use it.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">TS</label><label for="__tabbed_3_2">JAVA</label><label for="__tabbed_3_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cdk-nag&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-package&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ts-bootstrap&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">projenrcTs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="p">});</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaProject</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Arrays</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaOptions</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">projenrc</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">NxMonorepoJavaProject</span><span class="w"> </span><span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NxMonorepoJavaProject</span><span class="p">(</span><span class="n">NxMonorepoJavaOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">artifactId</span><span class="p">(</span><span class="s">&quot;my-app&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">groupId</span><span class="p">(</span><span class="s">&quot;org.acme&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;java-bootstrap&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">version</span><span class="p">(</span><span class="s">&quot;0.1.0&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">testDeps</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="s">&quot;software.aws.awsprototypingsdk/type-safe-api@^0&quot;</span><span class="p">))</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+<span class="w">        </span><span class="n">project</span><span class="p">.</span><span class="na">synth</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk.nx_monorepo</span> <span class="kn">import</span> <span class="n">NxMonorepoPythonProject</span>
+
+<span class="n">project</span> <span class="o">=</span> <span class="n">NxMonorepoPythonProject</span><span class="p">(</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s2">&quot;dimecha@amazon.com&quot;</span><span class="p">,</span>
+    <span class="n">author_name</span><span class="o">=</span><span class="s2">&quot;Adrian Dimech&quot;</span><span class="p">,</span>
+    <span class="n">dev_deps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk.type-safe-api@^0&quot;</span><span class="p">],</span>
+    <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;py_bootstrap&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;py-bootstrap&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">project</span><span class="o">.</span><span class="n">synth</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>Now in order to apply the change, we need to run <code>npx projen</code> from the root of the monorepo to synthesize the dependency change. Depending on your preferred language, it will add a new entry into your dependency management file <em>i.e: package.json</em> and install the dependency.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is important that you only ever manage your dependencies from within the <em>projenrc</em> file and never in your package manager file directly. This is because anytime you run <code>npx projen</code>, it will clobber any changes to the file.</p>
+</div>
+<p>Now that our dependency on <em>type-safe-api</em> has been installed, it is time to create our API project. To do this, create an instance of the <code>TypeSafeApiProject</code> as follows:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">TS</label><label for="__tabbed_4_2">JAVA</label><label for="__tabbed_4_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">DocumentationFormat</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Language</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Library</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">ModelLanguage</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">TypeSafeApiProject</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">;</span>
+
+<span class="c1">// rename our monorepo project for better readability</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ts-bootstrap&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">projenrcTs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
 <span class="p">});</span>
 
-<span class="ow">new</span><span class="w"> </span><span class="nx">PDKPipelineTsProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">project</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/cicd&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;cicd&quot;</span><span class="p">,</span>
+<span class="c1">// Create the API project</span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;myapi&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelLanguage.SMITHY</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">smithy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">namespace</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;com.my.company&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;MyApi&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">runtime</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">languages</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Language</span><span class="p">.</span><span class="nx">TYPESCRIPT</span><span class="p">,</span><span class="w"> </span><span class="nx">Language</span><span class="p">.</span><span class="nx">PYTHON</span><span class="p">,</span><span class="w"> </span><span class="nx">Language</span><span class="p">.</span><span class="nx">JAVA</span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">infrastructure</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">Language.TYPESCRIPT</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">documentation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">formats</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">DocumentationFormat</span><span class="p">.</span><span class="nx">HTML_REDOC</span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">library</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">libraries</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Library</span><span class="p">.</span><span class="nx">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
+
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaProject</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.typesafeapi.*</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Arrays</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaOptions</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">projenrc</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// rename our monorepo project for better readability</span>
+<span class="w">        </span><span class="n">NxMonorepoJavaProject</span><span class="w"> </span><span class="n">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NxMonorepoJavaProject</span><span class="p">(</span><span class="n">NxMonorepoJavaOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">artifactId</span><span class="p">(</span><span class="s">&quot;my-app&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">groupId</span><span class="p">(</span><span class="s">&quot;org.acme&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;java-bootstrap&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">version</span><span class="p">(</span><span class="s">&quot;0.1.0&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">testDeps</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="s">&quot;software.aws.awsprototypingsdk/type-safe-api@^0&quot;</span><span class="p">))</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">TypeSafeApiProject</span><span class="p">(</span><span class="n">TypeSafeApiProjectOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;myapi&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">parent</span><span class="p">(</span><span class="n">monorepo</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">outdir</span><span class="p">(</span><span class="s">&quot;packages/api&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">ModelConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">ModelLanguage</span><span class="p">.</span><span class="na">SMITHY</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">options</span><span class="p">(</span><span class="n">ModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">smithy</span><span class="p">(</span><span class="n">SmithyModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="n">SmithyServiceName</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                            </span><span class="p">.</span><span class="na">namespace</span><span class="p">(</span><span class="s">&quot;com.my.company&quot;</span><span class="p">)</span>
+<span class="w">                            </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="s">&quot;MyApi&quot;</span><span class="p">)</span>
+<span class="w">                            </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">runtime</span><span class="p">(</span><span class="n">RuntimeConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">languages</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">JAVA</span><span class="p">,</span><span class="w"> </span><span class="n">Language</span><span class="p">.</span><span class="na">TYPESCRIPT</span><span class="p">,</span><span class="w"> </span><span class="n">Language</span><span class="p">.</span><span class="na">PYTHON</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">infrastructure</span><span class="p">(</span><span class="n">InfrastructureConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">JAVA</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">documentation</span><span class="p">(</span><span class="n">DocumentationConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">formats</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">DocumentationFormat</span><span class="p">.</span><span class="na">HTML_REDOC</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">library</span><span class="p">(</span><span class="n">LibraryConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">libraries</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Library</span><span class="p">.</span><span class="na">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+
+<span class="w">        </span><span class="n">monorepo</span><span class="p">.</span><span class="na">synth</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk.nx_monorepo</span> <span class="kn">import</span> <span class="n">NxMonorepoPythonProject</span>
+<span class="kn">from</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># rename our monorepo project for better readability</span>
+<span class="n">monorepo</span> <span class="o">=</span> <span class="n">NxMonorepoPythonProject</span><span class="p">(</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s2">&quot;dimecha@amazon.com&quot;</span><span class="p">,</span>
+    <span class="n">author_name</span><span class="o">=</span><span class="s2">&quot;Adrian Dimech&quot;</span><span class="p">,</span>
+    <span class="n">dev_deps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk.type-safe-api@^0&quot;</span><span class="p">],</span>
+    <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;py_bootstrap&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;py-bootstrap&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">TypeSafeApiProject</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;myapi&quot;</span><span class="p">,</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">monorepo</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">ModelConfiguration</span><span class="p">(</span>
+        <span class="n">language</span><span class="o">=</span><span class="n">ModelLanguage</span><span class="o">.</span><span class="n">SMITHY</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">ModelOptions</span><span class="p">(</span>
+            <span class="n">smithy</span><span class="o">=</span><span class="n">SmithyModelOptions</span><span class="p">(</span>
+                <span class="n">service_name</span><span class="o">=</span><span class="n">SmithyServiceName</span><span class="p">(</span>
+                    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;com.my.company&quot;</span><span class="p">,</span>
+                    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;MyApi&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+    <span class="n">runtime</span><span class="o">=</span><span class="n">RuntimeConfiguration</span><span class="p">(</span>
+        <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">,</span> <span class="n">Language</span><span class="o">.</span><span class="n">TYPESCRIPT</span><span class="p">,</span> <span class="n">Language</span><span class="o">.</span><span class="n">JAVA</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">infrastructure</span><span class="o">=</span><span class="n">InfrastructureConfiguration</span><span class="p">(</span>
+        <span class="n">language</span><span class="o">=</span><span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span>
+    <span class="p">),</span>
+    <span class="n">documentation</span><span class="o">=</span><span class="n">DocumentationConfiguration</span><span class="p">(</span>
+        <span class="n">formats</span><span class="o">=</span><span class="p">[</span><span class="n">DocumentationFormat</span><span class="o">.</span><span class="n">HTML_REDOC</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">library</span><span class="o">=</span><span class="n">LibraryConfiguration</span><span class="p">(</span>
+        <span class="n">libraries</span><span class="o">=</span><span class="p">[</span><span class="n">Library</span><span class="o">.</span><span class="n">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">monorepo</span><span class="o">.</span><span class="n">synth</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>Now that we have modified our <em>projenrc</em> file, it is time to synthesize our change by running <code>npx projen</code>. You will now notice that a <code>packages/api</code> directory is now present within the monorepo which contains a series of packages that were created on your behalf. The combination of the packages represents your new API.</p>
+<h3 id="building-your-project">Building your project</h3>
+<p>To build your project, simply run <code>npx projen build</code> from the root directory. You will notice that this command will delegate to NX in order to build your project in correct dependency order.</p>
+<h3 id="adding-homogenous-project-dependencies">Adding homogenous project dependencies</h3>
+<p>To add a project level dependency on a project of the same language, you can do so using any one of the apis located on the monorepo instance as follows:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">TS</label><label for="__tabbed_5_2">JAVA</label><label for="__tabbed_5_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nx">parentTsProject</span><span class="p">.</span><span class="nx">addDeps</span><span class="p">(</span><span class="nx">childTsProject</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">);</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addJavaDependency</span><span class="p">(</span><span class="nx">parentJavaProject</span><span class="p">,</span><span class="w"> </span><span class="nx">childJavaProject</span><span class="p">);</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addPythonPoetryDependency</span><span class="p">(</span><span class="nx">parentPythonProject</span><span class="p">,</span><span class="w"> </span><span class="nx">childPythonProject</span><span class="p">);</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">parentTsProject</span><span class="p">.</span><span class="na">addDeps</span><span class="p">(</span><span class="n">childTsProject</span><span class="p">.</span><span class="na">getPackage</span><span class="p">().</span><span class="na">getPackageName</span><span class="p">());</span>
+<span class="n">monorepo</span><span class="p">.</span><span class="na">addJavaDependency</span><span class="p">(</span><span class="n">parentJavaProject</span><span class="p">,</span><span class="w"> </span><span class="n">childJavaProject</span><span class="p">);</span>
+<span class="n">monorepo</span><span class="p">.</span><span class="na">addPythonPoetryDependency</span><span class="p">(</span><span class="n">parentPythonProject</span><span class="p">,</span><span class="w"> </span><span class="n">childPythonProject</span><span class="p">);</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">parentTsProject</span><span class="o">.</span><span class="n">add_deps</span><span class="p">(</span><span class="n">childTsProject</span><span class="o">.</span><span class="n">package</span><span class="o">.</span><span class="n">package_name</span><span class="p">)</span>
+<span class="n">monorepo</span><span class="o">.</span><span class="n">add_java_dependency</span><span class="p">(</span><span class="n">parentJavaProject</span><span class="p">,</span> <span class="n">childJavaProject</span><span class="p">)</span>
+<span class="n">monorepo</span><span class="o">.</span><span class="n">add_python_poetry_dependency</span><span class="p">(</span><span class="n">parentPythonProject</span><span class="p">,</span> <span class="n">childPythonProject</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>For a worked example showing how these can be used, refer to the below example which creates an cdk <em>infra</em> package with a dependency on the API infrastructure package:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">TS</label><label for="__tabbed_6_2">JAVA</label><label for="__tabbed_6_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">DocumentationFormat</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Language</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Library</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">ModelLanguage</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">TypeSafeApiProject</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AwsCdkTypeScriptApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen/lib/awscdk&quot;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ts-bootstrap&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">projenrcTs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;myapi&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelLanguage.SMITHY</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">smithy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">namespace</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;com.my.company&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;MyApi&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">runtime</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">languages</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Language</span><span class="p">.</span><span class="nx">TYPESCRIPT</span><span class="p">,</span><span class="w"> </span><span class="nx">Language</span><span class="p">.</span><span class="nx">PYTHON</span><span class="p">,</span><span class="w"> </span><span class="nx">Language</span><span class="p">.</span><span class="nx">JAVA</span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">infrastructure</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">Language.TYPESCRIPT</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">documentation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">formats</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">DocumentationFormat</span><span class="p">.</span><span class="nx">HTML_REDOC</span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">library</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">libraries</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Library</span><span class="p">.</span><span class="nx">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
+
+<span class="c1">// Create CDK infra</span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">AwsCdkTypeScriptApp</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;infra&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/infra&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">cdkVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// Add dependency on the infrastructure ts package</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">typescript</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">],</span>
 <span class="p">});</span>
 
-<span class="nx">project</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
 </code></pre></div>
-<p>Once added, run <code>npx projen</code> from the root directory. You will now notice a new TS package has been created under the packages/cicd path.</p>
-<p>Now let's add a python project to the monorepo and add an inter-language build dependency.</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PDKPipelineTsProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-prototyping-sdk/pipeline&quot;</span><span class="p">;</span>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaProject</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.typesafeapi.*</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Arrays</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">io.github.cdklabs.projen.awscdk.AwsCdkJavaApp</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io.github.cdklabs.projen.awscdk.AwsCdkJavaAppOptions</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaOptions</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">projenrc</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">NxMonorepoJavaProject</span><span class="w"> </span><span class="n">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NxMonorepoJavaProject</span><span class="p">(</span><span class="n">NxMonorepoJavaOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">artifactId</span><span class="p">(</span><span class="s">&quot;my-app&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">groupId</span><span class="p">(</span><span class="s">&quot;org.acme&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;java-bootstrap&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">version</span><span class="p">(</span><span class="s">&quot;0.1.0&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">testDeps</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="s">&quot;software.aws.awsprototypingsdk/type-safe-api@^0&quot;</span><span class="p">))</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+
+<span class="w">        </span><span class="n">TypeSafeApiProject</span><span class="w"> </span><span class="n">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TypeSafeApiProject</span><span class="p">(</span><span class="n">TypeSafeApiProjectOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;myapi&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">parent</span><span class="p">(</span><span class="n">monorepo</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">outdir</span><span class="p">(</span><span class="s">&quot;packages/api&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">ModelConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">ModelLanguage</span><span class="p">.</span><span class="na">SMITHY</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">options</span><span class="p">(</span><span class="n">ModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">smithy</span><span class="p">(</span><span class="n">SmithyModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="n">SmithyServiceName</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                            </span><span class="p">.</span><span class="na">namespace</span><span class="p">(</span><span class="s">&quot;com.my.company&quot;</span><span class="p">)</span>
+<span class="w">                            </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="s">&quot;MyApi&quot;</span><span class="p">)</span>
+<span class="w">                            </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">runtime</span><span class="p">(</span><span class="n">RuntimeConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">languages</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">JAVA</span><span class="p">,</span><span class="w"> </span><span class="n">Language</span><span class="p">.</span><span class="na">TYPESCRIPT</span><span class="p">,</span><span class="w"> </span><span class="n">Language</span><span class="p">.</span><span class="na">PYTHON</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">infrastructure</span><span class="p">(</span><span class="n">InfrastructureConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">JAVA</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">documentation</span><span class="p">(</span><span class="n">DocumentationConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">formats</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">DocumentationFormat</span><span class="p">.</span><span class="na">HTML_REDOC</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">library</span><span class="p">(</span><span class="n">LibraryConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">libraries</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Library</span><span class="p">.</span><span class="na">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// Create CDK infra</span>
+<span class="w">        </span><span class="n">AwsCdkJavaApp</span><span class="w"> </span><span class="n">infra</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AwsCdkJavaApp</span><span class="p">(</span><span class="n">AwsCdkJavaAppOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;infra&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">parent</span><span class="p">(</span><span class="n">monorepo</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">outdir</span><span class="p">(</span><span class="s">&quot;packages/infra&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">cdkVersion</span><span class="p">(</span><span class="s">&quot;2.1.0&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">groupId</span><span class="p">(</span><span class="s">&quot;com.my.company&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">artifactId</span><span class="p">(</span><span class="s">&quot;infra&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">mainClass</span><span class="p">(</span><span class="s">&quot;com.my.company.Infra&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">version</span><span class="p">(</span><span class="s">&quot;0.0.0&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// Add dependency on the infrastructure java package</span>
+<span class="w">        </span><span class="n">monorepo</span><span class="p">.</span><span class="na">addJavaDependency</span><span class="p">(</span><span class="n">infra</span><span class="p">,</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="na">getInfrastructure</span><span class="p">().</span><span class="na">getJava</span><span class="p">());</span>
+<span class="w">        </span><span class="n">monorepo</span><span class="p">.</span><span class="na">synth</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk.nx_monorepo</span> <span class="kn">import</span> <span class="n">NxMonorepoPythonProject</span>
+<span class="kn">from</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">projen.awscdk</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">monorepo</span> <span class="o">=</span> <span class="n">NxMonorepoPythonProject</span><span class="p">(</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s2">&quot;dimecha@amazon.com&quot;</span><span class="p">,</span>
+    <span class="n">author_name</span><span class="o">=</span><span class="s2">&quot;Adrian Dimech&quot;</span><span class="p">,</span>
+    <span class="n">dev_deps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk.type-safe-api@^0&quot;</span><span class="p">],</span>
+    <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;py_bootstrap&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;py-bootstrap&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">TypeSafeApiProject</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;myapi&quot;</span><span class="p">,</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">monorepo</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">ModelConfiguration</span><span class="p">(</span>
+        <span class="n">language</span><span class="o">=</span><span class="n">ModelLanguage</span><span class="o">.</span><span class="n">SMITHY</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">ModelOptions</span><span class="p">(</span>
+            <span class="n">smithy</span><span class="o">=</span><span class="n">SmithyModelOptions</span><span class="p">(</span>
+                <span class="n">service_name</span><span class="o">=</span><span class="n">SmithyServiceName</span><span class="p">(</span>
+                    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;com.my.company&quot;</span><span class="p">,</span>
+                    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;MyApi&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+    <span class="n">runtime</span><span class="o">=</span><span class="n">RuntimeConfiguration</span><span class="p">(</span>
+        <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">,</span> <span class="n">Language</span><span class="o">.</span><span class="n">TYPESCRIPT</span><span class="p">,</span> <span class="n">Language</span><span class="o">.</span><span class="n">JAVA</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">infrastructure</span><span class="o">=</span><span class="n">InfrastructureConfiguration</span><span class="p">(</span>
+        <span class="n">language</span><span class="o">=</span><span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span>
+    <span class="p">),</span>
+    <span class="n">documentation</span><span class="o">=</span><span class="n">DocumentationConfiguration</span><span class="p">(</span>
+        <span class="n">formats</span><span class="o">=</span><span class="p">[</span><span class="n">DocumentationFormat</span><span class="o">.</span><span class="n">HTML_REDOC</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">library</span><span class="o">=</span><span class="n">LibraryConfiguration</span><span class="p">(</span>
+        <span class="n">libraries</span><span class="o">=</span><span class="p">[</span><span class="n">Library</span><span class="o">.</span><span class="n">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Create CDK infra</span>
+<span class="n">infra</span> <span class="o">=</span> <span class="n">AwsCdkPythonApp</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;infra&quot;</span><span class="p">,</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">monorepo</span><span class="p">,</span>
+    <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;infra&quot;</span><span class="p">,</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s2">&quot;john@doe.com&quot;</span><span class="p">,</span>
+    <span class="n">author_name</span><span class="o">=</span><span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/infra&quot;</span><span class="p">,</span>
+    <span class="n">cdk_version</span><span class="o">=</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.0.0&quot;</span><span class="p">,</span>
+    <span class="n">poetry</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Add dependency on the infrastructure python package</span>
+<span class="n">monorepo</span><span class="o">.</span><span class="n">add_python_poetry_dependency</span><span class="p">(</span><span class="n">infra</span><span class="p">,</span> <span class="n">api</span><span class="o">.</span><span class="n">infrastructure</span><span class="o">.</span><span class="n">python</span><span class="p">)</span>
+
+<span class="n">monorepo</span><span class="o">.</span><span class="n">synth</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>As always, ensure to run <code>npx projen</code> to synthesize the new project and dependency.</p>
+<h3 id="adding-non-homogenous-project-dependencies">Adding non-homogenous project dependencies</h3>
+<p>To add a project level dependency on a project of a different language within the monorepo, you can do so using the API's found on the monorepo instance as follows:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="7:3"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><input id="__tabbed_7_3" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">TS</label><label for="__tabbed_7_2">JAVA</label><label for="__tabbed_7_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">parentProject</span><span class="p">,</span><span class="w"> </span><span class="nx">childProject</span><span class="p">);</span>
+
+<span class="c1">// or</span>
+
+<span class="nx">NxProject</span><span class="p">.</span><span class="k">of</span><span class="p">(</span><span class="nx">parentProject</span><span class="p">).</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">childProject</span><span class="p">);</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">monorepo</span><span class="p">.</span><span class="na">addImplicitDependency</span><span class="p">(</span><span class="n">parentProject</span><span class="p">,</span><span class="w"> </span><span class="n">childProject</span><span class="p">);</span>
+
+<span class="c1">// or</span>
+
+<span class="n">NxProject</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">parentProject</span><span class="p">).</span><span class="na">addImplicitDependency</span><span class="p">(</span><span class="n">childProject</span><span class="p">);</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">monorepo</span><span class="o">.</span><span class="n">add_implicit_dependency</span><span class="p">(</span><span class="n">parentProject</span><span class="p">,</span> <span class="n">childProject</span><span class="p">)</span>
+
+<span class="c1"># or</span>
+
+<span class="n">NxProject</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">parentProject</span><span class="p">)</span><span class="o">.</span><span class="n">add_implicit_dependency</span><span class="p">(</span><span class="n">childProject</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>For a fully worked example to demonstrate, please refer to the following:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="8:3"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><input id="__tabbed_8_3" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1">TS</label><label for="__tabbed_8_2">JAVA</label><label for="__tabbed_8_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">DocumentationFormat</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Language</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Library</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">ModelLanguage</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">TypeSafeApiProject</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AwsCdkTypeScriptApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen/lib/awscdk&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PythonProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen/lib/python&quot;</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">nx_monorepo</span><span class="p">.</span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;constructs&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cdk-nag&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ts-bootstrap&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">projenrcTs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
 <span class="p">});</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">pipelineProject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PDKPipelineTsProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">project</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/cicd&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;cicd&quot;</span><span class="p">,</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;myapi&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelLanguage.SMITHY</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">smithy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">namespace</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;com.my.company&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;MyApi&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">runtime</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">languages</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Language</span><span class="p">.</span><span class="nx">TYPESCRIPT</span><span class="p">,</span><span class="w"> </span><span class="nx">Language</span><span class="p">.</span><span class="nx">PYTHON</span><span class="p">,</span><span class="w"> </span><span class="nx">Language</span><span class="p">.</span><span class="nx">JAVA</span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">infrastructure</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">Language.TYPESCRIPT</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">documentation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">formats</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">DocumentationFormat</span><span class="p">.</span><span class="nx">HTML_REDOC</span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">library</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">libraries</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Library</span><span class="p">.</span><span class="nx">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">infra</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">AwsCdkTypeScriptApp</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;infra&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/infra&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">cdkVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;mainline&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">typescript</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">],</span>
 <span class="p">});</span>
 
-<span class="c1">// Standard Projen projects also work here</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">pythonlib</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">project</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/pythonlib&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pythonlib&quot;</span><span class="p">,</span>
+<span class="c1">// Create a python lib</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">pythonLib</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pythonlib&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/pythonlib&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
+<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pythonlib&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;john@doe.com&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;0.0.0&quot;</span><span class="p">,</span>
-<span class="p">});</span>
-
-<span class="c1">// Pipeline project depends on pythonlib to build first</span>
-<span class="nx">project</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">pipelineProject</span><span class="p">,</span><span class="w"> </span><span class="nx">pythonlib</span><span class="p">);</span>
-
-<span class="nx">project</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
-</code></pre></div>
-<p>Run <code>npx projen</code> from the root directory. You will now notice a new Python package has been created under packages/pythonlib.</p>
-<p>To visualize our dependency graph, run the following command from the root directory: <code>npx nx graph</code>.</p>
-<p>Now lets test building our project, from the root directory run <code>npx nx run-many --target=build --nx-bail</code>. As you can see, the pythonlib was built first followed by the cicd package.</p>
-<blockquote>
-<p>This is equivalent to running <code>yarn build</code>, <code>pnpm build</code>, or <code>npm run build</code> depending on your node package manager, and similarly <code>yarn build</code> also accepts the same <a href="https://nx.dev/packages/nx/documents/run-many#options">Nx Run-Many options</a> (eg: <code>yarn build --projects=cicd</code>).</p>
-</blockquote>
-<p>The NxMonorepoProject also manages your yarn/pnpm workspaces for you and synthesizes these into your package.json pnpm-workspace.yml respectively.</p>
-<p>For more information on NX commands, refer to this <a href="https://nx.dev/using-nx/nx-cli">documentation</a>.</p>
-<h3 id="homogenous-dependencies">Homogenous Dependencies</h3>
-<p>As well as adding implicit dependencies, you can add dependencies between projects of the same language in order to have one project consume another project's code.</p>
-<h4 id="typescript">Typescript</h4>
-<p>Since the <code>NxMonorepoProject</code> manages a yarn/npm/pnpm workspace, configuring dependencies between Typescript projects is as straightforward as referencing them in <code>deps</code>.</p>
-<p>Note that dependencies cannot be added in the same project synthesis (<code>npx projen</code>) as when projects are created. This means a two-pass approach is recommended, first to create your new projects, and then to add the dependencies.</p>
-<p>For example:</p>
-<p>First add your new projects:</p>
-<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/a&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-a&quot;</span><span class="p">,</span>
-<span class="p">});</span>
-
-<span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-b&quot;</span><span class="p">,</span>
-<span class="p">});</span>
-</code></pre></div>
-<p>Synthesise, then you can set up your dependency:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/a&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-a&quot;</span><span class="p">,</span>
-<span class="p">});</span>
-
-<span class="ow">new</span><span class="w"> </span><span class="nx">TypeScriptProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;project-b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="c1">// B depends on A</span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">a</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">],</span>
-<span class="p">});</span>
-</code></pre></div>
-<h4 id="python">Python</h4>
-<h5 id="poetry-recommended">Poetry (Recommended)</h5>
-<p>The recommended way to configure dependencies between python projects within your monorepo is to use Poetry. Poetry sets up separate virtual environments per project but also supports local file dependencies. You can use the monorepo's <code>addPythonPoetryDependency</code> method:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/a&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;jack&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;me@example.com&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">poetry</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
 <span class="p">});</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;jack&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;me@example.com&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">poetry</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="p">});</span>
+<span class="c1">// Add a dependency on pythonLib from infra</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">infra</span><span class="p">,</span><span class="w"> </span><span class="nx">pythonLib</span><span class="p">);</span>
 
-<span class="c1">// b depends on a</span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addPythonPoetryDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span>
+<span class="nx">monorepo</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
 </code></pre></div>
-<h5 id="pip">Pip</h5>
-<p>If you are using pip for your python projects, you can set up a dependency using a single shared virtual environment. You can then install packages you wish to depend on into that environment using pip's <a href="https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs">Editable Installs</a>.</p>
-<p>You will also need to add an implicit dependency to tell the monorepo the correct build order for your packages.</p>
-<p>For example:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">sharedEnv</span><span class="o">:</span><span class="w"> </span><span class="kt">VenvOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">envdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;../../.env&quot;</span><span class="p">,</span>
-<span class="p">};</span>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaProject</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.typesafeapi.*</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/a&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;jack&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;me@example.com&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">venvOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">sharedEnv</span><span class="p">,</span>
-<span class="p">});</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Arrays</span><span class="p">;</span>
 
-<span class="c1">// Install A into the virtual env since it is consumed by B</span>
-<span class="nx">a</span><span class="p">.</span><span class="nx">tasks</span><span class="p">.</span><span class="nx">tryFind</span><span class="p">(</span><span class="s2">&quot;install&quot;</span><span class="p">)</span><span class="o">!</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">&quot;pip install --editable .&quot;</span><span class="p">);</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io.github.cdklabs.projen.awscdk.AwsCdkJavaApp</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io.github.cdklabs.projen.awscdk.AwsCdkJavaAppOptions</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io.github.cdklabs.projen.typescript.TypeScriptProject</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io.github.cdklabs.projen.typescript.TypeScriptProjectOptions</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">software.aws.awsprototypingsdk.nxmonorepo.NxMonorepoJavaOptions</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PythonProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="kr">module</span><span class="nx">Name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;jack&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">authorEmail</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;me@example.com&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">venvOptions</span><span class="o">:</span><span class="w"> </span><span class="kt">sharedEnv</span><span class="p">,</span>
-<span class="w">  </span><span class="c1">// B depends on A</span>
-<span class="w">  </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">a</span><span class="p">.</span><span class="kr">module</span><span class="nx">Name</span><span class="p">],</span>
-<span class="p">});</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">projenrc</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">NxMonorepoJavaProject</span><span class="w"> </span><span class="n">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NxMonorepoJavaProject</span><span class="p">(</span><span class="n">NxMonorepoJavaOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">artifactId</span><span class="p">(</span><span class="s">&quot;my-app&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">groupId</span><span class="p">(</span><span class="s">&quot;org.acme&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;java-bootstrap&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">version</span><span class="p">(</span><span class="s">&quot;0.1.0&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">testDeps</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="s">&quot;software.aws.awsprototypingsdk/type-safe-api@^0&quot;</span><span class="p">))</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
 
-<span class="c1">// Add the implicit dependency so that the monorepo will build A before B</span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addImplicitDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span>
+<span class="w">        </span><span class="n">TypeSafeApiProject</span><span class="w"> </span><span class="n">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TypeSafeApiProject</span><span class="p">(</span><span class="n">TypeSafeApiProjectOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;myapi&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">parent</span><span class="p">(</span><span class="n">monorepo</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">outdir</span><span class="p">(</span><span class="s">&quot;packages/api&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">ModelConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">ModelLanguage</span><span class="p">.</span><span class="na">SMITHY</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">options</span><span class="p">(</span><span class="n">ModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">smithy</span><span class="p">(</span><span class="n">SmithyModelOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="n">SmithyServiceName</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                            </span><span class="p">.</span><span class="na">namespace</span><span class="p">(</span><span class="s">&quot;com.my.company&quot;</span><span class="p">)</span>
+<span class="w">                            </span><span class="p">.</span><span class="na">serviceName</span><span class="p">(</span><span class="s">&quot;MyApi&quot;</span><span class="p">)</span>
+<span class="w">                            </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">runtime</span><span class="p">(</span><span class="n">RuntimeConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">languages</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">JAVA</span><span class="p">,</span><span class="w"> </span><span class="n">Language</span><span class="p">.</span><span class="na">TYPESCRIPT</span><span class="p">,</span><span class="w"> </span><span class="n">Language</span><span class="p">.</span><span class="na">PYTHON</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">infrastructure</span><span class="p">(</span><span class="n">InfrastructureConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">language</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">JAVA</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">documentation</span><span class="p">(</span><span class="n">DocumentationConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">formats</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">DocumentationFormat</span><span class="p">.</span><span class="na">HTML_REDOC</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">library</span><span class="p">(</span><span class="n">LibraryConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">libraries</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Library</span><span class="p">.</span><span class="na">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+
+<span class="w">        </span><span class="n">AwsCdkJavaApp</span><span class="w"> </span><span class="n">infra</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AwsCdkJavaApp</span><span class="p">(</span><span class="n">AwsCdkJavaAppOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;infra&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">parent</span><span class="p">(</span><span class="n">monorepo</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">outdir</span><span class="p">(</span><span class="s">&quot;packages/infra&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">cdkVersion</span><span class="p">(</span><span class="s">&quot;2.1.0&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">groupId</span><span class="p">(</span><span class="s">&quot;com.my.company&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">artifactId</span><span class="p">(</span><span class="s">&quot;infra&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">mainClass</span><span class="p">(</span><span class="s">&quot;com.my.company.Infra&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">version</span><span class="p">(</span><span class="s">&quot;0.0.0&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// Create a ts lib</span>
+<span class="w">        </span><span class="n">TypeScriptProject</span><span class="w"> </span><span class="n">tsLib</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TypeScriptProject</span><span class="p">(</span><span class="n">TypeScriptProjectOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;tslib&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">parent</span><span class="p">(</span><span class="n">monorepo</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">outdir</span><span class="p">(</span><span class="s">&quot;packages/tslib&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">defaultReleaseBranch</span><span class="p">(</span><span class="s">&quot;main&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// Add a dependency on the tslib from infra</span>
+<span class="w">        </span><span class="n">monorepo</span><span class="p">.</span><span class="na">addImplicitDependency</span><span class="p">(</span><span class="n">infra</span><span class="p">,</span><span class="w"> </span><span class="n">tsLib</span><span class="p">);</span>
+<span class="w">        </span><span class="n">monorepo</span><span class="p">.</span><span class="na">addJavaDependency</span><span class="p">(</span><span class="n">infra</span><span class="p">,</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="na">getInfrastructure</span><span class="p">().</span><span class="na">getJava</span><span class="p">());</span>
+<span class="w">        </span><span class="n">monorepo</span><span class="p">.</span><span class="na">synth</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 </code></pre></div>
-<h4 id="java">Java</h4>
-<p>The recommended way to configure dependencies between java projects within your monorepo is to use shared maven repositories. The default java project build will already create a distributable in the correct format for a maven repository in its <code>dist/java</code> folder, so you can use this as a repository. You can use the monorepo's <code>addJavaDependency</code> method:</p>
-<p>For example:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">JavaProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/a&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">groupId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;com.mycompany&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">artifactId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-<span class="p">});</span>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">aws_prototyping_sdk.nx_monorepo</span> <span class="kn">import</span> <span class="n">NxMonorepoPythonProject</span>
+<span class="kn">from</span> <span class="nn">aws_prototyping_sdk.type_safe_api</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">projen.awscdk</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">projen.typescript</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">JavaProject</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">groupId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;com.mycompany&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">artifactId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-<span class="p">});</span>
+<span class="n">monorepo</span> <span class="o">=</span> <span class="n">NxMonorepoPythonProject</span><span class="p">(</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s2">&quot;dimecha@amazon.com&quot;</span><span class="p">,</span>
+    <span class="n">author_name</span><span class="o">=</span><span class="s2">&quot;Adrian Dimech&quot;</span><span class="p">,</span>
+    <span class="n">dev_deps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;aws-prototyping-sdk.type-safe-api@^0&quot;</span><span class="p">],</span>
+    <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;py_bootstrap&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;py-bootstrap&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="c1">// b depends on a</span>
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">addJavaDependency</span><span class="p">(</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">a</span><span class="p">);</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">TypeSafeApiProject</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;myapi&quot;</span><span class="p">,</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">monorepo</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">ModelConfiguration</span><span class="p">(</span>
+        <span class="n">language</span><span class="o">=</span><span class="n">ModelLanguage</span><span class="o">.</span><span class="n">SMITHY</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">ModelOptions</span><span class="p">(</span>
+            <span class="n">smithy</span><span class="o">=</span><span class="n">SmithyModelOptions</span><span class="p">(</span>
+                <span class="n">service_name</span><span class="o">=</span><span class="n">SmithyServiceName</span><span class="p">(</span>
+                    <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;com.my.company&quot;</span><span class="p">,</span>
+                    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;MyApi&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+    <span class="n">runtime</span><span class="o">=</span><span class="n">RuntimeConfiguration</span><span class="p">(</span>
+        <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">,</span> <span class="n">Language</span><span class="o">.</span><span class="n">TYPESCRIPT</span><span class="p">,</span> <span class="n">Language</span><span class="o">.</span><span class="n">JAVA</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">infrastructure</span><span class="o">=</span><span class="n">InfrastructureConfiguration</span><span class="p">(</span>
+        <span class="n">language</span><span class="o">=</span><span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span>
+    <span class="p">),</span>
+    <span class="n">documentation</span><span class="o">=</span><span class="n">DocumentationConfiguration</span><span class="p">(</span>
+        <span class="n">formats</span><span class="o">=</span><span class="p">[</span><span class="n">DocumentationFormat</span><span class="o">.</span><span class="n">HTML_REDOC</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">library</span><span class="o">=</span><span class="n">LibraryConfiguration</span><span class="p">(</span>
+        <span class="n">libraries</span><span class="o">=</span><span class="p">[</span><span class="n">Library</span><span class="o">.</span><span class="n">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">infra</span> <span class="o">=</span> <span class="n">AwsCdkPythonApp</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;infra&quot;</span><span class="p">,</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">monorepo</span><span class="p">,</span>
+    <span class="n">module_name</span><span class="o">=</span><span class="s2">&quot;infra&quot;</span><span class="p">,</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s2">&quot;john@doe.com&quot;</span><span class="p">,</span>
+    <span class="n">author_name</span><span class="o">=</span><span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/infra&quot;</span><span class="p">,</span>
+    <span class="n">cdk_version</span><span class="o">=</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.0.0&quot;</span><span class="p">,</span>
+    <span class="n">poetry</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Create the ts lib</span>
+<span class="n">tslib</span> <span class="o">=</span> <span class="n">TypeScriptProject</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tslib&quot;</span><span class="p">,</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">monorepo</span><span class="p">,</span>
+    <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;packages/tslib&quot;</span><span class="p">,</span>
+    <span class="n">default_release_branch</span><span class="o">=</span><span class="s2">&quot;main&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># add a dependency on tslib from infra</span>
+<span class="n">monorepo</span><span class="o">.</span><span class="n">add_implicit_dependency</span><span class="p">(</span><span class="n">infra</span><span class="p">,</span> <span class="n">tslib</span><span class="p">)</span>
+<span class="n">monorepo</span><span class="o">.</span><span class="n">add_python_poetry_dependency</span><span class="p">(</span><span class="n">infra</span><span class="p">,</span> <span class="n">api</span><span class="o">.</span><span class="n">infrastructure</span><span class="o">.</span><span class="n">python</span><span class="p">)</span>
+
+<span class="n">monorepo</span><span class="o">.</span><span class="n">synth</span><span class="p">()</span>
 </code></pre></div>
+</div>
+</div>
+</div>
+<h3 id="visualizing-your-package-dependencies">Visualizing your package dependencies</h3>
+<p>To visualize your project graph, run <code>npx projen graph</code> from the root of the monorepo.</p>
 
   <hr>
 <div class="md-source-file">
