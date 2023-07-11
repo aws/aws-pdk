@@ -115,7 +115,7 @@ export class TypeSafeRestApi extends Construct {
 
     const prepareSpecLambdaName = `${PDKNag.getStackPrefix(stack)
       .split("/")
-      .join("-")}PrepareSpec`;
+      .join("-")}PrepareSpec${this.node.addr.slice(-8).toUpperCase()}`;
     const prepareSpecRole = new Role(this, "PrepareSpecRole", {
       assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
       inlinePolicies: {
