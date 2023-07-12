@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { DependencyType } from "projen";
+import { DependencyType, IgnoreFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import {
@@ -56,6 +56,12 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
    */
   private readonly mockDataOptions?: MockResponseDataGenerationOptions;
 
+  /**
+   * Path to the packaged copy of the openapi specification
+   * @private
+   */
+  private readonly packagedSpecPath = "assets/api.json";
+
   constructor(options: GeneratedTypescriptCdkInfrastructureProjectOptions) {
     super({
       ...options,
@@ -100,6 +106,10 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       )
     );
 
+    // Minimal .npmignore to avoid impacting OpenAPI Generator
+    const npmignore = new IgnoreFile(this, ".npmignore");
+    npmignore.addPatterns("/.projen/", "/src", "/dist");
+
     // Ignore everything but the target files
     const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
     openapiGeneratorIgnore.addPatterns(
@@ -125,6 +135,11 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       )
     );
     generateTask.exec(this.buildGenerateMockDataCommand());
+
+    // Copy the api spec to within the package
+    generateTask.exec(`mkdir -p ${path.dirname(this.packagedSpecPath)}`);
+    generateTask.exec(`cp -f ${this.specPath} ${this.packagedSpecPath}`);
+    this.gitignore.addPatterns(`/${this.packagedSpecPath}`);
 
     this.preCompileTask.spawn(generateTask);
 
@@ -174,7 +189,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
         "x-runtime-package-name":
           this.generatedTypescriptTypes.package.packageName,
         // Spec path relative to the source directory
-        "x-relative-spec-path": path.join("..", this.specPath),
+        "x-relative-spec-path": path.join("..", this.packagedSpecPath),
       },
     });
   };
