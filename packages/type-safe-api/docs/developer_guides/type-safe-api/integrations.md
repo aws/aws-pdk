@@ -1,10 +1,8 @@
 # Integrations
 
-Integrations define what happens when API Gateway receives a request for a particular operation.
+Integrations define what happens when the API Gateway receives a request for a particular operation.
 
-When you instantiate your generated `Api` construct, you'll need to supply an integration for every operation.
-
-For example:
+When you instantiate your generated `Api` construct, you will need to provide an integration for every operation.
 
 === "TS"
 
@@ -45,20 +43,26 @@ For example:
     )
     ```
 
-## Lambda Integration
+## Lambda integration
 
-For integrating an API operation with a lambda, you can use the `Integrations.lambda(yourLambdaFunction)`.
+For integrating an API operation with a lambda, use the `Integrations.lambda(yourLambdaFunction)`.
 
-## Mock Integration
+## Mock integration
 
-To mock an API operation, you can use the `MockIntegrations` class which you'll find in your generated infrastructure package. This contains an integration for every response that can be returned by your operations. You can also use `Integrations.mock` for a less type-safe alternative if you are using `TypeSafeApi` directly or need to mock a response not defined in your model.
+To mock an API operation, use the `MockIntegrations` class, which is included in your generated infrastructure package. This contains an integration for every response that can be returned by your operations.
 
-For more details, please see the [Mocking Responses developer guide](mocking_responses.md).
+!!! info
 
-## Custom Integrations
+    If you are using `TypeSafeApi` directly or need to mock a response not defined in your model, use `Integrations.mock` for a less type-safe alternative.
 
-You can implement your own integrations by extending the `Integration` class and implementing its `render` method. This method is responsible for returning a snippet of OpenAPI which will be added as the `x-amazon-apigateway-integration` for an operation. Please refer to the [API Gateway Swagger Extensions documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html) for more details.
+For more details, refer to the [Mocking Responses developer guide](mocking_responses.md).
 
-You can also optionally override the `grant` method if you need to use CDK to grant API Gateway access to invoke your integration.
+## Custom integrations
 
-Please see the [Custom Integration Example: ECS and NLB User Guide](../../walkthroughs/type-safe-api/custom_integration_ecs.md) for an example of how to create a custom integration for Elastic Container Service with a Network Load Balancer.
+You can implement your own integrations by extending the `Integration` class and implementing its `render` method. This method is responsible for returning a snippet of OpenAPI which is added as the `x-amazon-apigateway-integration` for an operation.
+
+For more information, refer to the [API Gateway Swagger Extensions documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html).
+
+If you need to use CDK to grant API Gateway access to invoke your integration, you can also optionally override the `grant` method.
+
+For an example of how to create a custom integration for Elastic Container Service (ECS) with a Network Load Balancer, refer to the [Custom Integration Example: ECS and NLB User Guide](../../walkthroughs/type-safe-api/custom_integration_ecs.md).
