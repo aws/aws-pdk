@@ -2,7 +2,7 @@
 
 As an alternative to [Smithy](./using_smithy.md), you can use [OpenAPI Version 3.0.3](https://swagger.io/specification/) to define your API.
 
-You can achieve this by specifying OpenAPI as the `model.language` in your `TypeSafeApiProject`:
+To use OpenAPI, in `TypeSafeApiProject`, specify it as the `model.language`.
 
 === "TS"
 
@@ -52,9 +52,9 @@ You can achieve this by specifying OpenAPI as the `model.language` in your `Type
     )
     ```
 
-## OpenAPI Specification
+## Using the OpenAPI specification
 
-Your `model/src/main/openapi/main.yaml` file defines your api using [OpenAPI Version 3.0.3](https://swagger.io/specification/). An example spec might look like:
+Your `model/src/main/openapi/main.yaml` file defines your API using [OpenAPI Version 3.0.3](https://swagger.io/specification/). For example,
 
 ```yaml
 openapi: 3.0.3
@@ -89,9 +89,11 @@ components:
         - message
 ```
 
+### Splitting your model definition
+
 You can divide your specification into multiple files using `$ref`.
 
-For example, you might choose to structure your spec as follows:
+For example, you can structure your spec as follows:
 
 ```
 |_ model/src/main/openapi/
@@ -104,7 +106,7 @@ For example, you might choose to structure your spec as follows:
         |_ helloResponse.yaml
 ```
 
-Where `main.yaml` looks as follows:
+where `main.yaml` looks as follows:
 
 ```yaml
 openapi: 3.0.3
@@ -163,4 +165,6 @@ required:
   - message
 ```
 
-⚠️ Make sure you put all request/response body schemas in the `components` section and use `$ref` to reference them, since the Python generator may not produce expected results with inline request/response body schemas.
+!!! warning
+
+    Make sure you put all request/response body schemas in the `components` section and use `$ref` to reference them, as the Python generator may not produce expected results with inline request/response body schemas.

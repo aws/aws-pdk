@@ -244,7 +244,7 @@ export class TypeSafeRestApi extends Construct {
       },
     });
 
-    const provider = new Provider(this, "PrepareSpecProvider", {
+    const provider = new Provider(this, "PrepareSpecResourceProvider", {
       onEventHandler: prepareSpec,
       role: providerRole,
       providerFunctionName,
