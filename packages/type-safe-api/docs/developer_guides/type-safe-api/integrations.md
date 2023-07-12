@@ -45,7 +45,7 @@ When you instantiate your generated `Api` construct, you will need to provide an
 
 ## Lambda integration
 
-For integrating an API operation with a lambda, use the `Integrations.lambda(yourLambdaFunction)`.
+For integrating an API operation with a lambda, use `Integrations.lambda(yourLambdaFunction)`.
 
 ## Mock integration
 
@@ -53,7 +53,7 @@ To mock an API operation, use the `MockIntegrations` class, which is included in
 
 !!! info
 
-    If you are using `TypeSafeApi` directly or need to mock a response not defined in your model, use `Integrations.mock` for a less type-safe alternative.
+    If you need to mock a response not defined in your model, use `Integrations.mock` for a less type-safe alternative.
 
 For more details, refer to the [Mocking Responses developer guide](mocking_responses.md).
 
