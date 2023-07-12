@@ -934,9 +934,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#openapi-specification" class="md-nav__link">
-    OpenAPI Specification
+  <a href="#using-the-openapi-specification" class="md-nav__link">
+    Using the OpenAPI specification
   </a>
+  
+    <nav class="md-nav" aria-label="Using the OpenAPI specification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#splitting-your-model-definition" class="md-nav__link">
+    Splitting your model definition
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2906,9 +2919,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#openapi-specification" class="md-nav__link">
-    OpenAPI Specification
+  <a href="#using-the-openapi-specification" class="md-nav__link">
+    Using the OpenAPI specification
   </a>
+  
+    <nav class="md-nav" aria-label="Using the OpenAPI specification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#splitting-your-model-definition" class="md-nav__link">
+    Splitting your model definition
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2932,7 +2958,7 @@
 
 <h1 id="using-openapi">Using OpenAPI</h1>
 <p>As an alternative to <a href="using_smithy.html">Smithy</a>, you can use <a href="https://swagger.io/specification/">OpenAPI Version 3.0.3</a> to define your API.</p>
-<p>You can achieve this by specifying OpenAPI as the <code>model.language</code> in your <code>TypeSafeApiProject</code>:</p>
+<p>To use OpenAPI, in <code>TypeSafeApiProject</code>, specify it as the <code>model.language</code>.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">TS</label><label for="__tabbed_1_2">JAVA</label><label for="__tabbed_1_3">PYTHON</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -2979,8 +3005,8 @@
 </div>
 </div>
 </div>
-<h2 id="openapi-specification">OpenAPI Specification</h2>
-<p>Your <code>model/src/main/openapi/main.yaml</code> file defines your api using <a href="https://swagger.io/specification/">OpenAPI Version 3.0.3</a>. An example spec might look like:</p>
+<h2 id="using-the-openapi-specification">Using the OpenAPI specification</h2>
+<p>Your <code>model/src/main/openapi/main.yaml</code> file defines your API using <a href="https://swagger.io/specification/">OpenAPI Version 3.0.3</a>. For example,</p>
 <div class="highlight"><pre><span></span><code><span class="nt">openapi</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.0.3</span>
 <span class="nt">info</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span>
@@ -3012,8 +3038,9 @@
 <span class="w">      </span><span class="nt">required</span><span class="p">:</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">message</span>
 </code></pre></div>
+<h3 id="splitting-your-model-definition">Splitting your model definition</h3>
 <p>You can divide your specification into multiple files using <code>$ref</code>.</p>
-<p>For example, you might choose to structure your spec as follows:</p>
+<p>For example, you can structure your spec as follows:</p>
 <div class="highlight"><pre><span></span><code>|_ model/src/main/openapi/
     |_ main.yaml
     |_ paths/
@@ -3023,7 +3050,7 @@
         |_ index.yaml
         |_ helloResponse.yaml
 </code></pre></div>
-<p>Where <code>main.yaml</code> looks as follows:</p>
+<p>where <code>main.yaml</code> looks as follows:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">openapi</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.0.3</span>
 <span class="nt">info</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span>
@@ -3067,14 +3094,17 @@
 <span class="nt">required</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">message</span>
 </code></pre></div>
-<p>⚠️ Make sure you put all request/response body schemas in the <code>components</code> section and use <code>$ref</code> to reference them, since the Python generator may not produce expected results with inline request/response body schemas.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Make sure you put all request/response body schemas in the <code>components</code> section and use <code>$ref</code> to reference them, as the Python generator may not produce expected results with inline request/response body schemas.</p>
+</div>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      2023-07-11
+      2023-07-12
     
   </small>
 </div>
