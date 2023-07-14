@@ -1,14 +1,8 @@
-# Introduction
+# Getting started
 
-# aws-prototyping-sdk
+## Overview of core modules
 
-## Introduction
-
-The AWS Prototyping SDK (PDK) aims to accelerate the development of prototypes on AWS. To achieve this, it provides building blocks for common patterns together with development tools to manage and build your projects. The constructs are based on [AWS CDK](https://github.com/aws/aws-cdk) and implement an expanding number of common application/infrastructure patterns, such as the ability to generate complete client and infrastructure code for a REST API from an OpenAPI specification. The project and build tools the PDK provide allows you manage the configuration of multiple related projects in a language-agnostic way, and to efficiently execute parallel incremental builds.
-
-This combination of project management, build execution, and CDK constructs reduce the effort involved in prototyping new ideas on AWS, and allow developers to seamlessly grow these ideas beyond the prototype phase without requiring a complete re-implementation of the original solution. In addition to the foundation of project configuration and build dependency management provided by the nx-monorepo project, PDK also provides a number of other projen projects (some of which implement common infrastructure patterns using CDK) and stand-alone CDK constructs, which are described below. Note: PDK is currently pre-release, targeting version 1.0 for mid-2023.
-
-## Core Modules
+The AWS Prototyping SDK (PDK) provides building blocks for common pattern, to help you manage and build your projects. Before you get started with PDK, this is a quick overview of the core modules.
 
 ### nx-monorepo
 
@@ -45,17 +39,3 @@ This module provides a core framework for supporting additional CDK based automa
 ### identity
 
 This module provides a CDK derived construct that can be added to existing CDK project to deploy a configurable Identity Provider with a default Cognito User Pool. It does not depend on projen and can be utilised as an import in an existing CDK application.
-
-## Prerequisites
-
-Ensure you have the following packages installed globally:
-
-- [pnpm @ 8.5.1](https://pnpm.io/installation)
-- [node >= 16](https://nodejs.org/en/download/package-manager/) (or use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to install)
-- [Python >= 3.9.16](https://www.python.org/downloads/)
-- [Java >= 11](https://aws.amazon.com/fr/corretto/) and [Maven >= 3.6](https://maven.apache.org/download.cgi)
-
-```bash
-# from root directory of this package
-pnpm i
-```
