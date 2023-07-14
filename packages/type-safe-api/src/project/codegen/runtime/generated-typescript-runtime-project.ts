@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { NodePackageUtils } from "@aws-prototyping-sdk/nx-monorepo";
+import { IgnoreFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Language } from "../../languages";
@@ -87,6 +88,10 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
 
     // For event and context types
     this.addDeps("@types/aws-lambda");
+
+    // Minimal .npmignore to avoid impacting OpenAPI Generator
+    const npmignore = new IgnoreFile(this, ".npmignore");
+    npmignore.addPatterns("/.projen/", "/src", "/dist");
 
     // Tell OpenAPI Generator CLI not to generate files that we will generate via this project, or don't need.
     const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);

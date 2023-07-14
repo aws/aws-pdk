@@ -108,7 +108,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTest1E0FDBC81",
-        "ApiTest1PrepareSpecCustomResource30CD03AA",
+        "ApiTest1PrepareSpecResource90D3F124",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -289,7 +289,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
     "ApiTest1CloudWatchRole30B84AB0": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTest1PrepareSpecCustomResource30CD03AA",
+        "ApiTest1PrepareSpecResource90D3F124",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -354,9 +354,9 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTest1Deployment2E308FF82fc4f0a458a5f6de41661a6b62b5c224": {
+    "ApiTest1Deployment2E308FF829282c3ffceb3f752e192bfc30d947d6": {
       "DependsOn": [
-        "ApiTest1PrepareSpecCustomResource30CD03AA",
+        "ApiTest1PrepareSpecResource90D3F124",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -401,7 +401,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
     "ApiTest1DeploymentStageprod6B6E3F66": {
       "DependsOn": [
         "ApiTest1Account37F1A1C0",
-        "ApiTest1PrepareSpecCustomResource30CD03AA",
+        "ApiTest1PrepareSpecResource90D3F124",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -446,7 +446,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTest1Deployment2E308FF82fc4f0a458a5f6de41661a6b62b5c224",
+          "Ref": "ApiTest1Deployment2E308FF829282c3ffceb3f752e192bfc30d947d6",
         },
         "MethodSettings": [
           {
@@ -465,7 +465,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
     },
     "ApiTest1E0FDBC81": {
       "DependsOn": [
-        "ApiTest1PrepareSpecCustomResource30CD03AA",
+        "ApiTest1PrepareSpecResource90D3F124",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -506,7 +506,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTest1PrepareSpecCustomResource30CD03AA",
+              "ApiTest1PrepareSpecResource90D3F124",
               "outputSpecKey",
             ],
           },
@@ -583,102 +583,6 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
         },
       },
       "Type": "AWS::Lambda::Permission",
-    },
-    "ApiTest1PrepareSpecCustomResource30CD03AA": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTest1PrepareSpecResourceProviderframeworkonEventCE6393EE",
-            "Arn",
-          ],
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTest1PrepareSpecE7061D01": {
       "DependsOn": [
@@ -926,6 +830,102 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "ApiTest1PrepareSpecResource90D3F124": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTest1PrepareSpecResourceProviderframeworkonEventCE6393EE",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTest1PrepareSpecResourceProviderframeworkonEventCE6393EE": {
       "DependsOn": [
@@ -1190,7 +1190,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
     },
     "ApiTest29D927A57": {
       "DependsOn": [
-        "ApiTest2PrepareSpecCustomResource2182A9C5",
+        "ApiTest2PrepareSpecResourceD26A81CE",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -1231,7 +1231,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTest2PrepareSpecCustomResource2182A9C5",
+              "ApiTest2PrepareSpecResourceD26A81CE",
               "outputSpecKey",
             ],
           },
@@ -1284,7 +1284,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTest29D927A57",
-        "ApiTest2PrepareSpecCustomResource2182A9C5",
+        "ApiTest2PrepareSpecResourceD26A81CE",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -1465,7 +1465,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
     "ApiTest2CloudWatchRole72C1A98D": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTest2PrepareSpecCustomResource2182A9C5",
+        "ApiTest2PrepareSpecResourceD26A81CE",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -1530,9 +1530,9 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTest2DeploymentF5547FBB0628ff5b414eb67a464523f7ee50546d": {
+    "ApiTest2DeploymentF5547FBBf114e24fd32a3a02b1d1eb07572095f3": {
       "DependsOn": [
-        "ApiTest2PrepareSpecCustomResource2182A9C5",
+        "ApiTest2PrepareSpecResourceD26A81CE",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -1577,7 +1577,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
     "ApiTest2DeploymentStageprodF3467DC1": {
       "DependsOn": [
         "ApiTest2Account685F675E",
-        "ApiTest2PrepareSpecCustomResource2182A9C5",
+        "ApiTest2PrepareSpecResourceD26A81CE",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -1622,7 +1622,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTest2DeploymentF5547FBB0628ff5b414eb67a464523f7ee50546d",
+          "Ref": "ApiTest2DeploymentF5547FBBf114e24fd32a3a02b1d1eb07572095f3",
         },
         "MethodSettings": [
           {
@@ -1763,102 +1763,6 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTest2PrepareSpecCustomResource2182A9C5": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTest2PrepareSpecResourceProviderframeworkonEventF2315413",
-            "Arn",
-          ],
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTest2PrepareSpecProviderRole59C44E6C": {
       "Metadata": {
@@ -2050,6 +1954,102 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "ApiTest2PrepareSpecResourceD26A81CE": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTest2PrepareSpecResourceProviderframeworkonEventF2315413",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTest2PrepareSpecResourceProviderframeworkonEventF2315413": {
       "DependsOn": [
@@ -2503,7 +2503,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Local Mode 1`] = `
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -2684,7 +2684,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Local Mode 1`] = `
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -2749,9 +2749,9 @@ exports[`Type Safe Rest Api Construct Unit Tests Local Mode 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC4781c1d08559e5f0b03e31c4dcb542fe38a": {
+    "ApiTestDeployment153EC4789714f15d025ac32418baad3768f6c629": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -2796,7 +2796,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Local Mode 1`] = `
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -2841,7 +2841,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Local Mode 1`] = `
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC4781c1d08559e5f0b03e31c4dcb542fe38a",
+          "Ref": "ApiTestDeployment153EC4789714f15d025ac32418baad3768f6c629",
         },
         "MethodSettings": [
           {
@@ -2860,7 +2860,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Local Mode 1`] = `
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -3102,102 +3102,6 @@ exports[`Type Safe Rest Api Construct Unit Tests Local Mode 1`] = `
       },
       "Type": "AWS::Lambda::Function",
     },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
-    },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
         "cdk_nag": {
@@ -3388,6 +3292,102 @@ exports[`Type Safe Rest Api Construct Unit Tests Local Mode 1`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -3813,7 +3813,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Permits Matching No Authorizers
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -3994,7 +3994,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Permits Matching No Authorizers
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -4059,9 +4059,9 @@ exports[`Type Safe Rest Api Construct Unit Tests Permits Matching No Authorizers
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC47838079670259c24557112d51aa8c99f2d": {
+    "ApiTestDeployment153EC478ea304cc67d1740dcd707f988306159b0": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -4106,7 +4106,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Permits Matching No Authorizers
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -4151,7 +4151,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Permits Matching No Authorizers
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC47838079670259c24557112d51aa8c99f2d",
+          "Ref": "ApiTestDeployment153EC478ea304cc67d1740dcd707f988306159b0",
         },
         "MethodSettings": [
           {
@@ -4170,7 +4170,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Permits Matching No Authorizers
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -4211,7 +4211,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Permits Matching No Authorizers
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -4344,105 +4344,6 @@ exports[`Type Safe Rest Api Construct Unit Tests Permits Matching No Authorizers
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "defaultAuthorizerReference": {
-          "authorizerId": "none",
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
@@ -4634,6 +4535,105 @@ exports[`Type Safe Rest Api Construct Unit Tests Permits Matching No Authorizers
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "defaultAuthorizerReference": {
+          "authorizerId": "none",
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -5059,7 +5059,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Should enable compression 1`] =
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -5240,7 +5240,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Should enable compression 1`] =
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -5305,9 +5305,9 @@ exports[`Type Safe Rest Api Construct Unit Tests Should enable compression 1`] =
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC478faa243d7b88abc45cdf0192565d77ac9": {
+    "ApiTestDeployment153EC478e7ffe1cfd3a74c45e7b50a4ea8ddf8e2": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -5352,7 +5352,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Should enable compression 1`] =
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -5397,7 +5397,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Should enable compression 1`] =
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC478faa243d7b88abc45cdf0192565d77ac9",
+          "Ref": "ApiTestDeployment153EC478e7ffe1cfd3a74c45e7b50a4ea8ddf8e2",
         },
         "MethodSettings": [
           {
@@ -5416,7 +5416,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Should enable compression 1`] =
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -5457,7 +5457,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Should enable compression 1`] =
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -5591,102 +5591,6 @@ exports[`Type Safe Rest Api Construct Unit Tests Should enable compression 1`] =
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
@@ -5878,6 +5782,102 @@ exports[`Type Safe Rest Api Construct Unit Tests Should enable compression 1`] =
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -6303,7 +6303,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Synth 1`] = `
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -6484,7 +6484,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Synth 1`] = `
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -6549,9 +6549,9 @@ exports[`Type Safe Rest Api Construct Unit Tests Synth 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC478ba688c73ecd411d6bc46f33941546de6": {
+    "ApiTestDeployment153EC478950afb915db24dc651450ed2227b1233": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -6596,7 +6596,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Synth 1`] = `
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -6641,7 +6641,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Synth 1`] = `
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC478ba688c73ecd411d6bc46f33941546de6",
+          "Ref": "ApiTestDeployment153EC478950afb915db24dc651450ed2227b1233",
         },
         "MethodSettings": [
           {
@@ -6660,7 +6660,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Synth 1`] = `
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -6701,7 +6701,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Synth 1`] = `
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -6834,102 +6834,6 @@ exports[`Type Safe Rest Api Construct Unit Tests Synth 1`] = `
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
@@ -7121,6 +7025,102 @@ exports[`Type Safe Rest Api Construct Unit Tests Synth 1`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -8645,7 +8645,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Cognito Auth 1`] = `
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -8826,7 +8826,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Cognito Auth 1`] = `
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -8891,9 +8891,9 @@ exports[`Type Safe Rest Api Construct Unit Tests With Cognito Auth 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC4782f7f76b22669fc980f9f7456fe1deff4": {
+    "ApiTestDeployment153EC47838831ee40913844aca2242aa92d1dbc5": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -8938,7 +8938,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Cognito Auth 1`] = `
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -8983,7 +8983,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Cognito Auth 1`] = `
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC4782f7f76b22669fc980f9f7456fe1deff4",
+          "Ref": "ApiTestDeployment153EC47838831ee40913844aca2242aa92d1dbc5",
         },
         "MethodSettings": [
           {
@@ -9002,7 +9002,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Cognito Auth 1`] = `
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -9043,7 +9043,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Cognito Auth 1`] = `
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -9176,123 +9176,6 @@ exports[`Type Safe Rest Api Construct Unit Tests With Cognito Auth 1`] = `
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "defaultAuthorizerReference": {
-          "authorizerId": "myCognitoAuthorizer",
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {
-          "myCognitoAuthorizer": {
-            "in": "header",
-            "name": "Authorization",
-            "type": "apiKey",
-            "x-amazon-apigateway-authorizer": {
-              "providerARNs": [
-                {
-                  "Fn::GetAtt": [
-                    "pool056F3F7E",
-                    "Arn",
-                  ],
-                },
-              ],
-              "type": "COGNITO_USER_POOLS",
-            },
-            "x-amazon-apigateway-authtype": "COGNITO_USER_POOLS",
-          },
-        },
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
@@ -9484,6 +9367,123 @@ exports[`Type Safe Rest Api Construct Unit Tests With Cognito Auth 1`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "defaultAuthorizerReference": {
+          "authorizerId": "myCognitoAuthorizer",
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {
+          "myCognitoAuthorizer": {
+            "in": "header",
+            "name": "Authorization",
+            "type": "apiKey",
+            "x-amazon-apigateway-authorizer": {
+              "providerARNs": [
+                {
+                  "Fn::GetAtt": [
+                    "pool056F3F7E",
+                    "Arn",
+                  ],
+                },
+              ],
+              "type": "COGNITO_USER_POOLS",
+            },
+            "x-amazon-apigateway-authtype": "COGNITO_USER_POOLS",
+          },
+        },
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -10017,7 +10017,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Auth 1`] = `
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -10198,7 +10198,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Auth 1`] = `
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -10263,9 +10263,9 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Auth 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC47803e8a90fd243402c01d0e16cbd6e0535": {
+    "ApiTestDeployment153EC4789abd2506c995fb1e3f8048cbc34a252c": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -10310,7 +10310,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Auth 1`] = `
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -10355,7 +10355,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Auth 1`] = `
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC47803e8a90fd243402c01d0e16cbd6e0535",
+          "Ref": "ApiTestDeployment153EC4789abd2506c995fb1e3f8048cbc34a252c",
         },
         "MethodSettings": [
           {
@@ -10374,7 +10374,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Auth 1`] = `
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -10415,7 +10415,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Auth 1`] = `
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -10618,140 +10618,6 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Auth 1`] = `
       },
       "Type": "AWS::Lambda::Function",
     },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "defaultAuthorizerReference": {
-          "authorizerId": "myCustomAuthorizer",
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {
-          "myCustomAuthorizer": {
-            "in": "header",
-            "name": "Authorization",
-            "type": "apiKey",
-            "x-amazon-apigateway-authorizer": {
-              "authorizerResultTtlInSeconds": 300,
-              "authorizerUri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "AuthorizerBD825682",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-              "identitySource": "method.request.header.Authorization",
-              "type": "token",
-            },
-            "x-amazon-apigateway-authtype": "CUSTOM",
-          },
-        },
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
-    },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
         "cdk_nag": {
@@ -10942,6 +10808,140 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Auth 1`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "defaultAuthorizerReference": {
+          "authorizerId": "myCustomAuthorizer",
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {
+          "myCustomAuthorizer": {
+            "in": "header",
+            "name": "Authorization",
+            "type": "apiKey",
+            "x-amazon-apigateway-authorizer": {
+              "authorizerResultTtlInSeconds": 300,
+              "authorizerUri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "AuthorizerBD825682",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+              "identitySource": "method.request.header.Authorization",
+              "type": "token",
+            },
+            "x-amazon-apigateway-authtype": "CUSTOM",
+          },
+        },
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -11494,7 +11494,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Managed Rules 1`] =
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -11693,7 +11693,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Managed Rules 1`] =
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -11758,9 +11758,9 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Managed Rules 1`] =
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC478ba688c73ecd411d6bc46f33941546de6": {
+    "ApiTestDeployment153EC478950afb915db24dc651450ed2227b1233": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -11805,7 +11805,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Managed Rules 1`] =
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -11850,7 +11850,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Managed Rules 1`] =
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC478ba688c73ecd411d6bc46f33941546de6",
+          "Ref": "ApiTestDeployment153EC478950afb915db24dc651450ed2227b1233",
         },
         "MethodSettings": [
           {
@@ -11869,7 +11869,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Managed Rules 1`] =
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -11910,7 +11910,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Managed Rules 1`] =
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -12043,102 +12043,6 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Managed Rules 1`] =
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
@@ -12330,6 +12234,102 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Managed Rules 1`] =
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -12755,7 +12755,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With IAM Auth and CORS 1`] = `
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -12936,7 +12936,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With IAM Auth and CORS 1`] = `
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -13001,9 +13001,9 @@ exports[`Type Safe Rest Api Construct Unit Tests With IAM Auth and CORS 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC478a540cf96c2f3638f1db06413ff4bc26e": {
+    "ApiTestDeployment153EC478d03cfc098ec71622fc8a95b5e8d6d66b": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -13048,7 +13048,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With IAM Auth and CORS 1`] = `
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -13093,7 +13093,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With IAM Auth and CORS 1`] = `
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC478a540cf96c2f3638f1db06413ff4bc26e",
+          "Ref": "ApiTestDeployment153EC478d03cfc098ec71622fc8a95b5e8d6d66b",
         },
         "MethodSettings": [
           {
@@ -13112,7 +13112,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With IAM Auth and CORS 1`] = `
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -13153,7 +13153,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With IAM Auth and CORS 1`] = `
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -13286,136 +13286,6 @@ exports[`Type Safe Rest Api Construct Unit Tests With IAM Auth and CORS 1`] = `
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "corsOptions": {
-          "allowHeaders": [
-            "Content-Type",
-            "X-Amz-Date",
-            "Authorization",
-            "X-Api-Key",
-            "X-Amz-Security-Token",
-            "X-Amz-User-Agent",
-            "x-amz-content-sha256",
-          ],
-          "allowMethods": [
-            "OPTIONS",
-            "GET",
-            "PUT",
-            "POST",
-            "DELETE",
-            "PATCH",
-            "HEAD",
-          ],
-          "allowOrigins": [
-            "*",
-          ],
-          "statusCode": 200,
-        },
-        "defaultAuthorizerReference": {
-          "authorizerId": "aws.auth.sigv4",
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {
-          "aws.auth.sigv4": {
-            "in": "header",
-            "name": "Authorization",
-            "type": "apiKey",
-            "x-amazon-apigateway-authtype": "awsSigv4",
-          },
-        },
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
@@ -13607,6 +13477,136 @@ exports[`Type Safe Rest Api Construct Unit Tests With IAM Auth and CORS 1`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "corsOptions": {
+          "allowHeaders": [
+            "Content-Type",
+            "X-Amz-Date",
+            "Authorization",
+            "X-Api-Key",
+            "X-Amz-Security-Token",
+            "X-Amz-User-Agent",
+            "x-amz-content-sha256",
+          ],
+          "allowMethods": [
+            "OPTIONS",
+            "GET",
+            "PUT",
+            "POST",
+            "DELETE",
+            "PATCH",
+            "HEAD",
+          ],
+          "allowOrigins": [
+            "*",
+          ],
+          "statusCode": 200,
+        },
+        "defaultAuthorizerReference": {
+          "authorizerId": "aws.auth.sigv4",
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {
+          "aws.auth.sigv4": {
+            "in": "header",
+            "name": "Authorization",
+            "type": "apiKey",
+            "x-amazon-apigateway-authtype": "awsSigv4",
+          },
+        },
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -14174,7 +14174,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mixed Auth 1`] = `
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -14355,7 +14355,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mixed Auth 1`] = `
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -14420,9 +14420,9 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mixed Auth 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC478442bfe1adf67c65dedcf20e4dcaff124": {
+    "ApiTestDeployment153EC478bd85293601f376cea35d553998edc3ed": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -14467,7 +14467,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mixed Auth 1`] = `
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -14512,7 +14512,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mixed Auth 1`] = `
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC478442bfe1adf67c65dedcf20e4dcaff124",
+          "Ref": "ApiTestDeployment153EC478bd85293601f376cea35d553998edc3ed",
         },
         "MethodSettings": [
           {
@@ -14531,7 +14531,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mixed Auth 1`] = `
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -14572,7 +14572,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mixed Auth 1`] = `
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -14982,7 +14982,198 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mixed Auth 1`] = `
       },
       "Type": "AWS::Lambda::Function",
     },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
+    "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ApiTestPrepareSpecA3536D2B",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ApiTestPrepareSpecA3536D2B",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "Roles": [
+          {
+            "Ref": "ApiTestPrepareSpecProviderRoleF47822B8",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ApiTestPrepareSpecProviderRoleF47822B8": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-PrepareSpec3E755E54-Provider",
+                        ],
+                      ],
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-PrepareSpec3E755E54-Provider:*",
+                        ],
+                      ],
+                    },
+                  ],
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
       "DeletionPolicy": "Delete",
       "Metadata": {
         "cdk_nag": {
@@ -15255,197 +15446,6 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mixed Auth 1`] = `
       },
       "Type": "AWS::CloudFormation::CustomResource",
       "UpdateReplacePolicy": "Delete",
-    },
-    "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-IAM5",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
-            },
-            {
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "lambda:InvokeFunction",
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "ApiTestPrepareSpecA3536D2B",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "ApiTestPrepareSpecA3536D2B",
-                          "Arn",
-                        ],
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
-              ],
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
-        "Roles": [
-          {
-            "Ref": "ApiTestPrepareSpecProviderRoleF47822B8",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-    "ApiTestPrepareSpecProviderRoleF47822B8": {
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-IAM5",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
-            },
-            {
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Policies": [
-          {
-            "PolicyDocument": {
-              "Statement": [
-                {
-                  "Action": [
-                    "logs:CreateLogGroup",
-                    "logs:CreateLogStream",
-                    "logs:PutLogEvents",
-                  ],
-                  "Effect": "Allow",
-                  "Resource": [
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-PrepareSpec3E755E54-Provider",
-                        ],
-                      ],
-                    },
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-PrepareSpec3E755E54-Provider:*",
-                        ],
-                      ],
-                    },
-                  ],
-                },
-              ],
-              "Version": "2012-10-17",
-            },
-            "PolicyName": "logs",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -16147,7 +16147,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration 1`] = `
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -16328,7 +16328,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration 1`] = `
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -16393,9 +16393,9 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC478a28890a7ac67f65a56f78d242bf067d5": {
+    "ApiTestDeployment153EC478ceb82d8af49203a3c6f0cbcb8e11f21c": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -16440,7 +16440,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration 1`] = `
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -16485,7 +16485,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration 1`] = `
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC478a28890a7ac67f65a56f78d242bf067d5",
+          "Ref": "ApiTestDeployment153EC478ceb82d8af49203a3c6f0cbcb8e11f21c",
         },
         "MethodSettings": [
           {
@@ -16504,7 +16504,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration 1`] = `
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -16545,7 +16545,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration 1`] = `
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -16609,89 +16609,6 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration 1`] = `
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "requestTemplates": {
-                "application/json": "{"statusCode": 200}",
-              },
-              "responses": {
-                "default": {
-                  "responseParameters": {},
-                  "responseTemplates": {
-                    "application/json": "{"message":"message"}",
-                  },
-                  "statusCode": "200",
-                },
-              },
-              "type": "MOCK",
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
@@ -16883,6 +16800,89 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration 1`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "requestTemplates": {
+                "application/json": "{"statusCode": 200}",
+              },
+              "responses": {
+                "default": {
+                  "responseParameters": {},
+                  "responseTemplates": {
+                    "application/json": "{"message":"message"}",
+                  },
+                  "statusCode": "200",
+                },
+              },
+              "type": "MOCK",
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -17326,7 +17326,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration and CORS 
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -17507,7 +17507,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration and CORS 
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -17572,9 +17572,9 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration and CORS 
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC4783e3e5eeaa8a8e6d23441a25ca55384d3": {
+    "ApiTestDeployment153EC47872a7f3a0ed9dc65fe43142c523ae46d2": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -17619,7 +17619,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration and CORS 
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -17664,7 +17664,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration and CORS 
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC4783e3e5eeaa8a8e6d23441a25ca55384d3",
+          "Ref": "ApiTestDeployment153EC47872a7f3a0ed9dc65fe43142c523ae46d2",
         },
         "MethodSettings": [
           {
@@ -17683,7 +17683,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration and CORS 
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -17724,7 +17724,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration and CORS 
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -17788,117 +17788,6 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration and CORS 
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "corsOptions": {
-          "allowHeaders": [
-            "Content-Type",
-            "X-Amz-Date",
-            "Authorization",
-            "X-Api-Key",
-            "X-Amz-Security-Token",
-            "X-Amz-User-Agent",
-            "x-amz-content-sha256",
-          ],
-          "allowMethods": [
-            "OPTIONS",
-            "GET",
-            "PUT",
-            "POST",
-            "DELETE",
-            "PATCH",
-            "HEAD",
-          ],
-          "allowOrigins": [
-            "*",
-          ],
-          "statusCode": 204,
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "requestTemplates": {
-                "application/json": "{"statusCode": 200}",
-              },
-              "responses": {
-                "default": {
-                  "responseParameters": {
-                    "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,x-amz-content-sha256'",
-                    "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
-                    "method.response.header.Access-Control-Allow-Origin": "'*'",
-                  },
-                  "responseTemplates": {
-                    "application/json": "{"message":"message"}",
-                  },
-                  "statusCode": "200",
-                },
-              },
-              "type": "MOCK",
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
@@ -18090,6 +17979,117 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration and CORS 
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "corsOptions": {
+          "allowHeaders": [
+            "Content-Type",
+            "X-Amz-Date",
+            "Authorization",
+            "X-Api-Key",
+            "X-Amz-Security-Token",
+            "X-Amz-User-Agent",
+            "x-amz-content-sha256",
+          ],
+          "allowMethods": [
+            "OPTIONS",
+            "GET",
+            "PUT",
+            "POST",
+            "DELETE",
+            "PATCH",
+            "HEAD",
+          ],
+          "allowOrigins": [
+            "*",
+          ],
+          "statusCode": 204,
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "requestTemplates": {
+                "application/json": "{"statusCode": 200}",
+              },
+              "responses": {
+                "default": {
+                  "responseParameters": {
+                    "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,x-amz-content-sha256'",
+                    "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                    "method.response.header.Access-Control-Allow-Origin": "'*'",
+                  },
+                  "responseTemplates": {
+                    "application/json": "{"message":"message"}",
+                  },
+                  "statusCode": "200",
+                },
+              },
+              "type": "MOCK",
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -18608,7 +18608,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Path Parameters 1`] = `
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -18789,7 +18789,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Path Parameters 1`] = `
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -18854,9 +18854,9 @@ exports[`Type Safe Rest Api Construct Unit Tests With Path Parameters 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC478ed5e71f4a5bc4f71e07a9dafbe8ea425": {
+    "ApiTestDeployment153EC47813942105e6971276a23d1a170029add6": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -18901,7 +18901,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Path Parameters 1`] = `
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -18946,7 +18946,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Path Parameters 1`] = `
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC478ed5e71f4a5bc4f71e07a9dafbe8ea425",
+          "Ref": "ApiTestDeployment153EC47813942105e6971276a23d1a170029add6",
         },
         "MethodSettings": [
           {
@@ -18965,7 +18965,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Path Parameters 1`] = `
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -19006,7 +19006,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Path Parameters 1`] = `
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -19139,102 +19139,6 @@ exports[`Type Safe Rest Api Construct Unit Tests With Path Parameters 1`] = `
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "6060611f34e7c9e9000a19922d48dfd8d47d66cbf3715fb30e173c4b51d9061b.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test/{param1}/fixed/{param2}/{param3}",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "6060611f34e7c9e9000a19922d48dfd8d47d66cbf3715fb30e173c4b51d9061b.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
@@ -19426,6 +19330,102 @@ exports[`Type Safe Rest Api Construct Unit Tests With Path Parameters 1`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "6060611f34e7c9e9000a19922d48dfd8d47d66cbf3715fb30e173c4b51d9061b.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test/{param1}/fixed/{param2}/{param3}",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "6060611f34e7c9e9000a19922d48dfd8d47d66cbf3715fb30e173c4b51d9061b.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -19910,7 +19910,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Waf IP Set 1`] = `
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -20160,7 +20160,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Waf IP Set 1`] = `
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -20225,9 +20225,9 @@ exports[`Type Safe Rest Api Construct Unit Tests With Waf IP Set 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC478ba688c73ecd411d6bc46f33941546de6": {
+    "ApiTestDeployment153EC478950afb915db24dc651450ed2227b1233": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -20272,7 +20272,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Waf IP Set 1`] = `
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -20317,7 +20317,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Waf IP Set 1`] = `
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC478ba688c73ecd411d6bc46f33941546de6",
+          "Ref": "ApiTestDeployment153EC478950afb915db24dc651450ed2227b1233",
         },
         "MethodSettings": [
           {
@@ -20336,7 +20336,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Waf IP Set 1`] = `
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -20377,7 +20377,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Waf IP Set 1`] = `
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -20510,102 +20510,6 @@ exports[`Type Safe Rest Api Construct Unit Tests With Waf IP Set 1`] = `
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
@@ -20797,6 +20701,102 @@ exports[`Type Safe Rest Api Construct Unit Tests With Waf IP Set 1`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
@@ -21222,7 +21222,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Without Waf 1`] = `
       "DeletionPolicy": "Retain",
       "DependsOn": [
         "ApiTestEE73F324",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -21270,7 +21270,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Without Waf 1`] = `
     "ApiTestCloudWatchRole56ED0814": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -21335,9 +21335,9 @@ exports[`Type Safe Rest Api Construct Unit Tests Without Waf 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC478ba688c73ecd411d6bc46f33941546de6": {
+    "ApiTestDeployment153EC478950afb915db24dc651450ed2227b1233": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -21382,7 +21382,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Without Waf 1`] = `
     "ApiTestDeploymentStageprod660267A6": {
       "DependsOn": [
         "ApiTestAccount272B5CDD",
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -21427,7 +21427,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Without Waf 1`] = `
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC478ba688c73ecd411d6bc46f33941546de6",
+          "Ref": "ApiTestDeployment153EC478950afb915db24dc651450ed2227b1233",
         },
         "MethodSettings": [
           {
@@ -21446,7 +21446,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Without Waf 1`] = `
     },
     "ApiTestEE73F324": {
       "DependsOn": [
-        "ApiTestPrepareSpecCustomResourceC9800EE6",
+        "ApiTestPrepareSpecResource58706514",
       ],
       "Metadata": {
         "cdk_nag": {
@@ -21487,7 +21487,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Without Waf 1`] = `
           },
           "Key": {
             "Fn::GetAtt": [
-              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "ApiTestPrepareSpecResource58706514",
               "outputSpecKey",
             ],
           },
@@ -21620,102 +21620,6 @@ exports[`Type Safe Rest Api Construct Unit Tests Without Waf 1`] = `
         "Timeout": 30,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "ApiTestPrepareSpecCustomResourceC9800EE6": {
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
-            },
-            {
-              "id": "AwsSolutions-APIG2",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-            {
-              "id": "AwsPrototyping-APIGWRequestValidation",
-              "reason": "This construct implements fine grained validation via OpenApi.",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
-            "Arn",
-          ],
-        },
-        "inputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
-        },
-        "integrations": {
-          "testOperation": {
-            "integration": {
-              "httpMethod": "POST",
-              "passthroughBehavior": "WHEN_NO_MATCH",
-              "type": "AWS_PROXY",
-              "uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "LambdaD247545B",
-                        "Arn",
-                      ],
-                    },
-                    "/invocations",
-                  ],
-                ],
-              },
-            },
-          },
-        },
-        "operationLookup": {
-          "testOperation": {
-            "method": "get",
-            "path": "/test",
-          },
-        },
-        "outputSpecLocation": {
-          "bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
-        },
-        "securitySchemes": {},
-      },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
       "Metadata": {
@@ -21907,6 +21811,102 @@ exports[`Type Safe Rest Api Construct Unit Tests Without Waf 1`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecResource58706514": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "httpMethod": "POST",
+              "passthroughBehavior": "WHEN_NO_MATCH",
+              "type": "AWS_PROXY",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "LambdaD247545B",
+                        "Arn",
+                      ],
+                    },
+                    "/invocations",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ApiTestPrepareSpecResourceProviderframeworkonEventDB3DA300": {
       "DependsOn": [
