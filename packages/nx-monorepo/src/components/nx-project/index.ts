@@ -220,7 +220,15 @@ export class NxProject extends Component {
           this.targets[name] || {};
       }
     }
-    this.targets[name] = deepMerge([_default, target], { append: true });
+    const mergedTarget: Nx.IProjectTarget = deepMerge([_default, target], {
+      append: true,
+    });
+    this.targets[name] = {
+      ...mergedTarget,
+      outputs: mergedTarget.outputs
+        ? [...new Set(mergedTarget.outputs)]
+        : undefined,
+    };
   }
 
   /**
