@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { NodePackageUtils } from "@aws-prototyping-sdk/nx-monorepo";
 import { NodePackageManager, TypeScriptJsxMode } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Library } from "../../languages";
@@ -137,7 +138,9 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
         case NodePackageManager.YARN2:
           this.tasks
             .tryFind("install")
-            ?.exec(`${this.package.packageManager} link`);
+            ?.exec(
+              NodePackageUtils.command.cmd(this.package.packageManager, "link")
+            );
           break;
         case NodePackageManager.PNPM:
           // Nothing to do for pnpm, since the pnpm link command handles both the dependant and dependee

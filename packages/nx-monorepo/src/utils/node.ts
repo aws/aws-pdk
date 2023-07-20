@@ -193,6 +193,24 @@ export namespace NodePackageUtils {
       }
     }
 
+    /**
+     * Get command to run
+     */
+    export function cmd(
+      packageManager: NodePackageManager,
+      ...args: string[]
+    ): string {
+      switch (packageManager) {
+        case NodePackageManager.YARN:
+        case NodePackageManager.YARN2:
+          return withArgs("yarn", args);
+        case NodePackageManager.PNPM:
+          return withArgs("pnpm", args);
+        default:
+          return withArgs("npm", args);
+      }
+    }
+
     export function execInWorkspace(
       packageManager: NodePackageManager,
       packageName: string,
@@ -219,16 +237,16 @@ export namespace NodePackageUtils {
      */
     export function bin(
       packageManager: NodePackageManager,
-      cmd: string
+      _cmd: string
     ): string {
       switch (packageManager) {
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
-          return `$(yarn bin)/${cmd}`;
+          return `$(yarn bin)/${_cmd}`;
         case NodePackageManager.PNPM:
-          return `$(pnpm bin)/${cmd}`;
+          return `$(pnpm bin)/${_cmd}`;
         default:
-          return `$(npm bin)/${cmd}`;
+          return `$(npm bin)/${_cmd}`;
       }
     }
   }
