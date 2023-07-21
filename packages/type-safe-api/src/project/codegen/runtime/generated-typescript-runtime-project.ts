@@ -133,7 +133,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
           this.tasks
             .tryFind("install")
             ?.exec(
-              NodePackageUtils.command.exec(this.package.packageManager, "link")
+              NodePackageUtils.command.cmd(this.package.packageManager, "link")
             );
           break;
         case NodePackageManager.PNPM:
