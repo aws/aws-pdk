@@ -4,9 +4,9 @@ The AWS Prototyping SDK (PDK) aims to accelerate the development of prototypes o
 
 This combination of project management, build execution, and CDK constructs reduce the effort involved in prototyping new ideas on AWS, and allow developers to seamlessly grow these ideas beyond the prototype phase without requiring a complete re-implementation of the original solution. In addition to the foundation of project configuration and build dependency management provided by the nx-monorepo project, PDK also provides a number of other projen projects (some of which implement common infrastructure patterns using CDK) and stand-alone CDK constructs, which are described below. Note: PDK is currently pre-release, targeting version 1.0 for mid-2023.
 
-## Core modules
+## About core modules
 
-The AWS Prototyping SDK (PDK) provides building blocks for common pattern, to help you manage and build your projects. Before you get started with PDK, this is a quick overview of the core modules.
+The AWS Prototyping SDK (PDK) provides building blocks for common patterns to help you manage and build your projects. Before you get started with PDK, this is a introduction of the core modules.
 
 - nx-monorepo
 - static-website
