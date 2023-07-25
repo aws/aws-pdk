@@ -1,0 +1,38 @@
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
+import {
+  Container,
+  ContentLayout,
+  Header,
+  SpaceBetween,
+  Spinner,
+} from "@cloudscape-design/components";
+{{#hasApi}}
+import { useSayHello } from "{{apiHooksPackage}}";
+{{/hasApi}}
+
+/**
+ * Component to render the home "/" route.
+ */
+const Home: React.FC = () => {
+  {{#hasApi}}
+  const sayHello = useSayHello({ name: "World" });
+
+  {{/hasApi}}
+  return (
+    <ContentLayout header={<Header>Home</Header>}>
+      <SpaceBetween size="l">
+        <Container>
+          {{#hasApi}}
+          {sayHello.isLoading ? <Spinner /> : <>{sayHello.data?.message}</>}
+          {{/hasApi}}
+          {{^hasApi}}
+          Welcome!
+          {{/hasApi}}
+        </Container>
+      </SpaceBetween>
+    </ContentLayout>
+  );
+};
+
+export default Home;

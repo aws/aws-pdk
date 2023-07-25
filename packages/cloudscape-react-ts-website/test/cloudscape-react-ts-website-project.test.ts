@@ -1,5 +1,12 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import {
+  DocumentationFormat,
+  Language,
+  Library,
+  ModelLanguage,
+  TypeSafeApiProject,
+} from "@aws-prototyping-sdk/type-safe-api";
 import { synthSnapshot } from "projen/lib/util/synth";
 import { CloudscapeReactTsWebsiteProject } from "../src";
 
@@ -21,5 +28,88 @@ describe("CloudscapeReactTsWebsiteProject Unit Tests", () => {
       deps: ["aws-prototoyping-sdk"],
     });
     expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("With TypeSafeApi", () => {
+    const tsApi = new TypeSafeApiProject({
+      name: "testapi",
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+      },
+      runtime: {
+        languages: [Language.JAVA, Language.PYTHON, Language.TYPESCRIPT],
+      },
+      documentation: {
+        formats: [
+          DocumentationFormat.HTML2,
+          DocumentationFormat.MARKDOWN,
+          DocumentationFormat.PLANTUML,
+          DocumentationFormat.HTML_REDOC,
+        ],
+      },
+      library: {
+        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+      },
+      model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+          smithy: {
+            serviceName: {
+              namespace: "com.test",
+              serviceName: "MyService",
+            },
+          },
+        },
+      },
+    });
+
+    const project = new CloudscapeReactTsWebsiteProject({
+      defaultReleaseBranch: "mainline",
+      name: "WithAPI",
+      applicationName: "WithAPI",
+      typeSafeApi: tsApi,
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("With TypeSafeApi - No Library", () => {
+    const tsApi = new TypeSafeApiProject({
+      name: "testapi",
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+      },
+      runtime: {
+        languages: [Language.JAVA, Language.PYTHON, Language.TYPESCRIPT],
+      },
+      documentation: {
+        formats: [
+          DocumentationFormat.HTML2,
+          DocumentationFormat.MARKDOWN,
+          DocumentationFormat.PLANTUML,
+          DocumentationFormat.HTML_REDOC,
+        ],
+      },
+      model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+          smithy: {
+            serviceName: {
+              namespace: "com.test",
+              serviceName: "MyService",
+            },
+          },
+        },
+      },
+    });
+
+    expect(
+      () =>
+        new CloudscapeReactTsWebsiteProject({
+          defaultReleaseBranch: "mainline",
+          name: "WithAPI",
+          applicationName: "WithAPI",
+          typeSafeApi: tsApi,
+        })
+    ).toThrowErrorMatchingSnapshot();
   });
 });
