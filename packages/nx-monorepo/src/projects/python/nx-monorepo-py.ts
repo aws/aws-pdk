@@ -51,6 +51,33 @@ export class NxMonorepoPythonProject
     this.nx.plugins.push("@nxlv/python");
     this.installTask =
       this.nxConfigurator.ensureNxInstallTask("@nxlv/python@^16");
+
+    // Map tasks to nx run-many
+    this.nxConfigurator._overrideNxBuildTask(
+      this.buildTask,
+      { target: "build" },
+      { force: true }
+    );
+
+    this.nxConfigurator._overrideNxBuildTask(this.preCompileTask, {
+      target: "pre-compile",
+    });
+
+    this.nxConfigurator._overrideNxBuildTask(this.compileTask, {
+      target: "compile",
+    });
+
+    this.nxConfigurator._overrideNxBuildTask(this.postCompileTask, {
+      target: "post-compile",
+    });
+
+    this.nxConfigurator._overrideNxBuildTask(this.testTask, {
+      target: "test",
+    });
+
+    this.nxConfigurator._overrideNxBuildTask(this.packageTask, {
+      target: "package",
+    });
   }
 
   /**

@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
 import {
   DocumentationFormat,
   Language,
@@ -31,7 +32,14 @@ describe("CloudscapeReactTsWebsiteProject Unit Tests", () => {
   });
 
   it("With TypeSafeApi", () => {
+    const monorepo = new NxMonorepoProject({
+      name: "monorepo",
+      defaultReleaseBranch: "main",
+    });
+
     const tsApi = new TypeSafeApiProject({
+      parent: monorepo,
+      outdir: "packages/api",
       name: "testapi",
       infrastructure: {
         language: Language.TYPESCRIPT,
@@ -64,6 +72,8 @@ describe("CloudscapeReactTsWebsiteProject Unit Tests", () => {
     });
 
     const project = new CloudscapeReactTsWebsiteProject({
+      parent: monorepo,
+      outdir: "packages/website",
       defaultReleaseBranch: "mainline",
       name: "WithAPI",
       applicationName: "WithAPI",
