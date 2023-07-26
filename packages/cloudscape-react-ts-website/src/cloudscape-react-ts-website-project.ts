@@ -74,15 +74,19 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
     const publicDir = path.resolve(__dirname, "../templates/public");
 
     if (options.typeSafeApi) {
-      const libraryHooksPackage =
-        options.typeSafeApi.library?.typescriptReactQueryHooks?.package
-          ?.packageName;
+      const hooks = options.typeSafeApi.library?.typescriptReactQueryHooks;
+      const libraryHooksPackage = hooks?.package?.packageName;
       if (!libraryHooksPackage) {
         throw new Error(
           "Cannot pass in a Type Safe Api without React Hooks Library configured!"
         );
       }
-      this.addDeps(libraryHooksPackage);
+      this.addDeps(
+        `${libraryHooksPackage}@file:${path.relative(
+          this.outdir,
+          hooks.outdir
+        )}`
+      );
     }
 
     const mustacheConfig = {
