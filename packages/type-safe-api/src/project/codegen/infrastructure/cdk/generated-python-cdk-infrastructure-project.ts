@@ -103,7 +103,9 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         this.buildGenerateCommandArgs()
       )
     );
-    generateTask.exec(this.buildGenerateMockDataCommand());
+    if (!this.mockDataOptions?.disable) {
+      generateTask.exec(this.buildGenerateMockDataCommand());
+    }
 
     this.preCompileTask.spawn(generateTask);
 
@@ -136,6 +138,8 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         "x-runtime-module-name": this.generatedPythonTypes.moduleName,
         // Spec path relative to the source directory
         "x-relative-spec-path": path.join("..", this.specPath),
+        // Enable mock integration generation by default
+        "x-enable-mock-integrations": !this.mockDataOptions?.disable,
       },
     });
   };

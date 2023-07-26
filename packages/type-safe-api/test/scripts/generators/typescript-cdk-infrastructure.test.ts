@@ -48,4 +48,48 @@ describe("Typescript Infrastructure Code Generation Script Unit Tests", () => {
     expect(snapshot["infra/src/mock-integrations.ts"]).toMatchSnapshot();
     expect(snapshot["infra/src/index.ts"]).toMatchSnapshot();
   });
+
+  it("Generates With Mocks Disabled", () => {
+    const specPath = path.resolve(
+      __dirname,
+      `../../resources/specs/single.yaml`
+    );
+
+    const snapshot = withTmpDirSnapshot(os.tmpdir(), (outdir) => {
+      exec(`cp ${specPath} ${outdir}/spec.yaml`, {
+        cwd: path.resolve(__dirname),
+      });
+      const clientOutdir = path.join(outdir, "client");
+      const client = new GeneratedTypescriptRuntimeProject({
+        name: "test-client",
+        defaultReleaseBranch: "main",
+        outdir: clientOutdir,
+        specPath: "../spec.yaml",
+      });
+      const infraOutdir = path.join(outdir, "infra");
+      const project = new GeneratedTypescriptCdkInfrastructureProject({
+        name: "test-infra",
+        defaultReleaseBranch: "main",
+        outdir: infraOutdir,
+        specPath: "../spec.yaml",
+        generatedTypescriptTypes: client,
+        mockDataOptions: {
+          disable: true,
+        },
+      });
+      // Synth the openapitools.json since it's used by the generate command
+      OpenApiToolsJsonFile.of(project)!.synthesize();
+      exec(
+        `${path.resolve(
+          __dirname,
+          "../../../scripts/generators/generate"
+        )} ${project.buildGenerateCommandArgs()}`,
+        {
+          cwd: infraOutdir,
+        }
+      );
+    });
+
+    expect(snapshot["infra/src/mock-integrations.ts"]).toMatchSnapshot();
+  });
 });

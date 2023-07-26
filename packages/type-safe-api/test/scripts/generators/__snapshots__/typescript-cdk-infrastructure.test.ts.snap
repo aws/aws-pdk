@@ -1,5 +1,43 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates With Mocks Disabled 1`] = `
+"import {
+  ApiError,
+  ApiErrorToJSON,
+  MapResponse,
+  MapResponseToJSON,
+  MapResponseMapPropertyValue,
+  MapResponseMapPropertyValueToJSON,
+  TestRequest,
+  TestRequestToJSON,
+  TestResponse,
+  TestResponseToJSON,
+  TestResponseMessagesInner,
+  TestResponseMessagesInnerToJSON,
+} from "test-client";
+import { Integrations, MockIntegration } from "@aws-prototyping-sdk/type-safe-api";
+import * as fs from "fs";
+import * as path from "path";
+
+/**
+ * Type-safe mock integrations for API operations
+ */
+export class MockIntegrations {
+  /**
+   * Read a mock data file for the given operation
+   */
+  private static readMockDataFile(method: string, urlPath: string, statusCode: number): string {
+    return fs.readFileSync(path.join(__dirname, "..", "mocks", \`\${method.toLowerCase()}\${urlPath.replace(/\\//g, "-")}-\${statusCode}.json\`), "utf-8");
+  }
+
+  
+  
+  // No mock integrations have been generated, since mock data generation is disabled.
+  
+}
+"
+`;
+
 exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates With single.yaml 1`] = `
 "import { TypeSafeRestApi, TypeSafeRestApiProps, TypeSafeApiIntegration } from "@aws-prototyping-sdk/type-safe-api";
 import { Construct } from "constructs";
@@ -59,6 +97,7 @@ export class MockIntegrations {
     return fs.readFileSync(path.join(__dirname, "..", "mocks", \`\${method.toLowerCase()}\${urlPath.replace(/\\//g, "-")}-\${statusCode}.json\`), "utf-8");
   }
 
+  
   /**
    * Mock integration to return a 200 response from the anyRequestResponse operation
    */
@@ -168,6 +207,8 @@ export class MockIntegrations {
       },
     };
   }
+  
+  
 }
 "
 `;

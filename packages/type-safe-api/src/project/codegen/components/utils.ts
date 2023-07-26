@@ -71,7 +71,7 @@ export interface GenerationOptions {
    * Vendor extensions to add for code generation, allowing custom properties to be passed to the generator templates
    * Keys should begin with "x-"
    */
-  readonly extraVendorExtensions?: Record<string, string>;
+  readonly extraVendorExtensions?: Record<string, string | boolean>;
   /**
    * Generate alias as model.
    * Defines whether "primitive types" defined at the model/schema level will be wrapped in a model (ie maps/lists)

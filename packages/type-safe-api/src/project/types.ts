@@ -157,6 +157,11 @@ export interface GeneratedJavaRuntimeOptions
  */
 export interface MockResponseDataGenerationOptions {
   /**
+   * Set to true to disable generating mock data
+   * @default false
+   */
+  readonly disable?: boolean;
+  /**
    * Locale of generated data
    * @see https://fakerjs.dev/guide/localization.html#available-locales
    * @default en

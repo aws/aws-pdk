@@ -12,6 +12,7 @@ class MockIntegrations:
     """
     Type-safe mock integrations for API operations
     """
+    {{#apiInfo}}{{#apis.0}}{{#vendorExtensions.x-enable-mock-integrations}}
     {{#apiInfo}}
     {{#apis}}
     {{#operations}}
@@ -89,3 +90,8 @@ class MockIntegrations:
             },
             **kwargs
         })
+    {{/vendorExtensions.x-enable-mock-integrations}}{{/apis.0}}{{/apiInfo}}
+    {{#apiInfo}}{{#apis.0}}{{^vendorExtensions.x-enable-mock-integrations}}
+    # No mock integrations have been generated, since mock data generation is disabled.
+    pass
+    {{/vendorExtensions.x-enable-mock-integrations}}{{/apis.0}}{{/apiInfo}}
