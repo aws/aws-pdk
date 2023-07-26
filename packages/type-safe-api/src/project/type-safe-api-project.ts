@@ -166,7 +166,9 @@ export class TypeSafeApiProject extends Project {
     super(options);
 
     const nxWorkspace = this.getNxWorkspace(options);
-    const isNxTsWorkspace = this.parent instanceof NxMonorepoProject;
+
+    const isNxTsWorkspace =
+      this.parent && this.parent.constructor.name === NxMonorepoProject.name;
 
     // API Definition project containing the model
     const modelDir = "model";
