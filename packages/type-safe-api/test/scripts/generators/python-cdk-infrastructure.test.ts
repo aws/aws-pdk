@@ -54,4 +54,54 @@ describe("Python Infrastructure Code Generation Script Unit Tests", () => {
     expect(snapshot["infra/test_infra/__init__.py"]).toMatchSnapshot();
     expect(snapshot["infra/test_infra/mock_integrations.py"]).toMatchSnapshot();
   });
+
+  it("Generates With Mocks Disabled", () => {
+    const specPath = path.resolve(
+      __dirname,
+      `../../resources/specs/single.yaml`
+    );
+
+    const snapshot = withTmpDirSnapshot(os.tmpdir(), (outdir) => {
+      exec(`cp ${specPath} ${outdir}/spec.yaml`, {
+        cwd: path.resolve(__dirname),
+      });
+      const clientOutdir = path.join(outdir, "client");
+      const client = new GeneratedPythonRuntimeProject({
+        name: "test-client",
+        moduleName: "test_client",
+        authorEmail: "me@example.com",
+        authorName: "test",
+        version: "1.0.0",
+        outdir: clientOutdir,
+        specPath: "../spec.yaml",
+      });
+      const infraOutdir = path.join(outdir, "infra");
+      const project = new GeneratedPythonCdkInfrastructureProject({
+        name: "test-infra",
+        moduleName: "test_infra",
+        authorEmail: "me@example.com",
+        authorName: "test",
+        version: "1.0.0",
+        outdir: infraOutdir,
+        specPath: "../spec.yaml",
+        generatedPythonTypes: client,
+        mockDataOptions: {
+          disable: true,
+        },
+      });
+      // Synth the openapitools.json since it's used by the generate command
+      OpenApiToolsJsonFile.of(project)!.synthesize();
+      exec(
+        `${path.resolve(
+          __dirname,
+          "../../../scripts/generators/generate"
+        )} ${project.buildGenerateCommandArgs()}`,
+        {
+          cwd: infraOutdir,
+        }
+      );
+    });
+
+    expect(snapshot["infra/test_infra/mock_integrations.py"]).toMatchSnapshot();
+  });
 });

@@ -243,3 +243,5 @@ If you are using the `TypeSafeRestApi` construct directly without generated infr
 ## Customising generated Mock data
 
 You can customise the generated mock data by passing `infrastructure.options.<language>.mockDataOptions` to `TypeSafeApiProject`.
+
+You can completely disable mock data generation by setting `infrastructure.options.<language>.mockDataOptions.disable` to `true`.

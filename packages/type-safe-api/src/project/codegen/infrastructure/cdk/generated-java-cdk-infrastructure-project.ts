@@ -134,7 +134,9 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     // Copy the parsed spec into the resources directory so that it's included in the jar
     generateTask.exec("mkdir -p src/main/resources");
     generateTask.exec(`cp -f ${this.specPath} src/main/resources/.api.json`);
-    generateTask.exec(this.buildGenerateMockDataCommand());
+    if (!this.mockDataOptions?.disable) {
+      generateTask.exec(this.buildGenerateMockDataCommand());
+    }
 
     this.preCompileTask.spawn(generateTask);
 
@@ -154,6 +156,8 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
       extraVendorExtensions: {
         "x-infrastructure-package": this.packageName,
         "x-runtime-package": this.generatedJavaTypes.packageName,
+        // Enable mock integration generation by default
+        "x-enable-mock-integrations": !this.mockDataOptions?.disable,
       },
       // Do not generate map/list types. Generator will use built in HashMap, ArrayList instead
       generateAliasAsModel: false,
