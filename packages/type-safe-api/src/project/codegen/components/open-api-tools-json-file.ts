@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { ProjectUtils } from "@aws-prototyping-sdk/nx-monorepo";
 import { JsonFile, Project } from "projen";
 import { OpenApiGeneratorCliConfig } from "../../types";
 
@@ -14,9 +15,9 @@ export class OpenApiToolsJsonFile extends JsonFile {
    * @param project project instance.
    */
   static of(project: Project): OpenApiToolsJsonFile | undefined {
-    return project.components.find((c) => c instanceof OpenApiToolsJsonFile) as
-      | OpenApiToolsJsonFile
-      | undefined;
+    return project.components.find((c) =>
+      ProjectUtils.isNamedInstanceOf(c, OpenApiToolsJsonFile)
+    ) as OpenApiToolsJsonFile | undefined;
   }
 
   /**

@@ -6,7 +6,7 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { Obj } from "projen/lib/util";
 import { inferBuildTarget } from "./targets";
 import { Nx } from "../../nx-types";
-import { NodePackageUtils } from "../../utils";
+import { NodePackageUtils, ProjectUtils } from "../../utils";
 import { asUndefinedIfEmpty, deepMerge } from "../../utils/common";
 import { NxWorkspace } from "../nx-workspace";
 
@@ -31,9 +31,9 @@ export class NxProject extends Component {
    * @param project project instance.
    */
   static of(project: Project): NxProject | undefined {
-    return project.components.find((c) => c instanceof NxProject) as
-      | NxProject
-      | undefined;
+    return project.components.find((c) =>
+      ProjectUtils.isNamedInstanceOf(c, NxProject)
+    ) as NxProject | undefined;
   }
   /**
    * Retrieves an instance of NXProject if one is associated to the given project,
@@ -91,7 +91,10 @@ export class NxProject extends Component {
       );
 
     const _existingFile = project.tryFindObjectFile("project.json");
-    if (_existingFile && _existingFile instanceof JsonFile !== true) {
+    if (
+      _existingFile &&
+      !ProjectUtils.isNamedInstanceOf(_existingFile, JsonFile)
+    ) {
       throw new Error(
         `Project "${project.name}" contains a "project.json" file that is not a JsonFile instance. NxProject is unable to support this project.`
       );
@@ -189,7 +192,7 @@ export class NxProject extends Component {
    */
   public addImplicitDependency(...dependee: (Project | string)[]) {
     this.implicitDependencies.push(
-      ...dependee.map((_d) => (_d instanceof Project ? _d.name : _d))
+      ...dependee.map((_d) => (typeof _d === "string" ? _d : _d.name))
     );
   }
 

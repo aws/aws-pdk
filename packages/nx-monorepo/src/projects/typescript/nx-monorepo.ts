@@ -24,7 +24,7 @@ import {
 import { NxProject } from "../../components/nx-project";
 import { NxWorkspace } from "../../components/nx-workspace";
 import { Nx } from "../../nx-types";
-import { NodePackageUtils } from "../../utils";
+import { NodePackageUtils, ProjectUtils } from "../../utils";
 
 /**
  * Workspace configurations.
@@ -410,7 +410,7 @@ export class NxMonorepoProject
     const bins: [string, string][] = [];
 
     this.subprojects.forEach((subProject) => {
-      if (subProject instanceof NodeProject) {
+      if (ProjectUtils.isNamedInstanceOf(subProject, NodeProject)) {
         const pkgBins: Record<string, string> =
           subProject.package.manifest.bin() || {};
         bins.push(
@@ -451,7 +451,10 @@ export class NxMonorepoProject
       // PNPM hoisting hides transitive bundled dependencies which results in
       // transitive dependencies being packed incorrectly.
       this.subprojects.forEach((subProject) => {
-        if (isNodeProject(subProject) && getBundledDeps(subProject).length) {
+        if (
+          NodePackageUtils.isNodeProject(subProject) &&
+          getBundledDeps(subProject).length
+        ) {
           const pkgFolder = path.relative(this.root.outdir, subProject.outdir);
           // Create a symlink in the sub-project node_modules for all transitive deps
           // before running "package" task
@@ -464,7 +467,7 @@ export class NxMonorepoProject
 
     // Remove any subproject .npmrc files since only the root one matters
     this.subprojects.forEach((subProject) => {
-      if (isNodeProject(subProject)) {
+      if (NodePackageUtils.isNodeProject(subProject)) {
         subProject.tryRemoveFile(".npmrc");
         NodePackageUtils.removeProjenScript(subProject);
       }
@@ -487,7 +490,7 @@ export class NxMonorepoProject
     // Prevent sub NodeProject packages from `postSynthesis` which will cause individual/extraneous installs.
     // The workspace package install will handle all the sub NodeProject packages automatically.
     this.subprojects.forEach((subProject) => {
-      if (isNodeProject(subProject)) {
+      if (NodePackageUtils.isNodeProject(subProject)) {
         const subNodeProject: NodeProject = subProject as NodeProject;
         const subNodeProjectResolver =
           // @ts-ignore - `resolveDepsAndWritePackageJson` is private
@@ -546,7 +549,7 @@ export class NxMonorepoProject
       subProject.defaultTask?.reset();
 
       if (
-        isNodeProject(subProject) &&
+        NodePackageUtils.isNodeProject(subProject) &&
         subProject.package.packageManager !== this.package.packageManager
       ) {
         throw new Error(
@@ -568,7 +571,7 @@ export class NxMonorepoProject
     // Automatically add all sub-project "bundledDependencies" to workspace "hohoist", otherwise they are not bundled in npm package
     if (this.workspaceConfig?.disableNoHoistBundled !== true) {
       const noHoistBundled = this.subprojects.flatMap((sub) => {
-        if (sub instanceof NodeProject) {
+        if (ProjectUtils.isNamedInstanceOf(sub, NodeProject)) {
           return getBundledDeps(sub).flatMap((dep) => [
             `${sub.name}/${dep.name}`,
             `${sub.name}/${dep.name}/*`,
@@ -605,7 +608,8 @@ export class NxMonorepoProject
   private installNonNodeDependencies() {
     const installProjects = this.subprojects.filter(
       (project) =>
-        !(project instanceof NodeProject) && project.tasks.tryFind("install")
+        !ProjectUtils.isNamedInstanceOf(project, NodeProject) &&
+        project.tasks.tryFind("install")
     );
 
     if (installProjects.length > 0) {
@@ -644,16 +648,6 @@ export class NxMonorepoProject
       subProject.tasks.addEnvironment("NODE_NO_WARNINGS", "1")
     );
   }
-}
-
-/**
- * Determines if the passed in project is of type NodeProject.
- *
- * @param project Project instance.
- * @returns true if the project instance is of type NodeProject.
- */
-function isNodeProject(project: any): project is NodeProject {
-  return project instanceof NodeProject || project.package;
 }
 
 /**

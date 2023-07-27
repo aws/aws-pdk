@@ -5,6 +5,7 @@ import {
   NxMonorepoProject,
   NxProject,
   NxWorkspace,
+  ProjectUtils,
 } from "@aws-prototyping-sdk/nx-monorepo";
 import { Project, ProjectOptions, SampleFile } from "projen";
 import { JavaProject } from "projen/lib/java";
@@ -166,7 +167,10 @@ export class TypeSafeApiProject extends Project {
     super(options);
 
     const nxWorkspace = this.getNxWorkspace(options);
-    const isNxTsWorkspace = this.parent instanceof NxMonorepoProject;
+
+    const isNxTsWorkspace =
+      this.parent &&
+      ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoProject);
 
     // API Definition project containing the model
     const modelDir = "model";
@@ -212,7 +216,8 @@ export class TypeSafeApiProject extends Project {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected?.defaultBase ?? "mainline",
         packageManager:
-          this.parent && this.parent instanceof NodeProject
+          this.parent &&
+          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
             ? this.parent.package.packageManager
             : NodePackageManager.YARN,
         ...options.runtime.options?.typescript,
@@ -281,7 +286,8 @@ export class TypeSafeApiProject extends Project {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
         packageManager:
-          this.parent && this.parent instanceof NodeProject
+          this.parent &&
+          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
             ? this.parent.package.packageManager
             : NodePackageManager.YARN,
         ...options.runtime.options?.typescript,
@@ -342,7 +348,8 @@ export class TypeSafeApiProject extends Project {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
         packageManager:
-          this.parent && this.parent instanceof NodeProject
+          this.parent &&
+          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
             ? this.parent.package.packageManager
             : NodePackageManager.YARN,
         ...options.infrastructure.options?.typescript,
