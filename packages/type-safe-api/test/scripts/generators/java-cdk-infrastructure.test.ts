@@ -67,4 +67,63 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
       ]
     ).toMatchSnapshot();
   });
+
+  it("Generates With Mocks Disabled", () => {
+    const specPath = path.resolve(
+      __dirname,
+      `../../resources/specs/single.yaml`
+    );
+
+    const snapshot = withTmpDirSnapshot(
+      os.tmpdir(),
+      (outdir) => {
+        exec(`cp ${specPath} ${outdir}/spec.yaml`, {
+          cwd: path.resolve(__dirname),
+        });
+        const clientOutdir = path.join(outdir, "client");
+        const client = new GeneratedJavaRuntimeProject({
+          name: "test-client",
+          artifactId: "com.aws.pdk.test.client",
+          groupId: "test",
+          version: "1.0.0",
+          outdir: clientOutdir,
+          specPath: "../spec.yaml",
+        });
+        const infraOutdir = path.join(outdir, "infra");
+        const project = new GeneratedJavaCdkInfrastructureProject({
+          name: "test-infra",
+          artifactId: "com.aws.pdk.test.infra",
+          groupId: "test",
+          version: "1.0.0",
+          outdir: infraOutdir,
+          specPath: "../spec.yaml",
+          generatedJavaTypes: client,
+          mockDataOptions: {
+            disable: true,
+          },
+        });
+        // Synth the openapitools.json since it's used by the generate command
+        OpenApiToolsJsonFile.of(project)!.synthesize();
+        exec(
+          `${path.resolve(
+            __dirname,
+            "../../../scripts/generators/generate"
+          )} ${project.buildGenerateCommandArgs()}`,
+          {
+            cwd: infraOutdir,
+          }
+        );
+      },
+      {
+        excludeGlobs: GeneratedJavaRuntimeProject.openApiIgnorePatterns,
+        parseJson: false,
+      }
+    );
+
+    expect(
+      snapshot[
+        "infra/src/main/java/test/test-infra/infra/MockIntegrations.java"
+      ]
+    ).toMatchSnapshot();
+  });
 });

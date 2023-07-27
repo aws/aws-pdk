@@ -23,6 +23,7 @@ export class MockIntegrations {
     return fs.readFileSync(path.join(__dirname, "..", "mocks", `${method.toLowerCase()}${urlPath.replace(/\//g, "-")}-${statusCode}.json`), "utf-8");
   }
 
+  {{#apiInfo}}{{#apis.0}}{{#vendorExtensions.x-enable-mock-integrations}}
   {{#apiInfo}}
   {{#apis}}
   {{#operations}}
@@ -83,4 +84,8 @@ export class MockIntegrations {
       {{/apiInfo}}
     };
   }
+  {{/vendorExtensions.x-enable-mock-integrations}}{{/apis.0}}{{/apiInfo}}
+  {{#apiInfo}}{{#apis.0}}{{^vendorExtensions.x-enable-mock-integrations}}
+  // No mock integrations have been generated, since mock data generation is disabled.
+  {{/vendorExtensions.x-enable-mock-integrations}}{{/apis.0}}{{/apiInfo}}
 }

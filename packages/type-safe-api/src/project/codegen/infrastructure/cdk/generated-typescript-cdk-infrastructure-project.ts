@@ -134,7 +134,9 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
         this.buildGenerateCommandArgs()
       )
     );
-    generateTask.exec(this.buildGenerateMockDataCommand());
+    if (!this.mockDataOptions?.disable) {
+      generateTask.exec(this.buildGenerateMockDataCommand());
+    }
 
     // Copy the api spec to within the package
     generateTask.exec(`mkdir -p ${path.dirname(this.packagedSpecPath)}`);
@@ -190,6 +192,8 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
           this.generatedTypescriptTypes.package.packageName,
         // Spec path relative to the source directory
         "x-relative-spec-path": path.join("..", this.packagedSpecPath),
+        // Enable mock integration generation by default
+        "x-enable-mock-integrations": !this.mockDataOptions?.disable,
       },
     });
   };
