@@ -8,7 +8,23 @@ import { Poetry, PythonProject } from "projen/lib/python";
 import { NxProject } from "./nx-project";
 import { NxWorkspace } from "./nx-workspace";
 import { Nx } from "../nx-types";
-import { NodePackageUtils } from "../utils";
+import { NodePackageUtils, ProjectUtils } from "../utils";
+
+/**
+ * Options for overriding nx build tasks
+ * @internal
+ */
+interface OverrideNxBuildTaskOptions {
+  /**
+   * Force unlocking task (eg: build task is locked)
+   */
+  readonly force?: boolean;
+  /**
+   * Disable further resets of the task by other components in further lifecycle stages
+   * (eg eslint resets during preSynthesize)
+   */
+  readonly disableReset?: boolean;
+}
 
 /**
  * Interface that all NXProject implementations should implement.
@@ -116,6 +132,46 @@ export class NxConfigurator extends Component implements INxProjectCore {
 
     this.nx = NxWorkspace.of(project) || new NxWorkspace(project);
     this.nx.affected.defaultBase = options?.defaultReleaseBranch ?? "mainline";
+  }
+
+  /**
+   * Overrides "build" related project tasks (build, compile, test, etc.) with `npx nx run-many` format.
+   * @param task - The task or task name to override
+   * @param options - Nx run-many options
+   * @param overrideOptions - Options for overriding the task
+   * @returns - The task that was overridden
+   * @internal
+   */
+  public _overrideNxBuildTask(
+    task: Task | string | undefined,
+    options: Nx.RunManyOptions,
+    overrideOptions?: OverrideNxBuildTaskOptions
+  ): Task | undefined {
+    if (typeof task === "string") {
+      task = this.project.tasks.tryFind(task);
+    }
+
+    if (task == null) {
+      return;
+    }
+
+    if (overrideOptions?.force) {
+      // @ts-ignore - private property
+      task._locked = false;
+    }
+
+    task.reset(this.execNxRunManyCommand(options), {
+      receiveArgs: true,
+    });
+
+    task.description += " for all affected projects";
+
+    if (overrideOptions?.disableReset) {
+      // Prevent any further resets of the task to force it to remain as the overridden nx build task
+      task.reset = () => {};
+    }
+
+    return task;
   }
 
   /**
@@ -249,7 +305,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
     dependee: PythonProject
   ) {
     // Check we're adding the dependency to a poetry python project
-    if (!(dependent.depsManager instanceof Poetry)) {
+    if (!ProjectUtils.isNamedInstanceOf(dependent.depsManager as any, Poetry)) {
       throw new Error(
         `${dependent.name} must be a PythonProject with Poetry enabled to add this dependency`
       );
