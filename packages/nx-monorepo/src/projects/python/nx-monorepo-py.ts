@@ -11,7 +11,7 @@ import {
 import { NxProject } from "../../components/nx-project";
 import { NxWorkspace } from "../../components/nx-workspace";
 import { Nx } from "../../nx-types";
-import { NodePackageUtils } from "../../utils";
+import { NodePackageUtils, ProjectUtils } from "../../utils";
 
 /**
  * Configuration options for the NxMonorepoPythonProject.
@@ -226,7 +226,7 @@ export class NxMonorepoPythonProject
  * @returns true if the project instance is of type PythonProject.
  */
 function isPythonProject(project: any): boolean {
-  return project instanceof PythonProject;
+  return ProjectUtils.isNamedInstanceOf(project, PythonProject);
 }
 
 /**
@@ -236,5 +236,9 @@ function isPythonProject(project: any): boolean {
  * @returns true if the project uses Poetry.
  */
 function isPoetryConfigured(project: PythonProject): boolean {
-  return project.components.find((c) => c instanceof Poetry) !== undefined;
+  return (
+    project.components.find((c) =>
+      ProjectUtils.isNamedInstanceOf(c, Poetry)
+    ) !== undefined
+  );
 }

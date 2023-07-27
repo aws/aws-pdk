@@ -6,6 +6,7 @@ import { JavaProject } from "projen/lib/java";
 import { Jest } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { Nx } from "../../nx-types";
+import { ProjectUtils } from "../../utils";
 
 /**
  * Defines a fileset for target inputs and outputs.
@@ -169,7 +170,7 @@ function _inferBuildTargetIO(project: Project): InferedTargetFilesets {
   const outputs: (TargetFileset | string)[] = [];
   let includeDefaultInputs = true;
 
-  if (project instanceof JsiiProject) {
+  if (ProjectUtils.isNamedInstanceOf(project, JsiiProject)) {
     outputs.push(
       TargetFileset.File(".jsii"),
       TargetFileset.Directory(project.libdir),
@@ -184,14 +185,14 @@ function _inferBuildTargetIO(project: Project): InferedTargetFilesets {
     );
   }
 
-  if (project instanceof PythonProject) {
+  if (ProjectUtils.isNamedInstanceOf(project, PythonProject)) {
     inputs.push(
       TargetFileset.Directory("!.env"),
       TargetFileset.Directory("!.pytest_cache")
     );
   }
 
-  if (project instanceof JavaProject) {
+  if (ProjectUtils.isNamedInstanceOf(project, JavaProject)) {
     inputs.push(
       TargetFileset.File("!.classpath"),
       TargetFileset.File("!.project"),

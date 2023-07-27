@@ -8,7 +8,7 @@ import { Poetry, PythonProject } from "projen/lib/python";
 import { NxProject } from "./nx-project";
 import { NxWorkspace } from "./nx-workspace";
 import { Nx } from "../nx-types";
-import { NodePackageUtils } from "../utils";
+import { NodePackageUtils, ProjectUtils } from "../utils";
 
 /**
  * Options for overriding nx build tasks
@@ -305,7 +305,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
     dependee: PythonProject
   ) {
     // Check we're adding the dependency to a poetry python project
-    if (!(dependent.depsManager instanceof Poetry)) {
+    if (!ProjectUtils.isNamedInstanceOf(dependent.depsManager as any, Poetry)) {
       throw new Error(
         `${dependent.name} must be a PythonProject with Poetry enabled to add this dependency`
       );

@@ -9,6 +9,7 @@ import {
 } from "projen";
 import { Obj } from "projen/lib/util";
 import { Nx } from "../nx-types";
+import { ProjectUtils } from "../utils";
 import { asUndefinedIfEmpty, deepMerge } from "../utils/common";
 
 const ALWAYS_IGNORE: string[] = [".tmp", ".env", ".pytest_cache"];
@@ -37,9 +38,9 @@ export class NxWorkspace extends Component {
    * @param scope project instance.
    */
   static of(scope: Project): NxWorkspace | undefined {
-    return scope.root.components.find((c) => c instanceof NxWorkspace) as
-      | NxWorkspace
-      | undefined;
+    return scope.root.components.find((c) =>
+      ProjectUtils.isNamedInstanceOf(c, NxWorkspace)
+    ) as NxWorkspace | undefined;
   }
 
   /**

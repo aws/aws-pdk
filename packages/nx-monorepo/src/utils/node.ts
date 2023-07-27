@@ -6,6 +6,7 @@ import {
   NodeProject,
   NodePackage,
 } from "projen/lib/javascript";
+import { ProjectUtils } from "./project";
 
 /**
  * Utility functions for working with different Node package managers.
@@ -25,11 +26,8 @@ export namespace NodePackageUtils {
   }
 
   /** Indicates if project is a node based project */
-  export function isNodeProject(project: Project): boolean {
-    return (
-      project instanceof NodeProject ||
-      tryFindNodePackage(project, false) != null
-    );
+  export function isNodeProject(project: Project): project is NodeProject {
+    return ProjectUtils.isNamedInstanceOf(project, NodeProject);
   }
 
   /**
@@ -93,8 +91,8 @@ export namespace NodePackageUtils {
   ): NodePackage | undefined {
     let _project: Project | undefined = scope;
     while (_project) {
-      const nodePackage = _project.components.find(
-        (c) => c instanceof NodePackage
+      const nodePackage = _project.components.find((c) =>
+        ProjectUtils.isNamedInstanceOf(c, NodePackage)
       ) as NodePackage | undefined;
       if (nodePackage) {
         return nodePackage;
