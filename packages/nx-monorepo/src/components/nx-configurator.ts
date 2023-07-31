@@ -1,9 +1,9 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { Component, Project, Task } from "projen";
+import { Component, JsonFile, Project, Task } from "projen";
 import { JavaProject } from "projen/lib/java";
-import { NodePackageManager } from "projen/lib/javascript";
+import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { Poetry, PythonProject } from "projen/lib/python";
 import { NxProject } from "./nx-project";
 import { NxWorkspace } from "./nx-workspace";
@@ -100,6 +100,7 @@ export interface NxConfiguratorOptions {
  */
 export class NxConfigurator extends Component implements INxProjectCore {
   public readonly nx: NxWorkspace;
+  private nxPlugins: { [dep: string]: string } = {};
 
   constructor(project: Project, options?: NxConfiguratorOptions) {
     super(project);
@@ -182,11 +183,13 @@ export class NxConfigurator extends Component implements INxProjectCore {
    * @param nxPlugins additional plugins to install
    * @returns install task
    */
-  public ensureNxInstallTask(...nxPlugins: string[]): Task {
-    const plugins = nxPlugins.length > 0 ? `${nxPlugins.join(" ")} ` : "";
+  public ensureNxInstallTask(nxPlugins: { [key: string]: string }): Task {
+    this.nxPlugins = nxPlugins;
+
     const installTask =
       this.project.tasks.tryFind("install") ?? this.project.addTask("install");
-    installTask.exec(`npm install --save-dev ${plugins}nx@^16`);
+    installTask.exec("yarn install");
+
     return installTask;
   }
 
@@ -341,9 +344,35 @@ export class NxConfigurator extends Component implements INxProjectCore {
     this.project.subprojects.forEach(_ensure);
   }
 
+  /**
+   * Emits package.json for non-node NX monorepos.
+   * @internal
+   */
+  private _emitPackageJson() {
+    if (
+      !ProjectUtils.isNamedInstanceOf(this.project, NodeProject) &&
+      !this.project.tryFindFile("package.json")
+    ) {
+      new JsonFile(this.project, "package.json", {
+        obj: {
+          devDependencies: {
+            ...this.nxPlugins,
+            nx: "^16",
+            "@nx/devkit": "^16",
+          },
+          private: true,
+          workspaces: this.project.subprojects
+            .filter((p) => ProjectUtils.isNamedInstanceOf(p, NodeProject))
+            .map((p) => path.relative(this.project.outdir, p.outdir)),
+        },
+      }).synthesize();
+    }
+  }
+
   preSynthesize(): void {
     // Calling before super() to ensure proper pre-synth of NxProject component and its nested components
     this._ensureNxProjectGraph();
+    this._emitPackageJson();
   }
 
   /**

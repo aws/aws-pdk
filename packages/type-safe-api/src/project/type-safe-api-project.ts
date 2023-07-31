@@ -2,7 +2,9 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import {
+  NxMonorepoJavaProject,
   NxMonorepoProject,
+  NxMonorepoPythonProject,
   NxProject,
   NxWorkspace,
   ProjectUtils,
@@ -168,9 +170,11 @@ export class TypeSafeApiProject extends Project {
 
     const nxWorkspace = this.getNxWorkspace(options);
 
-    const isNxTsWorkspace =
+    const isNxWorkspace =
       this.parent &&
-      ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoProject);
+      (ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoProject) ||
+        ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoJavaProject) ||
+        ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoPythonProject));
 
     // API Definition project containing the model
     const modelDir = "model";
@@ -205,7 +209,7 @@ export class TypeSafeApiProject extends Project {
       parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: runtimeDirRelativeToParent,
-      isWithinMonorepo: isNxTsWorkspace,
+      isWithinMonorepo: isNxWorkspace,
       // Spec path relative to each generated client dir
       parsedSpecPath: path.join(
         "..",
@@ -275,7 +279,7 @@ export class TypeSafeApiProject extends Project {
       parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: libraryDirRelativeToParent,
-      isWithinMonorepo: isNxTsWorkspace,
+      isWithinMonorepo: isNxWorkspace,
       // Spec path relative to each generated client dir
       parsedSpecPath: path.join(
         "..",
@@ -337,7 +341,7 @@ export class TypeSafeApiProject extends Project {
       parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: infraDirRelativeToParent,
-      isWithinMonorepo: isNxTsWorkspace,
+      isWithinMonorepo: isNxWorkspace,
       // Spec path relative to each generated infra package dir
       parsedSpecPath: path.join(
         "..",
