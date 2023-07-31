@@ -81,12 +81,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
           "Cannot pass in a Type Safe Api without React Hooks Library configured!"
         );
       }
-      this.addDeps(
-        `${libraryHooksPackage}@file:${path.relative(
-          this.outdir,
-          hooks.outdir
-        )}`
-      );
+      this.addDeps(libraryHooksPackage);
     }
 
     const mustacheConfig = {

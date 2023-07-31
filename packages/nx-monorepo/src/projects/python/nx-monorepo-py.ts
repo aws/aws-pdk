@@ -49,8 +49,9 @@ export class NxMonorepoPythonProject
 
     // Setup python NX plugin
     this.nx.plugins.push("@nxlv/python");
-    this.installTask =
-      this.nxConfigurator.ensureNxInstallTask("@nxlv/python@^16");
+    this.installTask = this.nxConfigurator.ensureNxInstallTask({
+      "@nxlv/python": "^16",
+    });
 
     // Map tasks to nx run-many
     this.nxConfigurator._overrideNxBuildTask(
