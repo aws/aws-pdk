@@ -45,9 +45,9 @@ export class NxMonorepoJavaProject
 
     // Setup maven nx plugin
     this.nx.plugins.push("@jnxplus/nx-maven");
-    this.installTask = this.nxConfigurator.ensureNxInstallTask(
-      "@jnxplus/nx-maven@^0.x"
-    );
+    this.installTask = this.nxConfigurator.ensureNxInstallTask({
+      "@jnxplus/nx-maven": "^0.x",
+    });
 
     // Map tasks to nx run-many
     this.nxConfigurator._overrideNxBuildTask(
