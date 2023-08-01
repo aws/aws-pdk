@@ -136,6 +136,24 @@ export class NxConfigurator extends Component implements INxProjectCore {
     this.nx.affected.defaultBase = options?.defaultReleaseBranch ?? "mainline";
   }
 
+  public patchPoetryInstall(project: PythonProject): void {
+    const installTask = project.tasks.tryFind("install");
+
+    if (installTask?.steps[0]?.exec !== "unset VIRTUAL_ENV") {
+      installTask?.env("VIRTUAL_ENV", "");
+      installTask?.prependExec("unset VIRTUAL_ENV");
+    }
+  }
+
+  public patchPythonProjects(projects: Project[]): void {
+    projects.forEach((p) => {
+      if (ProjectUtils.isNamedInstanceOf(p, PythonProject)) {
+        this.patchPoetryInstall(p);
+      }
+      this.patchPythonProjects(p.subprojects);
+    });
+  }
+
   /**
    * Overrides "build" related project tasks (build, compile, test, etc.) with `npx nx run-many` format.
    * @param task - The task or task name to override
@@ -374,6 +392,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
     // Calling before super() to ensure proper pre-synth of NxProject component and its nested components
     this._ensureNxProjectGraph();
     this._emitPackageJson();
+    this.patchPythonProjects([this.project]);
   }
 
   /**
