@@ -105,6 +105,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
   constructor(project: Project, options?: NxConfiguratorOptions) {
     super(project);
 
+    project.addGitIgnore(".nx/cache");
     project.addTask("run-many", {
       receiveArgs: true,
       exec: NodePackageUtils.command.exec(

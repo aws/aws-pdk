@@ -153,7 +153,7 @@ export class NxMonorepoProject
       jest: options.jest ?? false,
       defaultReleaseBranch,
       sampleCode: false, // root should never have sample code,
-      gitignore: [".tmp", ".nx/cache", ...(options.gitignore ?? [])],
+      gitignore: [".tmp", ...(options.gitignore ?? [])],
       eslintOptions: options.eslintOptions ?? {
         dirs: ["."],
         ignorePatterns: ["packages/**/*.*"],
