@@ -50,7 +50,7 @@ export class AwsArchProject extends PDKProject {
       "lib",
       "LICENSE_THIRD_PARTY",
       "NOTICE",
-      "jsii",
+      ".jsii",
     ]);
 
     this.addTask("fetch-pricing-manifest", {
