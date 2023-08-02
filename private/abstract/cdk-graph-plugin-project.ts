@@ -31,9 +31,6 @@ export abstract class CdkGraphPluginProject extends PDKProject {
       defaultReleaseBranch: "mainline",
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
       stability: Stability.EXPERIMENTAL,
-      // Only publish to NPM until more stable - currently very experimental and need to test Typescript version more extensively
-      publishToPypiConfig: false,
-      publishToMavenConfig: false,
       // explicit/overrides
       ...props,
       // merged/managed
