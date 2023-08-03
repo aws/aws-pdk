@@ -11,7 +11,7 @@ import {
   NodeTypeEnum,
   performGraphFilterPlan,
 } from "../../src";
-import { Filters } from "../../src/filtering/filters";
+import * as Filters from "../../src/filtering/filters";
 import { MultiFixtureApp } from "../__fixtures__/apps";
 
 const makeCdkOutdir = async (name: string) =>

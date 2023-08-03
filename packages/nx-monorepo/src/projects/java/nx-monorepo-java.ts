@@ -1,6 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { Project, Task, TaskRuntime } from "projen";
+import * as fs from "fs";
+import * as path from "path";
+import { Project, Task, TaskRuntime, TextFile } from "projen";
 import { JavaProject, JavaProjectOptions } from "projen/lib/java";
 import { PythonProject } from "projen/lib/python";
 import {
@@ -9,6 +11,8 @@ import {
 } from "../../components/nx-configurator";
 import { NxWorkspace } from "../../components/nx-workspace";
 import { Nx } from "../../nx-types";
+
+const MVN_PLUGIN_PATH = "./.nx/plugins/nx_plugin.js";
 
 /**
  * Configuration options for the NxMonorepoJavaProject.
@@ -44,7 +48,14 @@ export class NxMonorepoJavaProject
     });
 
     // Setup maven nx plugin
-    this.nx.plugins.push("@jnxplus/nx-maven");
+    new TextFile(this, MVN_PLUGIN_PATH, {
+      readonly: true,
+      lines: fs
+        .readFileSync(path.join(__dirname, "plugin/mvn_plugin.js"))
+        .toString("utf-8")
+        .split("\n"),
+    });
+    this.nx.plugins.push("@jnxplus/nx-maven", MVN_PLUGIN_PATH);
     this.installTask = this.nxConfigurator.ensureNxInstallTask({
       "@jnxplus/nx-maven": "^0.x",
     });

@@ -105,6 +105,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
   constructor(project: Project, options?: NxConfiguratorOptions) {
     super(project);
 
+    project.addGitIgnore(".nx/cache");
     project.addTask("run-many", {
       receiveArgs: true,
       exec: NodePackageUtils.command.exec(
@@ -133,6 +134,24 @@ export class NxConfigurator extends Component implements INxProjectCore {
 
     this.nx = NxWorkspace.of(project) || new NxWorkspace(project);
     this.nx.affected.defaultBase = options?.defaultReleaseBranch ?? "mainline";
+  }
+
+  public patchPoetryInstall(project: PythonProject): void {
+    const installTask = project.tasks.tryFind("install");
+
+    if (installTask?.steps[0]?.exec !== "unset VIRTUAL_ENV") {
+      installTask?.env("VIRTUAL_ENV", "");
+      installTask?.prependExec("unset VIRTUAL_ENV");
+    }
+  }
+
+  public patchPythonProjects(projects: Project[]): void {
+    projects.forEach((p) => {
+      if (ProjectUtils.isNamedInstanceOf(p, PythonProject)) {
+        this.patchPoetryInstall(p);
+      }
+      this.patchPythonProjects(p.subprojects);
+    });
   }
 
   /**
@@ -373,6 +392,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
     // Calling before super() to ensure proper pre-synth of NxProject component and its nested components
     this._ensureNxProjectGraph();
     this._emitPackageJson();
+    this.patchPythonProjects([this.project]);
   }
 
   /**

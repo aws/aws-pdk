@@ -66,6 +66,12 @@
       "steps": [
         {
           "exec": "mkdir -p docs/api/typescript && jsii-docgen -r=false -o docs/api/typescript/index.md"
+        },
+        {
+          "exec": "mkdir -p docs/api/python && jsii-docgen -l python -r=false -o docs/api/python/index.md"
+        },
+        {
+          "exec": "mkdir -p docs/api/java && jsii-docgen -l java -r=false -o docs/api/java/index.md"
         }
       ]
     },
@@ -139,6 +145,24 @@
       "steps": [
         {
           "spawn": "package:js"
+        },
+        {
+          "spawn": "package:java"
+        },
+        {
+          "spawn": "package:python"
+        }
+      ]
+    },
+    "package:java": {
+      "name": "package:java",
+      "description": "Create java language bindings",
+      "steps": [
+        {
+          "exec": "[ -d ~/.m2/repository ] && [ ! -d \"../../node_modules/.cache/.m2/repository\" ] && mkdir -p ../../node_modules/.cache/.m2 && ln -s ~/.m2/repository ../../node_modules/.cache/.m2/repository || true"
+        },
+        {
+          "exec": "jsii-pacmak -v --target java --maven-local-repository=../../node_modules/.cache/.m2/repository --pack-command='pnpm pack'"
         }
       ]
     },
@@ -148,6 +172,15 @@
       "steps": [
         {
           "exec": "jsii-pacmak -v --target js --pack-command='pnpm pack'"
+        }
+      ]
+    },
+    "package:python": {
+      "name": "package:python",
+      "description": "Create python language bindings",
+      "steps": [
+        {
+          "exec": "jsii-pacmak -v --target python --pack-command='pnpm pack'"
         }
       ]
     },

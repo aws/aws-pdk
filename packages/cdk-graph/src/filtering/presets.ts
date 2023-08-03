@@ -1,6 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { Filters, verifyFilterable } from "./filters";
+import { compact, pruneExtraneous, verifyFilterable } from "./filters";
 import { IGraphFilterPlan, IGraphFilterPlanFocusConfig } from "./types";
 import { Graph } from "../core";
 
@@ -79,7 +79,7 @@ export function focusFilter(store: Graph.Store, plan: IGraphFilterPlan): void {
  * @destructive
  */
 export function nonExtraneousFilterPreset(store: Graph.Store): void {
-  return Filters.pruneExtraneous()(store);
+  return pruneExtraneous()(store);
 }
 
 /**
@@ -88,5 +88,5 @@ export function nonExtraneousFilterPreset(store: Graph.Store): void {
  * @destructive
  */
 export function compactFilterPreset(store: Graph.Store): void {
-  Filters.compact()(store);
+  compact()(store);
 }
