@@ -37,6 +37,7 @@ export enum DiagramFormat {
 
 /**
  * Base config to specific a unique diagram to be generated.
+ * @struct
  */
 export interface IDiagramConfigBase {
   /**
@@ -52,7 +53,9 @@ export interface IDiagramConfigBase {
   readonly theme?: GraphThemeConfigProp;
 }
 
-/** Diagram configuration definition */
+/** Diagram configuration definition
+ * @struct
+ */
 export interface IDiagramConfig extends IDiagramConfigBase {
   /**
    * Name of the diagram. Used as the basename of the generated file(s) which gets the extension appended.
@@ -74,6 +77,7 @@ export interface IDiagramConfig extends IDiagramConfigBase {
 
 /**
  * Plugin configuration for diagram plugin.
+ * @struct
  */
 export interface IPluginConfig {
   /** Default configuration to apply to all diagrams */

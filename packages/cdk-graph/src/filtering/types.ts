@@ -89,6 +89,9 @@ export interface IGraphStoreFilter {
   (store: Graph.Store): void;
 }
 
+/**
+ * @struct
+ */
 export interface IGraphFilterPlanFocusConfig {
   /** The node or resolver to determine the node to focus on. */
   readonly node: IFilterFocusCallback | Graph.Node;
