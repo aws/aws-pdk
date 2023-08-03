@@ -14,6 +14,13 @@ import cloneDeep = require("lodash.clonedeep"); // eslint-disable-line @typescri
 import shorthash = require("shorthash2"); // eslint-disable-line @typescript-eslint/no-require-imports
 import traverse = require("traverse"); // eslint-disable-line @typescript-eslint/no-require-imports
 import {
+  SGEntity,
+  SGUnresolvedReference,
+  Metadata,
+  Attributes,
+  Tags,
+} from "./serialized-graph";
+import {
   AssetFqns,
   CfnAttributesEnum,
   ConstructInfoFqnEnum,
@@ -22,8 +29,6 @@ import {
   FlagEnum,
   MetadataTypeEnum,
   ReferenceTypeEnum,
-  SerializedGraph,
-  UnresolvedReference,
   UUID,
 } from "./types";
 import { ConstructInfo, constructInfoFromConstruct } from "../cdk-internals";
@@ -55,12 +60,12 @@ export function tryGetLogicalId(construct: IConstruct): string | undefined {
 }
 
 /** Inferred node props */
-export interface InferredNodeProps extends SerializedGraph.Entity {
+export interface InferredNodeProps extends SGEntity {
   readonly logicalId?: string;
   readonly cfnType?: string;
   readonly constructInfo?: ConstructInfo;
   readonly dependencies: UUID[];
-  readonly unresolvedReferences: UnresolvedReference[];
+  readonly unresolvedReferences: SGUnresolvedReference[];
 }
 
 /** Infer node props from construct */
@@ -69,14 +74,12 @@ export function inferNodeProps(construct: Construct): InferredNodeProps {
 
   const logicalId = tryGetLogicalId(construct);
 
-  const metadata: SerializedGraph.Metadata = construct.node.metadata.filter(
-    (entry) => {
-      if (entry.type === MetadataTypeEnum.LOGICAL_ID) return false;
-      return true;
-    }
-  );
+  const metadata: Metadata = construct.node.metadata.filter((entry) => {
+    if (entry.type === MetadataTypeEnum.LOGICAL_ID) return false;
+    return true;
+  });
 
-  const attributes: SerializedGraph.Attributes = cloneDeep(
+  const attributes: Attributes = cloneDeep(
     extractInspectableAttributes(construct) || {}
   );
 
@@ -88,7 +91,7 @@ export function inferNodeProps(construct: Construct): InferredNodeProps {
 
   const cfnProps = attributes[CfnAttributesEnum.PROPS] || {};
 
-  let tags: SerializedGraph.Tags = {};
+  let tags: Tags = {};
   // normalize tags
   if (typeof cfnProps === "object" && "tags" in cfnProps) {
     const _tags = cfnProps.tags as CfnAttributesTags;
@@ -137,7 +140,7 @@ type CfnAttributesTags =
 /** Extract inspectable attributes from construct */
 export function extractInspectableAttributes(
   construct: IConstruct
-): SerializedGraph.Attributes | undefined {
+): Attributes | undefined {
   // check if a construct implements IInspectable
   function canInspect(inspectable: any): inspectable is IInspectable {
     return inspectable.inspect !== undefined;
@@ -159,9 +162,9 @@ export const IGNORE_REF_PATTERN = /^AWS::/;
 /** Extract unresolved references from attributes for a given source */
 export function extractUnresolvedReferences(
   source: UUID,
-  from: SerializedGraph.Attributes
-): UnresolvedReference[] {
-  const references: UnresolvedReference[] = [];
+  from: Attributes
+): SGUnresolvedReference[] {
+  const references: SGUnresolvedReference[] = [];
 
   traverse(from).forEach(function (this: traverse.TraverseContext) {
     switch (this.key) {
@@ -232,7 +235,7 @@ const AWS_PROVIDER_FUNCTION_UUID = "679f53fac002430cb0da5b7982bd2287";
 export function inferFlags(
   construct: IConstruct,
   constructInfo?: ConstructInfo,
-  tags?: SerializedGraph.Tags
+  tags?: Tags
 ): FlagEnum[] {
   const flags: Set<FlagEnum> = new Set();
   const fqn = constructInfo?.fqn;

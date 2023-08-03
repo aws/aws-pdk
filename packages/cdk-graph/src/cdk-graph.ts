@@ -212,10 +212,13 @@ export interface ICdkGraphPlugin {
   report?: IGraphReportCallback;
 }
 
-/** {@link CdkGraph} props */
+/**
+ *  {@link CdkGraph} props
+ * @struct
+ * */
 export interface ICdkGraphProps {
   /** List of plugins to extends the graph. Plugins are invoked at each phases in fifo order. */
-  plugins?: ICdkGraphPlugin[];
+  readonly plugins?: ICdkGraphPlugin[];
 }
 
 /**

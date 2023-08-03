@@ -2,12 +2,13 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { ConstructOrder } from "constructs";
 import { verifyFilterable } from "./filters";
+import * as Filters from "./filters";
 import * as presets from "./presets";
 import { FilterPreset, FilterStrategy, IGraphFilterPlan } from "./types";
 import { Graph } from "../core";
 
 export * from "./types";
-export * from "./filters";
+export { Filters };
 
 /**
  * Perform graph filter plan on store.
