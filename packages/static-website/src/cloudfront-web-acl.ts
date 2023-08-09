@@ -116,9 +116,6 @@ export class CloudfrontWebAcl extends Construct {
    * @private
    */
   private createOnEventHandler(stack: Stack, aclName: string): Function {
-    const onEventHandlerName = `${PDKNag.getStackPrefix(stack)
-      .split("/")
-      .join("-")}OnEventHandler`;
     const onEventHandlerRole = new Role(this, "OnEventHandlerRole", {
       assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
       inlinePolicies: {
@@ -132,8 +129,7 @@ export class CloudfrontWebAcl extends Construct {
                 "logs:PutLogEvents",
               ],
               resources: [
-                `arn:aws:logs:${stack.region}:${stack.account}:log-group:/aws/lambda/${onEventHandlerName}`,
-                `arn:aws:logs:${stack.region}:${stack.account}:log-group:/aws/lambda/${onEventHandlerName}:*`,
+                `arn:aws:logs:${stack.region}:${stack.account}:log-group:/aws/lambda/*`,
               ],
             }),
           ],
@@ -179,7 +175,6 @@ export class CloudfrontWebAcl extends Construct {
           path.join(__dirname, "../lib/webacl_event_handler")
         ),
         role: onEventHandlerRole,
-        functionName: onEventHandlerName,
         handler: "index.onEvent",
         runtime: Runtime.NODEJS_16_X,
         timeout: Duration.seconds(300),
@@ -206,14 +201,14 @@ export class CloudfrontWebAcl extends Construct {
             {
               id: RuleId,
               reason:
-                "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+                "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
               appliesTo: [
                 {
                   regex: `/^Resource::arn:aws:logs:${PDKNag.getStackRegionRegex(
                     stack
                   )}:${PDKNag.getStackAccountRegex(
                     stack
-                  )}:log-group:/aws/lambda/${onEventHandlerName}:\*/g`,
+                  )}:log-group:/aws/lambda/\*/g`,
                 },
               ],
             },

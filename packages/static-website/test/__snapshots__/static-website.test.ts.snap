@@ -1456,7 +1456,6 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
           },
           "S3Key": "f9a4e3a2d1dd90ac1bfaec793acad708d019b35402700253f45a40ada6d2786a.zip",
         },
-        "FunctionName": "Default-Nested-Stack-OnEventHandler",
         "Handler": "index.onEvent",
         "Role": {
           "Fn::GetAtt": [
@@ -1866,11 +1865,11 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-Nested-Stack-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsSolutions-IAM5",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "applies_to": [
@@ -1884,11 +1883,11 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-Nested-Stack-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "id": "AwsSolutions-L1",
@@ -1975,40 +1974,22 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
                     "logs:PutLogEvents",
                   ],
                   "Effect": "Allow",
-                  "Resource": [
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-Nested-Stack-OnEventHandler",
-                        ],
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:logs:",
+                        {
+                          "Ref": "AWS::Region",
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":log-group:/aws/lambda/*",
                       ],
-                    },
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-Nested-Stack-OnEventHandler:*",
-                        ],
-                      ],
-                    },
-                  ],
+                    ],
+                  },
                 },
               ],
               "Version": "2012-10-17",
@@ -4120,7 +4101,6 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
           },
           "S3Key": "f9a4e3a2d1dd90ac1bfaec793acad708d019b35402700253f45a40ada6d2786a.zip",
         },
-        "FunctionName": "Default-OnEventHandler",
         "Handler": "index.onEvent",
         "Role": {
           "Fn::GetAtt": [
@@ -4530,11 +4510,11 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsSolutions-IAM5",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "applies_to": [
@@ -4548,11 +4528,11 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "id": "AwsSolutions-L1",
@@ -4639,40 +4619,22 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
                     "logs:PutLogEvents",
                   ],
                   "Effect": "Allow",
-                  "Resource": [
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-OnEventHandler",
-                        ],
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:logs:",
+                        {
+                          "Ref": "AWS::Region",
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":log-group:/aws/lambda/*",
                       ],
-                    },
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-OnEventHandler:*",
-                        ],
-                      ],
-                    },
-                  ],
+                    ],
+                  },
                 },
               ],
               "Version": "2012-10-17",
@@ -6799,7 +6761,6 @@ exports[`Static Website Unit Tests Defaults 1`] = `
           },
           "S3Key": "f9a4e3a2d1dd90ac1bfaec793acad708d019b35402700253f45a40ada6d2786a.zip",
         },
-        "FunctionName": "Default-OnEventHandler",
         "Handler": "index.onEvent",
         "Role": {
           "Fn::GetAtt": [
@@ -7209,11 +7170,11 @@ exports[`Static Website Unit Tests Defaults 1`] = `
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsSolutions-IAM5",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "applies_to": [
@@ -7227,11 +7188,11 @@ exports[`Static Website Unit Tests Defaults 1`] = `
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "id": "AwsSolutions-L1",
@@ -7318,40 +7279,22 @@ exports[`Static Website Unit Tests Defaults 1`] = `
                     "logs:PutLogEvents",
                   ],
                   "Effect": "Allow",
-                  "Resource": [
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-OnEventHandler",
-                        ],
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:logs:",
+                        {
+                          "Ref": "AWS::Region",
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":log-group:/aws/lambda/*",
                       ],
-                    },
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-OnEventHandler:*",
-                        ],
-                      ],
-                    },
-                  ],
+                    ],
+                  },
                 },
               ],
               "Version": "2012-10-17",
@@ -9487,7 +9430,6 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
           },
           "S3Key": "f9a4e3a2d1dd90ac1bfaec793acad708d019b35402700253f45a40ada6d2786a.zip",
         },
-        "FunctionName": "Default-OnEventHandler",
         "Handler": "index.onEvent",
         "Role": {
           "Fn::GetAtt": [
@@ -9897,11 +9839,11 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsSolutions-IAM5",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "applies_to": [
@@ -9915,11 +9857,11 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "id": "AwsSolutions-L1",
@@ -10006,40 +9948,22 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
                     "logs:PutLogEvents",
                   ],
                   "Effect": "Allow",
-                  "Resource": [
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-OnEventHandler",
-                        ],
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:logs:",
+                        {
+                          "Ref": "AWS::Region",
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":log-group:/aws/lambda/*",
                       ],
-                    },
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-OnEventHandler:*",
-                        ],
-                      ],
-                    },
-                  ],
+                    ],
+                  },
                 },
               ],
               "Version": "2012-10-17",
@@ -12256,7 +12180,6 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
           },
           "S3Key": "f9a4e3a2d1dd90ac1bfaec793acad708d019b35402700253f45a40ada6d2786a.zip",
         },
-        "FunctionName": "Default-OnEventHandler",
         "Handler": "index.onEvent",
         "Role": {
           "Fn::GetAtt": [
@@ -12678,11 +12601,11 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsSolutions-IAM5",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "applies_to": [
@@ -12696,11 +12619,11 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "id": "AwsSolutions-L1",
@@ -12791,40 +12714,22 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
                     "logs:PutLogEvents",
                   ],
                   "Effect": "Allow",
-                  "Resource": [
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-OnEventHandler",
-                        ],
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:logs:",
+                        {
+                          "Ref": "AWS::Region",
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":log-group:/aws/lambda/*",
                       ],
-                    },
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-OnEventHandler:*",
-                        ],
-                      ],
-                    },
-                  ],
+                    ],
+                  },
                 },
               ],
               "Version": "2012-10-17",
@@ -16621,7 +16526,6 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
           },
           "S3Key": "f9a4e3a2d1dd90ac1bfaec793acad708d019b35402700253f45a40ada6d2786a.zip",
         },
-        "FunctionName": "Default-OnEventHandler",
         "Handler": "index.onEvent",
         "Role": {
           "Fn::GetAtt": [
@@ -17031,11 +16935,11 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsSolutions-IAM5",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "applies_to": [
@@ -17049,11 +16953,11 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
             {
               "applies_to": [
                 {
-                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-OnEventHandler:*/g",
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/*/g",
                 },
               ],
               "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+              "reason": "Cloudwatch resources have been scoped down to lambda log group prefixes, since the lambda name is dynamic and stream names are created just in time.",
             },
             {
               "id": "AwsSolutions-L1",
@@ -17140,40 +17044,22 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
                     "logs:PutLogEvents",
                   ],
                   "Effect": "Allow",
-                  "Resource": [
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-OnEventHandler",
-                        ],
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:logs:",
+                        {
+                          "Ref": "AWS::Region",
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":log-group:/aws/lambda/*",
                       ],
-                    },
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:aws:logs:",
-                          {
-                            "Ref": "AWS::Region",
-                          },
-                          ":",
-                          {
-                            "Ref": "AWS::AccountId",
-                          },
-                          ":log-group:/aws/lambda/Default-OnEventHandler:*",
-                        ],
-                      ],
-                    },
-                  ],
+                    ],
+                  },
                 },
               ],
               "Version": "2012-10-17",
