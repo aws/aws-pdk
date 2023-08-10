@@ -8,6 +8,8 @@ This combination of project management, build execution, and CDK constructs redu
 
 The AWS Prototyping SDK (PDK) provides building blocks for common patterns to help you manage and build your projects. Before you get started with PDK, this is a introduction of the core modules.
 
+For more information on these modules, refer to the [core modules](/public/docs/content/getting_started/core_modules.md) page.
+
 - nx-monorepo
 - static-website
 - cloudscape-react-ts-website
@@ -16,20 +18,6 @@ The AWS Prototyping SDK (PDK) provides building blocks for common patterns to he
 - pdk-nag
 - cdk-graph
 - identity
-
-## Prerequisites
-
-Ensure you have the following packages installed globally:
-
-- [pnpm @ 8.5.1](https://pnpm.io/installation)
-- [node >= 16](https://nodejs.org/en/download/package-manager/) (or use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to install)
-- [Python >= 3.9.16](https://www.python.org/downloads/)
-- [Java >= 11](https://aws.amazon.com/fr/corretto/) and [Maven >= 3.6](https://maven.apache.org/download.cgi)
-
-```bash
-# from root directory of this package
-pnpm i
-```
 
 ## Code of conduct
 
