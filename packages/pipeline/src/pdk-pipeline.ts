@@ -304,14 +304,9 @@ export class PDKPipeline extends Construct {
               BRANCH: branch,
             }
           : undefined,
-      installCommands: [
-        "npm install -g aws-cdk",
-        "yarn install --frozen-lockfile || npx projen && yarn install --frozen-lockfile",
-      ],
+      installCommands: ["npm install -g aws-cdk", "npx projen install"],
       commands:
-        commands && commands.length > 0
-          ? commands
-          : ["npx nx run-many --target=build --all"],
+        commands && commands.length > 0 ? commands : ["npx projen build"],
       primaryOutputDirectory: props.primarySynthDirectory,
       ...(synthShellStepPartialProps || {}),
     });
