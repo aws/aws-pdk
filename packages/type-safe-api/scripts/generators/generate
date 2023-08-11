@@ -12,6 +12,7 @@ openapi_normalizer=''
 src_dir='src'
 extra_vendor_extensions=''
 generate_alias_as_model=''
+smithy_json_path=''
 while [[ "$#" -gt 0 ]]; do case $1 in
   --spec-path) spec_path="$2"; shift;;
   --output-path) output_path="$2"; shift;;
@@ -21,6 +22,7 @@ while [[ "$#" -gt 0 ]]; do case $1 in
   --openapi-normalizer) openapi_normalizer="$2"; shift;;
   --src-dir) src_dir="$2"; shift;;
   --extra-vendor-extensions) extra_vendor_extensions="$2"; shift;;
+  --smithy-json-path) smithy_json_path="$2"; shift;;
   --generate-alias-as-model) generate_alias_as_model='true'; ;;
 esac; shift; done
 
@@ -53,11 +55,11 @@ install_packages \
   openapi-types@12.1.0
 
 # Pre-process the spec to add any extra vendor extensions used for code generation only.
-# This allows for custom parameters to be passed to the code generation templates.
+# This allows for custom parameters to be passed to the code generation templates, and smithy traits to be accessed during codegen
 log "preprocess spec :: $spec_path"
 processed_spec_path="$tmp_dir/.preprocessed-api.json"
 cp $script_dir/pre-process-spec.ts .
-run_command ts-node pre-process-spec.ts --specPath="$working_dir/$spec_path" --outputSpecPath="$processed_spec_path" --extraVendorExtensions="$extra_vendor_extensions"
+run_command ts-node pre-process-spec.ts --specPath="$working_dir/$spec_path" --outputSpecPath="$processed_spec_path" --extraVendorExtensions="$extra_vendor_extensions" ${smithy_json_path:+"--smithyJsonPath=$working_dir/$smithy_json_path"}
 
 # Support a special placeholder of {{src}} in config.yaml to ensure our custom templates get written to the correct folder
 sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
