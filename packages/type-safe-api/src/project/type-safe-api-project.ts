@@ -189,6 +189,9 @@ export class TypeSafeApiProject extends Project {
       modelDir,
       this.model.parsedSpecFile
     );
+    const smithyJsonModelPathRelativeToProjectRoot = this.model.smithy
+      ? path.join(modelDir, this.model.smithy.smithyJsonModelPath)
+      : undefined;
 
     // Ensure we always generate a runtime project for the infrastructure language, regardless of what was specified by
     // the user
@@ -210,12 +213,16 @@ export class TypeSafeApiProject extends Project {
       parentPackageName: this.name,
       generatedCodeDir: runtimeDirRelativeToParent,
       isWithinMonorepo: isNxWorkspace,
-      // Spec path relative to each generated client dir
+      // Spec path relative to each generated runtime dir
       parsedSpecPath: path.join(
         "..",
         "..",
         parsedSpecPathRelativeToProjectRoot
       ),
+      // Smithy model path relative to each generated runtime dir
+      smithyJsonModelPath: smithyJsonModelPathRelativeToProjectRoot
+        ? path.join("..", "..", smithyJsonModelPathRelativeToProjectRoot)
+        : undefined,
       typescriptOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected?.defaultBase ?? "mainline",
@@ -280,12 +287,16 @@ export class TypeSafeApiProject extends Project {
       parentPackageName: this.name,
       generatedCodeDir: libraryDirRelativeToParent,
       isWithinMonorepo: isNxWorkspace,
-      // Spec path relative to each generated client dir
+      // Spec path relative to each generated library dir
       parsedSpecPath: path.join(
         "..",
         "..",
         parsedSpecPathRelativeToProjectRoot
       ),
+      // Smithy model path relative to each generated library dir
+      smithyJsonModelPath: smithyJsonModelPathRelativeToProjectRoot
+        ? path.join("..", "..", smithyJsonModelPathRelativeToProjectRoot)
+        : undefined,
       typescriptReactQueryHooksOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
@@ -348,6 +359,10 @@ export class TypeSafeApiProject extends Project {
         "..",
         parsedSpecPathRelativeToProjectRoot
       ),
+      // Smithy model path relative to each generated infra package dir
+      smithyJsonModelPath: smithyJsonModelPathRelativeToProjectRoot
+        ? path.join("..", "..", smithyJsonModelPathRelativeToProjectRoot)
+        : undefined,
       typescriptOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",

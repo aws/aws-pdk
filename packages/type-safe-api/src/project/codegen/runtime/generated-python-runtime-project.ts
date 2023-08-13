@@ -2,7 +2,10 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { PythonProject } from "projen/lib/python";
 import { Language } from "../../languages";
-import { GeneratedPythonRuntimeOptions } from "../../types";
+import {
+  CodeGenerationSourceOptions,
+  GeneratedPythonRuntimeOptions,
+} from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
@@ -16,12 +19,8 @@ import {
  * Configuration for the generated python types project
  */
 export interface GeneratedPythonTypesProjectOptions
-  extends GeneratedPythonRuntimeOptions {
-  /**
-   * The path to the OpenAPI specification, relative to this project's outdir
-   */
-  readonly specPath: string;
-}
+  extends GeneratedPythonRuntimeOptions,
+    CodeGenerationSourceOptions {}
 
 /**
  * Python project containing types generated using OpenAPI Generator CLI
@@ -45,10 +44,10 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
   ];
 
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
+  private readonly options: GeneratedPythonTypesProjectOptions;
 
   constructor(options: GeneratedPythonTypesProjectOptions) {
     super({
@@ -62,7 +61,7 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
       },
       ...options,
     });
-    this.specPath = options.specPath;
+    this.options = options;
 
     // Add dependencies required by the client
     [
@@ -118,7 +117,8 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "python",
-      specPath: this.specPath,
+      specPath: this.options.specPath,
+      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Language.PYTHON,
       additionalProperties: {
         packageName: this.moduleName,

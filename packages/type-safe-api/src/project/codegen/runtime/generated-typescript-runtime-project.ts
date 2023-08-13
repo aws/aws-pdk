@@ -5,7 +5,10 @@ import { IgnoreFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Language } from "../../languages";
-import { GeneratedTypeScriptRuntimeOptions } from "../../types";
+import {
+  CodeGenerationSourceOptions,
+  GeneratedTypeScriptRuntimeOptions,
+} from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
@@ -19,11 +22,8 @@ import {
  * Configuration for the generated typescript client project
  */
 export interface GeneratedTypescriptTypesProjectOptions
-  extends GeneratedTypeScriptRuntimeOptions {
-  /**
-   * The path to the OpenAPI specification, relative to this project's outdir
-   */
-  readonly specPath: string;
+  extends GeneratedTypeScriptRuntimeOptions,
+    CodeGenerationSourceOptions {
   /**
    * Whether this project is parented by an nx-monorepo or not
    */
@@ -45,10 +45,10 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
   ];
 
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
+  private readonly options: GeneratedTypescriptTypesProjectOptions;
 
   constructor(options: GeneratedTypescriptTypesProjectOptions) {
     super({
@@ -78,7 +78,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
       npmignoreEnabled: false,
     });
 
-    this.specPath = options.specPath;
+    this.options = options;
 
     // Disable strict peer dependencies for pnpm as the default typescript project dependencies have type mismatches
     // (ts-jest@27 and @types/jest@28)
@@ -150,7 +150,8 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
-      specPath: this.specPath,
+      specPath: this.options.specPath,
+      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Language.TYPESCRIPT,
       additionalProperties: {
         npmName: this.package.packageName,
