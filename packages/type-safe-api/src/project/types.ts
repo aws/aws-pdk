@@ -373,3 +373,17 @@ export interface SmithyServiceName {
    */
   readonly serviceName: string;
 }
+
+/**
+ * Options for the source files used for code generation
+ */
+export interface CodeGenerationSourceOptions {
+  /**
+   * Path to the OpenAPI specification
+   */
+  readonly specPath: string;
+  /**
+   * Path to the Smithy json model if applicable
+   */
+  readonly smithyJsonModelPath?: string;
+}

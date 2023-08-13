@@ -79,6 +79,10 @@ export interface GenerationOptions {
    * @default true
    */
   readonly generateAliasAsModel?: boolean;
+  /**
+   * The path to the json smithy model file, if available
+   */
+  readonly smithyJsonPath?: string;
 }
 
 /**
@@ -131,10 +135,14 @@ export const buildInvokeOpenApiGeneratorCommandArgs = (
   const generateAliasAsModel =
     options.generateAliasAsModel ?? true ? " --generate-alias-as-model" : "";
 
+  const smithyJsonPath = options.smithyJsonPath
+    ? ` --smithy-json-path ${options.smithyJsonPath}`
+    : "";
+
   const specPath = options.specPath;
   const outputPath = ".";
 
-  return `--generator ${options.generator} --spec-path ${specPath} --output-path ${outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${additionalProperties}${normalizers}${extensions}${generateAliasAsModel}`;
+  return `--generator ${options.generator} --spec-path ${specPath} --output-path ${outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${smithyJsonPath}${additionalProperties}${normalizers}${extensions}${generateAliasAsModel}`;
 };
 
 /**

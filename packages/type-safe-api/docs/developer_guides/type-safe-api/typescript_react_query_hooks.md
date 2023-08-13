@@ -155,139 +155,67 @@ export const MyComponent: FC<MyComponentProps> = () => {
 
 ## Paginated Operations
 
-You can generate `useInfiniteQuery` hooks instead of `useQuery` hooks for paginated API operations, by making use of the vendor extension `x-paginated` in your operation in the OpenAPI specification. You must specify both the `inputToken` and `outputToken`, which indicate the properties from the input and output used for pagination. For example in OpenAPI:
+You can generate `useInfiniteQuery` hooks instead of `useQuery` hooks for paginated API operations by configuring the operation in your model. The configuration requires both an `inputToken` (specifies the input property used to request the next page), and an `outputToken` (specifies the output property in which the pagination token is returned) to be present.
 
-```yaml
-paths:
-  /pets:
-    get:
-      x-paginated:
-        # Input property with the token to request the next page
-        inputToken: nextToken
-        # Output property with the token to request the next page
-        outputToken: nextToken
-      parameters:
-        - in: query
-          name: nextToken
-          schema:
-            type: string
-          required: true
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
+=== "SMITHY"
+
+    In Smithy, annotate your paginated API operations with the `@paginated` trait, making sure both `inputToken` and `outputToken` are specified:
+
+    ```smithy
+    @readonly
+    @http(method: "GET", uri: "/pets")
+    @paginated(inputToken: "nextToken", outputToken: "nextToken", items: "pets") // <- @paginated trait
+    operation ListPets {
+        input := {
+            // Corresponds to inputToken
+            @httpQuery("nextToken")
+            nextToken: String
+        }
+        output := {
+            @required
+            pets: Pets
+
+            // Corresponds to outputToken
+            nextToken: String
+        }
+    }
+
+    list Pets {
+        member: Pet
+    }
+    ```
+
+=== "OPENAPI"
+
+    In OpenAPI, use the `x-paginaged` vendor extension in your operation, making sure both `inputToken` and `outputToken` are specified:
+
+    ```yaml
+    paths:
+      /pets:
+        get:
+          x-paginated:
+            # Input property with the token to request the next page
+            inputToken: nextToken
+            # Output property with the token to request the next page
+            outputToken: nextToken
+          parameters:
+            - in: query
+              name: nextToken
               schema:
-                type: object
-                properties:
-                  nextToken:
-                    type: string
-```
-
-In Smithy, until [custom vendor extensions can be rendered via traits](https://github.com/awslabs/smithy/pull/1609), you can add the `x-paginated` vendor extension via `smithyBuildOptions` in your `TypeSafeApiProject`, for example:
-
-=== "TS"
-
-    ```ts
-    new TypeSafeApiProject({
-      model: {
-        language: ModelLanguage.SMITHY,
-        options: {
-          smithy: {
-            serviceName: {
-              namespace: 'com.mycompany',
-              serviceName: 'MyApi',
-            },
-            smithyBuildOptions: {
-              projections: {
-                openapi: {
-                  plugins: {
-                    openapi: {
-                      jsonAdd: {
-                        // Add the x-paginated vendor extension to the GET /pets operation
-                        '/paths/~1pets/get/x-paginated': {
-                          inputToken: 'nextToken',
-                          outputToken: 'nextToken',
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      ...
-    });
-    ```
-
-=== "JAVA"
-
-    ```java
-    TypeSafeApiProject.Builder.create()
-            .model(ModelConfiguration.builder()
-                    .language(ModelLanguage.SMITHY)
-                    .options(ModelOptions.builder()
-                            .smithy(SmithyModelOptions.builder()
-                                    .smithyBuildOptions(SmithyBuildOptions.builder()
-                                            .projections(Map.of(
-                                                    "openapi", SmithyProjection.builder()
-                                                            .plugins(Map.of(
-                                                                    "openapi", Map.of(
-                                                                            "jsonAdd", Map.of(
-                                                                                    // Add the x-paginated vendor extension to the GET /pets operation
-                                                                                    "/paths/~1pets/get/x-paginated", Map.of(
-                                                                                            "inputToken", "nextToken",
-                                                                                            "outputToken", "nextToken")
-                                                                            )
-                                                                    )
-                                                            ))
-                                                            .build()
-                                            ))
-                                            .build())
-                                    .build())
-                            .build())
-                    .build())
-            ...
-            .build())
-    .build();
-    ```
-
-=== "PYTHON"
-
-    ```python
-    TypeSafeApiProject(
-        model={
-            "language": ModelLanguage.SMITHY,
-            "options": {
-                "smithy": {
-                    "service_name": {
-                        "namespace": "com.mycompany",
-                        "service_name": "MyApi"
-                    },
-                    "smithy_build_options": {
-                        "projections": {
-                            "openapi": {
-                                "plugins": {
-                                    "openapi": {
-                                        "json_add": {
-                                            # Add the x-paginated vendor extension to the GET /pets operation
-                                            "/paths/~1pets/get/x-paginated": {
-                                                "input_token": "nextToken",
-                                                "output_token": "nextToken"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        ...
-    )
+                type: string
+              required: true
+          responses:
+            200:
+              description: Successful response
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      nextToken:
+                        type: string
+                      pets:
+                        $ref: "#/components/schemas/Pets"
     ```
 
 ## Custom QueryClient

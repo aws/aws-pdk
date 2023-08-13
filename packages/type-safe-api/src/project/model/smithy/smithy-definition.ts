@@ -31,6 +31,10 @@ export class SmithyDefinition extends Component {
    */
   public readonly openApiSpecificationPath: string;
   /**
+   * Path to the json Smithy model, relative to the project outdir
+   */
+  public readonly smithyJsonModelPath: string;
+  /**
    * Name of the gradle project
    */
   public readonly gradleProjectName: string;
@@ -227,13 +231,21 @@ structure NotAuthorizedError {
       },
     });
 
-    this.openApiSpecificationPath = path.join(
+    const projectionOutputPath = path.join(
       "build",
       "smithyprojections",
       this.gradleProjectName,
-      "openapi",
+      "openapi"
+    );
+    this.openApiSpecificationPath = path.join(
+      projectionOutputPath,
       "openapi",
       `${serviceName}.openapi.json`
+    );
+    this.smithyJsonModelPath = path.join(
+      projectionOutputPath,
+      "model",
+      "model.json"
     );
 
     // Copy the gradle files during build if they don't exist. We don't overwrite to allow users to BYO gradle wrapper
