@@ -266,7 +266,7 @@ export class CloudfrontWebAcl extends Construct {
         }),
       },
     });
-    const provider = new Provider(this, "CloudfrontWebAclProvider", {
+    const provider = new Provider(this, "CloudfrontAclProvider", {
       onEventHandler,
       role: providerRole,
       providerFunctionName,
@@ -304,7 +304,7 @@ export class CloudfrontWebAcl extends Construct {
       }
     );
 
-    return new CustomResource(this, "CFWebAclCustomResource", {
+    return new CustomResource(this, "CFAclCustomResource", {
       serviceToken: provider.serviceToken,
       properties: {
         ID: aclName,
