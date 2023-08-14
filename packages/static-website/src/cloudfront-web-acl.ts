@@ -95,7 +95,7 @@ export class CloudfrontWebAcl extends Construct {
     super(scope, id);
 
     const stack = Stack.of(this);
-    const aclName = `${stack.stackName}-${id}`; // Unique per stack
+    const aclName = `${stack.stackName}-${id}-${this.node.addr.slice(-4)}`;
     const onEventHandler = this.createOnEventHandler(stack, aclName);
     const customResource = this.createAclCustomResource(
       stack,
