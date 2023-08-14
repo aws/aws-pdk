@@ -21,23 +21,6 @@
         }
       ]
     },
-    "bump": {
-      "name": "bump",
-      "description": "Bumps version based on latest git tag and generates a changelog entry",
-      "env": {
-        "OUTFILE": "package.json",
-        "CHANGELOG": "dist/changelog.md",
-        "BUMPFILE": "dist/version.txt",
-        "RELEASETAG": "dist/releasetag.txt",
-        "RELEASE_TAG_PREFIX": ""
-      },
-      "steps": [
-        {
-          "builtin": "release/bump-version"
-        }
-      ],
-      "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
-    },
     "compat": {
       "name": "compat",
       "description": "Perform API compatibility check against latest version",
@@ -65,13 +48,13 @@
       "description": "Generate API docs from .jsii manifest",
       "steps": [
         {
-          "exec": "mkdir -p docs/api/typescript && jsii-docgen -r=false -o docs/api/typescript/index.md"
+          "exec": "mkdir -p docs/api/typescript && jsii-docgen -r=false -o docs/api/typescript/index.md && sed -i'' -e 's/@aws-pdk/aws-pdk/g' docs/api/typescript/index.md"
         },
         {
-          "exec": "mkdir -p docs/api/python && jsii-docgen -l python -r=false -o docs/api/python/index.md"
+          "exec": "mkdir -p docs/api/python && jsii-docgen -l python -r=false -o docs/api/python/index.md && sed -i'' -e 's/@aws-pdk/aws-pdk/g' docs/api/python/index.md"
         },
         {
-          "exec": "mkdir -p docs/api/java && jsii-docgen -l java -r=false -o docs/api/java/index.md"
+          "exec": "mkdir -p docs/api/java && jsii-docgen -l java -r=false -o docs/api/java/index.md && sed -i'' -e 's/@aws-pdk/aws-pdk/g' docs/api/java/index.md"
         }
       ]
     },
@@ -126,13 +109,7 @@
       "description": "Creates the distribution package",
       "steps": [
         {
-          "exec": "pnpm exec license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
-        },
-        {
-          "exec": "pnpm exec generate-license-file --input package.json --output LICENSE_THIRD_PARTY --overwrite"
-        },
-        {
-          "spawn": "package-all"
+          "exec": "if [ ! -z ${CI} ]; then rsync -a . .repo --exclude .git --exclude node_modules && rm -rf dist && mv .repo dist; else pnpm exec projen package-all; fi"
         },
         {
           "exec": "npx ts-node scripts/generate-pack-markdown.ts"
@@ -141,18 +118,7 @@
     },
     "package-all": {
       "name": "package-all",
-      "description": "Packages artifacts for all target languages",
-      "steps": [
-        {
-          "spawn": "package:js"
-        },
-        {
-          "spawn": "package:java"
-        },
-        {
-          "spawn": "package:python"
-        }
-      ]
+      "description": "Packages artifacts for all target languages"
     },
     "package:java": {
       "name": "package:java",
@@ -163,15 +129,6 @@
         },
         {
           "exec": "jsii-pacmak -v --target java --maven-local-repository=../../node_modules/.cache/.m2/repository --pack-command='pnpm pack'"
-        }
-      ]
-    },
-    "package:js": {
-      "name": "package:js",
-      "description": "Create js language bindings",
-      "steps": [
-        {
-          "exec": "jsii-pacmak -v --target js --pack-command='pnpm pack'"
         }
       ]
     },
@@ -205,45 +162,12 @@
         }
       ]
     },
-    "release:mainline": {
-      "name": "release:mainline",
-      "description": "Prepare a release from \"mainline\" branch",
-      "env": {
-        "RELEASE": "true"
-      },
-      "steps": [
-        {
-          "exec": "rm -rf dist"
-        },
-        {
-          "spawn": "bump"
-        },
-        {
-          "spawn": "pre-compile"
-        },
-        {
-          "spawn": "compile"
-        },
-        {
-          "spawn": "post-compile"
-        },
-        {
-          "spawn": "package"
-        },
-        {
-          "spawn": "unbump"
-        }
-      ]
-    },
     "test": {
       "name": "test",
       "description": "Run tests",
       "steps": [
         {
           "spawn": "jest"
-        },
-        {
-          "spawn": "eslint"
         }
       ]
     },
@@ -253,22 +177,6 @@
       "steps": [
         {
           "exec": "jest --watch"
-        }
-      ]
-    },
-    "unbump": {
-      "name": "unbump",
-      "description": "Restores version to 0.0.0",
-      "env": {
-        "OUTFILE": "package.json",
-        "CHANGELOG": "dist/changelog.md",
-        "BUMPFILE": "dist/version.txt",
-        "RELEASETAG": "dist/releasetag.txt",
-        "RELEASE_TAG_PREFIX": ""
-      },
-      "steps": [
-        {
-          "builtin": "release/reset-version"
         }
       ]
     },

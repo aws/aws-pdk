@@ -91,9 +91,9 @@ export const buildTypeSafeApiExecCommand = (
   const { packageJson } = readPkg.sync({
     cwd: path.resolve(__dirname),
   })!;
-  return `npx --yes -p @aws-prototyping-sdk/type-safe-api@${
-    packageJson.version
-  } ${script}${args ? ` ${args}` : ""}`;
+  return `npx --yes -p aws-pdk@${packageJson.version} ${script}${
+    args ? ` ${args}` : ""
+  }`;
 };
 
 const serializeProperties = (properties: { [key: string]: string }) =>

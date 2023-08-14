@@ -15,7 +15,7 @@ export enum CdkConstructIds {
 export enum ConstructInfoFqnEnum {
   APP = "aws-cdk-lib.App",
   PDKAPP_MONO = "aws-prototyping-sdk.PDKNagApp",
-  PDKAPP = "@aws-prototyping-sdk/pdk-nag.PDKNagApp",
+  PDKAPP = "@aws-pdk/pdk-nag.PDKNagApp",
   STAGE = "aws-cdk-lib.Stage",
   STACK = "aws-cdk-lib.Stack",
   NESTED_STACK = "aws-cdk-lib.NestedStack",

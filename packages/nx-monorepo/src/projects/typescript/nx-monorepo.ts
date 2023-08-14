@@ -10,7 +10,11 @@ import {
   YamlFile,
 } from "projen";
 import { JavaProject } from "projen/lib/java";
-import { NodePackageManager, NodeProject } from "projen/lib/javascript";
+import {
+  NodePackageManager,
+  NodeProject,
+  TypeScriptModuleResolution,
+} from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import {
   TypeScriptProject,
@@ -161,8 +165,9 @@ export class NxMonorepoProject
       tsconfig: options.tsconfig ?? {
         compilerOptions: {
           rootDir: ".",
+          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
         },
-        include: ["**/*.ts"],
+        include: ["**/*.ts", ".projenrc.ts"],
       },
     });
 
@@ -410,7 +415,10 @@ export class NxMonorepoProject
     const bins: [string, string][] = [];
 
     this.subprojects.forEach((subProject) => {
-      if (ProjectUtils.isNamedInstanceOf(subProject, NodeProject)) {
+      if (
+        ProjectUtils.isNamedInstanceOf(subProject, NodeProject) &&
+        subProject.name !== "aws-pdk"
+      ) {
         const pkgBins: Record<string, string> =
           subProject.package.manifest.bin() || {};
         bins.push(

@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
+import { PDKNag } from "@aws-pdk/pdk-nag";
 import { CustomResource, Duration, Size, Stack } from "aws-cdk-lib";
 import {
   AccessLogFormat,

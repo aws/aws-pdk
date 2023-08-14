@@ -80,7 +80,7 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     );
 
     [
-      "software.aws.awsprototypingsdk/type-safe-api@^0",
+      "software.aws.pdk/pdk@^0",
       "software.constructs/constructs@^10",
       "software.amazon.awscdk/aws-cdk-lib@^2",
       "io.github.cdklabs/cdknag@^2",

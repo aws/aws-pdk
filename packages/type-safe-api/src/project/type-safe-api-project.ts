@@ -8,7 +8,7 @@ import {
   NxProject,
   NxWorkspace,
   ProjectUtils,
-} from "@aws-prototyping-sdk/nx-monorepo";
+} from "@aws-pdk/nx-monorepo";
 import { Project, ProjectOptions, SampleFile } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";

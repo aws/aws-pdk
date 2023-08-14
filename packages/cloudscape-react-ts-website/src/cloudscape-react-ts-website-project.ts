@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { TypeSafeApiProject } from "@aws-prototyping-sdk/type-safe-api";
+import { TypeSafeApiProject } from "@aws-pdk/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleDir } from "projen";
 import {
@@ -51,7 +51,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       sampleCode: false,
       readme: {
         contents: fs
-          .readFileSync(path.resolve(__dirname, "../README.md"))
+          .readFileSync(path.resolve(__dirname, "../samples/README.md"))
           .toString(),
       },
       gitignore: ["runtime-config.json"],
@@ -70,8 +70,8 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
 
     this.applicationName = options.applicationName ?? "Sample App";
     this.publicDir = options.publicDir ?? "public";
-    const srcDir = path.resolve(__dirname, "../templates/src");
-    const publicDir = path.resolve(__dirname, "../templates/public");
+    const srcDir = path.resolve(__dirname, "../samples/src");
+    const publicDir = path.resolve(__dirname, "../samples/public");
 
     if (options.typeSafeApi) {
       const hooks = options.typeSafeApi.library?.typescriptReactQueryHooks;

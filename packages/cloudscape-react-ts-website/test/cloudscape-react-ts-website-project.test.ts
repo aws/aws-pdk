@@ -1,13 +1,13 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+import { NxMonorepoProject } from "@aws-pdk/nx-monorepo";
 import {
   DocumentationFormat,
   Language,
   Library,
   ModelLanguage,
   TypeSafeApiProject,
-} from "@aws-prototyping-sdk/type-safe-api";
+} from "@aws-pdk/type-safe-api";
 import { synthSnapshot } from "projen/lib/util/synth";
 import { CloudscapeReactTsWebsiteProject } from "../src";
 

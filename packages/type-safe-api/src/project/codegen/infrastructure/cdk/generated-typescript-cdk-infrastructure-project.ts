@@ -87,7 +87,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
 
     this.addDeps(
       ...[
-        "@aws-prototyping-sdk/type-safe-api",
+        "aws-pdk",
         "constructs",
         "aws-cdk-lib",
         "cdk-nag",

@@ -67,7 +67,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
     this.mockDataOptions = options.mockDataOptions;
 
     [
-      "aws_prototyping_sdk.type_safe_api@^0",
+      "aws_pdk@^0",
       "constructs@^10",
       "aws-cdk-lib@^2",
       "cdk-nag@^2",

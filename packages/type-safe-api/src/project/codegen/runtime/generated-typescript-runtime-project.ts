@@ -1,6 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { NodePackageUtils } from "@aws-prototyping-sdk/nx-monorepo";
+import { NodePackageUtils } from "@aws-pdk/nx-monorepo";
 import { IgnoreFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
