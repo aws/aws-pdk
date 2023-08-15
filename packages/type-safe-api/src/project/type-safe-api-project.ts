@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import * as fs from "fs";
 import * as path from "path";
 import {
   NxMonorepoJavaProject,
@@ -185,13 +186,6 @@ export class TypeSafeApiProject extends Project {
       modelLanguage: options.model.language,
       modelOptions: options.model.options,
     });
-    const parsedSpecPathRelativeToProjectRoot = path.join(
-      modelDir,
-      this.model.parsedSpecFile
-    );
-    const smithyJsonModelPathRelativeToProjectRoot = this.model.smithy
-      ? path.join(modelDir, this.model.smithy.smithyJsonModelPath)
-      : undefined;
 
     // Ensure we always generate a runtime project for the infrastructure language, regardless of what was specified by
     // the user
@@ -202,10 +196,27 @@ export class TypeSafeApiProject extends Project {
       ]),
     ];
 
-    const runtimeDir = "runtime";
+    const generatedDir = "generated";
+    const runtimeDir = path.join(generatedDir, "runtime");
     const runtimeDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, runtimeDir)
       : runtimeDir;
+
+    // Path from a generated package directory (eg api/generated/runtime/typescript) to the model dir (ie api/model)
+    const relativePathToModelDirFromGeneratedPackageDir = path.relative(
+      path.join(this.outdir, runtimeDir, "language"),
+      path.join(this.outdir, modelDir)
+    );
+    const parsedSpecRelativeToGeneratedPackageDir = path.join(
+      relativePathToModelDirFromGeneratedPackageDir,
+      this.model.parsedSpecFile
+    );
+    const smithyJsonModelPathRelativeToGeneratedPackageDir = this.model.smithy
+      ? path.join(
+          relativePathToModelDirFromGeneratedPackageDir,
+          this.model.smithy.smithyJsonModelPath
+        )
+      : undefined;
 
     // Declare the generated runtime projects
     const generatedRuntimeProjects = generateRuntimeProjects(runtimeLanguages, {
@@ -214,15 +225,9 @@ export class TypeSafeApiProject extends Project {
       generatedCodeDir: runtimeDirRelativeToParent,
       isWithinMonorepo: isNxWorkspace,
       // Spec path relative to each generated runtime dir
-      parsedSpecPath: path.join(
-        "..",
-        "..",
-        parsedSpecPathRelativeToProjectRoot
-      ),
+      parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       // Smithy model path relative to each generated runtime dir
-      smithyJsonModelPath: smithyJsonModelPathRelativeToProjectRoot
-        ? path.join("..", "..", smithyJsonModelPathRelativeToProjectRoot)
-        : undefined,
+      smithyJsonModelPath: smithyJsonModelPathRelativeToGeneratedPackageDir,
       typescriptOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected?.defaultBase ?? "mainline",
@@ -249,7 +254,7 @@ export class TypeSafeApiProject extends Project {
       ...new Set(options.documentation?.formats ?? []),
     ];
 
-    const docsDir = "documentation";
+    const docsDir = path.join(generatedDir, "documentation");
     const docsDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, docsDir)
       : docsDir;
@@ -259,11 +264,7 @@ export class TypeSafeApiProject extends Project {
       parentPackageName: this.name,
       generatedDocsDir: docsDirRelativeToParent,
       // Spec path relative to each generated doc format dir
-      parsedSpecPath: path.join(
-        "..",
-        "..",
-        parsedSpecPathRelativeToProjectRoot
-      ),
+      parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       documentationOptions: options.documentation?.options,
     });
 
@@ -276,7 +277,7 @@ export class TypeSafeApiProject extends Project {
 
     const libraries = [...new Set(options.library?.libraries ?? [])];
 
-    const libraryDir = "libraries";
+    const libraryDir = path.join(generatedDir, "libraries");
     const libraryDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, libraryDir)
       : libraryDir;
@@ -288,15 +289,9 @@ export class TypeSafeApiProject extends Project {
       generatedCodeDir: libraryDirRelativeToParent,
       isWithinMonorepo: isNxWorkspace,
       // Spec path relative to each generated library dir
-      parsedSpecPath: path.join(
-        "..",
-        "..",
-        parsedSpecPathRelativeToProjectRoot
-      ),
+      parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       // Smithy model path relative to each generated library dir
-      smithyJsonModelPath: smithyJsonModelPathRelativeToProjectRoot
-        ? path.join("..", "..", smithyJsonModelPathRelativeToProjectRoot)
-        : undefined,
+      smithyJsonModelPath: smithyJsonModelPathRelativeToGeneratedPackageDir,
       typescriptReactQueryHooksOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
@@ -342,7 +337,7 @@ export class TypeSafeApiProject extends Project {
         : undefined,
     };
 
-    const infraDir = "infrastructure";
+    const infraDir = path.join(generatedDir, "infrastructure");
     const infraDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, infraDir)
       : infraDir;
@@ -354,15 +349,9 @@ export class TypeSafeApiProject extends Project {
       generatedCodeDir: infraDirRelativeToParent,
       isWithinMonorepo: isNxWorkspace,
       // Spec path relative to each generated infra package dir
-      parsedSpecPath: path.join(
-        "..",
-        "..",
-        parsedSpecPathRelativeToProjectRoot
-      ),
+      parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       // Smithy model path relative to each generated infra package dir
-      smithyJsonModelPath: smithyJsonModelPathRelativeToProjectRoot
-        ? path.join("..", "..", smithyJsonModelPathRelativeToProjectRoot)
-        : undefined,
+      smithyJsonModelPath: smithyJsonModelPathRelativeToGeneratedPackageDir,
       typescriptOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
@@ -453,6 +442,20 @@ export class TypeSafeApiProject extends Project {
         "TYPE_SAFE_API.md"
       ),
     });
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public postSynthesize() {
+    // Migration code, since we've moved these generated directories under a parent "generated"
+    // folder, we delete the generated projects which would otherwise be orphaned and still
+    // checked into VCS
+    ["runtime", "libraries", "infrastructure", "documentation"].forEach((dir) =>
+      fs.rmSync(path.join(this.outdir, dir), { force: true, recursive: true })
+    );
+
+    super.postSynthesize();
   }
 
   private getNxWorkspace = (

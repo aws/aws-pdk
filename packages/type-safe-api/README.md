@@ -18,21 +18,22 @@ The `TypeSafeApiProject` projen project will create the following directory stru
         |_ main/
             |_ smithy - your API definition if you chose ModelLanguage.SMITHY
             |_ openapi - your API definition if you chose ModelLanguage.OPENAPI
-|_ runtime/ - generated types, client, and server code in the languages you specified
-    |_ typescript
-    |_ python
-    |_ java
-|_ infrastructure/ - generated infrastructure (you'll find only one directory in here based on your chosen infrastructure language)
-    |_ typescript
-    |_ python
-    |_ java
-|_ documentation/ - generated documentation in the formats you specified
-    |_ html2
-    |_ html_redoc
-    |_ plantuml
-    |_ markdown
-|_ library/ - generated libraries if specified
-    |_ typescript-react-query-hooks
+|_ generated/
+    |_ runtime/ - generated types, client, and server code in the languages you specified
+        |_ typescript
+        |_ python
+        |_ java
+    |_ infrastructure/ - generated infrastructure (you'll find only one directory in here based on your chosen infrastructure language)
+        |_ typescript
+        |_ python
+        |_ java
+    |_ documentation/ - generated documentation in the formats you specified
+        |_ html2
+        |_ html_redoc
+        |_ plantuml
+        |_ markdown
+    |_ library/ - generated libraries if specified
+        |_ typescript-react-query-hooks
 ```
 
 ### Getting Started

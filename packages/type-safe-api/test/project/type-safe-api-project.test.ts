@@ -398,12 +398,36 @@ describe("Type Safe Api Project Unit Tests", () => {
     const snapshot = synthSmithyProject(project);
 
     expect(
-      snapshot["infrastructure/typescript/openapitools.json"]
+      snapshot[
+        `${path.relative(
+          project.outdir,
+          project.infrastructure.typescript!.outdir
+        )}/openapitools.json`
+      ]
     ).toMatchSnapshot();
-    expect(snapshot["runtime/typescript/openapitools.json"]).toMatchSnapshot();
     expect(
-      snapshot["libraries/typescript-react-query-hooks/openapitools.json"]
+      snapshot[
+        `${path.relative(
+          project.outdir,
+          project.runtime.typescript!.outdir
+        )}/openapitools.json`
+      ]
     ).toMatchSnapshot();
-    expect(snapshot["documentation/html2/openapitools.json"]).toMatchSnapshot();
+    expect(
+      snapshot[
+        `${path.relative(
+          project.outdir,
+          project.library.typescriptReactQueryHooks!.outdir
+        )}/openapitools.json`
+      ]
+    ).toMatchSnapshot();
+    expect(
+      snapshot[
+        `${path.relative(
+          project.outdir,
+          project.documentation.html2!.outdir
+        )}/openapitools.json`
+      ]
+    ).toMatchSnapshot();
   });
 });
