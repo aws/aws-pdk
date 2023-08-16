@@ -10,9 +10,14 @@ import { MockResponseDataGenerationOptions } from "../../types";
  */
 export enum OtherGenerators {
   DOCS = "docs",
+  // Infrastructure
   TYPESCRIPT_CDK_INFRASTRUCTURE = "typescript-cdk-infrastructure",
   PYTHON_CDK_INFRASTRUCTURE = "python-cdk-infrastructure",
   JAVA_CDK_INFRASTRUCTURE = "java-cdk-infrastructure",
+  // Handlers
+  TYPESCRIPT_LAMBDA_HANDLERS = "typescript-lambda-handlers",
+  PYTHON_LAMBDA_HANDLERS = "python-lambda-handlers",
+  JAVA_LAMBDA_HANDLERS = "java-lambda-handlers",
 }
 
 export enum TypeSafeApiScript {

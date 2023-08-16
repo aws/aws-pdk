@@ -1,0 +1,46 @@
+###TSAPI_SPLIT_FILE###
+{{#apiInfo ~}}
+{{#apis ~}}
+{{#operations ~}}
+{{#operation ~}}
+{{#if vendorExtensions.x-handler}}
+{{#startsWith vendorExtensions.x-handler.language 'java'}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": ".",
+  "name": "{{operationIdCamelCase}}Handler",
+  "ext": ".java",
+  "overwrite": false,
+  "kebabCaseFileName": false
+}
+###/TSAPI_WRITE_FILE###package {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-package}}{{/apis.0}}{{/apiInfo}};
+
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.Handlers.{{operationIdCamelCase}};
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.Handlers.{{operationIdCamelCase}}500Response;
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.Handlers.{{operationIdCamelCase}}RequestInput;
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.Handlers.{{operationIdCamelCase}}Response;
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.model.*;
+
+/**
+ * Entry point for the AWS Lambda handler for the {{operationIdCamelCase}} operation.
+ * The {{operationIdCamelCase}} class manages marshalling inputs and outputs.
+ */
+public class {{operationIdCamelCase}}Handler extends {{operationIdCamelCase}} {
+    /**
+     * Type-safe handler for the {{operationIdCamelCase}} operation
+     */
+    @Override
+    public {{operationIdCamelCase}}Response handle({{operationIdCamelCase}}RequestInput input) {
+        // TODO: Implement {{operationIdCamelCase}} Operation
+        return {{operationIdCamelCase}}500Response.of(InternalFailureErrorResponseContent.builder()
+                .message("Not Implemented!")
+                .build());
+    }
+}
+
+{{~/startsWith}}
+{{~/if}}
+{{~/operation}}
+{{~/operations}}
+{{~/apis}}
+{{~/apiInfo}}

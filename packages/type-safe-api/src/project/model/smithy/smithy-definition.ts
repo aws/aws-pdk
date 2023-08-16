@@ -3,12 +3,14 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Component, SampleDir } from "projen";
 import { SmithyBuild } from "projen/lib/smithy/smithy-build";
+import { SmithyAwsPdkPrelude } from "./components/smithy-aws-pdk-prelude";
 import { SmithyBuildGradleFile } from "./components/smithy-build-gradle-file";
 import { SmithySettingsGradleFile } from "./components/smithy-settings-gradle-file";
 import {
   buildTypeSafeApiExecCommand,
   TypeSafeApiScript,
 } from "../../codegen/components/utils";
+import { Language } from "../../languages";
 import { SmithyModelOptions } from "../../types";
 import { TypeSafeApiModelProject } from "../type-safe-api-model-project";
 
@@ -20,6 +22,10 @@ export interface SmithyDefinitionOptions {
    * Smithy engine options
    */
   readonly smithyOptions: SmithyModelOptions;
+  /**
+   * The languages users have specified for handler projects (if any)
+   */
+  readonly handlerLanguages?: Language[];
 }
 
 /**
@@ -56,7 +62,7 @@ export class SmithyDefinition extends Component {
   ) {
     super(project);
 
-    const { smithyOptions } = options;
+    const { smithyOptions, handlerLanguages } = options;
 
     // Ignore gradle wrapper by default
     if (smithyOptions.ignoreGradleWrapper ?? true) {
@@ -111,6 +117,8 @@ export class SmithyDefinition extends Component {
     const { namespace: serviceNamespace, serviceName } =
       smithyOptions.serviceName;
 
+    const firstHandlerLanguage = options.handlerLanguages?.[0];
+
     // Create the default smithy model
     new SampleDir(project, modelDir, {
       files: {
@@ -134,7 +142,11 @@ service ${serviceName} {
 namespace ${serviceNamespace}
 
 @readonly
-@http(method: "GET", uri: "/hello")
+@http(method: "GET", uri: "/hello")${
+          firstHandlerLanguage
+            ? `\n@handler(language: "${firstHandlerLanguage}")`
+            : ""
+        }
 operation SayHello {
     input := {
         @httpQuery("name")
@@ -231,6 +243,15 @@ structure NotAuthorizedError {
       },
     });
 
+    // Add the smithy prelude (managed by aws-pdk)
+    const generatedModelDir = path.join("generated", "main", "smithy");
+    new SmithyAwsPdkPrelude(project, {
+      generatedModelDir,
+      serviceNamespace,
+      handlerLanguages,
+    });
+    this.addSources(generatedModelDir);
+
     const projectionOutputPath = path.join(
       "build",
       "smithyprojections",
@@ -300,7 +321,9 @@ structure NotAuthorizedError {
    * resolved as relative paths.
    */
   public addSources(...sources: string[]) {
-    this.smithyBuild.addSources(...this.asRelativePathsToProject(sources));
+    const relativeSources = this.asRelativePathsToProject(sources);
+    this.smithyBuild.addSources(...relativeSources);
+    this.smithyBuildGradleFile.addSources(...relativeSources);
   }
 
   /**

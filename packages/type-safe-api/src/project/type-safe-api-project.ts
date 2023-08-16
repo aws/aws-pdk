@@ -20,6 +20,7 @@ import {
   generateDocsProjects,
   generateInfraProject,
   generateLibraryProjects,
+  generateHandlersProjects,
 } from "./codegen/generate";
 import { GeneratedJavaRuntimeProject } from "./codegen/runtime/generated-java-runtime-project";
 import { GeneratedPythonRuntimeProject } from "./codegen/runtime/generated-python-runtime-project";
@@ -36,6 +37,8 @@ import {
   ModelLanguage,
   ModelOptions,
   GeneratedInfrastructureCodeOptions,
+  GeneratedHandlersCodeOptions,
+  ProjectCollections,
 } from "./types";
 
 /**
@@ -79,6 +82,21 @@ export interface InfrastructureConfiguration {
    * Options for the infrastructure package. Note that only those provided for the specified language will apply.
    */
   readonly options?: GeneratedInfrastructureCodeOptions;
+}
+
+/**
+ * Configuration for generated lambda handlers
+ */
+export interface HandlersConfiguration {
+  /**
+   * The languages lambda handlers are written in. Specify multiple languages if you wish to implement different operations
+   * as AWS Lambda functions in different languages.
+   */
+  readonly languages: Language[];
+  /**
+   * Options for the infrastructure package. Note that only those provided for the specified language will apply.
+   */
+  readonly options?: GeneratedHandlersCodeOptions;
 }
 
 /**
@@ -126,6 +144,10 @@ export interface TypeSafeApiProjectOptions extends ProjectOptions {
    */
   readonly infrastructure: InfrastructureConfiguration;
   /**
+   * Configuration for lambda handlers for implementing the API
+   */
+  readonly handlers?: HandlersConfiguration;
+  /**
    * Configuration for generated documentation
    */
   readonly documentation?: DocumentationConfiguration;
@@ -158,6 +180,10 @@ export class TypeSafeApiProject extends Project {
    */
   public readonly infrastructure: GeneratedCodeProjects;
   /**
+   * Lambda handlers projects. Only the properties corresponding to `handlers.languages` will be defined.
+   */
+  public readonly handlers: GeneratedCodeProjects;
+  /**
    * Generated library projects. Only the properties corresponding to specified `library.libraries` will be defined.
    */
   public readonly library: GeneratedLibraryProjects;
@@ -165,6 +191,10 @@ export class TypeSafeApiProject extends Project {
    * Generated documentation projects. Only the properties corresponding to specified `documentation.formats` will be defined.
    */
   public readonly documentation: GeneratedDocumentationProjects;
+  /**
+   * Collections of all sub-projects managed by this project
+   */
+  public readonly all: ProjectCollections;
 
   constructor(options: TypeSafeApiProjectOptions) {
     super(options);
@@ -177,6 +207,8 @@ export class TypeSafeApiProject extends Project {
         ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoJavaProject) ||
         ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoPythonProject));
 
+    const handlerLanguages = [...new Set(options.handlers?.languages ?? [])];
+
     // API Definition project containing the model
     const modelDir = "model";
     this.model = new TypeSafeApiModelProject({
@@ -185,14 +217,16 @@ export class TypeSafeApiProject extends Project {
       name: `${options.name}-model`,
       modelLanguage: options.model.language,
       modelOptions: options.model.options,
+      handlerLanguages,
     });
 
     // Ensure we always generate a runtime project for the infrastructure language, regardless of what was specified by
-    // the user
+    // the user. Likewise we generate a runtime project for any handler languages specified
     const runtimeLanguages = [
       ...new Set([
         ...options.runtime.languages,
         options.infrastructure.language,
+        ...(options.handlers?.languages ?? []),
       ]),
     ];
 
@@ -337,6 +371,99 @@ export class TypeSafeApiProject extends Project {
         : undefined,
     };
 
+    const handlersDir = "handlers";
+    const handlersDirRelativeToParent = nxWorkspace
+      ? path.join(options.outdir!, handlersDir)
+      : handlersDir;
+
+    const relativePathToModelDirFromHandlersDir = path.relative(
+      path.join(this.outdir, handlersDir, "language"),
+      path.join(this.outdir, modelDir)
+    );
+    const parsedSpecRelativeToHandlersDir = path.join(
+      relativePathToModelDirFromHandlersDir,
+      this.model.parsedSpecFile
+    );
+    const smithyJsonModelPathRelativeToHandlersDir = this.model.smithy
+      ? path.join(
+          relativePathToModelDirFromHandlersDir,
+          this.model.smithy.smithyJsonModelPath
+        )
+      : undefined;
+
+    // Declare the generated handlers projects
+    const generatedHandlersProjects = generateHandlersProjects(
+      handlerLanguages,
+      {
+        parent: nxWorkspace ? this.parent! : this,
+        parentPackageName: this.name,
+        generatedCodeDir: handlersDirRelativeToParent,
+        isWithinMonorepo: isNxWorkspace,
+        // Spec path relative to each generated handlers package dir
+        parsedSpecPath: parsedSpecRelativeToHandlersDir,
+        // Smithy model path relative to each generated handlers package dir
+        smithyJsonModelPath: smithyJsonModelPathRelativeToHandlersDir,
+        typescriptOptions: {
+          // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
+          defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
+          packageManager:
+            this.parent &&
+            ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
+              ? this.parent.package.packageManager
+              : NodePackageManager.YARN,
+          ...options.handlers?.options?.typescript,
+        },
+        pythonOptions: {
+          authorName: "APJ Cope",
+          authorEmail: "apj-cope@amazon.com",
+          version: "0.0.0",
+          ...options.handlers?.options?.python,
+        },
+        javaOptions: {
+          version: "0.0.0",
+          ...options.handlers?.options?.java,
+        },
+        generatedRuntimes: {
+          typescript: this.runtime.typescript as
+            | GeneratedTypescriptRuntimeProject
+            | undefined,
+          python: this.runtime.python as
+            | GeneratedPythonRuntimeProject
+            | undefined,
+          java: this.runtime.java as GeneratedJavaRuntimeProject | undefined,
+        },
+      }
+    );
+
+    this.handlers = {
+      typescript: generatedHandlersProjects[Language.TYPESCRIPT]
+        ? (generatedHandlersProjects[Language.TYPESCRIPT] as TypeScriptProject)
+        : undefined,
+      java: generatedHandlersProjects[Language.JAVA]
+        ? (generatedHandlersProjects[Language.JAVA] as JavaProject)
+        : undefined,
+      python: generatedHandlersProjects[Language.PYTHON]
+        ? (generatedHandlersProjects[Language.PYTHON] as PythonProject)
+        : undefined,
+    };
+
+    // Ensure the handlers project depends on the appropriate runtime projects
+    if (this.handlers.typescript) {
+      NxProject.ensure(this.handlers.typescript).addImplicitDependency(
+        this.runtime.typescript!
+      );
+    }
+    if (this.handlers.java) {
+      NxProject.ensure(this.handlers.java).addImplicitDependency(
+        this.runtime.java!
+      );
+    }
+    if (this.handlers.python) {
+      NxProject.ensure(this.handlers.python).addImplicitDependency(
+        this.runtime.python!
+      );
+    }
+
     const infraDir = path.join(generatedDir, "infrastructure");
     const infraDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, infraDir)
@@ -415,6 +542,30 @@ export class TypeSafeApiProject extends Project {
     this.infrastructure = infraProjects;
 
     NxProject.ensure(infraProject).addImplicitDependency(this.model);
+
+    // Expose collections of projects
+    const allRuntimes = Object.values(generatedRuntimeProjects);
+    const allInfrastructure = [infraProject];
+    const allLibraries = Object.values(generatedLibraryProjects);
+    const allDocumentation = Object.values(generatedDocs);
+    const allHandlers = Object.values(generatedHandlersProjects);
+
+    this.all = {
+      model: [this.model],
+      runtimes: allRuntimes,
+      infrastructure: allInfrastructure,
+      libraries: allLibraries,
+      documentation: allDocumentation,
+      handlers: allHandlers,
+      projects: [
+        this.model,
+        ...allRuntimes,
+        ...allInfrastructure,
+        ...allLibraries,
+        ...allDocumentation,
+        ...allHandlers,
+      ],
+    };
 
     if (!nxWorkspace) {
       // Add a task for the non-monorepo case to build the projects in the right order

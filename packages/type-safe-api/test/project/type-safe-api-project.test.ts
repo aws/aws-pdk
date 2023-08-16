@@ -6,14 +6,14 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { synthProject, synthSmithyProject } from "./snapshot-utils";
 import {
   DocumentationFormat,
+  GeneratedTypeScriptInfrastructureOptions,
+  GeneratedTypeScriptReactQueryHooksOptions,
+  GeneratedTypeScriptRuntimeOptions,
   Language,
   Library,
   ModelLanguage,
-  TypeSafeApiProject,
   OpenApiGeneratorCliConfig,
-  GeneratedTypeScriptReactQueryHooksOptions,
-  GeneratedTypeScriptInfrastructureOptions,
-  GeneratedTypeScriptRuntimeOptions,
+  TypeSafeApiProject,
 } from "../../src";
 
 describe("Type Safe Api Project Unit Tests", () => {
@@ -321,6 +321,45 @@ describe("Type Safe Api Project Unit Tests", () => {
     expect(project.runtime.python).not.toBeDefined();
 
     expect(project.library.typescriptReactQueryHooks).toBeDefined();
+
+    expect(synthSmithyProject(project)).toMatchSnapshot();
+  });
+
+  it("Smithy With Handlers", () => {
+    const project = new TypeSafeApiProject({
+      name: `smithy-handlers`,
+      outdir: path.resolve(__dirname, `smithy-handlers`),
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+      },
+      runtime: {
+        languages: [Language.TYPESCRIPT],
+      },
+      model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+          smithy: {
+            serviceName: {
+              namespace: "com.test",
+              serviceName: "MyService",
+            },
+          },
+        },
+      },
+      handlers: {
+        languages: [Language.TYPESCRIPT, Language.JAVA, Language.PYTHON],
+      },
+    });
+
+    // Runtime languages should be added for each handler
+    expect(project.runtime.typescript).toBeDefined();
+    expect(project.runtime.java).toBeDefined();
+    expect(project.runtime.python).toBeDefined();
+
+    // Handlers should be present
+    expect(project.handlers.typescript).toBeDefined();
+    expect(project.handlers.java).toBeDefined();
+    expect(project.handlers.python).toBeDefined();
 
     expect(synthSmithyProject(project)).toMatchSnapshot();
   });
