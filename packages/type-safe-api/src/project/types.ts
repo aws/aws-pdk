@@ -209,6 +209,33 @@ export interface GeneratedJavaInfrastructureOptions
     MockResponseGenerationOptions {}
 
 /**
+ * Options for configuring a generated typescript handlers project
+ */
+export interface GeneratedTypeScriptHandlersOptions
+  extends TypeScriptProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions {
+  /**
+   * Globs for lambda handler entry points, used by esbuild
+   * @default src/*.ts - all files directly under the src directory
+   */
+  readonly handlerEntryPoints?: string[];
+}
+
+/**
+ * Options for configuring a generated python handlers project
+ */
+export interface GeneratedPythonHandlersOptions
+  extends PythonProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions {}
+
+/**
+ * Options for configuring a generated java handlers project
+ */
+export interface GeneratedJavaHandlersOptions
+  extends JavaProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions {}
+
+/**
  * Options for configuring a generated typescript hooks library project
  */
 export interface GeneratedTypeScriptReactQueryHooksOptions
@@ -234,7 +261,7 @@ export interface GeneratedRuntimeCodeOptions {
 }
 
 /**
- * Options for generated clients
+ * Options for generated infrastructure
  */
 export interface GeneratedInfrastructureCodeOptions {
   /**
@@ -249,6 +276,58 @@ export interface GeneratedInfrastructureCodeOptions {
    * Options for the generated java infrastructure project. These override the default inferred options.
    */
   readonly java?: GeneratedJavaInfrastructureOptions;
+}
+
+/**
+ * Options for lambda handler projects for implementing API operations
+ */
+export interface GeneratedHandlersCodeOptions {
+  /**
+   * Options for the typescript handlers project. These override the default inferred options.
+   */
+  readonly typescript?: GeneratedTypeScriptHandlersOptions;
+  /**
+   * Options for the python handlers project. These override the default inferred options.
+   */
+  readonly python?: GeneratedPythonHandlersOptions;
+  /**
+   * Options for the java handlers project. These override the default inferred options.
+   */
+  readonly java?: GeneratedJavaHandlersOptions;
+}
+
+/**
+ * Collections of projects managed by type-safe-api
+ */
+export interface ProjectCollections {
+  /**
+   * Array of all projects managed by type-safe-api
+   */
+  readonly projects: Project[];
+  /**
+   * Array of all model projects
+   */
+  readonly model: Project[];
+  /**
+   * Array of all runtime projects
+   */
+  readonly runtimes: Project[];
+  /**
+   * Array of all infrastructure projects
+   */
+  readonly infrastructure: Project[];
+  /**
+   * Array of all library projects
+   */
+  readonly libraries: Project[];
+  /**
+   * Array of all documentation projects
+   */
+  readonly documentation: Project[];
+  /**
+   * Array of all handler projects
+   */
+  readonly handlers: Project[];
 }
 
 /**
@@ -372,4 +451,18 @@ export interface SmithyServiceName {
    * @see https://awslabs.github.io/smithy/2.0/spec/model.html#shape-id
    */
   readonly serviceName: string;
+}
+
+/**
+ * Options for the source files used for code generation
+ */
+export interface CodeGenerationSourceOptions {
+  /**
+   * Path to the OpenAPI specification
+   */
+  readonly specPath: string;
+  /**
+   * Path to the Smithy json model if applicable
+   */
+  readonly smithyJsonModelPath?: string;
 }

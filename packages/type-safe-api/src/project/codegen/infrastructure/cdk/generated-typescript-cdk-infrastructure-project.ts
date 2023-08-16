@@ -5,8 +5,8 @@ import { DependencyType, IgnoreFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import {
+  CodeGenerationSourceOptions,
   GeneratedTypeScriptInfrastructureOptions,
-  MockResponseDataGenerationOptions,
 } from "../../../types";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
@@ -21,11 +21,8 @@ import {
 import { GeneratedTypescriptRuntimeProject } from "../../runtime/generated-typescript-runtime-project";
 
 export interface GeneratedTypescriptCdkInfrastructureProjectOptions
-  extends GeneratedTypeScriptInfrastructureOptions {
-  /**
-   * OpenAPI spec path, relative to the project outdir
-   */
-  readonly specPath: string;
+  extends GeneratedTypeScriptInfrastructureOptions,
+    CodeGenerationSourceOptions {
   /**
    * Generated typescript types project
    */
@@ -39,22 +36,10 @@ export interface GeneratedTypescriptCdkInfrastructureProjectOptions
 
 export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProject {
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
-
-  /**
-   * The generated typescript types
-   * @private
-   */
-  private readonly generatedTypescriptTypes: GeneratedTypescriptRuntimeProject;
-
-  /**
-   * Mock data generator options
-   * @private
-   */
-  private readonly mockDataOptions?: MockResponseDataGenerationOptions;
+  private readonly options: GeneratedTypescriptCdkInfrastructureProjectOptions;
 
   /**
    * Path to the packaged copy of the openapi specification
@@ -81,9 +66,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       },
       npmignoreEnabled: false,
     });
-    this.specPath = options.specPath;
-    this.generatedTypescriptTypes = options.generatedTypescriptTypes;
-    this.mockDataOptions = options.mockDataOptions;
+    this.options = options;
 
     this.addDeps(
       ...[
@@ -134,13 +117,15 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
         this.buildGenerateCommandArgs()
       )
     );
-    if (!this.mockDataOptions?.disable) {
+    if (!this.options.mockDataOptions?.disable) {
       generateTask.exec(this.buildGenerateMockDataCommand());
     }
 
     // Copy the api spec to within the package
     generateTask.exec(`mkdir -p ${path.dirname(this.packagedSpecPath)}`);
-    generateTask.exec(`cp -f ${this.specPath} ${this.packagedSpecPath}`);
+    generateTask.exec(
+      `cp -f ${this.options.specPath} ${this.packagedSpecPath}`
+    );
     this.gitignore.addPatterns(`/${this.packagedSpecPath}`);
 
     this.preCompileTask.spawn(generateTask);
@@ -157,7 +142,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
           this.tasks
             .tryFind("install")
             ?.prependExec(
-              `${this.package.packageManager} link ${this.generatedTypescriptTypes.package.packageName}`
+              `${this.package.packageManager} link ${this.options.generatedTypescriptTypes.package.packageName}`
             );
           break;
         case NodePackageManager.PNPM:
@@ -166,7 +151,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
             ?.prependExec(
               `${this.package.packageManager} link /${path.relative(
                 this.outdir,
-                this.generatedTypescriptTypes.outdir
+                this.options.generatedTypescriptTypes.outdir
               )}`
             );
           break;
@@ -181,7 +166,8 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
-      specPath: this.specPath,
+      specPath: this.options.specPath,
+      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.TYPESCRIPT_CDK_INFRASTRUCTURE,
       srcDir: this.srcdir,
       normalizers: {
@@ -189,19 +175,19 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       },
       extraVendorExtensions: {
         "x-runtime-package-name":
-          this.generatedTypescriptTypes.package.packageName,
+          this.options.generatedTypescriptTypes.package.packageName,
         // Spec path relative to the source directory
         "x-relative-spec-path": path.join("..", this.packagedSpecPath),
         // Enable mock integration generation by default
-        "x-enable-mock-integrations": !this.mockDataOptions?.disable,
+        "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
       },
     });
   };
 
   public buildGenerateMockDataCommand = () => {
     return buildInvokeMockDataGeneratorCommand({
-      specPath: this.specPath,
-      ...this.mockDataOptions,
+      specPath: this.options.specPath,
+      ...this.options.mockDataOptions,
     });
   };
 }

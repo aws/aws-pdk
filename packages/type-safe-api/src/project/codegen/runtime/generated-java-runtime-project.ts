@@ -3,7 +3,10 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { JavaProject } from "projen/lib/java";
 import { Language } from "../../languages";
-import { GeneratedJavaRuntimeOptions } from "../../types";
+import {
+  CodeGenerationSourceOptions,
+  GeneratedJavaRuntimeOptions,
+} from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import {
@@ -17,12 +20,8 @@ import {
  * Configuration for the generated java runtime project
  */
 export interface GeneratedJavaTypesProjectOptions
-  extends GeneratedJavaRuntimeOptions {
-  /**
-   * The path to the OpenAPI specification, relative to this project's outdir
-   */
-  readonly specPath: string;
-}
+  extends GeneratedJavaRuntimeOptions,
+    CodeGenerationSourceOptions {}
 
 const DEPENDENCIES: string[] = [
   // Required for open api generated code
@@ -79,10 +78,10 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
   public readonly packageName: string;
 
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
+  private readonly options: GeneratedJavaTypesProjectOptions;
 
   constructor(options: GeneratedJavaTypesProjectOptions) {
     super({
@@ -90,7 +89,7 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
       junit: false,
       ...options,
     });
-    this.specPath = options.specPath;
+    this.options = options;
 
     // Ignore files that we will control via projen
     const ignoreFile = new OpenApiGeneratorIgnoreFile(this);
@@ -134,7 +133,8 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "java",
-      specPath: this.specPath,
+      specPath: this.options.specPath,
+      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Language.JAVA,
       additionalProperties: {
         useSingleRequestParameter: "true",

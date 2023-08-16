@@ -4,7 +4,10 @@ import { NodePackageUtils } from "@aws-pdk/nx-monorepo";
 import { NodePackageManager, TypeScriptJsxMode } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Library } from "../../languages";
-import { GeneratedTypeScriptReactQueryHooksOptions } from "../../types";
+import {
+  CodeGenerationSourceOptions,
+  GeneratedTypeScriptReactQueryHooksOptions,
+} from "../../types";
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
@@ -19,11 +22,8 @@ import {
  * Configuration for the generated typescript client project
  */
 export interface GeneratedTypescriptReactQueryHooksProjectOptions
-  extends GeneratedTypeScriptReactQueryHooksOptions {
-  /**
-   * The path to the OpenAPI specification, relative to this project's outdir
-   */
-  readonly specPath: string;
+  extends GeneratedTypeScriptReactQueryHooksOptions,
+    CodeGenerationSourceOptions {
   /**
    * Whether this project is parented by an nx-monorepo or not
    */
@@ -45,10 +45,10 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
   ];
 
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
+  private readonly options: GeneratedTypescriptReactQueryHooksProjectOptions;
 
   constructor(options: GeneratedTypescriptReactQueryHooksProjectOptions) {
     super({
@@ -79,7 +79,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
       npmignoreEnabled: false,
     });
 
-    this.specPath = options.specPath;
+    this.options = options;
 
     // Disable strict peer dependencies for pnpm as the default typescript project dependencies have type mismatches
     // (ts-jest@27 and @types/jest@28)
@@ -156,7 +156,8 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
-      specPath: this.specPath,
+      specPath: this.options.specPath,
+      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Library.TYPESCRIPT_REACT_QUERY_HOOKS,
       additionalProperties: {
         npmName: this.package.packageName,

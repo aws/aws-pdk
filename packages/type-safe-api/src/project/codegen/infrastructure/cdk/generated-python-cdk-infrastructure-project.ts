@@ -4,8 +4,8 @@ import * as path from "path";
 import { DependencyType } from "projen";
 import { PythonProject } from "projen/lib/python";
 import {
+  CodeGenerationSourceOptions,
   GeneratedPythonInfrastructureOptions,
-  MockResponseDataGenerationOptions,
 } from "../../../types";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
@@ -20,11 +20,8 @@ import {
 import { GeneratedPythonRuntimeProject } from "../../runtime/generated-python-runtime-project";
 
 export interface GeneratedPythonCdkInfrastructureProjectOptions
-  extends GeneratedPythonInfrastructureOptions {
-  /**
-   * OpenAPI spec path, relative to the project outdir
-   */
-  readonly specPath: string;
+  extends GeneratedPythonInfrastructureOptions,
+    CodeGenerationSourceOptions {
   /**
    * The generated python types
    */
@@ -33,22 +30,10 @@ export interface GeneratedPythonCdkInfrastructureProjectOptions
 
 export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
-
-  /**
-   * The generated python types
-   * @private
-   */
-  private readonly generatedPythonTypes: GeneratedPythonRuntimeProject;
-
-  /**
-   * Mock data generator options
-   * @private
-   */
-  private readonly mockDataOptions?: MockResponseDataGenerationOptions;
+  private readonly options: GeneratedPythonCdkInfrastructureProjectOptions;
 
   constructor(options: GeneratedPythonCdkInfrastructureProjectOptions) {
     super({
@@ -62,9 +47,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
       },
       ...options,
     });
-    this.specPath = options.specPath;
-    this.generatedPythonTypes = options.generatedPythonTypes;
-    this.mockDataOptions = options.mockDataOptions;
+    this.options = options;
 
     [
       "aws_pdk@^0",
@@ -103,7 +86,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         this.buildGenerateCommandArgs()
       )
     );
-    if (!this.mockDataOptions?.disable) {
+    if (!this.options.mockDataOptions?.disable) {
       generateTask.exec(this.buildGenerateMockDataCommand());
     }
 
@@ -127,7 +110,8 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "python",
-      specPath: this.specPath,
+      specPath: this.options.specPath,
+      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.PYTHON_CDK_INFRASTRUCTURE,
       // Tell the generator where python source files live
       srcDir: this.moduleName,
@@ -135,19 +119,19 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
       },
       extraVendorExtensions: {
-        "x-runtime-module-name": this.generatedPythonTypes.moduleName,
+        "x-runtime-module-name": this.options.generatedPythonTypes.moduleName,
         // Spec path relative to the source directory
-        "x-relative-spec-path": path.join("..", this.specPath),
+        "x-relative-spec-path": path.join("..", this.options.specPath),
         // Enable mock integration generation by default
-        "x-enable-mock-integrations": !this.mockDataOptions?.disable,
+        "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
       },
     });
   };
 
   public buildGenerateMockDataCommand = () => {
     return buildInvokeMockDataGeneratorCommand({
-      specPath: this.specPath,
-      ...this.mockDataOptions,
+      specPath: this.options.specPath,
+      ...this.options.mockDataOptions,
     });
   };
 }

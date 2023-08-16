@@ -95,7 +95,7 @@ export class CloudfrontWebAcl extends Construct {
     super(scope, id);
 
     const stack = Stack.of(this);
-    const aclName = `${stack.stackName}-${id}`; // Unique per stack
+    const aclName = `${stack.stackName}-${id}-${this.node.addr.slice(-4)}`;
     const onEventHandler = this.createOnEventHandler(stack, aclName);
     const customResource = this.createAclCustomResource(
       stack,
@@ -266,7 +266,7 @@ export class CloudfrontWebAcl extends Construct {
         }),
       },
     });
-    const provider = new Provider(this, "CloudfrontWebAclProvider", {
+    const provider = new Provider(this, "CloudfrontAclProvider", {
       onEventHandler,
       role: providerRole,
       providerFunctionName,
@@ -304,7 +304,7 @@ export class CloudfrontWebAcl extends Construct {
       }
     );
 
-    return new CustomResource(this, "CFWebAclCustomResource", {
+    return new CustomResource(this, "CFAclCustomResource", {
       serviceToken: provider.serviceToken,
       properties: {
         ID: aclName,

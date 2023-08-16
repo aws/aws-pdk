@@ -4,8 +4,8 @@ import * as path from "path";
 import { DependencyType } from "projen";
 import { JavaProject } from "projen/lib/java";
 import {
+  CodeGenerationSourceOptions,
   GeneratedJavaInfrastructureOptions,
-  MockResponseDataGenerationOptions,
 } from "../../../types";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
@@ -20,11 +20,8 @@ import {
 import { GeneratedJavaRuntimeProject } from "../../runtime/generated-java-runtime-project";
 
 export interface GeneratedJavaCdkInfrastructureProjectOptions
-  extends GeneratedJavaInfrastructureOptions {
-  /**
-   * OpenAPI spec path, relative to the project outdir
-   */
-  readonly specPath: string;
+  extends GeneratedJavaInfrastructureOptions,
+    CodeGenerationSourceOptions {
   /**
    * The generated java types
    */
@@ -33,16 +30,10 @@ export interface GeneratedJavaCdkInfrastructureProjectOptions
 
 export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
-
-  /**
-   * The generated java types
-   * @private
-   */
-  private readonly generatedJavaTypes: GeneratedJavaRuntimeProject;
+  private readonly options: GeneratedJavaCdkInfrastructureProjectOptions;
 
   /**
    * Source directory
@@ -56,21 +47,13 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
    */
   private readonly packageName: string;
 
-  /**
-   * Mock data generator options
-   * @private
-   */
-  private readonly mockDataOptions?: MockResponseDataGenerationOptions;
-
   constructor(options: GeneratedJavaCdkInfrastructureProjectOptions) {
     super({
       ...options,
       sample: false,
       junit: false,
     });
-    this.specPath = options.specPath;
-    this.generatedJavaTypes = options.generatedJavaTypes;
-    this.mockDataOptions = options.mockDataOptions;
+    this.options = options;
     this.packageName = `${this.pom.groupId}.${this.name}.infra`;
     this.srcDir = path.join(
       "src",
@@ -133,8 +116,10 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     );
     // Copy the parsed spec into the resources directory so that it's included in the jar
     generateTask.exec("mkdir -p src/main/resources");
-    generateTask.exec(`cp -f ${this.specPath} src/main/resources/.api.json`);
-    if (!this.mockDataOptions?.disable) {
+    generateTask.exec(
+      `cp -f ${this.options.specPath} src/main/resources/.api.json`
+    );
+    if (!this.options.mockDataOptions?.disable) {
       generateTask.exec(this.buildGenerateMockDataCommand());
     }
 
@@ -147,7 +132,8 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "java",
-      specPath: this.specPath,
+      specPath: this.options.specPath,
+      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.JAVA_CDK_INFRASTRUCTURE,
       srcDir: this.srcDir,
       normalizers: {
@@ -155,9 +141,9 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
       },
       extraVendorExtensions: {
         "x-infrastructure-package": this.packageName,
-        "x-runtime-package": this.generatedJavaTypes.packageName,
+        "x-runtime-package": this.options.generatedJavaTypes.packageName,
         // Enable mock integration generation by default
-        "x-enable-mock-integrations": !this.mockDataOptions?.disable,
+        "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
       },
       // Do not generate map/list types. Generator will use built in HashMap, ArrayList instead
       generateAliasAsModel: false,
@@ -166,10 +152,10 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
 
   public buildGenerateMockDataCommand = (): string => {
     return buildInvokeMockDataGeneratorCommand({
-      specPath: this.specPath,
+      specPath: this.options.specPath,
       // Write the mocks to the resources directory
       outputSubDir: "src/main/resources",
-      ...this.mockDataOptions,
+      ...this.options.mockDataOptions,
     });
   };
 }

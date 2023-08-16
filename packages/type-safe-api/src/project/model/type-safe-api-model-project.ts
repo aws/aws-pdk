@@ -8,6 +8,7 @@ import {
   buildTypeSafeApiExecCommand,
   TypeSafeApiScript,
 } from "../codegen/components/utils";
+import { Language } from "../languages";
 import { ModelLanguage, ModelOptions } from "../types";
 
 export interface TypeSafeApiModelProjectOptions extends ProjectOptions {
@@ -19,6 +20,10 @@ export interface TypeSafeApiModelProjectOptions extends ProjectOptions {
    * Options for the model
    */
   readonly modelOptions: ModelOptions;
+  /**
+   * The languages users have specified for handler projects (if any)
+   */
+  readonly handlerLanguages?: Language[];
 }
 
 export class TypeSafeApiModelProject extends Project {
@@ -47,10 +52,7 @@ export class TypeSafeApiModelProject extends Project {
     this.generateTask = this.addTask("generate");
 
     // Add the API definition
-    const { specPath, smithy, openapi } = this.addApiDefinition(
-      options.modelLanguage,
-      options.modelOptions
-    );
+    const { specPath, smithy, openapi } = this.addApiDefinition(options);
     this.smithy = smithy;
     this.openapi = openapi;
 
@@ -75,10 +77,11 @@ export class TypeSafeApiModelProject extends Project {
     });
   }
 
-  private addApiDefinition = (
-    modelLanguage: ModelLanguage,
-    modelOptions: ModelOptions
-  ) => {
+  private addApiDefinition = ({
+    modelLanguage,
+    modelOptions,
+    handlerLanguages,
+  }: TypeSafeApiModelProjectOptions) => {
     if (modelLanguage === ModelLanguage.SMITHY) {
       if (!modelOptions.smithy) {
         throw new Error(
@@ -89,6 +92,7 @@ export class TypeSafeApiModelProject extends Project {
       const smithyOptions = modelOptions.smithy;
       const smithy = new SmithyDefinition(this, {
         smithyOptions,
+        handlerLanguages,
       });
 
       return { smithy, specPath: smithy.openApiSpecificationPath };
@@ -102,6 +106,7 @@ export class TypeSafeApiModelProject extends Project {
       const openApiOptions = modelOptions.openapi;
       const openapi = new OpenApiDefinition(this, {
         openApiOptions,
+        handlerLanguages,
       });
       return { openapi, specPath: openapi.openApiSpecificationPath };
     } else {

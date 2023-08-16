@@ -7,6 +7,9 @@ import { GeneratedHtmlRedocDocumentationProject } from "./documentation/generate
 import { GeneratedHtml2DocumentationProject } from "./documentation/generated-html2-documentation-project";
 import { GeneratedMarkdownDocumentationProject } from "./documentation/generated-markdown-documentation-project";
 import { GeneratedPlantumlDocumentationProject } from "./documentation/generated-plantuml-documentation-project";
+import { GeneratedJavaHandlersProject } from "./handlers/generated-java-handlers-project";
+import { GeneratedPythonHandlersProject } from "./handlers/generated-python-handlers-project";
+import { GeneratedTypescriptHandlersProject } from "./handlers/generated-typescript-handlers-project";
 import { GeneratedJavaCdkInfrastructureProject } from "./infrastructure/cdk/generated-java-cdk-infrastructure-project";
 import { GeneratedPythonCdkInfrastructureProject } from "./infrastructure/cdk/generated-python-cdk-infrastructure-project";
 import { GeneratedTypescriptCdkInfrastructureProject } from "./infrastructure/cdk/generated-typescript-cdk-infrastructure-project";
@@ -60,6 +63,10 @@ export interface GenerateProjectsOptions {
    * We use the parsed spec such that refs are resolved to support multi-file specs
    */
   readonly parsedSpecPath: string;
+  /**
+   * Path to the Smithy json model, if applicable
+   */
+  readonly smithyJsonModelPath?: string;
 }
 
 /**
@@ -140,6 +147,7 @@ const generateRuntimeProject = (
     outdir: path.join(options.generatedCodeDir, language),
     specPath: options.parsedSpecPath,
     parent: options.parent,
+    smithyJsonModelPath: options.smithyJsonModelPath,
   };
 
   switch (language) {
@@ -213,6 +221,7 @@ export const generateInfraProject = (
     outdir: path.join(options.generatedCodeDir, language),
     specPath: options.parsedSpecPath,
     parent: options.parent,
+    smithyJsonModelPath: options.smithyJsonModelPath,
   };
 
   switch (language) {
@@ -267,6 +276,120 @@ export const generateInfraProject = (
   }
 };
 
+export interface GenerateHandlersProjectOptions
+  extends GenerateRuntimeProjectsOptions {
+  /**
+   * Generated runtime projects
+   */
+  readonly generatedRuntimes: {
+    readonly java?: GeneratedJavaRuntimeProject;
+    readonly python?: GeneratedPythonRuntimeProject;
+    readonly typescript?: GeneratedTypescriptRuntimeProject;
+  };
+}
+
+/**
+ * Returns a generated handlers project for the given language
+ */
+const generateHandlersProject = (
+  language: Language,
+  options: GenerateHandlersProjectOptions
+): Project => {
+  const handlersName = `${options.parentPackageName}-${language}-handlers`;
+  const commonOptions = {
+    outdir: path.join(options.generatedCodeDir, language),
+    specPath: options.parsedSpecPath,
+    parent: options.parent,
+    smithyJsonModelPath: options.smithyJsonModelPath,
+  };
+
+  switch (language) {
+    case Language.TYPESCRIPT: {
+      logger.trace("Attempting to generate TYPESCRIPT handlers project.");
+      if (!options.generatedRuntimes.typescript) {
+        throw new Error(
+          "A typescript runtime project must be created for typescript handlers"
+        );
+      }
+      return new GeneratedTypescriptHandlersProject({
+        ...commonOptions,
+        name: sanitiseTypescriptPackageName(handlersName),
+        generatedTypescriptTypes: options.generatedRuntimes.typescript,
+        ...options.typescriptOptions,
+        isWithinMonorepo: options.isWithinMonorepo,
+      });
+    }
+    case Language.PYTHON: {
+      logger.trace("Attempting to generate PYTHON handlers project.");
+      if (!options.generatedRuntimes.python) {
+        throw new Error(
+          "A python runtime project must be created for python handlers"
+        );
+      }
+      return new GeneratedPythonHandlersProject({
+        ...commonOptions,
+        name: sanitisePythonPackageName(handlersName),
+        moduleName: sanitisePythonModuleName(handlersName),
+        generatedPythonTypes: options.generatedRuntimes.python,
+        ...options.pythonOptions,
+      });
+    }
+    case Language.JAVA: {
+      logger.trace("Attempting to generate JAVA handlers project.");
+      if (!options.generatedRuntimes.java) {
+        throw new Error(
+          "A java runtime project must be created for java handlers"
+        );
+      }
+      return new GeneratedJavaHandlersProject({
+        ...commonOptions,
+        name: sanitiseJavaProjectName(handlersName),
+        artifactId: sanitiseJavaArtifactId(handlersName),
+        groupId: "com.generated.api",
+        generatedJavaTypes: options.generatedRuntimes.java,
+        ...options.javaOptions,
+      });
+    }
+    default:
+      throw new Error(`Unknown infrastructure language ${language}`);
+  }
+};
+
+/**
+ * Create handlers projects in the given languages
+ * @param languages the languages to generate for
+ * @param options options for the projects to be created
+ */
+export const generateHandlersProjects = (
+  languages: Language[],
+  options: GenerateHandlersProjectOptions
+): { [language: string]: Project } => {
+  new TextFile(
+    options.parent,
+    path.join(options.generatedCodeDir, "README.md"),
+    {
+      lines: [
+        "## Handlers",
+        "",
+        "This directory contains lambda handlers for implementing your API.",
+        "",
+        "Whenever an operation is annotated with the `@handler` trait in Smithy (or the `x-handler` vendor extension in OpenAPI), a stub handler implementation will be generated for you, which you are free to modify.",
+      ],
+      readonly: true,
+    }
+  );
+
+  const generatedHandlers: { [language: string]: Project } = {};
+  languages.forEach((language) => {
+    const project = generateHandlersProject(language, options);
+    if (project != null) {
+      generatedHandlers[language] = project;
+    }
+  });
+
+  return generatedHandlers;
+};
+
 /**
  * Create runtime projects in the given languages
  * @param languages the languages to generate for
@@ -314,6 +437,7 @@ const generateLibraryProject = (
     outdir: path.join(options.generatedCodeDir, library),
     specPath: options.parsedSpecPath,
     parent: options.parent,
+    smithyJsonModelPath: options.smithyJsonModelPath,
   };
 
   switch (library) {

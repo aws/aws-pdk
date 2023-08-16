@@ -1,0 +1,45 @@
+###TSAPI_SPLIT_FILE###
+{{#apiInfo ~}}
+{{#apis ~}}
+{{#operations ~}}
+{{#operation ~}}
+{{#if vendorExtensions.x-handler}}
+{{#startsWith vendorExtensions.x-handler.language 'typescript'}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": ".",
+  "name": "{{nickname}}",
+  "ext": ".ts",
+  "overwrite": false,
+  "kebabCaseFileName": true
+}
+###/TSAPI_WRITE_FILE###import {
+  {{nickname}}Handler,
+  {{operationIdCamelCase}}ChainedHandlerFunction,
+} from "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package-name}}{{/apis.0}}{{/apiInfo}}";
+
+/**
+ * Type-safe handler for the {{operationIdCamelCase}} operation
+ */
+export const {{nickname}}: {{operationIdCamelCase}}ChainedHandlerFunction = async ({ input }) => {
+  // TODO: Implement {{operationIdCamelCase}} Operation
+  return {
+    statusCode: 500,
+    body: {
+      message: "Not Implemented!",
+    },
+  };
+};
+
+/**
+ * Entry point for the AWS Lambda handler for the {{operationIdCamelCase}} operation.
+ * The {{nickname}}Handler method wraps the type-safe handler and manages marshalling inputs and outputs
+ */
+export const handler = {{nickname}}Handler({{nickname}});
+
+{{~/startsWith}}
+{{~/if}}
+{{~/operation}}
+{{~/operations}}
+{{~/apis}}
+{{~/apiInfo}}

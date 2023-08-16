@@ -870,7 +870,7 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
           ],
           "WebACLId": {
             "Fn::GetAtt": [
-              "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C",
+              "DefaultsWebsiteAclCFAclCustomResource08DBB477",
               "WebAclArn",
             ],
           },
@@ -1287,7 +1287,7 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
       },
       "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
-    "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C": {
+    "DefaultsWebsiteAclCFAclCustomResource08DBB477": {
       "DeletionPolicy": "Delete",
       "Metadata": {
         "cdk_nag": {
@@ -1361,7 +1361,7 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
               {
                 "Ref": "AWS::StackName",
               },
-              "-WebsiteAcl",
+              "-WebsiteAcl-313c",
             ],
           ],
         },
@@ -1373,13 +1373,131 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
         ],
         "ServiceToken": {
           "Fn::GetAtt": [
-            "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB",
+            "DefaultsWebsiteAclCloudfrontAclProviderframeworkonEvent0C57B324",
             "Arn",
           ],
         },
       },
       "Type": "AWS::CloudFormation::CustomResource",
       "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteAclCloudfrontAclProviderframeworkonEvent0C57B324": {
+      "DependsOn": [
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/Nested-Stack/Defaults/WebsiteAcl/CloudfrontAclProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "FunctionName": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+              },
+              "-Provider",
+            ],
+          ],
+        },
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs14.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
     },
     "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0": {
       "DependsOn": [
@@ -1732,124 +1850,6 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
-    "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB": {
-      "DependsOn": [
-        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
-        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
-      ],
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
-        },
-        "Description": "AWS CDK resource provider framework - onEvent (Default/Nested-Stack/Defaults/WebsiteAcl/CloudfrontWebAclProvider)",
-        "Environment": {
-          "Variables": {
-            "USER_ON_EVENT_FUNCTION_ARN": {
-              "Fn::GetAtt": [
-                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
-                "Arn",
-              ],
-            },
-          },
-        },
-        "FunctionName": {
-          "Fn::Join": [
-            "",
-            [
-              {
-                "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
-              },
-              "-Provider",
-            ],
-          ],
-        },
-        "Handler": "framework.onEvent",
-        "Role": {
-          "Fn::GetAtt": [
-            "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs14.x",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
     "DefaultsWebsiteAclOnEventHandlerRole83BC6E99": {
       "Metadata": {
         "cdk_nag": {
@@ -2039,7 +2039,7 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
                           {
                             "Ref": "AWS::StackName",
                           },
-                          "-WebsiteAcl-IPSet/*",
+                          "-WebsiteAcl-313c-IPSet/*",
                         ],
                       ],
                     },
@@ -2055,7 +2055,7 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
                           {
                             "Ref": "AWS::StackName",
                           },
-                          "-WebsiteAcl/*",
+                          "-WebsiteAcl-313c/*",
                         ],
                       ],
                     },
@@ -2093,7 +2093,7 @@ exports[`Static Website Unit Tests Defaults - Nested 1`] = `
                         {
                           "Ref": "AWS::StackName",
                         },
-                        "-WebsiteAcl-IPSet/*",
+                        "-WebsiteAcl-313c-IPSet/*",
                       ],
                     ],
                   },
@@ -3544,7 +3544,7 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
           ],
           "WebACLId": {
             "Fn::GetAtt": [
-              "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C",
+              "DefaultsWebsiteAclCFAclCustomResource08DBB477",
               "WebAclArn",
             ],
           },
@@ -3961,7 +3961,7 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
       },
       "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
-    "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C": {
+    "DefaultsWebsiteAclCFAclCustomResource08DBB477": {
       "DeletionPolicy": "Delete",
       "Metadata": {
         "cdk_nag": {
@@ -4028,7 +4028,7 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
         },
       },
       "Properties": {
-        "ID": "Default-WebsiteAcl",
+        "ID": "Default-WebsiteAcl-d248",
         "MANAGED_RULES": [
           {
             "name": "AWSManagedRulesCommonRuleSet",
@@ -4037,13 +4037,131 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
         ],
         "ServiceToken": {
           "Fn::GetAtt": [
-            "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB",
+            "DefaultsWebsiteAclCloudfrontAclProviderframeworkonEvent0C57B324",
             "Arn",
           ],
         },
       },
       "Type": "AWS::CloudFormation::CustomResource",
       "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteAclCloudfrontAclProviderframeworkonEvent0C57B324": {
+      "DependsOn": [
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/Defaults/WebsiteAcl/CloudfrontAclProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "FunctionName": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+              },
+              "-Provider",
+            ],
+          ],
+        },
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs14.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
     },
     "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0": {
       "DependsOn": [
@@ -4396,124 +4514,6 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
       },
       "Type": "AWS::IAM::Policy",
     },
-    "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB": {
-      "DependsOn": [
-        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
-        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
-      ],
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
-        },
-        "Description": "AWS CDK resource provider framework - onEvent (Default/Defaults/WebsiteAcl/CloudfrontWebAclProvider)",
-        "Environment": {
-          "Variables": {
-            "USER_ON_EVENT_FUNCTION_ARN": {
-              "Fn::GetAtt": [
-                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
-                "Arn",
-              ],
-            },
-          },
-        },
-        "FunctionName": {
-          "Fn::Join": [
-            "",
-            [
-              {
-                "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
-              },
-              "-Provider",
-            ],
-          ],
-        },
-        "Handler": "framework.onEvent",
-        "Role": {
-          "Fn::GetAtt": [
-            "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs14.x",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
     "DefaultsWebsiteAclOnEventHandlerRole83BC6E99": {
       "Metadata": {
         "cdk_nag": {
@@ -4699,7 +4699,7 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
                           {
                             "Ref": "AWS::AccountId",
                           },
-                          ":global/ipset/Default-WebsiteAcl-IPSet/*",
+                          ":global/ipset/Default-WebsiteAcl-d248-IPSet/*",
                         ],
                       ],
                     },
@@ -4711,7 +4711,7 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
                           {
                             "Ref": "AWS::AccountId",
                           },
-                          ":global/webacl/Default-WebsiteAcl/*",
+                          ":global/webacl/Default-WebsiteAcl-d248/*",
                         ],
                       ],
                     },
@@ -4745,7 +4745,7 @@ exports[`Static Website Unit Tests Defaults - using AwsPrototyping NagPack 1`] =
                         {
                           "Ref": "AWS::AccountId",
                         },
-                        ":global/ipset/Default-WebsiteAcl-IPSet/*",
+                        ":global/ipset/Default-WebsiteAcl-d248-IPSet/*",
                       ],
                     ],
                   },
@@ -6223,7 +6223,7 @@ exports[`Static Website Unit Tests Defaults 1`] = `
           ],
           "WebACLId": {
             "Fn::GetAtt": [
-              "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C",
+              "DefaultsWebsiteAclCFAclCustomResource08DBB477",
               "WebAclArn",
             ],
           },
@@ -6640,7 +6640,7 @@ exports[`Static Website Unit Tests Defaults 1`] = `
       },
       "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
-    "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C": {
+    "DefaultsWebsiteAclCFAclCustomResource08DBB477": {
       "DeletionPolicy": "Delete",
       "Metadata": {
         "cdk_nag": {
@@ -6707,7 +6707,7 @@ exports[`Static Website Unit Tests Defaults 1`] = `
         },
       },
       "Properties": {
-        "ID": "Default-WebsiteAcl",
+        "ID": "Default-WebsiteAcl-d248",
         "MANAGED_RULES": [
           {
             "name": "AWSManagedRulesCommonRuleSet",
@@ -6716,13 +6716,131 @@ exports[`Static Website Unit Tests Defaults 1`] = `
         ],
         "ServiceToken": {
           "Fn::GetAtt": [
-            "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB",
+            "DefaultsWebsiteAclCloudfrontAclProviderframeworkonEvent0C57B324",
             "Arn",
           ],
         },
       },
       "Type": "AWS::CloudFormation::CustomResource",
       "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteAclCloudfrontAclProviderframeworkonEvent0C57B324": {
+      "DependsOn": [
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/Defaults/WebsiteAcl/CloudfrontAclProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "FunctionName": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+              },
+              "-Provider",
+            ],
+          ],
+        },
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs14.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
     },
     "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0": {
       "DependsOn": [
@@ -7075,124 +7193,6 @@ exports[`Static Website Unit Tests Defaults 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
-    "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB": {
-      "DependsOn": [
-        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
-        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
-      ],
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
-        },
-        "Description": "AWS CDK resource provider framework - onEvent (Default/Defaults/WebsiteAcl/CloudfrontWebAclProvider)",
-        "Environment": {
-          "Variables": {
-            "USER_ON_EVENT_FUNCTION_ARN": {
-              "Fn::GetAtt": [
-                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
-                "Arn",
-              ],
-            },
-          },
-        },
-        "FunctionName": {
-          "Fn::Join": [
-            "",
-            [
-              {
-                "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
-              },
-              "-Provider",
-            ],
-          ],
-        },
-        "Handler": "framework.onEvent",
-        "Role": {
-          "Fn::GetAtt": [
-            "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs14.x",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
     "DefaultsWebsiteAclOnEventHandlerRole83BC6E99": {
       "Metadata": {
         "cdk_nag": {
@@ -7378,7 +7378,7 @@ exports[`Static Website Unit Tests Defaults 1`] = `
                           {
                             "Ref": "AWS::AccountId",
                           },
-                          ":global/ipset/Default-WebsiteAcl-IPSet/*",
+                          ":global/ipset/Default-WebsiteAcl-d248-IPSet/*",
                         ],
                       ],
                     },
@@ -7390,7 +7390,7 @@ exports[`Static Website Unit Tests Defaults 1`] = `
                           {
                             "Ref": "AWS::AccountId",
                           },
-                          ":global/webacl/Default-WebsiteAcl/*",
+                          ":global/webacl/Default-WebsiteAcl-d248/*",
                         ],
                       ],
                     },
@@ -7424,7 +7424,7 @@ exports[`Static Website Unit Tests Defaults 1`] = `
                         {
                           "Ref": "AWS::AccountId",
                         },
-                        ":global/ipset/Default-WebsiteAcl-IPSet/*",
+                        ":global/ipset/Default-WebsiteAcl-d248-IPSet/*",
                       ],
                     ],
                   },
@@ -8911,7 +8911,7 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
           },
           "WebACLId": {
             "Fn::GetAtt": [
-              "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C",
+              "DefaultsWebsiteAclCFAclCustomResource08DBB477",
               "WebAclArn",
             ],
           },
@@ -9328,7 +9328,7 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
       },
       "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
-    "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C": {
+    "DefaultsWebsiteAclCFAclCustomResource08DBB477": {
       "DeletionPolicy": "Delete",
       "Metadata": {
         "cdk_nag": {
@@ -9395,7 +9395,7 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
         },
       },
       "Properties": {
-        "ID": "Default-WebsiteAcl",
+        "ID": "Default-WebsiteAcl-d248",
         "MANAGED_RULES": [
           {
             "name": "AWSManagedRulesCommonRuleSet",
@@ -9404,13 +9404,131 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
         ],
         "ServiceToken": {
           "Fn::GetAtt": [
-            "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB",
+            "DefaultsWebsiteAclCloudfrontAclProviderframeworkonEvent0C57B324",
             "Arn",
           ],
         },
       },
       "Type": "AWS::CloudFormation::CustomResource",
       "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteAclCloudfrontAclProviderframeworkonEvent0C57B324": {
+      "DependsOn": [
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/Defaults/WebsiteAcl/CloudfrontAclProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "FunctionName": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+              },
+              "-Provider",
+            ],
+          ],
+        },
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs14.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
     },
     "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0": {
       "DependsOn": [
@@ -9763,124 +9881,6 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
       },
       "Type": "AWS::IAM::Policy",
     },
-    "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB": {
-      "DependsOn": [
-        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
-        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
-      ],
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
-        },
-        "Description": "AWS CDK resource provider framework - onEvent (Default/Defaults/WebsiteAcl/CloudfrontWebAclProvider)",
-        "Environment": {
-          "Variables": {
-            "USER_ON_EVENT_FUNCTION_ARN": {
-              "Fn::GetAtt": [
-                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
-                "Arn",
-              ],
-            },
-          },
-        },
-        "FunctionName": {
-          "Fn::Join": [
-            "",
-            [
-              {
-                "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
-              },
-              "-Provider",
-            ],
-          ],
-        },
-        "Handler": "framework.onEvent",
-        "Role": {
-          "Fn::GetAtt": [
-            "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs14.x",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
     "DefaultsWebsiteAclOnEventHandlerRole83BC6E99": {
       "Metadata": {
         "cdk_nag": {
@@ -10066,7 +10066,7 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
                           {
                             "Ref": "AWS::AccountId",
                           },
-                          ":global/ipset/Default-WebsiteAcl-IPSet/*",
+                          ":global/ipset/Default-WebsiteAcl-d248-IPSet/*",
                         ],
                       ],
                     },
@@ -10078,7 +10078,7 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
                           {
                             "Ref": "AWS::AccountId",
                           },
-                          ":global/webacl/Default-WebsiteAcl/*",
+                          ":global/webacl/Default-WebsiteAcl-d248/*",
                         ],
                       ],
                     },
@@ -10112,7 +10112,7 @@ exports[`Static Website Unit Tests Defaults and Geoblocking - using AwsPrototypi
                         {
                           "Ref": "AWS::AccountId",
                         },
-                        ":global/ipset/Default-WebsiteAcl-IPSet/*",
+                        ":global/ipset/Default-WebsiteAcl-d248-IPSet/*",
                       ],
                     ],
                   },
@@ -11656,7 +11656,7 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
           ],
           "WebACLId": {
             "Fn::GetAtt": [
-              "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C",
+              "DefaultsWebsiteAclCFAclCustomResource08DBB477",
               "WebAclArn",
             ],
           },
@@ -12089,7 +12089,7 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
       },
       "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
-    "DefaultsWebsiteAclCFWebAclCustomResourceB050DB2C": {
+    "DefaultsWebsiteAclCFAclCustomResource08DBB477": {
       "DeletionPolicy": "Delete",
       "Metadata": {
         "cdk_nag": {
@@ -12160,7 +12160,7 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
         },
       },
       "Properties": {
-        "ID": "Default-WebsiteAcl",
+        "ID": "Default-WebsiteAcl-d248",
         "MANAGED_RULES": [
           {
             "name": "AWSManagedRulesCommonRuleSet",
@@ -12169,13 +12169,135 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
         ],
         "ServiceToken": {
           "Fn::GetAtt": [
-            "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB",
+            "DefaultsWebsiteAclCloudfrontAclProviderframeworkonEvent0C57B324",
             "Arn",
           ],
         },
       },
       "Type": "AWS::CloudFormation::CustomResource",
       "UpdateReplacePolicy": "Delete",
+    },
+    "DefaultsWebsiteAclCloudfrontAclProviderframeworkonEvent0C57B324": {
+      "DependsOn": [
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
+        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-CloudFrontDistributionGeoRestrictions",
+              "reason": "This is a supression reason",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/Defaults/WebsiteAcl/CloudfrontAclProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "FunctionName": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
+              },
+              "-Provider",
+            ],
+          ],
+        },
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs14.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
     },
     "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0": {
       "DependsOn": [
@@ -12540,128 +12662,6 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
       },
       "Type": "AWS::IAM::Policy",
     },
-    "DefaultsWebsiteAclCloudfrontWebAclProviderframeworkonEvent595963CB": {
-      "DependsOn": [
-        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicy0BEB9831",
-        "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
-      ],
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-CloudFrontDistributionGeoRestrictions",
-              "reason": "This is a supression reason",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
-        },
-        "Description": "AWS CDK resource provider framework - onEvent (Default/Defaults/WebsiteAcl/CloudfrontWebAclProvider)",
-        "Environment": {
-          "Variables": {
-            "USER_ON_EVENT_FUNCTION_ARN": {
-              "Fn::GetAtt": [
-                "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
-                "Arn",
-              ],
-            },
-          },
-        },
-        "FunctionName": {
-          "Fn::Join": [
-            "",
-            [
-              {
-                "Ref": "DefaultsWebsiteAclCloudfrontWebAclOnEventHandlerEC085AE0",
-              },
-              "-Provider",
-            ],
-          ],
-        },
-        "Handler": "framework.onEvent",
-        "Role": {
-          "Fn::GetAtt": [
-            "DefaultsWebsiteAclCloudfrontWebAclProviderRoleD884ECCA",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs14.x",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
     "DefaultsWebsiteAclOnEventHandlerRole83BC6E99": {
       "Metadata": {
         "cdk_nag": {
@@ -12851,7 +12851,7 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
                           {
                             "Ref": "AWS::AccountId",
                           },
-                          ":global/ipset/Default-WebsiteAcl-IPSet/*",
+                          ":global/ipset/Default-WebsiteAcl-d248-IPSet/*",
                         ],
                       ],
                     },
@@ -12863,7 +12863,7 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
                           {
                             "Ref": "AWS::AccountId",
                           },
-                          ":global/webacl/Default-WebsiteAcl/*",
+                          ":global/webacl/Default-WebsiteAcl-d248/*",
                         ],
                       ],
                     },
@@ -12897,7 +12897,7 @@ exports[`Static Website Unit Tests Defaults with suppression rule - using AwsPro
                         {
                           "Ref": "AWS::AccountId",
                         },
-                        ":global/ipset/Default-WebsiteAcl-IPSet/*",
+                        ":global/ipset/Default-WebsiteAcl-d248-IPSet/*",
                       ],
                     ],
                   },
@@ -16045,7 +16045,7 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
           ],
           "WebACLId": {
             "Fn::GetAtt": [
-              "CustomBucketDeploymentPropsWebsiteAclCFWebAclCustomResource14F5FB79",
+              "CustomBucketDeploymentPropsWebsiteAclCFAclCustomResource88ECBD3C",
               "WebAclArn",
             ],
           },
@@ -16462,7 +16462,7 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
       },
       "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
     },
-    "CustomBucketDeploymentPropsWebsiteAclCFWebAclCustomResource14F5FB79": {
+    "CustomBucketDeploymentPropsWebsiteAclCFAclCustomResource88ECBD3C": {
       "DeletionPolicy": "Delete",
       "Metadata": {
         "cdk_nag": {
@@ -16529,7 +16529,7 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
         },
       },
       "Properties": {
-        "ID": "Default-WebsiteAcl",
+        "ID": "Default-WebsiteAcl-ebea",
         "MANAGED_RULES": [
           {
             "name": "AWSManagedRulesCommonRuleSet",
@@ -16538,13 +16538,131 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
         ],
         "ServiceToken": {
           "Fn::GetAtt": [
-            "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclProviderframeworkonEvent49BA130C",
+            "CustomBucketDeploymentPropsWebsiteAclCloudfrontAclProviderframeworkonEvent6294697D",
             "Arn",
           ],
         },
       },
       "Type": "AWS::CloudFormation::CustomResource",
       "UpdateReplacePolicy": "Delete",
+    },
+    "CustomBucketDeploymentPropsWebsiteAclCloudfrontAclProviderframeworkonEvent6294697D": {
+      "DependsOn": [
+        "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicyB736764C",
+        "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclProviderRole938A57CB",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Action::s3:.*$/g",
+                },
+                {
+                  "regex": "/^Resource::.*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
+            },
+            {
+              "id": "AwsSolutions-S1",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+            {
+              "id": "AwsPrototyping-S3BucketLoggingEnabled",
+              "reason": "Access Log buckets should not have s3 bucket logging",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/CustomBucketDeploymentProps/WebsiteAcl/CloudfrontAclProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclOnEventHandler27B7D2F2",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "FunctionName": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclOnEventHandler27B7D2F2",
+              },
+              "-Provider",
+            ],
+          ],
+        },
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclProviderRole938A57CB",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs14.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
     },
     "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclOnEventHandler27B7D2F2": {
       "DependsOn": [
@@ -16897,124 +17015,6 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
-    "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclProviderframeworkonEvent49BA130C": {
-      "DependsOn": [
-        "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclProviderRoleDefaultPolicyB736764C",
-        "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclProviderRole938A57CB",
-      ],
-      "Metadata": {
-        "cdk_nag": {
-          "rules_to_suppress": [
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
-            },
-            {
-              "id": "AwsSolutions-L1",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "id": "AwsPrototyping-LambdaLatestVersion",
-              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the BucketDeployment construct accordingly.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM5",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Action::s3:.*$/g",
-                },
-                {
-                  "regex": "/^Resource::.*$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoWildcardPermissions",
-              "reason": "All Policies have been scoped to a Bucket. Given Buckets can contain arbitrary content, wildcard resources with bucket scope are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsSolutions-IAM4",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "applies_to": [
-                {
-                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole$/g",
-                },
-              ],
-              "id": "AwsPrototyping-IAMNoManagedPolicies",
-              "reason": "Buckets can contain arbitrary content, therefore wildcard resources under a bucket are required.",
-            },
-            {
-              "id": "AwsSolutions-S1",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-            {
-              "id": "AwsPrototyping-S3BucketLoggingEnabled",
-              "reason": "Access Log buckets should not have s3 bucket logging",
-            },
-          ],
-        },
-      },
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "8e3d635893ea17fa3158623489cd42c680fad925b38de1ef51cb10d84f6e245e.zip",
-        },
-        "Description": "AWS CDK resource provider framework - onEvent (Default/CustomBucketDeploymentProps/WebsiteAcl/CloudfrontWebAclProvider)",
-        "Environment": {
-          "Variables": {
-            "USER_ON_EVENT_FUNCTION_ARN": {
-              "Fn::GetAtt": [
-                "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclOnEventHandler27B7D2F2",
-                "Arn",
-              ],
-            },
-          },
-        },
-        "FunctionName": {
-          "Fn::Join": [
-            "",
-            [
-              {
-                "Ref": "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclOnEventHandler27B7D2F2",
-              },
-              "-Provider",
-            ],
-          ],
-        },
-        "Handler": "framework.onEvent",
-        "Role": {
-          "Fn::GetAtt": [
-            "CustomBucketDeploymentPropsWebsiteAclCloudfrontWebAclProviderRole938A57CB",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs14.x",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
     "CustomBucketDeploymentPropsWebsiteAclOnEventHandlerRole21E82ED8": {
       "Metadata": {
         "cdk_nag": {
@@ -17200,7 +17200,7 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
                           {
                             "Ref": "AWS::AccountId",
                           },
-                          ":global/ipset/Default-WebsiteAcl-IPSet/*",
+                          ":global/ipset/Default-WebsiteAcl-ebea-IPSet/*",
                         ],
                       ],
                     },
@@ -17212,7 +17212,7 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
                           {
                             "Ref": "AWS::AccountId",
                           },
-                          ":global/webacl/Default-WebsiteAcl/*",
+                          ":global/webacl/Default-WebsiteAcl-ebea/*",
                         ],
                       ],
                     },
@@ -17246,7 +17246,7 @@ exports[`Static Website Unit Tests With custom bucket deployment props 1`] = `
                         {
                           "Ref": "AWS::AccountId",
                         },
-                        ":global/ipset/Default-WebsiteAcl-IPSet/*",
+                        ":global/ipset/Default-WebsiteAcl-ebea-IPSet/*",
                       ],
                     ],
                   },

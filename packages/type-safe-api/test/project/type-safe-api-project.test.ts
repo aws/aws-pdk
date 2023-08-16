@@ -6,14 +6,14 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { synthProject, synthSmithyProject } from "./snapshot-utils";
 import {
   DocumentationFormat,
+  GeneratedTypeScriptInfrastructureOptions,
+  GeneratedTypeScriptReactQueryHooksOptions,
+  GeneratedTypeScriptRuntimeOptions,
   Language,
   Library,
   ModelLanguage,
-  TypeSafeApiProject,
   OpenApiGeneratorCliConfig,
-  GeneratedTypeScriptReactQueryHooksOptions,
-  GeneratedTypeScriptInfrastructureOptions,
-  GeneratedTypeScriptRuntimeOptions,
+  TypeSafeApiProject,
 } from "../../src";
 
 describe("Type Safe Api Project Unit Tests", () => {
@@ -325,6 +325,45 @@ describe("Type Safe Api Project Unit Tests", () => {
     expect(synthSmithyProject(project)).toMatchSnapshot();
   });
 
+  it("Smithy With Handlers", () => {
+    const project = new TypeSafeApiProject({
+      name: `smithy-handlers`,
+      outdir: path.resolve(__dirname, `smithy-handlers`),
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+      },
+      runtime: {
+        languages: [Language.TYPESCRIPT],
+      },
+      model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+          smithy: {
+            serviceName: {
+              namespace: "com.test",
+              serviceName: "MyService",
+            },
+          },
+        },
+      },
+      handlers: {
+        languages: [Language.TYPESCRIPT, Language.JAVA, Language.PYTHON],
+      },
+    });
+
+    // Runtime languages should be added for each handler
+    expect(project.runtime.typescript).toBeDefined();
+    expect(project.runtime.java).toBeDefined();
+    expect(project.runtime.python).toBeDefined();
+
+    // Handlers should be present
+    expect(project.handlers.typescript).toBeDefined();
+    expect(project.handlers.java).toBeDefined();
+    expect(project.handlers.python).toBeDefined();
+
+    expect(synthSmithyProject(project)).toMatchSnapshot();
+  });
+
   it("Custom OpenAPI Generator CLI Configuration", () => {
     const openApiGeneratorCliConfig: OpenApiGeneratorCliConfig = {
       version: "6.2.0",
@@ -398,12 +437,36 @@ describe("Type Safe Api Project Unit Tests", () => {
     const snapshot = synthSmithyProject(project);
 
     expect(
-      snapshot["infrastructure/typescript/openapitools.json"]
+      snapshot[
+        `${path.relative(
+          project.outdir,
+          project.infrastructure.typescript!.outdir
+        )}/openapitools.json`
+      ]
     ).toMatchSnapshot();
-    expect(snapshot["runtime/typescript/openapitools.json"]).toMatchSnapshot();
     expect(
-      snapshot["libraries/typescript-react-query-hooks/openapitools.json"]
+      snapshot[
+        `${path.relative(
+          project.outdir,
+          project.runtime.typescript!.outdir
+        )}/openapitools.json`
+      ]
     ).toMatchSnapshot();
-    expect(snapshot["documentation/html2/openapitools.json"]).toMatchSnapshot();
+    expect(
+      snapshot[
+        `${path.relative(
+          project.outdir,
+          project.library.typescriptReactQueryHooks!.outdir
+        )}/openapitools.json`
+      ]
+    ).toMatchSnapshot();
+    expect(
+      snapshot[
+        `${path.relative(
+          project.outdir,
+          project.documentation.html2!.outdir
+        )}/openapitools.json`
+      ]
+    ).toMatchSnapshot();
   });
 });
