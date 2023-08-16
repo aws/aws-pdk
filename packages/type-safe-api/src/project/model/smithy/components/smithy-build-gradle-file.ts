@@ -17,7 +17,7 @@ export interface SmithyBuildGradleFileOptions {
 export class SmithyBuildGradleFile extends FileBase {
   public static readonly fileDependencyPrefix: string = "file://";
 
-  private readonly modelDir: string;
+  private readonly sources: string[];
   private readonly dependencies: string[];
   private readonly repositories: string[];
 
@@ -26,7 +26,7 @@ export class SmithyBuildGradleFile extends FileBase {
       marker: true,
       readonly: true,
     });
-    this.modelDir = options.modelDir;
+    this.sources = [options.modelDir];
     this.dependencies = options.dependencies;
     this.repositories = options.repositoryUrls?.map(
       (url) => `maven { url "${url}" }`
@@ -38,6 +38,13 @@ export class SmithyBuildGradleFile extends FileBase {
    */
   public addDeps(...deps: string[]) {
     this.dependencies.push(...deps);
+  }
+
+  /**
+   * Add source directories to the build.gradle
+   */
+  public addSources(...sources: string[]) {
+    this.sources.push(...sources);
   }
 
   private renderDependency = (dep: string) => {
@@ -58,7 +65,7 @@ plugins {
 sourceSets {
     main {
         java {
-            srcDirs = ['${this.modelDir}']
+            srcDirs = [${this.sources.map((s) => `'${s}'`).join(", ")}]
         }
     }
 }

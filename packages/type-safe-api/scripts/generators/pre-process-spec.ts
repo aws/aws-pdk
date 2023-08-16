@@ -1,7 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
-import * as path from "path";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { parse } from "ts-command-line-args";
 
@@ -76,9 +75,14 @@ void (async () => {
         Object.entries(operation.traits).forEach(([traitId, value]) => {
           // By default, we use x-<fully_qualified_trait_id> for the vendor extension, but for extensions we support
           // directly from OpenAPI we apply a mapping (rather than repeat ourselves in the mustache templates).
-          const vendorExtension =
+          let vendorExtension =
             TRAIT_TO_SUPPORTED_OPENAPI_VENDOR_EXTENSION[traitId] ??
             `x-${traitId}`;
+          // Special case for the handler trait where it's defined as part of the user's smithy model, so the namespace
+          // can be any namespace the user defines
+          if (traitId.endsWith("#handler")) {
+            vendorExtension = "x-handler";
+          }
           spec.paths[operation.path][operation.method][vendorExtension] = value;
         });
       }

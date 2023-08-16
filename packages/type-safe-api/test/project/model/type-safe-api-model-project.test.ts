@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import path from "path";
-import { ModelLanguage, TypeSafeApiModelProject } from "../../../src";
+import { Language, ModelLanguage, TypeSafeApiModelProject } from "../../../src";
 import { synthProject, synthSmithyProject } from "../snapshot-utils";
 
 describe("Type Safe Api Model Project Unit Tests", () => {
@@ -104,6 +104,41 @@ describe("Type Safe Api Model Project Unit Tests", () => {
           title: "MyService",
         },
       },
+    });
+
+    expect(synthProject(project)).toMatchSnapshot();
+  });
+
+  it("Smithy With Handlers", () => {
+    const project = new TypeSafeApiModelProject({
+      outdir: path.resolve(__dirname, "smithy-handlers"),
+      name: "smithy-handlers",
+      modelLanguage: ModelLanguage.SMITHY,
+      modelOptions: {
+        smithy: {
+          serviceName: {
+            namespace: "com.test",
+            serviceName: "MyService",
+          },
+        },
+      },
+      handlerLanguages: [Language.PYTHON, Language.TYPESCRIPT],
+    });
+
+    expect(synthSmithyProject(project)).toMatchSnapshot();
+  });
+
+  it("OpenAPI With Handlers", () => {
+    const project = new TypeSafeApiModelProject({
+      outdir: path.resolve(__dirname, "openapi-handlers"),
+      name: "openapi-handlers",
+      modelLanguage: ModelLanguage.OPENAPI,
+      modelOptions: {
+        openapi: {
+          title: "MyService",
+        },
+      },
+      handlerLanguages: [Language.JAVA, Language.PYTHON],
     });
 
     expect(synthProject(project)).toMatchSnapshot();

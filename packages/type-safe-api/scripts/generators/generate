@@ -51,6 +51,8 @@ install_packages \
   @types/node@20.1.5 \
   ts-node@10.9.1 \
   ts-command-line-args@2.4.2 \
+  lodash@4.17.21 \
+  @types/lodash@4.14.197 \
   @apidevtools/swagger-parser@10.1.0 \
   openapi-types@12.1.0
 
@@ -59,7 +61,11 @@ install_packages \
 log "preprocess spec :: $spec_path"
 processed_spec_path="$tmp_dir/.preprocessed-api.json"
 cp $script_dir/pre-process-spec.ts .
-run_command ts-node pre-process-spec.ts --specPath="$working_dir/$spec_path" --outputSpecPath="$processed_spec_path" --extraVendorExtensions="$extra_vendor_extensions" ${smithy_json_path:+"--smithyJsonPath=$working_dir/$smithy_json_path"}
+run_command ts-node pre-process-spec.ts \
+  --specPath="$working_dir/$spec_path" \
+  --outputSpecPath="$processed_spec_path" \
+  --extraVendorExtensions="$extra_vendor_extensions" \
+  ${smithy_json_path:+"--smithyJsonPath=$working_dir/$smithy_json_path"}
 
 # Support a special placeholder of {{src}} in config.yaml to ensure our custom templates get written to the correct folder
 sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
@@ -108,6 +114,16 @@ if [ -f "$handlebars_ignore_file" ]; then
     cat ./first-pass-files >> $generated_files_metadata_file
   fi
 fi
+
+# Post processing
+cp $script_dir/post-process.ts .
+run_command ts-node post-process.ts \
+  --outputPath="$working_dir/$output_path" \
+  --srcDir="$src_dir"
+
+# Clean up empty directories left over by openapi generator
+log "Cleaning up empty directories"
+find "$working_dir/$output_path" -type d -empty -print -delete
 
 echo "$generator_dir ($generator) OpenAPI generation done!"
 

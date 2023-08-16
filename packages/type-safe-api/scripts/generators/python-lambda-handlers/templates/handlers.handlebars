@@ -1,0 +1,43 @@
+###TSAPI_SPLIT_FILE###
+{{#apiInfo ~}}
+{{#apis ~}}
+{{#operations ~}}
+{{#operation ~}}
+{{#if vendorExtensions.x-handler}}
+{{#startsWith vendorExtensions.x-handler.language 'python'}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": ".",
+  "name": "{{operationId}}",
+  "ext": ".py",
+  "overwrite": false
+}
+###/TSAPI_WRITE_FILE###from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.models import *
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.apis.tags.default_api_operation_config import (
+    {{operationId}}_handler, {{operationIdCamelCase}}Request, {{operationIdCamelCase}}OperationResponses, ApiResponse
+)
+
+
+def {{operationId}}(input: {{operationIdCamelCase}}Request, **kwargs) -> {{operationIdCamelCase}}OperationResponses:
+    """
+    Type-safe handler for the {{operationIdCamelCase}} operation
+    """
+    # TODO: Implement {{operationIdCamelCase}} Operation
+    return ApiResponse(
+        status_code=500,
+        body=InternalFailureErrorResponseContent(
+            message="Not Implemented!"),
+        headers={}
+    )
+
+
+# Entry point for the AWS Lambda handler for the {{operationIdCamelCase}} operation.
+# The {{operationId}}_handler method wraps the type-safe handler and manages marshalling inputs and outputs
+handler = {{operationId}}_handler({{operationId}})
+
+{{~/startsWith}}
+{{~/if}}
+{{~/operation}}
+{{~/operations}}
+{{~/apis}}
+{{~/apiInfo}}
