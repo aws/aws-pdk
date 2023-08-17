@@ -9,6 +9,7 @@ import { NxProject } from "./nx-project";
 import { NxWorkspace } from "./nx-workspace";
 import { Nx } from "../nx-types";
 import { NodePackageUtils, ProjectUtils } from "../utils";
+import { TypeScriptProject } from "projen/lib/typescript";
 
 /**
  * Options for overriding nx build tasks
@@ -393,6 +394,19 @@ export class NxConfigurator extends Component implements INxProjectCore {
     this._ensureNxProjectGraph();
     this._emitPackageJson();
     this.patchPythonProjects([this.project]);
+
+    // Ensure Ts Projects use NodeNext resolution to support nice imports
+    this.project.subprojects.forEach((s) => {
+      if (s instanceof TypeScriptProject) {
+        [s.tsconfigDev?.fileName, s.tsconfig?.fileName]
+          .filter((f) => !!f)
+          .forEach((f) =>
+            s
+              .tryFindObjectFile(f!)
+              ?.addOverride("compilerOptions.moduleResolution", "NodeNext")
+          );
+      }
+    });
   }
 
   /**

@@ -3,10 +3,15 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "node:path";
 import * as fs from "fs-extra";
-import * as SemVer from "semver";
-import { buildDependenciesHierarchy, PackageNode } from "@pnpm/reviewing.dependencies-hierarchy";
+import {
+  buildDependenciesHierarchy,
+  PackageNode,
+} from "@pnpm/reviewing.dependencies-hierarchy";
 
-async function linkBundledTransitiveDeps(workspaceDir: string, pkgFolder: string) {
+async function linkBundledTransitiveDeps(
+  workspaceDir: string,
+  pkgFolder: string
+) {
   const pkgDir = path.join(workspaceDir, pkgFolder);
   const pkgJson = require(path.join(pkgDir, "package.json"));
   const bundledDeps: string[] = pkgJson.bundledDependencies || [];
@@ -15,25 +20,30 @@ async function linkBundledTransitiveDeps(workspaceDir: string, pkgFolder: string
     return;
   }
 
-  const dependencyHierarchy = (await buildDependenciesHierarchy([pkgDir], {
-    depth: Number.MAX_SAFE_INTEGER,
-    lockfileDir: workspaceDir,
-    include: {
-      optionalDependencies: false,
-      dependencies: true,
-      devDependencies: false,
-    },
-  }))[pkgDir];
+  const dependencyHierarchy = (
+    await buildDependenciesHierarchy([pkgDir], {
+      depth: Number.MAX_SAFE_INTEGER,
+      lockfileDir: workspaceDir,
+      include: {
+        optionalDependencies: false,
+        dependencies: true,
+        devDependencies: false,
+      },
+    })
+  )[pkgDir];
+  const transitiveDeps: Record<string, PackageNode & { depth: number }> = {};
 
-  const transitiveDeps: Record<string, PackageNode> = {};
-
-  function visit(_deps?: PackageNode[]) {
+  function visit(_deps?: PackageNode[], depth: number = 0) {
     if (_deps == null || !_deps.length) {
       return;
     }
 
     _deps.forEach((_dep) => {
-      if (_dep.resolved == null || _dep.isMissing || _dep.version.startsWith("link:")) {
+      if (
+        _dep.resolved == null ||
+        _dep.isMissing ||
+        _dep.version.startsWith("link:")
+      ) {
         // Unresolved / unsaved dependency
         return;
       }
@@ -42,19 +52,23 @@ async function linkBundledTransitiveDeps(workspaceDir: string, pkgFolder: string
       const _existing = transitiveDeps[_dep.alias];
       // Use the latest version of transitive deps only
       // TODO: Can we support multiple versions of transitive deps, and should we?
-      if (!_existing || SemVer.gt(_dep.version, _existing.version)) {
-        transitiveDeps[_dep.alias] = _dep;
+      if (!_existing || depth < _existing.depth) {
+        transitiveDeps[_dep.alias] = { ..._dep, depth };
 
         // traverse
-        visit(_dep.dependencies);
+        visit(_dep.dependencies, depth + 1);
       }
-    })
+    });
   }
 
   for (const _bundledDepName of bundledDeps) {
-    const _bundledDep = (dependencyHierarchy.dependencies || []).find((v) => v.alias === _bundledDepName);
+    const _bundledDep = (dependencyHierarchy.dependencies || []).find(
+      (v) => v.alias === _bundledDepName
+    );
     if (_bundledDep == null) {
-      throw new Error(`Package ${pkgJson.name} bundled dependency "${_bundledDepName}" is missing dependency declaration.`)
+      throw new Error(
+        `Package ${pkgJson.name} bundled dependency "${_bundledDepName}" is missing dependency declaration.`
+      );
     }
 
     visit(_bundledDep.dependencies);
@@ -73,18 +87,21 @@ async function linkBundledTransitiveDeps(workspaceDir: string, pkgFolder: string
     }
   }
 
-  console.info(`Package "${pkgFolder}" transitive bundled dependencies are linked:`, Object.keys(transitiveDeps).sort().join(", "));
+  console.info(
+    `Package "${pkgFolder}" transitive bundled dependencies are linked:`,
+    Object.keys(transitiveDeps).sort().join(", ")
+  );
 }
 
 (async () => {
-  const [,,pkgFolder] = process.argv;
+  const [, , pkgFolder] = process.argv;
 
   if (pkgFolder == null) {
-    throw new Error(`Missing pkgDir arg`)
+    throw new Error(`Missing pkgDir arg`);
   }
 
   linkBundledTransitiveDeps(
     require("nx/src/utils/workspace-root").workspaceRoot,
-    pkgFolder,
-  )
+    pkgFolder
+  );
 })();

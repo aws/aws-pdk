@@ -2,7 +2,10 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType, IgnoreFile } from "projen";
-import { NodePackageManager } from "projen/lib/javascript";
+import {
+  NodePackageManager,
+  TypeScriptModuleResolution,
+} from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import {
   CodeGenerationSourceOptions,
@@ -59,6 +62,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
           lib: ["dom", "es2019"],
           // Generated code imports all models, and may not reference them all
           noUnusedLocals: false,
+          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           noUnusedParameters: false,
           skipLibCheck: true,
           ...options?.tsconfig?.compilerOptions,
@@ -68,6 +72,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
     });
     this.options = options;
 
+    this.addDevDeps("@types/aws-lambda");
     this.addDeps(
       ...[
         "aws-pdk",

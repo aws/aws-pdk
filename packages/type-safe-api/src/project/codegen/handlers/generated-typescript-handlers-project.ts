@@ -2,7 +2,10 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType, IgnoreFile } from "projen";
-import { NodePackageManager } from "projen/lib/javascript";
+import {
+  NodePackageManager,
+  TypeScriptModuleResolution,
+} from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import {
   CodeGenerationSourceOptions,
@@ -52,6 +55,7 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
           noUnusedLocals: false,
           noUnusedParameters: false,
           skipLibCheck: true,
+          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           ...options?.tsconfig?.compilerOptions,
         },
       },
@@ -75,7 +79,7 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
         (dep) => !this.deps.tryGetDependency(dep, DependencyType.RUNTIME)
       )
     );
-    this.addDevDeps("esbuild");
+    this.addDevDeps("esbuild", "@types/aws-lambda");
 
     // Minimal .npmignore to avoid impacting OpenAPI Generator
     const npmignore = new IgnoreFile(this, ".npmignore");

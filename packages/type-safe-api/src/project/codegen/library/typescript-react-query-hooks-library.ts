@@ -1,7 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { NodePackageUtils } from "@aws-pdk/nx-monorepo";
-import { NodePackageManager, TypeScriptJsxMode } from "projen/lib/javascript";
+import {
+  NodePackageManager,
+  TypeScriptJsxMode,
+  TypeScriptModuleResolution,
+} from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Library } from "../../languages";
 import {
@@ -70,6 +74,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
           strictNullChecks: false,
           strictPropertyInitialization: false,
           skipLibCheck: true,
+          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           ...options?.tsconfig?.compilerOptions,
         },
       },

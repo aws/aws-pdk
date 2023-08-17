@@ -39,7 +39,7 @@ export class AwsPdkProject extends PDKProject {
         ...p,
         ...{
           [c.name]: [
-            `./${c.srcdir}/${AwsPdkProject.getSafeProjectName(c)}/src`,
+            `./${c.srcdir}/${AwsPdkProject.getSafeProjectName(c)}/lib`,
           ],
         },
       }),
@@ -98,12 +98,12 @@ export class AwsPdkProject extends PDKProject {
             c.outdir
           )}`]: `./lib/${AwsPdkProject.getSafeProjectName(
             path.basename(c.outdir)
-          )}/src/index.js`,
+          )}/lib/index.js`,
           [`./lib/${AwsPdkProject.getSafeProjectName(
             path.basename(c.outdir)
           )}`]: `./lib/${AwsPdkProject.getSafeProjectName(
             path.basename(c.outdir)
-          )}/src/index.js`,
+          )}/lib/index.js`,
         };
       }, {}),
     });
@@ -155,47 +155,48 @@ export class AwsPdkProject extends PDKProject {
           (p) =>
             `export * as ${AwsPdkProject.getSafeProjectName(
               p
-            )} from "./${AwsPdkProject.getSafeProjectName(p)}/src";`
+            )} from "./${AwsPdkProject.getSafeProjectName(p)}/lib";`
         )
         .join("\n")}' > ./${this.srcdir}/index.ts`
     );
   }
 
+  private conditionallyCopyFiles(
+    project: JsiiProject,
+    dir: string,
+    targetDir: string = dir,
+    copyRoot: string = "lib"
+  ) {
+    this.preCompileTask.exec(
+      `if [[ -d "${path.relative(
+        this.outdir,
+        project.outdir
+      )}/${dir}/" ]]; then mkdir -p ./${copyRoot}/${AwsPdkProject.getSafeProjectName(
+        project
+      )}/${targetDir} && rsync -a ${path.relative(
+        this.outdir,
+        project.outdir
+      )}/${dir}/ ./${copyRoot}/${AwsPdkProject.getSafeProjectName(
+        project
+      )}/${targetDir} --prune-empty-dirs; fi;`
+    );
+  }
+
   private copyProjectSource(project: JsiiProject) {
+    this.conditionallyCopyFiles(project, project.srcdir, "lib", this.srcdir);
+    this.conditionallyCopyFiles(project, "samples");
+    this.conditionallyCopyFiles(project, "scripts");
+    this.conditionallyCopyFiles(project, "assets");
+
     this.preCompileTask.exec(
-      `mkdir -p ./${this.srcdir}/${AwsPdkProject.getSafeProjectName(
+      `mkdir -p ./lib/${AwsPdkProject.getSafeProjectName(
         project
-      )}/src && rsync -a ${path.relative(this.outdir, project.outdir)}/${
-        project.srcdir
-      }/ ./${this.srcdir}/${AwsPdkProject.getSafeProjectName(
-        project
-      )}/src --prune-empty-dirs`
-    );
-    this.preCompileTask.exec(
-      `if [[ -d "${path.relative(
+      )}/lib && rsync --exclude=**/*.ts -a ${path.relative(
         this.outdir,
         project.outdir
-      )}/samples/" ]]; then mkdir -p ./lib/${AwsPdkProject.getSafeProjectName(
+      )}/${project.srcdir}/ ./lib/${AwsPdkProject.getSafeProjectName(
         project
-      )}/samples && rsync -a ${path.relative(
-        this.outdir,
-        project.outdir
-      )}/samples/ ./lib/${AwsPdkProject.getSafeProjectName(
-        project
-      )}/samples --prune-empty-dirs; fi;`
-    );
-    this.preCompileTask.exec(
-      `if [[ -d "${path.relative(
-        this.outdir,
-        project.outdir
-      )}/scripts/" ]]; then mkdir -p ./lib/${AwsPdkProject.getSafeProjectName(
-        project
-      )}/scripts && rsync -a ${path.relative(
-        this.outdir,
-        project.outdir
-      )}/scripts/ ./lib/${AwsPdkProject.getSafeProjectName(
-        project
-      )}/scripts --prune-empty-dirs; fi;`
+      )}/lib --prune-empty-dirs`
     );
   }
 
