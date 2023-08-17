@@ -41,7 +41,7 @@ export class NxMonorepoJavaProject
       junit: false,
     });
 
-    this.addTestDependency("software.aws.awsprototypingsdk/nx-monorepo@^0");
+    this.addTestDependency("software.aws/aws-pdk@^0");
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch: options.defaultReleaseBranch,

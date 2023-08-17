@@ -41,7 +41,7 @@ export class NxMonorepoPythonProject
       pytest: false,
     });
 
-    this.addDevDependency("aws-prototyping-sdk.nx-monorepo@^0");
+    this.addDevDependency("aws_pdk@^0");
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch: options.defaultReleaseBranch,
