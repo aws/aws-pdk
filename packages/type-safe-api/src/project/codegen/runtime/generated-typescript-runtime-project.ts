@@ -55,7 +55,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
 
   constructor(options: GeneratedTypescriptTypesProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sampleCode: false,
       tsconfig: {
         ...options.tsconfig,

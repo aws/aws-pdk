@@ -1,5 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { PrimitiveType } from "@jsii/spec";
+import { ProjenStruct, Struct } from "@mrgrain/jsii-struct-builder";
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { PDKProject, PDK_NAMESPACE } from "../abstract/pdk-project";
@@ -27,5 +29,20 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
       bundledDeps: ["mustache"],
       stability: Stability.EXPERIMENTAL,
     });
+
+    new ProjenStruct(this, {
+      name: "ReactTypeScriptProjectOptions",
+      filePath: `${this.srcdir}/react-ts-project-options.ts`,
+      outputFileOptions: {
+        readonly: false, // Needed as EsLint will complain otherwise
+      },
+    })
+      .mixin(Struct.fromFqn("projen.web.ReactTypeScriptProjectOptions"))
+      .allOptional()
+      .add({
+        name: "name",
+        type: { primitive: PrimitiveType.String },
+        optional: false,
+      });
   }
 }

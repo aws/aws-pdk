@@ -49,7 +49,7 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
 
   constructor(options: GeneratedJavaCdkInfrastructureProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sample: false,
       junit: false,
     });

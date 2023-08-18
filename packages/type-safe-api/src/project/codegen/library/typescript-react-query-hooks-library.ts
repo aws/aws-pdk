@@ -56,7 +56,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
 
   constructor(options: GeneratedTypescriptReactQueryHooksProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sampleCode: false,
       tsconfig: {
         ...options.tsconfig,

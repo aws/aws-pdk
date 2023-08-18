@@ -5,13 +5,13 @@ import { aws_arch } from "@aws-pdk/aws-arch";
 import type { Graph } from "@aws-pdk/cdk-graph";
 import cloneDeep = require("lodash.clonedeep"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as Dot from "ts-graphviz";
-import { FONT_STYLESHEET, GraphFonts } from "../../fonts";
 import {
   GraphThemeRenderingIconTarget,
   IGraphThemeConfigAlt,
   IGraphThemeRendering,
   IGraphThemeRenderingOptions,
 } from "./theme";
+import { FONT_STYLESHEET, GraphFonts } from "../../fonts";
 
 /**
  * Icon definition for graph rendering of resource icons.

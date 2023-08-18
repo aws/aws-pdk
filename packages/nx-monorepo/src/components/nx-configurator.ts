@@ -5,11 +5,11 @@ import { Component, JsonFile, Project, Task } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { Poetry, PythonProject } from "projen/lib/python";
+import { TypeScriptProject } from "projen/lib/typescript";
 import { NxProject } from "./nx-project";
 import { NxWorkspace } from "./nx-workspace";
 import { Nx } from "../nx-types";
 import { NodePackageUtils, ProjectUtils } from "../utils";
-import { TypeScriptProject } from "projen/lib/typescript";
 
 /**
  * Options for overriding nx build tasks

@@ -48,11 +48,17 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "eslint-plugin-header",
         "husky",
         "got@^11.8.5",
+        "@jsii/spec",
       ],
       monorepoUpgradeDepsOptions: {
         syncpackConfig: { ...DEFAULT_CONFIG, workspace: false },
       },
-      deps: ["fast-xml-parser", "projen", "@pnpm/types@^9.0.0"],
+      deps: [
+        "fast-xml-parser",
+        "projen",
+        "@pnpm/types@^9.0.0",
+        "@mrgrain/jsii-struct-builder",
+      ],
       workspaceConfig: {
         disableNoHoistBundled: true,
         linkLocalWorkspaceBins: true,

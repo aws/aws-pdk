@@ -37,15 +37,15 @@ export class GeneratedPythonHandlersProject extends PythonProject {
 
   constructor(options: GeneratedPythonHandlersProjectOptions) {
     super({
-      sample: false,
       pytest: false,
-      poetry: true,
       poetryOptions: {
         packages: [{ include: options.moduleName }],
         // Module must be explicitly added to include since poetry excludes everything in .gitignore by default
-        include: [options.moduleName, `${options.moduleName}/**/*.py`],
+        include: [options.moduleName!, `${options.moduleName}/**/*.py`],
       },
-      ...options,
+      ...(options as any),
+      sample: false,
+      poetry: true,
     });
     this.options = options;
 

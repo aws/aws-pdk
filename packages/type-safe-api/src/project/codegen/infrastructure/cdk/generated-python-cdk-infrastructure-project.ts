@@ -37,6 +37,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
 
   constructor(options: GeneratedPythonCdkInfrastructureProjectOptions) {
     super({
+      ...(options as any),
       sample: false,
       pytest: false,
       poetry: true,
@@ -45,7 +46,6 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         // Module must be explicitly added to include since poetry excludes everything in .gitignore by default
         include: [options.moduleName, `${options.moduleName}/**/*.py`],
       },
-      ...options,
     });
     this.options = options;
 

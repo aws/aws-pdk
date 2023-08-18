@@ -2,3 +2,5 @@
 SPDX-License-Identifier: Apache-2.0 */
 export * from "./cloudfront-web-acl";
 export * from "./static-website";
+export * from "./bucket-deployment-props";
+export * from "./distribution-props";

@@ -32,6 +32,7 @@ import {
   SonarCodeScanner,
   SonarCodeScannerConfig,
 } from "./code_scanner/sonar-code-scanner";
+import { CodePipelineProps as _CodePipelineProps } from "./codepipeline-props";
 import { FeatureBranches } from "./feature-branches";
 
 export * from "./code_scanner/sonar-code-scanner";
@@ -49,7 +50,7 @@ export const DEFAULT_BRANCH_NAME = "mainline";
  * synthShellStepPartialProps.commands is marked as a required field, however
  * if you pass in [] the default commands of this construct will be retained.
  */
-export interface PDKPipelineProps extends CodePipelineProps {
+export interface PDKPipelineProps extends _CodePipelineProps {
   /**
    * Name of the CodeCommit repository to create.
    */

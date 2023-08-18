@@ -52,7 +52,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
 
   constructor(options: GeneratedTypescriptCdkInfrastructureProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sampleCode: false,
       jest: false,
       eslint: false,

@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { ProjenStruct, Struct } from "@mrgrain/jsii-struct-builder";
 import { Stability } from "projen/lib/cdk";
 import { NxMonorepoProject } from "../../packages/nx-monorepo/src";
 import { PDKProject, PDK_NAMESPACE } from "../abstract/pdk-project";
@@ -24,5 +25,15 @@ export class PipelineProject extends PDKProject {
     });
 
     this.postCompileTask.prependExec("cp -r src/lambda lib");
+
+    new ProjenStruct(this, {
+      name: "CodePipelineProps",
+      filePath: `${this.srcdir}/codepipeline-props.ts`,
+      outputFileOptions: {
+        readonly: false, // Needed as EsLint will complain otherwise
+      },
+    })
+      .mixin(Struct.fromFqn("aws-cdk-lib.pipelines.CodePipelineProps"))
+      .allOptional();
   }
 }

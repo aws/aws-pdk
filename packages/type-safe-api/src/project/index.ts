@@ -7,3 +7,6 @@ export * from "./model/openapi/open-api-definition";
 export * from "./model/smithy/types";
 export * from "./languages";
 export * from "./types";
+export * from "./typescript-project-options";
+export * from "./python-project-options";
+export * from "./java-project-options";

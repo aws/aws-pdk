@@ -3,7 +3,8 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Project, Task } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager } from "projen/lib/javascript";
-import { Poetry, PythonProject, PythonProjectOptions } from "projen/lib/python";
+import { Poetry, PythonProject } from "projen/lib/python";
+import { PythonProjectOptions } from "./python-project-options";
 import {
   INxProjectCore,
   NxConfigurator,
@@ -38,13 +39,16 @@ export class NxMonorepoPythonProject
       ...options,
       sample: false,
       poetry: true,
-      pytest: false,
+      pytest: options.pytest ?? false,
+      version: options.version ?? "0.0.0",
+      authorName: options.authorName ?? "pdkuser",
+      authorEmail: options.authorEmail ?? "user@pdk.com",
     });
 
     this.addDevDependency("aws_pdk@^0");
 
     this.nxConfigurator = new NxConfigurator(this, {
-      defaultReleaseBranch: options.defaultReleaseBranch,
+      defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
     });
 
     // Setup python NX plugin

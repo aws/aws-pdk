@@ -5,10 +5,8 @@ import * as path from "path";
 import { TypeSafeApiProject } from "@aws-pdk/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleDir } from "projen";
-import {
-  ReactTypeScriptProject,
-  ReactTypeScriptProjectOptions,
-} from "projen/lib/web";
+import { ReactTypeScriptProject } from "projen/lib/web";
+import { ReactTypeScriptProjectOptions } from "./react-ts-project-options";
 
 /**
  * Configuration options for the CloudscapeReactTsWebsiteProject.
@@ -46,7 +44,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
   constructor(options: CloudscapeReactTsWebsiteProjectOptions) {
     super({
       ...options,
-      defaultReleaseBranch: options.defaultReleaseBranch,
+      defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
       name: options.name,
       sampleCode: false,
       readme: {

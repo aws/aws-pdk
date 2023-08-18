@@ -46,7 +46,7 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
 
   constructor(options: GeneratedTypescriptHandlersProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sampleCode: false,
       tsconfig: {
         compilerOptions: {

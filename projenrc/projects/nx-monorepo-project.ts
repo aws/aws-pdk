@@ -1,5 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { PrimitiveType } from "@jsii/spec";
+import { ProjenStruct, Struct } from "@mrgrain/jsii-struct-builder";
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { PDKProject } from "../abstract/pdk-project";
@@ -43,5 +45,66 @@ export class NXMonorepoProject extends PDKProject {
       "pdk-pnpm-link-bundled-transitive-deps":
         "./scripts/pnpm/link-bundled-transitive-deps.ts",
     });
+
+    new ProjenStruct(this, {
+      name: "TypeScriptProjectOptions",
+      filePath: `${this.srcdir}/projects/typescript/typescript-project-options.ts`,
+      outputFileOptions: {
+        readonly: false, // Needed as EsLint will complain otherwise
+      },
+    })
+      .mixin(Struct.fromFqn("projen.typescript.TypeScriptProjectOptions"))
+      .allOptional()
+      .add({
+        name: "name",
+        type: { primitive: PrimitiveType.String },
+        optional: false,
+      });
+
+    new ProjenStruct(this, {
+      name: "JavaProjectOptions",
+      filePath: `${this.srcdir}/projects/java/java-project-options.ts`,
+      outputFileOptions: {
+        readonly: false, // Needed as EsLint will complain otherwise
+      },
+    })
+      .mixin(Struct.fromFqn("projen.java.JavaProjectOptions"))
+      .allOptional()
+      .add({
+        name: "name",
+        type: { primitive: PrimitiveType.String },
+        optional: false,
+      });
+
+    new ProjenStruct(this, {
+      name: "PythonProjectOptions",
+      filePath: `${this.srcdir}/projects/python/python-project-options.ts`,
+      outputFileOptions: {
+        readonly: false, // Needed as EsLint will complain otherwise
+      },
+    })
+      .mixin(Struct.fromFqn("projen.python.PythonProjectOptions"))
+      .allOptional()
+      .add({
+        name: "name",
+        type: { primitive: PrimitiveType.String },
+        optional: false,
+      })
+      .add({
+        name: "moduleName",
+        type: { primitive: PrimitiveType.String },
+        optional: false,
+      })
+      .omit(
+        "pip",
+        "venv",
+        "venvOptions",
+        "poetry",
+        "projenrcPython",
+        "projenrcJs",
+        "projenrcJsOptions",
+        "projenrcTs",
+        "projenrcTsOptions"
+      );
   }
 }

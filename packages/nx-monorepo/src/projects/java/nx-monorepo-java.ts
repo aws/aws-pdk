@@ -3,8 +3,9 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import { Project, Task, TaskRuntime, TextFile } from "projen";
-import { JavaProject, JavaProjectOptions } from "projen/lib/java";
+import { JavaProject } from "projen/lib/java";
 import { PythonProject } from "projen/lib/python";
+import { JavaProjectOptions } from "./java-project-options";
 import {
   NxConfigurator,
   INxProjectCore,
@@ -39,12 +40,15 @@ export class NxMonorepoJavaProject
       ...options,
       sample: false,
       junit: false,
+      version: options.version ?? "0.0.0",
+      groupId: options.groupId ?? "com.aws",
+      artifactId: options.artifactId ?? "monorepo",
     });
 
     this.addTestDependency("software.aws/aws-pdk@^0");
 
     this.nxConfigurator = new NxConfigurator(this, {
-      defaultReleaseBranch: options.defaultReleaseBranch,
+      defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
     });
 
     // Setup maven nx plugin

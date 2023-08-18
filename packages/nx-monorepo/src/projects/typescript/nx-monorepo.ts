@@ -16,11 +16,9 @@ import {
   TypeScriptModuleResolution,
 } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
-import {
-  TypeScriptProject,
-  TypeScriptProjectOptions,
-} from "projen/lib/typescript";
+import { TypeScriptProject } from "projen/lib/typescript";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
+import { TypeScriptProjectOptions } from "./typescript-project-options";
 import {
   NxConfigurator,
   INxProjectCore,
@@ -142,8 +140,7 @@ export class NxMonorepoProject
   private subNodeProjectResolves: Array<() => boolean> = [];
 
   constructor(options: NxMonorepoProjectOptions) {
-    const defaultReleaseBranch = options.defaultReleaseBranch ?? "mainline";
-
+    const defaultReleaseBranch = options.defaultReleaseBranch ?? "main";
     super({
       ...options,
       github: options.github ?? false,
@@ -155,9 +152,9 @@ export class NxMonorepoProject
       projenrcTs: true,
       release: options.release ?? false,
       jest: options.jest ?? false,
-      defaultReleaseBranch,
       sampleCode: false, // root should never have sample code,
       gitignore: [".tmp", ...(options.gitignore ?? [])],
+      defaultReleaseBranch,
       eslintOptions: options.eslintOptions ?? {
         dirs: ["."],
         ignorePatterns: ["packages/**/*.*"],

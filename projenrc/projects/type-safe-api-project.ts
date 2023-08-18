@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { ProjenStruct, Struct } from "@mrgrain/jsii-struct-builder";
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { PDKProject, PDK_NAMESPACE } from "../abstract/pdk-project";
@@ -85,5 +86,46 @@ export class TypeSafeApiProject extends PDKProject {
     this.gitignore.exclude("tmp\\.*");
     this.eslint?.addRules({ "import/no-unresolved": ["off"] });
     this.tsconfigEslint!.addInclude("scripts");
+
+    new ProjenStruct(this, {
+      name: "TypeScriptProjectOptions",
+      filePath: `${this.srcdir}/project/typescript-project-options.ts`,
+      outputFileOptions: {
+        readonly: false, // Needed as EsLint will complain otherwise
+      },
+    })
+      .mixin(Struct.fromFqn("projen.typescript.TypeScriptProjectOptions"))
+      .allOptional();
+
+    new ProjenStruct(this, {
+      name: "JavaProjectOptions",
+      filePath: `${this.srcdir}/project/java-project-options.ts`,
+      outputFileOptions: {
+        readonly: false, // Needed as EsLint will complain otherwise
+      },
+    })
+      .mixin(Struct.fromFqn("projen.java.JavaProjectOptions"))
+      .allOptional();
+
+    new ProjenStruct(this, {
+      name: "PythonProjectOptions",
+      filePath: `${this.srcdir}/project/python-project-options.ts`,
+      outputFileOptions: {
+        readonly: false, // Needed as EsLint will complain otherwise
+      },
+    })
+      .mixin(Struct.fromFqn("projen.python.PythonProjectOptions"))
+      .allOptional()
+      .omit(
+        "pip",
+        "venv",
+        "venvOptions",
+        "poetry",
+        "projenrcPython",
+        "projenrcJs",
+        "projenrcJsOptions",
+        "projenrcTs",
+        "projenrcTsOptions"
+      );
   }
 }

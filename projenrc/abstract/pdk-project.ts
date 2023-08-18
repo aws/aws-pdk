@@ -133,6 +133,7 @@ export abstract class PDKProject extends JsiiProject {
           },
         ],
       });
+      this.packageTask.spawn(eslintTask!);
     }
 
     if (options.jest !== false) {

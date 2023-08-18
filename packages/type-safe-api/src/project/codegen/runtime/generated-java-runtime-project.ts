@@ -85,9 +85,9 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
 
   constructor(options: GeneratedJavaTypesProjectOptions) {
     super({
+      ...(options as any),
       sample: false,
       junit: false,
-      ...options,
     });
     this.options = options;
 
