@@ -168,10 +168,10 @@ export class AwsPdkProject extends PDKProject {
     copyRoot: string = "lib"
   ) {
     this.preCompileTask.exec(
-      `if [[ -d "${path.relative(
+      `if [ -d "${path.relative(
         this.outdir,
         project.outdir
-      )}/${dir}/" ]]; then mkdir -p ./${copyRoot}/${AwsPdkProject.getSafeProjectName(
+      )}/${dir}/" ]; then mkdir -p ./${copyRoot}/${AwsPdkProject.getSafeProjectName(
         project
       )}/${targetDir} && rsync -a ${path.relative(
         this.outdir,
