@@ -24,6 +24,10 @@ export class StaticWebsiteProject extends PDKProject {
       stability: Stability.EXPERIMENTAL,
     });
 
+    this.generateInterfaces();
+  }
+
+  private generateInterfaces() {
     new ProjenStruct(this, {
       name: "BucketDeploymentProps",
       filePath: `${this.srcdir}/bucket-deployment-props.ts`,
@@ -45,5 +49,8 @@ export class StaticWebsiteProject extends PDKProject {
     })
       .mixin(Struct.fromFqn("aws-cdk-lib.aws_cloudfront.DistributionProps"))
       .allOptional();
+
+    this.eslint?.addIgnorePattern(`${this.srcdir}/bucket-deployment-props.ts`);
+    this.eslint?.addIgnorePattern(`${this.srcdir}/distribution-props.ts`);
   }
 }

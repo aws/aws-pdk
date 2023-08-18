@@ -30,6 +30,10 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
       stability: Stability.EXPERIMENTAL,
     });
 
+    this.generateInterfaces();
+  }
+
+  private generateInterfaces() {
     new ProjenStruct(this, {
       name: "ReactTypeScriptProjectOptions",
       filePath: `${this.srcdir}/react-ts-project-options.ts`,
@@ -44,5 +48,7 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
         type: { primitive: PrimitiveType.String },
         optional: false,
       });
+
+    this.eslint?.addIgnorePattern(`${this.srcdir}/react-ts-project-options.ts`);
   }
 }

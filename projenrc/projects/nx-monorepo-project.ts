@@ -46,6 +46,10 @@ export class NXMonorepoProject extends PDKProject {
         "./scripts/pnpm/link-bundled-transitive-deps.ts",
     });
 
+    this.generateInterfaces();
+  }
+
+  private generateInterfaces() {
     new ProjenStruct(this, {
       name: "TypeScriptProjectOptions",
       filePath: `${this.srcdir}/projects/typescript/typescript-project-options.ts`,
@@ -106,5 +110,15 @@ export class NXMonorepoProject extends PDKProject {
         "projenrcTs",
         "projenrcTsOptions"
       );
+
+    this.eslint?.addIgnorePattern(
+      `${this.srcdir}/projects/typescript/typescript-project-options.ts`
+    );
+    this.eslint?.addIgnorePattern(
+      `${this.srcdir}/projects/java/java-project-options.ts`
+    );
+    this.eslint?.addIgnorePattern(
+      `${this.srcdir}/projects/python/python-project-options.ts`
+    );
   }
 }

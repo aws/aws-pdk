@@ -25,7 +25,10 @@ export class PipelineProject extends PDKProject {
     });
 
     this.postCompileTask.prependExec("cp -r src/lambda lib");
+    this.generateInterfaces();
+  }
 
+  private generateInterfaces() {
     new ProjenStruct(this, {
       name: "CodePipelineProps",
       filePath: `${this.srcdir}/codepipeline-props.ts`,
@@ -35,5 +38,7 @@ export class PipelineProject extends PDKProject {
     })
       .mixin(Struct.fromFqn("aws-cdk-lib.pipelines.CodePipelineProps"))
       .allOptional();
+
+    this.eslint?.addIgnorePattern(`${this.srcdir}/codepipeline-props.ts`);
   }
 }

@@ -87,6 +87,10 @@ export class TypeSafeApiProject extends PDKProject {
     this.eslint?.addRules({ "import/no-unresolved": ["off"] });
     this.tsconfigEslint!.addInclude("scripts");
 
+    this.generateInterfaces();
+  }
+
+  private generateInterfaces() {
     new ProjenStruct(this, {
       name: "TypeScriptProjectOptions",
       filePath: `${this.srcdir}/project/typescript-project-options.ts`,
@@ -127,5 +131,15 @@ export class TypeSafeApiProject extends PDKProject {
         "projenrcTs",
         "projenrcTsOptions"
       );
+
+    this.eslint?.addIgnorePattern(
+      `${this.srcdir}/project/typescript-project-options.ts`
+    );
+    this.eslint?.addIgnorePattern(
+      `${this.srcdir}/project/java-project-options.ts`
+    );
+    this.eslint?.addIgnorePattern(
+      `${this.srcdir}/project/python-project-options.ts`
+    );
   }
 }
