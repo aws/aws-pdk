@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
-import { JestReporter, Transform } from "projen/lib/javascript";
+import { JestReporter } from "projen/lib/javascript";
 import { NodePackageUtils } from "../../packages/nx-monorepo/src";
 import { CdkGraphPluginProject } from "../abstract/cdk-graph-plugin-project";
 
@@ -62,9 +62,10 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
       stability: Stability.EXPERIMENTAL,
       jestOptions: {
         jestConfig: {
-          transform: {
-            "^.+\\.js$": new Transform("babel-jest"),
-            "^.+\\.tsx?$": new Transform("ts-jest"),
+          globals: {
+            "ts-jest": {
+              tsconfig: "tsconfig.test.json",
+            },
           },
         },
       },
