@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { NodePackageUtils } from "@aws-prototyping-sdk/nx-monorepo";
-import { IgnoreFile } from "projen";
+import { IgnoreFile, JsonFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Language } from "../../languages";
@@ -122,6 +122,20 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
       "README.md",
       ".openapi-generator"
     );
+
+    // Add compilation to ESM as well
+    const compileESMTask = this.addTask("compile-esm");
+    compileESMTask.exec("tsc -p tsconfig.esm.json");
+    new JsonFile(this, "tsconfig.esm.json", {
+      obj: {
+        extends: "./tsconfig.json",
+        compilerOptions: {
+          module: "esnext",
+          moduleResolution: "nodenext",
+          outDir: "lib/esm",
+        },
+      },
+    });
 
     // If we're not in a monorepo, we need to link the generated client such that any local dependency on it can be
     // resolved
