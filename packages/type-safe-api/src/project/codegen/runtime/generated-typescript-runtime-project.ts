@@ -128,7 +128,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     compileESMTask.exec("tsc -p tsconfig.esm.json");
     new JsonFile(this, "tsconfig.esm.json", {
       obj: {
-        extends: "./tsconfig.json",
+        extends: "./tsconfig.dev.json",
         compilerOptions: {
           module: "esnext",
           moduleResolution: "nodenext",
@@ -136,6 +136,8 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
         },
       },
     });
+
+    this.compileTask.spawn(compileESMTask);
 
     // If we're not in a monorepo, we need to link the generated client such that any local dependency on it can be
     // resolved
