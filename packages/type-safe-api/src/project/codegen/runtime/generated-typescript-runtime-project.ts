@@ -87,7 +87,12 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     }
 
     // For event and context types
-    this.addDeps("@types/aws-lambda");
+    this.addDeps(
+      "@types/aws-lambda",
+      "@aws-lambda-powertools/tracer",
+      "@aws-lambda-powertools/logger",
+      "@aws-lambda-powertools/metrics"
+    );
 
     // Minimal .npmignore to avoid impacting OpenAPI Generator
     const npmignore = new IgnoreFile(this, ".npmignore");
