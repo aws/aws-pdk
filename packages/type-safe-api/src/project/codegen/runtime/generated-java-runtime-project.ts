@@ -41,6 +41,10 @@ const DEPENDENCIES: string[] = [
   "com.amazonaws/aws-lambda-java-events@3.11.0",
   // Lombok is used to add the builder pattern to models for neater construction
   "org.projectlombok/lombok@1.18.24",
+  // Interceptors
+  "software.amazon.lambda/powertools-logging@^1.16.1",
+  "software.amazon.lambda/powertools-tracing@^1.16.1",
+  "software.amazon.lambda/powertools-metrics@^1.16.1",
 ];
 
 const TEST_DEPENDENCIES: string[] = [

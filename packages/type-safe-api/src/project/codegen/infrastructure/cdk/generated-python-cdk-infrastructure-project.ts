@@ -54,6 +54,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
       "constructs@^10",
       "aws-cdk-lib@^2",
       "cdk-nag@^2",
+      "python@^3.9",
       `${options.generatedPythonTypes.name}@{path="${path.relative(
         this.outdir,
         options.generatedPythonTypes.outdir

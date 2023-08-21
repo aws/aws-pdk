@@ -112,7 +112,7 @@ class ChainedApiRequest(ApiRequest[RequestParameters, RequestArrayParameters, Re
     chain: 'HandlerChain'
 
 @dataclass
-class ApiResponse(Generic[StatusCode, ResponseBody]):
+class ApiResponse(Exception, Generic[StatusCode, ResponseBody]):
     status_code: StatusCode
     headers: Dict[str, str]
     body: ResponseBody
@@ -223,7 +223,9 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
             {{#bodyParams.isEmpty}}
             body = {}
             {{/bodyParams.isEmpty}}
-            interceptor_context = {}
+            interceptor_context = {
+                "operationId": "{{operationId}}",
+            }
 
             chain = _build_handler_chain(additional_interceptors + interceptors, handler)
             response = chain.next(ApiRequest(

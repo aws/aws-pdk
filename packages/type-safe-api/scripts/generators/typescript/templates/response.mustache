@@ -1,0 +1,57 @@
+import { OperationResponse } from '..';
+
+
+/**
+ * Helpers for constructing api responses
+ */
+export class Response {
+  /**
+   * A successful response
+   */
+  public static success = <T>(
+    body: T
+  ): OperationResponse<200, T> => ({
+    statusCode: 200,
+    body,
+  });
+
+  /**
+   * A response which indicates a client error
+   */
+  public static badRequest = <T>(
+    body: T
+  ): OperationResponse<400, T> => ({
+    statusCode: 400,
+    body,
+  });
+
+  /**
+   * A response which indicates the requested resource was not found
+   */
+  public static notFound = <T>(
+    body: T
+  ): OperationResponse<404, T> => ({
+    statusCode: 404,
+    body,
+  });
+
+  /**
+   * A response which indicates the caller is not authorised to perform the operation or access the resource
+   */
+  public static notAuthorized = <T>(
+    body: T
+  ): OperationResponse<403, T> => ({
+    statusCode: 403,
+    body,
+  });
+
+  /**
+   * A response to indicate a server error
+   */
+  public static internalFailure = <T>(
+    body: T
+  ): OperationResponse<500, T> => ({
+    statusCode: 500,
+    body,
+  });
+}

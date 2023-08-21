@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { DependencyType } from "projen";
+import { DependencyType, SampleDir } from "projen";
 import { JavaProject } from "projen/lib/java";
 import {
   CodeGenerationSourceOptions,
@@ -120,6 +120,16 @@ export class GeneratedJavaHandlersProject extends JavaProject {
     this.pom.addPlugin("org.apache.maven.plugins/maven-shade-plugin@3.3.0", {
       configuration: {
         createDependencyReducedPom: false,
+        transformers: [
+          {
+            // Transformer required for merging log4j2 plugins cache file
+            // https://docs.aws.amazon.com/lambda/latest/dg/java-logging.html#java-logging-cdk
+            transformer: {
+              "@implementation":
+                "com.github.edwgiz.maven_shade_plugin.log4j2_cache_transformer.PluginsCacheFileTransformer",
+            },
+          },
+        ],
       },
       executions: [
         {
@@ -128,6 +138,31 @@ export class GeneratedJavaHandlersProject extends JavaProject {
           goals: ["shade"],
         },
       ],
+      dependencies: [
+        "com.github.edwgiz/maven-shade-plugin.log4j2-cachefile-transformer@2.15.0",
+      ],
+    });
+
+    // Log4j2 configuration for powertools logger
+    new SampleDir(this, "src/main/resources", {
+      files: {
+        "log4j2.xml": `<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="JsonAppender" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="classpath:LambdaJsonLayout.json" />
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="JsonLogger" level="INFO" additivity="false">
+            <AppenderRef ref="JsonAppender"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="JsonAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>`,
+      },
     });
   }
 
