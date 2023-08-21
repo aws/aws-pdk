@@ -1,0 +1,325 @@
+###TSAPI_SPLIT_FILE###
+###TSAPI_WRITE_FILE###
+{
+  "dir": "interceptors",
+  "name": "try-catch",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import {
+  ChainedRequestInput,
+  OperationResponse,
+} from '..';
+
+/**
+ * Create an interceptor which returns the given error response and status should an error occur
+ * @param statusCode the status code to return when an error is thrown
+ * @param errorResponseBody the body to return when an error occurs
+ */
+export const buildTryCatchInterceptor = <TStatus extends number, ErrorResponseBody>(
+  statusCode: TStatus,
+  errorResponseBody: ErrorResponseBody,
+) => async <
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends OperationResponse<number, any>,
+>(
+  request: ChainedRequestInput<
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response
+  >,
+): Promise<Response | OperationResponse<TStatus, ErrorResponseBody>> => {
+  try {
+    return await request.chain.next(request);
+  } catch (e: any) {
+    // If the error looks like a response, return it as the response
+    if ('statusCode' in e) {
+      return e;
+    }
+
+    // Log the error if the logger is present
+    if (request.interceptorContext.logger && request.interceptorContext.logger.error) {
+      request.interceptorContext.logger.error('Interceptor caught exception', e as Error);
+    } else {
+      console.error('Interceptor caught exception', e);
+    }
+
+    // Return the default error message
+    return { statusCode, body: errorResponseBody };
+  }
+};
+
+/**
+ * Interceptor for catching unhandled exceptions and returning a 500 error.
+ * Uncaught exceptions which look like OperationResponses will be returned, such that deeply nested code may return error
+ * responses, eg: `throw ApiResponse.notFound({ message: 'Not found!' })`
+ */
+export const tryCatchInterceptor = buildTryCatchInterceptor(500, { message: 'Internal Error' });
+###TSAPI_WRITE_FILE###
+{
+  "dir": "interceptors",
+  "name": "cors",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import { ChainedRequestInput, OperationResponse } from '..';
+
+// By default, allow all origins and headers
+const DEFAULT_CORS_HEADERS: { [key: string]: string } = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': '*',
+};
+
+/**
+ * Create an interceptor for adding headers to the response
+ * @param additionalHeaders headers to add to the response
+ */
+export const buildResponseHeaderInterceptor = (additionalHeaders: { [key: string]: string }) => async <
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends OperationResponse<number, any>
+>(
+  request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+): Promise<Response> => {
+  const result = await request.chain.next(request);
+  return {
+    ...result,
+    headers: {
+      ...additionalHeaders,
+      ...result.headers,
+    },
+  };
+};
+
+/**
+ * An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
+ * Allows all origins and headers. Use buildResponseHeaderInterceptor to customise.
+ */
+export const corsInterceptor = buildResponseHeaderInterceptor(DEFAULT_CORS_HEADERS);
+###TSAPI_WRITE_FILE###
+{
+  "dir": "interceptors/powertools",
+  "name": "logger",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import { Logger } from '@aws-lambda-powertools/logger';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const logger = new Logger();
+
+export class LoggingInterceptor {
+  /**
+   * Interceptor which adds an aws lambda powertools logger to the interceptor context,
+   * and adds the lambda context
+   * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/logger/
+   */
+  public static intercept = async <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    logger.addContext(request.context);
+    logger.appendKeys({ operationId: request.interceptorContext.operationId });
+    request.interceptorContext.logger = logger;
+    const response = await request.chain.next(request);
+    logger.removeKeys(['operationId']);
+    return response;
+  };
+
+  /**
+   * Retrieve the logger from the interceptor context
+   */
+  public static getLogger = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>): Logger => {
+    if (!request.interceptorContext.logger) {
+      throw new Error('No logger found, did you configure the LoggingInterceptor?');
+    }
+    return request.interceptorContext.logger;
+  };
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "interceptors/powertools",
+  "name": "tracer",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import { Tracer } from '@aws-lambda-powertools/tracer';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const tracer = new Tracer();
+
+export interface TracingInterceptorOptions {
+  /**
+   * Whether to add the response as metadata to the trace
+   */
+  readonly addResponseAsMetadata?: boolean;
+}
+
+/**
+ * Create an interceptor which adds an aws lambda powertools tracer to the interceptor context,
+ * creating the appropriate segment for the handler execution and annotating with recommended
+ * details.
+ * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/tracer/#lambda-handler
+ */
+export const buildTracingInterceptor = (options?: TracingInterceptorOptions) => async <
+  RequestParameters,
+  RequestArrayParameters,
+  RequestBody,
+  Response extends OperationResponse<number, any>
+>(
+  request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+): Promise<Response> => {
+  const handler = request.interceptorContext.operationId ?? process.env._HANDLER ?? 'index.handler';
+  const segment = tracer.getSegment();
+  let subsegment;
+  if (segment) {
+    subsegment = segment.addNewSubsegment(handler);
+    tracer.setSegment(subsegment);
+  }
+
+  tracer.annotateColdStart();
+  tracer.addServiceNameAnnotation();
+
+  if (request.interceptorContext.logger) {
+    tracer.provider.setLogger(request.interceptorContext.logger);
+  }
+
+  request.interceptorContext.tracer = tracer;
+
+  try {
+    const result = await request.chain.next(request);
+    if (options?.addResponseAsMetadata) {
+      tracer.addResponseAsMetadata(result, handler);
+    }
+    return result;
+  } catch (e) {
+    tracer.addErrorAsMetadata(e as Error);
+    throw e;
+  } finally {
+    if (segment && subsegment) {
+      subsegment.close();
+      tracer.setSegment(segment);
+    }
+  }
+};
+
+export class TracingInterceptor {
+  /**
+   * Interceptor which adds an aws lambda powertools tracer to the interceptor context,
+   * creating the appropriate segment for the handler execution and annotating with recommended
+   * details.
+   */
+  public static intercept = buildTracingInterceptor();
+
+  /**
+   * Get the tracer from the interceptor context
+   */
+  public static getTracer = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+  ): Tracer => {
+    if (!request.interceptorContext.tracer) {
+      throw new Error('No tracer found, did you configure the TracingInterceptor?');
+    }
+    return request.interceptorContext.tracer;
+  };
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "interceptors/powertools",
+  "name": "metrics",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import { Metrics } from '@aws-lambda-powertools/metrics';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const metrics = new Metrics();
+
+export class MetricsInterceptor {
+  /**
+   * Interceptor which adds an instance of aws lambda powertools metrics to the interceptor context,
+   * and ensures metrics are flushed prior to finishing the lambda execution
+   * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/metrics/
+   */
+  public static intercept = async <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    metrics.addDimension("operationId", request.interceptorContext.operationId);
+    request.interceptorContext.metrics = metrics;
+    try {
+      return await request.chain.next(request);
+    } finally {
+      // Flush metrics
+      metrics.publishStoredMetrics();
+    }
+  };
+
+  /**
+   * Retrieve the metrics logger from the request
+   */
+  public static getMetrics = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+  ): Metrics => {
+    if (!request.interceptorContext.metrics) {
+      throw new Error('No metrics logger found, did you configure the MetricsInterceptor?');
+    }
+    return request.interceptorContext.metrics;
+  };
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "interceptors",
+  "name": "index",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import { corsInterceptor } from './cors';
+import { LoggingInterceptor } from './powertools/logger';
+import { MetricsInterceptor } from './powertools/metrics';
+import { TracingInterceptor } from './powertools/tracer';
+import { tryCatchInterceptor } from './try-catch';
+
+export * from './cors';
+export * from './try-catch';
+export * from './powertools/tracer';
+export * from './powertools/metrics';
+export * from './powertools/logger';
+
+/**
+ * All default interceptors, for logging, tracing, metrics, cors headers and error handling
+ */
+export const INTERCEPTORS = [
+  corsInterceptor,
+  LoggingInterceptor.intercept,
+  tryCatchInterceptor,
+  TracingInterceptor.intercept,
+  MetricsInterceptor.intercept,
+] as const;
