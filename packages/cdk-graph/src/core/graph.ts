@@ -702,7 +702,7 @@ export class Edge
         const edge = Edge.findInChain(entry, predicate);
         if (edge) return edge;
       } else {
-        if (predicate(entry)) return entry;
+        if (predicate.filter(entry)) return entry;
       }
     }
 
@@ -719,7 +719,7 @@ export class Edge
           edges.push(edge);
         }
       } else {
-        if (predicate(entry)) {
+        if (predicate.filter(entry)) {
           edges.push(entry);
         }
       }
@@ -1079,12 +1079,12 @@ export interface INodeProps extends ITypedNodeProps {
 
 /** Predicate to match node */
 export interface INodePredicate {
-  (node: Node): boolean;
+  filter(node: Node): boolean;
 }
 
 /** Predicate to match edge */
 export interface IEdgePredicate {
-  (edge: Edge): boolean;
+  filter(edge: Edge): boolean;
 }
 
 /** Options for node based search operations */
@@ -1390,7 +1390,7 @@ export class Node
     if (max) {
       ancestors = ancestors.slice(0, max);
     }
-    return ancestors.find(predicate);
+    return ancestors.find(predicate.filter);
   }
 
   /**
@@ -1441,7 +1441,7 @@ export class Node
     visit(this);
 
     if (predicate) {
-      return all.filter(predicate);
+      return all.filter(predicate.filter);
     }
 
     return all;
@@ -1449,7 +1449,7 @@ export class Node
 
   /** Recursively find the nearest sub-node matching predicate */
   find(predicate: INodePredicate): Node | undefined {
-    if (predicate(this)) return this;
+    if (predicate.filter(this)) return this;
 
     for (const child of this.children) {
       const node = child.find(predicate);
@@ -1495,7 +1495,7 @@ export class Node
     visit(this);
 
     if (predicate) {
-      return all.filter(predicate);
+      return all.filter(predicate.filter);
     }
 
     return all;
@@ -1558,7 +1558,7 @@ export class Node
       return undefined;
     }
 
-    return this[reverse ? "reverseLinks" : "links"].find(predicate);
+    return this[reverse ? "reverseLinks" : "links"].find(predicate.filter);
   }
 
   /**
@@ -1588,7 +1588,7 @@ export class Node
       });
     }
 
-    return this[reverse ? "reverseLinks" : "links"].filter(predicate);
+    return this[reverse ? "reverseLinks" : "links"].filter(predicate.filter);
   }
 
   /** Indicates if *this node* references *another node* */
@@ -1833,10 +1833,11 @@ export class Node
       (this.stack as Node) !== this &&
       !this.isAncestor(this.stack)
     ) {
-      this._stack = this.findAncestor(
-        (node) =>
-          StackNode.isStackNode(node) || NestedStackNode.isNestedStackNode(node)
-      ) as StackNode;
+      this._stack = this.findAncestor({
+        filter: (node) =>
+          StackNode.isStackNode(node) ||
+          NestedStackNode.isNestedStackNode(node),
+      }) as StackNode;
     }
   }
 
@@ -2330,7 +2331,9 @@ export class StackNode extends Node {
 
     this.store.addStack(this);
 
-    const stage = this.findAncestor(StageNode.isStageNode) as StageNode;
+    const stage = this.findAncestor({
+      filter: StageNode.isStageNode,
+    }) as StageNode;
     if (stage) {
       this._stage = stage;
       stage.addStack(this);
@@ -2421,9 +2424,9 @@ export class StackNode extends Node {
 
     if (this.stage && this.isAncestor(this.stage)) {
       this.stage.mutateRemoveStack(this);
-      this._stage = this.findAncestor((node) =>
-        StageNode.isStageNode(node)
-      ) as StageNode;
+      this._stage = this.findAncestor({
+        filter: (node) => StageNode.isStageNode(node),
+      }) as StageNode;
       if (this._stage) {
         this._stage.addStack(this);
       }
@@ -2466,9 +2469,9 @@ export class NestedStackNode extends StackNode {
     super.mutateHoist(newParent);
 
     if (this.parentStack && this.isAncestor(this.parentStack)) {
-      this._parentStack = this.findAncestor((node) =>
-        StackNode.isStackNode(node)
-      ) as StackNode;
+      this._parentStack = this.findAncestor({
+        filter: (node) => StackNode.isStackNode(node),
+      }) as StackNode;
     }
   }
 }

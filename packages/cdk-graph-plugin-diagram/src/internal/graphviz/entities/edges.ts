@@ -120,8 +120,10 @@ export abstract class BaseEdge extends Dot.Edge {
         this.isClosedLoop ||
         this.isCompound ||
         this.isSynthetic ||
-        this.from.graphNode.findAncestor((node) => node.isCluster) !==
-          this.to.graphNode.findAncestor((node) => node.isCluster)
+        this.from.graphNode.findAncestor({
+          filter: (node) => node.isCluster,
+        }) !==
+          this.to.graphNode.findAncestor({ filter: (node) => node.isCluster })
       ) {
         this.attributes.set("constraint", false);
 

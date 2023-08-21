@@ -78,8 +78,12 @@ describe("config", () => {
             name: "focus",
             title: "Focus Data Diagram (non-extraneous)",
             filterPlan: {
-              focus: (store) =>
-                store.getNode(getConstructUUID(app.stack.dataLayer)),
+              focus: {
+                filter: {
+                  filter: (store) =>
+                    store.getNode(getConstructUUID(app.stack.dataLayer)),
+                },
+              },
               preset: FilterPreset.NON_EXTRANEOUS,
             },
             ignoreDefaults: true,
@@ -89,8 +93,10 @@ describe("config", () => {
             title: "Focus Website Diagram (noHoist, verbose)",
             filterPlan: {
               focus: {
-                node: (store) =>
-                  store.getNode(getConstructUUID(app.stack.website)),
+                filter: {
+                  filter: (store) =>
+                    store.getNode(getConstructUUID(app.stack.website)),
+                },
                 noHoist: true,
               },
             },

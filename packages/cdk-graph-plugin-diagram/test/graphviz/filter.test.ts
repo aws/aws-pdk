@@ -29,12 +29,14 @@ describe("filter", () => {
           title: "Include CfnType Diagram (filter)",
           filterPlan: {
             filters: [
-              Filters.includeCfnType([
-                aws_arch.CfnSpec.ServiceResourceDictionary.EC2.Instance,
-                aws_arch.CfnSpec.ServiceResourceDictionary.Lambda.Function,
-                aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
-              ]),
-              Filters.compact(),
+              {
+                graph: Filters.includeCfnType([
+                  aws_arch.CfnSpec.ServiceResourceDictionary.EC2.Instance,
+                  aws_arch.CfnSpec.ServiceResourceDictionary.Lambda.Function,
+                  aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
+                ]),
+              },
+              { store: Filters.compact() },
             ],
           },
         },
@@ -43,11 +45,13 @@ describe("filter", () => {
           title: "Exclude CfnType Diagram (filter)",
           filterPlan: {
             filters: [
-              Filters.excludeCfnType([
-                /AWS::EC2::VPC.*/,
-                aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
-              ]),
-              Filters.compact(),
+              {
+                graph: Filters.excludeCfnType([
+                  /AWS::EC2::VPC.*/,
+                  aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
+                ]),
+              },
+              { store: Filters.compact() },
             ],
           },
         },
@@ -56,11 +60,13 @@ describe("filter", () => {
           title: "Include NodeType Diagram (filter)",
           filterPlan: {
             filters: [
-              Filters.includeNodeType([
-                NodeTypeEnum.STACK,
-                NodeTypeEnum.RESOURCE,
-              ]),
-              Filters.compact(),
+              {
+                store: Filters.includeNodeType([
+                  NodeTypeEnum.STACK,
+                  NodeTypeEnum.RESOURCE,
+                ]),
+              },
+              { store: Filters.compact() },
             ],
           },
         },
@@ -69,13 +75,15 @@ describe("filter", () => {
           title: "Exclude NodeType Diagram (filter)",
           filterPlan: {
             filters: [
-              Filters.excludeNodeType([
-                NodeTypeEnum.NESTED_STACK,
-                NodeTypeEnum.CFN_RESOURCE,
-                NodeTypeEnum.OUTPUT,
-                NodeTypeEnum.PARAMETER,
-              ]),
-              Filters.compact(),
+              {
+                store: Filters.excludeNodeType([
+                  NodeTypeEnum.NESTED_STACK,
+                  NodeTypeEnum.CFN_RESOURCE,
+                  NodeTypeEnum.OUTPUT,
+                  NodeTypeEnum.PARAMETER,
+                ]),
+              },
+              { store: Filters.compact() },
             ],
           },
         },
@@ -83,7 +91,10 @@ describe("filter", () => {
           name: "filter-uncluster",
           title: "Uncluster Diagram (filter)",
           filterPlan: {
-            filters: [Filters.uncluster(), Filters.compact()],
+            filters: [
+              { store: Filters.uncluster() },
+              { store: Filters.compact() },
+            ],
           },
         },
       ],
