@@ -13,8 +13,11 @@
   "overwrite": false
 }
 ###/TSAPI_WRITE_FILE###from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.models import *
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.response import Response
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.interceptors import INTERCEPTORS
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.interceptors.powertools.logger import LoggingInterceptor
 from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.apis.tags.default_api_operation_config import (
-    {{operationId}}_handler, {{operationIdCamelCase}}Request, {{operationIdCamelCase}}OperationResponses, ApiResponse
+    {{operationId}}_handler, {{operationIdCamelCase}}Request, {{operationIdCamelCase}}OperationResponses
 )
 
 
@@ -22,18 +25,18 @@ def {{operationId}}(input: {{operationIdCamelCase}}Request, **kwargs) -> {{opera
     """
     Type-safe handler for the {{operationIdCamelCase}} operation
     """
-    # TODO: Implement {{operationIdCamelCase}} Operation
-    return ApiResponse(
-        status_code=500,
-        body=InternalFailureErrorResponseContent(
-            message="Not Implemented!"),
-        headers={}
-    )
+    LoggingInterceptor.get_logger(input).info("Start {{operationIdCamelCase}} Operation")
+
+    # TODO: Implement {{operationIdCamelCase}} Operation. `input` contains the request input
+
+    return Response.internal_failure(InternalFailureErrorResponseContent(
+        message="Not Implemented!"
+    ))
 
 
 # Entry point for the AWS Lambda handler for the {{operationIdCamelCase}} operation.
 # The {{operationId}}_handler method wraps the type-safe handler and manages marshalling inputs and outputs
-handler = {{operationId}}_handler({{operationId}})
+handler = {{operationId}}_handler(interceptors=INTERCEPTORS)({{operationId}})
 
 {{~/startsWith}}
 {{~/if}}

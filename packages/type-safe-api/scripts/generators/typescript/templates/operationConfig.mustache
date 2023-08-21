@@ -214,9 +214,9 @@ export type {{operationIdCamelCase}}ChainedHandlerFunction = ChainedLambdaHandle
  * Lambda handler wrapper to provide typed interface for the implementation of {{nickname}}
  */
 export const {{nickname}}Handler = (
-    firstHandler: {{operationIdCamelCase}}ChainedHandlerFunction,
-    ...remainingHandlers: {{operationIdCamelCase}}ChainedHandlerFunction[]
+    ...handlers: [{{operationIdCamelCase}}ChainedHandlerFunction, ...{{operationIdCamelCase}}ChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'{{nickname}}'> => async (event: any, context: any, _callback?: any, additionalInterceptors: {{operationIdCamelCase}}ChainedHandlerFunction[] = []): Promise<any> => {
+    const operationId = "{{nickname}}";
     const requestParameters = decodeRequestParameters({
         ...(event.pathParameters || {}),
         ...(event.queryStringParameters || {}),
@@ -243,7 +243,7 @@ export const {{nickname}}Handler = (
     };
     const body = parseBody(event.body, demarshal, [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}]) as {{operationIdCamelCase}}RequestBody;
 
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
     const response = await chain.next({
         input: {
             requestParameters,
@@ -252,7 +252,7 @@ export const {{nickname}}Handler = (
         },
         event,
         context,
-        interceptorContext: {},
+        interceptorContext: { operationId },
     });
 
     const marshal = (statusCode: number, responseBody: any): string => {

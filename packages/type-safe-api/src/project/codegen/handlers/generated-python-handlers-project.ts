@@ -50,6 +50,7 @@ export class GeneratedPythonHandlersProject extends PythonProject {
     this.options = options;
 
     [
+      "python@^3.9",
       `${options.generatedPythonTypes.name}@{path="${path.relative(
         this.outdir,
         options.generatedPythonTypes.outdir

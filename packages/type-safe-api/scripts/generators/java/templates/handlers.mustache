@@ -250,7 +250,7 @@ public class Handlers {
     /**
      * Response with status code {{code}} for the {{nickname}} operation
      */
-    public static class {{operationIdCamelCase}}{{code}}Response implements {{operationIdCamelCase}}Response {
+    public static class {{operationIdCamelCase}}{{code}}Response extends RuntimeException implements {{operationIdCamelCase}}Response {
         private String body;
         private Map<String, String> headers;
 
@@ -484,6 +484,7 @@ public class Handlers {
 
         public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<{{operationIdCamelCase}}Input>> additionalInterceptors) {
             final Map<String, Object> interceptorContext = new HashMap<>();
+            interceptorContext.put("operationId", "{{nickname}}");
 
             List<Interceptor<{{operationIdCamelCase}}Input>> interceptors = new ArrayList<>();
             interceptors.addAll(additionalInterceptors);
