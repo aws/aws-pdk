@@ -108,6 +108,10 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
 
     // Linting is managed as part of the test task already, so disable react-scripts running eslint again
     this.tasks.addEnvironment("DISABLE_ESLINT_PLUGIN", "true");
+
+    // Relax EsLint and TSC for dev
+    this.tasks.tryFind("dev")?.env("ESLINT_NO_DEV_ERRORS", "true");
+    this.tasks.tryFind("dev")?.env("TSC_COMPILE_ON_ERROR", "true");
   }
 
   private buildSampleDirEntries(
