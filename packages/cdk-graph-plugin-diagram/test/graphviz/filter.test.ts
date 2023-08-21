@@ -31,9 +31,18 @@ describe("filter", () => {
             filters: [
               {
                 graph: Filters.includeCfnType([
-                  aws_arch.CfnSpec.ServiceResourceDictionary.EC2.Instance,
-                  aws_arch.CfnSpec.ServiceResourceDictionary.Lambda.Function,
-                  aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
+                  {
+                    value:
+                      aws_arch.CfnSpec.ServiceResourceDictionary.EC2.Instance,
+                  },
+                  {
+                    value:
+                      aws_arch.CfnSpec.ServiceResourceDictionary.Lambda
+                        .Function,
+                  },
+                  {
+                    value: aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
+                  },
                 ]),
               },
               { store: Filters.compact() },
@@ -47,8 +56,10 @@ describe("filter", () => {
             filters: [
               {
                 graph: Filters.excludeCfnType([
-                  /AWS::EC2::VPC.*/,
-                  aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
+                  { regex: "/AWS::EC2::VPC.*/" },
+                  {
+                    value: aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
+                  },
                 ]),
               },
               { store: Filters.compact() },
@@ -62,8 +73,8 @@ describe("filter", () => {
             filters: [
               {
                 store: Filters.includeNodeType([
-                  NodeTypeEnum.STACK,
-                  NodeTypeEnum.RESOURCE,
+                  { value: NodeTypeEnum.STACK },
+                  { value: NodeTypeEnum.RESOURCE },
                 ]),
               },
               { store: Filters.compact() },
@@ -77,10 +88,10 @@ describe("filter", () => {
             filters: [
               {
                 store: Filters.excludeNodeType([
-                  NodeTypeEnum.NESTED_STACK,
-                  NodeTypeEnum.CFN_RESOURCE,
-                  NodeTypeEnum.OUTPUT,
-                  NodeTypeEnum.PARAMETER,
+                  { value: NodeTypeEnum.NESTED_STACK },
+                  { value: NodeTypeEnum.CFN_RESOURCE },
+                  { value: NodeTypeEnum.OUTPUT },
+                  { value: NodeTypeEnum.PARAMETER },
                 ]),
               },
               { store: Filters.compact() },
