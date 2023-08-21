@@ -4,9 +4,9 @@ import { PublishConfig as _PublishConfig } from "@pnpm/types";
 import { SampleDir } from "projen";
 import { JsiiProject, JsiiProjectOptions, Stability } from "projen/lib/cdk";
 import { NodePackageManager } from "projen/lib/javascript";
-import { NodePackageUtils } from "../../packages/nx-monorepo/src";
-import { NxProject } from "../../packages/nx-monorepo/src/components/nx-project";
-import type { Nx } from "../../packages/nx-monorepo/src/nx-types";
+import { NodePackageUtils } from "../../packages/monorepo/src";
+import { NxProject } from "../../packages/monorepo/src/components/nx-project";
+import type { Nx } from "../../packages/monorepo/src/nx-types";
 
 export const PDK_NAMESPACE = "@aws-pdk/";
 const AWS_PDK = "aws-pdk";
@@ -86,6 +86,7 @@ export abstract class PDKProject extends JsiiProject {
 
     this.preCompileTask.prependExec("rm -f tsconfig.json");
     this.postCompileTask.prependExec("rm -f tsconfig.json");
+    this.packageTask.reset();
 
     this.options = options;
     if (
@@ -118,6 +119,7 @@ export abstract class PDKProject extends JsiiProject {
     }
 
     if (options.eslint !== false) {
+      this.eslint?.addIgnorePattern("scripts/**/*.ts");
       const eslintTask = this.tasks.tryFind("eslint");
       eslintTask?.reset(
         `eslint --ext .ts,.tsx \${CI:-'--fix'} --no-error-on-unmatched-pattern ${this.srcdir} ${this.testdir}`,

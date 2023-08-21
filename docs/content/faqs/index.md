@@ -79,7 +79,7 @@ myPackage.tsconfig?.addInclude("src/**/*.js");
 // myPackage.tsconfig?.addInclude("src/**/@lambda/**/*.js");
 ```
 
-#### Option #2 - with `rsync` ([example](https://github.com/aws/aws-prototyping-sdk/blob/392fb8c483a99123d4e8a8b6b95b5aa7ecb014b8/private/projects/nx-monorepo-project.ts#L39))
+#### Option #2 - with `rsync` ([example](https://github.com/aws/aws-prototyping-sdk/blob/392fb8c483a99123d4e8a8b6b95b5aa7ecb014b8/private/projects/monorepo-project.ts#L39))
 
 ```ts
 this.compileTask.exec(

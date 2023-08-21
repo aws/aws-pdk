@@ -3,10 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import path from "path";
 import { Project } from "projen";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
-import {
-  NxMonorepoProject,
-  DEFAULT_CONFIG,
-} from "../../packages/nx-monorepo/src";
+import { MonorepoTsProject, DEFAULT_CONFIG } from "../../packages/monorepo/src";
 import { PDK_NAMESPACE } from "../abstract/pdk-project";
 
 const HEADER_RULE = {
@@ -23,7 +20,7 @@ const HEADER_RULE = {
 /**
  * Contains configuration for the PDK monorepo (root package).
  */
-export class PDKMonorepoProject extends NxMonorepoProject {
+export class PDKMonorepoProject extends MonorepoTsProject {
   constructor() {
     super({
       packageManager: NodePackageManager.PNPM,
@@ -39,7 +36,7 @@ export class PDKMonorepoProject extends NxMonorepoProject {
         "lerna",
         "nx",
         "@nrwl/devkit",
-        `${PDK_NAMESPACE}nx-monorepo@0.0.0`,
+        `${PDK_NAMESPACE}monorepo@0.0.0`,
         `${PDK_NAMESPACE}pipeline@0.0.0`,
         "@commitlint/cli",
         "@commitlint/config-conventional",

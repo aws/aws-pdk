@@ -60,15 +60,15 @@ The `TypeSafeApiProject` projen project sets up the project structure for you. C
 
 !!! info
 
-    We recommend you use these projects as part of an `nx-monorepo` project (eg. by specifying `parent: monorepo`), as it makes setting up dependencies much easier, particularly when extending your project further with a CDK app and lambda functions.
+    We recommend you use these projects as part of an `monorepo` project (eg. by specifying `parent: monorepo`), as it makes setting up dependencies much easier, particularly when extending your project further with a CDK app and lambda functions.
 
-1. To start an empty `nx-monorepo` project, use this command:
+1. To start an empty `monorepo` project, use this command:
 
 ```bash
-npx projen new --from @aws-prototyping-sdk/nx-monorepo
+npx projen new --from @aws-prototyping-sdk/monorepo
 ```
 
-2. Add `@aws-prototyping-sdk/type-safe-api` to your `NxMonorepoProject`'s `devDeps` and re-synthesize to install the dependency.
+2. Add `@aws-prototyping-sdk/type-safe-api` to your `MonorepoTsProject`'s `devDeps` and re-synthesize to install the dependency.
 
 ```
 yarn projen
@@ -83,7 +83,7 @@ yarn projen
 === "TS"
 
     ```ts
-    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+    import { MonorepoTsProject } from "@aws-prototyping-sdk/monorepo";
     import {
       DocumentationFormat,
       Language,
@@ -94,11 +94,11 @@ yarn projen
     import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
 
     // Create the monorepo
-    const monorepo = new NxMonorepoProject({
+    const monorepo = new MonorepoTsProject({
       name: "my-project",
       defaultReleaseBranch: "main",
       devDeps: [
-        "@aws-prototyping-sdk/nx-monorepo",
+        "@aws-prototyping-sdk/monorepo",
         "@aws-prototyping-sdk/type-safe-api",
       ],
     });
@@ -159,10 +159,10 @@ yarn projen
 
 === "JAVA"
 
-    The `.projenrc` file is written in TypeScript here in order to make use of the `nx-monorepo`, but shows an example project definition for implementing infrastructure and lambda handlers in Java.
+    The `.projenrc` file is written in TypeScript here in order to make use of the `monorepo`, but shows an example project definition for implementing infrastructure and lambda handlers in Java.
 
     ```ts
-    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+    import { MonorepoTsProject } from "@aws-prototyping-sdk/monorepo";
     import {
       DocumentationFormat,
       Language,
@@ -174,11 +174,11 @@ yarn projen
     import { JavaProject } from "projen/lib/java";
 
     // Create the monorepo
-    const monorepo = new NxMonorepoProject({
+    const monorepo = new MonorepoTsProject({
       name: "my-project",
       defaultReleaseBranch: "main",
       devDeps: [
-        "@aws-prototyping-sdk/nx-monorepo",
+        "@aws-prototyping-sdk/monorepo",
         "@aws-prototyping-sdk/type-safe-api",
       ],
     });
@@ -273,10 +273,10 @@ yarn projen
 
 === "PYTHON"
 
-    The `.projenrc` file is written in TypeScript here in order to make use of the `nx-monorepo`, but shows an example project definition for implementing infrastructure and lambda handlers in Python.
+    The `.projenrc` file is written in TypeScript here in order to make use of the `monorepo`, but shows an example project definition for implementing infrastructure and lambda handlers in Python.
 
     ```ts
-    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+    import { MonorepoTsProject } from "@aws-prototyping-sdk/monorepo";
     import {
       DocumentationFormat,
       Language,
@@ -288,11 +288,11 @@ yarn projen
     import { PythonProject } from "projen/lib/python";
 
     // Create the monorepo
-    const monorepo = new NxMonorepoProject({
+    const monorepo = new MonorepoTsProject({
       name: "my-project",
       defaultReleaseBranch: "main",
       devDeps: [
-        "@aws-prototyping-sdk/nx-monorepo",
+        "@aws-prototyping-sdk/monorepo",
         "@aws-prototyping-sdk/type-safe-api",
       ],
     });
@@ -382,7 +382,7 @@ yarn projen
 4. After you define your `.projenrc`, run `projen` and `build` (using the appropriate commands for your package manager). For example, if you are using `yarn`, use these commands.
 
 ```
-yarn projen 
+yarn projen
 yarn build
 ```
 

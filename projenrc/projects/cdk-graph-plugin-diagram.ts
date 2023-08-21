@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { JestReporter } from "projen/lib/javascript";
-import { NodePackageUtils } from "../../packages/nx-monorepo/src";
+import { NodePackageUtils } from "../../packages/monorepo/src";
 import { CdkGraphPluginProject } from "../abstract/cdk-graph-plugin-project";
 
 /**

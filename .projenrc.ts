@@ -7,7 +7,7 @@ import { CdkGraphPluginDiagramProject } from "./projenrc/projects/cdk-graph-plug
 import { CloudscapeReactTsWebsiteProject } from "./projenrc/projects/cloudscape-react-ts-website";
 import { DocsProject } from "./projenrc/projects/docs-project";
 import { IdentityProject } from "./projenrc/projects/identity-project";
-import { NXMonorepoProject } from "./projenrc/projects/nx-monorepo-project";
+import { MonorepoProject } from "./projenrc/projects/monorepo-project";
 import { PDKMonorepoProject } from "./projenrc/projects/pdk-monorepo-project";
 import { PDKNagProject } from "./projenrc/projects/pdk-nag-project";
 import { PipelineProject } from "./projenrc/projects/pipeline-project";
@@ -20,7 +20,7 @@ const monorepoProject = new PDKMonorepoProject();
 new PDKNagProject(monorepoProject);
 
 // public packages
-new NXMonorepoProject(monorepoProject);
+new MonorepoProject(monorepoProject);
 new StaticWebsiteProject(monorepoProject);
 new IdentityProject(monorepoProject);
 new TypeSafeApiProject(monorepoProject);

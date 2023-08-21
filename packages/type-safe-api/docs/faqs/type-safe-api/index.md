@@ -145,7 +145,7 @@ You can consume the library using the `addSmithyDeps` method, which adds a local
 
     const api = new TypeSafeApiProject({ ... });
 
-    // Add the implicit monorepo dependency (if using the nx-monorepo) to ensure the shape library is built before the api model
+    // Add the implicit monorepo dependency (if using the monorepo) to ensure the shape library is built before the api model
     monorepo.addImplicitDependency(api.model, shapes);
 
     // Add a local file dependency on the built shapes jar
@@ -170,7 +170,7 @@ You can consume the library using the `addSmithyDeps` method, which adds a local
 
     TypeSafeApiProject api = TypeSafeApiProject.Builder.create()....build();
 
-    // Add the implicit monorepo dependency (if using the nx-monorepo) to ensure the shape library is built before the api model
+    // Add the implicit monorepo dependency (if using the monorepo) to ensure the shape library is built before the api model
     monorepo.addImplicitDependency(api.getModel(), shapes);
 
     // Add a local file dependency on the built shapes jar
@@ -198,7 +198,7 @@ You can consume the library using the `addSmithyDeps` method, which adds a local
 
     api = TypeSafeApiProject(...)
 
-    # Add the implicit monorepo dependency (if using the nx-monorepo) to ensure the shape library is built before the api model
+    # Add the implicit monorepo dependency (if using the monorepo) to ensure the shape library is built before the api model
     monorepo.add_implicit_dependency(api.model, shapes)
 
     # Add a local file dependency on the built shapes jar

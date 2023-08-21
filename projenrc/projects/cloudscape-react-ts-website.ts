@@ -19,11 +19,7 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
       name: "cloudscape-react-ts-website",
       keywords: ["aws", "pdk", "jsii", "projen"],
       repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
-      devDeps: [
-        "projen",
-        "@types/mustache",
-        `${PDK_NAMESPACE}nx-monorepo@^0.x`,
-      ],
+      devDeps: ["projen", "@types/mustache", `${PDK_NAMESPACE}monorepo@^0.x`],
       deps: [`${PDK_NAMESPACE}type-safe-api@^0.x`],
       peerDeps: ["projen", `${PDK_NAMESPACE}type-safe-api@^0.x`],
       bundledDeps: ["mustache"],

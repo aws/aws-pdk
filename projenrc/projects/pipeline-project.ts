@@ -2,14 +2,14 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { ProjenStruct, Struct } from "@mrgrain/jsii-struct-builder";
 import { Stability } from "projen/lib/cdk";
-import { NxMonorepoProject } from "../../packages/nx-monorepo/src";
+import { MonorepoTsProject } from "../../packages/monorepo/src";
 import { PDKProject, PDK_NAMESPACE } from "../abstract/pdk-project";
 
 /**
  * Contains configuration for the PipelineProject.
  */
 export class PipelineProject extends PDKProject {
-  constructor(parent: NxMonorepoProject) {
+  constructor(parent: MonorepoTsProject) {
     super({
       parent,
       author: "AWS APJ COPE",

@@ -1,6 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { NodePackageUtils } from "@aws-pdk/nx-monorepo";
+import { NodePackageUtils } from "@aws-pdk/monorepo";
 import { IgnoreFile } from "projen";
 import {
   NodePackageManager,
@@ -28,7 +28,7 @@ export interface GeneratedTypescriptTypesProjectOptions
   extends GeneratedTypeScriptRuntimeOptions,
     CodeGenerationSourceOptions {
   /**
-   * Whether this project is parented by an nx-monorepo or not
+   * Whether this project is parented by an monorepo or not
    */
   readonly isWithinMonorepo?: boolean;
 }

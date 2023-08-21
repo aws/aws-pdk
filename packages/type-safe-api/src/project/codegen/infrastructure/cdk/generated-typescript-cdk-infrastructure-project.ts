@@ -32,7 +32,7 @@ export interface GeneratedTypescriptCdkInfrastructureProjectOptions
   readonly generatedTypescriptTypes: GeneratedTypescriptRuntimeProject;
 
   /**
-   * Whether the infrastructure and client projects are parented by an nx-monorepo or not
+   * Whether the infrastructure and client projects are parented by an monorepo or not
    */
   readonly isWithinMonorepo?: boolean;
 }

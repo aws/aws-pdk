@@ -3,13 +3,13 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import {
-  NxMonorepoJavaProject,
-  NxMonorepoProject,
-  NxMonorepoPythonProject,
+  MonorepoTsProject,
+  MonorepoJavaProject,
+  MonorepoPythonProject,
   NxProject,
   NxWorkspace,
   ProjectUtils,
-} from "@aws-pdk/nx-monorepo";
+} from "@aws-pdk/monorepo";
 import { Project, ProjectOptions, SampleFile } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
@@ -203,9 +203,9 @@ export class TypeSafeApiProject extends Project {
 
     const isNxWorkspace =
       this.parent &&
-      (ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoProject) ||
-        ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoJavaProject) ||
-        ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoPythonProject));
+      (ProjectUtils.isNamedInstanceOf(this.parent, MonorepoTsProject) ||
+        ProjectUtils.isNamedInstanceOf(this.parent, MonorepoJavaProject) ||
+        ProjectUtils.isNamedInstanceOf(this.parent, MonorepoPythonProject));
 
     const handlerLanguages = [...new Set(options.handlers?.languages ?? [])];
 

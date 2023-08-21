@@ -5,7 +5,7 @@ import { Dependency, DependencyType, Project } from "projen";
 import { JsiiProject, Stability } from "projen/lib/cdk";
 import { NodePackageManager } from "projen/lib/javascript";
 import { Release } from "projen/lib/release";
-import { NodePackageUtils, NxProject } from "../../packages/nx-monorepo/src";
+import { NodePackageUtils, NxProject } from "../../packages/monorepo/src";
 import {
   PDKProject,
   PDK_NAMESPACE,

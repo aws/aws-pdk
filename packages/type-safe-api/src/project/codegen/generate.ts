@@ -47,7 +47,7 @@ export interface GenerateProjectsOptions {
    */
   readonly parent: Project;
   /**
-   * Whether the infrastructure and types projects are parented by an nx-monorepo or not
+   * Whether the infrastructure and types projects are parented by an monorepo or not
    */
   readonly isWithinMonorepo?: boolean;
   /**

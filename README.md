@@ -4,13 +4,13 @@
 
 The AWS Prototyping SDK (PDK) aims to accelerate the development of prototypes on AWS. To achieve this, it provides building blocks for common patterns together with development tools to manage and build your projects. The constructs are based on [AWS CDK](https://github.com/aws/aws-cdk) and implement an expanding number of common application/infrastructure patterns, such as the ability to generate complete client and infrastructure code for a REST API from an OpenAPI specification. The project and build tools the PDK provide allows you manage the configuration of multiple related projects in a language-agnostic way, and to efficiently execute parallel incremental builds.
 
-This combination of project management, build execution, and CDK constructs reduce the effort involved in prototyping new ideas on AWS, and allow developers to seamlessly grow these ideas beyond the prototype phase without requiring a complete re-implementation of the original solution. In addition to the foundation of project configuration and build dependency management provided by the nx-monorepo project, PDK also provides a number of other projen projects (some of which implement common infrastructure patterns using CDK) and stand-alone CDK constructs, which are described below. Note: PDK is currently pre-release, targeting version 1.0 for mid-2023.
+This combination of project management, build execution, and CDK constructs reduce the effort involved in prototyping new ideas on AWS, and allow developers to seamlessly grow these ideas beyond the prototype phase without requiring a complete re-implementation of the original solution. In addition to the foundation of project configuration and build dependency management provided by the monorepo project, PDK also provides a number of other projen projects (some of which implement common infrastructure patterns using CDK) and stand-alone CDK constructs, which are described below. Note: PDK is currently pre-release, targeting version 1.0 for mid-2023.
 
 ## Core Modules
 
-### [nx-monorepo](./packages/nx-monorepo/README.md)
+### [monorepo](./packages/monorepo/README.md)
 
-Modern applications are often implemented across multiple packages or libraries, each potentially implemented in a different language. To help manage the complexity that arises from this, PDK provides a [Projen](https://github.com/projen/projen) project called 'nx-monorepo' to support dependency management and builds across packages. Together with the project-as-code provided by Projen, this project utilises [Nx Build](https://nx.dev/) to give developers the ability to manage a collection of different projects within a single repository. Nx Build allows for explicit and implicit dependency management between polyglot projects, and provides shared caching and parallel task execution for super fast builds across multiple languages with ease. By combining Projen and NX Build, 'nx-monorepo' reduces the effort involved in maintaining and building related projects implemented in a mix of languages.
+Modern applications are often implemented across multiple packages or libraries, each potentially implemented in a different language. To help manage the complexity that arises from this, PDK provides a [Projen](https://github.com/projen/projen) project called 'monorepo' to support dependency management and builds across packages. Together with the project-as-code provided by Projen, this project utilises [Nx Build](https://nx.dev/) to give developers the ability to manage a collection of different projects within a single repository. Nx Build allows for explicit and implicit dependency management between polyglot projects, and provides shared caching and parallel task execution for super fast builds across multiple languages with ease. By combining Projen and NX Build, 'monorepo' reduces the effort involved in maintaining and building related projects implemented in a mix of languages.
 
 ### [static-website](./packages/static-website/README.md)
 
@@ -26,7 +26,7 @@ This module provides a projen project that allows you to define an API using eit
 
 ### [pipeline](./packages/pipeline/README.md)
 
-This module provides a projen project that uses a construct based on CDK's CodePipeline construct, named PDKPipeline, to deploy a CI/CD pipeline. It additionally creates a CodeCommit repository and by default is configured to build the project assuming nx-monorepo is being used (although this can be changed). A Sonarqube Scanner can also be configured to trigger a scan whenever the synth build job completes successfully. This Scanner is non-blocking and as such is not instrumented as part of the pipeline.
+This module provides a projen project that uses a construct based on CDK's CodePipeline construct, named PDKPipeline, to deploy a CI/CD pipeline. It additionally creates a CodeCommit repository and by default is configured to build the project assuming monorepo is being used (although this can be changed). A Sonarqube Scanner can also be configured to trigger a scan whenever the synth build job completes successfully. This Scanner is non-blocking and as such is not instrumented as part of the pipeline.
 
 ### [pdk-nag](./packages/pdk-nag/README.md)
 
@@ -48,10 +48,10 @@ This module provides a CDK derived construct that can be added to existing CDK p
 
 Ensure you have the following packages installed globally:
 
-* [pnpm](https://pnpm.io/installation)
-* [node > 14](https://nodejs.org/en/download/package-manager/) (or use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to install)
-* [Python >= 3.7](https://www.python.org/downloads/)
-* [Java >= 8](https://aws.amazon.com/fr/corretto/) and [Maven >= 3.6](https://maven.apache.org/download.cgi)
+- [pnpm](https://pnpm.io/installation)
+- [node > 14](https://nodejs.org/en/download/package-manager/) (or use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to install)
+- [Python >= 3.7](https://www.python.org/downloads/)
+- [Java >= 8](https://aws.amazon.com/fr/corretto/) and [Maven >= 3.6](https://maven.apache.org/download.cgi)
 
 ```bash
 # from root directory of this package
@@ -60,7 +60,7 @@ pnpm i
 
 ## Quickstart
 
-The [README for the 'nx-monorepo'](./packages/nx-monorepo/README.md) projen project provides an example of how to get started with PDK.
+The [README for the 'monorepo'](./packages/monorepo/README.md) projen project provides an example of how to get started with PDK.
 
 ## Usage of projen/nx
 
@@ -75,11 +75,13 @@ To build the full project, run `pnpm nx run-many --target=build --all`
 Any change to `projects/*` or `.projenrc.ts` requires a synth to be executed. To do this, run: `pnpm projen` from the root directory.
 
 ## Nx workspace script alias
+
 In addition to the above `pnpm nx <command>` format to execute commands, the workspace package contains useful alias for common tasks.
 
 Executing `pnpm <task>` for common tasks will execute `pnpm nx run-many --target=<task> --output-style=stream --nx-bail`, such as `pnpm build` will execute `pnpx nx run-many --target=build --output-style=stream --nx-bail` across all packages.
 
 All nx run-many alias scripts access additional arguments, such as to only run on specific projects you can use `pnpm build --projects=proj1,proj2`.
+
 > See [Nx Run-Many options](https://nx.dev/packages/nx/documents/run-many#options) for details.
 
 ## Documentation

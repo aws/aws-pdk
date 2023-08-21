@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { NodePackageUtils, NxProject } from "../../packages/nx-monorepo/src";
+import { NodePackageUtils, NxProject } from "../../packages/monorepo/src";
 import { PDK_NAMESPACE } from "../abstract/pdk-project";
 
 /**
