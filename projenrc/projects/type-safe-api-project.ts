@@ -72,13 +72,15 @@ export class TypeSafeApiProject extends PDKProject {
         ],
       },
       bin: {
-        "parse-openapi-spec": "scripts/parser/parse-openapi-spec",
-        generate: "scripts/generators/generate",
-        "generate-mock-data": "scripts/custom/mock-data/generate-mock-data",
-        "generate-html-redoc-docs": "scripts/custom/docs/html-redoc",
-        "clean-openapi-generated-code":
+        "type-safe-api.parse-openapi-spec": "scripts/parser/parse-openapi-spec",
+        "type-safe-api.generate": "scripts/generators/generate",
+        "type-safe-api.generate-mock-data":
+          "scripts/custom/mock-data/generate-mock-data",
+        "type-safe-api.generate-html-redoc-docs":
+          "scripts/custom/docs/html-redoc",
+        "type-safe-api.clean-openapi-generated-code":
           "scripts/custom/clean-openapi-generated-code/clean-openapi-generated-code",
-        "copy-gradle-wrapper":
+        "type-safe-api.copy-gradle-wrapper":
           "scripts/custom/gradle-wrapper/copy-gradle-wrapper",
       },
     });

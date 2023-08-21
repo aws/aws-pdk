@@ -464,7 +464,7 @@ export class MonorepoTsProject
           // Create a symlink in the sub-project node_modules for all transitive deps
           // before running "package" task
           subProject.packageTask.prependExec(
-            `pdk-pnpm-link-bundled-transitive-deps ${pkgFolder}`
+            `monorepo.pnpm-link-bundled-transitive-deps ${pkgFolder}`
           );
         }
       });

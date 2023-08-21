@@ -14,11 +14,7 @@ class DirHasher extends FileHasherBase {
     this.isInitialized = true;
   }
 
-  hashDir(
-    absoluteDirName,
-    recurse = true,
-    _record = new Map()
-  ) {
+  hashDir(absoluteDirName, recurse = true, _record = new Map()) {
     try {
       readdirSync(absoluteDirName).forEach((c) => {
         const absoluteChild = path.join(absoluteDirName, c);
@@ -53,7 +49,7 @@ class DirHasher extends FileHasherBase {
   let dir = process.argv[2];
   if (dir == null || dir === "" || !dir.startsWith("{workspaceRoot}")) {
     throw new Error(
-      "nx-dir-hasher: requires path to directory to hash beginning with {workspaceRoot} (eg: `nx-dir-hasher {workspaceRoot}/dir/to/hash`)"
+      "monorepo.nx-dir-hasher: requires path to directory to hash beginning with {workspaceRoot} (eg: `monorepo.nx-dir-hasher {workspaceRoot}/dir/to/hash`)"
     );
   }
   if (dir.startsWith("{workspaceRoot}")) {

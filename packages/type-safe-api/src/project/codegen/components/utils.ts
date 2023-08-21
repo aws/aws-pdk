@@ -21,12 +21,12 @@ export enum OtherGenerators {
 }
 
 export enum TypeSafeApiScript {
-  PARSE_OPENAPI_SPEC = "parse-openapi-spec",
-  GENERATE = "generate",
-  GENERATE_MOCK_DATA = "generate-mock-data",
-  GENERATE_HTML_REDOC_DOCS = "generate-html-redoc-docs",
-  CLEAN_OPENAPI_GENERATED_CODE = "clean-openapi-generated-code",
-  COPY_GRADLE_WRAPPER = "copy-gradle-wrapper",
+  PARSE_OPENAPI_SPEC = "type-safe-api.parse-openapi-spec",
+  GENERATE = "type-safe-api.generate",
+  GENERATE_MOCK_DATA = "type-safe-api.generate-mock-data",
+  GENERATE_HTML_REDOC_DOCS = "type-safe-api.generate-html-redoc-docs",
+  CLEAN_OPENAPI_GENERATED_CODE = "type-safe-api.clean-openapi-generated-code",
+  COPY_GRADLE_WRAPPER = "type-safe-api.copy-gradle-wrapper",
 }
 
 /**

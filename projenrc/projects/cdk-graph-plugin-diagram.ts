@@ -88,7 +88,7 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
             // To ensure sharp:prebuild artifacts are included in build cache hash
             runtime: NodePackageUtils.command.exec(
               this.package.packageManager,
-              "pdk-nx-dir-hasher",
+              "monorepo.nx-dir-hasher",
               "{workspaceRoot}/packages/cdk-graph-plugin-diagram/node_modules/sharp"
             ),
           },
