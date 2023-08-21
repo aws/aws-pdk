@@ -69,8 +69,10 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
       "frozendict@~2.3.4",
       "python-dateutil@~2.7.0",
       "setuptools@^21.0.0",
-      "typing_extensions@~4.3.0",
+      "typing_extensions@^4.6.2",
       "urllib3@~1.26.7",
+      `aws-lambda-powertools@{extras=["all"],version="^2.23.0"}`,
+      "python@^3.9",
     ].forEach((dep) => this.addDependency(dep));
 
     const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
