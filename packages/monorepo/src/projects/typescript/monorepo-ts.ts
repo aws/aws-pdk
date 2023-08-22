@@ -35,18 +35,9 @@ import { NodePackageUtils, ProjectUtils } from "../../utils";
  */
 export interface WorkspaceConfig {
   /**
-   * List of package globs to exclude from hoisting in the workspace.
-   *
-   * @see https://classic.yarnpkg.com/blog/2018/02/15/nohoist/
+   * Yarn workspace config
    */
-  readonly noHoist?: string[];
-
-  /**
-   * Disable automatically applying `noHoist` logic for all sub-project "bundledDependencies".
-   *
-   * @default false
-   */
-  readonly disableNoHoistBundled?: boolean;
+  readonly yarn?: YarnWorkspaceConfig;
 
   /**
    * Links all local workspace project bins so they can be used for local development.
@@ -64,6 +55,25 @@ export interface WorkspaceConfig {
    * property to specify any additional paths to packages which may not be managed by projen.
    */
   readonly additionalPackages?: string[];
+}
+
+/**
+ * Yarn related workspace config
+ */
+export interface YarnWorkspaceConfig {
+  /**
+   * List of package globs to exclude from hoisting in the workspace.
+   *
+   * @see https://classic.yarnpkg.com/blog/2018/02/15/nohoist/
+   */
+  readonly noHoist?: string[];
+
+  /**
+   * Disable automatically applying `noHoist` logic for all sub-project "bundledDependencies".
+   *
+   * @default false
+   */
+  readonly disableNoHoistBundled?: boolean;
 }
 
 /**
@@ -572,9 +582,13 @@ export class MonorepoTsProject
     // not yet been added, in the correct order
     this.addWorkspacePackages();
 
-    let noHoist = this.workspaceConfig?.noHoist;
+    let noHoist = this.workspaceConfig?.yarn?.noHoist;
     // Automatically add all sub-project "bundledDependencies" to workspace "hohoist", otherwise they are not bundled in npm package
-    if (this.workspaceConfig?.disableNoHoistBundled !== true) {
+    if (
+      this.workspaceConfig?.yarn?.disableNoHoistBundled !== true &&
+      (this.package.packageManager === NodePackageManager.YARN ||
+        this.package.packageManager === NodePackageManager.YARN2)
+    ) {
       const noHoistBundled = this.subprojects.flatMap((sub) => {
         if (ProjectUtils.isNamedInstanceOf(sub, NodeProject)) {
           return getBundledDeps(sub).flatMap((dep) => [

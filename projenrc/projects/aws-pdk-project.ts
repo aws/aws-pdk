@@ -66,6 +66,7 @@ export class AwsPdkProject extends PDKProject {
       excludeTypescript: ["**/samples/**/*.ts", "**/scripts/**/*.ts"],
     });
 
+    this.addBundledDeps("findup");
     this.addGitIgnore("src");
 
     // Rewrite imports to use tsconfig paths

@@ -57,7 +57,6 @@ export class PDKMonorepoProject extends MonorepoTsProject {
         "@mrgrain/jsii-struct-builder",
       ],
       workspaceConfig: {
-        disableNoHoistBundled: true,
         linkLocalWorkspaceBins: true,
       },
     });
