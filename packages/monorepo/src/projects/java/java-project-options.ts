@@ -340,5 +340,8 @@ export interface JavaProjectOptions {
    * @stability experimental
    */
   readonly commitGenerated?: boolean;
+  /**
+   * @default $BASEDIR
+   */
   readonly name: string;
 }

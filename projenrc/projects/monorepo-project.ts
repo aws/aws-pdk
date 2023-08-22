@@ -65,6 +65,9 @@ export class MonorepoProject extends PDKProject {
         name: "name",
         type: { primitive: PrimitiveType.String },
         optional: false,
+        docs: {
+          default: "$BASEDIR",
+        },
       });
 
     new ProjenStruct(this, {
@@ -80,6 +83,9 @@ export class MonorepoProject extends PDKProject {
         name: "name",
         type: { primitive: PrimitiveType.String },
         optional: false,
+        docs: {
+          default: "$BASEDIR",
+        },
       });
 
     new ProjenStruct(this, {
@@ -95,11 +101,17 @@ export class MonorepoProject extends PDKProject {
         name: "name",
         type: { primitive: PrimitiveType.String },
         optional: false,
+        docs: {
+          default: "$BASEDIR",
+        },
       })
       .add({
         name: "moduleName",
         type: { primitive: PrimitiveType.String },
         optional: false,
+        docs: {
+          default: "$PYTHON_MODULE_NAME",
+        },
       })
       .omit(
         "pip",

@@ -928,5 +928,8 @@ export interface TypeScriptProjectOptions {
    * @stability experimental
    */
   readonly commitGenerated?: boolean;
+  /**
+   * @default $BASEDIR
+   */
   readonly name: string;
 }

@@ -63,6 +63,9 @@ export interface PythonProjectOptions {
    * @featured true
    */
   readonly deps?: Array<string>;
+  /**
+   * @default $PYTHON_MODULE_NAME
+   */
   readonly moduleName: string;
   /**
    * Additional fields to pass in the setup() function if using setuptools.
@@ -304,5 +307,8 @@ export interface PythonProjectOptions {
    * @stability experimental
    */
   readonly commitGenerated?: boolean;
+  /**
+   * @default $BASEDIR
+   */
   readonly name: string;
 }

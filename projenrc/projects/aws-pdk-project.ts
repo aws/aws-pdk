@@ -118,7 +118,7 @@ export class AwsPdkProject extends PDKProject {
             ])
           )
         )
-        .reduce((p, c) => ({ ...p, ...c }), {})
+        .reduce((p, c) => ({ ...p, ...c }), { pdk: "./scripts/pdk.sh" })
     );
 
     // Make sure this is after NxProject so targets can be updated after inference
