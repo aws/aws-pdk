@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import * as path from "path";
 import {
   Aspects,
   CfnOutput,
@@ -113,6 +114,15 @@ export interface PDKPipelineProps extends CodePipelineProps {
    * @default undefined
    */
   readonly branchNamePrefixes?: string[];
+
+  /**
+   * The directory with `cdk.json` to run cdk synth from. Set this if you enabled
+   * feature branches and `cdk.json` is not located in the parent directory of
+   * `primarySynthDirectory`.
+   *
+   * @default The parent directory of `primarySynthDirectory`
+   */
+  readonly cdkSrcDir?: string;
 
   /**
    * CDK command. Override the command used to call cdk for synth and deploy.
@@ -341,10 +351,7 @@ export class PDKPipeline extends Construct {
     ) {
       new FeatureBranches(this, "FeatureBranchPipelines", {
         codeRepository: this.codeRepository,
-        cdkSrcDir: props.primarySynthDirectory
-          .split("/")
-          .slice(0, -1)
-          .join("/"),
+        cdkSrcDir: props.cdkSrcDir || path.dirname(props.primarySynthDirectory),
         synthShellStepPartialProps: props.synthShellStepPartialProps,
         cdkCommand: props.cdkCommand,
         branchNamePrefixes: props.branchNamePrefixes,
