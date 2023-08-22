@@ -30,7 +30,7 @@ async function linkBundledTransitiveDeps(workspaceDir, pkgFolder) {
   )[pkgDir];
   const transitiveDeps = {};
 
-  function visit(_deps, depth) {
+  function visit(_deps, depth = 0) {
     if (_deps == null || !_deps.length) {
       return;
     }
