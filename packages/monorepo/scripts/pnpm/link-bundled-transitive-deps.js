@@ -1,20 +1,17 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as path from "node:path";
-import {
+const path = require("node:path");
+const {
   buildDependenciesHierarchy,
   PackageNode,
-} from "@pnpm/reviewing.dependencies-hierarchy";
-import * as fs from "fs-extra";
+} = require("@pnpm/reviewing.dependencies-hierarchy");
+const fs = require("fs-extra");
 
-async function linkBundledTransitiveDeps(
-  workspaceDir: string,
-  pkgFolder: string
-) {
+async function linkBundledTransitiveDeps(workspaceDir, pkgFolder) {
   const pkgDir = path.join(workspaceDir, pkgFolder);
   const pkgJson = require(path.join(pkgDir, "package.json"));
-  const bundledDeps: string[] = pkgJson.bundledDependencies || [];
+  const bundledDeps = pkgJson.bundledDependencies || [];
   if (!bundledDeps.length) {
     // No bundled deps
     return;
@@ -31,9 +28,9 @@ async function linkBundledTransitiveDeps(
       },
     })
   )[pkgDir];
-  const transitiveDeps: Record<string, PackageNode & { depth: number }> = {};
+  const transitiveDeps = {};
 
-  function visit(_deps?: PackageNode[], depth: number = 0) {
+  function visit(_deps, depth) {
     if (_deps == null || !_deps.length) {
       return;
     }
