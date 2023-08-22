@@ -277,13 +277,11 @@ describe("cdk-graph/filtering", () => {
         ];
 
         it("should perform filter without error", () => {
-          console.log(store.root.findAll().map((n) => n.nodeType));
           expect(() =>
             performGraphFilterPlan(store, {
               filters: [{ store: Filters.excludeNodeType(excluded) }],
             })
           ).not.toThrow();
-          console.log(store.root.findAll().map((n) => n.nodeType));
         });
 
         it("should not have excluded nodes", () => {

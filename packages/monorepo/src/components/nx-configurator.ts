@@ -395,16 +395,22 @@ export class NxConfigurator extends Component implements INxProjectCore {
     this._emitPackageJson();
     this.patchPythonProjects([this.project]);
 
-    // Ensure Ts Projects use NodeNext resolution to support nice imports
+    // Ensure Ts Projects use modern Node modules to support nice imports
     this.project.subprojects.forEach((s) => {
       if (s instanceof TypeScriptProject) {
         [s.tsconfigDev?.fileName, s.tsconfig?.fileName]
           .filter((f) => !!f)
-          .forEach((f) =>
-            s
-              .tryFindObjectFile(f!)
-              ?.addOverride("compilerOptions.moduleResolution", "NodeNext")
-          );
+          .forEach((f) => {
+            const configFile = s.tryFindObjectFile(f!);
+
+            // TODO: only do this if user's haven't overriden settings
+            configFile?.addOverride("compilerOptions.target", "ES2021");
+            configFile?.addOverride("compilerOptions.module", "NodeNext");
+            configFile?.addOverride(
+              "compilerOptions.moduleResolution",
+              "NodeNext"
+            );
+          });
       }
     });
   }
