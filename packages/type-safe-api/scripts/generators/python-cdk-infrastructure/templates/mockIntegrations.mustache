@@ -1,8 +1,7 @@
 import json
 from aws_pdk.type_safe_api import Integrations, MockIntegration, TypeSafeApiIntegration
 from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.models import *
-from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.api_client import JSONEncoder
-from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.apis.tags.default_api_operation_config import OperationConfig
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.api.operation_config import OperationConfig
 from os import path
 from pathlib import Path
 
@@ -32,10 +31,10 @@ class MockIntegrations:
         {{^isPrimitiveType}}
         response_body = None
         if body is None:
-            with open(path.join(MOCK_DATA_PATH, "{{httpMethod}}{}-{{code}}.json".format("{{path}}".replace("/", "-"))), "r") as f:
+            with open(path.join(MOCK_DATA_PATH, "{{httpMethod}}{}-{{code}}.json".format("{{path}}".replace("/", "-")).lower()), "r") as f:
                 response_body = f.read()
         else:
-            response_body = json.dumps(JSONEncoder().default(body))
+            response_body = body.to_json()
         {{/isPrimitiveType}}
         {{/simpleType}}
         return Integrations.mock(

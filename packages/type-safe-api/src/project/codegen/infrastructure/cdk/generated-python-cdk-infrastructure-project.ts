@@ -75,9 +75,10 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
     );
 
     // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
-    );
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig({
+      version: "6.6.0",
+      ...options.openApiGeneratorCliConfig,
+    });
 
     const generateTask = this.addTask("generate");
     generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
@@ -110,7 +111,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
 
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
-      generator: "python",
+      generator: "python-nextgen",
       specPath: this.options.specPath,
       smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.PYTHON_CDK_INFRASTRUCTURE,

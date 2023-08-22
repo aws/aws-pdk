@@ -4,8 +4,7 @@ exports[`Python Infrastructure Code Generation Script Unit Tests Generates With 
 "import json
 from aws_pdk.type_safe_api import Integrations, MockIntegration, TypeSafeApiIntegration
 from test_client.models import *
-from test_client.api_client import JSONEncoder
-from test_client.apis.tags.default_api_operation_config import OperationConfig
+from test_client.api.operation_config import OperationConfig
 from os import path
 from pathlib import Path
 
@@ -15,15 +14,18 @@ class MockIntegrations:
     """
     Type-safe mock integrations for API operations
     """
+    
+    
     # No mock integrations have been generated, since mock data generation is disabled.
     pass
+    
 "
 `;
 
 exports[`Python Infrastructure Code Generation Script Unit Tests Generates With single.yaml 1`] = `
 "from dataclasses import fields
 from aws_pdk.type_safe_api import TypeSafeRestApi, TypeSafeApiIntegration
-from test_client.apis.tags.default_api_operation_config import OperationLookup, OperationConfig
+from test_client.api.operation_config import OperationLookup, OperationConfig
 from os import path
 from pathlib import Path
 
@@ -50,8 +52,7 @@ exports[`Python Infrastructure Code Generation Script Unit Tests Generates With 
 "import json
 from aws_pdk.type_safe_api import Integrations, MockIntegration, TypeSafeApiIntegration
 from test_client.models import *
-from test_client.api_client import JSONEncoder
-from test_client.apis.tags.default_api_operation_config import OperationConfig
+from test_client.api.operation_config import OperationConfig
 from os import path
 from pathlib import Path
 
@@ -61,6 +62,7 @@ class MockIntegrations:
     """
     Type-safe mock integrations for API operations
     """
+    
     @staticmethod
     def any_request_response_200(body: str) -> MockIntegration:
         """
@@ -74,7 +76,7 @@ class MockIntegrations:
     @staticmethod
     def empty_204() -> MockIntegration:
         """
-        Mock integration to return a 204 response from the empty_response operation
+        Mock integration to return a 204 response from the empty operation
         """
         return Integrations.mock(
             status_code=204,
@@ -88,10 +90,10 @@ class MockIntegrations:
         """
         response_body = None
         if body is None:
-            with open(path.join(MOCK_DATA_PATH, "get{}-200.json".format("/map-response".replace("/", "-"))), "r") as f:
+            with open(path.join(MOCK_DATA_PATH, "GET{}-200.json".format("/map-response".replace("/", "-")).lower()), "r") as f:
                 response_body = f.read()
         else:
-            response_body = json.dumps(JSONEncoder().default(body))
+            response_body = body.to_json()
         return Integrations.mock(
             status_code=200,
             body=response_body,
@@ -100,7 +102,7 @@ class MockIntegrations:
     @staticmethod
     def media_types_200(body: str) -> MockIntegration:
         """
-        Mock integration to return a 200 response from the different_media_type operation
+        Mock integration to return a 200 response from the media_types operation
         """
         return Integrations.mock(
             status_code=200,
@@ -120,15 +122,15 @@ class MockIntegrations:
     @staticmethod
     def operation_one_200(body: TestResponse = None) -> MockIntegration:
         """
-        Mock integration to return a 200 response from the path_path_param operation
+        Mock integration to return a 200 response from the operation_one operation
         Call this with no arguments to use a generated mock response
         """
         response_body = None
         if body is None:
-            with open(path.join(MOCK_DATA_PATH, "post{}-200.json".format("/path/{pathParam}".replace("/", "-"))), "r") as f:
+            with open(path.join(MOCK_DATA_PATH, "POST{}-200.json".format("/path/{pathParam}".replace("/", "-")).lower()), "r") as f:
                 response_body = f.read()
         else:
-            response_body = json.dumps(JSONEncoder().default(body))
+            response_body = body.to_json()
         return Integrations.mock(
             status_code=200,
             body=response_body,
@@ -137,15 +139,15 @@ class MockIntegrations:
     @staticmethod
     def operation_one_400(body: ApiError = None) -> MockIntegration:
         """
-        Mock integration to return a 400 response from the path_path_param operation
+        Mock integration to return a 400 response from the operation_one operation
         Call this with no arguments to use a generated mock response
         """
         response_body = None
         if body is None:
-            with open(path.join(MOCK_DATA_PATH, "post{}-400.json".format("/path/{pathParam}".replace("/", "-"))), "r") as f:
+            with open(path.join(MOCK_DATA_PATH, "POST{}-400.json".format("/path/{pathParam}".replace("/", "-")).lower()), "r") as f:
                 response_body = f.read()
         else:
-            response_body = json.dumps(JSONEncoder().default(body))
+            response_body = body.to_json()
         return Integrations.mock(
             status_code=400,
             body=response_body,
@@ -154,15 +156,15 @@ class MockIntegrations:
     @staticmethod
     def without_operation_id_delete_200(body: TestResponse = None) -> MockIntegration:
         """
-        Mock integration to return a 200 response from the without_operation_id operation
+        Mock integration to return a 200 response from the without_operation_id_delete operation
         Call this with no arguments to use a generated mock response
         """
         response_body = None
         if body is None:
-            with open(path.join(MOCK_DATA_PATH, "delete{}-200.json".format("/without-operation-id".replace("/", "-"))), "r") as f:
+            with open(path.join(MOCK_DATA_PATH, "DELETE{}-200.json".format("/without-operation-id".replace("/", "-")).lower()), "r") as f:
                 response_body = f.read()
         else:
-            response_body = json.dumps(JSONEncoder().default(body))
+            response_body = body.to_json()
         return Integrations.mock(
             status_code=200,
             body=response_body,
@@ -195,5 +197,7 @@ class MockIntegrations:
             },
             **kwargs
         })
+    
+    
 "
 `;

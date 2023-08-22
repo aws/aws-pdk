@@ -33,6 +33,9 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
     "test",
     "test/*",
     "test/**/*",
+    ".github",
+    ".github/*",
+    ".github/**/*",
     ".gitlab-ci.yml",
     ".travis.yml",
     "git_push.sh",
@@ -65,11 +68,9 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
 
     // Add dependencies required by the client
     [
-      "certifi@^14.5.14",
-      "frozendict@~2.3.4",
-      "python-dateutil@~2.7.0",
-      "setuptools@^21.0.0",
-      "typing_extensions@^4.6.2",
+      "python-dateutil@~2.8.2",
+      "pydantic@^1.10.5",
+      "aenum@^3.1.11",
       "urllib3@~1.26.7",
       `aws-lambda-powertools@{extras=["all"],version="^2.23.0"}`,
       "python@^3.9",
@@ -81,9 +82,10 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
     );
 
     // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
-    );
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig({
+      version: "6.6.0",
+      ...options.openApiGeneratorCliConfig,
+    });
 
     const generateTask = this.addTask("generate");
     generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
@@ -118,7 +120,7 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
 
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
-      generator: "python",
+      generator: "python-nextgen",
       specPath: this.options.specPath,
       smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Language.PYTHON,

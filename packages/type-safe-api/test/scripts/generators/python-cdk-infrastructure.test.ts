@@ -3,7 +3,6 @@ SPDX-License-Identifier: Apache-2.0 */
 import os from "os";
 import * as path from "path";
 import { exec } from "projen/lib/util";
-import { OpenApiToolsJsonFile } from "../../../src/project/codegen/components/open-api-tools-json-file";
 import { GeneratedPythonCdkInfrastructureProject } from "../../../src/project/codegen/infrastructure/cdk/generated-python-cdk-infrastructure-project";
 import { GeneratedPythonRuntimeProject } from "../../../src/project/codegen/runtime/generated-python-runtime-project";
 import { withTmpDirSnapshot } from "../../project/snapshot-utils";
@@ -37,8 +36,7 @@ describe("Python Infrastructure Code Generation Script Unit Tests", () => {
         specPath: "../spec.yaml",
         generatedPythonTypes: client,
       });
-      // Synth the openapitools.json since it's used by the generate command
-      OpenApiToolsJsonFile.of(project)!.synthesize();
+      project.synth();
       exec(
         `${path.resolve(
           __dirname,
@@ -89,8 +87,7 @@ describe("Python Infrastructure Code Generation Script Unit Tests", () => {
           disable: true,
         },
       });
-      // Synth the openapitools.json since it's used by the generate command
-      OpenApiToolsJsonFile.of(project)!.synthesize();
+      project.synth();
       exec(
         `${path.resolve(
           __dirname,
