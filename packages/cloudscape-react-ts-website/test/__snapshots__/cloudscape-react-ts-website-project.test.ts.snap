@@ -1536,17 +1536,22 @@ import {
   ContentLayout,
   Header,
   SpaceBetween,
+  // Spinner,
 } from "@cloudscape-design/components";
+// import { useSayHello } from "myapi-typescript-react-query-hooks";
 
 /**
  * Component to render the home "/" route.
  */
 const Home: React.FC = () => {
+  // const sayHello = useSayHello({ name: "World" });
+
   return (
     <ContentLayout header={<Header>Home</Header>}>
       <SpaceBetween size="l">
         <Container>
-          Welcome!
+          Hello World!
+          {/* {sayHello.isLoading ? <Spinner /> : <>{sayHello.data?.message}</>} */}
         </Container>
       </SpaceBetween>
     </ContentLayout>
@@ -1554,6 +1559,7 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
 ",
   "src/react-app-env.d.ts": "/// <reference types="react-scripts" />",
   "src/setupTests.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
@@ -3188,17 +3194,22 @@ import {
   ContentLayout,
   Header,
   SpaceBetween,
+  // Spinner,
 } from "@cloudscape-design/components";
+// import { useSayHello } from "myapi-typescript-react-query-hooks";
 
 /**
  * Component to render the home "/" route.
  */
 const Home: React.FC = () => {
+  // const sayHello = useSayHello({ name: "World" });
+
   return (
     <ContentLayout header={<Header>Home</Header>}>
       <SpaceBetween size="l">
         <Container>
-          Welcome!
+          Hello World!
+          {/* {sayHello.isLoading ? <Spinner /> : <>{sayHello.data?.message}</>} */}
         </Container>
       </SpaceBetween>
     </ContentLayout>
@@ -3206,6 +3217,7 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
 ",
   "src/react-app-env.d.ts": "/// <reference types="react-scripts" />",
   "src/setupTests.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
@@ -3643,6 +3655,10 @@ tsconfig.tsbuildinfo
         "type": "build",
       },
       {
+        "name": "@types/swagger-ui-react",
+        "type": "build",
+      },
+      {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
         "version": "^5",
@@ -3702,6 +3718,10 @@ tsconfig.tsbuildinfo
         "type": "runtime",
       },
       {
+        "name": "aws4fetch",
+        "type": "runtime",
+      },
+      {
         "name": "react",
         "type": "runtime",
       },
@@ -3717,6 +3737,10 @@ tsconfig.tsbuildinfo
         "name": "react-scripts",
         "type": "runtime",
         "version": "^5",
+      },
+      {
+        "name": "swagger-ui-react",
+        "type": "runtime",
       },
       {
         "name": "testapi-typescript-react-query-hooks",
@@ -4190,10 +4214,12 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
     "dependencies": {
       "@aws-northstar/ui": "*",
       "@cloudscape-design/components": "*",
+      "aws4fetch": "*",
       "react": "*",
       "react-dom": "*",
       "react-router-dom": "*",
       "react-scripts": "^5",
+      "swagger-ui-react": "*",
       "testapi-typescript-react-query-hooks": "*",
       "web-vitals": "*",
     },
@@ -4205,6 +4231,7 @@ curl https://dxxxxxxxxxx.cloudfront.net/runtime-config.json > public/runtime-con
       "@types/node": "^16",
       "@types/react": "*",
       "@types/react-dom": "*",
+      "@types/swagger-ui-react": "*",
       "@typescript-eslint/eslint-plugin": "^5",
       "@typescript-eslint/parser": "^5",
       "eslint": "^8",
@@ -4580,6 +4607,14 @@ export default App;
  */
 export const NavItems: SideNavigationProps.Item[] = [
   { text: "Home", type: "link", href: "/" },
+  { type: "divider" },
+  {
+    text: "Developer Tools",
+    type: "expandable-link-group",
+    href: "#",
+    defaultExpanded: false,
+    items: [{ text: "API Explorer", type: "link", href: "/apiExplorer" }],
+  },
 ];
 ",
   "src/layouts/Routes/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
@@ -4587,6 +4622,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as React from "react";
 import { Route, Routes as ReactRoutes } from "react-router-dom";
 import Home from "../../pages/Home";
+import ApiExplorer from "../../pages/ApiExplorer";
 
 /**
  * Defines the Routes.
@@ -4595,11 +4631,100 @@ const Routes: React.FC = () => {
   return (
     <ReactRoutes>
       <Route key={0} path="/" element={<Home />} />
+      <Route key={0} path="/apiExplorer" element={<ApiExplorer />} />
     </ReactRoutes>
   );
 };
 
 export default Routes;
+",
+  "src/pages/ApiExplorer/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
+import { useCognitoAuthContext } from "@aws-northstar/ui";
+import ErrorMessage from "@aws-northstar/ui/components/CognitoAuth/components/ErrorMessage";
+import getCredentials from "@aws-northstar/ui/components/CognitoAuth/hooks/useSigv4Client/utils/getCredentials";
+import { useCallback, useContext, useEffect, useState } from "react";
+import SwaggerUI from "swagger-ui-react";
+import "swagger-ui-react/swagger-ui.css";
+import { RuntimeConfigContext } from "../../components/RuntimeContext";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const aws4Fetch = require("aws4fetch");
+
+/**
+ * Component to render the home ApiExplorer.
+ */
+const ApiExplorer: React.FC = () => {
+  const runtimeContext = useContext(RuntimeConfigContext);
+  const [apiSpec, setApiSpec] = useState();
+  const [error, setError] = useState<string | undefined>();
+  const { getAuthenticatedUser, region, identityPoolId, userPoolId } =
+    useCognitoAuthContext();
+
+  // Load the OpenAPI spec
+  useEffect(() => {
+    fetch("/api.json")
+      .then((response) => {
+        return response.json();
+      })
+      .then((_apiSpec) => {
+        // Inject the server API URL
+        setApiSpec({ ..._apiSpec, servers: [{ url: runtimeContext?.apiUrl }] });
+      })
+      .catch(() => {
+        setError(
+          "No OpenAPI definition detected. Ensure TypeSafeAPI is passed in to Cloudscape Website construct."
+        );
+      });
+  }, []);
+
+  /**
+   * Interceptor which signs all requests using SigV4
+   */
+  const sigv4Interceptor = useCallback(async (r: any) => {
+    const { accessKeyId, secretAccessKey, sessionToken } = await getCredentials(
+      getAuthenticatedUser?.()!,
+      region,
+      identityPoolId,
+      userPoolId
+    );
+
+    // Sign the request
+    const {
+      url: signedUrl,
+      headers,
+      body,
+      method,
+    } = await new aws4Fetch.AwsV4Signer({
+      accessKeyId,
+      secretAccessKey,
+      sessionToken,
+      region,
+      service: "execute-api",
+      url: r.url,
+      body: r.body,
+      headers: r.headers,
+      method: r.method,
+    }).sign();
+    // Return the signed request
+    return {
+      ...r,
+      url: signedUrl.toString(),
+      headers,
+      body,
+      method,
+    };
+  }, []);
+
+  return error ? (
+    <ErrorMessage>{error}</ErrorMessage>
+  ) : apiSpec ? (
+    <SwaggerUI requestInterceptor={sigv4Interceptor} spec={apiSpec} />
+  ) : (
+    <></>
+  );
+};
+
+export default ApiExplorer;
 ",
   "src/pages/Home/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
@@ -4608,21 +4733,26 @@ import {
   ContentLayout,
   Header,
   SpaceBetween,
-  Spinner,
+  // Spinner,
 } from "@cloudscape-design/components";
-import { useSayHello } from "testapi-typescript-react-query-hooks";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+// import { useSayHello } from "myapi-typescript-react-query-hooks";
 
 /**
  * Component to render the home "/" route.
  */
 const Home: React.FC = () => {
-  const sayHello = useSayHello({ name: "World" });
+  const navigate = useNavigate();
+  useEffect(() => navigate("/apiExplorer"), []);
+  // const sayHello = useSayHello({ name: "World" });
 
   return (
     <ContentLayout header={<Header>Home</Header>}>
       <SpaceBetween size="l">
         <Container>
-          {sayHello.isLoading ? <Spinner /> : <>{sayHello.data?.message}</>}
+          Hello World!
+          {/* {sayHello.isLoading ? <Spinner /> : <>{sayHello.data?.message}</>} */}
         </Container>
       </SpaceBetween>
     </ContentLayout>
@@ -4630,6 +4760,7 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
 ",
   "src/react-app-env.d.ts": "/// <reference types="react-scripts" />",
   "src/setupTests.ts": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.

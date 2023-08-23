@@ -42,6 +42,8 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
   public readonly publicDir: string;
 
   constructor(options: CloudscapeReactTsWebsiteProjectOptions) {
+    const hasApi = !!options.typeSafeApi;
+
     super({
       ...options,
       defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
@@ -80,11 +82,13 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
         );
       }
       this.addDeps(libraryHooksPackage);
+
+      this.setupSwaggerUi(options.typeSafeApi);
     }
 
     const mustacheConfig = {
       applicationName: this.applicationName,
-      hasApi: !!options.typeSafeApi,
+      hasApi,
       apiHooksPackage:
         options.typeSafeApi?.library?.typescriptReactQueryHooks?.package
           ?.packageName,
@@ -114,6 +118,18 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
     this.tasks.tryFind("dev")?.env("TSC_COMPILE_ON_ERROR", "true");
   }
 
+  private setupSwaggerUi(tsApi: TypeSafeApiProject) {
+    this.addDevDeps("@types/swagger-ui-react");
+    this.addDeps("swagger-ui-react", "aws4fetch");
+
+    tsApi.model.postCompileTask.exec(
+      `cp .api.json ${path.relative(
+        tsApi.model.outdir,
+        this.outdir
+      )}/public/api.json`
+    );
+  }
+
   private buildSampleDirEntries(
     dir: string,
     pathPrefixes: string[] = [],
@@ -124,7 +140,8 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       .filter(
         (f) =>
           mustacheConfig.hasApi ||
-          !`${pathPrefixes.join("/")}${f.name}`.includes("DefaultApi")
+          (!`${pathPrefixes.join("/")}${f.name}`.includes("DefaultApi") &&
+            !`${pathPrefixes.join("/")}${f.name}`.includes("ApiExplorer"))
       )
       .flatMap((f) =>
         f.isDirectory()

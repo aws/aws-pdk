@@ -5,32 +5,30 @@ import {
   ContentLayout,
   Header,
   SpaceBetween,
-  {{#hasApi}}
-  Spinner,
-  {{/hasApi}}
+  // Spinner,
 } from "@cloudscape-design/components";
 {{#hasApi}}
-import { useSayHello } from "{{apiHooksPackage}}";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 {{/hasApi}}
+// import { useSayHello } from "myapi-typescript-react-query-hooks";
 
 /**
  * Component to render the home "/" route.
  */
 const Home: React.FC = () => {
   {{#hasApi}}
-  const sayHello = useSayHello({ name: "World" });
-
+  const navigate = useNavigate();
+  useEffect(() => navigate("/apiExplorer"), []);
   {{/hasApi}}
+  // const sayHello = useSayHello({ name: "World" });
+
   return (
     <ContentLayout header={<Header>Home</Header>}>
       <SpaceBetween size="l">
         <Container>
-          {{#hasApi}}
-          {sayHello.isLoading ? <Spinner /> : <>{sayHello.data?.message}</>}
-          {{/hasApi}}
-          {{^hasApi}}
-          Welcome!
-          {{/hasApi}}
+          Hello World!
+          {/* {sayHello.isLoading ? <Spinner /> : <>{sayHello.data?.message}</>} */}
         </Container>
       </SpaceBetween>
     </ContentLayout>
@@ -38,3 +36,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
