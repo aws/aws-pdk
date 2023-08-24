@@ -136,7 +136,7 @@ export class AwsPdkProject extends PDKProject {
 
   private generateSource(jsiiProjects?: JsiiProject[]): void {
     this.preCompileTask.exec(
-      `rm -rf ${this.srcdir} lib dist && mkdir ${this.srcdir}`
+      `rm -rf ${this.srcdir} lib && mkdir ${this.srcdir}`
     );
     jsiiProjects?.forEach((subProject) => {
       this.copyProjectSource(subProject);

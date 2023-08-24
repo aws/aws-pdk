@@ -67,7 +67,7 @@ jobs:
           path: dist
       - name: Release
         run: errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY -F dist/changelog.md -t $(cat dist/releasetag.txt) --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode -ne 0 ] && ! grep -q "Release.tag_name already exists" $errout; then cat $errout; exit $exitcode; fi
-        working-directory: dist/packages/nx-monorepo
+        working-directory: dist/packages/aws-pdk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -181,7 +181,7 @@ jobs:
           git config user.name "AWS PDK Automation"
           git config user.email "aws-pdk+automation@amazon.com"
       - name: Upload docs to Github
-        run: zip -r docs.zip dist/docs/dist/docs/* && gh release upload $(cat dist/packages/nx-monorepo/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
+        run: zip -r docs.zip dist/docs/dist/docs/* && gh release upload $(cat dist/packages/aws-pdk/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -192,5 +192,5 @@ jobs:
           touch .nojekyll
           git add .
           git diff --cached --exit-code >/dev/null || (git commit -am 'docs: publish from ${{ github.sha }}')
-      - name: Push
-        run: git push origin gh-pages:gh-pages
+      # - name: Push
+      #   run: git push origin gh-pages:gh-pages
