@@ -41,7 +41,7 @@ export class NXMonorepoProject extends PDKProject {
 
     this.package.addBin({
       "pdk-pnpm-link-bundled-transitive-deps":
-        "./scripts/pnpm/link-bundled-transitive-deps.ts",
+        "./scripts/pnpm/link-bundled-transitive-deps.js",
     });
   }
 }
