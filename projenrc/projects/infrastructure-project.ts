@@ -92,15 +92,8 @@ export class InfrastructureProject extends PDKProject {
           default: "$BASEDIR",
         },
       })
-      .add({
-        name: "moduleName",
-        type: { primitive: PrimitiveType.String },
-        optional: false,
-        docs: {
-          default: "$PYTHON_MODULE_NAME",
-        },
-      })
       .omit(
+        "appEntrypoint",
         "pip",
         "venv",
         "venvOptions",

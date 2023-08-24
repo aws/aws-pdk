@@ -12,12 +12,6 @@ export interface AwsCdkPythonAppOptions {
    */
   readonly testdir?: string;
   /**
-   * The CDK app's entrypoint (relative to the source directory, which is "src" by default).
-   * @default "app.py"
-   * @stability experimental
-   */
-  readonly appEntrypoint?: string;
-  /**
    * Minimum version of the `constructs` library to depend on.
    * @default - for CDK 1.x the default is "3.2.27", for CDK 2.x the default is
 "10.0.5".
@@ -183,9 +177,12 @@ export interface AwsCdkPythonAppOptions {
    */
   readonly deps?: Array<string>;
   /**
+   * Name of the python package as used in imports and filenames.
+   * Must only consist of alphanumeric characters and underscores.
    * @default $PYTHON_MODULE_NAME
+   * @stability experimental
    */
-  readonly moduleName: string;
+  readonly moduleName?: string;
   /**
    * Additional fields to pass in the setup() function if using setuptools.
    * @stability experimental

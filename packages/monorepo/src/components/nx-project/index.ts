@@ -2,7 +2,9 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { Component, JsonFile, Project } from "projen";
+import { JavaProject } from "projen/lib/java";
 import { NodePackageManager } from "projen/lib/javascript";
+import { Poetry, PythonProject } from "projen/lib/python";
 import { Obj } from "projen/lib/util";
 import { inferBuildTarget } from "./targets";
 import { Nx } from "../../nx-types";
@@ -193,6 +195,62 @@ export class NxProject extends Component {
   public addImplicitDependency(...dependee: (Project | string)[]) {
     this.implicitDependencies.push(
       ...dependee.map((_d) => (typeof _d === "string" ? _d : _d.name))
+    );
+  }
+
+  /**
+   * Adds a dependency between two Java Projects in the monorepo.
+   * @param dependee project you wish to depend on
+   */
+  public addJavaDependency(dependee: JavaProject) {
+    if (!(this.project instanceof JavaProject)) {
+      throw Error(
+        "Cannot call addJavaDependency on a project that is not a JavaProject"
+      );
+    }
+    // Add implicit dependency for build order
+    this.addImplicitDependency(dependee);
+
+    // Add dependency in pom.xml
+    this.project.addDependency(
+      `${dependee.pom.groupId}/${dependee.pom.artifactId}@${dependee.pom.version}`
+    );
+
+    // Add a repository so that the dependency in the pom can be resolved
+    this.project.pom.addRepository({
+      id: dependee.name,
+      url: `file://${path.join(
+        path.relative(this.project.outdir, dependee.outdir),
+        dependee.packaging.distdir
+      )}`,
+    });
+  }
+
+  /**
+   * Adds a dependency between two Python Projects in the monorepo. The dependent must have Poetry enabled.
+   * @param dependee project you wish to depend on
+   * @throws error if the dependent does not have Poetry enabled
+   */
+  public addPythonPoetryDependency(dependee: PythonProject) {
+    // Check we're adding the dependency to a poetry python project
+    if (
+      !(this.project instanceof PythonProject) ||
+      !ProjectUtils.isNamedInstanceOf(this.project.depsManager as any, Poetry)
+    ) {
+      throw new Error(
+        `${this.project.name} must be a PythonProject with Poetry enabled to add this dependency`
+      );
+    }
+
+    // Add implicit dependency for build order
+    this.addImplicitDependency(dependee);
+
+    // Add local path dependency
+    this.project.addDependency(
+      `${dependee.name}@{path="${path.relative(
+        this.project.outdir,
+        dependee.outdir
+      )}", develop=true}`
     );
   }
 

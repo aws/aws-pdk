@@ -4,7 +4,7 @@ import * as path from "path";
 import { Component, JsonFile, Project, Task } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
-import { Poetry, PythonProject } from "projen/lib/python";
+import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { NxProject } from "./nx-project";
 import { NxWorkspace } from "./nx-workspace";
@@ -299,22 +299,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
    * @param dependee project you wish to depend on
    */
   public addJavaDependency(dependent: JavaProject, dependee: JavaProject) {
-    // Add implicit dependency for build order
-    this.addImplicitDependency(dependent, dependee);
-
-    // Add dependency in pom.xml
-    dependent.addDependency(
-      `${dependee.pom.groupId}/${dependee.pom.artifactId}@${dependee.pom.version}`
-    );
-
-    // Add a repository so that the dependency in the pom can be resolved
-    dependent.pom.addRepository({
-      id: dependee.name,
-      url: `file://${path.join(
-        path.relative(dependent.outdir, dependee.outdir),
-        dependee.packaging.distdir
-      )}`,
-    });
+    NxProject.ensure(dependent).addJavaDependency(dependee);
   }
 
   /**
@@ -327,23 +312,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
     dependent: PythonProject,
     dependee: PythonProject
   ) {
-    // Check we're adding the dependency to a poetry python project
-    if (!ProjectUtils.isNamedInstanceOf(dependent.depsManager as any, Poetry)) {
-      throw new Error(
-        `${dependent.name} must be a PythonProject with Poetry enabled to add this dependency`
-      );
-    }
-
-    // Add implicit dependency for build order
-    this.addImplicitDependency(dependent, dependee);
-
-    // Add local path dependency
-    dependent.addDependency(
-      `${dependee.name}@{path="${path.relative(
-        dependent.outdir,
-        dependee.outdir
-      )}", develop=true}`
-    );
+    NxProject.ensure(dependent).addPythonPoetryDependency(dependee);
   }
 
   /**

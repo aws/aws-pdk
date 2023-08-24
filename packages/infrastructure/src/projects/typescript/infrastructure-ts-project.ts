@@ -12,7 +12,7 @@ import { NodeProject } from "projen/lib/javascript";
 import { AwsCdkTypeScriptAppOptions } from "./aws-cdk-ts-app-options";
 
 /**
- * Configuration options for the .
+ * Configuration options for the InfrastructureTsProject.
  */
 export interface InfrastructureTsProjectOptions
   extends AwsCdkTypeScriptAppOptions {
@@ -48,18 +48,20 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
       sampleCode: false,
       readme: {
         contents: fs
-          .readFileSync(path.resolve(__dirname, "../../../samples/README.md"))
+          .readFileSync(
+            path.resolve(__dirname, "../../../samples/typescript/README.md")
+          )
           .toString(),
       },
     });
 
     this.addDeps("aws-pdk");
 
-    const srcDir = path.resolve(__dirname, "../../../samples/src");
-    const testDir = path.resolve(__dirname, "../../../samples/test");
+    const srcDir = path.resolve(__dirname, "../../../samples/typescript/src");
+    const testDir = path.resolve(__dirname, "../../../samples/typescript/test");
 
     if (hasApi) {
-      if (!options.typeSafeApi.infrastructure) {
+      if (!options.typeSafeApi.infrastructure.typescript) {
         throw new Error(
           "Cannot pass in a Type Safe Api without Typescript Infrastructure configured!"
         );
@@ -85,7 +87,7 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
       websiteDistRelativePath:
         hasWebsite &&
         path.relative(
-          `${this.outdir}/src/constructs`,
+          this.outdir,
           `${options.cloudscapeReactTsWebsite?.outdir}/build`
         ),
     };
@@ -94,6 +96,11 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
       this.emitSampleFiles(srcDir, ["src"], mustacheConfig);
     options.sampleCode !== false &&
       this.emitSampleFiles(testDir, ["test"], mustacheConfig);
+
+    const eslintTask = this.tasks.tryFind("eslint");
+    this.testTask.reset();
+    this.testTask.exec("jest --passWithNoTests ${CI:-'--updateSnapshot'}");
+    eslintTask && this.testTask.spawn(eslintTask);
   }
 
   private emitSampleFiles(
