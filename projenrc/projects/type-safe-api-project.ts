@@ -25,7 +25,7 @@ export class TypeSafeApiProject extends PDKProject {
         "api",
         "type-safe",
       ],
-      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+      repositoryUrl: "https://github.com/aws/aws-pdk",
       devDeps: [
         "@types/fs-extra",
         "@types/lodash",

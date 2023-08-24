@@ -16,7 +16,7 @@ export class CdkGraphProject extends PDKProject {
       defaultReleaseBranch: "mainline",
       name: "cdk-graph",
       keywords: ["aws", "pdk", "jsii", "projen", "cdk", "graph", "cdk-graph"],
-      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+      repositoryUrl: "https://github.com/aws/aws-pdk",
       devDeps: [
         `${PDK_NAMESPACE}pdk-nag@^0.x`,
         "cdk-nag",

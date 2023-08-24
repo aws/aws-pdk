@@ -16,7 +16,7 @@ export class AwsArchProject extends PDKProject {
       defaultReleaseBranch: "mainline",
       name: "aws-arch",
       keywords: ["aws", "pdk", "jsii", "projen", "icons", "assets", "cfnspec"],
-      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+      repositoryUrl: "https://github.com/aws/aws-pdk",
       devDeps: [
         "@aws-cdk/cfnspec",
         "@types/lodash",

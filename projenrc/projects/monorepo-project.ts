@@ -7,7 +7,7 @@ import { Stability } from "projen/lib/cdk";
 import { PDKProject } from "../abstract/pdk-project";
 
 /**
- * Contains configuration for the MonorepoTsProject.
+ * Contains configuration for the Monorepo Projects.
  */
 export class MonorepoProject extends PDKProject {
   constructor(parent: Project) {
@@ -18,7 +18,7 @@ export class MonorepoProject extends PDKProject {
       defaultReleaseBranch: "mainline",
       name: "monorepo",
       keywords: ["aws", "pdk", "jsii", "projen"],
-      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+      repositoryUrl: "https://github.com/aws/aws-pdk",
       devDeps: [
         "projen",
         "nx",

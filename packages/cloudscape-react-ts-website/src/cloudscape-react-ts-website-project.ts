@@ -5,6 +5,7 @@ import * as path from "path";
 import { TypeSafeApiProject } from "@aws-pdk/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleDir } from "projen";
+import { NodeProject } from "projen/lib/javascript";
 import { ReactTypeScriptProject } from "projen/lib/web";
 import { ReactTypeScriptProjectOptions } from "./react-ts-project-options";
 
@@ -49,12 +50,21 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
       name: options.name,
       sampleCode: false,
+      prettier: options.prettier || true,
+      packageManager:
+        options.parent && options.parent instanceof NodeProject
+          ? options.parent.package.packageManager
+          : options.packageManager,
       readme: {
         contents: fs
           .readFileSync(path.resolve(__dirname, "../samples/README.md"))
           .toString(),
       },
-      gitignore: ["runtime-config.json"],
+      gitignore: [
+        "public/runtime-config.json",
+        "public/api.json",
+        ...(options.gitignore || []),
+      ],
     });
 
     this.addDeps(

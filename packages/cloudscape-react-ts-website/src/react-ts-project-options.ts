@@ -77,12 +77,6 @@ export interface ReactTypeScriptProjectOptions {
    */
   readonly srcdir?: string;
   /**
-   * Generate one-time sample in `src/` and `test/` if there are no files there.
-   * @default true
-   * @stability experimental
-   */
-  readonly sampleCode?: boolean;
-  /**
    * Options for .projenrc.ts.
    * @stability experimental
    */

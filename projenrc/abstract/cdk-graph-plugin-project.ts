@@ -29,7 +29,7 @@ export abstract class CdkGraphPluginProject extends PDKProject {
       author: "AWS APJ COPE",
       authorAddress: "apj-cope@amazon.com",
       defaultReleaseBranch: "mainline",
-      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+      repositoryUrl: "https://github.com/aws/aws-pdk",
       stability: Stability.EXPERIMENTAL,
       // explicit/overrides
       ...props,

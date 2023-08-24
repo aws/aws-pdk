@@ -29,7 +29,7 @@ export class PDKNagProject extends PDKProject {
       ],
       author: "AWS APJ COPE",
       authorAddress: "apj-cope@amazon.com",
-      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+      repositoryUrl: "https://github.com/aws/aws-pdk",
       stability: Stability.STABLE,
       eslintOptions: {
         dirs: ["src", "scripts"],

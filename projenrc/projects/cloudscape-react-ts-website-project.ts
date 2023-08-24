@@ -18,7 +18,7 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
       defaultReleaseBranch: "mainline",
       name: "cloudscape-react-ts-website",
       keywords: ["aws", "pdk", "jsii", "projen"],
-      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+      repositoryUrl: "https://github.com/aws/aws-pdk",
       devDeps: ["projen", "@types/mustache", `${PDK_NAMESPACE}monorepo@^0.x`],
       deps: [`${PDK_NAMESPACE}type-safe-api@^0.x`],
       peerDeps: ["projen", `${PDK_NAMESPACE}type-safe-api@^0.x`],
@@ -43,7 +43,8 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
         name: "name",
         type: { primitive: PrimitiveType.String },
         optional: false,
-      });
+      })
+      .omit("sampleCode");
 
     this.eslint?.addIgnorePattern(`${this.srcdir}/react-ts-project-options.ts`);
   }
