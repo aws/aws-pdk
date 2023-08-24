@@ -1,9 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
+import { Project } from "projen";
 import * as readPkg from "read-pkg-up";
 import { Language, Library } from "../../languages";
 import { MockResponseDataGenerationOptions } from "../../types";
+import { GeneratedHandlersProjects } from "../generate";
 
 /**
  * Enum for generator directories for non-runtime generators
@@ -194,3 +196,38 @@ export const buildInvokeMockDataGeneratorCommand = (
     `--spec-path ${options.specPath} --output-path ${outputPath}${locale}${maxArrayLength}`
   );
 };
+
+/**
+ * Return vendor extensions containing details about the handler projects
+ */
+export const getHandlersProjectVendorExtensions = (
+  targetProject: Project,
+  { java, python, typescript }: GeneratedHandlersProjects
+): Record<string, string | boolean> => ({
+  "x-handlers-python-module": python?.moduleName ?? "",
+  "x-handlers-java-package": java?.packageName ?? "",
+  "x-handlers-typescript-asset-path": typescript
+    ? path.join(
+        path.relative(targetProject.outdir, typescript.outdir),
+        "dist",
+        "lambda"
+      )
+    : "",
+  "x-handlers-python-asset-path": python
+    ? path.join(
+        path.relative(targetProject.outdir, python.outdir),
+        "dist",
+        "lambda"
+      )
+    : "",
+  "x-handlers-java-asset-path": java
+    ? path.join(
+        path.relative(targetProject.outdir, java.outdir),
+        java.distdir,
+        ...java.pom.groupId.split("."),
+        java.pom.artifactId,
+        java.pom.version,
+        `${java.pom.artifactId}-${java.pom.version}.jar`
+      )
+    : "",
+});

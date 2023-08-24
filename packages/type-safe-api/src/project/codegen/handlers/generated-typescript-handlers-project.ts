@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { DependencyType, IgnoreFile } from "projen";
+import { DependencyType, IgnoreFile, SampleDir } from "projen";
 import {
   NodePackageManager,
   TypeScriptModuleResolution,
@@ -131,6 +131,14 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
     this.packageTask.exec(
       "for f in $(ls dist/lambda); do mkdir dist/lambda/$(basename $f .js) && mv dist/lambda/$f dist/lambda/$(basename $f .js)/index.js; done"
     );
+
+    // Create an empty index.ts sample on synth so that tsc is happy if the handlers project is configured
+    // but no operations have @handler(language: "typescript")
+    new SampleDir(this, this.srcdir, {
+      files: {
+        "index.ts": "",
+      },
+    });
 
     // If we're not in a monorepo, we need to link the generated types such that the local dependency can be resolved
     if (!options.isWithinMonorepo) {

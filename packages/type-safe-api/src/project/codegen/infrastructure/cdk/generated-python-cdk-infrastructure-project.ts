@@ -7,6 +7,7 @@ import {
   CodeGenerationSourceOptions,
   GeneratedPythonInfrastructureOptions,
 } from "../../../types";
+import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import {
@@ -14,9 +15,11 @@ import {
   buildInvokeMockDataGeneratorCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
   buildTypeSafeApiExecCommand,
+  getHandlersProjectVendorExtensions,
   OtherGenerators,
   TypeSafeApiScript,
 } from "../../components/utils";
+import { GeneratedHandlersProjects } from "../../generate";
 import { GeneratedPythonRuntimeProject } from "../../runtime/generated-python-runtime-project";
 
 export interface GeneratedPythonCdkInfrastructureProjectOptions
@@ -26,6 +29,10 @@ export interface GeneratedPythonCdkInfrastructureProjectOptions
    * The generated python types
    */
   readonly generatedPythonTypes: GeneratedPythonRuntimeProject;
+  /**
+   * Generated handlers projects
+   */
+  readonly generatedHandlers: GeneratedHandlersProjects;
 }
 
 export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
@@ -72,6 +79,15 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
       `!${this.moduleName}/__init__.py`,
       `!${this.moduleName}/api.py`,
       `!${this.moduleName}/mock_integrations.py`
+    );
+
+    const openapiGeneratorHandlebarsIgnore =
+      new OpenApiGeneratorHandlebarsIgnoreFile(this);
+    openapiGeneratorHandlebarsIgnore.addPatterns(
+      "/*",
+      "**/*",
+      "*",
+      `!${this.moduleName}/__functions.py`
     );
 
     // Add OpenAPI Generator cli configuration
@@ -126,6 +142,10 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         "x-relative-spec-path": path.join("..", this.options.specPath),
         // Enable mock integration generation by default
         "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
+        ...getHandlersProjectVendorExtensions(
+          this,
+          this.options.generatedHandlers
+        ),
       },
     });
   };

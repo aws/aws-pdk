@@ -7,6 +7,7 @@ import {
   CodeGenerationSourceOptions,
   GeneratedJavaInfrastructureOptions,
 } from "../../../types";
+import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import {
@@ -14,9 +15,11 @@ import {
   buildInvokeMockDataGeneratorCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
   buildTypeSafeApiExecCommand,
+  getHandlersProjectVendorExtensions,
   OtherGenerators,
   TypeSafeApiScript,
 } from "../../components/utils";
+import { GeneratedHandlersProjects } from "../../generate";
 import { GeneratedJavaRuntimeProject } from "../../runtime/generated-java-runtime-project";
 
 export interface GeneratedJavaCdkInfrastructureProjectOptions
@@ -26,6 +29,10 @@ export interface GeneratedJavaCdkInfrastructureProjectOptions
    * The generated java types
    */
   readonly generatedJavaTypes: GeneratedJavaRuntimeProject;
+  /**
+   * Generated handlers projects
+   */
+  readonly generatedHandlers: GeneratedHandlersProjects;
 }
 
 export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
@@ -101,6 +108,15 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
       `!${this.srcDir}/MockIntegrations.java`
     );
 
+    const openapiGeneratorHandlebarsIgnore =
+      new OpenApiGeneratorHandlebarsIgnoreFile(this);
+    openapiGeneratorHandlebarsIgnore.addPatterns(
+      "/*",
+      "**/*",
+      "*",
+      `!${this.srcDir}/__functions.java`
+    );
+
     // Add OpenAPI Generator cli configuration
     OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
       options.openApiGeneratorCliConfig
@@ -119,6 +135,13 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     generateTask.exec(
       `cp -f ${this.options.specPath} src/main/resources/.api.json`
     );
+    // Absolute path of this project is required for determining the path to the handlers jar,
+    // since java executes from the jar which could be anywhere in the filesystem (eg the .m2 directory).
+    // While ugly, since this is written at build time and not checked in it remains portable.
+    generateTask.exec(
+      "echo $(pwd) > src/main/resources/project-absolute-path.txt"
+    );
+
     if (!this.options.mockDataOptions?.disable) {
       generateTask.exec(this.buildGenerateMockDataCommand());
     }
@@ -144,6 +167,10 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
         "x-runtime-package": this.options.generatedJavaTypes.packageName,
         // Enable mock integration generation by default
         "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
+        ...getHandlersProjectVendorExtensions(
+          this,
+          this.options.generatedHandlers
+        ),
       },
       // Do not generate map/list types. Generator will use built in HashMap, ArrayList instead
       generateAliasAsModel: false,

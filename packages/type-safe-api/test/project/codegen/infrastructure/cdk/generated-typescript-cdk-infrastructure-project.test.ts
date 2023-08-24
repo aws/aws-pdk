@@ -18,6 +18,7 @@ describe("Generated Typescript Infra Code Unit Tests", () => {
         defaultReleaseBranch: "main",
         specPath: "my-spec.json",
       }),
+      generatedHandlers: {},
     });
 
     expect(synthProject(project)).toMatchSnapshot();

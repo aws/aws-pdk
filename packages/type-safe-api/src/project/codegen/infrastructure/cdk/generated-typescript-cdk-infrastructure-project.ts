@@ -11,6 +11,7 @@ import {
   CodeGenerationSourceOptions,
   GeneratedTypeScriptInfrastructureOptions,
 } from "../../../types";
+import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import {
@@ -18,9 +19,11 @@ import {
   buildInvokeMockDataGeneratorCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
   buildTypeSafeApiExecCommand,
+  getHandlersProjectVendorExtensions,
   OtherGenerators,
   TypeSafeApiScript,
 } from "../../components/utils";
+import { GeneratedHandlersProjects } from "../../generate";
 import { GeneratedTypescriptRuntimeProject } from "../../runtime/generated-typescript-runtime-project";
 
 export interface GeneratedTypescriptCdkInfrastructureProjectOptions
@@ -30,6 +33,11 @@ export interface GeneratedTypescriptCdkInfrastructureProjectOptions
    * Generated typescript types project
    */
   readonly generatedTypescriptTypes: GeneratedTypescriptRuntimeProject;
+
+  /**
+   * Generated handlers projects
+   */
+  readonly generatedHandlers: GeneratedHandlersProjects;
 
   /**
    * Whether the infrastructure and client projects are parented by an monorepo or not
@@ -109,6 +117,15 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       `!${this.srcdir}/mock-integrations.ts`
     );
 
+    const openapiGeneratorHandlebarsIgnore =
+      new OpenApiGeneratorHandlebarsIgnoreFile(this);
+    openapiGeneratorHandlebarsIgnore.addPatterns(
+      "/*",
+      "**/*",
+      "*",
+      `!${this.srcdir}/__functions.ts`
+    );
+
     // Add OpenAPI Generator cli configuration
     OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
       options.openApiGeneratorCliConfig
@@ -185,6 +202,10 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
         "x-relative-spec-path": path.join("..", this.packagedSpecPath),
         // Enable mock integration generation by default
         "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
+        ...getHandlersProjectVendorExtensions(
+          this,
+          this.options.generatedHandlers
+        ),
       },
     });
   };

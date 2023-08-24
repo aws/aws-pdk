@@ -43,9 +43,8 @@ export class GeneratedJavaHandlersProject extends JavaProject {
 
   /**
    * Java package name
-   * @private
    */
-  private readonly packageName: string;
+  public readonly packageName: string;
 
   constructor(options: GeneratedJavaHandlersProjectOptions) {
     super({

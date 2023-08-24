@@ -22,6 +22,7 @@ describe("Generated Java Infra Code Unit Tests", () => {
         version: "1.0.0",
         specPath: "my-spec.json",
       }),
+      generatedHandlers: {},
     });
 
     expect(synthProject(project)).toMatchSnapshot();
