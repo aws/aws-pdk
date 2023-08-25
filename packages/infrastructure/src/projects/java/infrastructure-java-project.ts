@@ -7,13 +7,13 @@ import { NxProject } from "@aws-pdk/monorepo";
 import { TypeSafeApiProject } from "@aws-pdk/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleFile } from "projen";
-import { AwsCdkPythonApp } from "projen/lib/awscdk";
-import { AwsCdkPythonAppOptions } from "./aws-cdk-py-app-options";
+import { AwsCdkJavaApp } from "projen/lib/awscdk";
+import { AwsCdkJavaAppOptions } from "./aws-cdk-java-app-options";
 
 /**
- * Configuration options for the InfrastructurePyProject.
+ * Configuration options for the InfrastructureJavaProject.
  */
-export interface InfrastructurePyProjectOptions extends AwsCdkPythonAppOptions {
+export interface InfrastructureJavaProjectOptions extends AwsCdkJavaAppOptions {
   /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
    */
@@ -26,51 +26,64 @@ export interface InfrastructurePyProjectOptions extends AwsCdkPythonAppOptions {
 }
 
 /**
- * Synthesizes a Infrastructure Python Project.
+ * Synthesizes a Infrastructure Typescript Project.
  */
-export class InfrastructurePyProject extends AwsCdkPythonApp {
-  constructor(options: InfrastructurePyProjectOptions) {
+export class InfrastructureJavaProject extends AwsCdkJavaApp {
+  constructor(options: InfrastructureJavaProjectOptions) {
     const hasApi = !!options.typeSafeApi;
     const hasWebsite = !!options.cloudscapeReactTsWebsite;
-    const moduleName = options.moduleName ?? "infra";
+    const groupId = options.groupId ?? "software.aws.infra";
+    const artifactId = options.artifactId ?? "infra";
 
     super({
       ...options,
       cdkVersion: options.cdkVersion ?? "2.1.0",
       sample: false,
-      poetry: true,
-      moduleName,
-      appEntrypoint: "main.py",
-      pytest: options.pytest ?? false,
+      junit: false,
+      groupId,
+      artifactId,
+      mainClass: `${groupId}.Main`,
       version: options.version ?? "0.0.0",
-      authorName: options.authorName ?? "pdkuser",
-      authorEmail: options.authorEmail ?? "user@pdk.com",
       name: options.name,
       readme: {
         contents: fs
           .readFileSync(
-            path.resolve(__dirname, "../../../samples/python/README.md")
+            path.resolve(__dirname, "../../../samples/java/README.md")
           )
           .toString(),
       },
     });
 
-    ["pytest@^7", "syrupy@^4"].forEach((devDep) =>
-      this.addDevDependency(devDep)
-    );
-    ["aws-pdk@^0", "python@^3.9"].forEach((dep) => this.addDependency(dep));
+    this.pom.addPlugin("org.apache.maven.plugins/maven-surefire-plugin@3.1.2");
+    this.pom.addPlugin("org.apache.maven.plugins/maven-compiler-plugin@3.8.1", {
+      configuration: {
+        release: "11",
+      },
+    });
 
-    const srcDir = path.resolve(__dirname, "../../../samples/python/src");
-    const testDir = path.resolve(__dirname, "../../../samples/python/test");
+    if (options.junit !== false) {
+      [
+        "org.junit.jupiter/junit-jupiter-api@^5",
+        "org.junit.jupiter/junit-jupiter-engine@^5",
+        "io.github.origin-energy/java-snapshot-testing-junit5@^4.0.6",
+        "io.github.origin-energy/java-snapshot-testing-plugin-jackson@^4.0.6",
+        "org.slf4j/slf4j-simple@2.0.0-alpha0",
+      ].forEach((d) => this.addTestDependency(d));
+    }
+
+    this.addDependency("software.aws/aws-pdk@^0");
+
+    const srcDir = path.resolve(__dirname, "../../../samples/java/src");
+    const testDir = path.resolve(__dirname, "../../../samples/java/test");
 
     if (hasApi) {
-      if (!options.typeSafeApi.infrastructure.python) {
+      if (!options.typeSafeApi.infrastructure.java) {
         throw new Error(
-          "Cannot pass in a Type Safe Api without Python Infrastructure configured!"
+          "Cannot pass in a Type Safe Api without Java Infrastructure configured!"
         );
       }
-      NxProject.ensure(this).addPythonPoetryDependency(
-        options.typeSafeApi.infrastructure.python
+      NxProject.ensure(this).addJavaDependency(
+        options.typeSafeApi.infrastructure.java
       );
       // Ensure handlers are built before infra
       options.typeSafeApi.all.handlers?.forEach((handler) => {
@@ -87,8 +100,8 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
     const mustacheConfig = {
       hasApi,
       hasWebsite,
-      infraPackage: options.typeSafeApi?.infrastructure.python?.moduleName,
-      moduleName,
+      infraPackage: `${options.typeSafeApi?.infrastructure.java?.pom.groupId}.${options.typeSafeApi?.infrastructure.java?.pom.name}.infra`,
+      groupId,
       websiteDistRelativePath:
         hasWebsite &&
         path.relative(
@@ -98,11 +111,9 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
     };
 
     options.sample !== false &&
-      this.emitSampleFiles(srcDir, [this.moduleName], mustacheConfig);
+      this.emitSampleFiles(srcDir, ["src", "main"], mustacheConfig);
     options.sample !== false &&
-      this.emitSampleFiles(testDir, ["tests"], mustacheConfig);
-
-    this.testTask.reset("poetry run pytest ${CI:-'--snapshot-update'}");
+      this.emitSampleFiles(testDir, ["src", "test"], mustacheConfig);
   }
 
   private emitSampleFiles(
@@ -124,7 +135,12 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
         if (f.isDirectory()) {
           return this.emitSampleFiles(
             `${dir}/${f.name}`,
-            [...pathPrefixes, f.name],
+            [
+              ...pathPrefixes,
+              ...(f.name === "groupId"
+                ? mustacheConfig.groupId.split(".")
+                : [f.name]),
+            ],
             mustacheConfig
           );
         } else {
@@ -134,10 +150,7 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
           );
           return new SampleFile(
             this,
-            `${path.join(
-              ...(f.name !== "main.py.mustache" ? pathPrefixes : []), // emit at the root so package imports work correctly :(
-              f.name.replace(".mustache", "")
-            )}`,
+            `${path.join(...pathPrefixes, f.name.replace(".mustache", ""))}`,
             {
               contents,
               sourcePath: (!contents && `${dir}/${f.name}`) || undefined,

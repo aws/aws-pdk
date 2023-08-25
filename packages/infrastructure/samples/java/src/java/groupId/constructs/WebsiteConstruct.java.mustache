@@ -1,0 +1,36 @@
+package {{{groupId}}}.constructs;
+
+import java.util.Map;
+
+import software.amazon.awscdk.Stack;
+import software.aws.awspdk.identity.UserIdentity;
+import software.aws.awspdk.static_website.RuntimeOptions;
+import software.aws.awspdk.static_website.StaticWebsite;
+import software.aws.awspdk.static_website.StaticWebsiteProps;
+import software.constructs.Construct;
+
+/**
+ * Construct to deploy a Static Website
+ */
+public class WebsiteConstruct extends Construct {
+    public WebsiteConstruct(Construct scope, String id) {
+        this(scope, id, null);
+    }
+
+    public WebsiteConstruct(Construct scope, String id{{^hasApi}}/* {{/hasApi}}, ApiConstruct apiConstruct{{^hasApi}} */{{/hasApi}}) {
+        super(scope, id);
+
+        UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
+        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+                .websiteContentPath("{{{websiteDistRelativePath}}}")
+                .runtimeOptions(RuntimeOptions.builder()
+                        .jsonPayload(Map.of(
+                                "region", Stack.of(this).getRegion(),
+                                "identityPoolId", userIdentity.getIdentityPool().getIdentityPoolId(),
+                                "userPoolId", userIdentity.getUserPool().getUserPoolId(),
+                                "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(){{#hasApi}},{{/hasApi}}
+                                {{^hasApi}}// {{/hasApi}}"apiUrl", apiConstruct.api.getApi().urlForPath()))
+                        .build())
+                .build());
+    }
+}

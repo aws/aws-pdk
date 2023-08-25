@@ -6,14 +6,6 @@ import { awscdk, github, GitOptions, IgnoreFileOptions, java, LoggerOptions, Pro
  */
 export interface AwsCdkJavaAppOptions {
   /**
-   * The name of the Java class with the static `main()` method.
-   * This method
-   * should call `app.synth()` on the CDK app.
-   * @default "org.acme.MyApp"
-   * @stability experimental
-   */
-  readonly mainClass?: string;
-  /**
    * Minimum version of the `constructs` library to depend on.
    * @default - for CDK 1.x the default is "3.2.27", for CDK 2.x the default is
 "10.0.5".

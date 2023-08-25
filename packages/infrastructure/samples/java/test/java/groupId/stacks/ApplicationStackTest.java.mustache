@@ -1,0 +1,24 @@
+package {{{groupId}}}.stacks;
+
+import au.com.origin.snapshots.junit5.SnapshotExtension;
+import software.amazon.awscdk.App;
+import software.amazon.awscdk.assertions.Template;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import au.com.origin.snapshots.Expect;
+
+// Ensure you extend your test class with the SnapshotExtension
+@ExtendWith(SnapshotExtension.class)
+public class ApplicationStackTest {
+  Expect expect;
+
+  @Test
+  public void myTest() {
+    App app = new App();
+    ApplicationStack stack = new ApplicationStack(app, "test");
+
+    Template template = Template.fromStack(stack);
+    expect.serializer("orderedJson").toMatchSnapshot(template.toJSON());
+  }
+}

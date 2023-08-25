@@ -73,7 +73,8 @@ export class InfrastructureProject extends PDKProject {
         docs: {
           default: "$BASEDIR",
         },
-      });
+      })
+      .omit("mainClass");
 
     new ProjenStruct(this, {
       name: "AwsCdkPythonAppOptions",
