@@ -1,4 +1,5 @@
 import { Stack } from "aws-cdk-lib";
+import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
 import { UserIdentity } from "aws-pdk/identity";
 import { StaticWebsite } from "aws-pdk/static-website";
 import { Construct } from "constructs";
@@ -32,6 +33,17 @@ export class WebsiteConstruct extends Construct {
           userPoolWebClientId: userIdentity.userPoolClient?.userPoolClientId,
           {{^hasApi}}// {{/hasApi}}apiUrl: props?.apiConstruct.api.api.urlForPath(),
         },
+      },
+      distributionProps: {
+        geoRestriction: GeoRestriction.allowlist(
+          "AU",
+          "ID",
+          "IN",
+          "JP",
+          "KR",
+          "SG",
+          "US",
+        ),
       },
     });
   }

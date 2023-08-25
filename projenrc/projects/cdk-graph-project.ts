@@ -50,7 +50,7 @@ export class CdkGraphProject extends PDKProject {
         "shorthash2",
         "traverse",
       ],
-      stability: Stability.EXPERIMENTAL,
+      stability: Stability.STABLE,
       tsconfig: {
         compilerOptions: {
           esModuleInterop: true,

@@ -32,7 +32,7 @@ export class IdentityProject extends PDKProject {
         "@aws-cdk/aws-cognito-identitypool-alpha",
       ],
       deps: [`${PDK_NAMESPACE}pdk-nag@^0.x`],
-      stability: Stability.EXPERIMENTAL,
+      stability: Stability.STABLE,
     });
   }
 }

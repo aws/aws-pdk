@@ -57,7 +57,7 @@ export class AwsPdkProject extends PDKProject {
       releaseToNpm: true,
       keywords: ["aws", "pdk", "jsii", "projen"],
       repositoryUrl: "https://github.com/aws/aws-pdk",
-      stability: Stability.EXPERIMENTAL,
+      stability: Stability.STABLE,
       tsconfigDev: {
         compilerOptions: {
           paths,

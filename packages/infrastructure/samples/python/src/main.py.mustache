@@ -1,7 +1,8 @@
 import os
-from aws_cdk import App, Environment
+from aws_cdk import Environment
 from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
 from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
+from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
 from {{{moduleName}}}.stacks.application_stack import ApplicationStack
 
 # for development, use account/region from cdk cli
@@ -10,7 +11,7 @@ dev_env = Environment(
   region=os.getenv('CDK_DEFAULT_REGION')
 )
 
-app = App()
+app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
 ApplicationStack(app, "infra-dev", env=dev_env)
 
 graph = CdkGraph(app, plugins=[CdkGraphDiagramPlugin(

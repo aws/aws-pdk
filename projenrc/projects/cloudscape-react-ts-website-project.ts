@@ -23,7 +23,7 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
       deps: [`${PDK_NAMESPACE}type-safe-api@^0.x`],
       peerDeps: ["projen", `${PDK_NAMESPACE}type-safe-api@^0.x`],
       bundledDeps: ["mustache"],
-      stability: Stability.EXPERIMENTAL,
+      stability: Stability.STABLE,
     });
 
     this.generateInterfaces();

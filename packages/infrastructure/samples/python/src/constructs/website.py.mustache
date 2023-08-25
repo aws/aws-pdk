@@ -1,5 +1,6 @@
 from aws_cdk import Stack
 from constructs import Construct
+from aws_cdk.aws_cloudfront import DistributionProps, GeoRestriction
 {{^hasApi}}# {{/hasApi}}from {{{moduleName}}}.constructs.api import ApiConstruct
 from aws_pdk.identity import UserIdentity
 from aws_pdk.static_website import StaticWebsite, RuntimeOptions
@@ -20,4 +21,15 @@ class WebsiteConstruct(Construct):
                             'userPoolWebClientId': user_identity.user_pool_client.user_pool_client_id,
                             {{^hasApi}}'''{{/hasApi}}'apiUrl': api_construct.api.api.url_for_path(),{{^hasApi}}'''{{/hasApi}}
                         }
+                      ),
+                      distribution_props=DistributionProps(
+                        geo_restriction=GeoRestriction.allowlist(
+                          "AU",
+                          "ID",
+                          "IN",
+                          "JP",
+                          "KR",
+                          "SG",
+                          "US"
+                        )
                       ))

@@ -4,7 +4,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.cloudfront.GeoRestriction;
 import software.aws.awspdk.identity.UserIdentity;
+import software.aws.awspdk.static_website.DistributionProps;
 import software.aws.awspdk.static_website.RuntimeOptions;
 import software.aws.awspdk.static_website.StaticWebsite;
 import software.aws.awspdk.static_website.StaticWebsiteProps;
@@ -32,6 +34,16 @@ public class WebsiteConstruct extends Construct {
                                 "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(){{#hasApi}},{{/hasApi}}
                                 {{^hasApi}}// {{/hasApi}}"apiUrl", apiConstruct.api.getApi().urlForPath())))
                         .build())
+                .distributionProps(DistributionProps.builder()
+                    .geoRestriction(GeoRestriction.allowlist(
+                        "AU",
+                        "ID",
+                        "IN",
+                        "JP",
+                        "KR",
+                        "SG",
+                        "US"))
+                    .build())
                 .build());
     }
 }

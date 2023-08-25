@@ -32,7 +32,7 @@ export class InfrastructureProject extends PDKProject {
         `${PDK_NAMESPACE}cloudscape-react-ts-website@^0.x`,
       ],
       bundledDeps: ["mustache"],
-      stability: Stability.EXPERIMENTAL,
+      stability: Stability.STABLE,
     });
 
     this.generateInterfaces();

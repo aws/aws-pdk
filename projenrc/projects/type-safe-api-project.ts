@@ -49,7 +49,7 @@ export class TypeSafeApiProject extends PDKProject {
         "read-pkg-up",
       ],
       peerDeps: ["aws-cdk-lib", "cdk-nag", "constructs", "projen"],
-      stability: Stability.EXPERIMENTAL,
+      stability: Stability.STABLE,
       eslintOptions: {
         dirs: ["src"],
       },

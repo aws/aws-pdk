@@ -30,7 +30,7 @@ export abstract class CdkGraphPluginProject extends PDKProject {
       authorAddress: "apj-cope@amazon.com",
       defaultReleaseBranch: "mainline",
       repositoryUrl: "https://github.com/aws/aws-pdk",
-      stability: Stability.EXPERIMENTAL,
+      stability: Stability.STABLE,
       // explicit/overrides
       ...props,
       // merged/managed
@@ -78,12 +78,6 @@ export abstract class CdkGraphPluginProject extends PDKProject {
       // enforce plugin names to follow prefix pattern
       name: `cdk-graph-plugin-${pluginName}`,
     });
-
-    if (options.stability && options.stability !== Stability.EXPERIMENTAL) {
-      throw new Error(
-        `CdkGraph project is still experimental, so all plugins must also be experimental at this time`
-      );
-    }
 
     this.addPackageIgnore("**/node_modules");
   }

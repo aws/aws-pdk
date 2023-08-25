@@ -6,14 +6,10 @@ const fs = require("fs-extra");
 const generateExperimentalBanner = (pkg) => `
 :octicons-beaker-24: Experimental\n
 !!! warning\n
-\tThis is packaged in a separate module while the API is being stabilized.
-\tThis package is subject to non-backward compatible changes or removal in any future version. Breaking changes
-\twill be announced in the release notes.
+\tThis module is subject to non-backward compatible changes or removal in any future version. Breaking changes
+\twill be announced in the release notes, however will result in a minor version bump only.
 \n\tWhilst you may use this package, you may need to update your
-\tsource code when upgrading to a newer version.\n\n
-!!! example "Experimental Usage"\n
-\tTo use this package, add a dependency on: \`${pkg}\`
-`;
+\tsource code when upgrading to a newer version.`;
 
 const cwd = process.cwd();
 const MONOREPO_ROOT = `${cwd}/..`;

@@ -36,7 +36,7 @@ export class AwsArchProject extends PDKProject {
         "xml-flow",
       ],
       peerDeps: ["projen"],
-      stability: Stability.EXPERIMENTAL,
+      stability: Stability.STABLE,
     });
 
     this.eslint?.addIgnorePattern("scripts/**");

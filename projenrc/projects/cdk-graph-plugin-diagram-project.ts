@@ -59,7 +59,7 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
         "ts-node",
         "word-wrap",
       ],
-      stability: Stability.EXPERIMENTAL,
+      stability: Stability.STABLE,
       jestOptions: {
         jestConfig: {
           globals: {

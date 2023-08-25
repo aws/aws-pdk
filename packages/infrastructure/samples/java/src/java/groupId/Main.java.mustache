@@ -9,6 +9,10 @@ import software.aws.awspdk.cdk_graph.IGraphFilterPlan;
 import software.aws.awspdk.cdk_graph_plugin_diagram.CdkGraphDiagramPlugin;
 import software.aws.awspdk.cdk_graph_plugin_diagram.IDiagramConfigBase;
 import software.aws.awspdk.cdk_graph_plugin_diagram.IPluginConfig;
+import software.aws.awspdk.pdk_nag.AwsPrototypingChecks;
+import software.aws.awspdk.pdk_nag.PDKNag;
+import software.aws.awspdk.pdk_nag.PDKNagAppProps;
+
 import {{{groupId}}}.stacks.ApplicationStack;
 
 import java.util.Arrays;
@@ -19,7 +23,9 @@ import software.amazon.awscdk.StackProps;
 
 public class Main {
   public static void main(final String[] args) {
-    App app = new App();
+    App app = PDKNag.app(PDKNagAppProps.builder()
+        .nagPacks(Arrays.asList(new AwsPrototypingChecks()))
+        .build());
 
     new ApplicationStack(app, "infra-dev", StackProps.builder()
         .env(Environment.builder()
