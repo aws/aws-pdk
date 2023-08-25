@@ -69,6 +69,7 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
         "io.github.origin-energy/java-snapshot-testing-plugin-jackson@^4.0.6",
         "org.slf4j/slf4j-simple@2.0.0-alpha0",
       ].forEach((d) => this.addTestDependency(d));
+      this.testTask.exec("mvn test");
     }
 
     this.addDependency("software.aws/aws-pdk@^0");
