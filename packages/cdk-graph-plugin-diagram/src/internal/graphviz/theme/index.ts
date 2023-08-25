@@ -281,13 +281,13 @@ const GRAPH_ATTRIBUTES: Dot.GraphAttributesObject = {
   forcelabels: true,
   labelloc: "tc",
   nodesep: 0.6,
-  pad: "%2,%1",
+  pad: "%2,%1" as Dot.Point,
   // @ts-ignore
   rankdir: "TB",
   ranksep: 0.75,
   ratio: "compress",
   remincross: true,
-  size: "%1024,%1024!",
+  size: "%1024,%1024!" as Dot.Point,
   splines: "ortho",
   stylesheet: FONT_STYLESHEET,
 };

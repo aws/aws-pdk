@@ -157,7 +157,7 @@ export class FeatureBranches extends Construct {
       this,
       "LambdaTriggerCreateBranch",
       {
-        runtime: Runtime.PYTHON_3_10,
+        runtime: Runtime.PYTHON_3_11,
         code: Code.fromAsset(path.join(__dirname, "lambda/create_branch")),
         handler: "create_branch.handler",
         environment: {
@@ -179,7 +179,7 @@ export class FeatureBranches extends Construct {
       this,
       "LambdaTriggerDestroyBranch",
       {
-        runtime: Runtime.PYTHON_3_10,
+        runtime: Runtime.PYTHON_3_11,
         code: Code.fromAsset(path.join(__dirname, "lambda/destroy_branch")),
         handler: "destroy_branch.handler",
         environment: {

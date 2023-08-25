@@ -208,7 +208,12 @@ export class NxConfigurator extends Component implements INxProjectCore {
 
     const installTask =
       this.project.tasks.tryFind("install") ?? this.project.addTask("install");
-    installTask.exec("yarn install");
+    installTask.exec("yarn install --check-files");
+
+    (
+      this.project.tasks.tryFind("install:ci") ??
+      this.project.addTask("install:ci")
+    ).exec("yarn install --check-files --frozen-lockfile");
 
     return installTask;
   }

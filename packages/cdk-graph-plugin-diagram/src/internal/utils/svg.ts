@@ -121,7 +121,7 @@ export async function resolveSvgAwsArchAssetImagesInline(
   const imageDefs = new Map<string, svgson.INode>();
 
   svg = traverse(svg).forEach(function (this: traverse.TraverseContext, x) {
-    if (typeof x === "object" && x.type === "element") {
+    if (typeof x === "object" && x?.type === "element") {
       const node = x as svgson.INode;
       if (node.name !== "image") {
         return;
