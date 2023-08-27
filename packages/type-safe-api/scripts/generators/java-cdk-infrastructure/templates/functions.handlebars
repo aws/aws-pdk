@@ -1,0 +1,170 @@
+###TSAPI_SPLIT_FILE###
+{{#apiInfo ~}}
+{{#apis ~}}
+{{#operations ~}}
+{{#operation ~}}
+{{#if vendorExtensions.x-handler}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "functions",
+  "name": "{{operationIdCamelCase}}Function",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###package {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-infrastructure-package}}{{/apis.0}}{{/apiInfo}}.functions;
+
+import org.jetbrains.annotations.NotNull;
+import software.amazon.awscdk.services.lambda.Function;
+import software.constructs.Construct;
+
+/**
+ * Lambda function construct which points to the {{vendorExtensions.x-handler.language}} implementation of {{operationIdCamelCase}}
+ */
+public class {{operationIdCamelCase}}Function extends Function {
+    public {{operationIdCamelCase}}Function(@NotNull Construct scope, @NotNull String id, @NotNull {{operationIdCamelCase}}FunctionProps props) {
+        super(scope, id, props);
+    }
+
+    public {{operationIdCamelCase}}Function(@NotNull Construct scope, @NotNull String id) {
+        this(scope, id, {{operationIdCamelCase}}FunctionProps.builder().build());
+    }
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "functions",
+  "name": "{{operationIdCamelCase}}FunctionProps",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###package {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-infrastructure-package}}{{/apis.0}}{{/apiInfo}}.functions;
+
+import org.jetbrains.annotations.NotNull;
+import software.amazon.awscdk.Duration;
+import software.amazon.awscdk.Size;
+import software.amazon.awscdk.services.codeguruprofiler.IProfilingGroup;
+import software.amazon.awscdk.services.ec2.ISecurityGroup;
+import software.amazon.awscdk.services.ec2.IVpc;
+import software.amazon.awscdk.services.ec2.SubnetSelection;
+import software.amazon.awscdk.services.iam.IRole;
+import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.kms.IKey;
+import software.amazon.awscdk.services.lambda.AdotInstrumentationConfig;
+import software.amazon.awscdk.services.lambda.Architecture;
+import software.amazon.awscdk.services.lambda.Code;
+import software.amazon.awscdk.services.lambda.FileSystem;
+import software.amazon.awscdk.services.lambda.FunctionProps;
+import software.amazon.awscdk.services.lambda.ICodeSigningConfig;
+import software.amazon.awscdk.services.lambda.IDestination;
+import software.amazon.awscdk.services.lambda.IEventSource;
+import software.amazon.awscdk.services.lambda.ILayerVersion;
+import software.amazon.awscdk.services.lambda.LambdaInsightsVersion;
+import software.amazon.awscdk.services.lambda.LogRetentionRetryOptions;
+import software.amazon.awscdk.services.lambda.ParamsAndSecretsLayerVersion;
+import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.lambda.RuntimeManagementMode;
+import software.amazon.awscdk.services.lambda.Tracing;
+import software.amazon.awscdk.services.lambda.VersionOptions;
+import software.amazon.awscdk.services.logs.RetentionDays;
+import software.amazon.awscdk.services.sns.ITopic;
+import software.amazon.awscdk.services.sqs.IQueue;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+
+@lombok.Builder @lombok.Getter
+public class {{operationIdCamelCase}}FunctionProps implements FunctionProps {
+    private static String infraProjectAbsolutePath;
+
+    static {
+        try {
+            try (InputStream stream = {{operationIdCamelCase}}FunctionProps.class.getClassLoader()
+                    .getResourceAsStream("project-absolute-path.txt")) {
+                try (InputStreamReader inputStreamReader = new InputStreamReader(stream)) {
+                    infraProjectAbsolutePath = new BufferedReader(inputStreamReader).lines().findFirst()
+                            .orElseThrow(() -> new RuntimeException("No project-absolute-path.txt resource found"));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Fixed props
+    private final Code code = Code.fromAsset(Paths.get(infraProjectAbsolutePath).resolve(
+        {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
+        "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-typescript-asset-path}}{{/apis.0}}{{/apiInfo}}/###TSAPI_FN###{ "function": "kebabCase", "args": ["{{operationIdCamelCase}}"] }###/TSAPI_FN###"
+        {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'python' ~}}
+        "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-python-asset-path}}{{/apis.0}}{{/apiInfo}}"
+        {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'java' ~}}
+        "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-java-asset-path}}{{/apis.0}}{{/apiInfo}}"
+        {{~/startsWith}}
+    ).toAbsolutePath().toString());
+    {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
+    private final String handler = "index.handler";
+    {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'python' ~}}
+    private final String handler = "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-python-module}}{{/apis.0}}{{/apiInfo}}.{{operationIdSnakeCase}}.handler";
+    {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'java' ~}}
+    private final String handler = "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-java-package}}{{/apis.0}}{{/apiInfo}}.{{operationIdCamelCase}}Handler";
+    {{~/startsWith}}
+    {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
+    private final Runtime runtime = Runtime.NODEJS_18_X;
+    {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'python' ~}}
+    private final Runtime runtime = Runtime.PYTHON_3_11;
+    {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'java' ~}}
+    private final Runtime runtime = Runtime.JAVA_17;
+    {{~/startsWith}}
+
+    // Props with defaults
+    @lombok.Builder.Default
+    Duration timeout = Duration.seconds(30);
+    @lombok.Builder.Default
+    Tracing tracing = Tracing.ACTIVE;
+
+    // Remaining Function Props
+    AdotInstrumentationConfig adotInstrumentation;
+    Boolean allowAllOutbound;
+    Boolean allowPublicSubnet;
+    Architecture architecture;
+    ICodeSigningConfig codeSigningConfig;
+    VersionOptions currentVersionOptions;
+    IQueue deadLetterQueue;
+    Boolean deadLetterQueueEnabled;
+    ITopic deadLetterTopic;
+    String description;
+    Map<String, String> environment;
+    IKey environmentEncryption;
+    Size ephemeralStorageSize;
+    List<IEventSource> events;
+    FileSystem filesystem;
+    String functionName;
+    List<PolicyStatement> initialPolicy;
+    LambdaInsightsVersion insightsVersion;
+    List<ILayerVersion> layers;
+    RetentionDays logRetention;
+    LogRetentionRetryOptions logRetentionRetryOptions;
+    IRole logRetentionRole;
+    Number memorySize;
+    ParamsAndSecretsLayerVersion paramsAndSecrets;
+    Boolean profiling;
+    IProfilingGroup profilingGroup;
+    Number reservedConcurrentExecutions;
+    IRole role;
+    RuntimeManagementMode runtimeManagementMode;
+    List<ISecurityGroup> securityGroups;
+    IVpc vpc;
+    SubnetSelection vpcSubnets;
+    Duration maxEventAge;
+    IDestination onFailure;
+    IDestination onSuccess;
+    Number retryAttempts;
+}
+{{/if}}
+{{~/operation}}
+{{~/operations}}
+{{~/apis}}
+{{~/apiInfo}}

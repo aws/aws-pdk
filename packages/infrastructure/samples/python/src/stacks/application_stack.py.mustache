@@ -1,0 +1,20 @@
+from aws_cdk import Stack
+from constructs import Construct
+{{#hasApi}}
+from {{{moduleName}}}.constructs.api import ApiConstruct
+{{/hasApi}}
+{{#hasWebsite}}
+from {{{moduleName}}}.constructs.website import WebsiteConstruct
+{{/hasWebsite}}
+
+class ApplicationStack(Stack):
+    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        {{#hasApi}}
+        {{#hasWebsite}}api = {{/hasWebsite}}ApiConstruct(self, 'Api')
+        {{/hasApi}}
+        {{#hasWebsite}}
+        WebsiteConstruct(self, 'Website', api_construct=api)
+        {{/hasWebsite}}
+

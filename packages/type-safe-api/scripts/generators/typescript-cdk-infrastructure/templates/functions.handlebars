@@ -1,0 +1,66 @@
+###TSAPI_SPLIT_FILE###
+###TSAPI_WRITE_FILE###
+{
+  "dir": ".",
+  "name": "functions",
+  "ext": ".ts",
+  "overwrite": true,
+  "kebabCaseFileName": true
+}
+###/TSAPI_WRITE_FILE###import { Construct } from "constructs";
+import { Duration } from "aws-cdk-lib";
+import { Code, Function, Runtime, Tracing, FunctionProps } from "aws-cdk-lib/aws-lambda";
+import * as path from "path";
+{{#apiInfo ~}}
+{{#apis ~}}
+{{#operations ~}}
+{{#operation ~}}
+{{#if vendorExtensions.x-handler}}
+
+/**
+ * Options for the {{operationIdCamelCase}}Function construct
+ */
+export interface {{operationIdCamelCase}}FunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the {{vendorExtensions.x-handler.language}} implementation of {{operationIdCamelCase}}
+ */
+export class {{operationIdCamelCase}}Function extends Function {
+  constructor(scope: Construct, id: string, props?: {{operationIdCamelCase}}FunctionProps) {
+    super(scope, id, {
+      {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
+      runtime: Runtime.NODEJS_18_X,
+      {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'python' ~}}
+      runtime: Runtime.PYTHON_3_11,
+      {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'java' ~}}
+      runtime: Runtime.JAVA_17,
+      {{~/startsWith}}
+      {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
+      handler: "index.handler",
+      {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'python' ~}}
+      handler: "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-python-module}}{{/apis.0}}{{/apiInfo}}.{{operationIdSnakeCase}}.handler",
+      {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'java' ~}}
+      handler: "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-java-package}}{{/apis.0}}{{/apiInfo}}.{{operationIdCamelCase}}Handler",
+      {{~/startsWith}}
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
+        "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-typescript-asset-path}}{{/apis.0}}{{/apiInfo}}",
+        "###TSAPI_FN###{ "function": "kebabCase", "args": ["{{operationIdCamelCase}}"] }###/TSAPI_FN###",
+        {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'python' ~}}
+        "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-python-asset-path}}{{/apis.0}}{{/apiInfo}}",
+        {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'java' ~}}
+        "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-java-asset-path}}{{/apis.0}}{{/apiInfo}}",
+        {{~/startsWith}}
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+{{~/if}}
+{{~/operation}}
+{{~/operations}}
+{{~/apis}}
+{{~/apiInfo}}

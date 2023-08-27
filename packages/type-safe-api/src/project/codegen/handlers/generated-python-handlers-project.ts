@@ -37,15 +37,15 @@ export class GeneratedPythonHandlersProject extends PythonProject {
 
   constructor(options: GeneratedPythonHandlersProjectOptions) {
     super({
-      sample: false,
       pytest: false,
-      poetry: true,
       poetryOptions: {
         packages: [{ include: options.moduleName }],
         // Module must be explicitly added to include since poetry excludes everything in .gitignore by default
-        include: [options.moduleName, `${options.moduleName}/**/*.py`],
+        include: [options.moduleName!, `${options.moduleName}/**/*.py`],
       },
-      ...options,
+      ...(options as any),
+      sample: false,
+      poetry: true,
     });
     this.options = options;
 
@@ -74,9 +74,10 @@ export class GeneratedPythonHandlersProject extends PythonProject {
     );
 
     // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
-    );
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig({
+      version: "6.6.0",
+      ...options.openApiGeneratorCliConfig,
+    });
 
     const generateTask = this.addTask("generate");
     generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
@@ -112,7 +113,7 @@ export class GeneratedPythonHandlersProject extends PythonProject {
 
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
-      generator: "python",
+      generator: "python-nextgen",
       specPath: this.options.specPath,
       smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.PYTHON_LAMBDA_HANDLERS,

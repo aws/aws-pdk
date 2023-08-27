@@ -1,28 +1,12 @@
+from __future__ import annotations
 import urllib.parse
 import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
 from dataclasses import dataclass, fields
+from pydantic import BaseModel, Field, StrictStr, conlist
 
-{{#apiInfo}}
-{{#apis}}
-{{#imports}}
-{{{import}}}
-{{/imports}}
-{{/apis}}
-{{/apiInfo}}
-
-{{#apiInfo}}
-{{#apis.0}}
-from {{packageName}}.schemas import (
-    date,
-    datetime,
-    file_type,
-    none_type,
-)
-from {{packageName}}.api_client import JSONEncoder
-{{/apis.0}}
-{{/apiInfo}}
+from {{packageName}}.models import *
 
 T = TypeVar('T')
 
@@ -84,9 +68,10 @@ def parse_body(body, content_types, model):
     Parse the body of an api request into the given model if present
     """
     if len([c for c in content_types if c != 'application/json']) == 0:
-        body = json.loads(body or '{}')
         if model != Any:
-            body = model(**body)
+            body = model.from_json(body)
+        else:
+            body = json.loads(body or '{}')
     return body
 
 
@@ -149,30 +134,90 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
 {{#operation}}
 
 # Request parameters are single value query params, path params or header params
-{{operationIdCamelCase}}RequestParameters = TypedDict(
-    "{{operationIdCamelCase}}RequestParameters", {
+class {{operationIdCamelCase}}RequestParameters(BaseModel):
     {{#allParams}}
     {{^isBodyParam}}
     {{^isArray}}
-        "{{baseName}}": str,
+    {{paramName}}: {{#required}}StrictStr{{/required}}{{^required}}Optional[StrictStr]{{/required}} = Field(alias='{{baseName}}'{{^required}}, default=None{{/required}})
     {{/isArray}}
     {{/isBodyParam}}
     {{/allParams}}
-    }
-)
+
+    class Config:
+        """Pydantic configuration"""
+        allow_population_by_field_name = True
+        validate_assignment = True
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> {{operationIdCamelCase}}RequestParameters:
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self):
+        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+
+    @classmethod
+    def from_dict(cls, obj: dict) -> {{operationIdCamelCase}}RequestParameters:
+        if obj is None:
+            return None
+        if not isinstance(obj, dict):
+            return {{operationIdCamelCase}}RequestParameters.parse_obj(obj)
+
+        return {{operationIdCamelCase}}RequestParameters.parse_obj({
+            {{#allParams}}
+            {{^isBodyParam}}
+            {{^isArray}}
+            "{{paramName}}": obj.get("{{baseName}}"),
+            {{/isArray}}
+            {{/isBodyParam}}
+            {{/allParams}}
+        })
+
 
 # Request array parameters are multi-value query params or header params
-{{operationIdCamelCase}}RequestArrayParameters = TypedDict(
-    "{{operationIdCamelCase}}RequestArrayParameters", {
+class {{operationIdCamelCase}}RequestArrayParameters(BaseModel):
     {{#allParams}}
     {{^isBodyParam}}
     {{#isArray}}
-        "{{baseName}}": List[str],
+    {{paramName}}: {{#required}}conlist(StrictStr){{/required}}{{^required}}Optional[conlist(StrictStr)]{{/required}} = Field(alias='{{baseName}}'{{^required}}, default=None{{/required}})
     {{/isArray}}
     {{/isBodyParam}}
     {{/allParams}}
-    }
-)
+
+    class Config:
+        """Pydantic configuration"""
+        allow_population_by_field_name = True
+        validate_assignment = True
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> {{operationIdCamelCase}}RequestArrayParameters:
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self):
+        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+
+    @classmethod
+    def from_dict(cls, obj: dict) -> {{operationIdCamelCase}}RequestArrayParameters:
+        if obj is None:
+            return None
+        if not isinstance(obj, dict):
+            return {{operationIdCamelCase}}RequestArrayParameters.parse_obj(obj)
+
+        return {{operationIdCamelCase}}RequestArrayParameters.parse_obj({
+            {{#allParams}}
+            {{^isBodyParam}}
+            {{#isArray}}
+            "{{paramName}}": obj.get("{{baseName}}"),
+            {{/isArray}}
+            {{/isBodyParam}}
+            {{/allParams}}
+        })
+
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
 {{operationIdCamelCase}}RequestBody = {{^bodyParams.isEmpty}}{{#bodyParams.0}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/bodyParams.0}}{{/bodyParams.isEmpty}}{{#bodyParams.isEmpty}}Any{{/bodyParams.isEmpty}}
@@ -199,15 +244,15 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
     def _handler_wrapper(handler: {{operationIdCamelCase}}HandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = decode_request_parameters({
+            request_parameters = {{operationIdCamelCase}}RequestParameters.from_dict(decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            })
-            request_array_parameters = decode_request_parameters({
+            }))
+            request_array_parameters = {{operationIdCamelCase}}RequestArrayParameters.from_dict(decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            })
+            }))
             {{^bodyParams.isEmpty}}
             {{#bodyParams.0}}
             {{^isPrimitiveType}}
@@ -244,7 +289,7 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
             {{#responses}}
             elif response.status_code == {{code}}:
                 {{^isPrimitiveType}}
-                response_body = json.dumps(JSONEncoder().default(response.body))
+                response_body = response.body.to_json()
                 {{^is2xx}}
                 if "{{dataType}}".endswith("ResponseContent"):
                     response_headers["x-amzn-errortype"] = "{{dataType}}"[:-len("ResponseContent")]

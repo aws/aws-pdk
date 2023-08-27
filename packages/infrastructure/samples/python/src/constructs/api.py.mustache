@@ -1,0 +1,18 @@
+from constructs import Construct
+from {{{infraPackage}}}.api import Api
+from {{{infraPackage}}}.mock_integrations import MockIntegrations
+from aws_pdk.type_safe_api import Authorizers
+from aws_cdk.aws_apigateway import CorsOptions, Cors
+
+# Infrastructure construct to deploy a Type Safe API.
+class ApiConstruct(Construct):
+    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        self.api = Api(self, id,
+            default_authorizer=Authorizers.iam(),
+            cors_options=CorsOptions(
+                allow_origins=Cors.ALL_ORIGINS,
+                allow_methods=Cors.ALL_METHODS
+            ),
+            integrations=MockIntegrations.mock_all())

@@ -11,7 +11,7 @@ import {
   NodeTypeEnum,
   performGraphFilterPlan,
 } from "../../src";
-import * as Filters from "../../src/filtering/filters";
+import { Filters, FilterValue } from "../../src/filtering/filters";
 import { MultiFixtureApp } from "../__fixtures__/apps";
 
 const makeCdkOutdir = async (name: string) =>
@@ -43,16 +43,21 @@ describe("cdk-graph/filtering", () => {
         // sanity check to ensure we are testing the preset
         // extraneous
         expect(
-          store.root.findAll({ predicate: (node) => node.isExtraneous }).length
+          store.root.findAll({
+            predicate: { filter: (node) => node.isExtraneous },
+          }).length
         ).toBeGreaterThan(0);
         expect(
-          store.root.findAllLinks({ predicate: (edge) => edge.isExtraneous })
-            .length
+          store.root.findAllLinks({
+            predicate: { filter: (edge) => edge.isExtraneous },
+          }).length
         ).toBeGreaterThan(0);
         // cfn resources
         expect(
           store.root.findAll({
-            predicate: (node) => Graph.CfnResourceNode.isCfnResourceNode(node),
+            predicate: {
+              filter: (node) => Graph.CfnResourceNode.isCfnResourceNode(node),
+            },
           }).length
         ).toBeGreaterThan(0);
       });
@@ -67,23 +72,28 @@ describe("cdk-graph/filtering", () => {
 
       it("should prune all extraneous node", () => {
         expect(
-          store.root.findAll({ predicate: (node) => node.isExtraneous }).length
+          store.root.findAll({
+            predicate: { filter: (node) => node.isExtraneous },
+          }).length
         ).toBe(0);
       });
 
       it("should prune all extraneous edges", () => {
         expect(
-          store.root.findAllLinks({ predicate: (edge) => edge.isExtraneous })
-            .length
+          store.root.findAllLinks({
+            predicate: { filter: (edge) => edge.isExtraneous },
+          }).length
         ).toBe(0);
       });
 
       it("should collapse all CfnResourceNodes that are wrapped to parent", () => {
         expect(
           store.root.findAll({
-            predicate: (node) =>
-              Graph.CfnResourceNode.isCfnResourceNode(node) &&
-              node.resource?.isWrapper != null,
+            predicate: {
+              filter: (node) =>
+                Graph.CfnResourceNode.isCfnResourceNode(node) &&
+                node.resource?.isWrapper != null,
+            },
           }).length
         ).toBe(0);
       });
@@ -101,7 +111,7 @@ describe("cdk-graph/filtering", () => {
       it("should perform focus hoist without error", () => {
         expect(() =>
           performGraphFilterPlan(store, {
-            focus: focusedNode,
+            focus: { filter: { filter: () => focusedNode } },
           })
         ).not.toThrow();
       });
@@ -132,7 +142,9 @@ describe("cdk-graph/filtering", () => {
         expect(() =>
           performGraphFilterPlan(store, {
             focus: {
-              node: focusedNode,
+              filter: {
+                filter: () => focusedNode,
+              },
               noHoist: true,
             },
           })
@@ -142,11 +154,13 @@ describe("cdk-graph/filtering", () => {
       it("should remove all non-ancestral nodes from store", () => {
         expect(
           store.root.findAll({
-            predicate: (node) => {
-              if (node === focusedNode) return false;
-              if (focusedNode.isAncestor(node)) return false;
-              if (node.isAncestor(focusedNode)) return false;
-              return true;
+            predicate: {
+              filter: (node) => {
+                if (node === focusedNode) return false;
+                if (focusedNode.isAncestor(node)) return false;
+                if (node.isAncestor(focusedNode)) return false;
+                return true;
+              },
             },
           }).length
         ).toBe(0);
@@ -178,9 +192,13 @@ describe("cdk-graph/filtering", () => {
           performGraphFilterPlan(store, {
             filters: [
               {
-                node: (node) =>
-                  !!node.cfnType && filterTypes.includes(node.cfnType),
-                edge: (edge) => Graph.Reference.isReference(edge),
+                graph: {
+                  edge: { filter: (edge) => Graph.Reference.isReference(edge) },
+                  node: {
+                    filter: (node) =>
+                      !!node.cfnType && filterTypes.includes(node.cfnType),
+                  },
+                },
               },
             ],
           })
@@ -190,8 +208,10 @@ describe("cdk-graph/filtering", () => {
       it("should only have filter types nodes", () => {
         expect(
           store.root.findAll({
-            predicate: (node) =>
-              !!node.cfnType && !filterTypes.includes(node.cfnType),
+            predicate: {
+              filter: (node) =>
+                !!node.cfnType && !filterTypes.includes(node.cfnType),
+            },
           }).length
         ).toBe(0);
 
@@ -201,7 +221,7 @@ describe("cdk-graph/filtering", () => {
       it("should only have filter type edge", () => {
         expect(
           store.root.findAllLinks({
-            predicate: (edge) => !Graph.Reference.isReference(edge),
+            predicate: { filter: (edge) => !Graph.Reference.isReference(edge) },
           }).length
         ).toBe(0);
         expect(store.counts.edgeTypes).toMatchSnapshot();
@@ -216,12 +236,15 @@ describe("cdk-graph/filtering", () => {
           store = originStore.clone();
         });
 
-        const include = [NodeTypeEnum.CFN_RESOURCE, NodeTypeEnum.STACK];
+        const include: FilterValue[] = [
+          { value: NodeTypeEnum.CFN_RESOURCE },
+          { value: NodeTypeEnum.STACK },
+        ];
 
         it("should perform filter without error", () => {
           expect(() =>
             performGraphFilterPlan(store, {
-              filters: [Filters.includeNodeType(include)],
+              filters: [{ store: Filters.includeNodeType(include) }],
             })
           ).not.toThrow();
         });
@@ -229,8 +252,11 @@ describe("cdk-graph/filtering", () => {
         it("should only have included nodes", () => {
           expect(
             store.root.findAll({
-              predicate: (node) =>
-                !node.isGraphContainer && !include.includes(node.nodeType),
+              predicate: {
+                filter: (node) =>
+                  !node.isGraphContainer &&
+                  !include.map((f) => f.value).includes(node.nodeType),
+              },
             }).length
           ).toBe(0);
 
@@ -245,12 +271,15 @@ describe("cdk-graph/filtering", () => {
           store = originStore.clone();
         });
 
-        const excluded = [NodeTypeEnum.OUTPUT, NodeTypeEnum.PARAMETER];
+        const excluded: FilterValue[] = [
+          { value: NodeTypeEnum.OUTPUT },
+          { value: NodeTypeEnum.PARAMETER },
+        ];
 
         it("should perform filter without error", () => {
           expect(() =>
             performGraphFilterPlan(store, {
-              filters: [Filters.excludeNodeType(excluded)],
+              filters: [{ store: Filters.excludeNodeType(excluded) }],
             })
           ).not.toThrow();
         });
@@ -258,7 +287,10 @@ describe("cdk-graph/filtering", () => {
         it("should not have excluded nodes", () => {
           expect(
             store.root.findAll({
-              predicate: (node) => excluded.includes(node.nodeType),
+              predicate: {
+                filter: (node) =>
+                  excluded.map((f) => f.value).includes(node.nodeType),
+              },
             }).length
           ).toBe(0);
 
@@ -275,15 +307,15 @@ describe("cdk-graph/filtering", () => {
           store = originStore.clone();
         });
 
-        const filterTypes = [
-          CfnFunction.CFN_RESOURCE_TYPE_NAME,
-          CfnRole.CFN_RESOURCE_TYPE_NAME,
+        const filterTypes: FilterValue[] = [
+          { value: CfnFunction.CFN_RESOURCE_TYPE_NAME },
+          { value: CfnRole.CFN_RESOURCE_TYPE_NAME },
         ];
 
         it("should perform filter without error", () => {
           expect(() =>
             performGraphFilterPlan(store, {
-              filters: [Filters.includeCfnType(filterTypes)],
+              filters: [{ graph: Filters.includeCfnType(filterTypes) }],
             })
           ).not.toThrow();
         });
@@ -291,8 +323,11 @@ describe("cdk-graph/filtering", () => {
         it("should only have included types", () => {
           expect(
             store.root.findAll({
-              predicate: (node) =>
-                !!node.cfnType && !filterTypes.includes(node.cfnType),
+              predicate: {
+                filter: (node) =>
+                  !!node.cfnType &&
+                  !filterTypes.map((f) => f.value).includes(node.cfnType),
+              },
             }).length
           ).toBe(0);
 
@@ -307,15 +342,15 @@ describe("cdk-graph/filtering", () => {
           store = originStore.clone();
         });
 
-        const filterTypes = [
-          CfnFunction.CFN_RESOURCE_TYPE_NAME,
-          CfnRole.CFN_RESOURCE_TYPE_NAME,
+        const filterTypes: FilterValue[] = [
+          { value: CfnFunction.CFN_RESOURCE_TYPE_NAME },
+          { value: CfnRole.CFN_RESOURCE_TYPE_NAME },
         ];
 
         it("should perform filter without error", () => {
           expect(() =>
             performGraphFilterPlan(store, {
-              filters: [Filters.excludeCfnType(filterTypes)],
+              filters: [{ graph: Filters.excludeCfnType(filterTypes) }],
             })
           ).not.toThrow();
         });
@@ -323,8 +358,11 @@ describe("cdk-graph/filtering", () => {
         it("should not have excluded types", () => {
           expect(
             store.root.findAll({
-              predicate: (node) =>
-                !!node.cfnType && filterTypes.includes(node.cfnType),
+              predicate: {
+                filter: (node) =>
+                  !!node.cfnType &&
+                  filterTypes.map((f) => f.value).includes(node.cfnType),
+              },
             }).length
           ).toBe(0);
 
@@ -339,15 +377,15 @@ describe("cdk-graph/filtering", () => {
           store = originStore.clone();
         });
 
-        const filterTypes = [
-          CfnFunction.CFN_RESOURCE_TYPE_NAME,
-          CfnRole.CFN_RESOURCE_TYPE_NAME,
+        const filterTypes: FilterValue[] = [
+          { value: CfnFunction.CFN_RESOURCE_TYPE_NAME },
+          { value: CfnRole.CFN_RESOURCE_TYPE_NAME },
         ];
 
         it("should perform filter without error", () => {
           expect(() =>
             performGraphFilterPlan(store, {
-              filters: [Filters.excludeCfnType(filterTypes)],
+              filters: [{ graph: Filters.excludeCfnType(filterTypes) }],
             })
           ).not.toThrow();
         });
@@ -355,8 +393,11 @@ describe("cdk-graph/filtering", () => {
         it("should not have filter types nodes", () => {
           expect(
             store.root.findAll({
-              predicate: (node) =>
-                !!node.cfnType && filterTypes.includes(node.cfnType),
+              predicate: {
+                filter: (node) =>
+                  !!node.cfnType &&
+                  filterTypes.map((f) => f.value).includes(node.cfnType),
+              },
             }).length
           ).toBe(0);
 
@@ -381,7 +422,7 @@ describe("cdk-graph/filtering", () => {
       it("should perform filter without error", () => {
         expect(() =>
           performGraphFilterPlan(store, {
-            filters: [Filters.uncluster([clusterType])],
+            filters: [{ store: Filters.uncluster([clusterType]) }],
           })
         ).not.toThrow();
       });

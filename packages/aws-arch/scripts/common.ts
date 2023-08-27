@@ -13,45 +13,54 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import * as os from 'node:os';
-import * as fs from 'fs-extra';
-import * as path from 'node:path';
-import execa = require('execa'); // eslint-disable-line @typescript-eslint/no-require-imports
+import * as os from "node:os";
+import * as fs from "fs-extra";
+import * as path from "node:path";
+import execa = require("execa"); // eslint-disable-line @typescript-eslint/no-require-imports
 
 /** Directory where generated files are output */
-export const GENERATED_DIR = path.resolve(__dirname, '..', 'src', 'generated');
+export const GENERATED_DIR = path.resolve(__dirname, "..", "src", "generated");
 fs.ensureDirSync(GENERATED_DIR);
 
 // use current head hash to enable reuse of downloaded files
-const BASE_TMP_DIR = path.join(os.tmpdir(), '@aws-prototyping-sdk', execa.commandSync('git rev-parse --short HEAD').stdout);
+const BASE_TMP_DIR = path.join(
+  os.tmpdir(),
+  "@aws-pdk",
+  execa.commandSync("git rev-parse --short HEAD").stdout
+);
 /** Directory where this package stores external resources */
-export const TMP_DIR = path.join(BASE_TMP_DIR, 'aws-arch');
+export const TMP_DIR = path.join(BASE_TMP_DIR, "aws-arch");
 fs.ensureDirSync(TMP_DIR);
 
 /** Countable type that can be counted */
 export type TCountable = number | object | any[] | Set<any>;
 
 /** Log count to console */
-export function logCount(title: string, total: TCountable, count: TCountable, delta: boolean = false): void {
-	total = parseCount(total);
-	count = parseCount(count);
-	if (delta) {
-		count = total - count;
-	}
-	console.info(`${title}: %i% (%i of %i)`, (count / total) * 100, count, total)
+export function logCount(
+  title: string,
+  total: TCountable,
+  count: TCountable,
+  delta: boolean = false
+): void {
+  total = parseCount(total);
+  count = parseCount(count);
+  if (delta) {
+    count = total - count;
+  }
+  console.info(`${title}: %i% (%i of %i)`, (count / total) * 100, count, total);
 }
 
 /** Parse countable value to numeric count */
 function parseCount(value: TCountable): number {
-	if (value instanceof Set) {
-		value = value.size;
-	} else if (Array.isArray(value)) {
-		value = value.length;
-	} else if (typeof value === "object") {
-		value = Object.keys(value).length;
-	}
+  if (value instanceof Set) {
+    value = value.size;
+  } else if (Array.isArray(value)) {
+    value = value.length;
+  } else if (typeof value === "object") {
+    value = Object.keys(value).length;
+  }
 
-	return value;
+  return value;
 }
 
 /** @internal */

@@ -1,13 +1,13 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
-import { JavaProject, JavaProjectOptions } from "projen/lib/java";
-import { PythonProject, PythonProjectOptions } from "projen/lib/python";
-import {
-  TypeScriptProject,
-  TypeScriptProjectOptions,
-} from "projen/lib/typescript";
+import { JavaProject } from "projen/lib/java";
+import { PythonProject } from "projen/lib/python";
+import { TypeScriptProject } from "projen/lib/typescript";
+import { JavaProjectOptions } from "./java-project-options";
 import { SmithyBuildOptions } from "./model/smithy/types";
+import { PythonProjectOptions } from "./python-project-options";
+import { TypeScriptProjectOptions } from "./typescript-project-options";
 
 /**
  * The model definition language

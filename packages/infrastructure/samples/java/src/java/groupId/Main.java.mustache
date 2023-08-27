@@ -1,0 +1,53 @@
+package {{{groupId}}};
+
+import software.aws.awspdk.cdk_graph.CdkGraph;
+import software.aws.awspdk.cdk_graph.FilterPreset;
+import software.aws.awspdk.cdk_graph.Filters;
+import software.aws.awspdk.cdk_graph.ICdkGraphProps;
+import software.aws.awspdk.cdk_graph.IFilter;
+import software.aws.awspdk.cdk_graph.IGraphFilterPlan;
+import software.aws.awspdk.cdk_graph_plugin_diagram.CdkGraphDiagramPlugin;
+import software.aws.awspdk.cdk_graph_plugin_diagram.IDiagramConfigBase;
+import software.aws.awspdk.cdk_graph_plugin_diagram.IPluginConfig;
+import software.aws.awspdk.pdk_nag.AwsPrototypingChecks;
+import software.aws.awspdk.pdk_nag.PDKNag;
+import software.aws.awspdk.pdk_nag.PDKNagAppProps;
+
+import {{{groupId}}}.stacks.ApplicationStack;
+
+import java.util.Arrays;
+
+import software.amazon.awscdk.App;
+import software.amazon.awscdk.Environment;
+import software.amazon.awscdk.StackProps;
+
+public class Main {
+  public static void main(final String[] args) {
+    App app = PDKNag.app(PDKNagAppProps.builder()
+        .nagPacks(Arrays.asList(new AwsPrototypingChecks()))
+        .build());
+
+    new ApplicationStack(app, "infra-dev", StackProps.builder()
+        .env(Environment.builder()
+            .account(System.getenv("CDK_DEFAULT_ACCOUNT"))
+            .region(System.getenv("CDK_DEFAULT_REGION"))
+            .build())
+        .build());
+
+    CdkGraph graph = new CdkGraph(app, ICdkGraphProps.builder()
+        .plugins(Arrays.asList(new CdkGraphDiagramPlugin(IPluginConfig.builder()
+            .defaults(IDiagramConfigBase.builder()
+                .filterPlan(IGraphFilterPlan.builder()
+                    .preset(FilterPreset.COMPACT)
+                    .filters(Arrays.asList(IFilter.builder()
+                        .store(Filters.pruneCustomResources())
+                        .build()))
+                    .build())
+                .build())
+            .build())))
+        .build());
+
+    app.synth();
+    graph.report();
+  }
+}

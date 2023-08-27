@@ -1,9 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
+import { Project } from "projen";
 import * as readPkg from "read-pkg-up";
 import { Language, Library } from "../../languages";
 import { MockResponseDataGenerationOptions } from "../../types";
+import { GeneratedHandlersProjects } from "../generate";
 
 /**
  * Enum for generator directories for non-runtime generators
@@ -21,12 +23,12 @@ export enum OtherGenerators {
 }
 
 export enum TypeSafeApiScript {
-  PARSE_OPENAPI_SPEC = "parse-openapi-spec",
-  GENERATE = "generate",
-  GENERATE_MOCK_DATA = "generate-mock-data",
-  GENERATE_HTML_REDOC_DOCS = "generate-html-redoc-docs",
-  CLEAN_OPENAPI_GENERATED_CODE = "clean-openapi-generated-code",
-  COPY_GRADLE_WRAPPER = "copy-gradle-wrapper",
+  PARSE_OPENAPI_SPEC = "type-safe-api.parse-openapi-spec",
+  GENERATE = "type-safe-api.generate",
+  GENERATE_MOCK_DATA = "type-safe-api.generate-mock-data",
+  GENERATE_HTML_REDOC_DOCS = "type-safe-api.generate-html-redoc-docs",
+  CLEAN_OPENAPI_GENERATED_CODE = "type-safe-api.clean-openapi-generated-code",
+  COPY_GRADLE_WRAPPER = "type-safe-api.copy-gradle-wrapper",
 }
 
 /**
@@ -100,9 +102,9 @@ export const buildTypeSafeApiExecCommand = (
   const { packageJson } = readPkg.sync({
     cwd: path.resolve(__dirname),
   })!;
-  return `npx --yes -p @aws-prototyping-sdk/type-safe-api@${
-    packageJson.version
-  } ${script}${args ? ` ${args}` : ""}`;
+  return `npx --yes -p aws-pdk@${packageJson.version} ${script}${
+    args ? ` ${args}` : ""
+  }`;
 };
 
 const serializeProperties = (properties: { [key: string]: string }) =>
@@ -194,3 +196,38 @@ export const buildInvokeMockDataGeneratorCommand = (
     `--spec-path ${options.specPath} --output-path ${outputPath}${locale}${maxArrayLength}`
   );
 };
+
+/**
+ * Return vendor extensions containing details about the handler projects
+ */
+export const getHandlersProjectVendorExtensions = (
+  targetProject: Project,
+  { java, python, typescript }: GeneratedHandlersProjects
+): Record<string, string | boolean> => ({
+  "x-handlers-python-module": python?.moduleName ?? "",
+  "x-handlers-java-package": java?.packageName ?? "",
+  "x-handlers-typescript-asset-path": typescript
+    ? path.join(
+        path.relative(targetProject.outdir, typescript.outdir),
+        "dist",
+        "lambda"
+      )
+    : "",
+  "x-handlers-python-asset-path": python
+    ? path.join(
+        path.relative(targetProject.outdir, python.outdir),
+        "dist",
+        "lambda"
+      )
+    : "",
+  "x-handlers-java-asset-path": java
+    ? path.join(
+        path.relative(targetProject.outdir, java.outdir),
+        java.distdir,
+        ...java.pom.groupId.split("."),
+        java.pom.artifactId,
+        java.pom.version,
+        `${java.pom.artifactId}-${java.pom.version}.jar`
+      )
+    : "",
+});

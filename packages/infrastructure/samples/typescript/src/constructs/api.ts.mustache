@@ -1,0 +1,27 @@
+import { Cors } from "aws-cdk-lib/aws-apigateway";
+import { Authorizers } from "aws-pdk/type-safe-api";
+import { Construct } from "constructs";
+import { Api, MockIntegrations } from "{{{infraPackage}}}";
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+export class ApiConstruct extends Construct {
+  /**
+   * API instance
+   */
+  public readonly api: Api;
+
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    this.api = new Api(this, id, {
+      defaultAuthorizer: Authorizers.iam(),
+      corsOptions: {
+        allowOrigins: Cors.ALL_ORIGINS,
+        allowMethods: Cors.ALL_METHODS,
+      },
+      integrations: MockIntegrations.mockAll(),
+    });
+  }
+}
