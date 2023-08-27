@@ -42,7 +42,7 @@ jobs:
         id: git_remote
         run: echo ::set-output name=latest_commit::"$(git ls-remote origin -h ${{ github.ref }} | cut -f1)"
       - name: Extract Dists
-        run: rsync -a . ./dist --include="*/" --include="/docs/dist/**" --include="/packages/*/dist/**" --exclude="*" --prune-empty-dirs
+        run: rsync -a . ./dist --include="*/" --include="/docs/dist/**" --include="/packages/aws-pdk/dist/**" --exclude="*" --prune-empty-dirs
       - name: Upload artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
         uses: actions/upload-artifact@v2.1.1
@@ -92,8 +92,8 @@ jobs:
           name: build-artifact
           path: dist
       - name: Release
-        working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/js" ] && pnpm --package publib@latest dlx publib-npm || echo "Ignore `basename $PWD` - no dist/js" ) && cd ..; done;
+        working-directory: dist/packages/aws-pdk
+        run: pnpm --package publib@latest dlx publib-npm || echo "Ignore `basename $PWD` - no dist/js"
         env:
           NPM_DIST_TAG: latest
           NPM_REGISTRY: registry.npmjs.org
@@ -122,8 +122,8 @@ jobs:
           name: build-artifact
           path: dist
       - name: Release
-        working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/java" ] && pnpm --package publib@latest dlx publib-maven || echo "Ignore `basename $PWD` - no dist/java" ) && cd ..; done;
+        working-directory: dist/packages/aws-pdk
+        run: pnpm --package publib@latest dlx publib-maven || echo "Ignore `basename $PWD` - no dist/java"
         env:
           MAVEN_ENDPOINT: https://aws.oss.sonatype.org
           MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
@@ -154,8 +154,8 @@ jobs:
           name: build-artifact
           path: dist
       - name: Release
-        working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/python" ] && pnpm --package publib@latest dlx publib-pypi || echo "Ignore `basename $PWD` - no dist/python" ) && cd ..; done;
+        working-directory: dist/packages/aws-pdk
+        run: pnpm --package publib@latest dlx publib-pypi || echo "Ignore `basename $PWD` - no dist/python"
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
