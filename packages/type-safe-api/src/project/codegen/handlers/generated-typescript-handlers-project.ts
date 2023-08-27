@@ -1,8 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { DependencyType, IgnoreFile } from "projen";
-import { NodePackageManager } from "projen/lib/javascript";
+import { DependencyType, IgnoreFile, SampleDir } from "projen";
+import {
+  NodePackageManager,
+  TypeScriptModuleResolution,
+} from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import {
   CodeGenerationSourceOptions,
@@ -29,7 +32,7 @@ export interface GeneratedTypescriptHandlersProjectOptions
   readonly generatedTypescriptTypes: GeneratedTypescriptRuntimeProject;
 
   /**
-   * Whether the infrastructure and client projects are parented by an nx-monorepo or not
+   * Whether the infrastructure and client projects are parented by an monorepo or not
    */
   readonly isWithinMonorepo?: boolean;
 }
@@ -43,7 +46,7 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
 
   constructor(options: GeneratedTypescriptHandlersProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sampleCode: false,
       tsconfig: {
         compilerOptions: {
@@ -52,6 +55,7 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
           noUnusedLocals: false,
           noUnusedParameters: false,
           skipLibCheck: true,
+          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           ...options?.tsconfig?.compilerOptions,
         },
       },
@@ -75,7 +79,7 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
         (dep) => !this.deps.tryGetDependency(dep, DependencyType.RUNTIME)
       )
     );
-    this.addDevDeps("esbuild");
+    this.addDevDeps("esbuild", "@types/aws-lambda");
 
     // Minimal .npmignore to avoid impacting OpenAPI Generator
     const npmignore = new IgnoreFile(this, ".npmignore");
@@ -127,6 +131,14 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
     this.packageTask.exec(
       "for f in $(ls dist/lambda); do mkdir dist/lambda/$(basename $f .js) && mv dist/lambda/$f dist/lambda/$(basename $f .js)/index.js; done"
     );
+
+    // Create an empty index.ts sample on synth so that tsc is happy if the handlers project is configured
+    // but no operations have @handler(language: "typescript")
+    new SampleDir(this, this.srcdir, {
+      files: {
+        "index.ts": "",
+      },
+    });
 
     // If we're not in a monorepo, we need to link the generated types such that the local dependency can be resolved
     if (!options.isWithinMonorepo) {

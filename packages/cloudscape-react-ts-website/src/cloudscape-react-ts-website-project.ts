@@ -2,13 +2,12 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { TypeSafeApiProject } from "@aws-prototyping-sdk/type-safe-api";
+import { TypeSafeApiProject } from "@aws-pdk/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleDir } from "projen";
-import {
-  ReactTypeScriptProject,
-  ReactTypeScriptProjectOptions,
-} from "projen/lib/web";
+import { NodeProject } from "projen/lib/javascript";
+import { ReactTypeScriptProject } from "projen/lib/web";
+import { ReactTypeScriptProjectOptions } from "./react-ts-project-options";
 
 /**
  * Configuration options for the CloudscapeReactTsWebsiteProject.
@@ -44,17 +43,28 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
   public readonly publicDir: string;
 
   constructor(options: CloudscapeReactTsWebsiteProjectOptions) {
+    const hasApi = !!options.typeSafeApi;
+
     super({
       ...options,
-      defaultReleaseBranch: options.defaultReleaseBranch,
+      defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
       name: options.name,
       sampleCode: false,
+      prettier: options.prettier || true,
+      packageManager:
+        options.parent && options.parent instanceof NodeProject
+          ? options.parent.package.packageManager
+          : options.packageManager,
       readme: {
         contents: fs
-          .readFileSync(path.resolve(__dirname, "../README.md"))
+          .readFileSync(path.resolve(__dirname, "../samples/README.md"))
           .toString(),
       },
-      gitignore: ["runtime-config.json"],
+      gitignore: [
+        "public/runtime-config.json",
+        "public/api.json",
+        ...(options.gitignore || []),
+      ],
     });
 
     this.addDeps(
@@ -70,8 +80,8 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
 
     this.applicationName = options.applicationName ?? "Sample App";
     this.publicDir = options.publicDir ?? "public";
-    const srcDir = path.resolve(__dirname, "../templates/src");
-    const publicDir = path.resolve(__dirname, "../templates/public");
+    const srcDir = path.resolve(__dirname, "../samples/src");
+    const publicDir = path.resolve(__dirname, "../samples/public");
 
     if (options.typeSafeApi) {
       const hooks = options.typeSafeApi.library?.typescriptReactQueryHooks;
@@ -82,11 +92,13 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
         );
       }
       this.addDeps(libraryHooksPackage);
+
+      this.setupSwaggerUi(options.typeSafeApi);
     }
 
     const mustacheConfig = {
       applicationName: this.applicationName,
-      hasApi: !!options.typeSafeApi,
+      hasApi,
       apiHooksPackage:
         options.typeSafeApi?.library?.typescriptReactQueryHooks?.package
           ?.packageName,
@@ -110,6 +122,22 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
 
     // Linting is managed as part of the test task already, so disable react-scripts running eslint again
     this.tasks.addEnvironment("DISABLE_ESLINT_PLUGIN", "true");
+
+    // Relax EsLint and TSC for dev
+    this.tasks.tryFind("dev")?.env("ESLINT_NO_DEV_ERRORS", "true");
+    this.tasks.tryFind("dev")?.env("TSC_COMPILE_ON_ERROR", "true");
+  }
+
+  private setupSwaggerUi(tsApi: TypeSafeApiProject) {
+    this.addDevDeps("@types/swagger-ui-react");
+    this.addDeps("swagger-ui-react", "aws4fetch");
+
+    tsApi.model.postCompileTask.exec(
+      `cp .api.json ${path.relative(
+        tsApi.model.outdir,
+        this.outdir
+      )}/public/api.json`
+    );
   }
 
   private buildSampleDirEntries(
@@ -122,7 +150,8 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       .filter(
         (f) =>
           mustacheConfig.hasApi ||
-          !`${pathPrefixes.join("/")}${f.name}`.includes("DefaultApi")
+          (!`${pathPrefixes.join("/")}${f.name}`.includes("DefaultApi") &&
+            !`${pathPrefixes.join("/")}${f.name}`.includes("ApiExplorer"))
       )
       .flatMap((f) =>
         f.isDirectory()

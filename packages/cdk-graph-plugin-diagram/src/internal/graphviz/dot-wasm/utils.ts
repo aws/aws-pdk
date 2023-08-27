@@ -3,7 +3,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "node:fs";
 import { promisify } from "node:util";
-import { AwsArchitecture } from "@aws-prototyping-sdk/aws-arch";
+import { AwsArchitecture } from "@aws-pdk/aws-arch";
 import * as svgson from "svgson";
 import { Image } from "./types";
 import {

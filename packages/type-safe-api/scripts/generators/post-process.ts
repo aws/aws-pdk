@@ -11,6 +11,44 @@ const TSAPI_SPLIT_FILE_HEADER = "###TSAPI_SPLIT_FILE###";
 const TSAPI_WRITE_FILE_START = "###TSAPI_WRITE_FILE###";
 const TSAPI_WRITE_FILE_END = "###/TSAPI_WRITE_FILE###";
 
+interface WriteFileConfig {
+  readonly dir: string;
+  readonly name: string;
+  readonly ext: string;
+  readonly overwrite?: boolean;
+  readonly kebabCaseFileName?: boolean;
+}
+
+// Delimiters for applying functions
+const TSAPI_FUNCTION_START = "###TSAPI_FN###";
+const TSAPI_FUNCTION_END = "###/TSAPI_FN###";
+
+interface FunctionConfig {
+  readonly function: string;
+  readonly args: any[];
+}
+
+const applyReplacementFunction = (functionConfig: FunctionConfig): string => {
+  switch (functionConfig.function) {
+    case "kebabCase":
+      return kebabCase(functionConfig.args[0]);
+    default:
+      throw new Error(`Unsupported TSAPI_FN function ${functionConfig.function}`);
+  }
+};
+
+const applyReplacementFunctions = (fileContents: string): string => {
+  return fileContents.split(TSAPI_FUNCTION_START)
+    .map((part) => {
+      if (part.includes(TSAPI_FUNCTION_END)) {
+        const [functionConfig, restOfFile] = part.split(TSAPI_FUNCTION_END);
+        return `${applyReplacementFunction(JSON.parse(functionConfig))}${restOfFile}`;
+      }
+      return part;
+    })
+    .join('');
+};
+
 interface Arguments {
   /**
    * Path to the directory containing output files
@@ -20,14 +58,6 @@ interface Arguments {
    * Path to the source directory relative to the output directory
    */
   readonly srcDir: string;
-}
-
-interface WriteFileConfig {
-  readonly dir: string;
-  readonly name: string;
-  readonly ext: string;
-  readonly overwrite?: boolean;
-  readonly kebabCaseFileName?: boolean;
 }
 
 void (async () => {
@@ -85,7 +115,7 @@ void (async () => {
               fs.mkdirSync(path.join(args.outputPath, relativeNewFileDir), {
                 recursive: true,
               });
-              fs.writeFileSync(newFilePath, newFileContents);
+              fs.writeFileSync(newFilePath, applyReplacementFunctions(newFileContents));
 
               // Overwritten files are added to the manifest so that they can be cleaned up
               // by clean-openapi-generated-code

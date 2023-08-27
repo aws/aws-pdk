@@ -1,0 +1,33 @@
+package {{{groupId}}}.constructs;
+
+import {{{infraPackage}}}.Api;
+import {{{infraPackage}}}.ApiProps;
+import {{{infraPackage}}}.MockIntegrations;
+
+import software.amazon.awscdk.services.apigateway.Cors;
+import software.amazon.awscdk.services.apigateway.CorsOptions;
+import software.aws.awspdk.type_safe_api.Authorizers;
+import software.constructs.Construct;
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+public class ApiConstruct extends Construct {
+    /**
+     * API instance
+     */
+    public final Api api;
+
+    public ApiConstruct(Construct scope, String id) {
+        super(scope, id);
+
+        this.api = new Api(this, id, ApiProps.builder()
+                .defaultAuthorizer(Authorizers.iam())
+                .corsOptions(CorsOptions.builder()
+                        .allowOrigins(Cors.ALL_ORIGINS)
+                        .allowMethods(Cors.ALL_METHODS)
+                        .build())
+                .integrations(MockIntegrations.mockAll().build())
+                .build());
+    }
+}

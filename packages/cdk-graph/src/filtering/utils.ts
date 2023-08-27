@@ -17,14 +17,14 @@ export function findReferencesOfSubGraph(
   function follow(_node: Graph.Node, _depth: number) {
     if (_depth >= depth!) return;
     for (const _ref of _node.references) {
-      if (predicate && !predicate(_ref)) continue;
+      if (predicate && !predicate.filter(_ref)) continue;
       if (_ref === subgraph || chain.has(_ref)) continue;
       chain.add(_ref);
       follow(_ref, _depth + 1);
     }
 
     for (const child of _node.children) {
-      if (predicate && !predicate(child)) continue;
+      if (predicate && !predicate.filter(child)) continue;
       follow(child, _depth + 1);
     }
   }

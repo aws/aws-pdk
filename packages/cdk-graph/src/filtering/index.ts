@@ -1,14 +1,13 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { ConstructOrder } from "constructs";
-import { verifyFilterable } from "./filters";
-import * as Filters from "./filters";
+import { Filters } from "./filters";
 import * as presets from "./presets";
 import { FilterPreset, FilterStrategy, IGraphFilterPlan } from "./types";
 import { Graph } from "../core";
 
 export * from "./types";
-export { Filters };
+export * from "./filters";
 
 /**
  * Perform graph filter plan on store.
@@ -24,7 +23,7 @@ export function performGraphFilterPlan(
   store: Graph.Store,
   plan: IGraphFilterPlan
 ): void {
-  verifyFilterable(store);
+  Filters.verifyFilterable(store);
 
   if (plan.focus) {
     presets.focusFilter(store, plan);
@@ -45,32 +44,35 @@ export function performGraphFilterPlan(
 
   if (plan.filters) {
     for (const filter of plan.filters) {
-      if (typeof filter === "function") {
+      if (filter.store) {
         // IGraphStoreFilter
-        filter(store);
-      } else {
+        filter.store.filter(store);
+      } else if (filter.graph) {
         // IGraphFilter
-        const inverse = filter.inverse === true;
+        const _filter = filter.graph;
+        const inverse = _filter.inverse === true;
         const allNodes =
-          filter.allNodes != null ? filter.allNodes : plan.allNodes === true;
+          _filter.allNodes != null ? _filter.allNodes : plan.allNodes === true;
 
         const nodes: Graph.Node[] = store.root.findAll({
           order: plan.order || ConstructOrder.PREORDER,
-          predicate: (node) => {
-            if (allNodes) return true;
-            // by default only return Resources and CfnResources
-            return Graph.isResourceLike(node);
+          predicate: {
+            filter: (node) => {
+              if (allNodes) return true;
+              // by default only return Resources and CfnResources
+              return Graph.isResourceLike(node);
+            },
           },
         });
 
-        if (filter.node) {
+        if (_filter.node) {
           for (const node of nodes) {
             if (node.isDestroyed) continue;
 
-            const match = filter.node(node);
+            const match = _filter.node.filter(node);
 
             if ((match && inverse) || (!match && !inverse)) {
-              switch (filter.strategy || FilterStrategy.PRUNE) {
+              switch (_filter.strategy || FilterStrategy.PRUNE) {
                 case FilterStrategy.PRUNE: {
                   node.mutateDestroy();
                   break;
@@ -88,13 +90,13 @@ export function performGraphFilterPlan(
           }
         }
 
-        if (filter.edge) {
+        if (_filter.edge) {
           const edges: Graph.Edge[] = store.edges;
 
           for (const edge of edges) {
             if (edge.isDestroyed) continue;
 
-            const match = filter.edge(edge);
+            const match = _filter.edge.filter(edge);
 
             if ((match && inverse) || (!match && !inverse)) {
               edge.mutateDestroy();

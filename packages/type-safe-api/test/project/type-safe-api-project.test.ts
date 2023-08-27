@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+import { MonorepoTsProject } from "@aws-pdk/monorepo";
 import { NodePackageManager } from "projen/lib/javascript";
 import { synthProject, synthSmithyProject } from "./snapshot-utils";
 import {
@@ -95,7 +95,7 @@ describe("Type Safe Api Project Unit Tests", () => {
   it.each([Language.TYPESCRIPT, Language.PYTHON, Language.JAVA])(
     "Smithy With %s Infra in Monorepo",
     (infrastructureLanguage) => {
-      const monorepo = new NxMonorepoProject({
+      const monorepo = new MonorepoTsProject({
         name: "monorepo",
         outdir: path.resolve(
           __dirname,
@@ -142,7 +142,7 @@ describe("Type Safe Api Project Unit Tests", () => {
   it.each([Language.TYPESCRIPT, Language.PYTHON, Language.JAVA])(
     "OpenApi With %s Infra in Monorepo",
     (infrastructureLanguage) => {
-      const monorepo = new NxMonorepoProject({
+      const monorepo = new MonorepoTsProject({
         name: "monorepo",
         outdir: path.resolve(
           __dirname,
@@ -246,7 +246,7 @@ describe("Type Safe Api Project Unit Tests", () => {
     NodePackageManager.YARN2,
     NodePackageManager.PNPM,
   ])("Smithy With %s Package Manager in Monorepo", (packageManager) => {
-    const monorepo = new NxMonorepoProject({
+    const monorepo = new MonorepoTsProject({
       name: "monorepo",
       packageManager,
       outdir: path.resolve(

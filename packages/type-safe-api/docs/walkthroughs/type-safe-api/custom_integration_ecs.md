@@ -11,7 +11,7 @@ In the usual way, create a monorepo which will be the base of your project:
 ```bash
 mkdir smithy-ecs-workshop
 cd smithy-ecs-workshop
-npx projen new --from @aws-prototyping-sdk/nx-monorepo
+npx projen new --from @aws-prototyping-sdk/monorepo
 ```
 
 ## Add a Dependency on Type Safe API
@@ -19,13 +19,13 @@ npx projen new --from @aws-prototyping-sdk/nx-monorepo
 Update your `.projenrc.ts` to add a dependency on `@aws-prototyping-sdk/type-safe-api`:
 
 ```ts
-import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+import { MonorepoTsProject } from "@aws-prototyping-sdk/monorepo";
 
-const monorepo = new NxMonorepoProject({
+const monorepo = new MonorepoTsProject({
   defaultReleaseBranch: "main",
   devDeps: [
-    "@aws-prototyping-sdk/nx-monorepo",
-    "@aws-prototyping-sdk/type-safe-api" // <- add this!
+    "@aws-prototyping-sdk/monorepo",
+    "@aws-prototyping-sdk/type-safe-api", // <- add this!
   ],
   name: "smithy-ecs-workshop",
 });
@@ -45,20 +45,24 @@ Synthesizing your project will generate the projects you have defined in your `.
 
 In your `.projenrc.ts`, we’ll add three more projects:
 
-* `TypeSafeApiProject` - this will be used for defining our API and provides generated infrastructure, clients, types and documentation
-* `TypeScriptProject` - a basic typescript in which we'll implement our Express server
-* `AwsCdkTypeScriptApp` - a simple CDK app for deploying your API quickly. Note that in a production application you'd likely opt for a CI/CD pipeline to manage your deployments (eg `PDKPipelineTsProject`) instead.
+- `TypeSafeApiProject` - this will be used for defining our API and provides generated infrastructure, clients, types and documentation
+- `TypeScriptProject` - a basic typescript in which we'll implement our Express server
+- `AwsCdkTypeScriptApp` - a simple CDK app for deploying your API quickly. Note that in a production application you'd likely opt for a CI/CD pipeline to manage your deployments (eg `PDKPipelineTsProject`) instead.
 
 ```ts
-import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
-import { Language, ModelLanguage, TypeSafeApiProject } from "@aws-prototyping-sdk/type-safe-api";
+import { MonorepoTsProject } from "@aws-prototyping-sdk/monorepo";
+import {
+  Language,
+  ModelLanguage,
+  TypeSafeApiProject,
+} from "@aws-prototyping-sdk/type-safe-api";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
 
-const monorepo = new NxMonorepoProject({
+const monorepo = new MonorepoTsProject({
   defaultReleaseBranch: "main",
   devDeps: [
-    "@aws-prototyping-sdk/nx-monorepo",
+    "@aws-prototyping-sdk/monorepo",
     "@aws-prototyping-sdk/type-safe-api",
   ],
   name: "smithy-ecs-workshop",
@@ -112,7 +116,7 @@ const server = new TypeScriptProject({
     },
   },
 });
-server.gitignore.addPatterns('docker-image/*.js');
+server.gitignore.addPatterns("docker-image/*.js");
 
 // Infrastructure project to deploy our API, ECS and NLB
 new AwsCdkTypeScriptApp({
@@ -189,16 +193,21 @@ export class LoadBalancedEcsService extends Construct {
       vpc,
       listenerPort: 80,
       taskImageOptions: {
-        image: ContainerImage.fromDockerImageAsset(new DockerImageAsset(this, "Image", {
-          directory: "../server/docker-image",
-          platform: Platform.LINUX_AMD64,
-        })),
+        image: ContainerImage.fromDockerImageAsset(
+          new DockerImageAsset(this, "Image", {
+            directory: "../server/docker-image",
+            platform: Platform.LINUX_AMD64,
+          })
+        ),
         containerPort: 80,
       },
       publicLoadBalancer: false,
     });
 
-    service.service.connections.allowFrom(Peer.ipv4(vpc.vpcCidrBlock), Port.tcp(80));
+    service.service.connections.allowFrom(
+      Peer.ipv4(vpc.vpcCidrBlock),
+      Port.tcp(80)
+    );
 
     this.lb = service.loadBalancer;
 
@@ -212,13 +221,16 @@ export class LoadBalancedEcsService extends Construct {
 
 Notice that the docker image points to the server package’s `docker-image` folder. We’ll define this later on!
 
-
 ## Custom Integration
 
 Next, in `packages/infra/src/nlb-integration.ts`, let's define a custom integration which allows us to point API operations to the NLB via the VPC Link:
 
 ```ts
-import { ApiGatewayIntegration, Integration, IntegrationRenderProps } from "@aws-prototyping-sdk/type-safe-api";
+import {
+  ApiGatewayIntegration,
+  Integration,
+  IntegrationRenderProps,
+} from "@aws-prototyping-sdk/type-safe-api";
 import { IVpcLink } from "aws-cdk-lib/aws-apigateway";
 import { INetworkLoadBalancer } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 
@@ -249,16 +261,21 @@ export class NlbIntegration extends Integration {
       uri: `http://${this.lb.loadBalancerDnsName}${props.path}`,
       // Use the VPC Link for API gateway to connect to the VPC
       connectionId: this.vpcLink.vpcLinkId,
-      connectionType: 'VPC_LINK',
+      connectionType: "VPC_LINK",
       httpMethod: props.method.toUpperCase(),
       requestParameters: {
         // Add the resource path here as an additional integration header, which we'll need for
         // the handler router
-        'integration.request.header.x-resource-path': `'${props.path}'`,
+        "integration.request.header.x-resource-path": `'${props.path}'`,
         // Add every path parameter to the integration request
-        ...Object.fromEntries([
-          ...props.path.matchAll(/\{([^\}]*)\}/g),
-        ].map(m => m[1]).map(param => [`integration.request.path.${param}`, `method.request.path.${param}`])),
+        ...Object.fromEntries(
+          [...props.path.matchAll(/\{([^\}]*)\}/g)]
+            .map((m) => m[1])
+            .map((param) => [
+              `integration.request.path.${param}`,
+              `method.request.path.${param}`,
+            ])
+        ),
       },
     };
   }
@@ -274,8 +291,8 @@ Next, we'll use the generated `Api` construct to define our API Gateway infrastr
 Edit `packages/infra/src/main.ts`:
 
 ```ts
-import { App, Stack, StackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
+import { App, Stack, StackProps } from "aws-cdk-lib";
+import { Construct } from "constructs";
 import { LoadBalancedEcsService } from "./load-balanced-ecs-service";
 import { Api } from "smithy-ecs-workshop-api-typescript-infra";
 import { Authorizers } from "@aws-prototyping-sdk/type-safe-api";
@@ -288,7 +305,7 @@ export class MyStack extends Stack {
 
     // Create the service
     const { lb, vpcLink } = new LoadBalancedEcsService(this, "Service");
-    
+
     // Create the API
     new Api(this, "Api", {
       defaultAuthorizer: Authorizers.iam(),
@@ -308,7 +325,7 @@ const devEnv = {
 
 const app = new App();
 
-new MyStack(app, 'smithy-ecs-workshop-infra-dev', { env: devEnv });
+new MyStack(app, "smithy-ecs-workshop-infra-dev", { env: devEnv });
 
 app.synth();
 ```
@@ -321,18 +338,18 @@ Next we'll implement our express server which will run on ECS.
 
 First, we'll write some mapping code to allow us to make use of our generated, type safe handler router, even though we're not running on lambda. This will mean the operations we implement will benefit from all the generated types.
 
-To use the handler router, we need to map Express requests to `APIGatewayProxyEvent`s, and `APIGatewayProxyResult`s back to Express responses.  To do this, let's define `mapRequest` and `mapResponse` methods in `packages/server/src/mapper.ts` as follows:
+To use the handler router, we need to map Express requests to `APIGatewayProxyEvent`s, and `APIGatewayProxyResult`s back to Express responses. To do this, let's define `mapRequest` and `mapResponse` methods in `packages/server/src/mapper.ts` as follows:
 
 ```ts
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { Request, Response } from 'express';
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { Request, Response } from "express";
 
 /**
  * Return the path parameters found in the given path, based on the template
  */
 const extractPathParameters = (template: string, path: string) => {
-  const templateParts = template.split('/');
-  const pathParts = path.split('/');
+  const templateParts = template.split("/");
+  const pathParts = path.split("/");
 
   const pathParameters: { [key: string]: string } = {};
 
@@ -349,22 +366,47 @@ const extractPathParameters = (template: string, path: string) => {
 /**
  * Map an express request to an API Gateway Proxy Event
  */
-export const mapRequest = (req: Request<{}, any, any, any, Record<string, any>>): APIGatewayProxyEvent => {
+export const mapRequest = (
+  req: Request<{}, any, any, any, Record<string, any>>
+): APIGatewayProxyEvent => {
   return {
     body: req.body,
     httpMethod: req.method,
-    headers: Object.fromEntries(Object.entries(req.headers).filter(([_, v]) => typeof v === 'string') as [string, string][]),
-    multiValueHeaders: Object.fromEntries(Object.entries(req.headers).filter(([_, v]) => typeof v !== 'string') as [string, string[]][]),
-    queryStringParameters: Object.fromEntries(Object.entries(req.query).filter(([_, v]) => typeof v === 'string') as [string, string][]),
-    multiValueQueryStringParameters: Object.fromEntries(Object.entries(req.query).filter(([_, v]) => typeof v !== 'string') as [string, string[]][]),
+    headers: Object.fromEntries(
+      Object.entries(req.headers).filter(([_, v]) => typeof v === "string") as [
+        string,
+        string
+      ][]
+    ),
+    multiValueHeaders: Object.fromEntries(
+      Object.entries(req.headers).filter(([_, v]) => typeof v !== "string") as [
+        string,
+        string[]
+      ][]
+    ),
+    queryStringParameters: Object.fromEntries(
+      Object.entries(req.query).filter(([_, v]) => typeof v === "string") as [
+        string,
+        string
+      ][]
+    ),
+    multiValueQueryStringParameters: Object.fromEntries(
+      Object.entries(req.query).filter(([_, v]) => typeof v !== "string") as [
+        string,
+        string[]
+      ][]
+    ),
     path: req.path,
-    pathParameters: extractPathParameters(req.headers['x-resource-path']! as string, req.path),
+    pathParameters: extractPathParameters(
+      req.headers["x-resource-path"]! as string,
+      req.path
+    ),
     isBase64Encoded: false,
     stageVariables: null,
     requestContext: {
       // The httpMethod and resourcePath are both required by the handler router
       httpMethod: req.method,
-      resourcePath: req.headers['x-resource-path']! as string,
+      resourcePath: req.headers["x-resource-path"]! as string,
       path: req.path,
       // The below context values aren't present in the request by default, but you can map your desired context values to
       // headers in your custom integration if required
@@ -387,7 +429,7 @@ export const mapRequest = (req: Request<{}, any, any, any, Record<string, any>>)
         sourceIp: "unknown",
         user: null,
         userAgent: null,
-        userArn: null
+        userArn: null,
       },
       stage: "unknown",
       requestId: "unknown",
@@ -397,20 +439,24 @@ export const mapRequest = (req: Request<{}, any, any, any, Record<string, any>>)
     },
     resource: "unknown",
   };
-}
+};
 
 /**
  * Map an API Gateway Proxy Result to an express response
  */
-export const mapResponse = (res: Response<any, Record<string, any>>, result: APIGatewayProxyResult): void => {
+export const mapResponse = (
+  res: Response<any, Record<string, any>>,
+  result: APIGatewayProxyResult
+): void => {
   res.status(result.statusCode);
-  Object.entries(result.headers || {}).forEach(([key, value]) => res.header(`${key}: ${value}`));
+  Object.entries(result.headers || {}).forEach(([key, value]) =>
+    res.header(`${key}: ${value}`)
+  );
   res.send(result.body);
 };
 ```
 
 Note that this may not be a fully comprehensive example - there may be more properties of the request that you need to map, and the path parameter extraction logic is quite basic and may not cover all your use cases!
-
 
 ### Say Hello Operation Implementation
 
@@ -434,9 +480,9 @@ export const sayHello = sayHelloHandler(async ({ input }) => {
 We can put the mappers and the generated handler router together in the server entry point in `packages/server/src/index.ts`. This creates the handler router, registering handlers for each operation. It defines a proxy route (`/*`) which uses the router to match requests with the appropriate handler.
 
 ```ts
-import type { Context } from 'aws-lambda';
-import express, { Application } from 'express';
-import { mapRequest, mapResponse } from './mapper';
+import type { Context } from "aws-lambda";
+import express, { Application } from "express";
+import { mapRequest, mapResponse } from "./mapper";
 import { handlerRouter } from "smithy-ecs-workshop-api-typescript-runtime";
 import { sayHello } from "./say-hello";
 
@@ -450,7 +496,7 @@ const router = handlerRouter({
 });
 
 // Use the mappers and router to direct the request to the appropriate handler
-app.all('/*', (req, res) => {
+app.all("/*", (req, res) => {
   const event = mapRequest(req);
   router(event, {} as Context)
     .then((result) => mapResponse(res, result))
@@ -461,7 +507,7 @@ app.all('/*', (req, res) => {
 });
 
 app.listen(80, () => {
-  console.log('Server is running on port', 80);
+  console.log("Server is running on port", 80);
 });
 ```
 

@@ -1,0 +1,21 @@
+import { Stack, StackProps } from "aws-cdk-lib";
+import { Construct } from "constructs";
+{{#hasApi}}
+import { ApiConstruct } from "../constructs/api";
+{{/hasApi}}
+{{#hasWebsite}}
+import { WebsiteConstruct } from "../constructs/website";
+{{/hasWebsite}}
+
+export class ApplicationStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    {{#hasApi}}
+    {{#hasWebsite}}const apiConstruct = {{/hasWebsite}}new ApiConstruct(this, "Api");
+    {{/hasApi}}
+    {{#hasWebsite}}
+    new WebsiteConstruct(this, "Website"{{#hasApi}}, { apiConstruct }{{/hasApi}});
+    {{/hasWebsite}}
+  }
+}
