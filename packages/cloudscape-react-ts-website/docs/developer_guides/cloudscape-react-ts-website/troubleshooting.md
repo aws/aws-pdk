@@ -1,4 +1,4 @@
-# Frequently Asked Questions - Cloudscape React TS Website
+# Troubleshooting
 
 ### My `react-router-dom` router doesn’t work when reloading the page or loading with a non-root URL
 

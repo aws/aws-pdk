@@ -1,4 +1,4 @@
-# Frequently Asked Questions
+# Troubleshooting
 
 ### Can I write my CDK code in Java if my .projenrc is in TypeScript?
 

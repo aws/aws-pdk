@@ -161,21 +161,6 @@ const generateDeveloperGuidesNav = () => {
   );
 };
 
-const generateFAQsNav = () => {
-  fs.writeFileSync(
-    `${cwd}/build/docs/content/faqs/.pages.yml`,
-    `${PAGES_YAML_TEMPLATE}${[generateNavEntry("FAQ", "index.md")]
-      .concat(
-        pkgs
-          .filter((p) =>
-            fs.existsSync(`${RELATIVE_PKG_ROOT}/${p}/docs/faqs/${p}`)
-          )
-          .map((pkg) => generateNavEntry(pkg, pkg))
-      )
-      .join("\n")}`
-  );
-};
-
 const generateWalkthroughsNav = () => {
   fs.writeFileSync(
     `${cwd}/build/docs/content/walkthroughs/.pages.yml`,
@@ -202,7 +187,6 @@ const copyStaticFolder = (pkg, folder) => {
 const copyPackageStaticDocs = (pkg) => {
   copyStaticFolder(pkg, "developer_guides");
   copyStaticFolder(pkg, "walkthroughs");
-  copyStaticFolder(pkg, "faqs");
   copyStaticFolder(pkg, "assets");
 };
 
@@ -213,10 +197,9 @@ async function main() {
   generateAPINav();
   generateDeveloperGuidesNav();
   generateWalkthroughsNav();
-  generateFAQsNav();
 
   for (const pkg of pkgs) {
-    generateAPIDocs(pkg);
+    !process.env.SKIP_API_DOCS && generateAPIDocs(pkg);
     copyPackageStaticDocs(pkg);
   }
 }

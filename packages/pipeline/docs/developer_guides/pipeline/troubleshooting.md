@@ -1,4 +1,4 @@
-# Frequently Asked Questions - Pipeline
+# Troubleshooting
 
 ### I get random build failures in `CodePipeline` even though my project builds on my dev machine
 
