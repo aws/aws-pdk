@@ -86,25 +86,28 @@ describe("cdk-graph/mutations", () => {
         expect(cfnRoleNode2.doesReference(bucketNode)).toBeTruthy();
 
         expect(
-          cfnLambdaNode1.findLink((edge) => edge.target === bucketNode)
-            ?.isCrossStack
+          cfnLambdaNode1.findLink({
+            filter: (edge) => edge.target === bucketNode,
+          })?.isCrossStack
         ).toBeFalsy();
         // should not have direct link
         expect(
           cfnLambdaNode2.findLink(
-            (edge) => edge.target === bucketNode,
+            { filter: (edge) => edge.target === bucketNode },
             false,
             false
           )?.isCrossStack
         ).toBeFalsy();
         // should have indirect link
         expect(
-          cfnLambdaNode2.findLink((edge) => edge.target === bucketNode)
-            ?.isCrossStack
+          cfnLambdaNode2.findLink({
+            filter: (edge) => edge.target === bucketNode,
+          })?.isCrossStack
         ).toBeTruthy();
         expect(
-          cfnRoleNode2.findLink((edge) => edge.target === bucketNode)
-            ?.isCrossStack
+          cfnRoleNode2.findLink({
+            filter: (edge) => edge.target === bucketNode,
+          })?.isCrossStack
         ).toBeTruthy();
       });
     });

@@ -1,6 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { AwsArchitecture } from "@aws-prototyping-sdk/aws-arch";
+import { AwsArchitecture } from "@aws-pdk/aws-arch";
 import * as fs from "fs-extra";
 import he = require("he"); // eslint-disable-line @typescript-eslint/no-require-imports
 import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
@@ -121,7 +121,7 @@ export async function resolveSvgAwsArchAssetImagesInline(
   const imageDefs = new Map<string, svgson.INode>();
 
   svg = traverse(svg).forEach(function (this: traverse.TraverseContext, x) {
-    if (typeof x === "object" && x.type === "element") {
+    if (typeof x === "object" && x?.type === "element") {
       const node = x as svgson.INode;
       if (node.name !== "image") {
         return;

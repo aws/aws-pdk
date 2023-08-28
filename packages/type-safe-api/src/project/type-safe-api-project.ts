@@ -3,13 +3,13 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import {
-  NxMonorepoJavaProject,
-  NxMonorepoProject,
-  NxMonorepoPythonProject,
+  MonorepoTsProject,
+  MonorepoJavaProject,
+  MonorepoPythonProject,
   NxProject,
   NxWorkspace,
   ProjectUtils,
-} from "@aws-prototyping-sdk/nx-monorepo";
+} from "@aws-pdk/monorepo";
 import { Project, ProjectOptions, SampleFile } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
@@ -22,6 +22,9 @@ import {
   generateLibraryProjects,
   generateHandlersProjects,
 } from "./codegen/generate";
+import { GeneratedJavaHandlersProject } from "./codegen/handlers/generated-java-handlers-project";
+import { GeneratedPythonHandlersProject } from "./codegen/handlers/generated-python-handlers-project";
+import { GeneratedTypescriptHandlersProject } from "./codegen/handlers/generated-typescript-handlers-project";
 import { GeneratedJavaRuntimeProject } from "./codegen/runtime/generated-java-runtime-project";
 import { GeneratedPythonRuntimeProject } from "./codegen/runtime/generated-python-runtime-project";
 import { GeneratedTypescriptRuntimeProject } from "./codegen/runtime/generated-typescript-runtime-project";
@@ -203,9 +206,9 @@ export class TypeSafeApiProject extends Project {
 
     const isNxWorkspace =
       this.parent &&
-      (ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoProject) ||
-        ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoJavaProject) ||
-        ProjectUtils.isNamedInstanceOf(this.parent, NxMonorepoPythonProject));
+      (ProjectUtils.isNamedInstanceOf(this.parent, MonorepoTsProject) ||
+        ProjectUtils.isNamedInstanceOf(this.parent, MonorepoJavaProject) ||
+        ProjectUtils.isNamedInstanceOf(this.parent, MonorepoPythonProject));
 
     const handlerLanguages = [...new Set(options.handlers?.languages ?? [])];
 
@@ -507,6 +510,15 @@ export class TypeSafeApiProject extends Project {
           | GeneratedPythonRuntimeProject
           | undefined,
         java: this.runtime.java as GeneratedJavaRuntimeProject | undefined,
+      },
+      generatedHandlers: {
+        typescript: this.handlers.typescript as
+          | GeneratedTypescriptHandlersProject
+          | undefined,
+        python: this.handlers.python as
+          | GeneratedPythonHandlersProject
+          | undefined,
+        java: this.handlers.java as GeneratedJavaHandlersProject | undefined,
       },
     });
 

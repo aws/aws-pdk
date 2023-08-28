@@ -1,7 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { NodePackageUtils } from "@aws-prototyping-sdk/nx-monorepo";
-import { NodePackageManager, TypeScriptJsxMode } from "projen/lib/javascript";
+import { NodePackageUtils } from "@aws-pdk/monorepo";
+import {
+  NodePackageManager,
+  TypeScriptJsxMode,
+  TypeScriptModuleResolution,
+} from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Library } from "../../languages";
 import {
@@ -25,7 +29,7 @@ export interface GeneratedTypescriptReactQueryHooksProjectOptions
   extends GeneratedTypeScriptReactQueryHooksOptions,
     CodeGenerationSourceOptions {
   /**
-   * Whether this project is parented by an nx-monorepo or not
+   * Whether this project is parented by an monorepo or not
    */
   readonly isWithinMonorepo?: boolean;
 }
@@ -52,7 +56,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
 
   constructor(options: GeneratedTypescriptReactQueryHooksProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sampleCode: false,
       tsconfig: {
         ...options.tsconfig,
@@ -70,6 +74,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
           strictNullChecks: false,
           strictPropertyInitialization: false,
           skipLibCheck: true,
+          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           ...options?.tsconfig?.compilerOptions,
         },
       },

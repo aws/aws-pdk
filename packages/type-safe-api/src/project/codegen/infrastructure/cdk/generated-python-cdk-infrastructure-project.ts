@@ -7,6 +7,7 @@ import {
   CodeGenerationSourceOptions,
   GeneratedPythonInfrastructureOptions,
 } from "../../../types";
+import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import {
@@ -14,9 +15,11 @@ import {
   buildInvokeMockDataGeneratorCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
   buildTypeSafeApiExecCommand,
+  getHandlersProjectVendorExtensions,
   OtherGenerators,
   TypeSafeApiScript,
 } from "../../components/utils";
+import { GeneratedHandlersProjects } from "../../generate";
 import { GeneratedPythonRuntimeProject } from "../../runtime/generated-python-runtime-project";
 
 export interface GeneratedPythonCdkInfrastructureProjectOptions
@@ -26,6 +29,10 @@ export interface GeneratedPythonCdkInfrastructureProjectOptions
    * The generated python types
    */
   readonly generatedPythonTypes: GeneratedPythonRuntimeProject;
+  /**
+   * Generated handlers projects
+   */
+  readonly generatedHandlers: GeneratedHandlersProjects;
 }
 
 export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
@@ -37,6 +44,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
 
   constructor(options: GeneratedPythonCdkInfrastructureProjectOptions) {
     super({
+      ...(options as any),
       sample: false,
       pytest: false,
       poetry: true,
@@ -45,12 +53,11 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         // Module must be explicitly added to include since poetry excludes everything in .gitignore by default
         include: [options.moduleName, `${options.moduleName}/**/*.py`],
       },
-      ...options,
     });
     this.options = options;
 
     [
-      "aws_prototyping_sdk.type_safe_api@^0",
+      "aws_pdk@^0",
       "constructs@^10",
       "aws-cdk-lib@^2",
       "cdk-nag@^2",
@@ -74,10 +81,20 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
       `!${this.moduleName}/mock_integrations.py`
     );
 
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
+    const openapiGeneratorHandlebarsIgnore =
+      new OpenApiGeneratorHandlebarsIgnoreFile(this);
+    openapiGeneratorHandlebarsIgnore.addPatterns(
+      "/*",
+      "**/*",
+      "*",
+      `!${this.moduleName}/__functions.py`
     );
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig({
+      version: "6.6.0",
+      ...options.openApiGeneratorCliConfig,
+    });
 
     const generateTask = this.addTask("generate");
     generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
@@ -110,7 +127,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
 
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
-      generator: "python",
+      generator: "python-nextgen",
       specPath: this.options.specPath,
       smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.PYTHON_CDK_INFRASTRUCTURE,
@@ -125,6 +142,10 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         "x-relative-spec-path": path.join("..", this.options.specPath),
         // Enable mock integration generation by default
         "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
+        ...getHandlersProjectVendorExtensions(
+          this,
+          this.options.generatedHandlers
+        ),
       },
     });
   };

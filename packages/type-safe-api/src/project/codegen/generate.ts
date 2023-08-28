@@ -47,7 +47,7 @@ export interface GenerateProjectsOptions {
    */
   readonly parent: Project;
   /**
-   * Whether the infrastructure and types projects are parented by an nx-monorepo or not
+   * Whether the infrastructure and types projects are parented by an monorepo or not
    */
   readonly isWithinMonorepo?: boolean;
   /**
@@ -184,6 +184,24 @@ const generateRuntimeProject = (
   }
 };
 
+/**
+ * Generated handlers projects
+ */
+export interface GeneratedHandlersProjects {
+  /**
+   * Java handlers project
+   */
+  readonly java?: GeneratedJavaHandlersProject;
+  /**
+   * Python handlers project
+   */
+  readonly python?: GeneratedPythonHandlersProject;
+  /**
+   * TypeScript handlers project
+   */
+  readonly typescript?: GeneratedTypescriptHandlersProject;
+}
+
 export interface GenerateInfraProjectOptions
   extends GenerateRuntimeProjectsOptions {
   /**
@@ -194,6 +212,7 @@ export interface GenerateInfraProjectOptions
     readonly python?: GeneratedPythonRuntimeProject;
     readonly typescript?: GeneratedTypescriptRuntimeProject;
   };
+  readonly generatedHandlers: GeneratedHandlersProjects;
 }
 
 /**
@@ -222,6 +241,7 @@ export const generateInfraProject = (
     specPath: options.parsedSpecPath,
     parent: options.parent,
     smithyJsonModelPath: options.smithyJsonModelPath,
+    generatedHandlers: options.generatedHandlers,
   };
 
   switch (language) {

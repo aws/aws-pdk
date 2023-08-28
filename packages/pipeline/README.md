@@ -2,7 +2,7 @@
 >
 > - `> v0.16.1`: Refactored PDKPipeline to now be a construct so accessing CodePipeline methods now requires accessing a public codePipeline property i.e: `pdkPipeline.codePipeline.XXX`
 
-The pipeline module vends an extension to CDK's CodePipeline construct, named PDKPipeline. It additionally creates a CodeCommit repository and by default is configured to build the project assumming nx-monorepo is being used (although this can be changed). A Sonarqube Scanner can also be configured to trigger a scan whenever the synth build job completes successfully. This Scanner is non-blocking and as such is not instrumented as part of the pipeline.
+The pipeline module vends an extension to CDK's CodePipeline construct, named PDKPipeline. It additionally creates a CodeCommit repository and by default is configured to build the project assumming monorepo is being used (although this can be changed). A Sonarqube Scanner can also be configured to trigger a scan whenever the synth build job completes successfully. This Scanner is non-blocking and as such is not instrumented as part of the pipeline.
 
 The architecture for the PDKPipeline is as follows:
 

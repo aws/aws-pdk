@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import os from "os";
 import * as path from "path";
 import { exec } from "projen/lib/util";
+import { getTestHandlerProjects } from "./utils";
 import { OpenApiToolsJsonFile } from "../../../src/project/codegen/components/open-api-tools-json-file";
 import { GeneratedJavaCdkInfrastructureProject } from "../../../src/project/codegen/infrastructure/cdk/generated-java-cdk-infrastructure-project";
 import { GeneratedJavaRuntimeProject } from "../../../src/project/codegen/runtime/generated-java-runtime-project";
@@ -36,6 +37,7 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
           outdir: infraOutdir,
           specPath: "../spec.yaml",
           generatedJavaTypes: client,
+          generatedHandlers: {},
         });
         // Synth the openapitools.json since it's used by the generate command
         OpenApiToolsJsonFile.of(project)!.synthesize();
@@ -101,6 +103,7 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
           mockDataOptions: {
             disable: true,
           },
+          generatedHandlers: {},
         });
         // Synth the openapitools.json since it's used by the generate command
         OpenApiToolsJsonFile.of(project)!.synthesize();
@@ -124,6 +127,56 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
       snapshot[
         "infra/src/main/java/test/test-infra/infra/MockIntegrations.java"
       ]
+    ).toMatchSnapshot();
+  });
+
+  it("Generates Functions", () => {
+    const specPath = path.resolve(
+      __dirname,
+      `../../resources/specs/handlers.yaml`
+    );
+
+    const snapshot = withTmpDirSnapshot(
+      os.tmpdir(),
+      (outdir) => {
+        exec(`cp ${specPath} ${outdir}/spec.yaml`, {
+          cwd: path.resolve(__dirname),
+        });
+
+        const { runtimes, handlers } = getTestHandlerProjects(outdir);
+
+        const infraOutdir = path.join(outdir, "infra");
+        const project = new GeneratedJavaCdkInfrastructureProject({
+          name: "test-infra",
+          artifactId: "com.aws.pdk.test.infra",
+          groupId: "test",
+          version: "1.0.0",
+          outdir: infraOutdir,
+          specPath: "../spec.yaml",
+          generatedJavaTypes: runtimes.java,
+          generatedHandlers: handlers,
+        });
+        project.synth();
+        exec(
+          `${path.resolve(
+            __dirname,
+            "../../../scripts/generators/generate"
+          )} ${project.buildGenerateCommandArgs()}`,
+          {
+            cwd: infraOutdir,
+          }
+        );
+      },
+      {
+        excludeGlobs: GeneratedJavaRuntimeProject.openApiIgnorePatterns,
+        parseJson: false,
+      }
+    );
+
+    expect(
+      Object.entries(snapshot).filter(([file]: [string, any]) =>
+        file.startsWith("infra/src/main/java/test/test-infra/infra/functions")
+      )
     ).toMatchSnapshot();
   });
 });

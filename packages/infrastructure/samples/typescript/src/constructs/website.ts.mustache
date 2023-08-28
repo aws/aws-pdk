@@ -1,0 +1,50 @@
+import { Stack } from "aws-cdk-lib";
+import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
+import { UserIdentity } from "aws-pdk/identity";
+import { StaticWebsite } from "aws-pdk/static-website";
+import { Construct } from "constructs";
+{{^hasApi}}// {{/hasApi}}import { ApiConstruct } from "./api";
+
+/**
+ * Website construct props
+ */
+export interface WebsiteConstructProps {
+  /**
+   * Instance of an API to configure the website to integrate with
+   */
+  {{^hasApi}}// {{/hasApi}}readonly apiConstruct: ApiConstruct;
+}
+
+/**
+ * Construct to deploy a Static Website
+ */
+export class WebsiteConstruct extends Construct {
+  constructor(scope: Construct, id: string, props?: WebsiteConstructProps) {
+    super(scope, id);
+
+    const userIdentity = new UserIdentity(this, `${id}UserIdentity`);
+    new StaticWebsite(this, id, {
+      websiteContentPath: "{{{websiteDistRelativePath}}}",
+      runtimeOptions: {
+        jsonPayload: {
+          region: Stack.of(this).region,
+          identityPoolId: userIdentity.identityPool.identityPoolId,
+          userPoolId: userIdentity.userPool?.userPoolId,
+          userPoolWebClientId: userIdentity.userPoolClient?.userPoolClientId,
+          {{^hasApi}}// {{/hasApi}}apiUrl: props?.apiConstruct.api.api.urlForPath(),
+        },
+      },
+      distributionProps: {
+        geoRestriction: GeoRestriction.allowlist(
+          "AU",
+          "ID",
+          "IN",
+          "JP",
+          "KR",
+          "SG",
+          "US",
+        ),
+      },
+    });
+  }
+}

@@ -8,10 +8,10 @@
 }
 ###/TSAPI_WRITE_FILE###{{#apiInfo}}{{#apis.0}}package {{package}}.interceptors;{{/apis.0}}{{/apiInfo}}
 
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.ApiResponse;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.ChainedRequestInput;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.Response;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ApiResponse;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
 import org.apache.logging.log4j.Logger;
 
 /**
@@ -63,9 +63,9 @@ public class TryCatchInterceptor<Input> implements Interceptor<Input> {
 }
 ###/TSAPI_WRITE_FILE###{{#apiInfo}}{{#apis.0}}package {{package}}.interceptors;{{/apis.0}}{{/apiInfo}}
 
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.ChainedRequestInput;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.Response;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
 
 
 /**
@@ -90,9 +90,10 @@ public class CorsInterceptor<Input> implements Interceptor<Input> {
 }
 ###/TSAPI_WRITE_FILE###{{#apiInfo}}{{#apis.0}}package {{package}}.interceptors.powertools;{{/apis.0}}{{/apiInfo}}
 
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.ChainedRequestInput;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.Response;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.RequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
 import com.amazonaws.services.lambda.runtime.Context;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -110,7 +111,7 @@ public class LoggingInterceptor<Input> implements Interceptor<Input> {
     /**
      * Return the instance of the logger from the interceptor context
      */
-    public static <T> Logger getLogger(final ChainedRequestInput<T> request) {
+    public static <T> Logger getLogger(final RequestInput<T> request) {
         Object logger = request.getInterceptorContext().get("logger");
         if (logger == null) {
             throw new RuntimeException("No logger found. Did you configure the LoggingInterceptor?");
@@ -167,9 +168,9 @@ public class LoggingInterceptor<Input> implements Interceptor<Input> {
 }
 ###/TSAPI_WRITE_FILE###{{#apiInfo}}{{#apis.0}}package {{package}}.interceptors.powertools;{{/apis.0}}{{/apiInfo}}
 
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.ChainedRequestInput;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.Response;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Subsegment;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -252,9 +253,10 @@ public class TracingInterceptor<Input> implements Interceptor<Input> {
 }
 ###/TSAPI_WRITE_FILE###{{#apiInfo}}{{#apis.0}}package {{package}}.interceptors.powertools;{{/apis.0}}{{/apiInfo}}
 
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.ChainedRequestInput;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.Response;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.RequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.lambda.powertools.core.internal.LambdaHandlerProcessor;
@@ -270,7 +272,7 @@ public class MetricsInterceptor<Input> implements Interceptor<Input> {
     /**
      * Return the instance of the metrics logger from the interceptor context
      */
-    public static <T> MetricsLogger getMetrics(final ChainedRequestInput<T> request) {
+    public static <T> MetricsLogger getMetrics(final RequestInput<T> request) {
         Object metrics = request.getInterceptorContext().get("metrics");
         if (metrics == null) {
             throw new RuntimeException("No metrics logger found. Did you configure the MetricsInterceptor?");
@@ -314,7 +316,7 @@ public class MetricsInterceptor<Input> implements Interceptor<Input> {
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.interceptors.powertools.LoggingInterceptor;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.interceptors.powertools.MetricsInterceptor;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.interceptors.powertools.TracingInterceptor;
-import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.Handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
 
 import java.util.Arrays;
 import java.util.List;

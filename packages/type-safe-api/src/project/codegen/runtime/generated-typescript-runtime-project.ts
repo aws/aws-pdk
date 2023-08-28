@@ -1,8 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { NodePackageUtils } from "@aws-prototyping-sdk/nx-monorepo";
+import { NodePackageUtils } from "@aws-pdk/monorepo";
 import { IgnoreFile } from "projen";
-import { NodePackageManager } from "projen/lib/javascript";
+import {
+  NodePackageManager,
+  TypeScriptModuleResolution,
+} from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Language } from "../../languages";
 import {
@@ -25,7 +28,7 @@ export interface GeneratedTypescriptTypesProjectOptions
   extends GeneratedTypeScriptRuntimeOptions,
     CodeGenerationSourceOptions {
   /**
-   * Whether this project is parented by an nx-monorepo or not
+   * Whether this project is parented by an monorepo or not
    */
   readonly isWithinMonorepo?: boolean;
 }
@@ -52,7 +55,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
 
   constructor(options: GeneratedTypescriptTypesProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sampleCode: false,
       tsconfig: {
         ...options.tsconfig,
@@ -69,6 +72,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
           strictNullChecks: false,
           strictPropertyInitialization: false,
           skipLibCheck: true,
+          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           ...options?.tsconfig?.compilerOptions,
         },
       },

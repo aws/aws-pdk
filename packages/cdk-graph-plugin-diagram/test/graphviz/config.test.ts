@@ -1,11 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import {
-  CdkGraph,
-  FilterPreset,
-  getConstructUUID,
-} from "@aws-prototyping-sdk/cdk-graph";
-import { FixtureApp } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
+import { CdkGraph, FilterPreset, getConstructUUID } from "@aws-pdk/cdk-graph";
+import { FixtureApp } from "@aws-pdk/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
 import * as testUtils from "./test-utils";
 import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";
@@ -82,8 +78,12 @@ describe("config", () => {
             name: "focus",
             title: "Focus Data Diagram (non-extraneous)",
             filterPlan: {
-              focus: (store) =>
-                store.getNode(getConstructUUID(app.stack.dataLayer)),
+              focus: {
+                filter: {
+                  filter: (store) =>
+                    store.getNode(getConstructUUID(app.stack.dataLayer)),
+                },
+              },
               preset: FilterPreset.NON_EXTRANEOUS,
             },
             ignoreDefaults: true,
@@ -93,8 +93,10 @@ describe("config", () => {
             title: "Focus Website Diagram (noHoist, verbose)",
             filterPlan: {
               focus: {
-                node: (store) =>
-                  store.getNode(getConstructUUID(app.stack.website)),
+                filter: {
+                  filter: (store) =>
+                    store.getNode(getConstructUUID(app.stack.website)),
+                },
                 noHoist: true,
               },
             },

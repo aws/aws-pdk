@@ -43,15 +43,14 @@ export class GeneratedJavaHandlersProject extends JavaProject {
 
   /**
    * Java package name
-   * @private
    */
-  private readonly packageName: string;
+  public readonly packageName: string;
 
   constructor(options: GeneratedJavaHandlersProjectOptions) {
     super({
-      ...options,
       sample: false,
       junit: false,
+      ...(options as any),
     });
     this.options = options;
     this.packageName = `${this.pom.groupId}.${this.name}.handlers`;

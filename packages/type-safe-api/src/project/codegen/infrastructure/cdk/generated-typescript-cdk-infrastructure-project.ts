@@ -2,12 +2,16 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType, IgnoreFile } from "projen";
-import { NodePackageManager } from "projen/lib/javascript";
+import {
+  NodePackageManager,
+  TypeScriptModuleResolution,
+} from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import {
   CodeGenerationSourceOptions,
   GeneratedTypeScriptInfrastructureOptions,
 } from "../../../types";
+import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import {
@@ -15,9 +19,11 @@ import {
   buildInvokeMockDataGeneratorCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
   buildTypeSafeApiExecCommand,
+  getHandlersProjectVendorExtensions,
   OtherGenerators,
   TypeSafeApiScript,
 } from "../../components/utils";
+import { GeneratedHandlersProjects } from "../../generate";
 import { GeneratedTypescriptRuntimeProject } from "../../runtime/generated-typescript-runtime-project";
 
 export interface GeneratedTypescriptCdkInfrastructureProjectOptions
@@ -29,7 +35,12 @@ export interface GeneratedTypescriptCdkInfrastructureProjectOptions
   readonly generatedTypescriptTypes: GeneratedTypescriptRuntimeProject;
 
   /**
-   * Whether the infrastructure and client projects are parented by an nx-monorepo or not
+   * Generated handlers projects
+   */
+  readonly generatedHandlers: GeneratedHandlersProjects;
+
+  /**
+   * Whether the infrastructure and client projects are parented by an monorepo or not
    */
   readonly isWithinMonorepo?: boolean;
 }
@@ -49,7 +60,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
 
   constructor(options: GeneratedTypescriptCdkInfrastructureProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sampleCode: false,
       jest: false,
       eslint: false,
@@ -59,6 +70,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
           lib: ["dom", "es2019"],
           // Generated code imports all models, and may not reference them all
           noUnusedLocals: false,
+          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           noUnusedParameters: false,
           skipLibCheck: true,
           ...options?.tsconfig?.compilerOptions,
@@ -68,9 +80,10 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
     });
     this.options = options;
 
+    this.addDevDeps("@types/aws-lambda");
     this.addDeps(
       ...[
-        "@aws-prototyping-sdk/type-safe-api",
+        "aws-pdk",
         "constructs",
         "aws-cdk-lib",
         "cdk-nag",
@@ -102,6 +115,15 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       `!${this.srcdir}/index.ts`,
       `!${this.srcdir}/api.ts`,
       `!${this.srcdir}/mock-integrations.ts`
+    );
+
+    const openapiGeneratorHandlebarsIgnore =
+      new OpenApiGeneratorHandlebarsIgnoreFile(this);
+    openapiGeneratorHandlebarsIgnore.addPatterns(
+      "/*",
+      "**/*",
+      "*",
+      `!${this.srcdir}/__functions.ts`
     );
 
     // Add OpenAPI Generator cli configuration
@@ -180,6 +202,10 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
         "x-relative-spec-path": path.join("..", this.packagedSpecPath),
         // Enable mock integration generation by default
         "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
+        ...getHandlersProjectVendorExtensions(
+          this,
+          this.options.generatedHandlers
+        ),
       },
     });
   };
