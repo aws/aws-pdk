@@ -17,7 +17,7 @@ The AWS PDK is built on top of [Projen](https://github.com/projen/projen) and as
 
 It's much easier to show than explain! Here is some PDK code (within projenrc file) that creates a Polyglot monorepo, with a React Website pre-configured with Cognito Auth and pre-integrated with a Smithy Type Safe Api.
 
-=== "TS"
+=== "TYPESCRIPT"
 
     ```ts
     import { CloudscapeReactTsWebsiteProject } from "aws-pdk/cloudscape-react-ts-website";

@@ -4,7 +4,7 @@ This topic introduces you to important AWS PDK concepts and describes how to ins
 
 ## Background
 
-The AWS PDK lets you define your project strcuture as code in one of its supported programming languages. At its core, the AWS PDK is built on [Projen](https://github.com/projen/projen) and is a piece of software you should become familiar with if you want to become proficient with the PDK. In addition, alot of the constructs provided by the PDK generate CDK code which is used to deploy relevant infrastructure. The following expandable sections provide a quick primer on how these two key pieces of technology work.
+The AWS PDK lets you define your project structure as code in one of its supported programming languages. At its core, the AWS PDK is built on [Projen](https://github.com/projen/projen) and is a piece of software you should become familiar with if you want to become proficient with the PDK. In addition, alot of the constructs provided by the PDK generate CDK code which is used to deploy relevant infrastructure. The following expandable sections provide a quick primer on how these two key pieces of technology work.
 
 ??? "CDK Primer"
     
@@ -12,7 +12,7 @@ The AWS PDK lets you define your project strcuture as code in one of its support
 
     To ground this in an example, let's create an S3 Bucket using the CDK:
 
-    === "TS"
+    === "TYPESCRIPT"
 
         ```ts
         const bucket = new s3.Bucket(this, 'MyBucket', {
@@ -114,16 +114,16 @@ All AWS PDK developers, even those working in Python or Java, need Node.js 16 or
 
 Other prerequisites depend on the language in which you develop AWS PDK projects and are as follows.
 
-=== "TS"
-    - Typescript >= 5
+=== "TYPESCRIPT"
+    - `Typescript >= 5`
 
 === "PYTHON"
-    - Python >= 3.9
-    - Poetry >= 1.5.1
+    - `Python >= 3.9`
+    - `Poetry >= 1.5.1`
 
 === "JAVA"
-    - JDK >= 11
-    - Apache Maven >= 3.8
+    - `JDK >= 11`
+    - `Apache Maven >= 3.8`
 
 ## Installation
 ### Install the AWS PDK
