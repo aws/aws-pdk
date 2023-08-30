@@ -8,6 +8,7 @@ import {
 import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
 import { Construct } from "constructs";
 import { UserPoolWithMfa } from "./userpool-with-mfa";
+import { CfnOutput } from "aws-cdk-lib";
 
 const WEB_CLIENT_ID = "WebClient";
 
@@ -69,5 +70,13 @@ export class UserIdentity extends Construct {
         userPoolClient: this.userPoolClient!,
       })
     );
+
+    new CfnOutput(this, `${id}-UserPoolId`, {
+      value: this.userPool.userPoolId,
+    });
+
+    new CfnOutput(this, `${id}-IdentityPoolId`, {
+      value: this.identityPool.identityPoolId,
+    });
   }
 }

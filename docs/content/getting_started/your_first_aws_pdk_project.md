@@ -493,22 +493,322 @@ Let's now add a React website to our monorepo so that we can make authenticated 
     }
     ```
 
-    As always, given we have modified our `projenrc` file we need to run the `pdk` command from the root to synthesize our new website onto the filesystem.
+As always, given we have modified our `projenrc` file we need to run the `pdk` command from the root to synthesize our new website onto the filesystem.
 
-    Once the `pdk` command is executed, you should see a new `packages/website` folder which contains all the source code for your new website. To make sure everything is working, let's build our project by running `pdk build` from the root.
+Once the `pdk` command is executed, you should see a new `packages/website` folder which contains all the source code for your new website. To make sure everything is working, let's build our project by running `pdk build` from the root.
 
-    We can now test that our website works by running the `pdk dev` command from the `packages/website` directory. You will be greeted with an error message as follows:
+We can now test that our website works by running the `pdk dev` command from the `packages/website` directory. You will be greeted with an error message as follows:
 
-    <img src="../assets/images/website_no_runtime_config.png" width="600" />
+<img src="../assets/images/website_no_runtime_config.png" width="600" />
 
-    This is completely normal as given we have passed in the api into the `CloudscapeReactTsWebsite` construct, it has automatically been configured to integrate with your API which has not been deployed as of yet, and hence no `runtime-config.json` is available which contains deployed resource identifiers and url's.
+This is completely normal as given we have passed in the api into the `CloudscapeReactTsWebsite` construct, it has automatically been configured to integrate with your API which has not been deployed as of yet, and hence no `runtime-config.json` is available which contains deployed resource identifiers and url's.
 
-    In order to get everything working, we need to deploy everything we have just created which will be covered in the following section.
+In order to get everything working, we need to deploy everything we have just created which will be covered in the following section.
 
-    ## Deploying our infrastructure to AWS
+## Creating our AWS infrastructure
 
-    We now have all of the application specific code required in order to create a distributed application. The missing link is the infrastructure that will deploy these components into the AWS cloud.
+We now have all of the application specific code required in order to create a distributed application. The missing link is the infrastructure that will deploy these components into the AWS cloud.
 
-    Let's add this infrastructure to the monorepo by modifying our `projenrc` file to include the Infrastructure construct as follows:
+Let's add this infrastructure to the monorepo by modifying our `projenrc` file to include the Infrastructure construct as follows:
 
-    
+=== "TYPESCRIPT"
+
+    ```typescript
+    import { CloudscapeReactTsWebsiteProject } from "aws-pdk/cloudscape-react-ts-website";
+    import { InfrastructureTsProject } from "aws-pdk/infrastructure";
+    import { MonorepoTsProject } from "aws-pdk/monorepo";
+    import {
+        DocumentationFormat,
+        Language,
+        Library,
+        ModelLanguage,
+        TypeSafeApiProject,
+    } from "aws-pdk/type-safe-api";
+    import { javascript } from "projen";
+
+    const monorepo = new MonorepoTsProject({
+        devDeps: ["aws-pdk"],
+        name: "my-project",
+        packageManager: javascript.NodePackageManager.PNPM,
+        projenrcTs: true,
+    });
+
+    const api = new TypeSafeApiProject({
+        parent: monorepo,
+        outdir: "packages/api",
+        name: "myapi",
+        infrastructure: {
+            language: Language.TYPESCRIPT,
+        },
+        model: {
+            language: ModelLanguage.SMITHY,
+            options: {
+            smithy: {
+                serviceName: {
+                namespace: "com.aws",
+                serviceName: "MyApi",
+                },
+            },
+            },
+        },
+        runtime: {
+            languages: [Language.TYPESCRIPT],
+        },
+        documentation: {
+            formats: [DocumentationFormat.HTML_REDOC],
+        },
+        library: {
+            libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+        },
+        handlers: {
+            languages: [Language.TYPESCRIPT],
+        },
+    });
+
+    const website = new CloudscapeReactTsWebsiteProject({
+        parent: monorepo,
+        outdir: "packages/website",
+        name: "website",
+        typeSafeApi: api,
+    });
+
+    new InfrastructureTsProject({
+        parent: monorepo,
+        outdir: "packages/infra",
+        name: "infra",
+        cloudscapeReactTsWebsite: website,
+        typeSafeApi: api,
+    });
+
+    monorepo.synth();
+    ```
+
+=== "PYTHON"
+
+    ```python
+    from aws_pdk.monorepo import MonorepoPythonProject
+    from aws_pdk.cloudscape_react_ts_website import CloudscapeReactTsWebsiteProject
+    from aws_pdk.infrastructure import InfrastructurePyProject
+    from aws_pdk.type_safe_api import *
+
+    monorepo = MonorepoPythonProject(
+        dev_deps=["aws-pdk"],
+        module_name="my_project",
+        name="my-project",
+    )
+
+    api = TypeSafeApiProject(
+        name="myapi",
+        parent=monorepo,
+        outdir="packages/api",
+        model=ModelConfiguration(
+            language=ModelLanguage.SMITHY,
+            options=ModelOptions(
+                smithy=SmithyModelOptions(
+                    service_name=SmithyServiceName(
+                        namespace="com.amazon",
+                        service_name="MyAPI"
+                    )
+                )
+            )
+        ),
+        runtime=RuntimeConfiguration(
+            languages=[Language.PYTHON]
+        ),
+        infrastructure=InfrastructureConfiguration(
+            language=Language.PYTHON
+        ),
+        documentation=DocumentationConfiguration(
+            formats=[DocumentationFormat.HTML_REDOC]
+        ),
+        handlers=HandlersConfiguration(
+            languages=[Language.PYTHON]
+        ),
+        library=LibraryConfiguration(
+            libraries=[Library.TYPESCRIPT_REACT_QUERY_HOOKS]
+        )
+    )
+
+    website = CloudscapeReactTsWebsiteProject(
+        parent=monorepo,
+        outdir="packages/website",
+        type_safe_api=api,
+        name="website",
+    )
+
+    InfrastructurePyProject(
+        parent=monorepo,
+        outdir="packages/infra",
+        name="infra",
+        type_safe_api=api,
+        cloudscape_react_ts_website=website
+    )
+
+    monorepo.synth()
+    ```
+
+=== "JAVA"
+
+    ```java
+    import software.aws.awspdk.monorepo.MonorepoJavaProject;
+    import software.aws.awspdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProject;
+    import software.aws.awspdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProjectOptions;
+    import software.aws.awspdk.infrastructure.InfrastructureJavaProject;
+    import software.aws.awspdk.infrastructure.InfrastructureJavaProjectOptions;
+    import software.aws.awspdk.type_safe_api.*;
+    import java.util.Arrays;
+    import software.aws.awspdk.monorepo.MonorepoJavaOptions;
+
+    public class projenrc {
+        public static void main(String[] args) {
+            MonorepoJavaProject monorepo = new MonorepoJavaProject(MonorepoJavaOptions.builder()
+                    .name("my-project")
+                    .build());
+
+            TypeSafeApiProject api = new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
+                    .name("myapi")
+                    .parent(monorepo)
+                    .outdir("packages/api")
+                    .model(ModelConfiguration.builder()
+                            .language(ModelLanguage.SMITHY)
+                            .options(ModelOptions.builder()
+                                    .smithy(SmithyModelOptions.builder()
+                                            .serviceName(SmithyServiceName.builder()
+                                                    .namespace("com.my.company")
+                                                    .serviceName("MyApi")
+                                                    .build())
+                                            .build())
+                                    .build())
+                            .build())
+                    .runtime(RuntimeConfiguration.builder()
+                            .languages(Arrays.asList(Language.JAVA))
+                            .build())
+                    .infrastructure(InfrastructureConfiguration.builder()
+                            .language(Language.JAVA)
+                            .build())
+                    .documentation(DocumentationConfiguration.builder()
+                            .formats(Arrays.asList(DocumentationFormat.HTML_REDOC))
+                            .build())
+                    .library(LibraryConfiguration.builder()
+                            .libraries(Arrays.asList(Library.TYPESCRIPT_REACT_QUERY_HOOKS))
+                            .build())
+                    .handlers(HandlersConfiguration.builder()
+                            .languages(Arrays.asList(Language.JAVA))
+                            .build())
+                    .build());
+
+            CloudscapeReactTsWebsiteProject website = new CloudscapeReactTsWebsiteProject(
+                CloudscapeReactTsWebsiteProjectOptions.builder()
+                    .parent(monorepo)
+                    .outdir("packages/website")
+                    .typeSafeApi(api)
+                    .name("website")
+                    .build());
+
+            new InfrastructureJavaProject(
+                InfrastructureJavaProjectOptions.builder()
+                    .parent(monorepo)
+                    .outdir("packages/infra")
+                    .name("infra")
+                    .typeSafeApi(api)
+                    .cloudscapeReactTsWebsite(website)
+                    .build());
+
+            monorepo.synth();
+        }
+    }
+    ```
+
+As always, given we have modified our `projenrc` file we need to run the `pdk` command from the root to synthesize our new website onto the filesystem.
+
+You should now see a `packages/infra` directory containing all of your pre-configured CDK code to deploy your website and API!
+
+Let's now build all of our code by running `pdk build` from the root directory. You should notice that all of your infrastructure now synthesizes by inspecting the `cdk.out` directory of your `packages/infra` folder. You will also notice a subfolder `cdk.out/cdkgraph` which will also contain all of your generated diagrams. If you open any of the diagrams, you should see the following which depicts the infrastructure we are about to deploy to AWS:
+
+<img src="../assets/images/generated_diagram.png" width="600" />
+
+## Deploying our infrastructure to the AWS cloud
+
+We now have everything we need to deploy our infrastructure. To do so, ensure you have [authenticated with AWS](https://docs.aws.amazon.com/sdkref/latest/guide/access.html) and that your aws cli is able to communicate with your desired AWS account & region.
+
+Firstly, if the target account has not been [bootstrapped](https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html), you will need to do this before proceeding.
+
+!!!warning
+    Ensure the role you have assumed has enough permissions to create all of the resources required. For full deploy permissions, you can attach the `arn:aws:iam::aws:policy/AdministratorAccess` policy to your assumed role, although this is not recommended when deploying into production.
+
+We now can deploy our infrastructure by running the following command:
+
+```bash
+cd packages/infra
+pdk run deploy --require-approval never
+```
+
+Once the deployment completes, you should see an output that resembles the following:
+
+<img src="../assets/images/deployment_results.png" width="600" />
+
+Congratulations! You have successfully deployed a website and api to AWS!
+
+To check out your website, navigate to the distribution link in the CDK deployment output above to view your website.
+
+### Creating a Cognito User
+
+In order to log in to your website, you first need to create a Cognito user. By default, the UserPool is not set up to allow self-registration (this is configurable). To create a Cognito user, follow these steps:
+
+1. Navigate to the Cognito AWS console within the account you just deployed to.
+1. Click on the user pool you just created
+1. Click "Create user"
+1. In invitation settings, select "Send an email invitation" 
+1. Enter a username
+1. Enter an email address
+1. In temporary password, select "Generate a password"
+1. Click "Create user"
+
+You will now be sent an email with a temporary password. Open the email and have it handy.
+
+1. In a web browser, navigate to your newly deploy website via the cloudfront url contained within the CDK output.
+1. Enter your username and temporary password then click "Sign in".
+1. Enter a new password, family name and given name(s) then click "Confirm".
+1. Open Authenticator on your phone, then setup a new code by scanning the QR code.
+1. Enter the code displayed on Authenticator for your website and then click "Continue".
+
+Congratulations, you have successfully signed in to your website!
+
+<img src="../assets/images/website_auth.png" width="800" />
+
+You will notice that an API Explorer is provided for you by default, allowing you to experiment with any API's you have defined as part of your Type Safe API in an authenticated and safe manner (sigv4 signed).
+
+### Configuring your local website to communicate with backend services
+
+Now that you have deployed your backend infrastructure, let's update the local website environment to communicate with the API and Cognito User Pool that was just deployed. To do this, simply run the following command from the root of your monorepo:
+
+```bash
+curl https://`aws cloudformation describe-stacks --query "Stacks[?StackName=='infra-dev'][].Outputs[?contains(OutputKey, 'WebsiteDistributionDomainName')].OutputValue" --output text`/runtime-config.json > packages/website/public/runtime-config.json
+```
+
+Now you can start your dev server by running the following command:
+
+```bash
+cd packages/website
+pdk dev
+```
+
+## Destroying the deployed resources
+
+Now that you're done creating your first PDK project, destroy your deployed resources to avoid incurring any costs as follows:
+
+```bash
+cd packages/infra
+pdk run destroy
+```
+
+Enter **y** to approve the changes and delete the `infra-dev` stack.
+
+## Next steps
+
+Congratulations, you have now set up your first PDK based monorepo project! Where do you go from here?
+
+- Try the [TODO App workshop](./todo_app_workshop.md) for a more in-depth guide on how to build on the foundations we just laid.
+- See the [Developer Guide](../developer_guides/index.md) to begin exploring the provided constructs available in the PDK.
+- See the [API reference](../api/index.md) to view [Js/Java/Py]Docs for each provided PDK construct.
+- The AWS PDK is an [open-source project](https://github.com/aws/aws-pdk). Want to [contribute](../contributing/index.md)?
