@@ -316,6 +316,199 @@ Let's now add a React website to our monorepo so that we can make authenticated 
 
 === "TYPESCRIPT"
 
+    ```typescript
+    import { CloudscapeReactTsWebsiteProject } from "aws-pdk/cloudscape-react-ts-website";
+    import { MonorepoTsProject } from "aws-pdk/monorepo";
+    import {
+        DocumentationFormat,
+        Language,
+        Library,
+        ModelLanguage,
+        TypeSafeApiProject,
+    } from "aws-pdk/type-safe-api";
+    import { javascript } from "projen";
+
+    const monorepo = new MonorepoTsProject({
+        devDeps: ["aws-pdk"],
+        name: "my-project",
+        packageManager: javascript.NodePackageManager.PNPM,
+        projenrcTs: true,
+    });
+
+    const api = new TypeSafeApiProject({
+        parent: monorepo,
+        outdir: "packages/api",
+        name: "myapi",
+        infrastructure: {
+            language: Language.TYPESCRIPT,
+        },
+        model: {
+            language: ModelLanguage.SMITHY,
+            options: {
+            smithy: {
+                serviceName: {
+                namespace: "com.aws",
+                serviceName: "MyApi",
+                },
+            },
+            },
+        },
+        runtime: {
+            languages: [Language.TYPESCRIPT],
+        },
+        documentation: {
+            formats: [DocumentationFormat.HTML_REDOC],
+        },
+        library: {
+            libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+        },
+        handlers: {
+            languages: [Language.TYPESCRIPT],
+        },
+    });
+
+    new CloudscapeReactTsWebsiteProject({
+        parent: monorepo,
+        outdir: "packages/website",
+        name: "website",
+        typeSafeApi: api,
+    });
+
+    monorepo.synth();
+    ```
+
 === "PYTHON"
 
+    ```python
+    from aws_pdk.monorepo import MonorepoPythonProject
+    from aws_pdk.cloudscape_react_ts_website import CloudscapeReactTsWebsiteProject
+    from aws_pdk.type_safe_api import *
+
+    monorepo = MonorepoPythonProject(
+        dev_deps=["aws-pdk"],
+        module_name="my_project",
+        name="my-project",
+    )
+
+    api = TypeSafeApiProject(
+        name="myapi",
+        parent=monorepo,
+        outdir="packages/api",
+        model=ModelConfiguration(
+            language=ModelLanguage.SMITHY,
+            options=ModelOptions(
+                smithy=SmithyModelOptions(
+                    service_name=SmithyServiceName(
+                        namespace="com.amazon",
+                        service_name="MyAPI"
+                    )
+                )
+            )
+        ),
+        runtime=RuntimeConfiguration(
+            languages=[Language.PYTHON]
+        ),
+        infrastructure=InfrastructureConfiguration(
+            language=Language.PYTHON
+        ),
+        documentation=DocumentationConfiguration(
+            formats=[DocumentationFormat.HTML_REDOC]
+        ),
+        handlers=HandlersConfiguration(
+            languages=[Language.PYTHON]
+        ),
+        library=LibraryConfiguration(
+            libraries=[Library.TYPESCRIPT_REACT_QUERY_HOOKS]
+        )
+    )
+
+    CloudscapeReactTsWebsiteProject(
+        parent=monorepo,
+        outdir="packages/website",
+        type_safe_api=api,
+        name="website",
+    )
+
+    monorepo.synth()
+    ```
+
 === "JAVA"
+
+    ```java
+    import software.aws.awspdk.monorepo.MonorepoJavaProject;
+    import software.aws.awspdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProject;
+    import software.aws.awspdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProjectOptions;
+    import software.aws.awspdk.type_safe_api.*;
+    import java.util.Arrays;
+    import software.aws.awspdk.monorepo.MonorepoJavaOptions;
+
+    public class projenrc {
+        public static void main(String[] args) {
+            MonorepoJavaProject monorepo = new MonorepoJavaProject(MonorepoJavaOptions.builder()
+                    .name("my-project")
+                    .build());
+
+            TypeSafeApiProject api = new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
+                    .name("myapi")
+                    .parent(monorepo)
+                    .outdir("packages/api")
+                    .model(ModelConfiguration.builder()
+                            .language(ModelLanguage.SMITHY)
+                            .options(ModelOptions.builder()
+                                    .smithy(SmithyModelOptions.builder()
+                                            .serviceName(SmithyServiceName.builder()
+                                                    .namespace("com.my.company")
+                                                    .serviceName("MyApi")
+                                                    .build())
+                                            .build())
+                                    .build())
+                            .build())
+                    .runtime(RuntimeConfiguration.builder()
+                            .languages(Arrays.asList(Language.JAVA))
+                            .build())
+                    .infrastructure(InfrastructureConfiguration.builder()
+                            .language(Language.JAVA)
+                            .build())
+                    .documentation(DocumentationConfiguration.builder()
+                            .formats(Arrays.asList(DocumentationFormat.HTML_REDOC))
+                            .build())
+                    .library(LibraryConfiguration.builder()
+                            .libraries(Arrays.asList(Library.TYPESCRIPT_REACT_QUERY_HOOKS))
+                            .build())
+                    .handlers(HandlersConfiguration.builder()
+                            .languages(Arrays.asList(Language.JAVA))
+                            .build())
+                    .build());
+
+            new CloudscapeReactTsWebsiteProject(
+                CloudscapeReactTsWebsiteProjectOptions.builder()
+                    .parent(monorepo)
+                    .outdir("packages/website")
+                    .typeSafeApi(api)
+                    .name("website")
+                    .build());
+
+            monorepo.synth();
+        }
+    }
+    ```
+
+    As always, given we have modified our `projenrc` file we need to run the `pdk` command from the root to synthesize our new website onto the filesystem.
+
+    Once the `pdk` command is executed, you should see a new `packages/website` folder which contains all the source code for your new website. To make sure everything is working, let's build our project by running `pdk build` from the root.
+
+    We can now test that our website works by running the `pdk dev` command from the `packages/website` directory. You will be greeted with an error message as follows:
+
+    <img src="../assets/images/website_no_runtime_config.png" width="600" />
+
+    This is completely normal as given we have passed in the api into the `CloudscapeReactTsWebsite` construct, it has automatically been configured to integrate with your API which has not been deployed as of yet, and hence no `runtime-config.json` is available which contains deployed resource identifiers and url's.
+
+    In order to get everything working, we need to deploy everything we have just created which will be covered in the following section.
+
+    ## Deploying our infrastructure to AWS
+
+    We now have all of the application specific code required in order to create a distributed application. The missing link is the infrastructure that will deploy these components into the AWS cloud.
+
+    Let's add this infrastructure to the monorepo by modifying our `projenrc` file to include the Infrastructure construct as follows:
+
+    
