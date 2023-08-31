@@ -4,8 +4,19 @@ import {{{infraPackage}}}.Api;
 import {{{infraPackage}}}.ApiProps;
 import {{{infraPackage}}}.MockIntegrations;
 
+import java.util.Arrays;
+
+import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.services.apigateway.Cors;
 import software.amazon.awscdk.services.apigateway.CorsOptions;
+import software.amazon.awscdk.services.iam.AccountPrincipal;
+import software.amazon.awscdk.services.iam.AnyPrincipal;
+import software.amazon.awscdk.services.iam.Effect;
+import software.amazon.awscdk.services.iam.PolicyDocument;
+import software.amazon.awscdk.services.iam.PolicyDocumentProps;
+import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.iam.PolicyStatementProps;
+import software.aws.pdk.identity.UserIdentity;
 import software.aws.pdk.type_safe_api.Authorizers;
 import software.constructs.Construct;
 
@@ -18,7 +29,7 @@ public class ApiConstruct extends Construct {
      */
     public final Api api;
 
-    public ApiConstruct(Construct scope, String id) {
+    public ApiConstruct(Construct scope, String id, UserIdentity userIdentity) {
         super(scope, id);
 
         this.api = new Api(this, id, ApiProps.builder()
@@ -28,6 +39,35 @@ public class ApiConstruct extends Construct {
                         .allowMethods(Cors.ALL_METHODS)
                         .build())
                 .integrations(MockIntegrations.mockAll().build())
+                .policy(new PolicyDocument(PolicyDocumentProps.builder()
+                    .statements(Arrays.asList(
+                        // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                        // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                        // users) and resources (ie which api paths may be invoked by which principal) if required.
+                        // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                        // still be granted access to the API.
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AccountPrincipal(Stack.of(this))))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*"))
+                            .build()),
+                        // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AnyPrincipal()))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*/OPTIONS/*"))
+                            .build())
+                    ))
+                    .build()))
                 .build());
+        
+        userIdentity.getIdentityPool().getAuthenticatedRole()
+            .addToPrincipalPolicy(new PolicyStatement(PolicyStatementProps.builder()
+                .effect(Effect.ALLOW)
+                .actions(Arrays.asList("execute-api:Invoke"))
+                .resources(Arrays.asList(this.api.getApi().arnForExecuteApi("*", "/*", "*")))
+                .build()));
     }
 }

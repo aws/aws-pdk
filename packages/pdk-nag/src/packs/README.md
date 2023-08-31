@@ -43,16 +43,16 @@ If you are not using PDK, but are using CDK you can import the Pack into your CD
 
 ```
 # Installation via yarn
-yarn add aws-pdk
+yarn add @aws/pdk
 
 # Installation via npm
-npm install aws-pdk
+npm install @aws/pdk
 ```
 
 2. Instrument the lint pack into your application.
 
 ```
-import { AwsPrototypingChecks } from "aws-pdk/pdk-nag";
+import { AwsPrototypingChecks } from "@aws/pdk/pdk-nag";
 
 const app = new cdk.App();
 Aspects.of(app).add(new AwsPrototypingChecks());

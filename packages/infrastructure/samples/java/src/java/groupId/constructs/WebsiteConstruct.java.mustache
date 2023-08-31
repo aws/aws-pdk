@@ -16,14 +16,13 @@ import software.constructs.Construct;
  * Construct to deploy a Static Website
  */
 public class WebsiteConstruct extends Construct {
-    public WebsiteConstruct(Construct scope, String id) {
-        this(scope, id, null);
+    public WebsiteConstruct(Construct scope, String id, UserIdentity userIdentity) {
+        this(scope, id, userIdentity{{^hasApi}}/* {{/hasApi}}, null{{^hasApi}} */{{/hasApi}});
     }
 
-    public WebsiteConstruct(Construct scope, String id{{^hasApi}}/* {{/hasApi}}, ApiConstruct apiConstruct{{^hasApi}} */{{/hasApi}}) {
+    public WebsiteConstruct(Construct scope, String id, UserIdentity userIdentity{{^hasApi}}/* {{/hasApi}}, ApiConstruct apiConstruct{{^hasApi}} */{{/hasApi}}) {
         super(scope, id);
 
-        UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
         new StaticWebsite(this, id, StaticWebsiteProps.builder()
                 .websiteContentPath("{{{websiteDistRelativePath}}}")
                 .runtimeOptions(RuntimeOptions.builder()

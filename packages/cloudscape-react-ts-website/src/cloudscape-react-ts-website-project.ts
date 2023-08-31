@@ -70,6 +70,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
     this.addDeps(
       "@aws-northstar/ui",
       "@cloudscape-design/components",
+      "@cloudscape-design/board-components",
       "react-router-dom"
     );
 

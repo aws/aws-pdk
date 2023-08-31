@@ -1,12 +1,15 @@
 from constructs import Construct
 from {{{infraPackage}}}.api import Api
 from {{{infraPackage}}}.mock_integrations import MockIntegrations
+from aws_cdk import Stack
+from aws_pdk.identity import UserIdentity
 from aws_pdk.type_safe_api import Authorizers
 from aws_cdk.aws_apigateway import CorsOptions, Cors
+from aws_cdk.aws_iam import AccountPrincipal, AnyPrincipal, Effect, PolicyDocument, PolicyStatement
 
 # Infrastructure construct to deploy a Type Safe API.
 class ApiConstruct(Construct):
-    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         self.api = Api(self, id,
@@ -15,4 +18,34 @@ class ApiConstruct(Construct):
                 allow_origins=Cors.ALL_ORIGINS,
                 allow_methods=Cors.ALL_METHODS
             ),
-            integrations=MockIntegrations.mock_all())
+            integrations=MockIntegrations.mock_all(),
+            policy=PolicyDocument(
+                statements=[
+                    # Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                    # Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                    # users) and resources (ie which api paths may be invoked by which principal) if required.
+                    # If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                    # still be granted access to the API.
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AccountPrincipal(Stack.of(self).account)],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*']
+                    ),
+                    # Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AnyPrincipal()],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*/OPTIONS/*']
+                    )
+                ]
+            ))
+        
+        user_identity.identity_pool.authenticated_role.add_to_principal_policy(
+            PolicyStatement(
+                effect=Effect.ALLOW,
+                actions=['execute-api:Invoke'],
+                resources=[self.api.api.arn_for_execute_api('*', '/*', '*')]
+            )
+        )
