@@ -45,7 +45,7 @@ export class MonorepoPythonProject
       authorEmail: options.authorEmail ?? "user@pdk.com",
     });
 
-    this.addDevDependency("aws.pdk@^0");
+    this.addDevDependency("aws_pdk@^0");
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch: options.defaultReleaseBranch ?? "main",

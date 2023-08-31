@@ -70,8 +70,8 @@ export abstract class PDKProject extends JsiiProject {
       disableTsconfigDev: false,
       disableTsconfig: true,
       publishToPypi: {
-        distName: "aws.pdk",
-        module: "aws.pdk",
+        distName: "aws_pdk",
+        module: "aws_pdk",
       },
       publishToMaven: {
         mavenEndpoint: "https://aws.oss.sonatype.org",

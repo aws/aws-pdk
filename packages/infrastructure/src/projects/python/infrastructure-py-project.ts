@@ -58,7 +58,7 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
     ["pytest@^7", "syrupy@^4"].forEach((devDep) =>
       this.addDevDependency(devDep)
     );
-    ["aws.pdk@^0", "python@^3.9"].forEach((dep) => this.addDependency(dep));
+    ["aws_pdk@^0", "python@^3.9"].forEach((dep) => this.addDependency(dep));
 
     const srcDir = path.resolve(__dirname, "../../../samples/python/src");
     const testDir = path.resolve(__dirname, "../../../samples/python/test");
