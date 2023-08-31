@@ -1,6 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { PDKNag } from "@aws-pdk/pdk-nag";
+import { PDKNag } from "@aws/pdk-nag";
 import { Duration, Stack } from "aws-cdk-lib";
 import {
   AccountRecovery,
@@ -17,7 +17,7 @@ import { Construct } from "constructs";
  * @deprecated
  */
 export const USE_LEGACY_MFA_PROPS_CONTEXT_KEY =
-  "@aws-pdk/identity:useLegacyMFAProps";
+  "@aws/identity:useLegacyMFAProps";
 
 /**
  * Legacy Userpool Props which configures MFA for SMS only.

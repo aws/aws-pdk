@@ -70,7 +70,7 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     );
 
     [
-      "software.aws/aws-pdk@^0",
+      "software.aws/pdk@^0",
       "software.constructs/constructs@^10",
       "software.amazon.awscdk/aws-cdk-lib@^2",
       "io.github.cdklabs/cdknag@^2",

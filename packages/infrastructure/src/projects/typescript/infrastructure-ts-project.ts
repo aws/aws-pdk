@@ -2,9 +2,9 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { CloudscapeReactTsWebsiteProject } from "@aws-pdk/cloudscape-react-ts-website";
-import { NxProject } from "@aws-pdk/monorepo";
-import { TypeSafeApiProject } from "@aws-pdk/type-safe-api";
+import { CloudscapeReactTsWebsiteProject } from "@aws/cloudscape-react-ts-website";
+import { NxProject } from "@aws/monorepo";
+import { TypeSafeApiProject } from "@aws/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
@@ -55,7 +55,7 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
       },
     });
 
-    this.addDeps("aws-pdk");
+    this.addDeps("@aws/pdk");
 
     const srcDir = path.resolve(__dirname, "../../../samples/typescript/src");
     const testDir = path.resolve(__dirname, "../../../samples/typescript/test");

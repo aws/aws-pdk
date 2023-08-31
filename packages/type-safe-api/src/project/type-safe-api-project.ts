@@ -9,7 +9,7 @@ import {
   NxProject,
   NxWorkspace,
   ProjectUtils,
-} from "@aws-pdk/monorepo";
+} from "@aws/monorepo";
 import { Project, ProjectOptions, SampleFile } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";

@@ -7,7 +7,7 @@ import { NodePackageUtils } from "../../packages/monorepo/src";
 import { CdkGraphPluginProject } from "../abstract/cdk-graph-plugin-project";
 
 /**
- * Project for `@@aws-pdk/cdk-graph-plugin-diagram` package.
+ * Project for `@@aws/cdk-graph-plugin-diagram` package.
  */
 export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
   constructor(parent: Project) {
