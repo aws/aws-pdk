@@ -2,9 +2,9 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { CloudscapeReactTsWebsiteProject } from "@aws-pdk/cloudscape-react-ts-website";
-import { NxProject } from "@aws-pdk/monorepo";
-import { TypeSafeApiProject } from "@aws-pdk/type-safe-api";
+import { CloudscapeReactTsWebsiteProject } from "@aws/cloudscape-react-ts-website";
+import { NxProject } from "@aws/monorepo";
+import { TypeSafeApiProject } from "@aws/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkPythonApp } from "projen/lib/awscdk";
@@ -58,7 +58,7 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
     ["pytest@^7", "syrupy@^4"].forEach((devDep) =>
       this.addDevDependency(devDep)
     );
-    ["aws-pdk@^0", "python@^3.9"].forEach((dep) => this.addDependency(dep));
+    ["aws_pdk@^0", "python@^3.9"].forEach((dep) => this.addDependency(dep));
 
     const srcDir = path.resolve(__dirname, "../../../samples/python/src");
     const testDir = path.resolve(__dirname, "../../../samples/python/test");

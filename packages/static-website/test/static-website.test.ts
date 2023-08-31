@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import path from "path";
 //import { SynthUtils } from "@aws-cdk/assert";
-import { PDKNag, AwsPrototypingChecks } from "@aws-pdk/pdk-nag";
+import { PDKNag, AwsPrototypingChecks } from "@aws/pdk-nag";
 import { NestedStack, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";

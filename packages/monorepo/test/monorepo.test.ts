@@ -115,6 +115,7 @@ describe("NX Monorepo Unit Tests", () => {
     });
     const ciEnv = process.env.CI;
     process.env.CI = "";
+    project.addDevDeps("@aws/pdk@npm:noop-package"); // Do not rely on @aws/pdk when performing local testing as it may not exist yet
     project.synth();
     process.env.CI = ciEnv;
     const parentManifest = tryReadFileSync(project.package.file.absolutePath);

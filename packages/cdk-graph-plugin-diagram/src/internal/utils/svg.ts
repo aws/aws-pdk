@@ -1,6 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { AwsArchitecture } from "@aws-pdk/aws-arch";
+import { AwsArchitecture } from "@aws/aws-arch";
 import * as fs from "fs-extra";
 import he = require("he"); // eslint-disable-line @typescript-eslint/no-require-imports
 import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports

@@ -1,6 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { AwsArchitecture } from "@aws-pdk/aws-arch";
+import { AwsArchitecture } from "@aws/aws-arch";
 import {
   EdgeTypeEnum,
   FilterPreset,
@@ -8,7 +8,7 @@ import {
   Graph,
   NodeTypeEnum,
   UUID,
-} from "@aws-pdk/cdk-graph";
+} from "@aws/cdk-graph";
 import uniqBy = require("lodash.uniqby"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as Dot from "ts-graphviz";
 import * as Diagram from "./entities";

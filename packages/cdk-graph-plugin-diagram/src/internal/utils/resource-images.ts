@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { AwsArchitecture, aws_arch } from "@aws-pdk/aws-arch";
-import { Graph } from "@aws-pdk/cdk-graph";
+import { AwsArchitecture, aws_arch } from "@aws/aws-arch";
+import { Graph } from "@aws/cdk-graph";
 import { GraphTheme } from "../graphviz/theme";
 import { GraphThemeRenderingIconTarget } from "../graphviz/theme/theme";
 

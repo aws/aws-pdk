@@ -1,0 +1,401 @@
+{
+  "tasks": {
+    "build": {
+      "name": "build",
+      "description": "Full release build",
+      "steps": [
+        {
+          "spawn": "pre-compile"
+        },
+        {
+          "spawn": "compile"
+        },
+        {
+          "spawn": "post-compile"
+        },
+        {
+          "spawn": "test"
+        },
+        {
+          "spawn": "package"
+        }
+      ]
+    },
+    "bump": {
+      "name": "bump",
+      "description": "Bumps version based on latest git tag and generates a changelog entry",
+      "env": {
+        "OUTFILE": "package.json",
+        "CHANGELOG": "dist/changelog.md",
+        "BUMPFILE": "dist/version.txt",
+        "RELEASETAG": "dist/releasetag.txt",
+        "RELEASE_TAG_PREFIX": ""
+      },
+      "steps": [
+        {
+          "builtin": "release/bump-version"
+        }
+      ],
+      "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
+    },
+    "compat": {
+      "name": "compat",
+      "description": "Perform API compatibility check against latest version",
+      "steps": [
+        {
+          "exec": "jsii-diff npm:$(node -p \"require('./package.json').name\") -k --ignore-file .compatignore || (echo \"\nUNEXPECTED BREAKING CHANGES: add keys such as 'removed:constructs.Node.of' to .compatignore to skip.\n\" && exit 1)"
+        }
+      ]
+    },
+    "compile": {
+      "name": "compile",
+      "description": "Only compile",
+      "steps": [
+        {
+          "exec": "jsii --silence-warnings=reserved-word"
+        },
+        {
+          "exec": "pnpm dlx tsc-alias -p tsconfig.dev.json --dir lib"
+        }
+      ]
+    },
+    "default": {
+      "name": "default",
+      "description": "Synthesize project files"
+    },
+    "install": {
+      "name": "install",
+      "description": "Install project dependencies and update lockfile (non-frozen)",
+      "steps": [
+        {
+          "exec": "pnpm i --no-frozen-lockfile"
+        }
+      ]
+    },
+    "install:ci": {
+      "name": "install:ci",
+      "description": "Install project dependencies using frozen lockfile",
+      "steps": [
+        {
+          "exec": "pnpm i --frozen-lockfile"
+        }
+      ]
+    },
+    "package": {
+      "name": "package",
+      "description": "Creates the distribution package",
+      "steps": [
+        {
+          "exec": "monorepo.pnpm-link-bundled-transitive-deps packages/pdk"
+        },
+        {
+          "exec": "pnpm exec license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
+        },
+        {
+          "exec": "pnpm exec generate-license-file --input package.json --output LICENSE_THIRD_PARTY --overwrite"
+        },
+        {
+          "spawn": "package-all"
+        }
+      ]
+    },
+    "package-all": {
+      "name": "package-all",
+      "description": "Packages artifacts for all target languages",
+      "steps": [
+        {
+          "spawn": "package:js"
+        },
+        {
+          "spawn": "package:java"
+        },
+        {
+          "spawn": "package:python"
+        }
+      ]
+    },
+    "package:java": {
+      "name": "package:java",
+      "description": "Create java language bindings",
+      "steps": [
+        {
+          "exec": "[ -d ~/.m2/repository ] && [ ! -d \"../../node_modules/.cache/.m2/repository\" ] && mkdir -p ../../node_modules/.cache/.m2 && ln -s ~/.m2/repository ../../node_modules/.cache/.m2/repository || true"
+        },
+        {
+          "exec": "jsii-pacmak -v --target java --maven-local-repository=../../node_modules/.cache/.m2/repository --pack-command='pnpm pack'"
+        }
+      ]
+    },
+    "package:js": {
+      "name": "package:js",
+      "description": "Create js language bindings",
+      "steps": [
+        {
+          "exec": "jsii-pacmak -v --target js --pack-command='pnpm pack'"
+        }
+      ]
+    },
+    "package:python": {
+      "name": "package:python",
+      "description": "Create python language bindings",
+      "steps": [
+        {
+          "exec": "jsii-pacmak -v --target python --pack-command='pnpm pack'"
+        }
+      ]
+    },
+    "post-compile": {
+      "name": "post-compile",
+      "description": "Runs after successful compilation",
+      "steps": [
+        {
+          "exec": "rm -f tsconfig.json"
+        }
+      ]
+    },
+    "pre-compile": {
+      "name": "pre-compile",
+      "description": "Prepare the project for compilation",
+      "steps": [
+        {
+          "exec": "rm -f tsconfig.json"
+        },
+        {
+          "exec": "rm -rf src lib && mkdir src"
+        },
+        {
+          "exec": "if [ -d \"../pdk-nag/src/\" ]; then mkdir -p ./src/pdk_nag/lib && rsync -a ../pdk-nag/src/ ./src/pdk_nag/lib --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../pdk-nag/samples/\" ]; then mkdir -p ./lib/pdk_nag/samples && rsync -a ../pdk-nag/samples/ ./lib/pdk_nag/samples --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../pdk-nag/scripts/\" ]; then mkdir -p ./lib/pdk_nag/scripts && rsync -a ../pdk-nag/scripts/ ./lib/pdk_nag/scripts --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../pdk-nag/assets/\" ]; then mkdir -p ./lib/pdk_nag/assets && rsync -a ../pdk-nag/assets/ ./lib/pdk_nag/assets --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "mkdir -p ./lib/pdk_nag/lib && rsync --exclude=**/*.ts -a ../pdk-nag/src/ ./lib/pdk_nag/lib --prune-empty-dirs"
+        },
+        {
+          "exec": "if [ -d \"../monorepo/src/\" ]; then mkdir -p ./src/monorepo/lib && rsync -a ../monorepo/src/ ./src/monorepo/lib --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../monorepo/samples/\" ]; then mkdir -p ./lib/monorepo/samples && rsync -a ../monorepo/samples/ ./lib/monorepo/samples --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../monorepo/scripts/\" ]; then mkdir -p ./lib/monorepo/scripts && rsync -a ../monorepo/scripts/ ./lib/monorepo/scripts --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../monorepo/assets/\" ]; then mkdir -p ./lib/monorepo/assets && rsync -a ../monorepo/assets/ ./lib/monorepo/assets --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "mkdir -p ./lib/monorepo/lib && rsync --exclude=**/*.ts -a ../monorepo/src/ ./lib/monorepo/lib --prune-empty-dirs"
+        },
+        {
+          "exec": "if [ -d \"../static-website/src/\" ]; then mkdir -p ./src/static_website/lib && rsync -a ../static-website/src/ ./src/static_website/lib --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../static-website/samples/\" ]; then mkdir -p ./lib/static_website/samples && rsync -a ../static-website/samples/ ./lib/static_website/samples --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../static-website/scripts/\" ]; then mkdir -p ./lib/static_website/scripts && rsync -a ../static-website/scripts/ ./lib/static_website/scripts --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../static-website/assets/\" ]; then mkdir -p ./lib/static_website/assets && rsync -a ../static-website/assets/ ./lib/static_website/assets --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "mkdir -p ./lib/static_website/lib && rsync --exclude=**/*.ts -a ../static-website/src/ ./lib/static_website/lib --prune-empty-dirs"
+        },
+        {
+          "exec": "if [ -d \"../identity/src/\" ]; then mkdir -p ./src/identity/lib && rsync -a ../identity/src/ ./src/identity/lib --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../identity/samples/\" ]; then mkdir -p ./lib/identity/samples && rsync -a ../identity/samples/ ./lib/identity/samples --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../identity/scripts/\" ]; then mkdir -p ./lib/identity/scripts && rsync -a ../identity/scripts/ ./lib/identity/scripts --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../identity/assets/\" ]; then mkdir -p ./lib/identity/assets && rsync -a ../identity/assets/ ./lib/identity/assets --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "mkdir -p ./lib/identity/lib && rsync --exclude=**/*.ts -a ../identity/src/ ./lib/identity/lib --prune-empty-dirs"
+        },
+        {
+          "exec": "if [ -d \"../type-safe-api/src/\" ]; then mkdir -p ./src/type_safe_api/lib && rsync -a ../type-safe-api/src/ ./src/type_safe_api/lib --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../type-safe-api/samples/\" ]; then mkdir -p ./lib/type_safe_api/samples && rsync -a ../type-safe-api/samples/ ./lib/type_safe_api/samples --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../type-safe-api/scripts/\" ]; then mkdir -p ./lib/type_safe_api/scripts && rsync -a ../type-safe-api/scripts/ ./lib/type_safe_api/scripts --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../type-safe-api/assets/\" ]; then mkdir -p ./lib/type_safe_api/assets && rsync -a ../type-safe-api/assets/ ./lib/type_safe_api/assets --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "mkdir -p ./lib/type_safe_api/lib && rsync --exclude=**/*.ts -a ../type-safe-api/src/ ./lib/type_safe_api/lib --prune-empty-dirs"
+        },
+        {
+          "exec": "if [ -d \"../cloudscape-react-ts-website/src/\" ]; then mkdir -p ./src/cloudscape_react_ts_website/lib && rsync -a ../cloudscape-react-ts-website/src/ ./src/cloudscape_react_ts_website/lib --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../cloudscape-react-ts-website/samples/\" ]; then mkdir -p ./lib/cloudscape_react_ts_website/samples && rsync -a ../cloudscape-react-ts-website/samples/ ./lib/cloudscape_react_ts_website/samples --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../cloudscape-react-ts-website/scripts/\" ]; then mkdir -p ./lib/cloudscape_react_ts_website/scripts && rsync -a ../cloudscape-react-ts-website/scripts/ ./lib/cloudscape_react_ts_website/scripts --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../cloudscape-react-ts-website/assets/\" ]; then mkdir -p ./lib/cloudscape_react_ts_website/assets && rsync -a ../cloudscape-react-ts-website/assets/ ./lib/cloudscape_react_ts_website/assets --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "mkdir -p ./lib/cloudscape_react_ts_website/lib && rsync --exclude=**/*.ts -a ../cloudscape-react-ts-website/src/ ./lib/cloudscape_react_ts_website/lib --prune-empty-dirs"
+        },
+        {
+          "exec": "if [ -d \"../aws-arch/src/\" ]; then mkdir -p ./src/aws_arch/lib && rsync -a ../aws-arch/src/ ./src/aws_arch/lib --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../aws-arch/samples/\" ]; then mkdir -p ./lib/aws_arch/samples && rsync -a ../aws-arch/samples/ ./lib/aws_arch/samples --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../aws-arch/scripts/\" ]; then mkdir -p ./lib/aws_arch/scripts && rsync -a ../aws-arch/scripts/ ./lib/aws_arch/scripts --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../aws-arch/assets/\" ]; then mkdir -p ./lib/aws_arch/assets && rsync -a ../aws-arch/assets/ ./lib/aws_arch/assets --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "mkdir -p ./lib/aws_arch/lib && rsync --exclude=**/*.ts -a ../aws-arch/src/ ./lib/aws_arch/lib --prune-empty-dirs"
+        },
+        {
+          "exec": "if [ -d \"../cdk-graph/src/\" ]; then mkdir -p ./src/cdk_graph/lib && rsync -a ../cdk-graph/src/ ./src/cdk_graph/lib --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../cdk-graph/samples/\" ]; then mkdir -p ./lib/cdk_graph/samples && rsync -a ../cdk-graph/samples/ ./lib/cdk_graph/samples --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../cdk-graph/scripts/\" ]; then mkdir -p ./lib/cdk_graph/scripts && rsync -a ../cdk-graph/scripts/ ./lib/cdk_graph/scripts --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../cdk-graph/assets/\" ]; then mkdir -p ./lib/cdk_graph/assets && rsync -a ../cdk-graph/assets/ ./lib/cdk_graph/assets --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "mkdir -p ./lib/cdk_graph/lib && rsync --exclude=**/*.ts -a ../cdk-graph/src/ ./lib/cdk_graph/lib --prune-empty-dirs"
+        },
+        {
+          "exec": "if [ -d \"../cdk-graph-plugin-diagram/src/\" ]; then mkdir -p ./src/cdk_graph_plugin_diagram/lib && rsync -a ../cdk-graph-plugin-diagram/src/ ./src/cdk_graph_plugin_diagram/lib --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../cdk-graph-plugin-diagram/samples/\" ]; then mkdir -p ./lib/cdk_graph_plugin_diagram/samples && rsync -a ../cdk-graph-plugin-diagram/samples/ ./lib/cdk_graph_plugin_diagram/samples --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../cdk-graph-plugin-diagram/scripts/\" ]; then mkdir -p ./lib/cdk_graph_plugin_diagram/scripts && rsync -a ../cdk-graph-plugin-diagram/scripts/ ./lib/cdk_graph_plugin_diagram/scripts --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../cdk-graph-plugin-diagram/assets/\" ]; then mkdir -p ./lib/cdk_graph_plugin_diagram/assets && rsync -a ../cdk-graph-plugin-diagram/assets/ ./lib/cdk_graph_plugin_diagram/assets --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "mkdir -p ./lib/cdk_graph_plugin_diagram/lib && rsync --exclude=**/*.ts -a ../cdk-graph-plugin-diagram/src/ ./lib/cdk_graph_plugin_diagram/lib --prune-empty-dirs"
+        },
+        {
+          "exec": "if [ -d \"../pipeline/src/\" ]; then mkdir -p ./src/pipeline/lib && rsync -a ../pipeline/src/ ./src/pipeline/lib --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../pipeline/samples/\" ]; then mkdir -p ./lib/pipeline/samples && rsync -a ../pipeline/samples/ ./lib/pipeline/samples --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../pipeline/scripts/\" ]; then mkdir -p ./lib/pipeline/scripts && rsync -a ../pipeline/scripts/ ./lib/pipeline/scripts --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../pipeline/assets/\" ]; then mkdir -p ./lib/pipeline/assets && rsync -a ../pipeline/assets/ ./lib/pipeline/assets --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "mkdir -p ./lib/pipeline/lib && rsync --exclude=**/*.ts -a ../pipeline/src/ ./lib/pipeline/lib --prune-empty-dirs"
+        },
+        {
+          "exec": "if [ -d \"../infrastructure/src/\" ]; then mkdir -p ./src/infrastructure/lib && rsync -a ../infrastructure/src/ ./src/infrastructure/lib --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../infrastructure/samples/\" ]; then mkdir -p ./lib/infrastructure/samples && rsync -a ../infrastructure/samples/ ./lib/infrastructure/samples --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../infrastructure/scripts/\" ]; then mkdir -p ./lib/infrastructure/scripts && rsync -a ../infrastructure/scripts/ ./lib/infrastructure/scripts --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "if [ -d \"../infrastructure/assets/\" ]; then mkdir -p ./lib/infrastructure/assets && rsync -a ../infrastructure/assets/ ./lib/infrastructure/assets --prune-empty-dirs; fi;"
+        },
+        {
+          "exec": "mkdir -p ./lib/infrastructure/lib && rsync --exclude=**/*.ts -a ../infrastructure/src/ ./lib/infrastructure/lib --prune-empty-dirs"
+        },
+        {
+          "exec": "echo 'export * as pdk_nag from \"./pdk_nag/lib\";\nexport * as monorepo from \"./monorepo/lib\";\nexport * as static_website from \"./static_website/lib\";\nexport * as identity from \"./identity/lib\";\nexport * as type_safe_api from \"./type_safe_api/lib\";\nexport * as cloudscape_react_ts_website from \"./cloudscape_react_ts_website/lib\";\nexport * as aws_arch from \"./aws_arch/lib\";\nexport * as cdk_graph from \"./cdk_graph/lib\";\nexport * as cdk_graph_plugin_diagram from \"./cdk_graph_plugin_diagram/lib\";\nexport * as pipeline from \"./pipeline/lib\";\nexport * as infrastructure from \"./infrastructure/lib\";' > ./src/index.ts"
+        }
+      ]
+    },
+    "release:mainline": {
+      "name": "release:mainline",
+      "description": "Prepare a release from \"mainline\" branch",
+      "env": {
+        "RELEASE": "true"
+      },
+      "steps": [
+        {
+          "exec": "rm -rf dist"
+        },
+        {
+          "spawn": "bump"
+        },
+        {
+          "spawn": "pre-compile"
+        },
+        {
+          "spawn": "compile"
+        },
+        {
+          "spawn": "post-compile"
+        },
+        {
+          "spawn": "package"
+        },
+        {
+          "spawn": "unbump"
+        }
+      ]
+    },
+    "test": {
+      "name": "test",
+      "description": "Run tests"
+    },
+    "unbump": {
+      "name": "unbump",
+      "description": "Restores version to 0.0.0",
+      "env": {
+        "OUTFILE": "package.json",
+        "CHANGELOG": "dist/changelog.md",
+        "BUMPFILE": "dist/version.txt",
+        "RELEASETAG": "dist/releasetag.txt",
+        "RELEASE_TAG_PREFIX": ""
+      },
+      "steps": [
+        {
+          "builtin": "release/reset-version"
+        }
+      ]
+    },
+    "watch": {
+      "name": "watch",
+      "description": "Watch & compile in the background",
+      "steps": [
+        {
+          "exec": "jsii -w --silence-warnings=reserved-word"
+        }
+      ]
+    }
+  },
+  "env": {
+    "PATH": "$(pnpm -c exec \"node --print process.env.PATH\")",
+    "JSII_SUPPRESS_UPGRADE_PROMPT": "true"
+  },
+  "//": "~~ Generated by projen. To modify, edit .projenrc.js and run \"npx projen\"."
+}

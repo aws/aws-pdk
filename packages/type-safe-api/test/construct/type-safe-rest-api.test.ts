@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { PDKNag } from "@aws-pdk/pdk-nag";
+import { PDKNag } from "@aws/pdk-nag";
 import { Size, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { ApiKeySourceType, Cors } from "aws-cdk-lib/aws-apigateway";

@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { TypeSafeApiProject } from "@aws-pdk/type-safe-api";
+import { TypeSafeApiProject } from "@aws/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleDir } from "projen";
 import { NodeProject } from "projen/lib/javascript";

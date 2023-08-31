@@ -31,7 +31,7 @@ export class DocsProject extends TypeScriptProject {
     this.packageTask.reset("./scripts/build-docs");
 
     parent.subprojects
-      .filter((p) => p.name.startsWith(PDK_NAMESPACE))
+      .filter((p) => p.name.startsWith(PDK_NAMESPACE) && p.name !== "@aws/pdk")
       .forEach((p) => NxProject.ensure(this).addImplicitDependency(p));
   }
 }

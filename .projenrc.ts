@@ -1,7 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { AwsArchProject } from "./projenrc/projects/aws-arch-project";
-import { AwsPdkProject } from "./projenrc/projects/aws-pdk-project";
 import { CdkGraphPluginDiagramProject } from "./projenrc/projects/cdk-graph-plugin-diagram-project";
 import { CdkGraphProject } from "./projenrc/projects/cdk-graph-project";
 import { CloudscapeReactTsWebsiteProject } from "./projenrc/projects/cloudscape-react-ts-website-project";
@@ -11,6 +10,7 @@ import { InfrastructureProject } from "./projenrc/projects/infrastructure-projec
 import { MonorepoProject } from "./projenrc/projects/monorepo-project";
 import { PDKMonorepoProject } from "./projenrc/projects/pdk-monorepo-project";
 import { PDKNagProject } from "./projenrc/projects/pdk-nag-project";
+import { PdkProject } from "./projenrc/projects/pdk-project";
 import { PipelineProject } from "./projenrc/projects/pipeline-project";
 import { StaticWebsiteProject } from "./projenrc/projects/static-website-project";
 import { TypeSafeApiProject } from "./projenrc/projects/type-safe-api-project";
@@ -33,7 +33,7 @@ new PipelineProject(monorepoProject);
 new InfrastructureProject(monorepoProject);
 
 // This must always appear after all other packages!
-new AwsPdkProject(monorepoProject);
+new PdkProject(monorepoProject);
 
 // docs
 new DocsProject(monorepoProject);

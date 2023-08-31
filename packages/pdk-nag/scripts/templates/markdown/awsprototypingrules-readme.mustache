@@ -28,7 +28,7 @@ The AwsPrototyping NagPack has not been designed with specific prototype goals a
 If you use the release >= [0.12.17](https://github.com/aws/aws-prototyping-sdk/releases/tag/v0.12.17) of PDK, you can opt into using the AwsPrototyping pack as follows:
 
 ```
-import { AwsPrototypingChecks } from "aws-pdk/pdk-nag";
+import { AwsPrototypingChecks } from "@aws/pdk/pdk-nag";
 
 const app = PDKNag.app({ nagPacks: [new AwsPrototypingChecks()] });
 
