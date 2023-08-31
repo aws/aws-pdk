@@ -2,15 +2,14 @@
 
 ### My `react-router-dom` router doesn’t work when reloading the page or loading with a non-root URL
 
-Reference link: <https://github.com/aws/aws-prototyping-sdk/issues/69>
+Reference link: <https://github.com/aws/aws-pdk/issues/69>
 
 Add distributionProps to your `StaticWebsite`:
 
 ```ts
 import {
   StaticWebsite,
-  StaticWebsiteOrigin,
-} from "@aws-prototyping-sdk/static-website";
+} from "@aws/pdk/static-website";
 
 ...
 
@@ -22,13 +21,10 @@ const adminWebsite = new StaticWebsite(this, "Website", {
       identityPoolId: identityPoolIdParam.stringValue,
       userPoolId: userPoolIdParam.stringValue,
       userPoolWebClientId: userPoolClientIdParam.stringValue,
-      apiUrl: webApiUrlParam.stringValue,
+      apiUrl,
     },
   },
   distributionProps: {
-    defaultBehavior: {
-      origin: StaticWebsiteOrigin,
-    },
     errorResponses: [
       {
         httpStatus: 404,

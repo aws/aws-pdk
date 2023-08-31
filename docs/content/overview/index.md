@@ -20,23 +20,20 @@ It's much easier to show than explain! Here is some PDK code (within projenrc fi
 === "TYPESCRIPT"
 
     ```ts
-    import { CloudscapeReactTsWebsiteProject } from "aws-pdk/cloudscape-react-ts-website";
-    import { InfrastructureTsProject } from "aws-pdk/infrastructure";
-    import { MonorepoTsProject } from "aws-pdk/monorepo";
+    import { CloudscapeReactTsWebsiteProject } from "@aws/pdk/cloudscape-react-ts-website";
+    import { InfrastructureTsProject } from "@aws/pdk/infrastructure";
+    import { MonorepoTsProject } from "@aws/pdk/monorepo";
     import {
         DocumentationFormat,
         Language,
         Library,
         ModelLanguage,
         TypeSafeApiProject,
-    } from "aws-pdk/type-safe-api";
+    } from "@aws/pdk/type-safe-api";
     import { javascript } from "projen";
 
     const monorepo = new MonorepoTsProject({
-        defaultReleaseBranch: "main",
-        devDeps: ["aws-pdk"],
-        name: "monorepo",
-        prettier: true,
+        name: "my-project",
         packageManager: javascript.NodePackageManager.PNPM,
         projenrcTs: true,
     });
@@ -77,7 +74,6 @@ It's much easier to show than explain! Here is some PDK code (within projenrc fi
         parent: monorepo,
         outdir: "packages/website",
         name: "website",
-        applicationName: "Demo",
         typeSafeApi: api,
     });
 
@@ -92,97 +88,17 @@ It's much easier to show than explain! Here is some PDK code (within projenrc fi
     monorepo.synth();
     ```
 
-=== "JAVA"
-
-    ```java
-    import software.aws.awspdk.monorepo.MonorepoJavaProject;
-    import software.aws.awspdk.type_safe_api.*;
-    import software.aws.awspdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProject;
-    import software.aws.awspdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProjectOptions;
-    import software.aws.awspdk.infrastructure.InfrastructureJavaProject;
-    import software.aws.awspdk.infrastructure.InfrastructureJavaProjectOptions;
-    import java.util.Arrays;
-    import software.aws.awspdk.monorepo.MonorepoJavaOptions;
-
-    public class projenrc {
-        public static void main(String[] args) {
-            MonorepoJavaProject monorepo = new MonorepoJavaProject(MonorepoJavaOptions.builder()
-                .name("java-bootstrap")
-                .testDeps(Arrays.asList("software.aws/aws-pdk@^0"))
-                .build());
-
-            TypeSafeApiProject api = new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
-                .name("myapi")
-                .parent(monorepo)
-                .outdir("packages/api")
-                .model(ModelConfiguration.builder()
-                    .language(ModelLanguage.SMITHY)
-                    .options(ModelOptions.builder()
-                        .smithy(SmithyModelOptions.builder()
-                            .serviceName(SmithyServiceName.builder()
-                                .namespace("com.my.company")
-                                .serviceName("MyApi")
-                                .build())
-                            .build())
-                        .build())
-                    .build())
-                .runtime(RuntimeConfiguration.builder()
-                    .languages(Arrays.asList(Language.JAVA, Language.TYPESCRIPT, Language.PYTHON))
-                    .build())
-                .infrastructure(InfrastructureConfiguration.builder()
-                    .language(Language.JAVA)
-                    .build())
-                .documentation(DocumentationConfiguration.builder()
-                    .formats(Arrays.asList(DocumentationFormat.HTML_REDOC))
-                    .build())
-                .library(LibraryConfiguration.builder()
-                    .libraries(Arrays.asList(Library.TYPESCRIPT_REACT_QUERY_HOOKS))
-                    .build())
-                .handlers(HandlersConfiguration.builder()
-                    .languages(Arrays.asList(Language.JAVA))
-                    .build())
-                .build());
-
-            CloudscapeReactTsWebsiteProject website = new CloudscapeReactTsWebsiteProject(
-                CloudscapeReactTsWebsiteProjectOptions.builder()
-                    .parent(monorepo)
-                    .outdir("packages/website")
-                    .typeSafeApi(api)
-                    .name("website")
-                    .deps(Arrays.asList("react-markdown"))
-                    .build());
-
-            new InfrastructureJavaProject(
-                InfrastructureJavaProjectOptions.builder()
-                    .name("infra")
-                    .parent(monorepo)
-                    .outdir("packages/infra")
-                    .cdkVersion("2.1.0")
-                    .groupId("com.my.company")
-                    .typeSafeApi(api)
-                    .cloudscapeReactTsWebsite(website)
-                    .build());
-
-            monorepo.synth();
-        }
-    }
-    ```
-
 === "PYTHON"
 
     ```python
     from aws_pdk.monorepo import MonorepoPythonProject
-    from projen.awscdk import AwsCdkPythonApp
-    from aws_pdk.type_safe_api import *
     from aws_pdk.cloudscape_react_ts_website import CloudscapeReactTsWebsiteProject
     from aws_pdk.infrastructure import InfrastructurePyProject
+    from aws_pdk.type_safe_api import *
 
     monorepo = MonorepoPythonProject(
-        author_email="dimecha@amazon.com",
-        author_name="Adrian Dimech",
-        module_name="foo",
-        name="foo",
-        version="0.1.0",
+        module_name="my_project",
+        name="my-project",
     )
 
     api = TypeSafeApiProject(
@@ -201,7 +117,7 @@ It's much easier to show than explain! Here is some PDK code (within projenrc fi
             )
         ),
         runtime=RuntimeConfiguration(
-            languages=[Language.PYTHON, Language.TYPESCRIPT]
+            languages=[Language.PYTHON]
         ),
         infrastructure=InfrastructureConfiguration(
             language=Language.PYTHON
@@ -220,17 +136,11 @@ It's much easier to show than explain! Here is some PDK code (within projenrc fi
     website = CloudscapeReactTsWebsiteProject(
         parent=monorepo,
         outdir="packages/website",
-        default_release_branch="main",
-        npmignore_enabled=False,
         type_safe_api=api,
-        prettier=True,
         name="website",
-        deps=[
-            "react-markdown",
-        ],
     )
 
-    infra = InfrastructurePyProject(
+    InfrastructurePyProject(
         parent=monorepo,
         outdir="packages/infra",
         name="infra",
@@ -239,6 +149,78 @@ It's much easier to show than explain! Here is some PDK code (within projenrc fi
     )
 
     monorepo.synth()
+    ```
+
+=== "JAVA"
+
+    ```java
+    import software.aws.pdk.monorepo.MonorepoJavaProject;
+    import software.aws.pdk.monorepo.MonorepoJavaOptions;
+    import software.aws.pdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProject;
+    import software.aws.pdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProjectOptions;
+    import software.aws.pdk.infrastructure.InfrastructureJavaProject;
+    import software.aws.pdk.infrastructure.InfrastructureJavaProjectOptions;
+    import software.aws.pdk.type_safe_api.*;
+    import java.util.Arrays;
+
+    public class projenrc {
+        public static void main(String[] args) {
+            MonorepoJavaProject monorepo = new MonorepoJavaProject(MonorepoJavaOptions.builder()
+                    .name("my-project")
+                    .build());
+
+            TypeSafeApiProject api = new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
+                    .name("myapi")
+                    .parent(monorepo)
+                    .outdir("packages/api")
+                    .model(ModelConfiguration.builder()
+                            .language(ModelLanguage.SMITHY)
+                            .options(ModelOptions.builder()
+                                    .smithy(SmithyModelOptions.builder()
+                                            .serviceName(SmithyServiceName.builder()
+                                                    .namespace("com.my.company")
+                                                    .serviceName("MyApi")
+                                                    .build())
+                                            .build())
+                                    .build())
+                            .build())
+                    .runtime(RuntimeConfiguration.builder()
+                            .languages(Arrays.asList(Language.JAVA))
+                            .build())
+                    .infrastructure(InfrastructureConfiguration.builder()
+                            .language(Language.JAVA)
+                            .build())
+                    .documentation(DocumentationConfiguration.builder()
+                            .formats(Arrays.asList(DocumentationFormat.HTML_REDOC))
+                            .build())
+                    .library(LibraryConfiguration.builder()
+                            .libraries(Arrays.asList(Library.TYPESCRIPT_REACT_QUERY_HOOKS))
+                            .build())
+                    .handlers(HandlersConfiguration.builder()
+                            .languages(Arrays.asList(Language.JAVA))
+                            .build())
+                    .build());
+
+            CloudscapeReactTsWebsiteProject website = new CloudscapeReactTsWebsiteProject(
+                CloudscapeReactTsWebsiteProjectOptions.builder()
+                    .parent(monorepo)
+                    .outdir("packages/website")
+                    .typeSafeApi(api)
+                    .name("website")
+                    .build());
+
+            new InfrastructureJavaProject(
+                InfrastructureJavaProjectOptions.builder()
+                    .parent(monorepo)
+                    .outdir("packages/infra")
+                    .name("infra")
+                    .typeSafeApi(api)
+                    .cloudscapeReactTsWebsite(website)
+                    .build());
+
+            monorepo.synth();
+        }
+    }
     ```
 
 This code, produces all the source code, packages and infrastructure needed to deploy a fully-operable application in the AWS cloud. All that's left to do is build and deploy it!
@@ -268,7 +250,7 @@ As you can see, the AWS PDK provides you with valuable time savings so you can f
 
 ## Developing with the AWS PDK
 
-It's easy to [get set up](../getting_started/index.md) and [write your first AWS PDK project](../getting_started/your_first_aws_pdk_project.md). Short code samples are available throughout the [Developer Guide](../developer_guides/index.md) in the AWS PDK's supported languages: Typescript, Python, & Java.
+It's easy to [get set up](../getting_started/index.md) and [write your first AWS PDK project](../getting_started/your_first_aws_pdk_project.md). Short code samples are available throughout the [Developer Guide](../developer_guides/index.md) in all of the AWS PDK's supported languages: `Typescript`, `Python`, & `Java`.
 
 ## Contributing to the AWS PDK
 

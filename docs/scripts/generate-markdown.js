@@ -3,10 +3,10 @@
 
 const fs = require("fs-extra");
 
-const generateExperimentalBanner = (pkg) => `
+const generateExperimentalBanner = () => `
 :octicons-beaker-24: Experimental\n
 !!! warning\n
-\tThis module is subject to non-backward compatible changes or removal in any future version. Breaking changes
+\tThis submodule is subject to non-backward compatible changes or removal in any future version. Breaking changes
 \twill be announced in the release notes, however will result in a minor version bump only.
 \n\tWhilst you may use this package, you may need to update your
 \tsource code when upgrading to a newer version.`;
@@ -31,7 +31,7 @@ function generateNavEntry(name, path) {
 
 function includeBanner(pkg, markdown, stability) {
   return stability !== "stable"
-    ? `${generateExperimentalBanner(pkg)}\n${markdown}`
+    ? `${generateExperimentalBanner()}\n${markdown}`
     : markdown;
 }
 

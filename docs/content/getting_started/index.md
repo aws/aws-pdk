@@ -101,7 +101,49 @@ The AWS PDK lets you define your project structure as code in one of its support
 
 The AWS PDK has first-class support for Typescript, Python, & Java.
 
-To facilitate supporting so many languages, the AWS CDK is developed in one language (TypeScript). Language bindings are generated for the other languages through the use of a tool called [JSII](https://aws.github.io/jsii/).
+To facilitate supporting so many languages, the AWS PDK is developed in one language (TypeScript). Language bindings are generated for the other languages through the use of a tool called [JSII](https://aws.github.io/jsii/).
+
+The distributables for each language can be used directly as follows:
+
+=== "TYPESCRIPT"
+    === "NPM"
+        ```
+        npm i @aws/pdk
+        ```
+
+    === "PNPM"
+        ```
+        pnpm i @aws/pdk
+        ```
+
+    === "YARN"
+        ```
+        yarn add @aws/pdk
+        ```
+
+=== "PYTHON"
+    === "PIP"
+        ```
+        pip install aws-pdk
+        ```
+
+    === "POETRY"
+        ```
+        poetry add aws-pdk
+        ```
+
+=== "JAVA"
+    === "MAVEN"
+    ```bash
+    <dependency>
+        <groupId>software.aws</groupId>
+        <artifactId>pdk</artifactId>
+        <version>LATEST</version>
+    </dependency>
+    ```
+
+!!!tip
+    Whilst the AWS PDK can be used directly via these package managers, we recommend bootstrapping via the `pdk new` command which negates the need to interact directly with these package managers.
 
 ## Prerequisites
 
@@ -130,7 +172,7 @@ Other prerequisites depend on the language in which you develop AWS PDK projects
 
 Install the AWS PDK Toolkit globally using the following Node Package Manager command:
 
-`npm install -g aws-pdk`
+`npm install -g @aws/pdk`
 
 Run the following command to verify correct installation and print the version number of the AWS PDK.
 

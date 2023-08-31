@@ -557,7 +557,7 @@ export interface TypeScriptProjectOptions {
    * The "name" in package.json.
    * @default - defaults to project name
    * @stability experimental
-   * @featured true
+   * @featured false
    */
   readonly packageName?: string;
   /**
@@ -659,7 +659,7 @@ export interface TypeScriptProjectOptions {
    * It can be used when searching for packages in a package manager as well.
    * See https://classic.yarnpkg.com/en/docs/package-json/#toc-description
    * @stability experimental
-   * @featured true
+   * @featured false
    */
   readonly description?: string;
   /**
@@ -672,7 +672,7 @@ export interface TypeScriptProjectOptions {
    * this will be what you `package.json` will eventually include.
    * @default []
    * @stability experimental
-   * @featured true
+   * @featured false
    */
   readonly deps?: Array<string>;
   /**

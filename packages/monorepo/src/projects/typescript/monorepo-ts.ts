@@ -280,7 +280,7 @@ export class MonorepoTsProject
     // Add dependency on nx 16
     this.addPeerDeps("nx@^16");
     this.addDevDeps("nx@^16", "@aws/pdk@^0");
-    this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in aws-prototyping-sdk
+    this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in @aws/pdk
     this.package.addPackageResolutions(
       "@types/babel__traverse@7.18.2",
       "wrap-ansi@^7.0.0",
