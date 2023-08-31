@@ -83,7 +83,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
     this.addDevDeps("@types/aws-lambda");
     this.addDeps(
       ...[
-        "aws-pdk",
+        "@aws/pdk",
         "constructs",
         "aws-cdk-lib",
         "cdk-nag",

@@ -15,7 +15,7 @@ import {
 /**
  * Contains configuration for the UberProject.
  */
-export class AwsPdkProject extends PDKProject {
+export class PdkProject extends PDKProject {
   private static getJsiiProjects(parent?: Project): JsiiProject[] | undefined {
     return parent?.subprojects
       .filter((subProject) => subProject instanceof JsiiProject)
@@ -32,15 +32,13 @@ export class AwsPdkProject extends PDKProject {
 
   constructor(parent: Project) {
     const jsiiProjects: JsiiProject[] | undefined =
-      AwsPdkProject.getJsiiProjects(parent);
+      PdkProject.getJsiiProjects(parent);
 
     const paths = jsiiProjects?.reduce(
       (p, c) => ({
         ...p,
         ...{
-          [c.name]: [
-            `./${c.srcdir}/${AwsPdkProject.getSafeProjectName(c)}/lib`,
-          ],
+          [c.name]: [`./${c.srcdir}/${PdkProject.getSafeProjectName(c)}/lib`],
         },
       }),
       {}
@@ -50,7 +48,7 @@ export class AwsPdkProject extends PDKProject {
       author: "AWS APJ COPE",
       authorAddress: "apj-cope@amazon.com",
       defaultReleaseBranch: "mainline",
-      name: "aws-pdk",
+      name: "pdk",
       eslint: false,
       jest: false,
       docgen: false,
@@ -64,6 +62,9 @@ export class AwsPdkProject extends PDKProject {
         },
       },
       excludeTypescript: ["**/samples/**/*.ts", "**/scripts/**/*.ts"],
+      publishConfig: {
+        executableFiles: ["./scripts/pdk.sh", "./scripts/exec-command.js"],
+      },
     });
 
     this.addBundledDeps("findup");
@@ -97,12 +98,12 @@ export class AwsPdkProject extends PDKProject {
           ...p,
           [`./${path.basename(
             c.outdir
-          )}`]: `./lib/${AwsPdkProject.getSafeProjectName(
+          )}`]: `./lib/${PdkProject.getSafeProjectName(
             path.basename(c.outdir)
           )}/lib/index.js`,
-          [`./lib/${AwsPdkProject.getSafeProjectName(
+          [`./lib/${PdkProject.getSafeProjectName(
             path.basename(c.outdir)
-          )}`]: `./lib/${AwsPdkProject.getSafeProjectName(
+          )}`]: `./lib/${PdkProject.getSafeProjectName(
             path.basename(c.outdir)
           )}/lib/index.js`,
         };
@@ -115,7 +116,7 @@ export class AwsPdkProject extends PDKProject {
           Object.fromEntries(
             Object.entries(p.manifest.bin() || {}).map(([k, v]) => [
               k,
-              `./lib/${AwsPdkProject.getSafeProjectName(p)}/${v}`,
+              `./lib/${PdkProject.getSafeProjectName(p)}/${v}`,
             ])
           )
         )
@@ -124,13 +125,16 @@ export class AwsPdkProject extends PDKProject {
 
     // Make sure this is after NxProject so targets can be updated after inference
     new PDKRelease(this, {
-      executableFiles: jsiiProjects
-        ?.map((p) =>
-          (p.manifest.publishConfig?.executableFiles || []).map(
-            (_p: string) => `./lib/${AwsPdkProject.getSafeProjectName(p)}/${_p}`
+      executableFiles: [
+        ...this.manifest.publishConfig.executableFiles,
+        ...(jsiiProjects
+          ?.map((p) =>
+            (p.manifest.publishConfig?.executableFiles || []).map(
+              (_p: string) => `./lib/${PdkProject.getSafeProjectName(p)}/${_p}`
+            )
           )
-        )
-        .flatMap((x) => x),
+          .flatMap((x) => x) || []),
+      ],
     });
   }
 
@@ -154,9 +158,9 @@ export class AwsPdkProject extends PDKProject {
       `echo '${projects
         .map(
           (p) =>
-            `export * as ${AwsPdkProject.getSafeProjectName(
+            `export * as ${PdkProject.getSafeProjectName(
               p
-            )} from "./${AwsPdkProject.getSafeProjectName(p)}/lib";`
+            )} from "./${PdkProject.getSafeProjectName(p)}/lib";`
         )
         .join("\n")}' > ./${this.srcdir}/index.ts`
     );
@@ -172,12 +176,12 @@ export class AwsPdkProject extends PDKProject {
       `if [ -d "${path.relative(
         this.outdir,
         project.outdir
-      )}/${dir}/" ]; then mkdir -p ./${copyRoot}/${AwsPdkProject.getSafeProjectName(
+      )}/${dir}/" ]; then mkdir -p ./${copyRoot}/${PdkProject.getSafeProjectName(
         project
       )}/${targetDir} && rsync -a ${path.relative(
         this.outdir,
         project.outdir
-      )}/${dir}/ ./${copyRoot}/${AwsPdkProject.getSafeProjectName(
+      )}/${dir}/ ./${copyRoot}/${PdkProject.getSafeProjectName(
         project
       )}/${targetDir} --prune-empty-dirs; fi;`
     );
@@ -190,12 +194,12 @@ export class AwsPdkProject extends PDKProject {
     this.conditionallyCopyFiles(project, "assets");
 
     this.preCompileTask.exec(
-      `mkdir -p ./lib/${AwsPdkProject.getSafeProjectName(
+      `mkdir -p ./lib/${PdkProject.getSafeProjectName(
         project
       )}/lib && rsync --exclude=**/*.ts -a ${path.relative(
         this.outdir,
         project.outdir
-      )}/${project.srcdir}/ ./lib/${AwsPdkProject.getSafeProjectName(
+      )}/${project.srcdir}/ ./lib/${PdkProject.getSafeProjectName(
         project
       )}/lib --prune-empty-dirs`
     );

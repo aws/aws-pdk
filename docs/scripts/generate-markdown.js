@@ -16,7 +16,7 @@ const MONOREPO_ROOT = `${cwd}/..`;
 const RELATIVE_PKG_ROOT = `${MONOREPO_ROOT}/packages`;
 const pkgs = fs
   .readdirSync(RELATIVE_PKG_ROOT)
-  .filter((p) => p !== "aws-pdk")
+  .filter((p) => p !== "pdk")
   .filter((p) => fs.existsSync(`${RELATIVE_PKG_ROOT}/${p}/.jsii`));
 
 const PAGES_YAML_TEMPLATE = "---\nnav:\n";
@@ -161,21 +161,6 @@ const generateDeveloperGuidesNav = () => {
   );
 };
 
-const generateWalkthroughsNav = () => {
-  fs.writeFileSync(
-    `${cwd}/build/docs/content/walkthroughs/.pages.yml`,
-    `${PAGES_YAML_TEMPLATE}${[generateNavEntry("Walkthroughs", "index.md")]
-      .concat(
-        pkgs
-          .filter((p) =>
-            fs.existsSync(`${RELATIVE_PKG_ROOT}/${p}/docs/walkthroughs/${p}`)
-          )
-          .map((pkg) => generateNavEntry(pkg, pkg))
-      )
-      .join("\n")}`
-  );
-};
-
 const copyStaticFolder = (pkg, folder) => {
   fs.existsSync(`${RELATIVE_PKG_ROOT}/${pkg}/docs/${folder}/${pkg}`) &&
     fs.copySync(
@@ -186,7 +171,6 @@ const copyStaticFolder = (pkg, folder) => {
 
 const copyPackageStaticDocs = (pkg) => {
   copyStaticFolder(pkg, "developer_guides");
-  copyStaticFolder(pkg, "walkthroughs");
   copyStaticFolder(pkg, "assets");
 };
 
@@ -196,7 +180,6 @@ async function main() {
 
   generateAPINav();
   generateDeveloperGuidesNav();
-  generateWalkthroughsNav();
 
   for (const pkg of pkgs) {
     !process.env.SKIP_API_DOCS && generateAPIDocs(pkg);

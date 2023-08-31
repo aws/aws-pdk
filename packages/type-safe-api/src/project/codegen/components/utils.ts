@@ -102,7 +102,7 @@ export const buildTypeSafeApiExecCommand = (
   const { packageJson } = readPkg.sync({
     cwd: path.resolve(__dirname),
   })!;
-  return `npx --yes -p aws-pdk@${packageJson.version} ${script}${
+  return `npx --yes -p @aws/pdk@${packageJson.version} ${script}${
     args ? ` ${args}` : ""
   }`;
 };

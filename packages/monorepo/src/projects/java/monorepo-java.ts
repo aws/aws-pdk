@@ -42,7 +42,7 @@ export class MonorepoJavaProject extends JavaProject implements INxProjectCore {
       artifactId: options.artifactId ?? "monorepo",
     });
 
-    this.addTestDependency("software.aws/aws-pdk@^0");
+    this.addTestDependency("software.aws/pdk@^0");
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch: options.defaultReleaseBranch ?? "main",

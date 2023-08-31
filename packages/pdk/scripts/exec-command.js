@@ -8,7 +8,7 @@ process.argv.splice(0, 2);
 const isSynth = process.argv.filter(p => !p.startsWith("--")).length === 0;
 
 if (process.argv[0] == "new") {
-  execa.commandSync(`npx --yes projen@latest new --from aws-pdk ${process.argv.slice(1).join(" ")}`, { stdio: "inherit" });
+  execa.commandSync(`npx --yes projen@latest new --from @aws/pdk ${process.argv.slice(1).join(" ")}`, { stdio: "inherit" });
   return;
 } else if (process.argv[0] == "--version") {
     execa.commandSync(`echo ${JSON.parse(fs.readFileSync(path.resolve(__dirname, "..", "package.json"))).version}`, { stdio: "inherit", cwd: __dirname });
