@@ -21,13 +21,11 @@ export const buildTryCatchInterceptor = <TStatus extends number, ErrorResponseBo
   errorResponseBody: ErrorResponseBody,
 ) => async <
   RequestParameters,
-  RequestArrayParameters,
   RequestBody,
   Response extends OperationResponse<number, any>,
 >(
   request: ChainedRequestInput<
   RequestParameters,
-  RequestArrayParameters,
   RequestBody,
   Response
   >,
@@ -77,22 +75,28 @@ const DEFAULT_CORS_HEADERS: { [key: string]: string } = {
  * Create an interceptor for adding headers to the response
  * @param additionalHeaders headers to add to the response
  */
-export const buildResponseHeaderInterceptor = (additionalHeaders: { [key: string]: string }) => async <
-  RequestParameters,
-  RequestArrayParameters,
-  RequestBody,
-  Response extends OperationResponse<number, any>
->(
-  request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
-): Promise<Response> => {
-  const result = await request.chain.next(request);
-  return {
-    ...result,
-    headers: {
-      ...additionalHeaders,
-      ...result.headers,
-    },
+export const buildResponseHeaderInterceptor = (additionalHeaders: { [key: string]: string }) => {
+  const interceptor = async <
+    RequestParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    const result = await request.chain.next(request);
+    return {
+      ...result,
+      headers: {
+        ...additionalHeaders,
+        ...result.headers,
+      },
+    };
   };
+
+  // Any error responses returned during request validation will include the headers
+  (interceptor as any).__type_safe_api_response_headers = additionalHeaders;
+
+  return interceptor;
 };
 
 /**
@@ -124,7 +128,7 @@ export class LoggingInterceptor {
     RequestBody,
     Response extends OperationResponse<number, any>
   >(
-    request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
   ): Promise<Response> => {
     logger.addContext(request.context);
     logger.appendKeys({ operationId: request.interceptorContext.operationId });
@@ -142,7 +146,7 @@ export class LoggingInterceptor {
     RequestArrayParameters,
     RequestBody,
     Response extends OperationResponse<number, any>
-  >(request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>): Logger => {
+  >(request: ChainedRequestInput<RequestParameters, RequestBody, Response>): Logger => {
     if (!request.interceptorContext.logger) {
       throw new Error('No logger found, did you configure the LoggingInterceptor?');
     }
@@ -176,11 +180,10 @@ export interface TracingInterceptorOptions {
  */
 export const buildTracingInterceptor = (options?: TracingInterceptorOptions) => async <
   RequestParameters,
-  RequestArrayParameters,
   RequestBody,
   Response extends OperationResponse<number, any>
 >(
-  request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+  request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
 ): Promise<Response> => {
   const handler = request.interceptorContext.operationId ?? process.env._HANDLER ?? 'index.handler';
   const segment = tracer.getSegment();
@@ -233,7 +236,7 @@ export class TracingInterceptor {
     RequestBody,
     Response extends OperationResponse<number, any>
   >(
-    request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
   ): Tracer => {
     if (!request.interceptorContext.tracer) {
       throw new Error('No tracer found, did you configure the TracingInterceptor?');
@@ -265,7 +268,7 @@ export class MetricsInterceptor {
     RequestBody,
     Response extends OperationResponse<number, any>
   >(
-    request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
   ): Promise<Response> => {
     metrics.addDimension("operationId", request.interceptorContext.operationId);
     request.interceptorContext.metrics = metrics;
@@ -286,7 +289,7 @@ export class MetricsInterceptor {
     RequestBody,
     Response extends OperationResponse<number, any>
   >(
-    request: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
   ): Metrics => {
     if (!request.interceptorContext.metrics) {
       throw new Error('No metrics logger found, did you configure the MetricsInterceptor?');
