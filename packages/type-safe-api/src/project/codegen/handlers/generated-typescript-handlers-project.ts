@@ -174,7 +174,6 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.TYPESCRIPT_LAMBDA_HANDLERS,
       srcDir: this.srcdir,
       normalizers: {

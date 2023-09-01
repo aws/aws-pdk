@@ -189,7 +189,6 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.TYPESCRIPT_CDK_INFRASTRUCTURE,
       srcDir: this.srcdir,
       normalizers: {

@@ -63,10 +63,6 @@ export interface GenerateProjectsOptions {
    * We use the parsed spec such that refs are resolved to support multi-file specs
    */
   readonly parsedSpecPath: string;
-  /**
-   * Path to the Smithy json model, if applicable
-   */
-  readonly smithyJsonModelPath?: string;
 }
 
 /**
@@ -147,7 +143,6 @@ const generateRuntimeProject = (
     outdir: path.join(options.generatedCodeDir, language),
     specPath: options.parsedSpecPath,
     parent: options.parent,
-    smithyJsonModelPath: options.smithyJsonModelPath,
   };
 
   switch (language) {
@@ -240,7 +235,6 @@ export const generateInfraProject = (
     outdir: path.join(options.generatedCodeDir, language),
     specPath: options.parsedSpecPath,
     parent: options.parent,
-    smithyJsonModelPath: options.smithyJsonModelPath,
     generatedHandlers: options.generatedHandlers,
   };
 
@@ -320,7 +314,6 @@ const generateHandlersProject = (
     outdir: path.join(options.generatedCodeDir, language),
     specPath: options.parsedSpecPath,
     parent: options.parent,
-    smithyJsonModelPath: options.smithyJsonModelPath,
   };
 
   switch (language) {
@@ -457,7 +450,6 @@ const generateLibraryProject = (
     outdir: path.join(options.generatedCodeDir, library),
     specPath: options.parsedSpecPath,
     parent: options.parent,
-    smithyJsonModelPath: options.smithyJsonModelPath,
   };
 
   switch (library) {

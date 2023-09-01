@@ -21,4 +21,39 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
       })
     ).toMatchSnapshot();
   });
+
+  it("Injects @handler and @paginated traits", () => {
+    expect(
+      withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
+        const specPath =
+          "../../resources/smithy/simple-pagination/openapi.json";
+        const smithyJsonModelPath =
+          "../../resources/smithy/simple-pagination/model.json";
+        const outputPath = path.join(
+          path.relative(path.resolve(__dirname), tmpDir),
+          ".api.json"
+        );
+        const command = `../../../scripts/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath} --smithy-json-path ${smithyJsonModelPath}`;
+        exec(command, {
+          cwd: path.resolve(__dirname),
+        });
+      })
+    ).toMatchSnapshot();
+  });
+
+  it("Throws for unsupported request parameter types", () => {
+    withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
+      const specPath = "../../resources/specs/invalid-request-parameters.yaml";
+      const outputPath = path.join(
+        path.relative(path.resolve(__dirname), tmpDir),
+        ".api.json"
+      );
+      const command = `../../../scripts/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath}`;
+      expect(() => {
+        exec(command, {
+          cwd: path.resolve(__dirname),
+        });
+      }).toThrowErrorMatchingSnapshot();
+    });
+  });
 });

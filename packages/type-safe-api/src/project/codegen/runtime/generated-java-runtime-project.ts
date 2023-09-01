@@ -138,7 +138,6 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "java",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Language.JAVA,
       additionalProperties: {
         useSingleRequestParameter: "true",

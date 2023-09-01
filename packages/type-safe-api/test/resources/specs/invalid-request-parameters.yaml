@@ -1,0 +1,61 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Example API
+paths:
+  /invalid/parameters:
+    get:
+      operationId: operationOne
+      parameters:
+        - in: query
+          name: objectQueryParam
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              id:
+                type: integer
+            required:
+              - id
+          required: true
+        - in: query
+          name: arrayOfObjects
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                message:
+                  type: string
+        - in: query
+          name: mixedTypes
+          schema:
+            oneOf:
+              - type: string
+              - type: number
+      responses:
+        '200':
+          description: Successful response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/TestResponse'
+components:
+  schemas:
+    TestResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              id:
+                type: integer
+            required:
+              - id
+      required:
+        - messages
