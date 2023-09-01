@@ -223,6 +223,9 @@ structure NotAuthorizedError {
               service: `${serviceNamespace}#${serviceName}`,
               // By default, preserve tags in the generated spec, but allow users to explicitly overwrite this
               tags: true,
+              // By default, use integer types as this is more intuitive when smithy distinguishes between Integers and Doubles.
+              // Users may also override this.
+              useIntegerType: true,
               ...smithyOptions.smithyBuildOptions?.projections?.openapi?.plugins
                 ?.openapi,
             },
