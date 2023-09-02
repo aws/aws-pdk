@@ -68,6 +68,27 @@ export class MonorepoProject extends PDKProject {
         docs: {
           default: "$BASEDIR",
         },
+      })
+      .update("deps", {
+        docs: {
+          custom: {
+            featured: "false",
+          },
+        },
+      })
+      .update("description", {
+        docs: {
+          custom: {
+            featured: "false",
+          },
+        },
+      })
+      .update("packageName", {
+        docs: {
+          custom: {
+            featured: "false",
+          },
+        },
       });
 
     new ProjenStruct(this, {

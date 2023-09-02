@@ -54,7 +54,7 @@ Use `MockIntegrations.mockAll` to mock all the operations in your API by returni
 === "TS"
 
     ```ts
-    import { Integrations } from "@aws-prototyping-sdk/type-safe-api";
+    import { Integrations } from "@aws/pdk/type-safe-api";
     import { Api, MockIntegrations } from "myapi-typescript-infra";
 
     new Api(this, "Api", {
