@@ -101,7 +101,7 @@ The AWS PDK lets you define your project structure as code in one of its support
 
 The AWS PDK has first-class support for Typescript, Python, & Java.
 
-To facilitate supporting so many languages, the AWS PDK is developed in one language (TypeScript). Language bindings are generated for the other languages through the use of a tool called [JSII](https://aws.github.io/jsii/).
+To facilitate supporting multiple languages, the AWS PDK is developed in one language (TypeScript). Language bindings are generated for the other languages through the use of a tool called [JSII](https://aws.github.io/jsii/).
 
 The distributables for each language can be used directly as follows:
 
@@ -143,7 +143,7 @@ The distributables for each language can be used directly as follows:
     ```
 
 !!!tip
-    Whilst the AWS PDK can be used directly via these package managers, we recommend bootstrapping via the `pdk new` command which negates the need to interact directly with these package managers.
+    Whilst the AWS PDK can be used directly via these package managers, we recommend bootstrapping via the `pdk new` command which negates the need to interact directly with these package managers. The package managers will still need to be installed however, refer to [prerequisites](index.md#prerequisites) for more information.
 
 ## Prerequisites
 
