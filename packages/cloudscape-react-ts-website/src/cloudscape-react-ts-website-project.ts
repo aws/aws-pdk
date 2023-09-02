@@ -133,12 +133,12 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
     this.addDevDeps("@types/swagger-ui-react");
     this.addDeps("swagger-ui-react", "aws4fetch");
 
-    tsApi.model.postCompileTask.exec(
-      `cp .api.json ${path.relative(
-        tsApi.model.outdir,
-        this.outdir
-      )}/public/api.json`
-    );
+    const targetApiSpecPath = `${path.relative(
+      tsApi.model.outdir,
+      this.outdir
+    )}/public/api.json`;
+    tsApi.model.postCompileTask.exec(`rm -f ${targetApiSpecPath}`);
+    tsApi.model.postCompileTask.exec(`cp .api.json ${targetApiSpecPath}`);
   }
 
   private buildSampleDirEntries(
