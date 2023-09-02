@@ -1,8 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { aws_arch } from "@aws-pdk/aws-arch";
+import { aws_arch } from "@aws/aws-arch";
 // @ts-ignore - just used for jsdoc type link, but errors as unused
-import type { Graph } from "@aws-pdk/cdk-graph";
+import type { Graph } from "@aws/cdk-graph";
 
 /** Icon rendering target options for GraphTheme */
 export enum GraphThemeRenderingIconTarget {

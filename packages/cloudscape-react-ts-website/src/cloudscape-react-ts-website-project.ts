@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { TypeSafeApiProject } from "@aws-pdk/type-safe-api";
+import { TypeSafeApiProject } from "@aws/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleDir } from "projen";
 import { NodeProject } from "projen/lib/javascript";
@@ -70,6 +70,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
     this.addDeps(
       "@aws-northstar/ui",
       "@cloudscape-design/components",
+      "@cloudscape-design/board-components",
       "react-router-dom"
     );
 
@@ -132,12 +133,12 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
     this.addDevDeps("@types/swagger-ui-react");
     this.addDeps("swagger-ui-react", "aws4fetch");
 
-    tsApi.model.postCompileTask.exec(
-      `cp .api.json ${path.relative(
-        tsApi.model.outdir,
-        this.outdir
-      )}/public/api.json`
-    );
+    const targetApiSpecPath = `${path.relative(
+      tsApi.model.outdir,
+      this.outdir
+    )}/public/api.json`;
+    tsApi.model.postCompileTask.exec(`rm -f ${targetApiSpecPath}`);
+    tsApi.model.postCompileTask.exec(`cp .api.json ${targetApiSpecPath}`);
   }
 
   private buildSampleDirEntries(

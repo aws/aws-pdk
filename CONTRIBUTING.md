@@ -54,7 +54,7 @@ export class MyPackageProject extends PDKProject {
       authorAddress: "<your email>",
       defaultReleaseBranch: "mainline",
       name: "your-package",
-      repositoryUrl: "https://github.com/aws/aws-prototyping-sdk",
+      repositoryUrl: "https://github.com/aws/aws-pdk",
       devDeps: ["projen"],
       deps: [
         "projen",
@@ -215,11 +215,11 @@ From the root directory run: `npx projen upgrade-deps`. This will bump all depen
 If you run into an issue that resembles:
 
 ```bash
-Type 'import(".../aws-pdk/node_modules/aws-prototyping-sdk/node_modules/projen/lib/ignore-file").IgnoreFile' is not assignable to type 'import(".../aws-pdk/node_modules/projen/lib/ignore-file").IgnoreFile'.
+Type 'import(".../@aws/pdk/node_modules/aws-prototyping-sdk/node_modules/projen/lib/ignore-file").IgnoreFile' is not assignable to type 'import(".../@aws/pdk/node_modules/projen/lib/ignore-file").IgnoreFile'.
 Types have separate declarations of a private property '_patterns'.
 ```
 
-This means there are two conflicting versions of a package in the monorepo. To resolve this, from the root directory run: `npx projen upgrade-deps`. This will bump all dependencies to be the same/latest versions and update the `yarn.lock` file accordingly.
+This means there are two conflicting versions of a package in the monorepo. To resolve this, from the root directory run: `pdk upgrade-deps`. This will bump all dependencies to be the same/latest versions and update the lock file accordingly.
 
 ### Build hangs due to NPX waiting for user input
 

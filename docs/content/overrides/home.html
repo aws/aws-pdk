@@ -1,0 +1,457 @@
+
+{% extends "main.html" %}
+
+<!-- Render hero under tabs -->
+{% block tabs %}
+  {{ super() }}
+
+  <!-- Additional styles for landing page -->
+<style>
+
+/* Apply box shadow on smaller screens that don't display tabs */
+@media only screen and (max-width: 1220px) {
+  .md-header {
+    box-shadow: 0 0 .2rem rgba(0,0,0,.1),0 .2rem .4rem rgba(0,0,0,.2);
+    transition: color 250ms,background-color 250ms,box-shadow 250ms;
+  }
+}
+
+/* Hide main content for now */
+.md-content {
+  display: none;
+}
+
+/* Hide table of contents */
+@media screen and (min-width: 60em) {
+  .md-sidebar--secondary {
+    display: none;
+  }
+}
+
+/* Hide navigation */
+@media screen and (min-width: 76.25em) {
+  .md-sidebar--primary {
+    display: none;
+  }
+}
+
+/* Get started button */
+.md-typeset .md-button--primary {
+    color: var(--md-primary-fg-color);
+    background-color: var(--md-primary-bg-color);
+    border-color: var(--md-primary-bg-color);
+}
+.md-typeset .md-button--primary:hover {
+  color: var(--md-primary-bg-color);
+  background-color: var(--md-primary-fg-color);
+  border-color: var(--md-primary-bg-color);
+}
+
+.tx-hero {
+  max-width: 1024px;
+  display: flex;
+  padding: .4rem;
+  margin: 0 auto;
+  text-align: center;
+}
+.tx-hero h1 {
+  font-weight: 700;
+  font-size: 38px;
+  line-height: 46px;
+  color: rgb(38, 38, 38);
+}
+.tx-hero p {
+  color: rgb(92, 92, 92);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 32px;
+}
+.tx-hero__image {
+  max-width: 1000px;
+  min-width: 600px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+}
+
+.tx-hero__image img {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+}
+
+/* Secondary content styles */
+.secondary-section {
+  background: rgb(245, 245, 245) none repeat scroll 0% 0%;
+  border-top: 1px solid rgb(222, 222, 222);
+  border-bottom: 1px solid rgb(222, 222, 222);
+  flex-grow: 4;
+}
+@media screen and (max-width: 1012px) {
+  .secondary-section {
+    display: block;
+  }
+}
+
+.secondary-section .g {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+  padding: 0px 40px;
+  max-width: 1280px;
+}
+
+.secondary-section .g .section {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 50px;
+  letter-spacing: normal;
+  padding: 28px 0px 16px;
+}
+
+.secondary-section .g .section.follow {
+  padding-top: 0px;
+}
+
+
+.secondary-section .g .section .component-wrapper {
+  display: flex;
+  -moz-box-align: center;
+  align-items: center;
+}
+
+@media screen and (max-width: 1012px) {
+  .secondary-section .g .section .component-wrapper {
+    display: block;
+  }
+}
+
+.secondary-section .g .section .component-wrapper h3 {
+  color: rgb(38, 38, 38);
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 46px;
+  letter-spacing: normal;
+  margin-bottom: 12px;
+}
+
+.secondary-section .g .section .component-wrapper h4 {
+  color: rgb(38, 38, 38);
+  font-size: 24px;
+}
+
+.secondary-section .g .section .component-wrapper p {
+  color: rgb(92, 92, 92);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 30px;
+  letter-spacing: normal;
+  margin-bottom: 16px;
+}
+
+.secondary-section .g .section .component-wrapper .image-wrapper {
+  margin-bottom: 12px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-top: 48px;
+  border: 1px solid rgb(222, 222, 222);
+  box-shadow: rgba(202, 202, 202, 0.15) 0px 0px 0px 6px;
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+}
+
+.image-wrapper img {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+}
+
+.secondary-section .g .section .component-wrapper .first-column {
+  padding-right: 100px;
+  flex: 0 1 auto;
+  height: auto;
+  width: 50%;
+}
+
+@media screen and (max-width: 1012px) {
+  .secondary-section .g .section .component-wrapper .first-column {
+    padding-right: 0px;
+    width: 100%;
+    margin-bottom: 32px;
+  }
+}
+
+.secondary-section .g .section .component-wrapper .second-column {
+  flex: 0 1 auto;
+  height: auto;
+  width: 50%;
+}
+@media screen and (max-width: 1012px) {
+  .secondary-section .g .section .component-wrapper .second-column {
+    width: 100%;
+    margin-bottom: 32px;
+  }
+}
+
+.secondary-section .g .section .component-wrapper .responsive-grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+}
+@media screen and (min-width: 64rem) {
+  .secondary-section .g .section .component-wrapper .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.secondary-section .g .section .component-wrapper .responsive-grid a.card-wrapper {
+  text-decoration: none;
+  transition: none;
+  background: none;
+  padding-bottom: 20px;
+}
+
+.secondary-section .g .section .component-wrapper .responsive-grid .card {
+  position: relative;
+  background-color:  #fff;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  -moz-box-align: center;
+  align-items: center;
+  height: 100%;
+  -moz-box-pack: start;
+  justify-content: flex-start;
+  border-radius: 25px;
+  box-shadow: rgba(0, 0, 0, 0.09) 0.3125rem 0.3125rem 0px -0.0625rem, rgba(0, 0, 0, 0.15) 0px 0.25rem 0.5rem 0px;
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) 0s;
+}
+.secondary-section .g .section .component-wrapper .responsive-grid .card:hover {
+  box-shadow: rgba(0, 0, 0, 0.2) 0.3125rem 0.3125rem 0px -0.0625rem, rgba(0, 0, 0, 0.26) 0px 0.25rem 0.5rem 0px;
+}
+
+@media screen and (min-width: 75rem) {
+  .secondary-section .g .section .component-wrapper .responsive-grid .card {
+    padding: 2rem 2.5rem;
+  }
+}
+@media screen and (min-width: 36rem) {
+  .secondary-section .g .section .component-wrapper .responsive-grid .card {
+    padding: 1rem 1.5rem;
+  }
+}
+
+.secondary-section .g .section .component-wrapper .responsive-grid .card .logo {
+  margin-right: 0.75rem;
+  width: 1.2rem;
+  min-width: 1.2rem;
+}
+
+.secondary-section .g .section .component-wrapper .responsive-grid .card .card-content {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  width: 100%;
+}
+
+.secondary-section .g .section .component-wrapper .responsive-grid .card .card-content h5 {
+  color: rgb(61, 61, 61);
+  font-size: 20px;
+  margin: 0;
+}
+
+.secondary-section .g .section .component-wrapper .responsive-grid .card .card-content p {
+  margin-top: 0;
+  margin-bottom: 0;
+  color: rgb(92, 92, 92);
+  font-size: 0.80rem;
+  font-weight: 300;
+  line-height: normal;
+}
+
+.secondary-section .g .section .component-wrapper .responsive-grid .card .card-content code {
+  background: rgba(0, 0, 0, 0.05) none repeat scroll 0% 0%;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+
+.component-wrapper span.em {
+  color: rgb(61, 61, 61);
+}
+
+.component-wrapper a {
+  transition: color 125ms;
+  color: rgb(61, 61, 61);
+  background: rgba(0, 0, 0, 0.05) none repeat scroll 0% 0%;
+  padding: 2px 6px;
+  margin: 0px 1px;
+  border-radius: 4px;
+  display: inline;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.component-wrapper a:hover {
+  color: var(--md-typeset-a-color);
+  background: var(--md-accent-fg-color--transparent);
+}
+
+</style>
+
+  <div class="md-container">
+    <div class="md-typeset">
+      <div style="margin: 20px 20px 0 20px" class="admonition info">
+        <p class="admonition-title">AWS Prototyping SDK is now AWS Project Development Kit (AWS PDK)</p>
+        <p>Learn how to migrate your existing AWS Prototyping SDK projects to the AWS Project Development Kit (AWS PDK) in the <a href="getting_started/migration_guide.html">Migration Guide.</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero for landing page -->
+  <div class="md-container tx-hero">
+    <div class="md-grid md-typeset">
+      <div class="md-main__inner">
+        <div>
+          <h1>Accelerate the development of projects on AWS</h1>
+          <p>
+            The AWS Project Development Kit (PDK) provides building blocks for common patterns together with development tools to manage and build your projects. 
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="md-container secondary-section">
+    <div class="g">
+      <!-- Architecture as building blocks -->
+      <div class="section">
+        <div class="component-wrapper" style="display: block;">
+          <!-- Overview -->
+          <div class="responsive-grid">
+            <a class="card-wrapper" href="overview/index.html">
+              <div class="card">
+                <div class="logo">
+                  <span class="twemoji">
+                    {% include ".icons/octicons/file-code-24.svg" %}
+                  </span>
+                </div>
+                <div class="card-content">
+                  <h5>Overview</h5>
+                  <p>
+                    Provides an overview of the AWS PDK including its benefits and submodules.
+                  </p>
+                </div>
+              </div>
+            </a>
+
+            <!-- Getting Started -->
+            <a class="card-wrapper" href="getting_started/index.html">
+              <div class="card">
+                <div class="logo">
+                  <span class="twemoji">
+                    {% include ".icons/fontawesome/solid/network-wired.svg" %}
+                  </span>
+                </div>
+                <div class="card-content">
+                  <h5>Getting started</h5>
+                  <p>
+                    Details on how to install, configure and use the AWS PDK
+                  </p>
+                </div>
+              </div>
+            </a>
+
+            <!-- Developer Guide -->
+            <a class="card-wrapper" href="developer_guides">
+              <div class="card">
+                <div class="logo">
+                  <span class="twemoji">
+                    {% include ".icons/fontawesome/solid/puzzle-piece.svg" %}
+                  </span>
+                </div>
+                <div class="card-content">
+                  <h5>Developer Guide</h5>
+                  <p>
+                    Provides a conceptual overview and practical examples for each AWS PDK submodule.
+                  </p>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- API reference -->
+          <div class="responsive-grid">
+            <a class="card-wrapper" href="api/index.html">
+              <div class="card">
+                <div class="logo">
+                  <span class="twemoji">
+                    {% include ".icons/octicons/file-code-24.svg" %}
+                  </span>
+                </div>
+                <div class="card-content">
+                  <h5>API Reference</h5>
+                  <p>
+                    Language specific API documentation.
+                  </p>
+                </div>
+              </div>
+            </a>
+
+            <!-- How to contribute -->
+            <a class="card-wrapper" href="contributing/index.html">
+              <div class="card">
+                <div class="logo">
+                  <span class="twemoji">
+                    {% include ".icons/fontawesome/solid/puzzle-piece.svg" %}
+                  </span>
+                </div>
+                <div class="card-content">
+                  <h5>How to contribute</h5>
+                  <p>
+                    Guidelines for contributing to the AWS PDK
+                  </p>
+                </div>
+              </div>
+            </a>
+          
+
+            <!-- Release notes -->
+            <a class="card-wrapper" href="https://github.com/aws/aws-pdk/releases">
+              <div class="card">
+                <div class="logo">
+                  <span class="twemoji">
+                    {% include ".icons/fontawesome/solid/network-wired.svg" %}
+                  </span>
+                </div>
+                <div class="card-content">
+                  <h5>Release Notes</h5>
+                  <p>
+                    Release notes for the AWS PDK.
+                  </p>
+                </div>
+              </div>
+            </a>
+
+            
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+<!-- Content -->
+{% block content %}{% endblock %}
+
+<!-- Application footer -->
+{% block footer %}
+  {{ super() }}
+{% endblock %}

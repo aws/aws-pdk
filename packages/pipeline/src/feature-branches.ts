@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 
 import * as path from "path";
-import { PDKNag } from "@aws-pdk/pdk-nag";
+import { PDKNag } from "@aws/pdk-nag";
 import { Stack } from "aws-cdk-lib";
 import {
   BuildSpec,

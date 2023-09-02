@@ -2,9 +2,9 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { CloudscapeReactTsWebsiteProject } from "@aws-pdk/cloudscape-react-ts-website";
-import { NxProject } from "@aws-pdk/monorepo";
-import { TypeSafeApiProject } from "@aws-pdk/type-safe-api";
+import { CloudscapeReactTsWebsiteProject } from "@aws/cloudscape-react-ts-website";
+import { NxProject } from "@aws/monorepo";
+import { TypeSafeApiProject } from "@aws/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkJavaApp } from "projen/lib/awscdk";
@@ -72,7 +72,7 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
       this.testTask.exec("mvn test");
     }
 
-    this.addDependency("software.aws/aws-pdk@^0");
+    this.addDependency("software.aws/pdk@^0");
 
     const srcDir = path.resolve(__dirname, "../../../samples/java/src");
     const testDir = path.resolve(__dirname, "../../../samples/java/test");

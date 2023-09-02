@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { MonorepoTsProject } from "@aws-pdk/monorepo";
+import { MonorepoTsProject } from "@aws/monorepo";
 import { NodePackageManager } from "projen/lib/javascript";
 import { synthProject, synthSmithyProject } from "./snapshot-utils";
 import {

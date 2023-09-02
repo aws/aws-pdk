@@ -1,4 +1,8 @@
-# NX Monorepo
+# Monorepo
+
+![stable](https://img.shields.io/badge/stability-stable-green.svg)
+[![API Documentation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](../../api/typescript/monorepo/index.md)
+[![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-pdk/tree/mainline/packages/monorepo)
 
 The _monorepo_ package provides several projen project types in either Typescript, Python or Java that can configure a [NX](https://nx.dev/getting-started/intro) monorepo that can manage all of your packages. When used, these project types enable polyglot builds, declarative dependency management, build caching, dependency visualization and much, much more.
 

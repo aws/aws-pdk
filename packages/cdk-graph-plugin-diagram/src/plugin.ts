@@ -9,7 +9,7 @@ import {
   IGraphPluginBindCallback,
   IGraphReportCallback,
   performGraphFilterPlan,
-} from "@aws-pdk/cdk-graph";
+} from "@aws/cdk-graph";
 import * as fs from "fs-extra";
 import {
   CONFIG_DEFAULTS,

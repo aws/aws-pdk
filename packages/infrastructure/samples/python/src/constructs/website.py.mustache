@@ -1,16 +1,15 @@
 from aws_cdk import Stack
 from constructs import Construct
-from aws_cdk.aws_cloudfront import DistributionProps, GeoRestriction
+from aws_cdk.aws_cloudfront import GeoRestriction
 {{^hasApi}}# {{/hasApi}}from {{{moduleName}}}.constructs.api import ApiConstruct
 from aws_pdk.identity import UserIdentity
-from aws_pdk.static_website import StaticWebsite, RuntimeOptions
+from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionProps
 
 # Construct to deploy a Static Website
 class WebsiteConstruct(Construct):
-    def __init__(self, scope: Construct, id: str{{^hasApi}}'''{{/hasApi}}, api_construct: ApiConstruct{{^hasApi}}'''{{/hasApi}}, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity{{^hasApi}}'''{{/hasApi}}, api_construct: ApiConstruct{{^hasApi}}'''{{/hasApi}}, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
         StaticWebsite(self, id,
                       website_content_path='{{{websiteDistRelativePath}}}',
                       runtime_options=RuntimeOptions(

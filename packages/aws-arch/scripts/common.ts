@@ -25,7 +25,7 @@ fs.ensureDirSync(GENERATED_DIR);
 // use current head hash to enable reuse of downloaded files
 const BASE_TMP_DIR = path.join(
   os.tmpdir(),
-  "@aws-pdk",
+  "@aws",
   execa.commandSync("git rev-parse --short HEAD").stdout
 );
 /** Directory where this package stores external resources */

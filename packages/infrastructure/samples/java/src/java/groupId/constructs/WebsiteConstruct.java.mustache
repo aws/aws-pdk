@@ -5,25 +5,24 @@ import java.util.TreeMap;
 
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.services.cloudfront.GeoRestriction;
-import software.aws.awspdk.identity.UserIdentity;
-import software.aws.awspdk.static_website.DistributionProps;
-import software.aws.awspdk.static_website.RuntimeOptions;
-import software.aws.awspdk.static_website.StaticWebsite;
-import software.aws.awspdk.static_website.StaticWebsiteProps;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.static_website.DistributionProps;
+import software.aws.pdk.static_website.RuntimeOptions;
+import software.aws.pdk.static_website.StaticWebsite;
+import software.aws.pdk.static_website.StaticWebsiteProps;
 import software.constructs.Construct;
 
 /**
  * Construct to deploy a Static Website
  */
 public class WebsiteConstruct extends Construct {
-    public WebsiteConstruct(Construct scope, String id) {
-        this(scope, id, null);
+    public WebsiteConstruct(Construct scope, String id, UserIdentity userIdentity) {
+        this(scope, id, userIdentity{{^hasApi}}/* {{/hasApi}}, null{{^hasApi}} */{{/hasApi}});
     }
 
-    public WebsiteConstruct(Construct scope, String id{{^hasApi}}/* {{/hasApi}}, ApiConstruct apiConstruct{{^hasApi}} */{{/hasApi}}) {
+    public WebsiteConstruct(Construct scope, String id, UserIdentity userIdentity{{^hasApi}}/* {{/hasApi}}, ApiConstruct apiConstruct{{^hasApi}} */{{/hasApi}}) {
         super(scope, id);
 
-        UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
         new StaticWebsite(this, id, StaticWebsiteProps.builder()
                 .websiteContentPath("{{{websiteDistRelativePath}}}")
                 .runtimeOptions(RuntimeOptions.builder()

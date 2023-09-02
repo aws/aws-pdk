@@ -1,5 +1,9 @@
 # Type Safe API
 
+![stable](https://img.shields.io/badge/stability-stable-green.svg)
+[![API Documentation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](../../api/typescript/type-safe-api/index.md)
+[![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-pdk/tree/mainline/packages/type-safe-api)
+
 The _type-safe-api_ package provides a projen project type which allows you to define an API using either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and a construct which manages deploying this API in an API Gateway.
 
 You can define your APIs using [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated client and server types, infrastructure, documentation, and automatic input validation.
@@ -398,7 +402,7 @@ In your CDK application, using your preferred language, include the `Api` constr
     import { Stack, StackProps } from "aws-cdk-lib";
     import { Construct } from "constructs";
     import { Api } from "myapi-typescript-infra"; // <- generated typescript infrastructure package
-    import { Authorizers, Integrations } from "@aws-prototyping-sdk/type-safe-api";
+    import { Authorizers, Integrations } from "@aws/pdk/type-safe-api";
     import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
     import { Cors } from "aws-cdk-lib/aws-apigateway";
     import * as path from "path";

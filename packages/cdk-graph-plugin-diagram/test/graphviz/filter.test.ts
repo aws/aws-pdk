@@ -1,8 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { aws_arch } from "@aws-pdk/aws-arch";
-import { CdkGraph, Filters, NodeTypeEnum } from "@aws-pdk/cdk-graph";
-import { FixtureApp } from "@aws-pdk/cdk-graph/test/__fixtures__/apps";
+import { aws_arch } from "@aws/aws-arch";
+import { CdkGraph, Filters, NodeTypeEnum } from "@aws/cdk-graph";
+import { FixtureApp } from "@aws/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
 import * as testUtils from "./test-utils";
 import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";

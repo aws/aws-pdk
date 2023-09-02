@@ -1,15 +1,16 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { PublishConfig as _PublishConfig } from "@pnpm/types";
-import { SampleDir } from "projen";
+import { Project, SampleDir, TextFile, TextFileOptions } from "projen";
 import { JsiiProject, JsiiProjectOptions, Stability } from "projen/lib/cdk";
 import { NodePackageManager } from "projen/lib/javascript";
 import { NodePackageUtils } from "../../packages/monorepo/src";
 import { NxProject } from "../../packages/monorepo/src/components/nx-project";
 import type { Nx } from "../../packages/monorepo/src/nx-types";
 
-export const PDK_NAMESPACE = "@aws-pdk/";
-const AWS_PDK = "aws-pdk";
+export const PDK_NAMESPACE = "@aws/";
+const AWS_PDK = "pdk";
+const README = "README.md";
 
 export type PublishConfig = _PublishConfig & {
   access?: undefined | "restricted" | "public";
@@ -44,10 +45,7 @@ export abstract class PDKProject extends JsiiProject {
   public readonly nx: NxProject;
 
   constructor(options: PDKProjectOptions) {
-    const name =
-      options.name === AWS_PDK
-        ? options.name
-        : `${PDK_NAMESPACE}${options.name}`;
+    const name = `${PDK_NAMESPACE}${options.name}`;
     super({
       ...options,
       packageManager: NodePackageManager.PNPM,
@@ -63,9 +61,6 @@ export abstract class PDKProject extends JsiiProject {
       jsiiVersion: "*",
       srcdir: "src",
       testdir: "test",
-      readme: {
-        contents: "TODO",
-      },
       name,
       packageName: name,
       outdir: `packages/${options.name}`,
@@ -79,8 +74,8 @@ export abstract class PDKProject extends JsiiProject {
       publishToMaven: {
         mavenEndpoint: "https://aws.oss.sonatype.org",
         mavenGroupId: "software.aws",
-        mavenArtifactId: "aws-pdk",
-        javaPackage: "software.aws.awspdk",
+        mavenArtifactId: "pdk",
+        javaPackage: "software.aws.pdk",
       },
     });
 
@@ -97,7 +92,7 @@ export abstract class PDKProject extends JsiiProject {
     }
 
     if (this.deps.all.find((dep) => AWS_PDK === dep.name)) {
-      throw new Error("PDK Projects cannot have a dependency on the aws-pdk!");
+      throw new Error("PDK Projects cannot have a dependency on the @aws/pdk!");
     }
 
     if (!this.parent) {
@@ -174,6 +169,51 @@ export abstract class PDKProject extends JsiiProject {
 
     // Suppress JSII upgrade warnings
     this.tasks.addEnvironment("JSII_SUPPRESS_UPGRADE_PROMPT", "true");
+
+    this.generateReadme(options.name);
+  }
+
+  private generateReadme(name: string) {
+    new Readme(this, {
+      lines: this.generateReadmeLines(name),
+      readonly: true,
+    });
+  }
+
+  private generateReadmeLines(name: string) {
+    if (name === "pdk") {
+      return [
+        "# AWS PDK",
+        "",
+        "All documentation is located at: https://aws.github.io/aws-pdk",
+      ].concat(
+        this.parent?.subprojects
+          .filter((s) => s.name !== `${PDK_NAMESPACE}${name}`)
+          .sort((s1, s2) => s1.name.localeCompare(s2.name))
+          .map((s) => [""].concat((s.tryFindFile(README) as Readme)._lines!))
+          .flat() as string[]
+      );
+    } else {
+      return [
+        `# ${name}`,
+        "",
+        `Please refer to [Developer Guide](./docs/developer_guides/${name}/index.md).`,
+      ];
+    }
+  }
+}
+
+class Readme extends TextFile {
+  _lines: string[];
+
+  constructor(project: Project, options: TextFileOptions) {
+    super(project, README, options);
+    this._lines = options.lines!;
+  }
+
+  addLine(line: string): void {
+    this._lines?.push(line);
+    super.addLine(line);
   }
 }
 
@@ -227,15 +267,19 @@ export class PDKDocgen {
 
     const docgen = project.addTask("docgen", {
       description: "Generate API docs from .jsii manifest",
-      exec: `mkdir -p ${docsBasePath}/typescript && jsii-docgen -r=false -o ${docsBasePath}/typescript/index.md && sed -i'' -e 's/@aws-pdk/aws-pdk/g' ${docsBasePath}/typescript/index.md`,
+      exec: `mkdir -p ${docsBasePath}/typescript && jsii-docgen -r=false -o ${docsBasePath}/typescript/index.md && sed -i'' -e 's/@aws\\//@aws\\/pdk\\//g' ${docsBasePath}/typescript/index.md`,
     });
 
     docgen.exec(
-      `mkdir -p ${docsBasePath}/python && jsii-docgen -l python -r=false -o ${docsBasePath}/python/index.md && sed -i'' -e 's/@aws-pdk/aws-pdk/g' ${docsBasePath}/python/index.md`
+      `mkdir -p ${docsBasePath}/python && jsii-docgen -l python -r=false -o ${docsBasePath}/python/index.md && sed -i'' -e 's/aws.pdk/aws.pdk.${this.toSnakeCase(
+        project
+      )}/g' ${docsBasePath}/python/index.md`
     );
 
     docgen.exec(
-      `mkdir -p ${docsBasePath}/java && jsii-docgen -l java -r=false -o ${docsBasePath}/java/index.md && sed -i'' -e 's/@aws-pdk/aws-pdk/g' ${docsBasePath}/java/index.md`
+      `mkdir -p ${docsBasePath}/java && jsii-docgen -l java -r=false -o ${docsBasePath}/java/index.md && sed -i'' -e 's/software.aws.pdk/software.aws.pdk.${this.toSnakeCase(
+        project
+      )}/g' ${docsBasePath}/java/index.md`
     );
 
     NxProject.of(project)?.addBuildTargetFiles(
@@ -247,5 +291,13 @@ export class PDKDocgen {
     project.postCompileTask.spawn(docgen);
     project.gitignore.exclude(`/${docsBasePath}`);
     project.annotateGenerated(`/${docsBasePath}`);
+  }
+
+  private toSnakeCase(project: PDKProject) {
+    return project.name
+      .split("/")
+      .reverse()[0]
+      .toLowerCase()
+      .replace(/-/g, "_");
   }
 }
