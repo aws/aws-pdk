@@ -440,7 +440,7 @@ When you use a handler router, you must specify the same lambda function for eve
 === "TS"
 
     ```ts
-    import { Integrations, Authorizers } from "@aws-prototyping-sdk/type-safe-api";
+    import { Integrations, Authorizers } from "@aws/pdk/type-safe-api";
     import { Operations } from "myapi-typescript-runtime";
     import { Api } from "myapi-typescript-infra";
     import { NodejsFunction } from "aws-cdk-lib/aws-lambda";

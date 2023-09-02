@@ -13,7 +13,7 @@ myPackage.compileTask.reset("tsc --build --verbose");
 #### Links
 
 - [Cross stack values do not work with Source.data/jsonData [CDK github]](https://github.com/aws/aws-cdk/issues/19257)
-- [Nested stack runtime-config.json properties [PDK github]](https://github.com/aws/aws-prototyping-sdk/issues/84)
+- [Nested stack runtime-config.json properties [PDK github]](https://github.com/aws/aws-pdk/issues/84)
 
 #### TLDR;
 
@@ -79,7 +79,7 @@ myPackage.tsconfig?.addInclude("src/**/*.js");
 // myPackage.tsconfig?.addInclude("src/**/@lambda/**/*.js");
 ```
 
-#### Option #2 - with `rsync` ([example](https://github.com/aws/aws-prototyping-sdk/blob/392fb8c483a99123d4e8a8b6b95b5aa7ecb014b8/private/projects/monorepo-project.ts#L39))
+#### Option #2 - with `rsync` ([example](https://github.com/aws/aws-pdk/blob/392fb8c483a99123d4e8a8b6b95b5aa7ecb014b8/private/projects/monorepo-project.ts#L39))
 
 ```ts
 this.compileTask.exec(

@@ -25,7 +25,7 @@ The AwsPrototyping NagPack has not been designed with specific prototype goals a
 
 ### PDK users
 
-If you use the release >= [0.12.17](https://github.com/aws/aws-prototyping-sdk/releases/tag/v0.12.17) of PDK, you can opt into using the AwsPrototyping pack as follows:
+If you use the release >= [0.12.17](https://github.com/aws/aws-pdk/releases/tag/v0.12.17) of PDK, you can opt into using the AwsPrototyping pack as follows:
 
 ```
 import { AwsPrototypingChecks } from "@aws/pdk/pdk-nag";
@@ -43,16 +43,16 @@ If you are not using PDK, but are using CDK you can import the Pack into your CD
 
 ```
 # Installation via yarn
-yarn add aws-pdk
+yarn add @aws/pdk
 
 # Installation via npm
-npm install aws-pdk
+npm install @aws/pdk
 ```
 
 2. Instrument the lint pack into your application.
 
 ```
-import { AwsPrototypingChecks } from "aws-pdk/pdk-nag";
+import { AwsPrototypingChecks } from "@aws/pdk/pdk-nag";
 
 const app = new cdk.App();
 Aspects.of(app).add(new AwsPrototypingChecks());

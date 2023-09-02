@@ -70,7 +70,7 @@ Let's take a moment to examine the project structure that is created for you:
 As you can see, alot of files have been created for you and each of these are managed by the PDK/Projen on your behalf. The only file you need to modify is the `projenrc` file which is repsonsible for synthesizing each of these files.
 
 !!!warning
-    It is important that you never modify these files directly as it will result in your changes being overriden the next time you run the `pdk` command which will re-synthesize them.
+    It is important that you never modify synthesized files directly as it will result in your changes being overriden the next time you run the `pdk` command which will re-synthesize/override them.
 
 Inspecting the `projenrc` file, we notice that a single construct is instantiated that represents the monorepo itself. Within this construct you can add new dependencies, update tsconfig, npmignore, gitignore, etc. In the default configuration, the following apply:
 
@@ -110,24 +110,23 @@ In future, when we add new sub-projects to the monorepo - we will see the output
 
 At this point, your monorepo project doesn't do anything because the `projenrc` file only defines the monorepo itself and no other sub-projects which isn't useful. Let's make things more interesting and add a Type-Safe API.
 
-The Type-Safe API construct is available within the `aws-pdk` library which is installed by default, so there is no need to install another library. We can define the Type-Safe API within the `projenrc` file as follows:
+The Type-Safe API construct is available within the AWS PDK library which is installed by default, so there is no need to install another library. We can define the Type-Safe API within the `projenrc` file as follows:
 
 === "TYPESCRIPT"
 
     ```ts
-    import { MonorepoTsProject } from "aws-pdk/monorepo";
+    import { MonorepoTsProject } from "@aws/pdk/monorepo";
     import {
         DocumentationFormat,
         Language,
         Library,
         ModelLanguage,
         TypeSafeApiProject,
-    } from "aws-pdk/type-safe-api";
+    } from "@aws/pdk/type-safe-api";
     import { javascript } from "projen";
 
     // rename variable to monorepo for better readability
     const monorepo = new MonorepoTsProject({
-        devDeps: ["aws-pdk"],
         name: "my-project",
         packageManager: javascript.NodePackageManager.PNPM,
         projenrcTs: true,
@@ -176,7 +175,6 @@ The Type-Safe API construct is available within the `aws-pdk` library which is i
 
     # rename variable to monorepo for better readability
     monorepo = MonorepoPythonProject(
-        dev_deps=["aws-pdk"],
         module_name="my_project",
         name="my-project",
     )
@@ -219,10 +217,10 @@ The Type-Safe API construct is available within the `aws-pdk` library which is i
 === "JAVA"
 
     ```java
-    import software.aws.awspdk.monorepo.MonorepoJavaProject;
-    import software.aws.awspdk.type_safe_api.*;
+    import software.aws.pdk.monorepo.MonorepoJavaProject;
+    import software.aws.pdk.type_safe_api.*;
+    import software.aws.pdk.monorepo.MonorepoJavaOptions;
     import java.util.Arrays;
-    import software.aws.awspdk.monorepo.MonorepoJavaOptions;
 
     public class projenrc {
         public static void main(String[] args) {
@@ -317,19 +315,18 @@ Let's now add a React website to our monorepo so that we can make authenticated 
 === "TYPESCRIPT"
 
     ```typescript
-    import { CloudscapeReactTsWebsiteProject } from "aws-pdk/cloudscape-react-ts-website";
-    import { MonorepoTsProject } from "aws-pdk/monorepo";
+    import { CloudscapeReactTsWebsiteProject } from "@aws/pdk/cloudscape-react-ts-website";
+    import { MonorepoTsProject } from "@aws/pdk/monorepo";
     import {
         DocumentationFormat,
         Language,
         Library,
         ModelLanguage,
         TypeSafeApiProject,
-    } from "aws-pdk/type-safe-api";
+    } from "@aws/pdk/type-safe-api";
     import { javascript } from "projen";
 
     const monorepo = new MonorepoTsProject({
-        devDeps: ["aws-pdk"],
         name: "my-project",
         packageManager: javascript.NodePackageManager.PNPM,
         projenrcTs: true,
@@ -385,7 +382,6 @@ Let's now add a React website to our monorepo so that we can make authenticated 
     from aws_pdk.type_safe_api import *
 
     monorepo = MonorepoPythonProject(
-        dev_deps=["aws-pdk"],
         module_name="my_project",
         name="my-project",
     )
@@ -435,12 +431,12 @@ Let's now add a React website to our monorepo so that we can make authenticated 
 === "JAVA"
 
     ```java
-    import software.aws.awspdk.monorepo.MonorepoJavaProject;
-    import software.aws.awspdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProject;
-    import software.aws.awspdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProjectOptions;
-    import software.aws.awspdk.type_safe_api.*;
+    import software.aws.pdk.monorepo.MonorepoJavaProject;
+    import software.aws.pdk.monorepo.MonorepoJavaOptions;
+    import software.aws.pdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProject;
+    import software.aws.pdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProjectOptions;
+    import software.aws.pdk.type_safe_api.*;
     import java.util.Arrays;
-    import software.aws.awspdk.monorepo.MonorepoJavaOptions;
 
     public class projenrc {
         public static void main(String[] args) {
@@ -514,20 +510,19 @@ Let's add this infrastructure to the monorepo by modifying our `projenrc` file t
 === "TYPESCRIPT"
 
     ```typescript
-    import { CloudscapeReactTsWebsiteProject } from "aws-pdk/cloudscape-react-ts-website";
-    import { InfrastructureTsProject } from "aws-pdk/infrastructure";
-    import { MonorepoTsProject } from "aws-pdk/monorepo";
+    import { CloudscapeReactTsWebsiteProject } from "@aws/pdk/cloudscape-react-ts-website";
+    import { InfrastructureTsProject } from "@aws/pdk/infrastructure";
+    import { MonorepoTsProject } from "@aws/pdk/monorepo";
     import {
         DocumentationFormat,
         Language,
         Library,
         ModelLanguage,
         TypeSafeApiProject,
-    } from "aws-pdk/type-safe-api";
+    } from "@aws/pdk/type-safe-api";
     import { javascript } from "projen";
 
     const monorepo = new MonorepoTsProject({
-        devDeps: ["aws-pdk"],
         name: "my-project",
         packageManager: javascript.NodePackageManager.PNPM,
         projenrcTs: true,
@@ -592,7 +587,6 @@ Let's add this infrastructure to the monorepo by modifying our `projenrc` file t
     from aws_pdk.type_safe_api import *
 
     monorepo = MonorepoPythonProject(
-        dev_deps=["aws-pdk"],
         module_name="my_project",
         name="my-project",
     )
@@ -650,14 +644,14 @@ Let's add this infrastructure to the monorepo by modifying our `projenrc` file t
 === "JAVA"
 
     ```java
-    import software.aws.awspdk.monorepo.MonorepoJavaProject;
-    import software.aws.awspdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProject;
-    import software.aws.awspdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProjectOptions;
-    import software.aws.awspdk.infrastructure.InfrastructureJavaProject;
-    import software.aws.awspdk.infrastructure.InfrastructureJavaProjectOptions;
-    import software.aws.awspdk.type_safe_api.*;
+    import software.aws.pdk.monorepo.MonorepoJavaProject;
+    import software.aws.pdk.monorepo.MonorepoJavaOptions;
+    import software.aws.pdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProject;
+    import software.aws.pdk.cloudscape_react_ts_website.CloudscapeReactTsWebsiteProjectOptions;
+    import software.aws.pdk.infrastructure.InfrastructureJavaProject;
+    import software.aws.pdk.infrastructure.InfrastructureJavaProjectOptions;
+    import software.aws.pdk.type_safe_api.*;
     import java.util.Arrays;
-    import software.aws.awspdk.monorepo.MonorepoJavaOptions;
 
     public class projenrc {
         public static void main(String[] args) {
@@ -719,7 +713,7 @@ Let's add this infrastructure to the monorepo by modifying our `projenrc` file t
     }
     ```
 
-As always, given we have modified our `projenrc` file we need to run the `pdk` command from the root to synthesize our new website onto the filesystem.
+As always, given we have modified our `projenrc` file we need to run the `pdk` command from the root to synthesize our new infrastructure onto the filesystem.
 
 You should now see a `packages/infra` directory containing all of your pre-configured CDK code to deploy your website and API!
 
@@ -808,7 +802,7 @@ Enter **y** to approve the changes and delete the `infra-dev` stack.
 
 Congratulations, you have now set up your first PDK based monorepo project! Where do you go from here?
 
-- Try the [TODO App workshop](./todo_app_workshop.md) for a more in-depth guide on how to build on the foundations we just laid.
+- Build a [Shopping List application](./shopping_list_app.md) for a more in-depth guide on how to iterate on the foundations we just learnt.
 - See the [Developer Guide](../developer_guides/index.md) to begin exploring the provided constructs available in the PDK.
 - See the [API reference](../api/index.md) to view [Js/Java/Py]Docs for each provided PDK construct.
 - The AWS PDK is an [open-source project](https://github.com/aws/aws-pdk). Want to [contribute](../contributing/index.md)?

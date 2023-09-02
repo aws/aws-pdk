@@ -1,6 +1,6 @@
 # Type Safe API
 
-This project contains an API built with [Type Safe API](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/type-safe-api).
+This project contains an API built with [Type Safe API](https://github.com/aws/aws-pdk/tree/mainline/packages/type-safe-api).
 
 ## Project Structure
 
@@ -40,10 +40,10 @@ The build will trigger regeneration of the `runtime`, `infrastructure` and `docu
 
 If you are using the CDK construct defined in the `infrastructure` folder, you likely encountered a type error in your CDK project, since the construct requires an integration for every operation defined in the model.
 
-Please refer to the [Type Safe API documentation](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/type-safe-api) for details about how to add integrations in your chosen infrastructure language.
+Please refer to the [Type Safe API documentation](https://github.com/aws/aws-pdk/tree/mainline/packages/type-safe-api) for details about how to add integrations in your chosen infrastructure language.
 
 ### Implement the Operation
 
 Finally, you'll need to implement the operation. If using AWS Lambda for your API integrations, you can make use of the generated lambda handler wrappers from one of the `runtime` projects. These wrappers provide typed interfaces for operations, providing auto-complete in your IDE for inputs, and ensuring you return the output (or one of the errors) defined in the model.
 
-For more details about using the handler wrappers in the various supported languages, please refer to the [Type Safe API documentation](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/type-safe-api).
+For more details about using the handler wrappers in the various supported languages, please refer to the [Type Safe API documentation](https://github.com/aws/aws-pdk/tree/mainline/packages/type-safe-api).

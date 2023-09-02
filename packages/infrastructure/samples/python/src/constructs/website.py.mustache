@@ -7,10 +7,9 @@ from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionPr
 
 # Construct to deploy a Static Website
 class WebsiteConstruct(Construct):
-    def __init__(self, scope: Construct, id: str{{^hasApi}}'''{{/hasApi}}, api_construct: ApiConstruct{{^hasApi}}'''{{/hasApi}}, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity{{^hasApi}}'''{{/hasApi}}, api_construct: ApiConstruct{{^hasApi}}'''{{/hasApi}}, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
         StaticWebsite(self, id,
                       website_content_path='{{{websiteDistRelativePath}}}',
                       runtime_options=RuntimeOptions(
