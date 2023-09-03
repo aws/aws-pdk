@@ -142,7 +142,7 @@ test_project/models/__init__.py
 test_project/response.py
 test_project/rest.py
 test_project/interceptors/try_catch.py
-test_project/interceptors/cors.py
+test_project/interceptors/response_headers.py
 test_project/interceptors/powertools/logger.py
 test_project/interceptors/powertools/tracer.py
 test_project/interceptors/powertools/metrics.py
@@ -979,7 +979,9 @@ import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
 from dataclasses import dataclass, fields
-from pydantic import BaseModel, Field, StrictStr, conlist
+from datetime import datetime
+import dateutil.parser
+from pydantic import BaseModel, Field, StrictStr, conlist, StrictBool, StrictInt, StrictFloat
 
 from test_project.models import *
 
@@ -1051,25 +1053,100 @@ def parse_body(body, content_types, model):
             body = json.loads(body or '{}')
     return body
 
+def assert_required(required, base_name, parameters):
+    if required and parameters.get(base_name) is None:
+        raise Exception(f"Missing required request parameter '{base_name}'")
+
+def coerce_float(base_name, s):
+    try:
+        return float(s)
+    except Exception as e:
+        raise Exception(f"Expected a number for request parameter '{base_name}'")
+
+def coerce_int(base_name, s):
+    try:
+        return int(s)
+    except Exception as e:
+        raise Exception(f"Expected an integer for request parameter '{base_name}'")
+
+def coerce_datetime(base_name, s):
+    try:
+        return dateutil.parser.parse(s)
+    except Exception as e:
+        raise Exception(f"Expected a valid date (iso format) for request parameter '{base_name}'")
+
+def coerce_bool(base_name, s):
+    if s == "true":
+        return True
+    elif s == "false":
+        return False
+    raise Exception(f"Expected a boolean (true or false) for request parameter '{base_name}'")
+
+def coerce_parameter(base_name, data_type, raw_string_parameters, raw_string_array_parameters, required):
+    if data_type == "float":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_float(base_name, param)
+    elif data_type == "int":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_int(base_name, param)
+    elif data_type == "bool":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_bool(base_name, param)
+    elif data_type == "datetime":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_datetime(base_name, param)
+    elif data_type == "List[float]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_float(base_name, p) for p in param]
+    elif data_type == "List[int]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_int(base_name, p) for p in param]
+    elif data_type == "List[bool]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_bool(base_name, p) for p in param]
+    elif data_type == "List[datetime]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_datetime(base_name, p) for p in param]
+    elif data_type == "List[str]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        return raw_string_array_parameters.get(base_name)
+    else: # data_type == "str"
+        assert_required(required, base_name, raw_string_parameters)
+        return raw_string_parameters.get(base_name)
+
+
+def extract_response_headers_from_interceptors(interceptors):
+    headers = {}
+    for interceptor in interceptors:
+        additional_headers = getattr(interceptor, "__type_safe_api_response_headers", None)
+        headers = {**headers, **(additional_headers or {})}
+    return headers
+
 
 RequestParameters = TypeVar('RequestParameters')
-RequestArrayParameters = TypeVar('RequestArrayParameters')
 RequestBody = TypeVar('RequestBody')
 ResponseBody = TypeVar('ResponseBody')
 StatusCode = TypeVar('StatusCode')
 
 @dataclass
-class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+class ApiRequest(Generic[RequestParameters, RequestBody]):
     request_parameters: RequestParameters
-    request_array_parameters: RequestArrayParameters
     body: RequestBody
     event: Any
     context: Any
     interceptor_context: Dict[str, Any]
 
 @dataclass
-class ChainedApiRequest(ApiRequest[RequestParameters, RequestArrayParameters, RequestBody],
-    Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+class ChainedApiRequest(ApiRequest[RequestParameters, RequestBody],
+    Generic[RequestParameters, RequestBody]):
 
     chain: 'HandlerChain'
 
@@ -1079,24 +1156,23 @@ class ApiResponse(Exception, Generic[StatusCode, ResponseBody]):
     headers: Dict[str, str]
     body: ResponseBody
 
-class HandlerChain(Generic[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
-    def next(self, request: ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+class HandlerChain(Generic[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+    def next(self, request: ChainedApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
         raise Exception("Not implemented!")
 
 def _build_handler_chain(_interceptors, handler) -> HandlerChain:
     if len(_interceptors) == 0:
-        class BaseHandlerChain(HandlerChain[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
-            def next(self, request: ApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+        class BaseHandlerChain(HandlerChain[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
                 return handler(request)
         return BaseHandlerChain()
     else:
         interceptor = _interceptors[0]
 
-        class RemainingHandlerChain(HandlerChain[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
-            def next(self, request: ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+        class RemainingHandlerChain(HandlerChain[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ChainedApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
                 return interceptor(ChainedApiRequest(
                     request_parameters = request.request_parameters,
-                    request_array_parameters = request.request_array_parameters,
                     body = request.body,
                     event = request.event,
                     context = request.context,
@@ -1106,8 +1182,10 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
         return RemainingHandlerChain()
 
 
-# Request parameters are single value query params, path params or header params
 class NeitherRequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the Neither operation
+    """
 
     class Config:
         """Pydantic configuration"""
@@ -1128,40 +1206,7 @@ class NeitherRequestParameters(BaseModel):
     def from_dict(cls, obj: dict) -> NeitherRequestParameters:
         if obj is None:
             return None
-        if not isinstance(obj, dict):
-            return NeitherRequestParameters.parse_obj(obj)
-
-        return NeitherRequestParameters.parse_obj({
-        })
-
-
-# Request array parameters are multi-value query params or header params
-class NeitherRequestArrayParameters(BaseModel):
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> NeitherRequestArrayParameters:
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> NeitherRequestArrayParameters:
-        if obj is None:
-            return None
-        if not isinstance(obj, dict):
-            return NeitherRequestArrayParameters.parse_obj(obj)
-
-        return NeitherRequestArrayParameters.parse_obj({
-        })
+        return NeitherRequestParameters.parse_obj(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
@@ -1171,8 +1216,8 @@ Neither200OperationResponse = ApiResponse[Literal[200], None]
 NeitherOperationResponses = Union[Neither200OperationResponse, ]
 
 # Request type for neither
-NeitherRequest = ApiRequest[NeitherRequestParameters, NeitherRequestArrayParameters, NeitherRequestBody]
-NeitherChainedRequest = ChainedApiRequest[NeitherRequestParameters, NeitherRequestArrayParameters, NeitherRequestBody]
+NeitherRequest = ApiRequest[NeitherRequestParameters, NeitherRequestBody]
+NeitherChainedRequest = ChainedApiRequest[NeitherRequestParameters, NeitherRequestBody]
 
 class NeitherHandlerFunction(Protocol):
     def __call__(self, input: NeitherRequest, **kwargs) -> NeitherOperationResponses:
@@ -1187,31 +1232,48 @@ def neither_handler(_handler: NeitherHandlerFunction = None, interceptors: List[
     def _handler_wrapper(handler: NeitherHandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = NeitherRequestParameters.from_dict(decode_request_parameters({
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            }))
-            request_array_parameters = NeitherRequestArrayParameters.from_dict(decode_request_parameters({
+            })
+            raw_string_array_parameters = decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            }))
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = NeitherRequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
             body = {}
             interceptor_context = {
                 "operationId": "neither",
             }
 
-            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            chain = _build_handler_chain(all_interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
-                request_array_parameters,
                 body,
                 event,
                 context,
                 interceptor_context,
             ), **kwargs)
 
-            response_headers = response.headers or {}
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
             response_body = ''
             if response.body is None:
                 pass
@@ -1233,8 +1295,10 @@ def neither_handler(_handler: NeitherHandlerFunction = None, interceptors: List[
     else:
         raise Exception("Positional arguments are not supported by neither_handler.")
 
-# Request parameters are single value query params, path params or header params
 class BothRequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the Both operation
+    """
 
     class Config:
         """Pydantic configuration"""
@@ -1255,40 +1319,7 @@ class BothRequestParameters(BaseModel):
     def from_dict(cls, obj: dict) -> BothRequestParameters:
         if obj is None:
             return None
-        if not isinstance(obj, dict):
-            return BothRequestParameters.parse_obj(obj)
-
-        return BothRequestParameters.parse_obj({
-        })
-
-
-# Request array parameters are multi-value query params or header params
-class BothRequestArrayParameters(BaseModel):
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> BothRequestArrayParameters:
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> BothRequestArrayParameters:
-        if obj is None:
-            return None
-        if not isinstance(obj, dict):
-            return BothRequestArrayParameters.parse_obj(obj)
-
-        return BothRequestArrayParameters.parse_obj({
-        })
+        return BothRequestParameters.parse_obj(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
@@ -1298,8 +1329,8 @@ Both200OperationResponse = ApiResponse[Literal[200], None]
 BothOperationResponses = Union[Both200OperationResponse, ]
 
 # Request type for both
-BothRequest = ApiRequest[BothRequestParameters, BothRequestArrayParameters, BothRequestBody]
-BothChainedRequest = ChainedApiRequest[BothRequestParameters, BothRequestArrayParameters, BothRequestBody]
+BothRequest = ApiRequest[BothRequestParameters, BothRequestBody]
+BothChainedRequest = ChainedApiRequest[BothRequestParameters, BothRequestBody]
 
 class BothHandlerFunction(Protocol):
     def __call__(self, input: BothRequest, **kwargs) -> BothOperationResponses:
@@ -1314,31 +1345,48 @@ def both_handler(_handler: BothHandlerFunction = None, interceptors: List[BothIn
     def _handler_wrapper(handler: BothHandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = BothRequestParameters.from_dict(decode_request_parameters({
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            }))
-            request_array_parameters = BothRequestArrayParameters.from_dict(decode_request_parameters({
+            })
+            raw_string_array_parameters = decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            }))
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = BothRequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
             body = {}
             interceptor_context = {
                 "operationId": "both",
             }
 
-            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            chain = _build_handler_chain(all_interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
-                request_array_parameters,
                 body,
                 event,
                 context,
                 interceptor_context,
             ), **kwargs)
 
-            response_headers = response.headers or {}
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
             response_body = ''
             if response.body is None:
                 pass
@@ -1360,8 +1408,10 @@ def both_handler(_handler: BothHandlerFunction = None, interceptors: List[BothIn
     else:
         raise Exception("Positional arguments are not supported by both_handler.")
 
-# Request parameters are single value query params, path params or header params
 class Tag1RequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the Tag1 operation
+    """
 
     class Config:
         """Pydantic configuration"""
@@ -1382,40 +1432,7 @@ class Tag1RequestParameters(BaseModel):
     def from_dict(cls, obj: dict) -> Tag1RequestParameters:
         if obj is None:
             return None
-        if not isinstance(obj, dict):
-            return Tag1RequestParameters.parse_obj(obj)
-
-        return Tag1RequestParameters.parse_obj({
-        })
-
-
-# Request array parameters are multi-value query params or header params
-class Tag1RequestArrayParameters(BaseModel):
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> Tag1RequestArrayParameters:
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> Tag1RequestArrayParameters:
-        if obj is None:
-            return None
-        if not isinstance(obj, dict):
-            return Tag1RequestArrayParameters.parse_obj(obj)
-
-        return Tag1RequestArrayParameters.parse_obj({
-        })
+        return Tag1RequestParameters.parse_obj(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
@@ -1425,8 +1442,8 @@ Tag1200OperationResponse = ApiResponse[Literal[200], None]
 Tag1OperationResponses = Union[Tag1200OperationResponse, ]
 
 # Request type for tag1
-Tag1Request = ApiRequest[Tag1RequestParameters, Tag1RequestArrayParameters, Tag1RequestBody]
-Tag1ChainedRequest = ChainedApiRequest[Tag1RequestParameters, Tag1RequestArrayParameters, Tag1RequestBody]
+Tag1Request = ApiRequest[Tag1RequestParameters, Tag1RequestBody]
+Tag1ChainedRequest = ChainedApiRequest[Tag1RequestParameters, Tag1RequestBody]
 
 class Tag1HandlerFunction(Protocol):
     def __call__(self, input: Tag1Request, **kwargs) -> Tag1OperationResponses:
@@ -1441,31 +1458,48 @@ def tag1_handler(_handler: Tag1HandlerFunction = None, interceptors: List[Tag1In
     def _handler_wrapper(handler: Tag1HandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = Tag1RequestParameters.from_dict(decode_request_parameters({
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            }))
-            request_array_parameters = Tag1RequestArrayParameters.from_dict(decode_request_parameters({
+            })
+            raw_string_array_parameters = decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            }))
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = Tag1RequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
             body = {}
             interceptor_context = {
                 "operationId": "tag1",
             }
 
-            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            chain = _build_handler_chain(all_interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
-                request_array_parameters,
                 body,
                 event,
                 context,
                 interceptor_context,
             ), **kwargs)
 
-            response_headers = response.headers or {}
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
             response_body = ''
             if response.body is None:
                 pass
@@ -1487,8 +1521,10 @@ def tag1_handler(_handler: Tag1HandlerFunction = None, interceptors: List[Tag1In
     else:
         raise Exception("Positional arguments are not supported by tag1_handler.")
 
-# Request parameters are single value query params, path params or header params
 class Tag2RequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the Tag2 operation
+    """
 
     class Config:
         """Pydantic configuration"""
@@ -1509,40 +1545,7 @@ class Tag2RequestParameters(BaseModel):
     def from_dict(cls, obj: dict) -> Tag2RequestParameters:
         if obj is None:
             return None
-        if not isinstance(obj, dict):
-            return Tag2RequestParameters.parse_obj(obj)
-
-        return Tag2RequestParameters.parse_obj({
-        })
-
-
-# Request array parameters are multi-value query params or header params
-class Tag2RequestArrayParameters(BaseModel):
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> Tag2RequestArrayParameters:
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> Tag2RequestArrayParameters:
-        if obj is None:
-            return None
-        if not isinstance(obj, dict):
-            return Tag2RequestArrayParameters.parse_obj(obj)
-
-        return Tag2RequestArrayParameters.parse_obj({
-        })
+        return Tag2RequestParameters.parse_obj(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
@@ -1552,8 +1555,8 @@ Tag2200OperationResponse = ApiResponse[Literal[200], None]
 Tag2OperationResponses = Union[Tag2200OperationResponse, ]
 
 # Request type for tag2
-Tag2Request = ApiRequest[Tag2RequestParameters, Tag2RequestArrayParameters, Tag2RequestBody]
-Tag2ChainedRequest = ChainedApiRequest[Tag2RequestParameters, Tag2RequestArrayParameters, Tag2RequestBody]
+Tag2Request = ApiRequest[Tag2RequestParameters, Tag2RequestBody]
+Tag2ChainedRequest = ChainedApiRequest[Tag2RequestParameters, Tag2RequestBody]
 
 class Tag2HandlerFunction(Protocol):
     def __call__(self, input: Tag2Request, **kwargs) -> Tag2OperationResponses:
@@ -1568,31 +1571,48 @@ def tag2_handler(_handler: Tag2HandlerFunction = None, interceptors: List[Tag2In
     def _handler_wrapper(handler: Tag2HandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = Tag2RequestParameters.from_dict(decode_request_parameters({
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            }))
-            request_array_parameters = Tag2RequestArrayParameters.from_dict(decode_request_parameters({
+            })
+            raw_string_array_parameters = decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            }))
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = Tag2RequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
             body = {}
             interceptor_context = {
                 "operationId": "tag2",
             }
 
-            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            chain = _build_handler_chain(all_interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
-                request_array_parameters,
                 body,
                 event,
                 context,
                 interceptor_context,
             ), **kwargs)
 
-            response_headers = response.headers or {}
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
             response_body = ''
             if response.body is None:
                 pass
@@ -1614,7 +1634,7 @@ def tag2_handler(_handler: Tag2HandlerFunction = None, interceptors: List[Tag2In
     else:
         raise Exception("Positional arguments are not supported by tag2_handler.")
 
-Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
 
 def concat_method_and_path(method: str, path: str):
     return "{}||{}".format(method.lower(), path)
@@ -3473,7 +3493,7 @@ def render_path(path_to_item):
             result += "['{0}']".format(pth)
     return result
 ",
-  "test_project/interceptors/__init__.py": "from test_project.interceptors.cors import cors_interceptor
+  "test_project/interceptors/__init__.py": "from test_project.interceptors.response_headers import cors_interceptor
 from test_project.interceptors.try_catch import try_catch_interceptor
 from test_project.interceptors.powertools.logger import LoggingInterceptor
 from test_project.interceptors.powertools.tracer import TracingInterceptor
@@ -3487,22 +3507,6 @@ INTERCEPTORS = [
     TracingInterceptor().intercept,
     MetricsInterceptor().intercept,
 ]
-",
-  "test_project/interceptors/cors.py": "from test_project.api.operation_config import ApiResponse, ChainedApiRequest
-
-CORS_HEADERS = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "*",
-}
-
-def cors_interceptor(request: ChainedApiRequest) -> ApiResponse:
-    """
-    An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
-    Allows all origins and headers.
-    """
-    result = request.chain.next(request)
-    result.headers = { **CORS_HEADERS, **(result.headers or {}) }
-    return result
 ",
   "test_project/interceptors/powertools/logger.py": "from aws_lambda_powertools import Logger
 from aws_lambda_powertools.logging.logger import _is_cold_start
@@ -3621,6 +3625,32 @@ class TracingInterceptor:
         if request.interceptor_context.get("tracer") is None:
             raise Exception("No tracer found. Did you configure the TracingInterceptor?")
         return request.interceptor_context["tracer"]
+",
+  "test_project/interceptors/response_headers.py": "from test_project.api.operation_config import ApiResponse, ChainedApiRequest
+from typing import Dict
+
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+}
+
+def build_response_headers_interceptor(headers: Dict[str, str]):
+    """
+    Build an interceptor for adding headers to the response.
+    """
+    def response_headers_interceptor(request: ChainedApiRequest) -> ApiResponse:
+        result = request.chain.next(request)
+        result.headers = { **headers, **(result.headers or {}) }
+        return result
+
+    # Any error responses returned during request validation will include the headers
+    response_headers_interceptor.__type_safe_api_response_headers = headers
+
+    return response_headers_interceptor
+
+# Cors interceptor allows all origins and headers. Use build_response_headers_interceptors to customise
+cors_interceptor = build_response_headers_interceptor(CORS_HEADERS)
+
 ",
   "test_project/interceptors/try_catch.py": "from test_project.api.operation_config import ApiResponse, ChainedApiRequest
 from test_project.response import Response
@@ -4162,7 +4192,7 @@ test_project/models/test_response_messages_inner.py
 test_project/response.py
 test_project/rest.py
 test_project/interceptors/try_catch.py
-test_project/interceptors/cors.py
+test_project/interceptors/response_headers.py
 test_project/interceptors/powertools/logger.py
 test_project/interceptors/powertools/tracer.py
 test_project/interceptors/powertools/metrics.py
@@ -6295,7 +6325,9 @@ import json
 from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
 from functools import wraps
 from dataclasses import dataclass, fields
-from pydantic import BaseModel, Field, StrictStr, conlist
+from datetime import datetime
+import dateutil.parser
+from pydantic import BaseModel, Field, StrictStr, conlist, StrictBool, StrictInt, StrictFloat
 
 from test_project.models import *
 
@@ -6385,25 +6417,100 @@ def parse_body(body, content_types, model):
             body = json.loads(body or '{}')
     return body
 
+def assert_required(required, base_name, parameters):
+    if required and parameters.get(base_name) is None:
+        raise Exception(f"Missing required request parameter '{base_name}'")
+
+def coerce_float(base_name, s):
+    try:
+        return float(s)
+    except Exception as e:
+        raise Exception(f"Expected a number for request parameter '{base_name}'")
+
+def coerce_int(base_name, s):
+    try:
+        return int(s)
+    except Exception as e:
+        raise Exception(f"Expected an integer for request parameter '{base_name}'")
+
+def coerce_datetime(base_name, s):
+    try:
+        return dateutil.parser.parse(s)
+    except Exception as e:
+        raise Exception(f"Expected a valid date (iso format) for request parameter '{base_name}'")
+
+def coerce_bool(base_name, s):
+    if s == "true":
+        return True
+    elif s == "false":
+        return False
+    raise Exception(f"Expected a boolean (true or false) for request parameter '{base_name}'")
+
+def coerce_parameter(base_name, data_type, raw_string_parameters, raw_string_array_parameters, required):
+    if data_type == "float":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_float(base_name, param)
+    elif data_type == "int":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_int(base_name, param)
+    elif data_type == "bool":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_bool(base_name, param)
+    elif data_type == "datetime":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_datetime(base_name, param)
+    elif data_type == "List[float]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_float(base_name, p) for p in param]
+    elif data_type == "List[int]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_int(base_name, p) for p in param]
+    elif data_type == "List[bool]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_bool(base_name, p) for p in param]
+    elif data_type == "List[datetime]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_datetime(base_name, p) for p in param]
+    elif data_type == "List[str]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        return raw_string_array_parameters.get(base_name)
+    else: # data_type == "str"
+        assert_required(required, base_name, raw_string_parameters)
+        return raw_string_parameters.get(base_name)
+
+
+def extract_response_headers_from_interceptors(interceptors):
+    headers = {}
+    for interceptor in interceptors:
+        additional_headers = getattr(interceptor, "__type_safe_api_response_headers", None)
+        headers = {**headers, **(additional_headers or {})}
+    return headers
+
 
 RequestParameters = TypeVar('RequestParameters')
-RequestArrayParameters = TypeVar('RequestArrayParameters')
 RequestBody = TypeVar('RequestBody')
 ResponseBody = TypeVar('ResponseBody')
 StatusCode = TypeVar('StatusCode')
 
 @dataclass
-class ApiRequest(Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+class ApiRequest(Generic[RequestParameters, RequestBody]):
     request_parameters: RequestParameters
-    request_array_parameters: RequestArrayParameters
     body: RequestBody
     event: Any
     context: Any
     interceptor_context: Dict[str, Any]
 
 @dataclass
-class ChainedApiRequest(ApiRequest[RequestParameters, RequestArrayParameters, RequestBody],
-    Generic[RequestParameters, RequestArrayParameters, RequestBody]):
+class ChainedApiRequest(ApiRequest[RequestParameters, RequestBody],
+    Generic[RequestParameters, RequestBody]):
 
     chain: 'HandlerChain'
 
@@ -6413,24 +6520,23 @@ class ApiResponse(Exception, Generic[StatusCode, ResponseBody]):
     headers: Dict[str, str]
     body: ResponseBody
 
-class HandlerChain(Generic[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
-    def next(self, request: ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+class HandlerChain(Generic[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+    def next(self, request: ChainedApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
         raise Exception("Not implemented!")
 
 def _build_handler_chain(_interceptors, handler) -> HandlerChain:
     if len(_interceptors) == 0:
-        class BaseHandlerChain(HandlerChain[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
-            def next(self, request: ApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+        class BaseHandlerChain(HandlerChain[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
                 return handler(request)
         return BaseHandlerChain()
     else:
         interceptor = _interceptors[0]
 
-        class RemainingHandlerChain(HandlerChain[RequestParameters, RequestArrayParameters, RequestBody, StatusCode, ResponseBody]):
-            def next(self, request: ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+        class RemainingHandlerChain(HandlerChain[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ChainedApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
                 return interceptor(ChainedApiRequest(
                     request_parameters = request.request_parameters,
-                    request_array_parameters = request.request_array_parameters,
                     body = request.body,
                     event = request.event,
                     context = request.context,
@@ -6440,8 +6546,10 @@ def _build_handler_chain(_interceptors, handler) -> HandlerChain:
         return RemainingHandlerChain()
 
 
-# Request parameters are single value query params, path params or header params
 class AnyRequestResponseRequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the AnyRequestResponse operation
+    """
 
     class Config:
         """Pydantic configuration"""
@@ -6462,40 +6570,7 @@ class AnyRequestResponseRequestParameters(BaseModel):
     def from_dict(cls, obj: dict) -> AnyRequestResponseRequestParameters:
         if obj is None:
             return None
-        if not isinstance(obj, dict):
-            return AnyRequestResponseRequestParameters.parse_obj(obj)
-
-        return AnyRequestResponseRequestParameters.parse_obj({
-        })
-
-
-# Request array parameters are multi-value query params or header params
-class AnyRequestResponseRequestArrayParameters(BaseModel):
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> AnyRequestResponseRequestArrayParameters:
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> AnyRequestResponseRequestArrayParameters:
-        if obj is None:
-            return None
-        if not isinstance(obj, dict):
-            return AnyRequestResponseRequestArrayParameters.parse_obj(obj)
-
-        return AnyRequestResponseRequestArrayParameters.parse_obj({
-        })
+        return AnyRequestResponseRequestParameters.parse_obj(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
@@ -6505,8 +6580,8 @@ AnyRequestResponse200OperationResponse = ApiResponse[Literal[200], str]
 AnyRequestResponseOperationResponses = Union[AnyRequestResponse200OperationResponse, ]
 
 # Request type for any_request_response
-AnyRequestResponseRequest = ApiRequest[AnyRequestResponseRequestParameters, AnyRequestResponseRequestArrayParameters, AnyRequestResponseRequestBody]
-AnyRequestResponseChainedRequest = ChainedApiRequest[AnyRequestResponseRequestParameters, AnyRequestResponseRequestArrayParameters, AnyRequestResponseRequestBody]
+AnyRequestResponseRequest = ApiRequest[AnyRequestResponseRequestParameters, AnyRequestResponseRequestBody]
+AnyRequestResponseChainedRequest = ChainedApiRequest[AnyRequestResponseRequestParameters, AnyRequestResponseRequestBody]
 
 class AnyRequestResponseHandlerFunction(Protocol):
     def __call__(self, input: AnyRequestResponseRequest, **kwargs) -> AnyRequestResponseOperationResponses:
@@ -6521,32 +6596,49 @@ def any_request_response_handler(_handler: AnyRequestResponseHandlerFunction = N
     def _handler_wrapper(handler: AnyRequestResponseHandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = AnyRequestResponseRequestParameters.from_dict(decode_request_parameters({
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            }))
-            request_array_parameters = AnyRequestResponseRequestArrayParameters.from_dict(decode_request_parameters({
+            })
+            raw_string_array_parameters = decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            }))
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = AnyRequestResponseRequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
             # Primitive type so body is passed as the original string
             body = event['body']
             interceptor_context = {
                 "operationId": "any_request_response",
             }
 
-            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            chain = _build_handler_chain(all_interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
-                request_array_parameters,
                 body,
                 event,
                 context,
                 interceptor_context,
             ), **kwargs)
 
-            response_headers = response.headers or {}
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
             response_body = ''
             if response.body is None:
                 pass
@@ -6568,8 +6660,10 @@ def any_request_response_handler(_handler: AnyRequestResponseHandlerFunction = N
     else:
         raise Exception("Positional arguments are not supported by any_request_response_handler.")
 
-# Request parameters are single value query params, path params or header params
 class EmptyRequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the Empty operation
+    """
 
     class Config:
         """Pydantic configuration"""
@@ -6590,40 +6684,7 @@ class EmptyRequestParameters(BaseModel):
     def from_dict(cls, obj: dict) -> EmptyRequestParameters:
         if obj is None:
             return None
-        if not isinstance(obj, dict):
-            return EmptyRequestParameters.parse_obj(obj)
-
-        return EmptyRequestParameters.parse_obj({
-        })
-
-
-# Request array parameters are multi-value query params or header params
-class EmptyRequestArrayParameters(BaseModel):
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> EmptyRequestArrayParameters:
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> EmptyRequestArrayParameters:
-        if obj is None:
-            return None
-        if not isinstance(obj, dict):
-            return EmptyRequestArrayParameters.parse_obj(obj)
-
-        return EmptyRequestArrayParameters.parse_obj({
-        })
+        return EmptyRequestParameters.parse_obj(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
@@ -6633,8 +6694,8 @@ Empty204OperationResponse = ApiResponse[Literal[204], None]
 EmptyOperationResponses = Union[Empty204OperationResponse, ]
 
 # Request type for empty
-EmptyRequest = ApiRequest[EmptyRequestParameters, EmptyRequestArrayParameters, EmptyRequestBody]
-EmptyChainedRequest = ChainedApiRequest[EmptyRequestParameters, EmptyRequestArrayParameters, EmptyRequestBody]
+EmptyRequest = ApiRequest[EmptyRequestParameters, EmptyRequestBody]
+EmptyChainedRequest = ChainedApiRequest[EmptyRequestParameters, EmptyRequestBody]
 
 class EmptyHandlerFunction(Protocol):
     def __call__(self, input: EmptyRequest, **kwargs) -> EmptyOperationResponses:
@@ -6649,31 +6710,48 @@ def empty_handler(_handler: EmptyHandlerFunction = None, interceptors: List[Empt
     def _handler_wrapper(handler: EmptyHandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = EmptyRequestParameters.from_dict(decode_request_parameters({
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            }))
-            request_array_parameters = EmptyRequestArrayParameters.from_dict(decode_request_parameters({
+            })
+            raw_string_array_parameters = decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            }))
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = EmptyRequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
             body = {}
             interceptor_context = {
                 "operationId": "empty",
             }
 
-            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            chain = _build_handler_chain(all_interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
-                request_array_parameters,
                 body,
                 event,
                 context,
                 interceptor_context,
             ), **kwargs)
 
-            response_headers = response.headers or {}
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
             response_body = ''
             if response.body is None:
                 pass
@@ -6695,8 +6773,10 @@ def empty_handler(_handler: EmptyHandlerFunction = None, interceptors: List[Empt
     else:
         raise Exception("Positional arguments are not supported by empty_handler.")
 
-# Request parameters are single value query params, path params or header params
 class MapResponseRequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the MapResponse operation
+    """
 
     class Config:
         """Pydantic configuration"""
@@ -6717,40 +6797,7 @@ class MapResponseRequestParameters(BaseModel):
     def from_dict(cls, obj: dict) -> MapResponseRequestParameters:
         if obj is None:
             return None
-        if not isinstance(obj, dict):
-            return MapResponseRequestParameters.parse_obj(obj)
-
-        return MapResponseRequestParameters.parse_obj({
-        })
-
-
-# Request array parameters are multi-value query params or header params
-class MapResponseRequestArrayParameters(BaseModel):
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> MapResponseRequestArrayParameters:
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> MapResponseRequestArrayParameters:
-        if obj is None:
-            return None
-        if not isinstance(obj, dict):
-            return MapResponseRequestArrayParameters.parse_obj(obj)
-
-        return MapResponseRequestArrayParameters.parse_obj({
-        })
+        return MapResponseRequestParameters.parse_obj(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
@@ -6760,8 +6807,8 @@ MapResponse200OperationResponse = ApiResponse[Literal[200], MapResponse]
 MapResponseOperationResponses = Union[MapResponse200OperationResponse, ]
 
 # Request type for map_response
-MapResponseRequest = ApiRequest[MapResponseRequestParameters, MapResponseRequestArrayParameters, MapResponseRequestBody]
-MapResponseChainedRequest = ChainedApiRequest[MapResponseRequestParameters, MapResponseRequestArrayParameters, MapResponseRequestBody]
+MapResponseRequest = ApiRequest[MapResponseRequestParameters, MapResponseRequestBody]
+MapResponseChainedRequest = ChainedApiRequest[MapResponseRequestParameters, MapResponseRequestBody]
 
 class MapResponseHandlerFunction(Protocol):
     def __call__(self, input: MapResponseRequest, **kwargs) -> MapResponseOperationResponses:
@@ -6776,31 +6823,48 @@ def map_response_handler(_handler: MapResponseHandlerFunction = None, intercepto
     def _handler_wrapper(handler: MapResponseHandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = MapResponseRequestParameters.from_dict(decode_request_parameters({
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            }))
-            request_array_parameters = MapResponseRequestArrayParameters.from_dict(decode_request_parameters({
+            })
+            raw_string_array_parameters = decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            }))
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = MapResponseRequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
             body = {}
             interceptor_context = {
                 "operationId": "map_response",
             }
 
-            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            chain = _build_handler_chain(all_interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
-                request_array_parameters,
                 body,
                 event,
                 context,
                 interceptor_context,
             ), **kwargs)
 
-            response_headers = response.headers or {}
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
             response_body = ''
             if response.body is None:
                 pass
@@ -6822,8 +6886,10 @@ def map_response_handler(_handler: MapResponseHandlerFunction = None, intercepto
     else:
         raise Exception("Positional arguments are not supported by map_response_handler.")
 
-# Request parameters are single value query params, path params or header params
 class MediaTypesRequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the MediaTypes operation
+    """
 
     class Config:
         """Pydantic configuration"""
@@ -6844,40 +6910,7 @@ class MediaTypesRequestParameters(BaseModel):
     def from_dict(cls, obj: dict) -> MediaTypesRequestParameters:
         if obj is None:
             return None
-        if not isinstance(obj, dict):
-            return MediaTypesRequestParameters.parse_obj(obj)
-
-        return MediaTypesRequestParameters.parse_obj({
-        })
-
-
-# Request array parameters are multi-value query params or header params
-class MediaTypesRequestArrayParameters(BaseModel):
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> MediaTypesRequestArrayParameters:
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> MediaTypesRequestArrayParameters:
-        if obj is None:
-            return None
-        if not isinstance(obj, dict):
-            return MediaTypesRequestArrayParameters.parse_obj(obj)
-
-        return MediaTypesRequestArrayParameters.parse_obj({
-        })
+        return MediaTypesRequestParameters.parse_obj(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
@@ -6887,8 +6920,8 @@ MediaTypes200OperationResponse = ApiResponse[Literal[200], str]
 MediaTypesOperationResponses = Union[MediaTypes200OperationResponse, ]
 
 # Request type for media_types
-MediaTypesRequest = ApiRequest[MediaTypesRequestParameters, MediaTypesRequestArrayParameters, MediaTypesRequestBody]
-MediaTypesChainedRequest = ChainedApiRequest[MediaTypesRequestParameters, MediaTypesRequestArrayParameters, MediaTypesRequestBody]
+MediaTypesRequest = ApiRequest[MediaTypesRequestParameters, MediaTypesRequestBody]
+MediaTypesChainedRequest = ChainedApiRequest[MediaTypesRequestParameters, MediaTypesRequestBody]
 
 class MediaTypesHandlerFunction(Protocol):
     def __call__(self, input: MediaTypesRequest, **kwargs) -> MediaTypesOperationResponses:
@@ -6903,32 +6936,49 @@ def media_types_handler(_handler: MediaTypesHandlerFunction = None, interceptors
     def _handler_wrapper(handler: MediaTypesHandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = MediaTypesRequestParameters.from_dict(decode_request_parameters({
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            }))
-            request_array_parameters = MediaTypesRequestArrayParameters.from_dict(decode_request_parameters({
+            })
+            raw_string_array_parameters = decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            }))
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = MediaTypesRequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
             # Primitive type so body is passed as the original string
             body = event['body']
             interceptor_context = {
                 "operationId": "media_types",
             }
 
-            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            chain = _build_handler_chain(all_interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
-                request_array_parameters,
                 body,
                 event,
                 context,
                 interceptor_context,
             ), **kwargs)
 
-            response_headers = response.headers or {}
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
             response_body = ''
             if response.body is None:
                 pass
@@ -6950,8 +7000,10 @@ def media_types_handler(_handler: MediaTypesHandlerFunction = None, interceptors
     else:
         raise Exception("Positional arguments are not supported by media_types_handler.")
 
-# Request parameters are single value query params, path params or header params
 class MultipleContentTypesRequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the MultipleContentTypes operation
+    """
 
     class Config:
         """Pydantic configuration"""
@@ -6972,40 +7024,7 @@ class MultipleContentTypesRequestParameters(BaseModel):
     def from_dict(cls, obj: dict) -> MultipleContentTypesRequestParameters:
         if obj is None:
             return None
-        if not isinstance(obj, dict):
-            return MultipleContentTypesRequestParameters.parse_obj(obj)
-
-        return MultipleContentTypesRequestParameters.parse_obj({
-        })
-
-
-# Request array parameters are multi-value query params or header params
-class MultipleContentTypesRequestArrayParameters(BaseModel):
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> MultipleContentTypesRequestArrayParameters:
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> MultipleContentTypesRequestArrayParameters:
-        if obj is None:
-            return None
-        if not isinstance(obj, dict):
-            return MultipleContentTypesRequestArrayParameters.parse_obj(obj)
-
-        return MultipleContentTypesRequestArrayParameters.parse_obj({
-        })
+        return MultipleContentTypesRequestParameters.parse_obj(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
@@ -7015,8 +7034,8 @@ MultipleContentTypes200OperationResponse = ApiResponse[Literal[200], str]
 MultipleContentTypesOperationResponses = Union[MultipleContentTypes200OperationResponse, ]
 
 # Request type for multiple_content_types
-MultipleContentTypesRequest = ApiRequest[MultipleContentTypesRequestParameters, MultipleContentTypesRequestArrayParameters, MultipleContentTypesRequestBody]
-MultipleContentTypesChainedRequest = ChainedApiRequest[MultipleContentTypesRequestParameters, MultipleContentTypesRequestArrayParameters, MultipleContentTypesRequestBody]
+MultipleContentTypesRequest = ApiRequest[MultipleContentTypesRequestParameters, MultipleContentTypesRequestBody]
+MultipleContentTypesChainedRequest = ChainedApiRequest[MultipleContentTypesRequestParameters, MultipleContentTypesRequestBody]
 
 class MultipleContentTypesHandlerFunction(Protocol):
     def __call__(self, input: MultipleContentTypesRequest, **kwargs) -> MultipleContentTypesOperationResponses:
@@ -7031,32 +7050,49 @@ def multiple_content_types_handler(_handler: MultipleContentTypesHandlerFunction
     def _handler_wrapper(handler: MultipleContentTypesHandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = MultipleContentTypesRequestParameters.from_dict(decode_request_parameters({
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            }))
-            request_array_parameters = MultipleContentTypesRequestArrayParameters.from_dict(decode_request_parameters({
+            })
+            raw_string_array_parameters = decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            }))
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = MultipleContentTypesRequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
             # Non-primitive type so parse the body into the appropriate model
             body = parse_body(event['body'], ['application/json','application/pdf',], MultipleContentTypesRequestBody)
             interceptor_context = {
                 "operationId": "multiple_content_types",
             }
 
-            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            chain = _build_handler_chain(all_interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
-                request_array_parameters,
                 body,
                 event,
                 context,
                 interceptor_context,
             ), **kwargs)
 
-            response_headers = response.headers or {}
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
             response_body = ''
             if response.body is None:
                 pass
@@ -7078,13 +7114,17 @@ def multiple_content_types_handler(_handler: MultipleContentTypesHandlerFunction
     else:
         raise Exception("Positional arguments are not supported by multiple_content_types_handler.")
 
-# Request parameters are single value query params, path params or header params
 class OperationOneRequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the OperationOne operation
+    """
     param1: StrictStr = Field(alias='param1')
-    param3: StrictStr = Field(alias='param3')
+    param2: conlist(StrictStr) = Field(alias='param2')
+    param3: Union[StrictFloat, StrictInt] = Field(alias='param3')
     path_param: StrictStr = Field(alias='pathParam')
     x_header_param: StrictStr = Field(alias='x-header-param')
     param4: Optional[StrictStr] = Field(alias='param4', default=None)
+    x_multi_value_header_param: Optional[conlist(StrictStr)] = Field(alias='x-multi-value-header-param', default=None)
 
     class Config:
         """Pydantic configuration"""
@@ -7105,49 +7145,7 @@ class OperationOneRequestParameters(BaseModel):
     def from_dict(cls, obj: dict) -> OperationOneRequestParameters:
         if obj is None:
             return None
-        if not isinstance(obj, dict):
-            return OperationOneRequestParameters.parse_obj(obj)
-
-        return OperationOneRequestParameters.parse_obj({
-            "param1": obj.get("param1"),
-            "param3": obj.get("param3"),
-            "path_param": obj.get("pathParam"),
-            "x_header_param": obj.get("x-header-param"),
-            "param4": obj.get("param4"),
-        })
-
-
-# Request array parameters are multi-value query params or header params
-class OperationOneRequestArrayParameters(BaseModel):
-    param2: conlist(StrictStr) = Field(alias='param2')
-    x_multi_value_header_param: Optional[conlist(StrictStr)] = Field(alias='x-multi-value-header-param', default=None)
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> OperationOneRequestArrayParameters:
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> OperationOneRequestArrayParameters:
-        if obj is None:
-            return None
-        if not isinstance(obj, dict):
-            return OperationOneRequestArrayParameters.parse_obj(obj)
-
-        return OperationOneRequestArrayParameters.parse_obj({
-            "param2": obj.get("param2"),
-            "x_multi_value_header_param": obj.get("x-multi-value-header-param"),
-        })
+        return OperationOneRequestParameters.parse_obj(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
@@ -7158,8 +7156,8 @@ OperationOne400OperationResponse = ApiResponse[Literal[400], ApiError]
 OperationOneOperationResponses = Union[OperationOne200OperationResponse, OperationOne400OperationResponse, ]
 
 # Request type for operation_one
-OperationOneRequest = ApiRequest[OperationOneRequestParameters, OperationOneRequestArrayParameters, OperationOneRequestBody]
-OperationOneChainedRequest = ChainedApiRequest[OperationOneRequestParameters, OperationOneRequestArrayParameters, OperationOneRequestBody]
+OperationOneRequest = ApiRequest[OperationOneRequestParameters, OperationOneRequestBody]
+OperationOneChainedRequest = ChainedApiRequest[OperationOneRequestParameters, OperationOneRequestBody]
 
 class OperationOneHandlerFunction(Protocol):
     def __call__(self, input: OperationOneRequest, **kwargs) -> OperationOneOperationResponses:
@@ -7174,32 +7172,58 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
     def _handler_wrapper(handler: OperationOneHandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = OperationOneRequestParameters.from_dict(decode_request_parameters({
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            }))
-            request_array_parameters = OperationOneRequestArrayParameters.from_dict(decode_request_parameters({
+            })
+            raw_string_array_parameters = decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            }))
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                if status_code == 400 and "ApiError".endswith("ResponseContent"):
+                    headers_for_status["x-amzn-errortype"] = "ApiError"[:-len("ResponseContent")]
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = OperationOneRequestParameters.from_dict({
+                    "param1": coerce_parameter("param1", "str", raw_string_parameters, raw_string_array_parameters, True),
+                    "param2": coerce_parameter("param2", "List[str]", raw_string_parameters, raw_string_array_parameters, True),
+                    "param3": coerce_parameter("param3", "float", raw_string_parameters, raw_string_array_parameters, True),
+                    "path_param": coerce_parameter("pathParam", "str", raw_string_parameters, raw_string_array_parameters, True),
+                    "x_header_param": coerce_parameter("x-header-param", "str", raw_string_parameters, raw_string_array_parameters, True),
+                    "param4": coerce_parameter("param4", "str", raw_string_parameters, raw_string_array_parameters, False),
+                    "x_multi_value_header_param": coerce_parameter("x-multi-value-header-param", "List[str]", raw_string_parameters, raw_string_array_parameters, False),
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
             # Non-primitive type so parse the body into the appropriate model
             body = parse_body(event['body'], ['application/json',], OperationOneRequestBody)
             interceptor_context = {
                 "operationId": "operation_one",
             }
 
-            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            chain = _build_handler_chain(all_interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
-                request_array_parameters,
                 body,
                 event,
                 context,
                 interceptor_context,
             ), **kwargs)
 
-            response_headers = response.headers or {}
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
             response_body = ''
             if response.body is None:
                 pass
@@ -7207,8 +7231,6 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
                 response_body = response.body.to_json()
             elif response.status_code == 400:
                 response_body = response.body.to_json()
-                if "ApiError".endswith("ResponseContent"):
-                    response_headers["x-amzn-errortype"] = "ApiError"[:-len("ResponseContent")]
 
             return {
                 'statusCode': response.status_code,
@@ -7225,8 +7247,10 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
     else:
         raise Exception("Positional arguments are not supported by operation_one_handler.")
 
-# Request parameters are single value query params, path params or header params
 class WithoutOperationIdDeleteRequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the WithoutOperationIdDelete operation
+    """
 
     class Config:
         """Pydantic configuration"""
@@ -7247,40 +7271,7 @@ class WithoutOperationIdDeleteRequestParameters(BaseModel):
     def from_dict(cls, obj: dict) -> WithoutOperationIdDeleteRequestParameters:
         if obj is None:
             return None
-        if not isinstance(obj, dict):
-            return WithoutOperationIdDeleteRequestParameters.parse_obj(obj)
-
-        return WithoutOperationIdDeleteRequestParameters.parse_obj({
-        })
-
-
-# Request array parameters are multi-value query params or header params
-class WithoutOperationIdDeleteRequestArrayParameters(BaseModel):
-
-    class Config:
-        """Pydantic configuration"""
-        allow_population_by_field_name = True
-        validate_assignment = True
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> WithoutOperationIdDeleteRequestArrayParameters:
-        return cls.from_dict(json.loads(json_str))
-
-    def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> WithoutOperationIdDeleteRequestArrayParameters:
-        if obj is None:
-            return None
-        if not isinstance(obj, dict):
-            return WithoutOperationIdDeleteRequestArrayParameters.parse_obj(obj)
-
-        return WithoutOperationIdDeleteRequestArrayParameters.parse_obj({
-        })
+        return WithoutOperationIdDeleteRequestParameters.parse_obj(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
@@ -7290,8 +7281,8 @@ WithoutOperationIdDelete200OperationResponse = ApiResponse[Literal[200], TestRes
 WithoutOperationIdDeleteOperationResponses = Union[WithoutOperationIdDelete200OperationResponse, ]
 
 # Request type for without_operation_id_delete
-WithoutOperationIdDeleteRequest = ApiRequest[WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestArrayParameters, WithoutOperationIdDeleteRequestBody]
-WithoutOperationIdDeleteChainedRequest = ChainedApiRequest[WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestArrayParameters, WithoutOperationIdDeleteRequestBody]
+WithoutOperationIdDeleteRequest = ApiRequest[WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestBody]
+WithoutOperationIdDeleteChainedRequest = ChainedApiRequest[WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestBody]
 
 class WithoutOperationIdDeleteHandlerFunction(Protocol):
     def __call__(self, input: WithoutOperationIdDeleteRequest, **kwargs) -> WithoutOperationIdDeleteOperationResponses:
@@ -7306,31 +7297,48 @@ def without_operation_id_delete_handler(_handler: WithoutOperationIdDeleteHandle
     def _handler_wrapper(handler: WithoutOperationIdDeleteHandlerFunction):
         @wraps(handler)
         def wrapper(event, context, additional_interceptors = [], **kwargs):
-            request_parameters = WithoutOperationIdDeleteRequestParameters.from_dict(decode_request_parameters({
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
                 **(event.get('pathParameters', {}) or {}),
                 **(event.get('queryStringParameters', {}) or {}),
                 **(event.get('headers', {}) or {}),
-            }))
-            request_array_parameters = WithoutOperationIdDeleteRequestArrayParameters.from_dict(decode_request_parameters({
+            })
+            raw_string_array_parameters = decode_request_parameters({
                 **(event.get('multiValueQueryStringParameters', {}) or {}),
                 **(event.get('multiValueHeaders', {}) or {}),
-            }))
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = WithoutOperationIdDeleteRequestParameters.from_dict({
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
             body = {}
             interceptor_context = {
                 "operationId": "without_operation_id_delete",
             }
 
-            chain = _build_handler_chain(additional_interceptors + interceptors, handler)
+            chain = _build_handler_chain(all_interceptors, handler)
             response = chain.next(ApiRequest(
                 request_parameters,
-                request_array_parameters,
                 body,
                 event,
                 context,
                 interceptor_context,
             ), **kwargs)
 
-            response_headers = response.headers or {}
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
             response_body = ''
             if response.body is None:
                 pass
@@ -7352,7 +7360,7 @@ def without_operation_id_delete_handler(_handler: WithoutOperationIdDeleteHandle
     else:
         raise Exception("Positional arguments are not supported by without_operation_id_delete_handler.")
 
-Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestArrayParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
 
 def concat_method_and_path(method: str, path: str):
     return "{}||{}".format(method.lower(), path)
@@ -8761,7 +8769,7 @@ def render_path(path_to_item):
             result += "['{0}']".format(pth)
     return result
 ",
-  "test_project/interceptors/__init__.py": "from test_project.interceptors.cors import cors_interceptor
+  "test_project/interceptors/__init__.py": "from test_project.interceptors.response_headers import cors_interceptor
 from test_project.interceptors.try_catch import try_catch_interceptor
 from test_project.interceptors.powertools.logger import LoggingInterceptor
 from test_project.interceptors.powertools.tracer import TracingInterceptor
@@ -8775,22 +8783,6 @@ INTERCEPTORS = [
     TracingInterceptor().intercept,
     MetricsInterceptor().intercept,
 ]
-",
-  "test_project/interceptors/cors.py": "from test_project.api.operation_config import ApiResponse, ChainedApiRequest
-
-CORS_HEADERS = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "*",
-}
-
-def cors_interceptor(request: ChainedApiRequest) -> ApiResponse:
-    """
-    An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
-    Allows all origins and headers.
-    """
-    result = request.chain.next(request)
-    result.headers = { **CORS_HEADERS, **(result.headers or {}) }
-    return result
 ",
   "test_project/interceptors/powertools/logger.py": "from aws_lambda_powertools import Logger
 from aws_lambda_powertools.logging.logger import _is_cold_start
@@ -8909,6 +8901,32 @@ class TracingInterceptor:
         if request.interceptor_context.get("tracer") is None:
             raise Exception("No tracer found. Did you configure the TracingInterceptor?")
         return request.interceptor_context["tracer"]
+",
+  "test_project/interceptors/response_headers.py": "from test_project.api.operation_config import ApiResponse, ChainedApiRequest
+from typing import Dict
+
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+}
+
+def build_response_headers_interceptor(headers: Dict[str, str]):
+    """
+    Build an interceptor for adding headers to the response.
+    """
+    def response_headers_interceptor(request: ChainedApiRequest) -> ApiResponse:
+        result = request.chain.next(request)
+        result.headers = { **headers, **(result.headers or {}) }
+        return result
+
+    # Any error responses returned during request validation will include the headers
+    response_headers_interceptor.__type_safe_api_response_headers = headers
+
+    return response_headers_interceptor
+
+# Cors interceptor allows all origins and headers. Use build_response_headers_interceptors to customise
+cors_interceptor = build_response_headers_interceptor(CORS_HEADERS)
+
 ",
   "test_project/interceptors/try_catch.py": "from test_project.api.operation_config import ApiResponse, ChainedApiRequest
 from test_project.response import Response

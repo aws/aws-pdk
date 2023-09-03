@@ -53,7 +53,9 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
         exec(command, {
           cwd: path.resolve(__dirname),
         });
-      }).toThrowErrorMatchingSnapshot();
+      }).toThrowError(
+        /Request parameters must be of type number, integer, boolean, string or arrays of these. Found invalid parameters:\nget \/invalid\/parameters: objectQueryParam\nget \/invalid\/parameters: arrayOfObjects\nget \/invalid\/parameters: mixedTypes/
+      );
     });
   });
 });
