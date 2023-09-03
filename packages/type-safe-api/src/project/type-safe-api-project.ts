@@ -248,12 +248,6 @@ export class TypeSafeApiProject extends Project {
       relativePathToModelDirFromGeneratedPackageDir,
       this.model.parsedSpecFile
     );
-    const smithyJsonModelPathRelativeToGeneratedPackageDir = this.model.smithy
-      ? path.join(
-          relativePathToModelDirFromGeneratedPackageDir,
-          this.model.smithy.smithyJsonModelPath
-        )
-      : undefined;
 
     // Declare the generated runtime projects
     const generatedRuntimeProjects = generateRuntimeProjects(runtimeLanguages, {
@@ -263,8 +257,6 @@ export class TypeSafeApiProject extends Project {
       isWithinMonorepo: isNxWorkspace,
       // Spec path relative to each generated runtime dir
       parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
-      // Smithy model path relative to each generated runtime dir
-      smithyJsonModelPath: smithyJsonModelPathRelativeToGeneratedPackageDir,
       typescriptOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected?.defaultBase ?? "mainline",
@@ -327,8 +319,6 @@ export class TypeSafeApiProject extends Project {
       isWithinMonorepo: isNxWorkspace,
       // Spec path relative to each generated library dir
       parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
-      // Smithy model path relative to each generated library dir
-      smithyJsonModelPath: smithyJsonModelPathRelativeToGeneratedPackageDir,
       typescriptReactQueryHooksOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
@@ -387,12 +377,6 @@ export class TypeSafeApiProject extends Project {
       relativePathToModelDirFromHandlersDir,
       this.model.parsedSpecFile
     );
-    const smithyJsonModelPathRelativeToHandlersDir = this.model.smithy
-      ? path.join(
-          relativePathToModelDirFromHandlersDir,
-          this.model.smithy.smithyJsonModelPath
-        )
-      : undefined;
 
     // Declare the generated handlers projects
     const generatedHandlersProjects = generateHandlersProjects(
@@ -404,8 +388,6 @@ export class TypeSafeApiProject extends Project {
         isWithinMonorepo: isNxWorkspace,
         // Spec path relative to each generated handlers package dir
         parsedSpecPath: parsedSpecRelativeToHandlersDir,
-        // Smithy model path relative to each generated handlers package dir
-        smithyJsonModelPath: smithyJsonModelPathRelativeToHandlersDir,
         typescriptOptions: {
           // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
           defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
@@ -480,8 +462,6 @@ export class TypeSafeApiProject extends Project {
       isWithinMonorepo: isNxWorkspace,
       // Spec path relative to each generated infra package dir
       parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
-      // Smithy model path relative to each generated infra package dir
-      smithyJsonModelPath: smithyJsonModelPathRelativeToGeneratedPackageDir,
       typescriptOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",

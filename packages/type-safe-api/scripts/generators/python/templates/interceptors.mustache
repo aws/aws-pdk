@@ -32,25 +32,35 @@ def try_catch_interceptor(request: ChainedApiRequest) -> ApiResponse:
 ###TSAPI_WRITE_FILE###
 {
   "dir": "interceptors",
-  "name": "cors",
+  "name": "response_headers",
   "ext": ".py",
   "overwrite": true
 }
 ###/TSAPI_WRITE_FILE###from {{packageName}}.api.operation_config import ApiResponse, ChainedApiRequest
+from typing import Dict
 
 CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "*",
 }
 
-def cors_interceptor(request: ChainedApiRequest) -> ApiResponse:
+def build_response_headers_interceptor(headers: Dict[str, str]):
     """
-    An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
-    Allows all origins and headers.
+    Build an interceptor for adding headers to the response.
     """
-    result = request.chain.next(request)
-    result.headers = { **CORS_HEADERS, **(result.headers or {}) }
-    return result
+    def response_headers_interceptor(request: ChainedApiRequest) -> ApiResponse:
+        result = request.chain.next(request)
+        result.headers = { **headers, **(result.headers or {}) }
+        return result
+
+    # Any error responses returned during request validation will include the headers
+    response_headers_interceptor.__type_safe_api_response_headers = headers
+
+    return response_headers_interceptor
+
+# Cors interceptor allows all origins and headers. Use build_response_headers_interceptors to customise
+cors_interceptor = build_response_headers_interceptor(CORS_HEADERS)
+
 ###TSAPI_WRITE_FILE###
 {
   "dir": "interceptors/powertools",
@@ -194,7 +204,7 @@ class MetricsInterceptor:
   "ext": ".py",
   "overwrite": true
 }
-###/TSAPI_WRITE_FILE###from {{packageName}}.interceptors.cors import cors_interceptor
+###/TSAPI_WRITE_FILE###from {{packageName}}.interceptors.response_headers import cors_interceptor
 from {{packageName}}.interceptors.try_catch import try_catch_interceptor
 from {{packageName}}.interceptors.powertools.logger import LoggingInterceptor
 from {{packageName}}.interceptors.powertools.tracer import TracingInterceptor

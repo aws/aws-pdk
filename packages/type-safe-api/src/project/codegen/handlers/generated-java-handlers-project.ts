@@ -169,7 +169,6 @@ export class GeneratedJavaHandlersProject extends JavaProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "java",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.JAVA_LAMBDA_HANDLERS,
       srcDir: this.srcDir,
       normalizers: {
