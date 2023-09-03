@@ -84,9 +84,9 @@ The AWS PDK lets you define your project structure as code in one of its support
 
     ```ts
     new AwsCdkTypeScriptApp({
-    cdkVersion: "2.1.0",
-    name: "infra",
-    defaultReleaseBranch: "main",
+        cdkVersion: "2.1.0",
+        name: "infra",
+        defaultReleaseBranch: "main",
     }).synth();
     ```
 

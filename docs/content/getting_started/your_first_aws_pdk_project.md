@@ -541,16 +541,13 @@ Let's add this infrastructure to the monorepo by modifying our `projenrc` file t
         model: {
             language: ModelLanguage.SMITHY,
             options: {
-            smithy: {
-                serviceName: {
-                namespace: "com.aws",
-                serviceName: "MyApi",
+                smithy: {
+                    serviceName: {
+                        namespace: "com.aws",
+                        serviceName: "MyApi",
+                    },
                 },
             },
-            },
-        },
-        runtime: {
-            languages: [Language.TYPESCRIPT],
         },
         documentation: {
             formats: [DocumentationFormat.HTML_REDOC],
