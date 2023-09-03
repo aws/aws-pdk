@@ -1,0 +1,54 @@
+@startuml
+
+participant cdk as "CDK"
+database graph as "CDK Graph"
+control plugin as "Diagram Plugin"
+participant wasm as "dot-wasm"
+participant sharp as "sharp"
+boundary out as "Artifacts"
+
+group Synth
+  cdk->graph: Start synth
+  graph->graph: Create graph
+end
+
+group Report (async)
+  note over graph,plugin: Must wrap cdk app with async IIFE
+  graph-->plugin: report()
+
+  loop Generate diagram
+    note over plugin: Loop through all diagrams in plugin config to generate artifacts
+
+    plugin->plugin: Clone store (mutatable)
+    plugin->plugin: Apply filters
+    plugin->plugin: Generate dot (ts-graphviz)
+    plugin->graph: Store artifact (dot)
+    graph->out: Write artifact (dot)
+
+    group Generate SVG
+      plugin-->wasm: Convert dot to svg
+      wasm-->plugin: Return svg (string)
+
+      group Transform (svg)
+        plugin->plugin: unescape text values
+        plugin->plugin: reconcile viewbox
+        plugin->plugin: add fonts
+        plugin->plugin: embed images (base64)
+      end
+
+      plugin->graph: Store artifact (svg)
+      graph->out: Write artifact (svg)
+    end
+
+    group Generate PNG
+      plugin-->sharp: Convert svg to png
+      sharp-->plugin: Return png (buffer)
+
+      plugin->graph: Store artifact (png)
+      graph->out: Write artifact (png)
+    end
+  end
+
+end
+
+@enduml
