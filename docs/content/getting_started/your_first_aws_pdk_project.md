@@ -1,5 +1,8 @@
 # Your first AWS PDK Project
 
+!!!warning
+    Some of the steps in this workshop will create resources that may bill your account. If you do not complete the workshop, you may still have AWS resources that are unknowingly charging your account. To ensure your account is clean after completing this workshop, check out the [destroying the deployed resources](./your_first_aws_pdk_project.md#destroying-the-deployed-resources) section towards the end of this page.
+
 You've read [Getting started with the AWS PDK](index.md) and set up your development environment for writing AWS PDK projects? Great! Now let's see how it feels to work with the AWS PDK by building a complex PDK project.
 
 In this tutorial, you'll learn about the following:
@@ -789,7 +792,9 @@ pdk dev
 
 ## Destroying the deployed resources
 
-Now that you're done creating your first PDK project, destroy your deployed resources to avoid incurring any costs as follows:
+> If you plan to continue the learning series and build the Shopping List application, you can save this step for later.
+
+Now that you're done creating your first PDK project, you can choose to destroy your deployed resources to avoid incurring any costs as follows:
 
 ```bash
 cd packages/infra
@@ -797,6 +802,9 @@ pdk run destroy
 ```
 
 Enter **y** to approve the changes and delete the `infra-dev` stack.
+
+!!!note
+    The Cognito UserPool and DynamoDB table that were created were configured with a `removalPolicy` of `RETAIN` and as such will not be destroyed by the `pdk run destroy` command. If you wish to remove these resources, you can do so via the AWS CLI or Console.
 
 ## Next steps
 
