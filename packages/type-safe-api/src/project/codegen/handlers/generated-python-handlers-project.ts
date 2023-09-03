@@ -115,7 +115,6 @@ export class GeneratedPythonHandlersProject extends PythonProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "python-nextgen",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.PYTHON_LAMBDA_HANDLERS,
       // Tell the generator where python source files live
       srcDir: this.moduleName,

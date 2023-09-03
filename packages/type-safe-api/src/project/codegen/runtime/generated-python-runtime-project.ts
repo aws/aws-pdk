@@ -122,7 +122,6 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "python-nextgen",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Language.PYTHON,
       additionalProperties: {
         packageName: this.moduleName,

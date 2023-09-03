@@ -160,7 +160,6 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Language.TYPESCRIPT,
       additionalProperties: {
         npmName: this.package.packageName,
