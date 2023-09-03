@@ -28,11 +28,11 @@ We need to upgrade our dependencies to consume the new AWS PDK packages, to do s
     import { CloudscapeReactTsWebsiteProject } from "@aws-prototyping-sdk/cloudscape-react-ts-website";
     import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
     import {
-    DocumentationFormat,
-    Language,
-    Library,
-    ModelLanguage,
-    TypeSafeApiProject,
+        DocumentationFormat,
+        Language,
+        Library,
+        ModelLanguage,
+        TypeSafeApiProject,
     } from "@aws-prototyping-sdk/type-safe-api";
     import { javascript } from "projen";
     import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
@@ -378,11 +378,255 @@ In order to make this construct truly cross-platform, we had to make a slight tw
 
 The `PDKPipelineTsProject` has been removed as it did not provide an adequate level of control of the generated pipeline. If you have instrumented this construct in your `projenrc.ts` file, you can simply change it to use `AwsCdkTypeScriptApp` instead and ensure the `sample` property is set to false to prevent additional sample code being generated. Be sure to ensure the construct has a dependency on `@aws/pdk` as you will still be able to use the `PDKPipeline` CDK construct contained within `@aws/pdk/pipeline`.
 
-## TypeSafeApi breaking changes
+## TypeSafeApi Breaking Changes
 
-- TypeSafeApi Python runtime moved to new python-nextgen OpenAPI generator, which means:
-  - Properties of models can be referenced as attributes rather than dictionary syntax (eg .my_property rather than ["my_property"]).
-  - Models are now serialised and deserialised using the .from_json and .to_json methods.
-  - request_parameters and request_array_parameters are also models.
-- TypeSafeApi Python handlers import location changed from <package>.apis.tags.default_api_operation_config to <package>.api.operation_config.
-- TypeSafeApi Java classes for handlers/interceptors in runtime are no longer static subclasses of the Handlers class. The import location has changed from eg <package>.api.Handlers.SayHello to <package>.api.handlers.say_hello.SayHello.
+### Request Parameters
+
+#### Types
+
+In the AWS Prototyping SDK, request parameters (query parameters, path parameters and header parameters) were provided to your handler methods or interceptors in two properties, "request parameters" and "request array parameters". These were typed as they were received by API Gateway without any marshalling, and as such no matter the types defined in your model, would be provided to your handlers as strings or string arrays.
+
+In AWS PDK, request parameters can all be found in the same "request parameters" property of the input, and are automatically marshalled into the type defined in your model. This means that any additional type coercion logic you may have written in your lambda handlers may need to be removed.
+
+For example, suppose we have an `Increment` operation defined in Smithy:
+
+```smithy
+@readonly
+@http(uri: "/increment", method: "GET")
+operation Increment {
+    input := {
+        @required
+        @httpQuery("value")
+        value: Integer
+    }
+    output := {
+        @required
+        result: Integer
+    }
+}
+```
+
+Previously, the `value` would be provided in `input.requestParameters.value` as a string, and your handler would have to handle converting it to a number (and returning an error response if it was not a number). Now, `value` is already converted to a number for you, and the handler wrapper will automatically respond with a `400` status code if the provided request parameter is not of the appropriate type.
+
+=== "BEFORE"
+
+    ```ts
+    import { incrementHandler, Response } from "myapi-typescript-runtime";
+
+    export const handler = incrementHandler(async ({ input }) => {
+        const numberValue = Number(input.requestParameters.value);
+        if (isNaN(numberValue)) {
+            return Response.badRequest({
+                message: 'value must be a number',
+            });
+        }
+        return Response.success({
+            result: numberValue + 1,
+        });
+    });
+    ```
+
+=== "AFTER"
+
+    ```ts
+    import { incrementHandler, Response } from "myapi-typescript-runtime";
+
+    export const handler = incrementHandler(async ({ input }) => {
+        return Response.success({
+            result: input.requestParameters.value + 1,
+        });
+    });
+    ```
+
+!!!warning
+    Request parameters have been restricted to only "primitives" (`number`, `integer`, `string` and `boolean`) or arrays of primitives, since this is the set of request parameters Smithy supports. Note also that a `string` of `date` or `date-time` format will be coerced into a language specific date object.
+
+    While OpenAPI supports encoding objects as request parameters using various schemes, these are not supported by Type Safe API and you will receive a validation error if you specify `object` request parameters in your OpenAPI spec.
+
+#### TypeScript Interceptors
+
+You may have previously defined interceptors in TypeScript which referenced the `RequestArrayParameters` type in their type signature. Since all request parameters have been merged into a single `RequestParameters` type, `RequestArrayParameters` must be deleted from your interceptor type signatures:
+
+=== "BEFORE"
+
+    ```ts hl_lines="9 15"
+    import {
+      sayHelloHandler,
+      ChainedRequestInput,
+      OperationResponse,
+    } from "myapi-typescript-runtime";
+
+    const tryCatchInterceptor = async <
+      RequestParameters,
+      RequestArrayParameters,
+      RequestBody,
+      Response extends OperationResponse<number, any>
+    >(
+      request: ChainedRequestInput<
+        RequestParameters,
+        RequestArrayParameters,
+        RequestBody,
+        Response
+      >
+    ): Promise<Response | OperationResponse<500, { message: string }>> => {
+      try {
+        return await request.chain.next(request);
+      } catch (e: any) {
+        return { statusCode: 500, body: { message: e.message } };
+      }
+    };
+
+=== "AFTER"
+
+    ```ts
+    import {
+      sayHelloHandler,
+      ChainedRequestInput,
+      OperationResponse,
+    } from "myapi-typescript-runtime";
+
+    const tryCatchInterceptor = async <
+      RequestParameters,
+      RequestBody,
+      Response extends OperationResponse<number, any>
+    >(
+      request: ChainedRequestInput<
+        RequestParameters,
+        RequestBody,
+        Response
+      >
+    ): Promise<Response | OperationResponse<500, { message: string }>> => {
+      try {
+        return await request.chain.next(request);
+      } catch (e: any) {
+        return { statusCode: 500, body: { message: e.message } };
+      }
+    };
+
+### Python Runtime Package
+
+The Python Runtime package has been migrated to use the latest python generator (`python-nextgen` in [OpenAPI Generator v6](https://github.com/OpenAPITools/openapi-generator/releases/tag/v6.6.0), and renamed to `python` in [v7](https://github.com/OpenAPITools/openapi-generator/releases/tag/v7.0.0)).
+
+As such, there are some breaking changes which will apply to any code using the models:
+
+#### Property Access
+
+Properties of models or request parameters previously needed to be accessed using dictionary notation, while they are now referenced through dot notation:
+
+=== "BEFORE"
+
+    ```python hl_lines="9"
+    from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
+    from myapi_python_runtime.apis.tags.default_api_operation_config import say_hello_handler,
+        SayHelloRequest, SayHelloOperationResponses, ApiResponse
+
+    @say_hello_handler
+    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
+        return ApiResponse(
+            status_code=200,
+            body=SayHelloResponseContent(message="Hello {}".format(input.request_parameters["name"])),
+            headers={}
+        )
+    ```
+
+=== "AFTER"
+
+    ```python hl_lines="9"
+    from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
+    from myapi_python_runtime.api.operation_config import say_hello_handler,
+        SayHelloRequest, SayHelloOperationResponses, ApiResponse
+    from myapi_python_runtime.response import Response
+
+    @say_hello_handler
+    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
+        return Response.success(SayHelloResponseContent(
+            message="Hello {}".format(input.request_parameters.name)
+        ))
+    ```
+
+#### Import Path for Handler Wrappers
+
+The import path has changed for handler wrappers, so you will need to adjust your imports accordingly:
+
+=== "BEFORE"
+
+    Previously handler wrappers were imported from `<runtime-package-name>.apis.tags.default_api_operation_config`:
+
+    ```python hl_lines="2-3"
+    from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
+    from myapi_python_runtime.apis.tags.default_api_operation_config import say_hello_handler,
+        SayHelloRequest, SayHelloOperationResponses, ApiResponse
+
+    @say_hello_handler
+    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
+        return ApiResponse(
+            status_code=200,
+            body=SayHelloResponseContent(message="Hello {}".format(input.request_parameters["name"])),
+            headers={}
+        )
+    ```
+
+=== "AFTER"
+
+    Handler wrappers are now imported from `<runtime-package-name>.api.operation_config`:
+
+    ```python hl_lines="2-3"
+    from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
+    from myapi_python_runtime.api.operation_config import say_hello_handler,
+        SayHelloRequest, SayHelloOperationResponses, ApiResponse
+    from myapi_python_runtime.response import Response
+
+    @say_hello_handler
+    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
+        return Response.success(SayHelloResponseContent(
+            message="Hello {}".format(input.request_parameters.name)
+        ))
+    ```
+
+### Java Runtime Package
+
+Previously in AWS Prototyping SDK, all classes pertaining to all operations were vended as static subclasses of the `Handlers` class.
+
+In AWS PDK, these classes have been moved out from `Handlers` as their own standalone classes. Additionally, classes are grouped under a package namespace for the particular operation.
+
+=== "BEFORE"
+
+    ```java hl_lines="3-6"
+    package com.my.api;
+
+    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello;
+    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello200Response;
+    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloRequestInput;
+    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloResponse;
+    import com.generated.api.myapijavaruntime.runtime.model.SayHelloResponseContent;
+
+    public class SayHelloHandler extends SayHello {
+        @Override
+        public SayHelloResponse handle(SayHelloRequestInput request) {
+            return SayHello200Response.of(SayHelloResponseContent.builder()
+                    .message(String.format("Hello %s", request.getInput().getRequestParameters().getName()))
+                    .build());
+        }
+    }
+    ```
+
+=== "AFTER"
+
+    ```java hl_lines="3-6"
+    package com.my.api;
+    
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello200Response;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse;
+    import com.generated.api.myapijavaruntime.runtime.model.SayHelloResponseContent;
+    
+    public class SayHelloHandler extends SayHello {
+        @Override
+        public SayHelloResponse handle(final SayHelloRequestInput request) {
+            return SayHello200Response.of(SayHelloResponseContent.builder()
+                    .message(String.format("Hello %s", request.getInput().getRequestParameters().getName()))
+                    .build());
+        }
+    }
+    ```

@@ -4,13 +4,15 @@
 [![API Documentation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](../../api/typescript/type-safe-api/index.md)
 [![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-pdk/tree/mainline/packages/type-safe-api)
 
+> Define your API's declaratively in a type-safe manner to reduce preventable issues and increase overall productivity.
+
 The _type-safe-api_ package provides a projen project type which allows you to define an API using either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and a construct which manages deploying this API in an API Gateway.
 
 You can define your APIs using [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated client and server types, infrastructure, documentation, and automatic input validation.
 
 ## How does it work?
 
-The project will generate runtime projects from your API definition in your desired languages, which you can use both on the client side for interacting with your API, or server side for implementing your API. The project also generates a type-safe CDK construct which ensures an integration is provided for every API operation.
+The project will generate runtime projects from your API definition in your desired languages, which contain clients for interacting with your API, and server-side code for implementing your API. The project also generates a type-safe CDK construct which ensures an integration is provided for every API operation.
 
 !!! note
 
@@ -24,6 +26,10 @@ The `TypeSafeApiProject` projen project creates the following directory structur
         |_ main/
             |_ smithy - your API definition if you chose ModelLanguage.SMITHY
             |_ openapi - your API definition if you chose ModelLanguage.OPENAPI
+|_ handlers/
+    |_ typescript - lambda handlers for operations you choose to implement in TypeScript
+    |_ python - lambda handlers for operations you choose to implement in Python
+    |_ java - lambda handlers for operations you choose to implement in Java
 |_ generated/
     |_ runtime/ - generated types, client, and server code in the languages you specified
         |_ typescript
@@ -44,21 +50,22 @@ The `TypeSafeApiProject` projen project creates the following directory structur
 
 ## Getting started
 
-This section describes how to get started with the type-safe API. For more information, refer to the other user guides on particular features of this library.
+This section describes how to get started with the Type Safe API. For more information, refer to the other user guides on particular features of this library.
 
 !!! info
 
-    Select the tabs to use this library with infrastructure and lambda handlers in the same language, but you can mix and match language. For example, you could write CDK infrastructure in Java and implement your lambda handlers in Python.
+    Select the tabs to use this library with infrastructure and lambda handlers in the same language, but you can mix and match language. For example, you could write CDK infrastructure in Java and implement some lambda handlers in Python, and others in TypeScript.
 
 ### Type Safe API project structure
 
 The `TypeSafeApiProject` projen project sets up the project structure for you. Consider the following parameters when creating the project:
 
 - `model` - Configure the API model. Select a `language` for the model from either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and provide `options.smithy` or `options.openapi` depending on your choice.
-- `runtime` - Configure the generated runtime projects. Include one or more `languages` you want to write your client and/or server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation.
 - `infrastructure` - Select the `language` you are writing your CDK infrastructure in. A construct will be generated in this language which can be used to deploy the API.
-- `documentation` - Specify `formats` to generate documentation in.
-- `library` - Specify additional `libraries` to generate, such as React Query hooks for use in a React website.
+- `handlers` - Optionally select the `languages` in which you wish to write lambda handlers for operations in.
+- `runtime` - Optionally configure additional generated runtime projects. Include one or more `languages` you want to write your client and/or server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation. You'll notice runtime packages are automatically generated for languages you picked for `infrastructure` and `handlers`.
+- `documentation` - Optionally specify `formats` to generate documentation in.
+- `library` - Optionally specify additional `libraries` to generate, such as React Query hooks for use in a React website.
 
 ## Create your API project
 
@@ -66,19 +73,13 @@ The `TypeSafeApiProject` projen project sets up the project structure for you. C
 
     We recommend you use these projects as part of an `monorepo` project (eg. by specifying `parent: monorepo`), as it makes setting up dependencies much easier, particularly when extending your project further with a CDK app and lambda functions.
 
-1. To start an empty `monorepo` project, use this command:
+1.) To start an empty `monorepo` project, use this command:
 
 ```bash
-npx projen new --from @aws-prototyping-sdk/monorepo
+pdk new monorepo-ts
 ```
 
-2. Add `@aws-prototyping-sdk/type-safe-api` to your `MonorepoTsProject`'s `devDeps` and re-synthesize to install the dependency.
-
-```
-yarn projen
-```
-
-3. Edit your `.projenrc` and configure `TypeSafeApiProject`.
+2.) Edit your `.projenrc` and configure `TypeSafeApiProject`.
 
 !!! tip
 
@@ -87,23 +88,21 @@ yarn projen
 === "TS"
 
     ```ts
-    import { MonorepoTsProject } from "@aws-prototyping-sdk/monorepo";
+    import { MonorepoTsProject } from "@aws/pdk/monorepo";
     import {
       DocumentationFormat,
       Language,
       Library,
       ModelLanguage,
       TypeSafeApiProject,
-    } from "@aws-prototyping-sdk/type-safe-api";
-    import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
+    } from "@aws/pdk/type-safe-api";
+    import { InfrastructureTsProject } from "@aws/pdk/infrastructure";
 
     // Create the monorepo
     const monorepo = new MonorepoTsProject({
       name: "my-project",
-      defaultReleaseBranch: "main",
       devDeps: [
-        "@aws-prototyping-sdk/monorepo",
-        "@aws-prototyping-sdk/type-safe-api",
+        "@aws/pdk",
       ],
     });
 
@@ -124,14 +123,14 @@ yarn projen
           },
         },
       },
-      // Generate types, client and server code in TypeScript, Python and Java
-      runtime: {
-        languages: [Language.TYPESCRIPT, Language.PYTHON, Language.JAVA],
-      },
       // CDK infrastructure in TypeScript
       infrastructure: {
         language: Language.TYPESCRIPT,
       },
+      // Lambda handlers in TypeScript
+      handlers: {
+        languages: [Language.TYPESCRIPT],
+      }
       // Generate HTML documentation
       documentation: {
         formats: [DocumentationFormat.HTML_REDOC],
@@ -142,461 +141,605 @@ yarn projen
       },
     });
 
-    // Create a CDK infrastructure project. Can also consider PDKPipelineTsProject as an alternative!
-    const infra = new AwsCdkTypeScriptApp({
-      defaultReleaseBranch: "main",
-      cdkVersion: "2.0.0",
-      parent: monorepo,
-      outdir: "packages/infra",
-      name: "myinfra",
-      deps: [
-        "@aws-prototyping-sdk/type-safe-api",
-      ],
+    // Create a CDK infrastructure project
+    new InfrastructureTsProject({
+        parent: monorepo,
+        outdir: "packages/infra",
+        name: "infra",
+        typeSafeApi: api,
     });
-
-    // Infrastructure can depend on the generated API infrastructure and runtime
-    infra.addDeps(api.infrastructure.typescript!.package.packageName);
-    infra.addDeps(api.runtime.typescript!.package.packageName);
 
     monorepo.synth();
     ```
 
 === "JAVA"
 
-    The `.projenrc` file is written in TypeScript here in order to make use of the `monorepo`, but shows an example project definition for implementing infrastructure and lambda handlers in Java.
+    ```java
+    import software.aws.pdk.monorepo.MonorepoJavaProject;
+    import software.aws.pdk.monorepo.MonorepoJavaOptions;
+    import software.aws.pdk.infrastructure.InfrastructureJavaProject;
+    import software.aws.pdk.infrastructure.InfrastructureJavaProjectOptions;
+    import software.aws.pdk.type_safe_api.*;
+    import java.util.Arrays;
 
-    ```ts
-    import { MonorepoTsProject } from "@aws-prototyping-sdk/monorepo";
-    import {
-      DocumentationFormat,
-      Language,
-      Library,
-      ModelLanguage,
-      TypeSafeApiProject,
-    } from "@aws-prototyping-sdk/type-safe-api";
-    import { AwsCdkJavaApp } from "projen/lib/awscdk";
-    import { JavaProject } from "projen/lib/java";
+    public class projenrc {
+        public static void main(String[] args) {
+            MonorepoJavaProject monorepo = new MonorepoJavaProject(MonorepoJavaOptions.builder()
+                    .name("my-project")
+                    .build());
 
-    // Create the monorepo
-    const monorepo = new MonorepoTsProject({
-      name: "my-project",
-      defaultReleaseBranch: "main",
-      devDeps: [
-        "@aws-prototyping-sdk/monorepo",
-        "@aws-prototyping-sdk/type-safe-api",
-      ],
-    });
+            TypeSafeApiProject api = new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
+                    .name("myapi")
+                    .parent(monorepo)
+                    .outdir("packages/api")
+                    .model(ModelConfiguration.builder()
+                            .language(ModelLanguage.SMITHY)
+                            .options(ModelOptions.builder()
+                                    .smithy(SmithyModelOptions.builder()
+                                            .serviceName(SmithyServiceName.builder()
+                                                    .namespace("com.my.company")
+                                                    .serviceName("MyApi")
+                                                    .build())
+                                            .build())
+                                    .build())
+                            .build())
+                    .infrastructure(InfrastructureConfiguration.builder()
+                            .language(Language.JAVA)
+                            .build())
+                    .documentation(DocumentationConfiguration.builder()
+                            .formats(Arrays.asList(DocumentationFormat.HTML_REDOC))
+                            .build())
+                    .library(LibraryConfiguration.builder()
+                            .libraries(Arrays.asList(Library.TYPESCRIPT_REACT_QUERY_HOOKS))
+                            .build())
+                    .handlers(HandlersConfiguration.builder()
+                            .languages(Arrays.asList(Language.JAVA))
+                            .build())
+                    .build());
 
-    // Create the API project
-    const api = new TypeSafeApiProject({
-      name: "myapi",
-      parent: monorepo,
-      outdir: "packages/api",
-      // Smithy as the model language. You can also use ModelLanguage.OPENAPI
-      model: {
-        language: ModelLanguage.SMITHY,
-        options: {
-          smithy: {
-            serviceName: {
-              namespace: "com.my.company",
-              serviceName: "MyApi",
-            },
-          },
-        },
-      },
-      // Generate types, client and server code in TypeScript, Python and Java
-      runtime: {
-        languages: [Language.TYPESCRIPT, Language.PYTHON, Language.JAVA],
-      },
-      // CDK infrastructure in Java
-      infrastructure: {
-        language: Language.JAVA,
-      },
-      // Generate HTML documentation
-      documentation: {
-        formats: [DocumentationFormat.HTML_REDOC],
-      },
-      // Generate react-query hooks to interact with the UI from a React website
-      library: {
-        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
-      },
-    });
+            new InfrastructureJavaProject(
+                InfrastructureJavaProjectOptions.builder()
+                    .parent(monorepo)
+                    .outdir("packages/infra")
+                    .name("infra")
+                    .typeSafeApi(api)
+                    .build());
 
-    // Create a Java project for our lambda functions which will implement the API operations
-    const lambdas = new JavaProject({
-      artifactId: "lambdas",
-      groupId: "com.my.company",
-      name: "lambdas",
-      version: "1.0.0",
-      parent: monorepo,
-      outdir: "packages/lambdas",
-      sample: false,
-    });
-
-    // The lambdas package needs a dependency on the generated java runtime
-    monorepo.addJavaDependency(lambdas, api.runtime.java!);
-
-    // Use the maven shade plugin to build a "super jar" which we can deploy to AWS Lambda
-    lambdas.pom.addPlugin("org.apache.maven.plugins/maven-shade-plugin@3.3.0", {
-      configuration: {
-        createDependencyReducedPom: false,
-      },
-      executions: [
-        {
-          id: "shade-task",
-          phase: "package",
-          goals: ["shade"],
-        },
-      ],
-    });
-
-    // Create a CDK infrastructure project. Can also consider PDKPipelineJavaProject as an alternative!
-    const infra = new AwsCdkJavaApp({
-      artifactId: "infra",
-      groupId: "com.my.company",
-      mainClass: "com.my.company.MyApp",
-      version: "1.0.0",
-      cdkVersion: "2.0.0",
-      name: "infra",
-      parent: monorepo,
-      outdir: "packages/infra",
-      deps: [
-        "software.aws.awsprototypingsdk/type-safe-api@^0",
-      ],
-    });
-
-    // Add a dependency on the generated CDK infrastructure and runtime
-    monorepo.addJavaDependency(infra, api.infrastructure.java!);
-    monorepo.addJavaDependency(infra, api.runtime.java!);
-
-    // Make sure the java lambda builds before our CDK infra
-    monorepo.addImplicitDependency(infra, lambdas);
-
-    monorepo.synth();
+            monorepo.synth();
+        }
+    }
     ```
 
 === "PYTHON"
 
-    The `.projenrc` file is written in TypeScript here in order to make use of the `monorepo`, but shows an example project definition for implementing infrastructure and lambda handlers in Python.
+    ```python
+    from aws_pdk.monorepo import MonorepoPythonProject
+    from aws_pdk.infrastructure import InfrastructurePyProject
+    from aws_pdk.type_safe_api import *
 
-    ```ts
-    import { MonorepoTsProject } from "@aws-prototyping-sdk/monorepo";
-    import {
-      DocumentationFormat,
-      Language,
-      Library,
-      ModelLanguage,
-      TypeSafeApiProject,
-    } from "@aws-prototyping-sdk/type-safe-api";
-    import { AwsCdkPythonApp } from "projen/lib/awscdk";
-    import { PythonProject } from "projen/lib/python";
+    monorepo = MonorepoPythonProject(
+        module_name="my_project",
+        name="my-project",
+    )
 
-    // Create the monorepo
-    const monorepo = new MonorepoTsProject({
-      name: "my-project",
-      defaultReleaseBranch: "main",
-      devDeps: [
-        "@aws-prototyping-sdk/monorepo",
-        "@aws-prototyping-sdk/type-safe-api",
-      ],
-    });
+    api = TypeSafeApiProject(
+        name="myapi",
+        parent=monorepo,
+        outdir="packages/api",
+        model=ModelConfiguration(
+            language=ModelLanguage.SMITHY,
+            options=ModelOptions(
+                smithy=SmithyModelOptions(
+                    service_name=SmithyServiceName(
+                        namespace="com.amazon",
+                        service_name="MyAPI"
+                    )
+                )
+            )
+        ),
+        infrastructure=InfrastructureConfiguration(
+            language=Language.PYTHON
+        ),
+        documentation=DocumentationConfiguration(
+            formats=[DocumentationFormat.HTML_REDOC]
+        ),
+        handlers=HandlersConfiguration(
+            languages=[Language.PYTHON]
+        ),
+        library=LibraryConfiguration(
+            libraries=[Library.TYPESCRIPT_REACT_QUERY_HOOKS]
+        )
+    )
 
-    // Create the API project
-    const api = new TypeSafeApiProject({
-      name: "myapi",
-      parent: monorepo,
-      outdir: "packages/api",
-      // Smithy as the model language. You can also use ModelLanguage.OPENAPI
-      model: {
-        language: ModelLanguage.SMITHY,
-        options: {
-          smithy: {
-            serviceName: {
-              namespace: "com.my.company",
-              serviceName: "MyApi",
-            },
-          },
-        },
-      },
-      // Generate types, client and server code in TypeScript, Python and Java
-      runtime: {
-        languages: [Language.TYPESCRIPT, Language.PYTHON, Language.JAVA],
-      },
-      // CDK infrastructure in Python
-      infrastructure: {
-        language: Language.PYTHON,
-      },
-      // Generate HTML documentation
-      documentation: {
-        formats: [DocumentationFormat.HTML_REDOC],
-      },
-      // Generate react-query hooks to interact with the UI from a React website
-      library: {
-        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
-      },
-    });
+    InfrastructurePyProject(
+        parent=monorepo,
+        outdir="packages/infra",
+        name="infra",
+        type_safe_api=api,
+    )
 
-    // Create a Python project for our lambda functions which will implement the API operations
-    const lambdas = new PythonProject({
-      parent: monorepo,
-      poetry: true,
-      outdir: "packages/lambdas",
-      moduleName: "lambdas",
-      name: "lambdas",
-      version: "1.0.0",
-      authorEmail: "me@example.com",
-      authorName: "test",
-    });
-
-    // The lambdas package needs a dependency on the generated python runtime
-    monorepo.addPythonPoetryDependency(lambdas, api.runtime.python!);
-
-    // Add commands to the lambda project's package task to create a distributable which can be deployed to AWS Lambda
-    lambdas.packageTask.exec(`mkdir -p lambda-dist && rm -rf lambda-dist/*`);
-    lambdas.packageTask.exec(`cp -r ${lambdas.moduleName} lambda-dist/${lambdas.moduleName}`);
-    lambdas.packageTask.exec(`poetry export --without-hashes --format=requirements.txt > lambda-dist/requirements.txt`);
-    lambdas.packageTask.exec(`pip install -r lambda-dist/requirements.txt --target lambda-dist --upgrade`);
-
-    // Create a CDK infrastructure project. Can also consider PDKPipelinePyProject as an alternative!
-    const infra = new AwsCdkPythonApp({
-      parent: monorepo,
-      poetry: true,
-      outdir: "packages/infra",
-      moduleName: "infra",
-      name: "infra",
-      version: "1.0.0",
-      cdkVersion: "2.0.0",
-      authorEmail: "me@example.com",
-      authorName: "test",
-      deps: [
-        "aws_prototyping_sdk.type_safe_api@<1.0.0",
-      ],
-    });
-
-    // Add a dependency on the generated CDK infrastructure and runtime
-    monorepo.addPythonPoetryDependency(infra, api.infrastructure.python!);
-    monorepo.addPythonPoetryDependency(infra, api.runtime.python!);
-
-    // Make sure the python lambdas build before our CDK infra
-    monorepo.addImplicitDependency(infra, lambdas);
-
-    monorepo.synth();
+    monorepo.synth()
     ```
 
-4. After you define your `.projenrc`, run `projen` and `build` (using the appropriate commands for your package manager). For example, if you are using `yarn`, use these commands.
+3.) Given we have modified our `projenrc` file we need to run the `pdk` command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with `pdk build`.
 
-```
-yarn projen
-yarn build
-```
+## Implement a Lambda handler
+
+The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. The generated `handlers` projects include generate stubs for you to implement for every operation which has been annotated accordingly:
+
+=== "SMITHY"
+
+    Use the `@handler` trait, and specify the language you wish to implement this operation in.
+
+    ```smithy hl_lines="3"
+    @readonly
+    @http(method: "GET", uri: "/hello")
+    @handler(language: "typescript")
+    operation SayHello {
+        input := {
+            @httpQuery("name")
+            @required
+            name: String
+        }
+        output := {
+            @required
+            message: String
+        }
+    }
+    ```
+
+=== "OPENAPI"
+
+    Use the `x-handler` vendor extension, specifying the language you wish to implement this operation in.
+
+    ```yaml hl_lines="4-5"
+    /hello:
+      get:
+        operationId: sayHello
+        x-handler:
+          language: typescript
+        parameters:
+          - in: query
+            name: name
+            schema:
+              type: string
+              required: true
+        responses:
+          200:
+            description: Successful response
+            content:
+              'application/json':
+                schema:
+                  $ref: '#/components/schemas/SayHelloResponseContent'
+    ```
+
+!!!note
+
+    If you wish to deviate from the folder structure of the `handlers` projects, or wish to implement your operations in a language not supported by Type Safe API, or through a non-lambda interation (such as a server running in a Fargate container) you can omit the `@handler` trait or `x-handler` vendor extension.
+
+You can implement your lambda handlers in any of the supported languages, or mix and match languages for different operations if you prefer.
+
+=== "TS"
+
+    In TypeScript, you'll notice you have a lambda handler stub in `packages/api/handlers/typescript/src/say-hello.ts`:
+
+    ```ts
+    import {
+      sayHelloHandler,
+      SayHelloChainedHandlerFunction,
+      INTERCEPTORS,
+      Response,
+      LoggingInterceptor,
+    } from "myapi-typescript-runtime";
+    
+    /**
+     * Type-safe handler for the SayHello operation
+     */
+    export const sayHello: SayHelloChainedHandlerFunction = async (request) => {
+      LoggingInterceptor.getLogger(request).info("Start SayHello Operation");
+    
+      // TODO: Implement SayHello Operation. `input` contains the request input.
+      const { input } = request;
+    
+      return Response.internalFailure({
+        message: "Not Implemented!",
+      });
+    };
+    
+    /**
+     * Entry point for the AWS Lambda handler for the SayHello operation.
+     * The sayHelloHandler method wraps the type-safe handler and manages marshalling inputs and outputs
+     */
+    export const handler = sayHelloHandler(...INTERCEPTORS, sayHello);
+    ```
+
+=== "JAVA"
+
+    In Java, you'll notice you have a lambda handler stub in `packages/api/handlers/java/src/main/java/com/generated/api/myapijavahandlers/handlers/SayHelloHandler.java`:
+    
+    ```java
+    package com.generated.api.myapijavahandlers.handlers;
+    
+    import com.generated.api.myapijavaruntime.runtime.api.interceptors.DefaultInterceptors;
+    import com.generated.api.myapijavaruntime.runtime.api.interceptors.powertools.LoggingInterceptor;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.Interceptor;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloInput;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello500Response;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse;
+    import com.generated.api.myapijavaruntime.runtime.model.*;
+    
+    import java.util.List;
+    
+    /**
+     * Entry point for the AWS Lambda handler for the SayHello operation.
+     * The SayHello class manages marshalling inputs and outputs.
+     */
+    public class SayHelloHandler extends SayHello {
+        /**
+         * Return the interceptors for this handler.
+         * You can also use the @Interceptors annotation on the class to add interceptors
+         */
+        @Override
+        public List<Interceptor<SayHelloInput>> getInterceptors() {
+            return DefaultInterceptors.all();
+        }
+    
+        /**
+         * Type-safe handler for the SayHello operation
+         */
+        @Override
+        public SayHelloResponse handle(final SayHelloRequestInput request) {
+            LoggingInterceptor.getLogger(request).info("Start SayHello Operation");
+    
+            // TODO: Implement SayHello Operation. `input` contains the request input.
+            SayHelloInput input = request.getInput();
+    
+            return SayHello500Response.of(InternalFailureErrorResponseContent.builder()
+                    .message("Not Implemented!")
+                    .build());
+        }
+    }
+    ```
+
+=== "PYTHON"
+
+    In Python, you'll notice you have a lambda handler stub in `packages/api/handlers/python/myapi_python_handlers/say_hello.py`:
+
+    ```python
+    from myapi_python_runtime.models import *
+    from myapi_python_runtime.response import Response
+    from myapi_python_runtime.interceptors import INTERCEPTORS
+    from myapi_python_runtime.interceptors.powertools.logger import LoggingInterceptor
+    from myapi_python_runtime.api.operation_config import (
+        say_hello_handler, SayHelloRequest, SayHelloOperationResponses
+    )
+    
+    
+    def say_hello(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
+        """
+        Type-safe handler for the SayHello operation
+        """
+        LoggingInterceptor.get_logger(input).info("Start SayHello Operation")
+    
+        # TODO: Implement SayHello Operation. `input` contains the request input
+    
+        return Response.internal_failure(InternalFailureErrorResponseContent(
+            message="Not Implemented!"
+        ))
+    
+    
+    # Entry point for the AWS Lambda handler for the SayHello operation.
+    # The say_hello_handler method wraps the type-safe handler and manages marshalling inputs and outputs
+    handler = say_hello_handler(interceptors=INTERCEPTORS)(say_hello)
+    ```
+
+!!!note
+    You will notice the handler stubs make use of some default "interceptors". [You can read more about interceptors here](./interceptors.md).
+
+We can replace the stubbed response with a real implementation:
+
+=== "TS"
+
+    ```ts
+    /**
+     * Type-safe handler for the SayHello operation
+     */
+    export const sayHello: SayHelloChainedHandlerFunction = async (request) => {
+      LoggingInterceptor.getLogger(request).info("Start SayHello Operation");
+    
+      const { input } = request;
+    
+      return Response.success({
+        message: `Hello ${input.requestParameters.name}!`,
+      });
+    };
+    ```
+
+=== "JAVA"
+
+    ```java
+    /**
+     * Type-safe handler for the SayHello operation
+     */
+    @Override
+    public SayHelloResponse handle(final SayHelloRequestInput request) {
+        LoggingInterceptor.getLogger(request).info("Start SayHello Operation");
+
+        // TODO: Implement SayHello Operation. `input` contains the request input.
+        SayHelloInput input = request.getInput();
+
+        return SayHello200Response.of(SayHelloResponseContent.builder()
+                .message(String.format("Hello %s!", input.getRequestParameters().getName()))
+                .build());
+    }
+    ```
+
+=== "PYTHON"
+
+    ```python
+    def say_hello(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
+        """
+        Type-safe handler for the SayHello operation
+        """
+        LoggingInterceptor.get_logger(input).info("Start SayHello Operation")
+    
+        return Response.success(SayHelloResponseContent(
+            message=f"Hello {input.request_parameters.name}!"
+        ))
+    ```
+
 
 ## Use the CDK construct
 
 In your CDK application, using your preferred language, include the `Api` construct, vended from the generated infrastructure package.
 
+Given we used the AWS PDK vended infrastructure project, this will be configured for us already. Notice that our integrations have been mocked for us already, but we can replace them with our lambda implementation.
+
+!!!tip
+    Use the function constructs from the generated API infrastructure project to easily create lambda functions which reference implementations in the `api/handlers` projects.
+
 === "TS"
 
-    Edit `packages/infra/src/main.ts` to include the `Api` construct.
+    Open `packages/infra/src/constructs/api.ts`. Notice our API has been mocked by default. We can replace the integration for our `sayHello` operation to use a lambda implementation:
 
-    ```ts
-    import { Stack, StackProps } from "aws-cdk-lib";
-    import { Construct } from "constructs";
-    import { Api } from "myapi-typescript-infra"; // <- generated typescript infrastructure package
+    ```typescript hl_lines="15 46-50"
+    import { UserIdentity } from "@aws/pdk/identity";
     import { Authorizers, Integrations } from "@aws/pdk/type-safe-api";
-    import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+    import { Stack } from "aws-cdk-lib";
     import { Cors } from "aws-cdk-lib/aws-apigateway";
-    import * as path from "path";
-
-    export class MyStack extends Stack {
-      constructor(scope: Construct, id: string, props: StackProps = {}) {
-        super(scope, id, props);
-
-        // Instantiate the generated CDK construct to deploy an API Gateway API based on your model
-        new Api(this, "MyApi", {
+    import {
+      AccountPrincipal,
+      AnyPrincipal,
+      Effect,
+      PolicyDocument,
+      PolicyStatement,
+    } from "aws-cdk-lib/aws-iam";
+    import { Construct } from "constructs";
+    import {
+      Api,
+      SayHelloFunction,
+    } from "myapi-typescript-infra";
+    
+    /**
+     * Api construct props.
+     */
+    export interface ApiConstructProps {
+      /**
+       * Instance of the UserIdentity.
+       */
+      readonly userIdentity: UserIdentity;
+    }
+    
+    /**
+     * Infrastructure construct to deploy a Type Safe API.
+     */
+    export class ApiConstruct extends Construct {
+      /**
+       * API instance
+       */
+      public readonly api: Api;
+    
+      constructor(scope: Construct, id: string, props?: ApiConstructProps) {
+        super(scope, id);
+    
+        this.api = new Api(this, id, {
           defaultAuthorizer: Authorizers.iam(),
           corsOptions: {
             allowOrigins: Cors.ALL_ORIGINS,
             allowMethods: Cors.ALL_METHODS,
           },
-          // Supply an integration for every operation
           integrations: {
             sayHello: {
-              integration: Integrations.lambda(
-                new NodejsFunction(this, "SayHelloLambda", {
-                  entry: path.resolve(__dirname, "say-hello.ts"),
-                })
-              ),
+              integration: Integrations.lambda(new SayHelloFunction(this, "SayHello")),
             },
           },
+          policy: new PolicyDocument({
+            statements: [
+              // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+              // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+              // users) and resources (ie which api paths may be invoked by which principal) if required.
+              // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+              // still be granted access to the API.
+              new PolicyStatement({
+                effect: Effect.ALLOW,
+                principals: [new AccountPrincipal(Stack.of(this).account)],
+                actions: ["execute-api:Invoke"],
+                resources: ["execute-api:/*"],
+              }),
+              // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+              new PolicyStatement({
+                effect: Effect.ALLOW,
+                principals: [new AnyPrincipal()],
+                actions: ["execute-api:Invoke"],
+                resources: ["execute-api:/*/OPTIONS/*"],
+              }),
+            ],
+          }),
         });
+    
+        // Grant authenticated users access to invoke the api
+        props?.userIdentity.identityPool.authenticatedRole.addToPrincipalPolicy(
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: ["execute-api:Invoke"],
+            resources: [this.api.api.arnForExecuteApi("*", "/*", "*")],
+          }),
+        );
       }
     }
     ```
 
 === "JAVA"
 
-    Edit `packages/infra/src/main/java/com/my/api/MyApp.java` to include the `Api` construct.
+    Open `packages/infra/src/main/java/software/aws/infra/constructs/ApiConstruct.java`. Notice our API has been mocked by default. We can replace the integration for our `sayHello` operation to use a lambda implementation:
 
-    ```java
-    package com.my.api;
-
-    // Imports from the generated infrastructure and runtime projects
+    ```java hl_lines="5 44-49"
+    package software.aws.infra.constructs;
+    
     import com.generated.api.myapijavainfra.infra.Api;
     import com.generated.api.myapijavainfra.infra.ApiProps;
-    import com.generated.api.myapijavaruntime.runtime.api.OperationConfig;
-
-    import software.amazon.awscdk.Duration;
-    import software.amazon.awscdk.services.apigateway.CorsOptions;
-    import software.amazon.awscdk.services.lambda.Code;
-    import software.amazon.awscdk.services.lambda.Function;
-    import software.amazon.awscdk.services.lambda.FunctionProps;
-    import software.amazon.awscdk.services.lambda.Runtime;
-    import software.aws.awsprototypingsdk.typesafeapi.Authorizers;
-    import software.aws.awsprototypingsdk.typesafeapi.Integrations;
-    import software.aws.awsprototypingsdk.typesafeapi.TypeSafeApiIntegration;
-
-    import software.amazon.awscdk.App;
-    import software.amazon.awscdk.Stack;
-
+    import com.generated.api.myapijavainfra.infra.functions.SayHelloFunction;
+    import com.generated.api.myapijavaruntime.runtime.api.operation_config.OperationConfig;
+    
     import java.util.Arrays;
-
-    public class MyApp {
-        public static void main(final String[] args) {
-            App app = new App();
-            Stack s = new Stack(app, "infra");
-
-            // Declare the API construct to deploy the API Gateway resources
-            new Api(this, "Api", ApiProps.builder()
+    
+    import software.amazon.awscdk.Stack;
+    import software.amazon.awscdk.services.apigateway.Cors;
+    import software.amazon.awscdk.services.apigateway.CorsOptions;
+    import software.amazon.awscdk.services.iam.AccountPrincipal;
+    import software.amazon.awscdk.services.iam.AnyPrincipal;
+    import software.amazon.awscdk.services.iam.Effect;
+    import software.amazon.awscdk.services.iam.PolicyDocument;
+    import software.amazon.awscdk.services.iam.PolicyDocumentProps;
+    import software.amazon.awscdk.services.iam.PolicyStatement;
+    import software.amazon.awscdk.services.iam.PolicyStatementProps;
+    import software.aws.pdk.identity.UserIdentity;
+    import software.aws.pdk.type_safe_api.Authorizers;
+    import software.aws.pdk.type_safe_api.TypeSafeApiIntegration;
+    import software.aws.pdk.type_safe_api.Integrations;
+    import software.constructs.Construct;
+    
+    /**
+     * Infrastructure construct to deploy a Type Safe API.
+     */
+    public class ApiConstruct extends Construct {
+        /**
+         * API instance
+         */
+        public final Api api;
+    
+        public ApiConstruct(Construct scope, String id, UserIdentity userIdentity) {
+            super(scope, id);
+    
+            this.api = new Api(this, id, ApiProps.builder()
                     .defaultAuthorizer(Authorizers.iam())
                     .corsOptions(CorsOptions.builder()
-                            .allowOrigins(Arrays.asList("*"))
-                            .allowMethods(Arrays.asList("*"))
+                            .allowOrigins(Cors.ALL_ORIGINS)
+                            .allowMethods(Cors.ALL_METHODS)
                             .build())
                     .integrations(OperationConfig.<TypeSafeApiIntegration>builder()
                             .sayHello(TypeSafeApiIntegration.builder()
                                     .integration(Integrations.lambda(
-                                            // Point the lambda function to our built jar from the "lambdas" package
-                                            new Function(s, "say-hello", FunctionProps.builder()
-                                                    .code(Code.fromAsset("../lambdas/dist/java/com/my/api/lambdas/1.0.0/lambdas-1.0.0.jar"))
-                                                    .handler("com.my.api.SayHelloHandler")
-                                                    .runtime(Runtime.JAVA_17)
-                                                    .timeout(Duration.seconds(30))
-                                                    .build())))
+                                            new SayHelloFunction(this, "SayHello")))
                                     .build())
                             .build())
+                    .policy(new PolicyDocument(PolicyDocumentProps.builder()
+                        .statements(Arrays.asList(
+                            // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                            // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                            // users) and resources (ie which api paths may be invoked by which principal) if required.
+                            // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                            // still be granted access to the API.
+                            new PolicyStatement(PolicyStatementProps.builder()
+                                .effect(Effect.ALLOW)
+                                .principals(Arrays.asList(new AccountPrincipal(Stack.of(this))))
+                                .actions(Arrays.asList("execute-api:Invoke"))
+                                .resources(Arrays.asList("execute-api:/*"))
+                                .build()),
+                            // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                            new PolicyStatement(PolicyStatementProps.builder()
+                                .effect(Effect.ALLOW)
+                                .principals(Arrays.asList(new AnyPrincipal()))
+                                .actions(Arrays.asList("execute-api:Invoke"))
+                                .resources(Arrays.asList("execute-api:/*/OPTIONS/*"))
+                                .build())
+                        ))
+                        .build()))
                     .build());
-
-            app.synth();
+            
+            userIdentity.getIdentityPool().getAuthenticatedRole()
+                .addToPrincipalPolicy(new PolicyStatement(PolicyStatementProps.builder()
+                    .effect(Effect.ALLOW)
+                    .actions(Arrays.asList("execute-api:Invoke"))
+                    .resources(Arrays.asList(this.api.getApi().arnForExecuteApi("*", "/*", "*")))
+                    .build()));
         }
     }
     ```
 
 === "PYTHON"
 
-    Edit `packages/infra/infra/main.py` to include the `Api` construct.
+    Open `packages/infra/infra/constructs/api.py`. Notice our API has been mocked by default. We can replace the integration for our `sayHello` operation to use a lambda implementation:
 
-    ```python
-    import os
-    from aws_cdk import Stack
+    ```python hl_lines="3 22-26"
     from constructs import Construct
-    from aws_cdk.aws_lambda import LayerVersion, Code, Function, Runtime
-    from aws_prototyping_sdk.type_safe_api import Authorizers, TypeSafeApiIntegration, Integrations
-
-    # Imports from the generated runtime and infrastructure projects
-    from myapi_python_runtime.apis.tags.default_api_operation_config import OperationConfig
     from myapi_python_infra.api import Api
-
-    from pathlib import Path
-    from os import path
-
-    class MyStack(Stack):
-        def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
-            super().__init__(scope, construct_id, **kwargs)
-
-            # Use the generated Api construct
-            self.api = Api(self, 'Api',
-                default_authorizer=Authorizers.iam(),
-                integrations=OperationConfig(
-                    say_hello=TypeSafeApiIntegration(
-                        # Create a python lambda function from our "lambda-dist" package
-                        integration=Integrations.lambda_(Function(self, 'SayHello',
-                            runtime=Runtime.PYTHON_3_9,
-                            code=Code.from_asset(path.join("..", "lambdas", "lambda-dist")),
-                            handler="lambdas.say_hello.handler",
-                        )),
-                    ),
-                ),
+    from myapi_python_infra.functions import SayHelloFunction
+    from myapi_python_runtime.api.operation_config import OperationConfig
+    from aws_cdk import Stack
+    from aws_pdk.identity import UserIdentity
+    from aws_pdk.type_safe_api import Authorizers, TypeSafeApiIntegration, Integrations
+    from aws_cdk.aws_apigateway import CorsOptions, Cors
+    from aws_cdk.aws_iam import AccountPrincipal, AnyPrincipal, Effect, PolicyDocument, PolicyStatement
+    
+    # Infrastructure construct to deploy a Type Safe API.
+    class ApiConstruct(Construct):
+        def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
+            super().__init__(scope, id, **kwargs)
+    
+            self.api = Api(self, id,
+               default_authorizer=Authorizers.iam(),
+               cors_options=CorsOptions(
+                   allow_origins=Cors.ALL_ORIGINS,
+                   allow_methods=Cors.ALL_METHODS
+               ),
+               integrations=OperationConfig(
+                   say_hello=TypeSafeApiIntegration(
+                       integration=Integrations.lambda_(SayHelloFunction(self, 'SayHello')),
+                   ),
+               ),
+               policy=PolicyDocument(
+                   statements=[
+                       # Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                       # Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                       # users) and resources (ie which api paths may be invoked by which principal) if required.
+                       # If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                       # still be granted access to the API.
+                       PolicyStatement(
+                           effect=Effect.ALLOW,
+                           principals=[AccountPrincipal(Stack.of(self).account)],
+                           actions=['execute-api:Invoke'],
+                           resources=['execute-api:/*']
+                       ),
+                       # Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                       PolicyStatement(
+                           effect=Effect.ALLOW,
+                           principals=[AnyPrincipal()],
+                           actions=['execute-api:Invoke'],
+                           resources=['execute-api:/*/OPTIONS/*']
+                       )
+                   ]
+               ))
+    
+            user_identity.identity_pool.authenticated_role.add_to_principal_policy(
+                PolicyStatement(
+                    effect=Effect.ALLOW,
+                    actions=['execute-api:Invoke'],
+                    resources=[self.api.api.arn_for_execute_api('*', '/*', '*')]
+                )
             )
-    ```
-
-## Implement a Lambda handler
-
-The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. You can implement your lambda handlers in any of the supported languages, or mix and match languages for different operations if you prefer.
-
-=== "TS"
-
-    In the TypeScript CDK application in the CDK construct, we used `NodejsFunction` which allows you to write your lambda handler code in the same `infra` project. Define `say-hello.ts` and use the generated lambda handler wrapper.
-
-    For example, the implementation of `packages/infra/src/say-hello.ts` may include:
-
-    ```ts
-    import { sayHelloHandler } from "myapi-typescript-runtime"; // <- generated typescript runtime package
-
-    // Use the handler wrapper for type-safety to ensure you correctly implement your modelled API operation
-    export const handler = sayHelloHandler(async ({ input }) => {
-      return {
-        statusCode: 200,
-        body: {
-          message: `Hello ${input.requestParameters.name}`,
-        },
-      };
-    });
-    ```
-
-=== "JAVA"
-
-    In your `lambdas` project you can define your lambda handler in its source directory, for example, `packages/lambdas/src/main/java/com/my/api/SayHelloHandler.java`:
-
-    ```java
-    package com.my.api;
-
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello200Response;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloRequestInput;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloResponse;
-    import com.generated.api.myapijavaruntime.runtime.model.SayHelloResponseContent;
-
-    /**
-     * An example lambda handler which uses the generated handler wrapper class (Handlers.SayHello) to manage marshalling
-     * inputs and outputs.
-     */
-    public class SayHelloHandler extends SayHello {
-        @Override
-        public SayHelloResponse handle(SayHelloRequestInput sayHelloRequestInput) {
-            return SayHello200Response.of(SayHelloResponseContent.builder()
-                    .message(String.format("Hello %s", sayHelloRequestInput.getInput().getRequestParameters().getName()))
-                    .build());
-        }
-    }
-    ```
-
-=== "PYTHON"
-
-    In your `lambdas` project you can define your lambda handler in its source directory, for example, `packages/lambdas/lambdas/say_hello.py`:
-
-    ```python
-    from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
-    from myapi_python_runtime.apis.tags.default_api_operation_config import say_hello_handler,
-        SayHelloRequest, SayHelloOperationResponses, ApiResponse
-
-
-    @say_hello_handler
-    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
-        return ApiResponse(
-            status_code=200,
-            body=SayHelloResponseContent(message="Hello {}".format(input.request_parameters["name"])),
-            headers={}
-        )
     ```
 
 ## Add a new operation
@@ -614,6 +757,7 @@ Add the new operation in the `model` project, for example:
     ```smithy
     /// Documentation about your operation can go here
     @http(method: "POST", uri: "/goodbye")
+    @handler(language: "typescript") // <- you can also choose "python" or "java"
     operation SayGoodbye {
         input := {
             @required
@@ -650,6 +794,9 @@ Add the new operation in the `model` project, for example:
         /goodbye:
             post:
                 operationId: sayGoodbye
+                # You can also choose "python" or "java" for the handler language below
+                x-handler:
+                    language: "typescript"
                 requestBody:
                     content:
                         application/json:
@@ -687,20 +834,19 @@ Add the new operation in the `model` project, for example:
 
 ### Build your project
 
-To run a build in the root of your monorepo, use your package manager's build command.
+To run a build in the root of your monorepo, use the `pdk build` command:
 
 ```
-yarn build
+pdk build
 ```
 
-The build will regenerate the infrastructure, runtime, documentation, and library projects based on your updated model.
+The build will regenerate the infrastructure, runtime, documentation, and library projects based on your updated model. It will also generate a new stub for your new operation if you specified the `@handler` trait in Smithy or `x-handler` vendor extension in OpenAPI.
 
 As you must define an integration for every operation, you may see the following build error in your CDK application.
 
 ```ts
 TSError: ⨯ Unable to compile TypeScript:
-src/main.ts(16,7): error TS2741: Property 'sayGoodbye' is missing in type '{ sayHello: { integration: Integration; }; }' but required in type 'Operation
-Config<TypeSafeApiIntegration>'.
+src/constructs/api.ts: error TS2741: Property 'sayGoodbye' is missing in type '{ sayHello: { integration: Integration; }; }' but required in type 'OperationConfig<TypeSafeApiIntegration>'.
 ```
 
 This is expected, so follow these steps to add an integration.
@@ -716,22 +862,14 @@ In your CDK application, add an integration for your new operation in the `Api` 
       ...
       integrations: {
         sayHello: {
-          integration: Integrations.lambda(
-            new NodejsFunction(this, "SayHelloLambda", {
-              entry: path.resolve(__dirname, "say-hello.ts"),
-            })
-          ),
+          integration: Integrations.lambda(new SayHelloFunction(this, "SayHello")),
         },
         // Add the new integration here
         sayGoodbye: {
-          integration: Integrations.lambda(
-            new NodejsFunction(this, "SayGoodbyeLambda", {
-              // Point at say-goodbye.ts which we'll define next
-              entry: path.resolve(__dirname, "say-goodbye.ts"),
-            })
-          ),
+          integration: Integrations.lambda(new SayGoodbyeFunction(this, "SayGoodbye")),
         },
       },
+      ...
     });
     ```
 
@@ -743,29 +881,15 @@ In your CDK application, add an integration for your new operation in the `Api` 
             .integrations(OperationConfig.<TypeSafeApiIntegration>builder()
                     .sayHello(TypeSafeApiIntegration.builder()
                             .integration(Integrations.lambda(
-                                    new Function(s, "say-hello", FunctionProps.builder()
-                                            .code(Code.fromAsset("../lambdas/dist/java/com/my/api/lambdas/1.0.0/lambdas-1.0.0.jar"))
-                                            .handler("com.my.api.SayHelloHandler")
-                                            .runtime(Runtime.JAVA_17)
-                                            .timeout(Duration.seconds(30))
-                                            .build())))
+                                    new SayHelloFunction(this, "SayHello")))
                             .build())
-                    .build())
-                    // Add the new integration here
                     .sayGoodbye(TypeSafeApiIntegration.builder()
                             .integration(Integrations.lambda(
-                                    new Function(s, "say-goodbye", FunctionProps.builder()
-                                            // We'll point at the same jar and define our handler in the same "lambdas" package
-                                            .code(Code.fromAsset("../lambdas/dist/java/com/my/api/lambdas/1.0.0/lambdas-1.0.0.jar"))
-                                            // Point to SayGoodbyeHandler which we'll define next
-                                            .handler("com.my.api.SayGoodbyeHandler")
-                                            .runtime(Runtime.JAVA_17)
-                                            .timeout(Duration.seconds(30))
-                                            .build())))
+                                    new SayGoodbyeFunction(this, "SayGoodbye")))
                             .build())
                     .build())
+            ...
             .build());
-
     ```
 
 === "PYTHON"
@@ -775,90 +899,28 @@ In your CDK application, add an integration for your new operation in the `Api` 
         ...
         integrations=OperationConfig(
             say_hello=TypeSafeApiIntegration(
-                integration=Integrations.lambda_(Function(self, 'SayHello',
-                    runtime=Runtime.PYTHON_3_9,
-                    code=Code.from_asset(path.join("..", "lambdas", "lambda-dist")),
-                    handler="lambdas.say_hello.handler",
-                )),
+                integration=Integrations.lambda_(SayHelloFunction(self, 'SayHello')),
             ),
-            # Add the new integration here
             say_goodbye=TypeSafeApiIntegration(
-                integration=Integrations.lambda_(Function(self, 'SayHello',
-                    runtime=Runtime.PYTHON_3_9,
-                    # We'll point to the same distributable in the "lambdas" package
-                    code=Code.from_asset(path.join("..", "lambdas", "lambda-dist")),
-                    # But this time we point to the handler method in say_goodbye.py which we'll define next
-                    handler="lambdas.say_goodbye.handler",
-                )),
+                integration=Integrations.lambda_(SayGoodbyeFunction(self, 'SayGoodbye')),
             ),
         ),
+        ...
     )
     ```
 
 ### Implement the Lambda handler
 
-After you add the integration, implement the API operation:
-
-=== "TS"
-
-    Add the new handler in `packages/infra/src/say-goodbye.ts`:
-
-    ```ts
-    import { sayGoodbyeHandler } from "myapi-typescript-runtime";
-
-    export const handler = sayGoodbyeHandler(async ({ input }) => {
-      return {
-        statusCode: 200,
-        body: {
-          // This time we're referencing the name parameter from the POST request body
-          message: `Goodbye ${input.body.name}`,
-        },
-      };
-    });
-    ```
-
-=== "JAVA"
-
-    In your `lambdas` project, define your new lambda handler: `packages/lambdas/src/main/java/com/my/api/SayGoodbyeHandler.java`:
-
-    ```java
-    package com.my.api;
-
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayGoodbye;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayGoodbye200Response;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayGoodbyeRequestInput;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayGoodbyeResponse;
-    import com.generated.api.myapijavaruntime.runtime.model.SayGoodbyeResponseContent;
-
-    public class SayGoodbyeHandler extends SayGoodbye {
-        @Override
-        public SayGoodbyeResponse handle(SayGoodbyeRequestInput sayGoodbyeRequestInput) {
-            return SayGoodbye200Response.of(SayGoodbyeResponseContent.builder()
-                    .message(String.format("Goodbye %s", sayGoodbyeRequestInput.getInput().getBody().getName()))
-                    .build());
-        }
-    }
-    ```
-
-=== "PYTHON"
-
-    In your `lambdas` project, define your new lambda handler: `packages/lambdas/lambdas/say_goodbye.py`:
-
-    ```python
-    from myapi_python_runtime.model.say_goodbye_response_content import SayGoodbyeResponseContent
-    from myapi_python_runtime.apis.tags.default_api_operation_config import say_goodbye_handler,
-        SayGoodbyeRequest, SayGoodbyeOperationResponses, ApiResponse
-
-
-    @say_goodbye_handler
-    def handler(input: SayGoodbyeRequest, **kwargs) -> SayGoodbyeOperationResponses:
-        return ApiResponse(
-            status_code=200,
-            body=SayGoodbyeResponseContent(message="Goodbye {}".format(input.body["name"])),
-            headers={}
-        )
-    ```
+As described above, you'll find a lambda handler stub for your new operation, which you can edit as you wish.
 
 ### Deploy your project
 
-After you implement your new operation, build your project again using `yarn build`, deploy, and try out your new operation.
+After you implement your new operation, build your project again and deploy it:
+
+```bash
+pdk build
+cd packages/infra
+pdk run deploy --require-approval never
+```
+
+Try out your new API! You can use a tool such as [awscurl](https://github.com/okigan/awscurl) to make Sigv4 signed requests to your API, since we set the default authorizer to `Authorizers.iam()`. Alternatively, you can deploy the [`CloudscapeReactTsWebsiteProject`](../cloudscape-react-ts-website/index.md) and try out the [API Explorer](../cloudscape-react-ts-website/api_explorer.md).

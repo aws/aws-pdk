@@ -7,266 +7,30 @@ For example:
 === "TS"
 
     ```ts
-    import { sayHelloHandler } from "myapi-typescript-runtime";
+    import { sayHelloHandler, Response } from "myapi-typescript-runtime";
     
     export const handler = sayHelloHandler(async ({ input }) => {
-      return {
-        statusCode: 200,
-        body: {
-          message: `Hello ${input.requestParameters.name}!`,
-        },
-      };
-    });
-    ```
-
-=== "JAVA"
-
-    ```java
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello200Response;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloRequestInput;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloResponse;
-    import com.generated.api.myapijavaruntime.runtime.model.HelloResponse;
-    
-    
-    public class SayHelloHandler extends SayHello {
-        @Override
-        public SayHelloResponse handle(SayHelloRequestInput sayHelloRequestInput) {
-            return SayHello200Response.of(HelloResponse.builder()
-                    .message(String.format("Hello %s", sayHelloRequestInput.getInput().getRequestParameters().getName()))
-                    .build());
-        }
-    }
-    ```
-
-=== "PYTHON"
-
-    ```python
-    from myapi_python_runtime.apis.tags.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
-    from myapi_python_runtime.model.api_error import ApiError
-    from myapi_python_runtime.model.hello_response import HelloResponse
-    
-    @say_hello_handler
-    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
-        return ApiResponse(
-            status_code=200,
-            body=HelloResponse(message="Hello {}!".format(input.request_parameters["name"])),
-            headers={}
-        )
-    ```
-
-## Interceptors
-
-The lambda handler wrappers allow you to pass in a _chain_ of handler functions to handle the request. This allows you to implement middleware / interceptors for handling requests. Each handler function may choose whether or not to continue the handler chain by invoking `chain.next`.
-
-=== "TS"
-
-    In typescript, interceptors are passed as separate arguments to the generated handler wrapper, in the order in which they should be executed. Call `request.chain.next(request)` from an interceptor to delegate to the rest of the chain to handle a request. Note that the last handler in the chain (ie the actual request handler which transforms the input to the output) should not call `chain.next`.
-    
-    ```ts
-    import {
-      sayHelloHandler,
-      ChainedRequestInput,
-      OperationResponse,
-    } from "myapi-typescript-runtime";
-    
-    // Interceptor to wrap invocations in a try/catch, returning a 500 error for any unhandled exceptions.
-    const tryCatchInterceptor = async <
-      RequestParameters,
-      RequestArrayParameters,
-      RequestBody,
-      Response
-    >(
-      request: ChainedRequestInput<
-        RequestParameters,
-        RequestArrayParameters,
-        RequestBody,
-        Response
-      >
-    ): Promise<Response | OperationResponse<500, { errorMessage: string }>> => {
-      try {
-        return await request.chain.next(request);
-      } catch (e: any) {
-        return { statusCode: 500, body: { errorMessage: e.message } };
-      }
-    };
-    
-    // tryCatchInterceptor is passed first, so it runs first and calls the second argument function (the request handler) via chain.next
-    export const handler = sayHelloHandler(
-      tryCatchInterceptor,
-      async ({ input }) => {
-        return {
-          statusCode: 200,
-          body: {
-            message: `Hello ${input.requestParameters.name}!`,
-          },
-        };
-      }
-    );
-    ```
-    
-    Another example interceptor might be to record request time metrics. The example below includes the full generic type signature for an interceptor:
-    
-    ```ts
-    import { ChainedRequestInput } from "myapi-typescript-runtime";
-    
-    const timingInterceptor = async <
-      RequestParameters,
-      RequestArrayParameters,
-      RequestBody,
-      Response
-    >(
-      request: ChainedRequestInput<
-        RequestParameters,
-        RequestArrayParameters,
-        RequestBody,
-        Response
-      >
-    ): Promise<Response> => {
-      const start = Date.now();
-      const response = await request.chain.next(request);
-      const end = Date.now();
-      console.log(`Took ${end - start} ms`);
-      return response;
-    };
-    ```
-    
-    Interceptors may mutate the `interceptorContext` to pass state to further interceptors or the final lambda handler, for example an `identityInterceptor` might want to extract the authenticated user from the request so that it is available in handlers.
-    
-    ```ts
-    import {
-      LambdaRequestParameters,
-      LambdaHandlerChain,
-    } from "myapi-typescript-runtime";
-    
-    const identityInterceptor = async <
-      RequestParameters,
-      RequestArrayParameters,
-      RequestBody,
-      Response
-    >(
-      request: ChainedRequestInput<
-        RequestParameters,
-        RequestArrayParameters,
-        RequestBody,
-        Response
-      >
-    ): Promise<Response> => {
-      const authenticatedUser = await getAuthenticatedUser(request.event);
-      return await request.chain.next({
-        ...request,
-        interceptorContext: {
-          ...request.interceptorContext,
-          authenticatedUser,
-        },
+      return Response.success({
+        message: `Hello ${input.requestParameters.name}!`,
       });
-    };
+    });
     ```
 
 === "JAVA"
 
-    In Java, interceptors can be added to a handler via the `@Interceptors` class annotation:
-
     ```java
-    import com.generated.api.myjavaapiruntime.runtime.api.Handlers.Interceptors;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello200Response;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput;
+    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse;
+    import com.generated.api.myapijavaruntime.runtime.model.SayHelloResponseContent;
     
-    @Interceptors({ TimingInterceptor.class, TryCatchInterceptor.class })
+    
     public class SayHelloHandler extends SayHello {
         @Override
-        public SayHelloResponse handle(SayHelloRequestInput sayHelloRequestInput) {
-            return SayHello200Response.of(HelloResponse.builder()
-                    .message(String.format("Hello %s", sayHelloRequestInput.getInput().getRequestParameters().getName()))
-                    .build());
-        }
-    }
-    ```
-    
-    To write an interceptor, you can implement the `Interceptor` interface. For example, a timing interceptor:
-    
-    ```java
-    import com.generated.api.myjavaapiruntime.runtime.api.Handlers.Interceptor;
-    import com.generated.api.myjavaapiruntime.runtime.api.Handlers.ChainedRequestInput;
-    import com.generated.api.myjavaapiruntime.runtime.api.Handlers.Response;
-    
-    public class TimingInterceptor<Input> implements Interceptor<Input> {
-        @Override
-        public Response handle(ChainedRequestInput<Input> input) {
-            long start = System.currentTimeMillis();
-            Response res = input.getChain().next(input);
-            long end = System.currentTimeMillis();
-            System.out.printf("Took %d ms%n", end - start);
-            return res;
-        }
-    }
-    ```
-    
-    Interceptors may choose to return different responses, for example to return a 500 response for any unhandled exceptions:
-    
-    ```java
-    import com.generated.api.myjavaapiruntime.runtime.api.Handlers.Interceptor;
-    import com.generated.api.myjavaapiruntime.runtime.api.Handlers.ChainedRequestInput;
-    import com.generated.api.myjavaapiruntime.runtime.api.Handlers.Response;
-    import com.generated.api.myjavaapiruntime.runtime.api.Handlers.ApiResponse;
-    import com.generated.api.myjavaapiruntime.runtime.model.ApiError;
-    
-    public class TryCatchInterceptor<Input> implements Interceptor<Input> {
-        @Override
-        public Response handle(ChainedRequestInput<Input> input) {
-            try {
-                return input.getChain().next(input);
-            } catch (Exception e) {
-                return ApiResponse.builder()
-                        .statusCode(500)
-                        .body(ApiError.builder()
-                                .errorMessage(e.getMessage())
-                                .build().toJson())
-                        .build();
-            }
-        }
-    }
-    ```
-    
-    Interceptors are permitted to mutate the "interceptor context", which is a `Map<String, Object>`. Each interceptor in the chain, and the final handler, can access this context:
-    
-    ```java
-    public class IdentityInterceptor<Input> implements Interceptor<Input> {
-        @Override
-        public Response handle(ChainedRequestInput<Input> input) {
-            input.getInterceptorContext().put("AuthenticatedUser", this.getAuthenticatedUser(input.getEvent()));
-            return input.getChain().next(input);
-        }
-    }
-    ```
-    
-    Interceptors can also mutate the response returned by the handler chain. An example use case might be adding cross-origin resource sharing headers:
-    
-    ```java
-    public static class AddCorsHeadersInterceptor<Input> implements Interceptor<Input> {
-        @Override
-        public Response handle(ChainedRequestInput<Input> input) {
-            Response res = input.getChain().next(input);
-            res.getHeaders().put("Access-Control-Allow-Origin", "*");
-            res.getHeaders().put("Access-Control-Allow-Headers", "*");
-            return res;
-        }
-    }
-    ```
-    
-    Interceptors referenced by the `@Interceptors` annotation must be constructable with no arguments. If more complex instantiation of your interceptor is required (for example if you are using dependency injection or wish to pass configuration to your interceptor), you may instead override the `getInterceptors` method in your handler:
-    
-    ```java
-    public class SayHelloHandler extends SayHello {
-        @Override
-        public List<Interceptor<SayHelloInput>> getInterceptors() {
-            return Arrays.asList(
-                    new MyConfiguredInterceptor<>(42),
-                    new MyOtherConfiguredInterceptor<>("configuration"));
-        }
-    
-        @Override
-        public SayHelloResponse handle(SayHelloRequestInput sayHelloRequestInput) {
-            return SayHello200Response.of(HelloResponse.builder()
-                    .message(String.format("Hello %s!", sayHelloRequestInput.getInput().getRequestParameters().getName()))
+        public SayHelloResponse handle(final SayHelloRequestInput request) {
+            return SayHello200Response.of(SayHelloResponseContent.builder()
+                    .message(String.format("Hello %s!", request.getInput().getRequestParameters().getName()))
                     .build());
         }
     }
@@ -274,217 +38,70 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
 
 === "PYTHON"
 
-    In Python, a list of interceptors can be passed as a keyword argument to the generated lambda handler decorator, for example:
-    
     ```python
-    from myapi_python_runtime.apis.tags.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
+    from myapi_python_runtime.api.operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
     from myapi_python_runtime.model.api_error import ApiError
-    from myapi_python_runtime.model.hello_response import HelloResponse
-    
-    @say_hello_handler(interceptors=[timing_interceptor, try_catch_interceptor])
-    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
-        return ApiResponse(
-            status_code=200,
-            body=HelloResponse(message="Hello {}!".format(input.request_parameters["name"])),
-            headers={}
-        )
-    ```
-    
-    Writing an interceptor is just like writing a lambda handler. Call `chain.next(input)` from an interceptor to delegate to the rest of the chain to handle a request.
-    
-    ```python
-    import time
-    from myapi_python_runtime.apis.tags.default_api_operation_config import ChainedApiRequest, ApiResponse
-    
-    def timing_interceptor(input: ChainedApiRequest) -> ApiResponse:
-        start = int(round(time.time() * 1000))
-        response = input.chain.next(input)
-        end = int(round(time.time() * 1000))
-        print("Took {} ms".format(end - start))
-        return response
-    ```
-    
-    Interceptors may choose to return different responses, for example to return a 500 response for any unhandled exceptions:
-    
-    ```python
-    import time
-    from myapi_python_runtime.model.api_error import ApiError
-    from myapi_python_runtime.apis.tags.default_api_operation_config import ChainedApiRequest, ApiResponse
-    
-    def try_catch_interceptor(input: ChainedApiRequest) -> ApiResponse:
-        try:
-            return input.chain.next(input)
-        except Exception as e:
-            return ApiResponse(
-                status_code=500,
-                body=ApiError(errorMessage=str(e)),
-                headers={}
-            )
-    ```
-    
-    Interceptors are permitted to mutate the "interceptor context", which is a `Dict[str, Any]`. Each interceptor in the chain, and the final handler, can access this context:
-    
-    ```python
-    def identity_interceptor(input: ChainedApiRequest) -> ApiResponse:
-        input.interceptor_context["AuthenticatedUser"] = get_authenticated_user(input.event)
-        return input.chain.next(input)
-    ```
-    
-    Interceptors can also mutate the response returned by the handler chain. An example use case might be adding cross-origin resource sharing headers:
-    
-    ```python
-    def add_cors_headers_interceptor(input: ChainedApiRequest) -> ApiResponse:
-        response = input.chain.next(input)
-        return ApiResponse(
-            status_code=response.status_code,
-            body=response.body,
-            headers={
-                **response.headers,
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "*"
-            }
-        )
-    ```
-
-## Handler Router
-
-The lambda handler wrappers can be used in isolation as handlers for separate lambda functions. If you would like to use a single lambda function to serve all requests, you can wrap your individual handlers with a "handler router", for example:
-
-=== "TS"
-
-    ```ts
-    import {
-      handlerRouter,
-      sayHelloHandler,
-      sayGoodbyeHandler,
-    } from "myapi-typescript-runtime";
-    import { corsInterceptor } from "./interceptors";
-    import { sayGoodbye } from "./handlers/say-goodbye";
-    
-    const sayHello = sayHelloHandler(async ({ input }) => {
-      return {
-        statusCode: 200,
-        body: {
-          message: `Hello ${input.requestParameters.name}!`,
-        },
-      };
-    });
-    
-    export const handler = handlerRouter({
-      // Interceptors declared in this list will apply to all operations
-      interceptors: [corsInterceptor],
-      // Assign handlers to each operation here
-      handlers: {
-        sayHello,
-        sayGoodbye,
-      },
-    });
-    ```
-
-=== "JAVA"
-
-    ```java
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayGoodbye;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.HandlerRouter;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.Interceptors;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello;
-    
-    import java.util.Arrays;
-    import java.util.List;
-    
-    // Interceptors defined here apply to all operations
-    @Interceptors({ TimingInterceptor.class })
-    public class ApiHandlerRouter extends HandlerRouter {
-        // You must implement a method to return a handler for every operation
-        @Override
-        public SayHello sayHello() {
-            return new SayHelloHandler();
-        }
-    
-        @Override
-        public SayGoodbye sayGoodbye() {
-            return new SayGoodbyeHandler();
-        }
-    }
-    ```
-
-=== "PYTHON"
-
-    ```python
-    from myapi_python_runtime.apis.tags.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses, handler_router, HandlerRouterHandlers
-    from myapi_python_runtime.model.api_error import ApiError
-    from myapi_python_runtime.model.hello_response import HelloResponse
-    from other_handlers import say_goodbye
-    from my_interceptors import cors_interceptor
+    from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
     
     @say_hello_handler
-    def say_hello(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
-        return ApiResponse(
-            status_code=200,
-            body=HelloResponse(message="Hello {}!".format(input.request_parameters["name"])),
-            headers={}
+    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
+        return Response.success(
+            SayHelloResponseContent(message=f"Hello {input.request_parameters.name}!"),
         )
-    
-    handler = handler_router(
-        # Interceptors defined here will apply to all operations
-        interceptors=[cors_interceptor],
-        handlers=HandlerRouterHandlers(
-              say_hello=say_hello,
-              say_goodbye=say_goodbye
-        )
-    )
     ```
 
-When you use a handler router, you must specify the same lambda function for every integration in your `Api` CDK construct. To save typing, you can use the `Operations.all` method from your generated runtime package:
+## Handler Projects
 
-=== "TS"
+By configuring `handlers.languages` in your `TypeSafeApiProject` and annotating your operations, you can take advantage of generated handler stubs and generated lambda function CDK constructs to speed up development even further.
 
-    ```ts
-    import { Integrations, Authorizers } from "@aws/pdk/type-safe-api";
-    import { Operations } from "myapi-typescript-runtime";
-    import { Api } from "myapi-typescript-infra";
-    import { NodejsFunction } from "aws-cdk-lib/aws-lambda";
+=== "SMITHY"
 
-    new Api(this, "Api", {
-      defaultAuthorizer: Authorizers.iam(),
-      // Use the same integration for every operation.
-      integrations: Operations.all({
-        integration: Integrations.lambda(new NodejsFunction(this, "router")),
-      }),
-    });
+    Use the `@handler` trait, and specify the language you wish to implement this operation in.
+
+    ```smithy hl_lines="3"
+    @readonly
+    @http(method: "GET", uri: "/hello")
+    @handler(language: "typescript")
+    operation SayHello {
+        input := {
+            @httpQuery("name")
+            @required
+            name: String
+        }
+        output := {
+            @required
+            message: String
+        }
+    }
     ```
 
-=== "JAVA"
+=== "OPENAPI"
 
-    ```java
-    import software.aws.awsprototypingsdk.typesafeapi.TypeSafeApiIntegration;
-    import software.aws.awsprototypingsdk.typesafeapi.Integrations;
-    import software.aws.awsprototypingsdk.typesafeapi.Authorizers;
+    Use the `x-handler` vendor extension, specifying the language you wish to implement this operation in.
 
-    import com.generated.api.myapijavaruntime.runtime.api.Operations;
-    import com.generated.api.myapijavainfra.infra.Api;
-    import com.generated.api.myapijavainfra.infra.ApiProps;
-
-    new Api(s, "Api", ApiProps.builder()
-            .defaultAuthorizer(Authorizers.iam())
-            .integrations(Operations.all(TypeSafeApiIntegration.builder()
-                    .integration(Integrations.lambda(...))
-                    .build()).build())
-            .build());
+    ```yaml hl_lines="4-5"
+    /hello:
+      get:
+        operationId: sayHello
+        x-handler:
+          language: typescript
+        parameters:
+          - in: query
+            name: name
+            schema:
+              type: string
+              required: true
+        responses:
+          200:
+            description: Successful response
+            content:
+              'application/json':
+                schema:
+                  $ref: '#/components/schemas/SayHelloResponseContent'
     ```
 
-=== "PYTHON"
+!!!note
 
-    ```python
-    from aws_prototyping_sdk.type_safe_api import Integrations, TypeSafeApiIntegration, Authorizers
-    from myapi_python_runtime.apis.tags.default_api_operation_config import Operations
-    from myapi_python_infra.api import Api
+    If you wish to deviate from the folder structure of the `handlers` projects, or wish to implement your operations in a language not supported by Type Safe API, or through a non-lambda interation (such as a server running in a Fargate container) you can omit the `@handler` trait or `x-handler` vendor extension.
 
-    Api(self, "Api",
-        default_authorizer=Authorizers.iam(),
-        # Use the same integration for every operation.
-        integrations=Operations.all(
-            integration=Integrations.lambda_(NodejsFunction(scope, "router"))
-        )
-    )
-    ```
+You can implement your lambda handlers in any of the supported languages, or mix and match languages for different operations if you prefer.

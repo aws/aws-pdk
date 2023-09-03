@@ -16,7 +16,8 @@ This is where the documentation site is defined and built.
 
 Contains configurations for each project within this monorepo.
 
-**_As a rule of thumb, every package in the monorepo should correspond to a file in this directory._**
+!!!info
+    As a rule of thumb, every package in the monorepo should correspond to a file in this directory.
 
 ### **packages**
 
@@ -214,7 +215,7 @@ From the root directory run: `pdk upgrade-deps`. This will bump all dependencies
 If you run into an issue that resembles:
 
 ```bash
-Type 'import(".../@aws/pdk/node_modules/aws-prototyping-sdk/node_modules/projen/lib/ignore-file").IgnoreFile' is not assignable to type 'import(".../@aws/pdk/node_modules/projen/lib/ignore-file").IgnoreFile'.
+Type 'import(".../@aws/pdk/node_modules/@aws/pdk/node_modules/projen/lib/ignore-file").IgnoreFile' is not assignable to type 'import(".../@aws/pdk/node_modules/projen/lib/ignore-file").IgnoreFile'.
 Types have separate declarations of a private property '_patterns'.
 ```
 
