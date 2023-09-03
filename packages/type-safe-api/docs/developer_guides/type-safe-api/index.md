@@ -4,6 +4,8 @@
 [![API Documentation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](../../api/typescript/type-safe-api/index.md)
 [![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-pdk/tree/mainline/packages/type-safe-api)
 
+> Define your API's declaratively in a type-safe manner to reduce preventable issues and increase overall productivity.
+
 The _type-safe-api_ package provides a projen project type which allows you to define an API using either [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and a construct which manages deploying this API in an API Gateway.
 
 You can define your APIs using [Smithy](https://smithy.io/2.0/) or [OpenAPI v3](https://swagger.io/specification/), and leverage the power of generated client and server types, infrastructure, documentation, and automatic input validation.
@@ -71,13 +73,13 @@ The `TypeSafeApiProject` projen project sets up the project structure for you. C
 
     We recommend you use these projects as part of an `monorepo` project (eg. by specifying `parent: monorepo`), as it makes setting up dependencies much easier, particularly when extending your project further with a CDK app and lambda functions.
 
-1. To start an empty `monorepo` project, use this command:
+1.) To start an empty `monorepo` project, use this command:
 
 ```bash
 pdk new monorepo-ts
 ```
 
-2. Edit your `.projenrc` and configure `TypeSafeApiProject`.
+2.) Edit your `.projenrc` and configure `TypeSafeApiProject`.
 
 !!! tip
 
@@ -259,7 +261,7 @@ pdk new monorepo-ts
     monorepo.synth()
     ```
 
-3. Given we have modified our `projenrc` file we need to run the `pdk` command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with `pdk build`.
+3.) Given we have modified our `projenrc` file we need to run the `pdk` command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with `pdk build`.
 
 ## Implement a Lambda handler
 
@@ -921,4 +923,4 @@ cd packages/infra
 pdk run deploy --require-approval never
 ```
 
-Try out your new API! You can use a tool such as [awscurl](https://github.com/okigan/awscurl) to make Sigv4 signed requests to your API, since we set the default authorizer to `Authorizers.iam()`.
+Try out your new API! You can use a tool such as [awscurl](https://github.com/okigan/awscurl) to make Sigv4 signed requests to your API, since we set the default authorizer to `Authorizers.iam()`. Alternatively, you can deploy the [`CloudscapeReactTsWebsiteProject`](../cloudscape-react-ts-website/index.md) and try out the [API Explorer](../cloudscape-react-ts-website/api_explorer.md).

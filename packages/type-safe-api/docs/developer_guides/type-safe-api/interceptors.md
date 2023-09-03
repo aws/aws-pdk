@@ -505,9 +505,9 @@ When you use a handler router, you must specify the same lambda function for eve
 === "JAVA"
 
     ```java
-    import software.aws.awsprototypingsdk.typesafeapi.TypeSafeApiIntegration;
-    import software.aws.awsprototypingsdk.typesafeapi.Integrations;
-    import software.aws.awsprototypingsdk.typesafeapi.Authorizers;
+    import software.aws.awspdk.typesafeapi.TypeSafeApiIntegration;
+    import software.aws.awspdk.typesafeapi.Integrations;
+    import software.aws.awspdk.typesafeapi.Authorizers;
 
     import com.generated.api.myapijavaruntime.runtime.api.Operations;
     import com.generated.api.myapijavainfra.infra.Api;
@@ -524,7 +524,7 @@ When you use a handler router, you must specify the same lambda function for eve
 === "PYTHON"
 
     ```python
-    from aws_prototyping_sdk.type_safe_api import Integrations, TypeSafeApiIntegration, Authorizers
+    from aws_pdk.type_safe_api import Integrations, TypeSafeApiIntegration, Authorizers
     from myapi_python_runtime.apis.tags.default_api_operation_config import Operations
     from myapi_python_infra.api import Api
 

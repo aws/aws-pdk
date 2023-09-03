@@ -70,8 +70,8 @@ Use `MockIntegrations.mockAll` to mock all the operations in your API by returni
 === "JAVA"
 
     ```java
-    import software.aws.awsprototypingsdk.typesafeapi.TypeSafeApiIntegration;
-    import software.aws.awsprototypingsdk.typesafeapi.Integrations;
+    import software.aws.awspdk.typesafeapi.TypeSafeApiIntegration;
+    import software.aws.awspdk.typesafeapi.Integrations;
 
     import com.generated.api.myapijavainfra.infra.Api;
     import com.generated.api.myapijavainfra.infra.ApiProps;
@@ -90,7 +90,7 @@ Use `MockIntegrations.mockAll` to mock all the operations in your API by returni
 === "PYTHON"
 
     ```python
-    from aws_prototyping_sdk.type_safe_api import Integrations, TypeSafeApiIntegration
+    from aws_pdk.type_safe_api import Integrations, TypeSafeApiIntegration
     from myapi_python_runtime.api.operation_config import OperationConfig
     from myapi_python_infra.api import Api
     from myapi_python_infra.mock_integrations import MockIntegrations
