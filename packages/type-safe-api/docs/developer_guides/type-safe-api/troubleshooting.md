@@ -8,9 +8,9 @@ For CDK infrastructure, pick the language you'd like to write CDK infrastructure
 
 You can also implement your API lambda handlers in a different language to your infrastructure and `.projenrc` if you like, or even implement some operations in one language and others in another. Just make sure you generate the runtime projects for any languages you'd like to write lambda handlers in.
 
-### How do I customise the Generated Runtime/Infrastructure/Library Projects?
+### How do I customise the Generated Runtime/Infrastructure/Library/Handlers Projects?
 
-By default, the generated runtime, infrastructure and library projects are configured automatically, but you can customise them in your `.projenrc` by using `runtime.options.<language>`, `infrastructure.options.<language>`, or `library.options.<library>` in your `TypeSafeApiProject`.
+By default, the generated runtime, infrastructure and library projects are configured automatically, but you can customise them in your `.projenrc` by using `runtime.options.<language>`, `infrastructure.options.<language>`, `handlers.options.<language>`, or `library.options.<library>` in your `TypeSafeApiProject`.
 
 ### How do I modify the AWS WAFv2 Web ACL my Api construct deploys?
 
@@ -21,61 +21,53 @@ You can customise the Web ACL configuration via the `webAclOptions` of your `Api
 === "TS"
 
     ```ts
-    export class SampleApi extends Api {
-      constructor(scope: Construct, id: string) {
-        super(scope, id, {
-          integrations: { ... },
-          webAclOptions: {
-            // Allow access only to specific CIDR ranges
-            cidrAllowList: {
-              cidrType: 'IPV4',
-              cidrRanges: ['1.2.3.4/5'],
-            },
-            // Pick from the set here: https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html
-            managedRules: [
-              { vendor: 'AWS', name: 'AWSManagedRulesSQLiRuleSet' },
-            ],
-          },
-        });
-      }
-    }
+    new Api(this, "Api", {
+      webAclOptions: {
+        // Allow access only to specific CIDR ranges
+        cidrAllowList: {
+          cidrType: 'IPV4',
+          cidrRanges: ['1.2.3.4/5'],
+        },
+        // Pick from the set here: https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html
+        managedRules: [
+          { vendor: 'AWS', name: 'AWSManagedRulesSQLiRuleSet' },
+        ],
+      },
+      ...
+    });
     ```
 
 === "JAVA"
 
     ```java
-    public class SampleApi extends Api {
-        public SampleApi(Construct scope, String id) {
-            super(scope, id, Map.of(
-                    "integrations", Map.of(...),
-                    "webAclOptions", Map.of(
-                            // Allow access only to specific CIDR ranges
-                            "cidrAllowList", Map.of(
-                                    "cidrType", "IPV4",
-                                    "cidrRanges", List.of("1.2.3.4/5")),
-                            // Pick from the set here: https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html
-                            "managedRules", List.of(Map.of("vendor", "AWS", "name", "AWSManagedRulesSQLiRuleSet")))));
-        }
-    }
+    new Api(this, "Api", ApiProps.builder()
+            .webAclOptions(TypeSafeApiWebAclOptions.builder()
+                    .cidrAllowList(CidrAllowList.builder()
+                            .cidrType("IPV4")
+                            .cidrRanges(Arrays.asList("1.2.3.4/5"))
+                            .build())
+                    .managedRules(Arrays.asList(ManagedRule.builder()
+                                    .vendor("AWS")
+                                    .name("AWSManagedRulesSQLiRuleSet")
+                            .build()))
+                    .build())
+            ...
+            .build();
     ```
 
 === "PYTHON"
 
     ```python
-    class SampleApi(Api):
-        def __init__(self, scope, id):
-            super().__init__(scope, id,
-                integrations={...},
-                web_acl_options={
-                    # Allow access only to specific CIDR ranges
-                    "cidr_allow_list": {
-                        "cidr_type": "IPV4",
-                        "cidr_ranges": ["1.2.3.4/5"]
-                    },
-                    # Pick from the set here: https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html
-                    "managed_rules": [{"vendor": "AWS", "name": "AWSManagedRulesSQLiRuleSet"}]
-                }
-            )
+    Api(self, id,
+        web_acl_options=TypeSafeApiWebAclOptions(
+            cidr_allow_list=CidrAllowList(
+                cidr_type="IPV4",
+                cidr_ranges=["1.2.3.4/5"]
+            ),
+            managed_rules=[ManagedRule(vendor="AWS", name="AWSManagedRulesSQLiRuleSet")]
+        ),
+        ...
+    )
     ```
 
 ### How do I configure the Smithy IntelliJ Plugin?
@@ -161,14 +153,17 @@ You can consume the library using the `addSmithyDeps` method, which adds a local
             .parent(monorepo)
             .outdir("packages/shapes")
             .modelLanguage(ModelLanguage.getSMITHY())
-            .modelOptions(Map.of(
-                    "smithy", Map.of(
-                            "serviceName", Map.of(
-                                    "namespace", "com.my.shared.shapes",
-                                    "serviceName", "Ignored"))))
+            .modelOptions(ModelOptions.builder()
+                .smithy(SmithyModelOptions.builder()
+                        .serviceName(SmithyServiceName.builder()
+                                .namespace("com.my.shared.shapes")
+                                .serviceName("Ignored")
+                                .build())
+                        .build())
+                .build())
             .build();
 
-    TypeSafeApiProject api = TypeSafeApiProject.Builder.create()....build();
+    TypeSafeApiProject api = new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()....build();
 
     // Add the implicit monorepo dependency (if using the monorepo) to ensure the shape library is built before the api model
     monorepo.addImplicitDependency(api.getModel(), shapes);
@@ -186,14 +181,14 @@ You can consume the library using the `addSmithyDeps` method, which adds a local
         parent=monorepo,
         outdir="packages/shapes",
         model_language=ModelLanguage.SMITHY,
-        model_options={
-            "smithy": {
-                "service_name": {
-                    "namespace": "com.my.shared.shapes",
-                    "service_name": "Ignored"
-                }
-            }
-        }
+        model_options=ModelOptions(
+            smithy=SmithyModelOptions(
+                service_name=SmithyServiceName(
+                    namespace="com.my.shared.shapes",
+                    service_name="Ignored"
+                )
+            )
+        )
     )
 
     api = TypeSafeApiProject(...)
@@ -252,37 +247,12 @@ For example, to customise the maven repository used to pull the OpenAPI Generato
       infrastructure: {
         language: Language.TYPESCRIPT,
         options: {
-          // Note here the options are typed as "GeneratedTypeScriptProjectOptions" but you can
-          // pass a partial one to avoid having to specify a custom project name etc
           typescript: {
-            openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
-        },
-      },
-      runtime: {
-        languages: [Language.TYPESCRIPT],
-        options: {
-          typescript: {
-            openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
-        },
-      },
-      library: {
-        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
-        options: {
-          typescriptReactQueryHooks: {
-            openApiGeneratorCliConfig,
-          } satisfies Partial<GeneratedTypeScriptProjectOptions> as any,
-        },
-      },
-      documentation: {
-        formats: [DocumentationFormat.HTML2],
-        options: {
-          html2: {
             openApiGeneratorCliConfig,
           },
         },
       },
+      // Repeat for handlers, runtime, documentation, library
       ...
     });
     ```
@@ -290,31 +260,22 @@ For example, to customise the maven repository used to pull the OpenAPI Generato
 === "JAVA"
 
     ```java
-    OpenApiGeneratorCliConfig openApiGeneratorCliConfig = Map.of(
-            "repository", Map.of(
-                    "downloadUrl", "https://my.custom.maven.repo/maven2/${groupId}/${artifactId}/${versionName}/${artifactId}-${versionName}.jar"));
+    OpenApiGeneratorCliConfig openApiGeneratorCliConfig = OpenApiGeneratorCliConfig.builder()
+                .repository(OpenApiGeneratorCliConfigRepository.builder()
+                        .downloadUrl("https://my.custom.maven.repo/maven2/${groupId}/${artifactId}/${versionName}/${artifactId}-${versionName}.jar")
+                        .build())
+                .build();
 
-    TypeSafeApiProject project = TypeSafeApiProject.Builder.create()
-            .infrastructure(Map.of(
-                    "language", Language.getTYPESCRIPT(),
-                    "options", Map.of(
-                            "typescript", Map.of(
-                                    "openApiGeneratorCliConfig", openApiGeneratorCliConfig))))
-            .runtime(Map.of(
-                    "languages", List.of(Language.getTYPESCRIPT()),
-                    "options", Map.of(
-                            "typescript", Map.of(
-                                    "openApiGeneratorCliConfig", openApiGeneratorCliConfig))))
-            .library(Map.of(
-                    "libraries", List.of(Library.getTYPESCRIPT_REACT_QUERY_HOOKS()),
-                    "options", Map.of(
-                            "typescriptReactQueryHooks", Map.of(
-                                    "openApiGeneratorCliConfig", openApiGeneratorCliConfig))))
-            .documentation(Map.of(
-                    "formats", List.of(DocumentationFormat.getHTML2()),
-                    "options", Map.of(
-                            "html2", Map.of(
-                                    "openApiGeneratorCliConfig", openApiGeneratorCliConfig))))
+    TypeSafeApiProject project = new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
+            .infrastructure(InfrastructureConfiguration.builder()
+                    .language(Language.JAVA)
+                    .options(GeneratedInfrastructureCodeOptions.builder()
+                            .java(GeneratedJavaInfrastructureOptions.builder()
+                                    .openApiGeneratorCliConfig(openApiGeneratorCliConfig)
+                                    .build())
+                            .build())
+                    .build())
+            // Repeat for handlers, runtime, documentation, library
             ...
             .build();
     ```
@@ -322,46 +283,22 @@ For example, to customise the maven repository used to pull the OpenAPI Generato
 === "PYTHON"
 
     ```python
-    # Example automatically generated from non-compiling source. May contain errors.
-    open_api_generator_cli_config = {
-        "repository": {
-            "download_url": "https://my.custom.maven.repo/maven2/${groupId}/${artifactId}/${versionName}/${artifactId}-${versionName}.jar"
-        }
-    }
+    openapi_generator_cli_config = OpenApiGeneratorCliConfig(
+        repository=OpenApiGeneratorCliConfigRepository(
+            download_url="https://my.custom.maven.repo/maven2/${groupId}/${artifactId}/${versionName}/${artifactId}-${versionName}.jar"
+        )
+    )
 
     project = TypeSafeApiProject(
-        infrastructure={
-            "language": Language.TYPESCRIPT,
-            "options": {
-                "typescript": {
-                    "open_api_generator_cli_config": open_api_generator_cli_config
-                }
-            }
-        },
-        runtime={
-            "languages": [Language.TYPESCRIPT],
-            "options": {
-                "typescript": {
-                    "open_api_generator_cli_config": open_api_generator_cli_config
-                }
-            }
-        },
-        library={
-            "libraries": [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
-            "options": {
-                "typescript_react_query_hooks": {
-                    "open_api_generator_cli_config": open_api_generator_cli_config
-                }
-            }
-        },
-        documentation={
-            "formats": [DocumentationFormat.HTML2],
-            "options": {
-                "html2": {
-                    "open_api_generator_cli_config": open_api_generator_cli_config
-                }
-            }
-        },
+        infrastructure=InfrastructureConfiguration(
+            language=Language.PYTHON,
+            options=GeneratedInfrastructureCodeOptions(
+                python=GeneratedPythonInfrastructureOptions(
+                    open_api_generator_cli_config=open_api_generator_cli_config
+                )
+            )
+        ),
+        # Repeat for handlers, runtime, documentation, library
         ...
     )
     ```
@@ -407,22 +344,28 @@ You can customise the versions of Smithy dependencies by including them in `smit
 === "JAVA"
 
     ```java
-     TypeSafeApiProject.Builder.create()
-        .model(Map.of(
-                "language", ModelLanguage.getSMITHY(),
-                "options", Map.of(
-                        "smithy", Map.of(
-                                "serviceName", Map.of(
-                                        "namespace", "com.mycompany",
-                                        "serviceName", "MyApi"),
-                                "smithyBuildOptions", Map.of(
-                                        "maven", Map.of(
-                                                // Override the built in smithy dependencies here
-                                                "dependencies", List.of(
-                                                        "software.amazon.smithy:smithy-cli:1.28.1",
-                                                        "software.amazon.smithy:smithy-model:1.28.1",
-                                                        "software.amazon.smithy:smithy-openapi:1.28.1",
-                                                        "software.amazon.smithy:smithy-aws-traits:1.28.1")))))))
+     new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
+            .model(ModelConfiguration.builder()
+                    .language(ModelLanguage.SMITHY)
+                    .options(ModelOptions.builder()
+                            .smithy(SmithyModelOptions.builder()
+                                    .serviceName(SmithyServiceName.builder()
+                                            .namespace("com.my.company")
+                                            .serviceName("MyApi")
+                                            .build())
+                                    .smithyBuildOptions(SmithyBuildOptions.builder()
+                                            .maven(SmithyMavenConfiguration.builder()
+                                                    .dependencies(Arrays.asList(
+                                                            "software.amazon.smithy:smithy-cli:1.28.1",
+                                                            "software.amazon.smithy:smithy-model:1.28.1",
+                                                            "software.amazon.smithy:smithy-openapi:1.28.1",
+                                                            "software.amazon.smithy:smithy-aws-traits:1.28.1"
+                                                    ))
+                                                    .build())
+                                            .build())
+                                    .build())
+                            .build())
+                    .build())
         ...
         .build();
     ```
@@ -431,28 +374,28 @@ You can customise the versions of Smithy dependencies by including them in `smit
 
     ```python
     TypeSafeApiProject(
-        model={
-            "language": ModelLanguage.SMITHY,
-            "options": {
-                "smithy": {
-                    "service_name": {
-                        "namespace": "com.mycompany",
-                        "service_name": "MyApi"
-                    },
-                    "smithy_build_options": {
-                        "maven": {
-                            "dependencies": [
+        model=ModelConfiguration(
+            language=ModelLanguage.SMITHY,
+            options=ModelOptions(
+                smithy=SmithyModelOptions(
+                    service_name=SmithyServiceName(
+                        namespace="com.amazon",
+                        service_name="MyAPI"
+                    ),
+                    smithy_build_options=SmithyBuildOptions(
+                        maven=SmithyMavenConfiguration(
+                            dependencies=[
                                 # Override the built in smithy dependencies here
                                 "software.amazon.smithy:smithy-cli:1.28.1",
                                 "software.amazon.smithy:smithy-model:1.28.1",
                                 "software.amazon.smithy:smithy-openapi:1.28.1",
                                 "software.amazon.smithy:smithy-aws-traits:1.28.1",
                             ]
-                        }
-                    }
-                }
-            }
-        },
+                        )
+                    )
+                )
+            )
+        ),
         ...
     )
     ```

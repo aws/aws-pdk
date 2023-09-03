@@ -30,6 +30,9 @@ This is a continuation from [build your first AWS PDK project](./your_first_aws_
 
 In order to define our API, we need to write some [Smithy](https://smithy.io/2.0/quickstart.html) code which is contained within `packages/api/model/src/main/smithy`.
 
+!!!info
+    More detailed information on how to use smithy can be found in the [Type Safe API Developer Guide](../developer_guides/type-safe-api/using_smithy.md)
+
 ### Definining our types
 
 Firstly, let's define some types for our Shopping List application by creating the following files:

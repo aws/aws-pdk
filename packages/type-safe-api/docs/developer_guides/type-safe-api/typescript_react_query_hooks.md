@@ -28,16 +28,16 @@ You can generate [react-query](https://tanstack.com/query/latest) hooks for inte
 
     ```python
     TypeSafeApiProject(
-        library={
-            "libraries": [Library.TYPESCRIPT_REACT_QUERY_HOOKS]
-        },
+        library=LibraryConfiguration(
+            libraries=[Library.TYPESCRIPT_REACT_QUERY_HOOKS]
+        )
         ...
     )
     ```
 
 ## Usage in a React Website
 
-First, make sure you add a dependency on the generated hooks library, eg in your `.projenrc`:
+First, make sure you add a dependency on the generated hooks library. This is done automatically if you pass your `TypeSafeApiProject` into the `CloudscapeReactTsWebsite`, eg in your `.projenrc`:
 
 === "TS"
 
@@ -46,24 +46,20 @@ First, make sure you add a dependency on the generated hooks library, eg in your
 
     new CloudscapeReactTsWebsite({
       ...,
-      deps: [
-        ...
-        api.library.typescriptReactQueryHooks!.package.packageName,
-      ],
+      typeSafeApi: api,
     });
     ```
 
 === "JAVA"
 
     ```java
-    TypeSafeApiProject api = TypeSafeApiProject.Builder.create()
+    TypeSafeApiProject api = new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
             ...
             .build();
 
     CloudscapeReactTsWebsite.Builder.create()
             ...
-            .deps(List.of(
-                  api.getLibrary().getTypescriptReactQueryHooks().getPackage().getPackageName()))
+            .typeSafeApi(api)
             .build();
     ```
 
@@ -74,11 +70,15 @@ First, make sure you add a dependency on the generated hooks library, eg in your
 
     CloudscapeReactTsWebsite(
         ...
-        deps=[api.library.typescript_react_query_hooks.package.package_name]
+        type_safe_api=api
     )
     ```
 
-Make sure to run `projen` (eg. `yarn projen`) to synthesize your `.projenrc` changes!
+!!!note
+
+    If you are not using `CloudscapeReactTsWebsite`, you can add the dependency manually using `api.library.typescriptReactQueryHooks!.package.packageName`
+
+Make sure to run `pdk` to synthesize your `.projenrc` changes.
 
 Next, create an instance of the API client in your React Website (making sure to set the base URL and fetch instance). For example:
 

@@ -141,7 +141,7 @@ export interface TypeSafeApiProjectOptions extends ProjectOptions {
   /**
    * Configuration for generated runtime projects (containing types, clients and server code)
    */
-  readonly runtime: RuntimeConfiguration;
+  readonly runtime?: RuntimeConfiguration;
   /**
    * Configuration for generated infrastructure
    */
@@ -227,7 +227,7 @@ export class TypeSafeApiProject extends Project {
     // the user. Likewise we generate a runtime project for any handler languages specified
     const runtimeLanguages = [
       ...new Set([
-        ...options.runtime.languages,
+        ...(options.runtime?.languages ?? []),
         options.infrastructure.language,
         ...(options.handlers?.languages ?? []),
       ]),
@@ -265,17 +265,17 @@ export class TypeSafeApiProject extends Project {
           ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
             ? this.parent.package.packageManager
             : NodePackageManager.YARN,
-        ...options.runtime.options?.typescript,
+        ...options.runtime?.options?.typescript,
       },
       pythonOptions: {
         authorName: "APJ Cope",
         authorEmail: "apj-cope@amazon.com",
         version: "0.0.0",
-        ...options.runtime.options?.python,
+        ...options.runtime?.options?.python,
       },
       javaOptions: {
         version: "0.0.0",
-        ...options.runtime.options?.java,
+        ...options.runtime?.options?.java,
       },
     });
 
@@ -327,7 +327,7 @@ export class TypeSafeApiProject extends Project {
           ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
             ? this.parent.package.packageManager
             : NodePackageManager.YARN,
-        ...options.runtime.options?.typescript,
+        ...options.library?.options?.typescriptReactQueryHooks,
       },
     });
 
