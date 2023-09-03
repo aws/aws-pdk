@@ -156,7 +156,6 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "java",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.JAVA_CDK_INFRASTRUCTURE,
       srcDir: this.srcDir,
       normalizers: {

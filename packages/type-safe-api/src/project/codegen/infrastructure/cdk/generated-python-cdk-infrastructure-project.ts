@@ -129,7 +129,6 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "python-nextgen",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.PYTHON_CDK_INFRASTRUCTURE,
       // Tell the generator where python source files live
       srcDir: this.moduleName,

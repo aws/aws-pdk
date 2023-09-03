@@ -5,9 +5,11 @@ set -e
 # Parse arguments
 spec_path=''
 output_path=''
+smithy_json_path=''
 while [[ "$#" -gt 0 ]]; do case $1 in
   --spec-path) spec_path="$2"; shift;;
   --output-path) output_path="$2"; shift;;
+  --smithy-json-path) smithy_json_path="$2"; shift;;
 esac; shift; done
 
 working_dir=$(pwd)
@@ -37,7 +39,11 @@ install_packages \
   projen@0.71.57
 
 # Run the parse script
-run_command "ts-node parse-openapi-spec.ts --specPath=$working_dir/$spec_path --outputPath=$working_dir/$output_path"
+run_command ts-node parse-openapi-spec.ts \
+  --specPath="$working_dir/$spec_path" \
+  --outputPath="$working_dir/$output_path" \
+  ${smithy_json_path:+"--smithyJsonPath=$working_dir/$smithy_json_path"}
+
 echo "openapi-spec parsed"
 
 # Clean up

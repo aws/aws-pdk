@@ -461,8 +461,4 @@ export interface CodeGenerationSourceOptions {
    * Path to the OpenAPI specification
    */
   readonly specPath: string;
-  /**
-   * Path to the Smithy json model if applicable
-   */
-  readonly smithyJsonModelPath?: string;
 }

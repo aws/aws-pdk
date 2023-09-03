@@ -15,6 +15,7 @@ package {{package}}.handlers;
 {{#apiInfo}}
 {{#apis.0}}
 import {{modelPackage}}.*;
+import {{package}}.interceptors.ResponseHeadersInterceptor;
 {{/apis.0}}
 {{/apiInfo}}
 
@@ -30,6 +31,10 @@ import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
+import java.time.DateTimeException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -87,6 +92,266 @@ public class Handlers {
         return decodedParameters;
     }
 
+    public static <T> void assertRequired(final Boolean required, final String baseName, final Map<String, T> parameters) {
+        if (required && parameters.get(baseName) == null) {
+            throw new RuntimeException("Missing required request parameter '" + baseName + "'");
+        }
+    }
+
+    public static String coerceStringParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        return parameters.get(baseName);
+    }
+
+    public static List<String> coerceStringArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        return parameters.get(baseName);
+    }
+
+    public static Double coerceDouble(final String baseName, final String s) {
+        try {
+            return Double.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a number for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Double coerceDoubleParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceDouble(baseName, s);
+    }
+
+    public static List<Double> coerceDoubleArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Double> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceDouble(baseName, s));
+        }
+        return res;
+    }
+
+    public static BigDecimal coerceBigDecimal(final String baseName, final String s) {
+        try {
+            return new BigDecimal(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a number for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static BigDecimal coerceBigDecimalParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceBigDecimal(baseName, s);
+    }
+
+    public static List<BigDecimal> coerceBigDecimalArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<BigDecimal> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceBigDecimal(baseName, s));
+        }
+        return res;
+    }
+
+    public static BigInteger coerceBigInteger(final String baseName, final String s) {
+        try {
+            return new BigInteger(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a number for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static BigInteger coerceBigIntegerParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceBigInteger(baseName, s);
+    }
+
+    public static List<BigInteger> coerceBigIntegerArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<BigInteger> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceBigInteger(baseName, s));
+        }
+        return res;
+    }
+
+    public static Float coerceFloat(final String baseName, final String s) {
+        try {
+            return Float.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a float for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Float coerceFloatParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceFloat(baseName, s);
+    }
+
+    public static List<Float> coerceFloatArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Float> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceFloat(baseName, s));
+        }
+        return res;
+    }
+
+    public static Integer coerceInteger(final String baseName, final String s) {
+        try {
+            return Integer.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected an integer for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Integer coerceIntegerParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceInteger(baseName, s);
+    }
+
+    public static List<Integer> coerceIntegerArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Integer> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceInteger(baseName, s));
+        }
+        return res;
+    }
+
+    public static Long coerceLong(final String baseName, final String s) {
+        try {
+            return Long.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a long for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Long coerceLongParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceLong(baseName, s);
+    }
+
+    public static List<Long> coerceLongArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Long> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceLong(baseName, s));
+        }
+        return res;
+    }
+
+    public static Short coerceShort(final String baseName, final String s) {
+        try {
+            return Short.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a short for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Short coerceShortParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceShort(baseName, s);
+    }
+
+    public static List<Short> coerceShortArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Short> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceShort(baseName, s));
+        }
+        return res;
+    }
+
+    public static Boolean coerceBoolean(final String baseName, final String s) {
+        if ("true".equals(s)) {
+            return true;
+        } else if ("false".equals(s)) {
+            return false;
+        }
+        throw new RuntimeException("Expected a boolean (true or false) for request parameter '" + baseName + "'");
+    }
+
+    public static Boolean coerceBooleanParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceBoolean(baseName, s);
+    }
+
+    public static List<Boolean> coerceBooleanArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Boolean> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceBoolean(baseName, s));
+        }
+        return res;
+    }
+
+    public static OffsetDateTime coerceOffsetDateTime(final String baseName, final String s) {
+        try {
+            return OffsetDateTime.parse(s);
+        } catch (DateTimeException e) {
+            throw new RuntimeException("Expected a valid date (iso format) for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static OffsetDateTime coerceOffsetDateTimeParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceOffsetDateTime(baseName, s);
+    }
+
+    public static List<OffsetDateTime> coerceOffsetDateTimeArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<OffsetDateTime> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceOffsetDateTime(baseName, s));
+        }
+        return res;
+    }
+
     public static <K, V> void putAllFromNullableMap(Map<K, V> source, Map<K, V> destination) {
         if (source != null) {
             destination.putAll(source);
@@ -95,6 +360,16 @@ public class Handlers {
 
     public static String concatMethodAndPath(final String method, final String path) {
         return String.format("%s||%s", method.toLowerCase(), path);
+    }
+
+    public static <T> Map<String, String> extractResponseHeadersFromInterceptors(final List<Interceptor<T>> interceptors) {
+        Map<String, String> headers = new HashMap<>();
+        for (Interceptor<T> interceptor : interceptors) {
+            if (interceptor instanceof ResponseHeadersInterceptor) {
+                headers.putAll(((ResponseHeadersInterceptor) interceptor).getAdditionalHeaders());
+            }
+        }
+        return headers;
     }
 
     public static <T, I> List<Interceptor<I>> getAnnotationInterceptors(Class<T> clazz) {
@@ -417,11 +692,6 @@ public class {{operationIdCamelCase}}{{code}}Response extends RuntimeException i
         {{#dataType}}this.typedBody = body;{{/dataType}}
         this.body = {{#dataType}}{{#isPrimitiveType}}body{{/isPrimitiveType}}{{^isPrimitiveType}}body.toJson(){{/isPrimitiveType}}{{/dataType}}{{^dataType}}""{{/dataType}};
         this.headers = headers;
-        {{^is2xx}}
-        if ("{{dataType}}".endsWith("ResponseContent")) {
-            this.headers.put("x-amzn-errortype", "{{dataType}}".substring(0, "{{dataType}}".length() - "ResponseContent".length()));
-        }
-        {{/is2xx}}
     }
 
     @Override
@@ -488,113 +758,48 @@ import {{package}}.handlers.Handlers;
 {{/apiInfo}}
 import java.util.Optional;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.time.OffsetDateTime;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 
 /**
- * Single-value query, path and header parameters for the {{nickname}} operation
+ * Query, path and header parameters for the {{operationIdCamelCase}} operation
  */
 public class {{operationIdCamelCase}}RequestParameters {
     {{#allParams}}
     {{^isBodyParam}}
-    {{^isArray}}
-    private {{^required}}Optional<{{/required}}String{{^required}}>{{/required}} {{paramName}};
-    {{/isArray}}
+    private {{^required}}Optional<{{/required}}{{{dataType}}}{{^required}}>{{/required}} {{paramName}};
     {{/isBodyParam}}
     {{/allParams}}
 
     public {{operationIdCamelCase}}RequestParameters(final APIGatewayProxyRequestEvent event) {
-        Map<String, String> parameters = new HashMap<>();
-        Handlers.putAllFromNullableMap(event.getPathParameters(), parameters);
-        Handlers.putAllFromNullableMap(event.getQueryStringParameters(), parameters);
-        Handlers.putAllFromNullableMap(event.getHeaders(), parameters);
-        Map<String, String> decodedParameters = Handlers.decodeRequestParameters(parameters);
+        Map<String, String> rawStringParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getPathParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getQueryStringParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getHeaders(), rawStringParameters);
+        Map<String, String> decodedStringParameters = Handlers.decodeRequestParameters(rawStringParameters);
+
+        Map<String, List<String>> rawStringArrayParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getMultiValueQueryStringParameters(), rawStringArrayParameters);
+        Handlers.putAllFromNullableMap(event.getMultiValueHeaders(), rawStringArrayParameters);
+        Map<String, List<String>> decodedStringArrayParameters = Handlers.decodeRequestArrayParameters(rawStringArrayParameters);
 
         {{#allParams}}
         {{^isBodyParam}}
-        {{^isArray}}
-        this.{{paramName}} = {{^required}}Optional.ofNullable({{/required}}decodedParameters.get("{{baseName}}"){{^required}}){{/required}};
-        {{/isArray}}
+        this.{{paramName}} = {{^required}}Optional.ofNullable({{/required}}Handlers.coerce{{#isArray}}{{#items}}{{{dataType}}}Array{{/items}}{{/isArray}}{{^isArray}}{{{dataType}}}{{/isArray}}Parameter("{{baseName}}", {{required}}, decodedString{{#isArray}}Array{{/isArray}}Parameters){{^required}}){{/required}};
         {{/isBodyParam}}
         {{/allParams}}
     }
 
     {{#allParams}}
     {{^isBodyParam}}
-    {{^isArray}}
-    public {{^required}}Optional<{{/required}}String{{^required}}>{{/required}} {{#schema}}{{getter}}{{/schema}}() {
+    public {{^required}}Optional<{{/required}}{{{dataType}}}{{^required}}>{{/required}} {{#schema}}{{getter}}{{/schema}}() {
         return this.{{paramName}};
     }
-    {{/isArray}}
-    {{/isBodyParam}}
-    {{/allParams}}
-}
-{{/operation}}
-{{/operations}}
-{{/apis}}
-{{/apiInfo}}
-{{#apiInfo}}
-{{#apis}}
-{{#operations}}
-{{#operation}}
-###TSAPI_WRITE_FILE###
-{
-  "dir": "api/handlers/{{operationIdSnakeCase}}",
-  "name": "{{operationIdCamelCase}}RequestArrayParameters",
-  "ext": ".java",
-  "overwrite": true
-}
-###/TSAPI_WRITE_FILE###{{#apiInfo}}
-{{#apis.0}}
-package {{package}}.handlers.{{operationIdSnakeCase}};
-{{/apis.0}}
-{{/apiInfo}}
-
-{{#apiInfo}}
-{{#apis.0}}
-import {{package}}.handlers.Handlers;
-{{/apis.0}}
-{{/apiInfo}}
-import java.util.List;
-import java.util.Optional;
-import java.util.Map;
-import java.util.HashMap;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
-
-/**
- * Multi-value query and header parameters for the {{nickname}} operation
- */
-public class {{operationIdCamelCase}}RequestArrayParameters {
-    {{#allParams}}
-    {{^isBodyParam}}
-    {{#isArray}}
-    private {{^required}}Optional<{{/required}}List<String>{{^required}}>{{/required}} {{paramName}};
-    {{/isArray}}
-    {{/isBodyParam}}
-    {{/allParams}}
-
-    public {{operationIdCamelCase}}RequestArrayParameters(final APIGatewayProxyRequestEvent event) {
-        Map<String, List<String>> parameters = new HashMap<>();
-        Handlers.putAllFromNullableMap(event.getMultiValueQueryStringParameters(), parameters);
-        Handlers.putAllFromNullableMap(event.getMultiValueHeaders(), parameters);
-        Map<String, List<String>> decodedParameters = Handlers.decodeRequestArrayParameters(parameters);
-
-        {{#allParams}}
-        {{^isBodyParam}}
-        {{#isArray}}
-        this.{{paramName}} = {{^required}}Optional.ofNullable({{/required}}decodedParameters.get("{{baseName}}"){{^required}}){{/required}};
-        {{/isArray}}
-        {{/isBodyParam}}
-        {{/allParams}}
-    }
-
-    {{#allParams}}
-    {{^isBodyParam}}
-    {{#isArray}}
-    public {{^required}}Optional<{{/required}}List<String>{{^required}}>{{/required}} {{#schema}}{{getter}}{{/schema}}() {
-        return this.{{paramName}};
-    }
-    {{/isArray}}
     {{/isBodyParam}}
     {{/allParams}}
 }
@@ -630,6 +835,7 @@ import {{invokerPackage}}.JSON;
 {{/apis.0}}
 {{/apiInfo}}
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
@@ -647,14 +853,12 @@ public class {{operationIdCamelCase}}Input {
     }
 
     private {{operationIdCamelCase}}RequestParameters requestParameters;
-    private {{operationIdCamelCase}}RequestArrayParameters requestArrayParameters;
     {{#bodyParam}}
     private {{#isModel}}{{dataType}}{{/isModel}}{{^isModel}}String{{/isModel}} body;
     {{/bodyParam}}
 
     public {{operationIdCamelCase}}Input(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new {{operationIdCamelCase}}RequestParameters(event);
-        this.requestArrayParameters = new {{operationIdCamelCase}}RequestArrayParameters(event);
         {{#bodyParam}}
         {{#isModel}}
         try {
@@ -671,10 +875,6 @@ public class {{operationIdCamelCase}}Input {
 
     public {{operationIdCamelCase}}RequestParameters getRequestParameters() {
         return this.requestParameters;
-    }
-
-    public {{operationIdCamelCase}}RequestArrayParameters getRequestArrayParameters() {
-        return this.requestArrayParameters;
     }
 
     {{#bodyParam}}
@@ -837,6 +1037,18 @@ public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGate
         return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
     }
 
+    private Map<String, String> getErrorResponseHeaders(final int statusCode) {
+        Map<String, String> headers = new HashMap<>();
+        {{#responses}}
+        {{^is2xx}}
+        if (statusCode == {{code}} && "{{dataType}}".endsWith("ResponseContent")) {
+            headers.put("x-amzn-errortype", "{{dataType}}".substring(0, "{{dataType}}".length() - "ResponseContent".length()));
+        }
+        {{/is2xx}}
+        {{/responses}}
+        return headers;
+    }
+
     public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<{{operationIdCamelCase}}Input>> additionalInterceptors) {
         final Map<String, Object> interceptorContext = new HashMap<>();
         interceptorContext.put("operationId", "{{nickname}}");
@@ -855,6 +1067,20 @@ public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGate
                 return handle(new {{operationIdCamelCase}}RequestInput(input.getEvent(), input.getContext(), input.getInterceptorContext(), input.getInput()));
             }
         });
+
+        {{operationIdCamelCase}}Input input;
+
+        try {
+            input = new {{operationIdCamelCase}}Input(event);
+        } catch (RuntimeException e) {
+            Map<String, String> headers = new HashMap<>();
+            headers.putAll(Handlers.extractResponseHeadersFromInterceptors(interceptors));
+            headers.putAll(this.getErrorResponseHeaders(400));
+            return new APIGatewayProxyResponseEvent()
+                .withStatusCode(400)
+                .withHeaders(headers)
+                .withBody("{\"message\": \"" + e.getMessage() + "\"}");
+        }
 
         final Response response = chain.next(new ChainedRequestInput<{{operationIdCamelCase}}Input>() {
             @Override
@@ -876,7 +1102,7 @@ public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGate
 
             @Override
             public {{operationIdCamelCase}}Input getInput() {
-                return new {{operationIdCamelCase}}Input(event);
+                return input;
             }
 
             @Override
@@ -885,9 +1111,13 @@ public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGate
             }
         });
 
+        Map<String, String> responseHeaders = new HashMap<>();
+        responseHeaders.putAll(this.getErrorResponseHeaders(response.getStatusCode()));
+        responseHeaders.putAll(response.getHeaders());
+
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
-                .withHeaders(response.getHeaders())
+                .withHeaders(responseHeaders)
                 .withBody(response.getBody());
     }
 }

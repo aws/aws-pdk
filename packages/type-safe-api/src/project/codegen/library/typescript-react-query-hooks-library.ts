@@ -162,7 +162,6 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Library.TYPESCRIPT_REACT_QUERY_HOOKS,
       additionalProperties: {
         npmName: this.package.packageName,

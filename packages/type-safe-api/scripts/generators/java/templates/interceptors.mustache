@@ -57,7 +57,7 @@ public class TryCatchInterceptor<Input> implements Interceptor<Input> {
 ###TSAPI_WRITE_FILE###
 {
   "dir": "api/interceptors",
-  "name": "CorsInterceptor",
+  "name": "ResponseHeadersInterceptor",
   "ext": ".java",
   "overwrite": true
 }
@@ -66,19 +66,35 @@ public class TryCatchInterceptor<Input> implements Interceptor<Input> {
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
-
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
  * Allows all origins and headers.
  */
-public class CorsInterceptor<Input> implements Interceptor<Input> {
+public class ResponseHeadersInterceptor<Input> implements Interceptor<Input> {
+    private final Map<String, String> additionalHeaders;
+
+    public ResponseHeadersInterceptor() {
+        this.additionalHeaders = new HashMap<>();
+        this.additionalHeaders.put("Access-Control-Allow-Origin", "*");
+        this.additionalHeaders.put("Access-Control-Allow-Headers", "*");
+    }
+
+    public ResponseHeadersInterceptor(final Map<String, String> headers) {
+        this.additionalHeaders = headers;
+    }
+
     @Override
     public Response handle(ChainedRequestInput<Input> input) {
         Response res = input.getChain().next(input);
-        res.getHeaders().put("Access-Control-Allow-Origin", "*");
-        res.getHeaders().put("Access-Control-Allow-Headers", "*");
+        res.getHeaders().putAll(this.additionalHeaders);
         return res;
+    }
+
+    public Map<String, String> getAdditionalHeaders() {
+        return this.additionalHeaders;
     }
 }
 ###TSAPI_WRITE_FILE###
@@ -324,7 +340,7 @@ import java.util.List;
 public class DefaultInterceptors {
     public static <T> List<Interceptor<T>> all() {
         return Arrays.asList(
-            new CorsInterceptor<>(),
+            new ResponseHeadersInterceptor<>(),
             new LoggingInterceptor<>(),
             new TryCatchInterceptor<>(),
             new TracingInterceptor<>(),
