@@ -22,231 +22,27 @@ What this means from your perspective is you need to perform the following steps
 
 We need to upgrade our dependencies to consume the new AWS PDK packages, to do so first add a dependency to the new AWS PDK package in all constructs that have an existing dependency on the old Prototyping SDK packages. Run `pdk` from the root directory in order to add and install the new dependency.
 
-=== "BEFORE"
-
-    ```typescript
-    import { CloudscapeReactTsWebsiteProject } from "@aws-prototyping-sdk/cloudscape-react-ts-website";
-    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
-    import {
-        DocumentationFormat,
-        Language,
-        Library,
-        ModelLanguage,
-        TypeSafeApiProject,
-    } from "@aws-prototyping-sdk/type-safe-api";
-    import { javascript } from "projen";
-    import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
-
-    const monorepo = new NxMonorepoProject({
-        defaultReleaseBranch: "main",
-        npmignoreEnabled: false,
-        devDeps: [
-            "@aws-prototyping-sdk/nx-monorepo",
-            "@aws-prototyping-sdk/type-safe-api",
-            "@aws-prototyping-sdk/cloudscape-react-ts-website",
-        ],
-        name: "monorepo",
-        packageManager: javascript.NodePackageManager.PNPM,
-        projenrcTs: true,
-        prettier: true,
-        disableNodeWarnings: true,
-    });
-
-    const api = new TypeSafeApiProject({
-        parent: monorepo,
-        outdir: "packages/api",
-        name: "myapi",
-        model: {
-            language: ModelLanguage.SMITHY,
-            options: {
-                smithy: {
-                    serviceName: {
-                        namespace: "com.amazon",
-                        serviceName: "MyApi",
-                    },
-                },
-            },
-        },
-        runtime: {
-            languages: [Language.TYPESCRIPT],
-        },
-        infrastructure: {
-            language: Language.TYPESCRIPT,
-        },
-        library: {
-            libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
-        },
-        documentation: {
-            formats: [DocumentationFormat.HTML2],
-        },
-    });
-
-    const website = new CloudscapeReactTsWebsiteProject({
-        packageManager: javascript.NodePackageManager.PNPM,
-        parent: monorepo,
-        outdir: "packages/website",
-        defaultReleaseBranch: "main",
-        name: "website",
-        deps: [
-            api.library.typescriptReactQueryHooks!.package.packageName,
-        ],
-    });
-
-    new AwsCdkTypeScriptApp({
-        packageManager: javascript.NodePackageManager.PNPM,
-        parent: monorepo,
-        outdir: "packages/infra/main",
-        cdkVersion: "2.1.0",
-        defaultReleaseBranch: "main",
-        npmignoreEnabled: false,
-        prettier: true,
-        name: "infra-main",
-        deps: [
-            "@aws-prototyping-sdk/static-website",
-            "@aws-prototyping-sdk/identity",
-            "@aws-prototyping-sdk/pipeline",
-            "@aws-prototyping-sdk/pdk-nag",
-            "@aws-prototyping-sdk/cdk-graph-plugin-diagram",
-            "@aws-prototyping-sdk/cdk-graph",
-            "@aws-prototyping-sdk/aws-arch",
-            "@aws-prototyping-sdk/type-safe-api",
-            "@aws-cdk/aws-cognito-identitypool-alpha",
-            api.infrastructure.typescript!.package.packageName,
-            api.runtime.typescript!.package.packageName,
-            website.package.packageName,
-        ],
-    });
-
-    monorepo.synth();
-    ```
-
-=== "AFTER"
-
-    ```typescript hl_lines="17 79"
-    import { CloudscapeReactTsWebsiteProject } from "@aws-prototyping-sdk/cloudscape-react-ts-website";
-    import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
-    import {
-        DocumentationFormat,
-        Language,
-        Library,
-        ModelLanguage,
-        TypeSafeApiProject,
-    } from "@aws-prototyping-sdk/type-safe-api";
-    import { javascript } from "projen";
-    import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
-
-    const monorepo = new NxMonorepoProject({
-        defaultReleaseBranch: "main",
-        npmignoreEnabled: false,
-        devDeps: [
-            "@aws/pdk", // Add the new dep
-            "@aws-prototyping-sdk/nx-monorepo",
-            "@aws-prototyping-sdk/type-safe-api",
-            "@aws-prototyping-sdk/cloudscape-react-ts-website",
-        ],
-        name: "monorepo",
-        packageManager: javascript.NodePackageManager.PNPM,
-        projenrcTs: true,
-        prettier: true,
-        disableNodeWarnings: true,
-    });
-
-    const api = new TypeSafeApiProject({
-        parent: monorepo,
-        outdir: "packages/api",
-        name: "myapi",
-        model: {
-            language: ModelLanguage.SMITHY,
-            options: {
-                smithy: {
-                    serviceName: {
-                        namespace: "com.amazon",
-                        serviceName: "MyApi",
-                    },
-                },
-            },
-        },
-        runtime: {
-            languages: [Language.TYPESCRIPT],
-        },
-        infrastructure: {
-            language: Language.TYPESCRIPT,
-        },
-        library: {
-            libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
-        },
-        documentation: {
-            formats: [DocumentationFormat.HTML2],
-        },
-    });
-
-    const website = new CloudscapeReactTsWebsiteProject({
-        packageManager: javascript.NodePackageManager.PNPM,
-        parent: monorepo,
-        outdir: "packages/website",
-        defaultReleaseBranch: "main",
-        name: "website",
-        deps: [
-            api.library.typescriptReactQueryHooks!.package.packageName,
-        ],
-    });
-
-    new AwsCdkTypeScriptApp({
-        packageManager: javascript.NodePackageManager.PNPM,
-        parent: monorepo,
-        outdir: "packages/infra/main",
-        cdkVersion: "2.1.0",
-        defaultReleaseBranch: "main",
-        npmignoreEnabled: false,
-        prettier: true,
-        name: "infra-main",
-        deps: [
-            "@aws/pdk", // Add the new dep
-            "@aws-prototyping-sdk/static-website",
-            "@aws-prototyping-sdk/identity",
-            "@aws-prototyping-sdk/pipeline",
-            "@aws-prototyping-sdk/pdk-nag",
-            "@aws-prototyping-sdk/cdk-graph-plugin-diagram",
-            "@aws-prototyping-sdk/cdk-graph",
-            "@aws-prototyping-sdk/aws-arch",
-            "@aws-prototyping-sdk/type-safe-api",
-            "@aws-cdk/aws-cognito-identitypool-alpha",
-            api.infrastructure.typescript!.package.packageName,
-            api.runtime.typescript!.package.packageName,
-            website.package.packageName,
-        ],
-    });
-
-    monorepo.synth();
-    ```
-
-### Step 2: Refactor to use the new dependency in .projenrc.ts
-
-Now that the new dependency is installed, we can perform the following modifications:
-
-- Update imports to source the constructs from the new `@aws/pdk` package
-- Name the `NXMonorepoProject` to `MonorepoTsProject`
-- Remove all old dependencies
-
-```typescript hl_lines="1-14"
-import { CloudscapeReactTsWebsiteProject } from "@aws/pdk/cloudscape-react-ts-website";
-import { MonorepoTsProject } from "@aws/pdk/nx-monorepo";
+```diff
+import { CloudscapeReactTsWebsiteProject } from "@aws-prototyping-sdk/cloudscape-react-ts-website";
+import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
 import {
     DocumentationFormat,
     Language,
     Library,
     ModelLanguage,
     TypeSafeApiProject,
-} from "@aws/pdk/type-safe-api";
+} from "@aws-prototyping-sdk/type-safe-api";
 import { javascript } from "projen";
 import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
 
-// Ensure you change the class name and import to use MonorepoTsProject as it has changed
-const monorepo = new MonorepoTsProject({
+const monorepo = new NxMonorepoProject({
     defaultReleaseBranch: "main",
     npmignoreEnabled: false,
     devDeps: [
-        "@aws/pdk",
++       "@aws/pdk",
+        "@aws-prototyping-sdk/nx-monorepo",
+        "@aws-prototyping-sdk/type-safe-api",
+        "@aws-prototyping-sdk/cloudscape-react-ts-website",
     ],
     name: "monorepo",
     packageManager: javascript.NodePackageManager.PNPM,
@@ -305,7 +101,15 @@ new AwsCdkTypeScriptApp({
     prettier: true,
     name: "infra-main",
     deps: [
-        "@aws-pdk",
++       "@aws/pdk",        
+        "@aws-prototyping-sdk/static-website",
+        "@aws-prototyping-sdk/identity",
+        "@aws-prototyping-sdk/pipeline",
+        "@aws-prototyping-sdk/pdk-nag",
+        "@aws-prototyping-sdk/cdk-graph-plugin-diagram",
+        "@aws-prototyping-sdk/cdk-graph",
+        "@aws-prototyping-sdk/aws-arch",
+        "@aws-prototyping-sdk/type-safe-api",
         "@aws-cdk/aws-cognito-identitypool-alpha",
         api.infrastructure.typescript!.package.packageName,
         api.runtime.typescript!.package.packageName,
@@ -314,6 +118,44 @@ new AwsCdkTypeScriptApp({
 });
 
 monorepo.synth();
+```
+
+### Step 2: Refactor to use the new dependency in .projenrc.ts
+
+Now that the new dependency is installed, we can perform the following modifications:
+
+- Update imports to source the constructs from the new `@aws/pdk` package
+- Name the `NXMonorepoProject` to `MonorepoTsProject`
+- Remove all old dependencies
+
+```diff
+-import { CloudscapeReactTsWebsiteProject } from "@aws-prototyping-sdk/cloudscape-react-ts-website";
+-import { NxMonorepoProject } from "@aws-prototyping-sdk/nx-monorepo";
+-import {
+-    DocumentationFormat,
+-    Language,
+-    Library,
+-    ModelLanguage,
+-    TypeSafeApiProject,
+-} from "@aws-prototyping-sdk/type-safe-api";
+-import { javascript } from "projen";
+-import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
+-
+-const monorepo = new NxMonorepoProject({
++import { CloudscapeReactTsWebsiteProject } from "@aws/pdk/cloudscape-react-ts-website";
++import { MonorepoTsProject } from "@aws/pdk/nx-monorepo";
++import {
++    DocumentationFormat,
++    Language,
++    Library,
++    ModelLanguage,
++    TypeSafeApiProject,
++} from "@aws/pdk/type-safe-api";
++import { javascript } from "projen";
++import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
++
++const monorepo = new MonorepoTsProject({
+...
 ```
 
 Once all the changes have been made, we can run `pdk` from the root to synthesize our changes.
@@ -328,55 +170,62 @@ Once you are confident that all imports are referencing the name AWS PDK package
 
 In order to make this construct truly cross-platform, we had to make a slight tweak to the way filters are defined in typescript. As such, any existing filters will need to be wrapped in an additional wrapper i.e: `{ store: <previousFilter>}`
 
-=== "BEFORE"
-
-    ```typescript
-    const graph = new CdkGraph(app, {
-        plugins: [
+```diff
+const graph = new CdkGraph(app, {
+    plugins: [
         new CdkGraphDiagramPlugin({
             defaults: {
             filterPlan: {
                 preset: FilterPreset.COMPACT,
                 filters: [
-                    Filters.pruneCustomResources(),
-                    (store) => {
-                        // do something
-                    },
+-                    Filters.pruneCustomResources(),
+-                    (store) => {
+-                        // do something
+-                    },
++                    { store: Filters.pruneCustomResources() },
++                    { 
++                        store: (store) => {
++                            // do something
++                        }
++                    },
                 ],
             },
             },
         }),
-        ],
-    });
-    ```
-
-=== "AFTER"
-
-    ```typescript hl_lines="8-13"
-    const graph = new CdkGraph(app, {
-        plugins: [
-        new CdkGraphDiagramPlugin({
-            defaults: {
-            filterPlan: {
-                preset: FilterPreset.COMPACT,
-                filters: [
-                    { store: Filters.pruneCustomResources() },
-                    { 
-                        store: (store) => {
-                            // do something
-                        }
-                    },
-                ],
-            },
-            },
-        }),
-        ],
-    });
-    ```
+    ],
+});
+```
 
 ## Removal of `PDKPipelineTsProject` construct
 
-The `PDKPipelineTsProject` has been removed as it did not provide an adequate level of control of the generated pipeline. If you have instrumented this construct in your `projenrc.ts` file, you can simply change it to use `AwsCdkTypeScriptApp` instead and ensure the `sample` property is set to false to prevent additional sample code being generated. Be sure to ensure the construct has a dependency on `@aws/pdk` as you will still be able to use the `PDKPipeline` CDK construct contained within `@aws/pdk/pipeline`.
+The `PDKPipelineTsProject` has been removed as it did not provide an adequate level of control of the generated pipeline. If you have instrumented this construct in your `projenrc.ts` file, you can simply change it to use `AwsCdkTypeScriptApp` instead and ensure the following:
+
+- `sampleCode` property is set to false to prevent additional sample code being generated.
+- `appEntrypoint` is set to `pipeline.ts` so that the synth command has the correct entrypoint.
+- be sure to ensure the construct has a dependency on `@aws/pdk` as you will still be able to use the `PDKPipeline` CDK construct contained within `@aws/pdk/pipeline`.
+
+```diff
+-import { PDKPipelineTsProject } from "@aws-prototyping-sdk/pipeline";
++import { AwsCdkTypeScriptApp } from "projen/lib/awscdk"
+
+-const pipelineProject = new PDKPipelineTsProject({
++const pipelineProject = new AwsCdkTypeScriptApp({    
+    parent: monorepo,
+    outdir: "packages/infra",
+    defaultReleaseBranch: "mainline",
+    name: "infra",
+    cdkVersion: "2.1.0",
++   appEntrypoint: "pipeline.ts",
++   sampleCode: false,
+    deps: [
++       "@aws/pdk",
+-       "@aws-prototyping-sdk/pipeline",
+-       "@aws-prototyping-sdk/static-website",
+-       "@aws-prototyping-sdk/identity",
+        "@aws-cdk/aws-cognito-identitypool-alpha@^2.66.1-alpha",
+    ],
+});
+```
 
 ## TypeSafeApi Breaking Changes
 
@@ -408,35 +257,22 @@ operation Increment {
 
 Previously, the `value` would be provided in `input.requestParameters.value` as a string, and your handler would have to handle converting it to a number (and returning an error response if it was not a number). Now, `value` is already converted to a number for you, and the handler wrapper will automatically respond with a `400` status code if the provided request parameter is not of the appropriate type.
 
-=== "BEFORE"
+```diff
+import { incrementHandler, Response } from "myapi-typescript-runtime";
 
-    ```ts
-    import { incrementHandler, Response } from "myapi-typescript-runtime";
-
-    export const handler = incrementHandler(async ({ input }) => {
-        const numberValue = Number(input.requestParameters.value);
-        if (isNaN(numberValue)) {
-            return Response.badRequest({
-                message: 'value must be a number',
-            });
-        }
-        return Response.success({
-            result: numberValue + 1,
-        });
+export const handler = incrementHandler(async ({ input }) => {
+-    const numberValue = Number(input.requestParameters.value);
+-    if (isNaN(numberValue)) {
+-        return Response.badRequest({
+-            message: 'value must be a number',
+-        });
+-    }
+    return Response.success({
+-        result: numberValue + 1,
++        result: input.requestParameters.value + 1,
     });
-    ```
-
-=== "AFTER"
-
-    ```ts
-    import { incrementHandler, Response } from "myapi-typescript-runtime";
-
-    export const handler = incrementHandler(async ({ input }) => {
-        return Response.success({
-            result: input.requestParameters.value + 1,
-        });
-    });
-    ```
+});
+```
 
 !!!warning
     Request parameters have been restricted to only "primitives" (`number`, `integer`, `string` and `boolean`) or arrays of primitives, since this is the set of request parameters Smithy supports. Note also that a `string` of `date` or `date-time` format will be coerced into a language specific date object.
@@ -447,61 +283,33 @@ Previously, the `value` would be provided in `input.requestParameters.value` as 
 
 You may have previously defined interceptors in TypeScript which referenced the `RequestArrayParameters` type in their type signature. Since all request parameters have been merged into a single `RequestParameters` type, `RequestArrayParameters` must be deleted from your interceptor type signatures:
 
-=== "BEFORE"
+```diff
+import {
+    sayHelloHandler,
+    ChainedRequestInput,
+    OperationResponse,
+} from "myapi-typescript-runtime";
 
-    ```ts hl_lines="9 15"
-    import {
-      sayHelloHandler,
-      ChainedRequestInput,
-      OperationResponse,
-    } from "myapi-typescript-runtime";
-
-    const tryCatchInterceptor = async <
-      RequestParameters,
-      RequestArrayParameters,
-      RequestBody,
-      Response extends OperationResponse<number, any>
-    >(
-      request: ChainedRequestInput<
-        RequestParameters,
-        RequestArrayParameters,
-        RequestBody,
-        Response
-      >
-    ): Promise<Response | OperationResponse<500, { message: string }>> => {
-      try {
+const tryCatchInterceptor = async <
+    RequestParameters,
+-    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+>(
+    request: ChainedRequestInput<
+    RequestParameters,
+-    RequestArrayParameters,
+    RequestBody,
+    Response
+    >
+): Promise<Response | OperationResponse<500, { message: string }>> => {
+    try {
         return await request.chain.next(request);
-      } catch (e: any) {
+    } catch (e: any) {
         return { statusCode: 500, body: { message: e.message } };
-      }
-    };
-
-=== "AFTER"
-
-    ```ts
-    import {
-      sayHelloHandler,
-      ChainedRequestInput,
-      OperationResponse,
-    } from "myapi-typescript-runtime";
-
-    const tryCatchInterceptor = async <
-      RequestParameters,
-      RequestBody,
-      Response extends OperationResponse<number, any>
-    >(
-      request: ChainedRequestInput<
-        RequestParameters,
-        RequestBody,
-        Response
-      >
-    ): Promise<Response | OperationResponse<500, { message: string }>> => {
-      try {
-        return await request.chain.next(request);
-      } catch (e: any) {
-        return { statusCode: 500, body: { message: e.message } };
-      }
-    };
+    }
+};
+```
 
 ### Python Runtime Package
 
@@ -513,75 +321,45 @@ As such, there are some breaking changes which will apply to any code using the 
 
 Properties of models or request parameters previously needed to be accessed using dictionary notation, while they are now referenced through dot notation:
 
-=== "BEFORE"
+```diff
+from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
+from myapi_python_runtime.api.operation_config import say_hello_handler,
+    SayHelloRequest, SayHelloOperationResponses, ApiResponse
 
-    ```python hl_lines="9"
-    from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
-    from myapi_python_runtime.apis.tags.default_api_operation_config import say_hello_handler,
-        SayHelloRequest, SayHelloOperationResponses, ApiResponse
-
-    @say_hello_handler
-    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
-        return ApiResponse(
-            status_code=200,
-            body=SayHelloResponseContent(message="Hello {}".format(input.request_parameters["name"])),
-            headers={}
-        )
-    ```
-
-=== "AFTER"
-
-    ```python hl_lines="9"
-    from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
-    from myapi_python_runtime.api.operation_config import say_hello_handler,
-        SayHelloRequest, SayHelloOperationResponses, ApiResponse
-    from myapi_python_runtime.response import Response
-
-    @say_hello_handler
-    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
-        return Response.success(SayHelloResponseContent(
-            message="Hello {}".format(input.request_parameters.name)
-        ))
-    ```
+@say_hello_handler
+def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
+-    return ApiResponse(
+-        status_code=200,
+-        body=SayHelloResponseContent(message="Hello {}".format(input.request_parameters["name"])),
+-        headers={}
+-    )
++    return Response.success(SayHelloResponseContent(
++        message="Hello {}".format(input.request_parameters.name)
++    ))
+```
 
 #### Import Path for Handler Wrappers
 
 The import path has changed for handler wrappers, so you will need to adjust your imports accordingly:
 
-=== "BEFORE"
+Previously handler wrappers were imported from `<runtime-package-name>.apis.tags.default_api_operation_config`, now they are imported from `<runtime-package-name>.api.operation_config`:
 
-    Previously handler wrappers were imported from `<runtime-package-name>.apis.tags.default_api_operation_config`:
+```diff
+from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
+-from myapi_python_runtime.apis.tags.default_api_operation_config import say_hello_handler,
+-    SayHelloRequest, SayHelloOperationResponses, ApiResponse
++from myapi_python_runtime.api.operation_config import say_hello_handler,
++    SayHelloRequest, SayHelloOperationResponses, ApiResponse
++from myapi_python_runtime.response import Response
 
-    ```python hl_lines="2-3"
-    from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
-    from myapi_python_runtime.apis.tags.default_api_operation_config import say_hello_handler,
-        SayHelloRequest, SayHelloOperationResponses, ApiResponse
-
-    @say_hello_handler
-    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
-        return ApiResponse(
-            status_code=200,
-            body=SayHelloResponseContent(message="Hello {}".format(input.request_parameters["name"])),
-            headers={}
-        )
-    ```
-
-=== "AFTER"
-
-    Handler wrappers are now imported from `<runtime-package-name>.api.operation_config`:
-
-    ```python hl_lines="2-3"
-    from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
-    from myapi_python_runtime.api.operation_config import say_hello_handler,
-        SayHelloRequest, SayHelloOperationResponses, ApiResponse
-    from myapi_python_runtime.response import Response
-
-    @say_hello_handler
-    def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
-        return Response.success(SayHelloResponseContent(
-            message="Hello {}".format(input.request_parameters.name)
-        ))
-    ```
+@say_hello_handler
+def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
+    return ApiResponse(
+        status_code=200,
+        body=SayHelloResponseContent(message="Hello {}".format(input.request_parameters["name"])),
+        headers={}
+    )
+```
 
 ### Java Runtime Package
 
@@ -589,44 +367,38 @@ Previously in AWS Prototyping SDK, all classes pertaining to all operations were
 
 In AWS PDK, these classes have been moved out from `Handlers` as their own standalone classes. Additionally, classes are grouped under a package namespace for the particular operation.
 
-=== "BEFORE"
+```diff
+package com.my.api;
 
-    ```java hl_lines="3-6"
-    package com.my.api;
+-import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello;
+-import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello200Response;
+-import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloRequestInput;
+-import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloResponse;
++import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello;
++import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello200Response;
++import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput;
++import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse;
+import com.generated.api.myapijavaruntime.runtime.model.SayHelloResponseContent;
 
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello200Response;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloRequestInput;
-    import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloResponse;
-    import com.generated.api.myapijavaruntime.runtime.model.SayHelloResponseContent;
-
-    public class SayHelloHandler extends SayHello {
-        @Override
-        public SayHelloResponse handle(SayHelloRequestInput request) {
-            return SayHello200Response.of(SayHelloResponseContent.builder()
-                    .message(String.format("Hello %s", request.getInput().getRequestParameters().getName()))
-                    .build());
-        }
+public class SayHelloHandler extends SayHello {
+    @Override
+    public SayHelloResponse handle(SayHelloRequestInput request) {
+        return SayHello200Response.of(SayHelloResponseContent.builder()
+                .message(String.format("Hello %s", request.getInput().getRequestParameters().getName()))
+                .build());
     }
-    ```
+}
+```
 
-=== "AFTER"
+## Troubleshooting
+### Missing Polyfill
 
-    ```java hl_lines="3-6"
-    package com.my.api;
-    
-    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello;
-    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello200Response;
-    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput;
-    import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse;
-    import com.generated.api.myapijavaruntime.runtime.model.SayHelloResponseContent;
-    
-    public class SayHelloHandler extends SayHello {
-        @Override
-        public SayHelloResponse handle(final SayHelloRequestInput request) {
-            return SayHello200Response.of(SayHelloResponseContent.builder()
-                    .message(String.format("Hello %s", request.getInput().getRequestParameters().getName()))
-                    .build());
-        }
-    }
-    ```
+If you see this error:
+
+```
+Module not found: Error: Can't resolve 'http' in '/Users/xxx/my-project/node_modules/.pnpm/@aws-lambda-powertools+tracer@1.12.1/node_modules/@aws-lambda-powertools/tracer/lib/provider'
+BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+This is no longer the case. Verify if you need this module and configure a polyfill for it.
+```
+
+This is most likley caused by your website having a direct dependency on the typescript runtime package, since the runtime package has all the server side handlers which is not suitable in a web based context. Ideally your website should only depend on the hooks package, even if you just use the generated client and not the hooks.
