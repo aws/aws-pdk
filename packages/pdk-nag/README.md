@@ -1,3 +1,3 @@
 # pdk-nag
 
-Please refer to [Developer Guide](./docs/developer_guides/pdk-nag/index.md).
+Please refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/pdk-nag/index.html)

@@ -1,3 +1,3 @@
 # cdk-graph
 
-Please refer to [Developer Guide](./docs/developer_guides/cdk-graph/index.md).
+Please refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/cdk-graph/index.html)

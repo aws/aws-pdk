@@ -1,3 +1,3 @@
 # identity
 
-Please refer to [Developer Guide](./docs/developer_guides/identity/index.md).
+Please refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/identity/index.html)

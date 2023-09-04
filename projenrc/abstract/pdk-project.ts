@@ -197,7 +197,7 @@ export abstract class PDKProject extends JsiiProject {
       return [
         `# ${name}`,
         "",
-        `Please refer to [Developer Guide](./docs/developer_guides/${name}/index.md).`,
+        `Please refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/${name}/index.html)`,
       ];
     }
   }

@@ -1,3 +1,3 @@
 # cdk-graph-plugin-diagram
 
-Please refer to [Developer Guide](./docs/developer_guides/cdk-graph-plugin-diagram/index.md).
+Please refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/cdk-graph-plugin-diagram/index.html)
