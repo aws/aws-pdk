@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { NodePackageUtils } from "@aws/monorepo";
-import { IgnoreFile } from "projen";
+import { IgnoreFile, JsonFile } from "projen";
 import {
   NodePackageManager,
   TypeScriptModuleResolution,
@@ -123,6 +123,22 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     );
 
     this.preCompileTask.spawn(generateTask);
+
+    // Add compilation to ESM as well
+    const compileESMTask = this.addTask("compile-esm");
+    compileESMTask.exec("tsc -p tsconfig.esm.json");
+    new JsonFile(this, "tsconfig.esm.json", {
+      obj: {
+        extends: "./tsconfig.dev.json",
+        compilerOptions: {
+          module: "esnext",
+          moduleResolution: "nodenext",
+          outDir: "lib/esm",
+        },
+      },
+    });
+
+    this.compileTask.spawn(compileESMTask);
 
     // Ignore all the generated code
     this.gitignore.addPatterns(
