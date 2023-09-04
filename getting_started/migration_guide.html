@@ -545,6 +545,26 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#missing-polyfill" class="md-nav__link">
+    Missing Polyfill
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3472,6 +3492,26 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#missing-polyfill" class="md-nav__link">
+    Missing Polyfill
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3507,204 +3547,102 @@
 <p>What this means from your perspective is you need to perform the following steps in order:</p>
 <h3 id="step-1-add-the-new-aws-pdk-dependency-to-projenrcts">Step 1: Add the new AWS PDK dependency to .projenrc.ts</h3>
 <p>We need to upgrade our dependencies to consume the new AWS PDK packages, to do so first add a dependency to the new AWS PDK package in all constructs that have an existing dependency on the old Prototyping SDK packages. Run <code>pdk</code> from the root directory in order to add and install the new dependency.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">BEFORE</label><label for="__tabbed_1_2">AFTER</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CloudscapeReactTsWebsiteProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/cloudscape-react-ts-website&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">DocumentationFormat</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">Language</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">Library</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">ModelLanguage</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">TypeSafeApiProject</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">javascript</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AwsCdkTypeScriptApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen/lib/awscdk&quot;</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code>import { CloudscapeReactTsWebsiteProject } from &quot;@aws-prototyping-sdk/cloudscape-react-ts-website&quot;;
+import { NxMonorepoProject } from &quot;@aws-prototyping-sdk/nx-monorepo&quot;;
+import {
+<span class="w"> </span>   DocumentationFormat,
+<span class="w"> </span>   Language,
+<span class="w"> </span>   Library,
+<span class="w"> </span>   ModelLanguage,
+<span class="w"> </span>   TypeSafeApiProject,
+} from &quot;@aws-prototyping-sdk/type-safe-api&quot;;
+import { javascript } from &quot;projen&quot;;
+import { AwsCdkTypeScriptApp } from &quot;projen/lib/awscdk&quot;;
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">npmignoreEnabled</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/cloudscape-react-ts-website&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;monorepo&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">packageManager</span><span class="o">:</span><span class="w"> </span><span class="kt">javascript.NodePackageManager.PNPM</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">projenrcTs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">prettier</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">disableNodeWarnings</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="p">});</span>
+const monorepo = new NxMonorepoProject({
+<span class="w"> </span>   defaultReleaseBranch: &quot;main&quot;,
+<span class="w"> </span>   npmignoreEnabled: false,
+<span class="w"> </span>   devDeps: [
+<span class="gi">+       &quot;@aws/pdk&quot;,</span>
+<span class="w"> </span>       &quot;@aws-prototyping-sdk/nx-monorepo&quot;,
+<span class="w"> </span>       &quot;@aws-prototyping-sdk/type-safe-api&quot;,
+<span class="w"> </span>       &quot;@aws-prototyping-sdk/cloudscape-react-ts-website&quot;,
+<span class="w"> </span>   ],
+<span class="w"> </span>   name: &quot;monorepo&quot;,
+<span class="w"> </span>   packageManager: javascript.NodePackageManager.PNPM,
+<span class="w"> </span>   projenrcTs: true,
+<span class="w"> </span>   prettier: true,
+<span class="w"> </span>   disableNodeWarnings: true,
+});
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;myapi&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelLanguage.SMITHY</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">smithy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                    </span><span class="nx">namespace</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;com.amazon&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;MyApi&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="p">},</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">runtime</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">languages</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Language</span><span class="p">.</span><span class="nx">TYPESCRIPT</span><span class="p">],</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">infrastructure</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">Language.TYPESCRIPT</span><span class="p">,</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">library</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">libraries</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Library</span><span class="p">.</span><span class="nx">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">],</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">documentation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">formats</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">DocumentationFormat</span><span class="p">.</span><span class="nx">HTML2</span><span class="p">],</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="p">});</span>
+const api = new TypeSafeApiProject({
+<span class="w"> </span>   parent: monorepo,
+<span class="w"> </span>   outdir: &quot;packages/api&quot;,
+<span class="w"> </span>   name: &quot;myapi&quot;,
+<span class="w"> </span>   model: {
+<span class="w"> </span>       language: ModelLanguage.SMITHY,
+<span class="w"> </span>       options: {
+<span class="w"> </span>           smithy: {
+<span class="w"> </span>               serviceName: {
+<span class="w"> </span>                   namespace: &quot;com.amazon&quot;,
+<span class="w"> </span>                   serviceName: &quot;MyApi&quot;,
+<span class="w"> </span>               },
+<span class="w"> </span>           },
+<span class="w"> </span>       },
+<span class="w"> </span>   },
+<span class="w"> </span>   runtime: {
+<span class="w"> </span>       languages: [Language.TYPESCRIPT],
+<span class="w"> </span>   },
+<span class="w"> </span>   infrastructure: {
+<span class="w"> </span>       language: Language.TYPESCRIPT,
+<span class="w"> </span>   },
+<span class="w"> </span>   library: {
+<span class="w"> </span>       libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+<span class="w"> </span>   },
+<span class="w"> </span>   documentation: {
+<span class="w"> </span>       formats: [DocumentationFormat.HTML2],
+<span class="w"> </span>   },
+});
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">website</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">CloudscapeReactTsWebsiteProject</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">packageManager</span><span class="o">:</span><span class="w"> </span><span class="kt">javascript.NodePackageManager.PNPM</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/website&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;website&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="nx">api</span><span class="p">.</span><span class="nx">library</span><span class="p">.</span><span class="nx">typescriptReactQueryHooks</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="p">});</span>
+const website = new CloudscapeReactTsWebsiteProject({
+<span class="w"> </span>   packageManager: javascript.NodePackageManager.PNPM,
+<span class="w"> </span>   parent: monorepo,
+<span class="w"> </span>   outdir: &quot;packages/website&quot;,
+<span class="w"> </span>   defaultReleaseBranch: &quot;main&quot;,
+<span class="w"> </span>   name: &quot;website&quot;,
+<span class="w"> </span>   deps: [
+<span class="w"> </span>       api.library.typescriptReactQueryHooks!.package.packageName,
+<span class="w"> </span>   ],
+});
 
-<span class="ow">new</span><span class="w"> </span><span class="nx">AwsCdkTypeScriptApp</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">packageManager</span><span class="o">:</span><span class="w"> </span><span class="kt">javascript.NodePackageManager.PNPM</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/infra/main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">cdkVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">npmignoreEnabled</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">prettier</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;infra-main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/static-website&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/identity&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/pipeline&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/pdk-nag&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/cdk-graph-plugin-diagram&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/cdk-graph&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/aws-arch&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-cdk/aws-cognito-identitypool-alpha&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">typescript</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">typescript</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">website</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="p">});</span>
+new AwsCdkTypeScriptApp({
+<span class="w"> </span>   packageManager: javascript.NodePackageManager.PNPM,
+<span class="w"> </span>   parent: monorepo,
+<span class="w"> </span>   outdir: &quot;packages/infra/main&quot;,
+<span class="w"> </span>   cdkVersion: &quot;2.1.0&quot;,
+<span class="w"> </span>   defaultReleaseBranch: &quot;main&quot;,
+<span class="w"> </span>   npmignoreEnabled: false,
+<span class="w"> </span>   prettier: true,
+<span class="w"> </span>   name: &quot;infra-main&quot;,
+<span class="w"> </span>   deps: [
+<span class="gi">+       &quot;@aws/pdk&quot;,        </span>
+<span class="w"> </span>       &quot;@aws-prototyping-sdk/static-website&quot;,
+<span class="w"> </span>       &quot;@aws-prototyping-sdk/identity&quot;,
+<span class="w"> </span>       &quot;@aws-prototyping-sdk/pipeline&quot;,
+<span class="w"> </span>       &quot;@aws-prototyping-sdk/pdk-nag&quot;,
+<span class="w"> </span>       &quot;@aws-prototyping-sdk/cdk-graph-plugin-diagram&quot;,
+<span class="w"> </span>       &quot;@aws-prototyping-sdk/cdk-graph&quot;,
+<span class="w"> </span>       &quot;@aws-prototyping-sdk/aws-arch&quot;,
+<span class="w"> </span>       &quot;@aws-prototyping-sdk/type-safe-api&quot;,
+<span class="w"> </span>       &quot;@aws-cdk/aws-cognito-identitypool-alpha&quot;,
+<span class="w"> </span>       api.infrastructure.typescript!.package.packageName,
+<span class="w"> </span>       api.runtime.typescript!.package.packageName,
+<span class="w"> </span>       website.package.packageName,
+<span class="w"> </span>   ],
+});
 
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
+monorepo.synth();
 </code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CloudscapeReactTsWebsiteProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/cloudscape-react-ts-website&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">DocumentationFormat</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">Language</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">Library</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">ModelLanguage</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">TypeSafeApiProject</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">javascript</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AwsCdkTypeScriptApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen/lib/awscdk&quot;</span><span class="p">;</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">NxMonorepoProject</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">npmignoreEnabled</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="hll"><span class="w">        </span><span class="s2">&quot;@aws/pdk&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Add the new dep</span>
-</span><span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/nx-monorepo&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/cloudscape-react-ts-website&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;monorepo&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">packageManager</span><span class="o">:</span><span class="w"> </span><span class="kt">javascript.NodePackageManager.PNPM</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">projenrcTs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">prettier</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">disableNodeWarnings</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="p">});</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;myapi&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelLanguage.SMITHY</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">smithy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                    </span><span class="nx">namespace</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;com.amazon&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;MyApi&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="p">},</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">runtime</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">languages</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Language</span><span class="p">.</span><span class="nx">TYPESCRIPT</span><span class="p">],</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">infrastructure</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">Language.TYPESCRIPT</span><span class="p">,</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">library</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">libraries</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Library</span><span class="p">.</span><span class="nx">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">],</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">documentation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">formats</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">DocumentationFormat</span><span class="p">.</span><span class="nx">HTML2</span><span class="p">],</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="p">});</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">website</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">CloudscapeReactTsWebsiteProject</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">packageManager</span><span class="o">:</span><span class="w"> </span><span class="kt">javascript.NodePackageManager.PNPM</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/website&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;website&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="nx">api</span><span class="p">.</span><span class="nx">library</span><span class="p">.</span><span class="nx">typescriptReactQueryHooks</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="p">});</span>
-
-<span class="ow">new</span><span class="w"> </span><span class="nx">AwsCdkTypeScriptApp</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">packageManager</span><span class="o">:</span><span class="w"> </span><span class="kt">javascript.NodePackageManager.PNPM</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/infra/main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">cdkVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">npmignoreEnabled</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">prettier</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;infra-main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="hll"><span class="w">        </span><span class="s2">&quot;@aws/pdk&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Add the new dep</span>
-</span><span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/static-website&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/identity&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/pipeline&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/pdk-nag&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/cdk-graph-plugin-diagram&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/cdk-graph&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/aws-arch&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-prototyping-sdk/type-safe-api&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-cdk/aws-cognito-identitypool-alpha&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">typescript</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">typescript</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">website</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="p">});</span>
-
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
-</code></pre></div>
-</div>
-</div>
-</div>
 <h3 id="step-2-refactor-to-use-the-new-dependency-in-projenrcts">Step 2: Refactor to use the new dependency in .projenrc.ts</h3>
 <p>Now that the new dependency is installed, we can perform the following modifications:</p>
 <ul>
@@ -3712,91 +3650,33 @@
 <li>Name the <code>NXMonorepoProject</code> to <code>MonorepoTsProject</code></li>
 <li>Remove all old dependencies</li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="hll"><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CloudscapeReactTsWebsiteProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws/pdk/cloudscape-react-ts-website&quot;</span><span class="p">;</span>
-</span><span class="hll"><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">MonorepoTsProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws/pdk/nx-monorepo&quot;</span><span class="p">;</span>
-</span><span class="hll"><span class="k">import</span><span class="w"> </span><span class="p">{</span>
-</span><span class="hll"><span class="w">    </span><span class="nx">DocumentationFormat</span><span class="p">,</span>
-</span><span class="hll"><span class="w">    </span><span class="nx">Language</span><span class="p">,</span>
-</span><span class="hll"><span class="w">    </span><span class="nx">Library</span><span class="p">,</span>
-</span><span class="hll"><span class="w">    </span><span class="nx">ModelLanguage</span><span class="p">,</span>
-</span><span class="hll"><span class="w">    </span><span class="nx">TypeSafeApiProject</span><span class="p">,</span>
-</span><span class="hll"><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws/pdk/type-safe-api&quot;</span><span class="p">;</span>
-</span><span class="hll"><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">javascript</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen&quot;</span><span class="p">;</span>
-</span><span class="hll"><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AwsCdkTypeScriptApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen/lib/awscdk&quot;</span><span class="p">;</span>
-</span><span class="hll">
-</span><span class="hll"><span class="c1">// Ensure you change the class name and import to use MonorepoTsProject as it has changed</span>
-</span><span class="hll"><span class="kd">const</span><span class="w"> </span><span class="nx">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">MonorepoTsProject</span><span class="p">({</span>
-</span><span class="w">    </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">npmignoreEnabled</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="s2">&quot;@aws/pdk&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;monorepo&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">packageManager</span><span class="o">:</span><span class="w"> </span><span class="kt">javascript.NodePackageManager.PNPM</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">projenrcTs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">prettier</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">disableNodeWarnings</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="p">});</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/api&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;myapi&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">ModelLanguage.SMITHY</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">smithy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                    </span><span class="nx">namespace</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;com.amazon&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;MyApi&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="p">},</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">runtime</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">languages</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Language</span><span class="p">.</span><span class="nx">TYPESCRIPT</span><span class="p">],</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">infrastructure</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="kt">Language.TYPESCRIPT</span><span class="p">,</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">library</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">libraries</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Library</span><span class="p">.</span><span class="nx">TYPESCRIPT_REACT_QUERY_HOOKS</span><span class="p">],</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">documentation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">formats</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">DocumentationFormat</span><span class="p">.</span><span class="nx">HTML2</span><span class="p">],</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="p">});</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">website</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">CloudscapeReactTsWebsiteProject</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">packageManager</span><span class="o">:</span><span class="w"> </span><span class="kt">javascript.NodePackageManager.PNPM</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/website&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;website&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="nx">api</span><span class="p">.</span><span class="nx">library</span><span class="p">.</span><span class="nx">typescriptReactQueryHooks</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="p">});</span>
-
-<span class="ow">new</span><span class="w"> </span><span class="nx">AwsCdkTypeScriptApp</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">packageManager</span><span class="o">:</span><span class="w"> </span><span class="kt">javascript.NodePackageManager.PNPM</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">monorepo</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">outdir</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;packages/infra/main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">cdkVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">defaultReleaseBranch</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">npmignoreEnabled</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">prettier</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;infra-main&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">deps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="s2">&quot;@aws-pdk&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;@aws-cdk/aws-cognito-identitypool-alpha&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">api</span><span class="p">.</span><span class="nx">infrastructure</span><span class="p">.</span><span class="nx">typescript</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">api</span><span class="p">.</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">typescript</span><span class="o">!</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">website</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">packageName</span><span class="p">,</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="p">});</span>
-
-<span class="nx">monorepo</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><span class="gd">-import { CloudscapeReactTsWebsiteProject } from &quot;@aws-prototyping-sdk/cloudscape-react-ts-website&quot;;</span>
+<span class="gd">-import { NxMonorepoProject } from &quot;@aws-prototyping-sdk/nx-monorepo&quot;;</span>
+<span class="gd">-import {</span>
+<span class="gd">-    DocumentationFormat,</span>
+<span class="gd">-    Language,</span>
+<span class="gd">-    Library,</span>
+<span class="gd">-    ModelLanguage,</span>
+<span class="gd">-    TypeSafeApiProject,</span>
+<span class="gd">-} from &quot;@aws-prototyping-sdk/type-safe-api&quot;;</span>
+<span class="gd">-import { javascript } from &quot;projen&quot;;</span>
+<span class="gd">-import { AwsCdkTypeScriptApp } from &quot;projen/lib/awscdk&quot;;</span>
+<span class="gd">-</span>
+<span class="gd">-const monorepo = new NxMonorepoProject({</span>
+<span class="gi">+import { CloudscapeReactTsWebsiteProject } from &quot;@aws/pdk/cloudscape-react-ts-website&quot;;</span>
+<span class="gi">+import { MonorepoTsProject } from &quot;@aws/pdk/nx-monorepo&quot;;</span>
+<span class="gi">+import {</span>
+<span class="gi">+    DocumentationFormat,</span>
+<span class="gi">+    Language,</span>
+<span class="gi">+    Library,</span>
+<span class="gi">+    ModelLanguage,</span>
+<span class="gi">+    TypeSafeApiProject,</span>
+<span class="gi">+} from &quot;@aws/pdk/type-safe-api&quot;;</span>
+<span class="gi">+import { javascript } from &quot;projen&quot;;</span>
+<span class="gi">+import { AwsCdkTypeScriptApp } from &quot;projen/lib/awscdk&quot;;</span>
+<span class="gi">+</span>
+<span class="gi">+const monorepo = new MonorepoTsProject({</span>
+...
 </code></pre></div>
 <p>Once all the changes have been made, we can run <code>pdk</code> from the root to synthesize our changes.</p>
 <h3 id="step-3-update-all-application-code-imports">Step 3: Update all application code imports</h3>
@@ -3804,54 +3684,58 @@
 <p>Once you are confident that all imports are referencing the name AWS PDK package, run <code>pdk build</code> from the root directory. If it succeeds you should be good to go.</p>
 <h2 id="changes-to-the-cdkgraphplugindiagram-interface">Changes to the CdkGraphPluginDiagram interface</h2>
 <p>In order to make this construct truly cross-platform, we had to make a slight tweak to the way filters are defined in typescript. As such, any existing filters will need to be wrapped in an additional wrapper i.e: <code>{ store: &lt;previousFilter&gt;}</code></p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">BEFORE</label><label for="__tabbed_2_2">AFTER</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">graph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">CdkGraph</span><span class="p">(</span><span class="nx">app</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">plugins</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="ow">new</span><span class="w"> </span><span class="nx">CdkGraphDiagramPlugin</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">defaults</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">filterPlan</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">preset</span><span class="o">:</span><span class="w"> </span><span class="kt">FilterPreset.COMPACT</span><span class="p">,</span>
-<span class="w">            </span><span class="nx">filters</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                </span><span class="nx">Filters</span><span class="p">.</span><span class="nx">pruneCustomResources</span><span class="p">(),</span>
-<span class="w">                </span><span class="p">(</span><span class="nx">store</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                    </span><span class="c1">// do something</span>
-<span class="w">                </span><span class="p">},</span>
-<span class="w">            </span><span class="p">],</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">    </span><span class="p">}),</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="p">});</span>
+<div class="highlight"><pre><span></span><code>const graph = new CdkGraph(app, {
+<span class="w"> </span>   plugins: [
+<span class="w"> </span>       new CdkGraphDiagramPlugin({
+<span class="w"> </span>           defaults: {
+<span class="w"> </span>           filterPlan: {
+<span class="w"> </span>               preset: FilterPreset.COMPACT,
+<span class="w"> </span>               filters: [
+<span class="gd">-                    Filters.pruneCustomResources(),</span>
+<span class="gd">-                    (store) =&gt; {</span>
+<span class="gd">-                        // do something</span>
+<span class="gd">-                    },</span>
+<span class="gi">+                    { store: Filters.pruneCustomResources() },</span>
+<span class="gi">+                    { </span>
+<span class="gi">+                        store: (store) =&gt; {</span>
+<span class="gi">+                            // do something</span>
+<span class="gi">+                        }</span>
+<span class="gi">+                    },</span>
+<span class="w"> </span>               ],
+<span class="w"> </span>           },
+<span class="w"> </span>           },
+<span class="w"> </span>       }),
+<span class="w"> </span>   ],
+});
 </code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">graph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">CdkGraph</span><span class="p">(</span><span class="nx">app</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">plugins</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="ow">new</span><span class="w"> </span><span class="nx">CdkGraphDiagramPlugin</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">defaults</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">filterPlan</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nx">preset</span><span class="o">:</span><span class="w"> </span><span class="kt">FilterPreset.COMPACT</span><span class="p">,</span>
-<span class="w">            </span><span class="nx">filters</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="hll"><span class="w">                </span><span class="p">{</span><span class="w"> </span><span class="nx">store</span><span class="o">:</span><span class="w"> </span><span class="kt">Filters.pruneCustomResources</span><span class="p">()</span><span class="w"> </span><span class="p">},</span>
-</span><span class="hll"><span class="w">                </span><span class="p">{</span><span class="w"> </span>
-</span><span class="hll"><span class="w">                    </span><span class="nx">store</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">store</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span class="hll"><span class="w">                        </span><span class="c1">// do something</span>
-</span><span class="hll"><span class="w">                    </span><span class="p">}</span>
-</span><span class="hll"><span class="w">                </span><span class="p">},</span>
-</span><span class="w">            </span><span class="p">],</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">    </span><span class="p">}),</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="p">});</span>
-</code></pre></div>
-</div>
-</div>
-</div>
 <h2 id="removal-of-pdkpipelinetsproject-construct">Removal of <code>PDKPipelineTsProject</code> construct</h2>
-<p>The <code>PDKPipelineTsProject</code> has been removed as it did not provide an adequate level of control of the generated pipeline. If you have instrumented this construct in your <code>projenrc.ts</code> file, you can simply change it to use <code>AwsCdkTypeScriptApp</code> instead and ensure the <code>sample</code> property is set to false to prevent additional sample code being generated. Be sure to ensure the construct has a dependency on <code>@aws/pdk</code> as you will still be able to use the <code>PDKPipeline</code> CDK construct contained within <code>@aws/pdk/pipeline</code>.</p>
+<p>The <code>PDKPipelineTsProject</code> has been removed as it did not provide an adequate level of control of the generated pipeline. If you have instrumented this construct in your <code>projenrc.ts</code> file, you can simply change it to use <code>AwsCdkTypeScriptApp</code> instead and ensure the following:</p>
+<ul>
+<li><code>sampleCode</code> property is set to false to prevent additional sample code being generated.</li>
+<li><code>appEntrypoint</code> is set to <code>pipeline.ts</code> so that the synth command has the correct entrypoint.</li>
+<li>be sure to ensure the construct has a dependency on <code>@aws/pdk</code> as you will still be able to use the <code>PDKPipeline</code> CDK construct contained within <code>@aws/pdk/pipeline</code>.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gd">-import { PDKPipelineTsProject } from &quot;@aws-prototyping-sdk/pipeline&quot;;</span>
+<span class="gi">+import { AwsCdkTypeScriptApp } from &quot;projen/lib/awscdk&quot;</span>
+
+<span class="gd">-const pipelineProject = new PDKPipelineTsProject({</span>
+<span class="gi">+const pipelineProject = new AwsCdkTypeScriptApp({    </span>
+<span class="w"> </span>   parent: monorepo,
+<span class="w"> </span>   outdir: &quot;packages/infra&quot;,
+<span class="w"> </span>   defaultReleaseBranch: &quot;mainline&quot;,
+<span class="w"> </span>   name: &quot;infra&quot;,
+<span class="w"> </span>   cdkVersion: &quot;2.1.0&quot;,
+<span class="gi">+   appEntrypoint: &quot;pipeline.ts&quot;,</span>
+<span class="gi">+   sampleCode: false,</span>
+<span class="w"> </span>   deps: [
+<span class="gi">+       &quot;@aws/pdk&quot;,</span>
+<span class="gd">-       &quot;@aws-prototyping-sdk/pipeline&quot;,</span>
+<span class="gd">-       &quot;@aws-prototyping-sdk/static-website&quot;,</span>
+<span class="gd">-       &quot;@aws-prototyping-sdk/identity&quot;,</span>
+<span class="w"> </span>       &quot;@aws-cdk/aws-cognito-identitypool-alpha@^2.66.1-alpha&quot;,
+<span class="w"> </span>   ],
+});
+</code></pre></div>
 <h2 id="typesafeapi-breaking-changes">TypeSafeApi Breaking Changes</h2>
 <h3 id="request-parameters">Request Parameters</h3>
 <h4 id="types">Types</h4>
@@ -3873,36 +3757,21 @@
 }
 </code></pre></div>
 <p>Previously, the <code>value</code> would be provided in <code>input.requestParameters.value</code> as a string, and your handler would have to handle converting it to a number (and returning an error response if it was not a number). Now, <code>value</code> is already converted to a number for you, and the handler wrapper will automatically respond with a <code>400</code> status code if the provided request parameter is not of the appropriate type.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">BEFORE</label><label for="__tabbed_3_2">AFTER</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">incrementHandler</span><span class="p">,</span><span class="w"> </span><span class="nx">Response</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-runtime&quot;</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code>import { incrementHandler, Response } from &quot;myapi-typescript-runtime&quot;;
 
-<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">incrementHandler</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">input</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">numberValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">input</span><span class="p">.</span><span class="nx">requestParameters</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">isNaN</span><span class="p">(</span><span class="nx">numberValue</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">Response</span><span class="p">.</span><span class="nx">badRequest</span><span class="p">({</span>
-<span class="w">            </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;value must be a number&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="p">});</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">Response</span><span class="p">.</span><span class="nx">success</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">result</span><span class="o">:</span><span class="w"> </span><span class="kt">numberValue</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
-<span class="w">    </span><span class="p">});</span>
-<span class="p">});</span>
+export const handler = incrementHandler(async ({ input }) =&gt; {
+<span class="gd">-    const numberValue = Number(input.requestParameters.value);</span>
+<span class="gd">-    if (isNaN(numberValue)) {</span>
+<span class="gd">-        return Response.badRequest({</span>
+<span class="gd">-            message: &#39;value must be a number&#39;,</span>
+<span class="gd">-        });</span>
+<span class="gd">-    }</span>
+<span class="w"> </span>   return Response.success({
+<span class="gd">-        result: numberValue + 1,</span>
+<span class="gi">+        result: input.requestParameters.value + 1,</span>
+<span class="w"> </span>   });
+});
 </code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">incrementHandler</span><span class="p">,</span><span class="w"> </span><span class="nx">Response</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-runtime&quot;</span><span class="p">;</span>
-
-<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">incrementHandler</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">input</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">Response</span><span class="p">.</span><span class="nx">success</span><span class="p">({</span>
-<span class="w">        </span><span class="nx">result</span><span class="o">:</span><span class="w"> </span><span class="kt">input.requestParameters.value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
-<span class="w">    </span><span class="p">});</span>
-<span class="p">});</span>
-</code></pre></div>
-</div>
-</div>
-</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Request parameters have been restricted to only "primitives" (<code>number</code>, <code>integer</code>, <code>string</code> and <code>boolean</code>) or arrays of primitives, since this is the set of request parameters Smithy supports. Note also that a <code>string</code> of <code>date</code> or <code>date-time</code> format will be coerced into a language specific date object.</p>
@@ -3910,187 +3779,109 @@
 </div>
 <h4 id="typescript-interceptors">TypeScript Interceptors</h4>
 <p>You may have previously defined interceptors in TypeScript which referenced the <code>RequestArrayParameters</code> type in their type signature. Since all request parameters have been merged into a single <code>RequestParameters</code> type, <code>RequestArrayParameters</code> must be deleted from your interceptor type signatures:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">BEFORE</label><label for="__tabbed_4_2">AFTER</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p>```ts hl_lines="9 15"
-import {
-  sayHelloHandler,
-  ChainedRequestInput,
-  OperationResponse,
-} from "myapi-typescript-runtime";</p>
-<p>const tryCatchInterceptor = async &lt;
-  RequestParameters,
-  RequestArrayParameters,
-  RequestBody,
-  Response extends OperationResponse<number, any></p>
-<blockquote>
-<p>(
-  request: ChainedRequestInput&lt;
-    RequestParameters,
-    RequestArrayParameters,
-    RequestBody,
-    Response</p>
-<p>): Promise&lt;Response | OperationResponse&lt;500, { message: string }&gt;&gt; =&gt; {
-  try {
-    return await request.chain.next(request);
-  } catch (e: any) {
-    return { statusCode: 500, body: { message: e.message } };
-  }
-};</p>
-</blockquote>
-</div>
-<div class="tabbed-block">
-<p>```ts
-import {
-  sayHelloHandler,
-  ChainedRequestInput,
-  OperationResponse,
-} from "myapi-typescript-runtime";</p>
-<p>const tryCatchInterceptor = async &lt;
-  RequestParameters,
-  RequestBody,
-  Response extends OperationResponse<number, any></p>
-<blockquote>
-<p>(
-  request: ChainedRequestInput&lt;
-    RequestParameters,
-    RequestBody,
-    Response</p>
-<p>): Promise&lt;Response | OperationResponse&lt;500, { message: string }&gt;&gt; =&gt; {
-  try {
-    return await request.chain.next(request);
-  } catch (e: any) {
-    return { statusCode: 500, body: { message: e.message } };
-  }
-};</p>
-</blockquote>
-</div>
-</div>
-</div>
+<div class="highlight"><pre><span></span><code>import {
+<span class="w"> </span>   sayHelloHandler,
+<span class="w"> </span>   ChainedRequestInput,
+<span class="w"> </span>   OperationResponse,
+} from &quot;myapi-typescript-runtime&quot;;
+
+const tryCatchInterceptor = async &lt;
+<span class="w"> </span>   RequestParameters,
+<span class="gd">-    RequestArrayParameters,</span>
+<span class="w"> </span>   RequestBody,
+<span class="w"> </span>   Response extends OperationResponse&lt;number, any&gt;
+&gt;(
+<span class="w"> </span>   request: ChainedRequestInput&lt;
+<span class="w"> </span>   RequestParameters,
+<span class="gd">-    RequestArrayParameters,</span>
+<span class="w"> </span>   RequestBody,
+<span class="w"> </span>   Response
+<span class="w"> </span>   &gt;
+): Promise&lt;Response | OperationResponse&lt;500, { message: string }&gt;&gt; =&gt; {
+<span class="w"> </span>   try {
+<span class="w"> </span>       return await request.chain.next(request);
+<span class="w"> </span>   } catch (e: any) {
+<span class="w"> </span>       return { statusCode: 500, body: { message: e.message } };
+<span class="w"> </span>   }
+};
+</code></pre></div>
 <h3 id="python-runtime-package">Python Runtime Package</h3>
 <p>The Python Runtime package has been migrated to use the latest python generator (<code>python-nextgen</code> in <a href="https://github.com/OpenAPITools/openapi-generator/releases/tag/v6.6.0">OpenAPI Generator v6</a>, and renamed to <code>python</code> in <a href="https://github.com/OpenAPITools/openapi-generator/releases/tag/v7.0.0">v7</a>).</p>
 <p>As such, there are some breaking changes which will apply to any code using the models:</p>
 <h4 id="property-access">Property Access</h4>
 <p>Properties of models or request parameters previously needed to be accessed using dictionary notation, while they are now referenced through dot notation:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">BEFORE</label><label for="__tabbed_5_2">AFTER</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_runtime.model.say_hello_response_content</span> <span class="kn">import</span> <span class="n">SayHelloResponseContent</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.apis.tags.default_api_operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span>
-    <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span><span class="p">,</span> <span class="n">ApiResponse</span>
+<div class="highlight"><pre><span></span><code>from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
+from myapi_python_runtime.api.operation_config import say_hello_handler,
+<span class="w"> </span>   SayHelloRequest, SayHelloOperationResponses, ApiResponse
 
-<span class="nd">@say_hello_handler</span>
-<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">ApiResponse</span><span class="p">(</span>
-        <span class="n">status_code</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-<span class="hll">        <span class="n">body</span><span class="o">=</span><span class="n">SayHelloResponseContent</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Hello </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">request_parameters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])),</span>
-</span>        <span class="n">headers</span><span class="o">=</span><span class="p">{}</span>
-    <span class="p">)</span>
+<span class="gu">@say_hello_handler</span>
+def handler(input: SayHelloRequest, **kwargs) -&gt; SayHelloOperationResponses:
+<span class="gd">-    return ApiResponse(</span>
+<span class="gd">-        status_code=200,</span>
+<span class="gd">-        body=SayHelloResponseContent(message=&quot;Hello {}&quot;.format(input.request_parameters[&quot;name&quot;])),</span>
+<span class="gd">-        headers={}</span>
+<span class="gd">-    )</span>
+<span class="gi">+    return Response.success(SayHelloResponseContent(</span>
+<span class="gi">+        message=&quot;Hello {}&quot;.format(input.request_parameters.name)</span>
+<span class="gi">+    ))</span>
 </code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_runtime.model.say_hello_response_content</span> <span class="kn">import</span> <span class="n">SayHelloResponseContent</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.api.operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span>
-    <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span><span class="p">,</span> <span class="n">ApiResponse</span>
-<span class="kn">from</span> <span class="nn">myapi_python_runtime.response</span> <span class="kn">import</span> <span class="n">Response</span>
-
-<span class="nd">@say_hello_handler</span>
-<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">Response</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">SayHelloResponseContent</span><span class="p">(</span>
-<span class="hll">        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Hello </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">request_parameters</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-</span>    <span class="p">))</span>
-</code></pre></div>
-</div>
-</div>
-</div>
 <h4 id="import-path-for-handler-wrappers">Import Path for Handler Wrappers</h4>
 <p>The import path has changed for handler wrappers, so you will need to adjust your imports accordingly:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">BEFORE</label><label for="__tabbed_6_2">AFTER</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p>Previously handler wrappers were imported from <code>&lt;runtime-package-name&gt;.apis.tags.default_api_operation_config</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_runtime.model.say_hello_response_content</span> <span class="kn">import</span> <span class="n">SayHelloResponseContent</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">myapi_python_runtime.apis.tags.default_api_operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span>
-</span><span class="hll">    <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span><span class="p">,</span> <span class="n">ApiResponse</span>
-</span>
-<span class="nd">@say_hello_handler</span>
-<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">ApiResponse</span><span class="p">(</span>
-        <span class="n">status_code</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-        <span class="n">body</span><span class="o">=</span><span class="n">SayHelloResponseContent</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Hello </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">request_parameters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])),</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{}</span>
-    <span class="p">)</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<p>Handler wrappers are now imported from <code>&lt;runtime-package-name&gt;.api.operation_config</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_runtime.model.say_hello_response_content</span> <span class="kn">import</span> <span class="n">SayHelloResponseContent</span>
-<span class="hll"><span class="kn">from</span> <span class="nn">myapi_python_runtime.api.operation_config</span> <span class="kn">import</span> <span class="n">say_hello_handler</span><span class="p">,</span>
-</span><span class="hll">    <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span><span class="p">,</span> <span class="n">ApiResponse</span>
-</span><span class="kn">from</span> <span class="nn">myapi_python_runtime.response</span> <span class="kn">import</span> <span class="n">Response</span>
+<p>Previously handler wrappers were imported from <code>&lt;runtime-package-name&gt;.apis.tags.default_api_operation_config</code>, now they are imported from <code>&lt;runtime-package-name&gt;.api.operation_config</code>:</p>
+<div class="highlight"><pre><span></span><code>from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
+<span class="gd">-from myapi_python_runtime.apis.tags.default_api_operation_config import say_hello_handler,</span>
+<span class="gd">-    SayHelloRequest, SayHelloOperationResponses, ApiResponse</span>
+<span class="gi">+from myapi_python_runtime.api.operation_config import say_hello_handler,</span>
+<span class="gi">+    SayHelloRequest, SayHelloOperationResponses, ApiResponse</span>
+<span class="gi">+from myapi_python_runtime.response import Response</span>
 
-<span class="nd">@say_hello_handler</span>
-<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">Response</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">SayHelloResponseContent</span><span class="p">(</span>
-        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Hello </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">request_parameters</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-    <span class="p">))</span>
+<span class="gu">@say_hello_handler</span>
+def handler(input: SayHelloRequest, **kwargs) -&gt; SayHelloOperationResponses:
+<span class="w"> </span>   return ApiResponse(
+<span class="w"> </span>       status_code=200,
+<span class="w"> </span>       body=SayHelloResponseContent(message=&quot;Hello {}&quot;.format(input.request_parameters[&quot;name&quot;])),
+<span class="w"> </span>       headers={}
+<span class="w"> </span>   )
 </code></pre></div>
-</div>
-</div>
-</div>
 <h3 id="java-runtime-package">Java Runtime Package</h3>
 <p>Previously in AWS Prototyping SDK, all classes pertaining to all operations were vended as static subclasses of the <code>Handlers</code> class.</p>
 <p>In AWS PDK, these classes have been moved out from <code>Handlers</code> as their own standalone classes. Additionally, classes are grouped under a package namespace for the particular operation.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="7:2"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">BEFORE</label><label for="__tabbed_7_2">AFTER</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nn">com.my.api</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code>package com.my.api;
 
-<span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello</span><span class="p">;</span>
-</span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello200Response</span><span class="p">;</span>
-</span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloRequestInput</span><span class="p">;</span>
-</span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloResponse</span><span class="p">;</span>
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.model.SayHelloResponseContent</span><span class="p">;</span>
+<span class="gd">-import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello;</span>
+<span class="gd">-import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello200Response;</span>
+<span class="gd">-import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloRequestInput;</span>
+<span class="gd">-import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHelloResponse;</span>
+<span class="gi">+import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello;</span>
+<span class="gi">+import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello200Response;</span>
+<span class="gi">+import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput;</span>
+<span class="gi">+import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse;</span>
+import com.generated.api.myapijavaruntime.runtime.model.SayHelloResponseContent;
 
-<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SayHelloHandler</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">SayHello</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nd">@Override</span>
-<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">SayHelloResponse</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="n">SayHelloRequestInput</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">SayHello200Response</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">SayHelloResponseContent</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<span class="w">                </span><span class="p">.</span><span class="na">message</span><span class="p">(</span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">&quot;Hello %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getInput</span><span class="p">().</span><span class="na">getRequestParameters</span><span class="p">().</span><span class="na">getName</span><span class="p">()))</span>
-<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
+public class SayHelloHandler extends SayHello {
+<span class="w"> </span>   @Override
+<span class="w"> </span>   public SayHelloResponse handle(SayHelloRequestInput request) {
+<span class="w"> </span>       return SayHello200Response.of(SayHelloResponseContent.builder()
+<span class="w"> </span>               .message(String.format(&quot;Hello %s&quot;, request.getInput().getRequestParameters().getName()))
+<span class="w"> </span>               .build());
+<span class="w"> </span>   }
+}
 </code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nn">com.my.api</span><span class="p">;</span>
-
-<span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello</span><span class="p">;</span>
-</span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello200Response</span><span class="p">;</span>
-</span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput</span><span class="p">;</span>
-</span><span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse</span><span class="p">;</span>
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.model.SayHelloResponseContent</span><span class="p">;</span>
-
-<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SayHelloHandler</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">SayHello</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nd">@Override</span>
-<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">SayHelloResponse</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">SayHelloRequestInput</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">SayHello200Response</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">SayHelloResponseContent</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<span class="w">                </span><span class="p">.</span><span class="na">message</span><span class="p">(</span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">&quot;Hello %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getInput</span><span class="p">().</span><span class="na">getRequestParameters</span><span class="p">().</span><span class="na">getName</span><span class="p">()))</span>
-<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="missing-polyfill">Missing Polyfill</h3>
+<p>If you see this error:</p>
+<div class="highlight"><pre><span></span><code>Module not found: Error: Can&#39;t resolve &#39;http&#39; in &#39;/Users/xxx/my-project/node_modules/.pnpm/@aws-lambda-powertools+tracer@1.12.1/node_modules/@aws-lambda-powertools/tracer/lib/provider&#39;
+BREAKING CHANGE: webpack &lt; 5 used to include polyfills for node.js core modules by default.
+This is no longer the case. Verify if you need this module and configure a polyfill for it.
 </code></pre></div>
-</div>
-</div>
-</div>
+<p>This is most likley caused by your website having a direct dependency on the typescript runtime package, since the runtime package has all the server side handlers which is not suitable in a web based context. Ideally your website should only depend on the hooks package, even if you just use the generated client and not the hooks.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      2023-09-03
+      2023-09-04
     
   </small>
 </div>

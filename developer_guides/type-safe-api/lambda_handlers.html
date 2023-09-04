@@ -1357,6 +1357,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#function-cdk-constructs" class="md-nav__link">
+    Function CDK Constructs
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3310,6 +3317,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#function-cdk-constructs" class="md-nav__link">
+    Function CDK Constructs
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3421,18 +3435,198 @@
 </div>
 </div>
 </div>
+<p>This will give you generated lambda handler stubs which look like the following:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">TS</label><label for="__tabbed_3_2">JAVA</label><label for="__tabbed_3_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Notice this defines a <code>sayHello</code> method which provides type-safety for your inputs and outputs. You can implement your business logic in there. The lambda handler is wrapped by the <code>sayHelloHandler</code> wrapper which manages marshalling and demarshalling, as well as the application of "interceptors".</p>
+<p>Notice the default <code>INTERCEPTORS</code> are added to your handler, which provide logging, tracing and metrics from Powertools for AWS Lambda, as well as error handling and adding CORS response headers. For more details about interceptors, refer to the <a href="interceptors.html">Interceptors section</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">sayHelloHandler</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">SayHelloChainedHandlerFunction</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">INTERCEPTORS</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Response</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">LoggingInterceptor</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-runtime&quot;</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Type-safe handler for the SayHello operation</span>
+<span class="cm"> */</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">sayHello</span><span class="o">:</span><span class="w"> </span><span class="kt">SayHelloChainedHandlerFunction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">request</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">LoggingInterceptor</span><span class="p">.</span><span class="nx">getLogger</span><span class="p">(</span><span class="nx">request</span><span class="p">).</span><span class="nx">info</span><span class="p">(</span><span class="s1">&#39;Start SayHello Operation&#39;</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// TODO: Implement SayHello Operation. `input` contains the request input.</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">input</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">Response</span><span class="p">.</span><span class="nx">internalFailure</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Not Implemented!&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">};</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Entry point for the AWS Lambda handler for the SayHello operation.</span>
+<span class="cm"> * The sayHelloHandler method wraps the type-safe handler and manages marshalling inputs and outputs</span>
+<span class="cm"> */</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">sayHelloHandler</span><span class="p">(...</span><span class="nx">INTERCEPTORS</span><span class="p">,</span><span class="w"> </span><span class="nx">sayHello</span><span class="p">);</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>Notice this defines a <code>SayHelloHandler</code> class which provides type-safety for your inputs and outputs. You can implement your business logic in its <code>handle</code> method. This extends the <code>SayHello</code> class which manages marshalling and demarshalling, as well as the application of "interceptors".</p>
+<p>Notice <code>DefaultInterceptors.all()</code> are used, which provide logging, tracing and metrics from Powertools for AWS Lambda, as well as error handling and adding CORS response headers. For more details about interceptors, refer to the <a href="interceptors.html">Interceptors section</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nn">com.generated.api.myapijavahandlers.handlers</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.interceptors.DefaultInterceptors</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.interceptors.powertools.LoggingInterceptor</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.Interceptor</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloInput</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello500Response</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.model.*</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Entry point for the AWS Lambda handler for the SayHello operation.</span>
+<span class="cm"> * The SayHello class manages marshalling inputs and outputs.</span>
+<span class="cm"> */</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SayHelloHandler</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">SayHello</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Return the interceptors for this handler.</span>
+<span class="cm">     * You can also use the @Interceptors annotation on the class to add interceptors</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Interceptor</span><span class="o">&lt;</span><span class="n">SayHelloInput</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nf">getInterceptors</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">DefaultInterceptors</span><span class="p">.</span><span class="na">all</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Type-safe handler for the SayHello operation</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">SayHelloResponse</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">SayHelloRequestInput</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">LoggingInterceptor</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="n">request</span><span class="p">).</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;Start SayHello Operationnn&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// TODO: Implement SayHello Operation. `input` contains the request input.</span>
+<span class="w">        </span><span class="n">SayHelloInput</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getInput</span><span class="p">();</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">SayHello500Response</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">InternalFailureErrorResponseContent</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">message</span><span class="p">(</span><span class="s">&quot;Not Implemented!&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>Notice this defines a <code>say_hello</code> method which provides type-safety for your inputs and outputs. You can implement your business logic in there. The lambda handler is wrapped by the <code>say_hello_handler</code> wrapper which manages marshalling and demarshalling, as well as the application of "interceptors". Notice that this is used in non-annotation form, such that <code>say_hello</code> can be called directly in your tests, and you can write tests in terms of your modelled inputs and outputs.</p>
+<p>Notice the default <code>INTERCEPTORS</code> are added to your handler, which provide logging, tracing and metrics from Powertools for AWS Lambda, as well as error handling and adding CORS response headers. For more details about interceptors, refer to the <a href="interceptors.html">Interceptors section</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_runtime.models</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">myapi_python_runtime.response</span> <span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="nn">myapi_python_runtime.interceptors</span> <span class="kn">import</span> <span class="n">INTERCEPTORS</span>
+<span class="kn">from</span> <span class="nn">myapi_python_runtime.interceptors.powertools.logger</span> <span class="kn">import</span> <span class="n">LoggingInterceptor</span>
+<span class="kn">from</span> <span class="nn">myapi_python_runtime.api.operation_config</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">say_hello_handler</span><span class="p">,</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="n">SayHelloOperationResponses</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">say_hello</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">SayHelloRequest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SayHelloOperationResponses</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Type-safe handler for the SayHello operation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">LoggingInterceptor</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Start SayHello Operation&quot;</span><span class="p">)</span>
+
+    <span class="c1"># TODO: Implement SayHello Operation. `input` contains the request input</span>
+
+    <span class="k">return</span> <span class="n">Response</span><span class="o">.</span><span class="n">internal_failure</span><span class="p">(</span><span class="n">InternalFailureErrorResponseContent</span><span class="p">(</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Not Implemented!&quot;</span>
+    <span class="p">))</span>
+
+
+<span class="c1"># Entry point for the AWS Lambda handler for the SayHello operation.</span>
+<span class="c1"># The say_hello_handler method wraps the type-safe handler and manages marshalling inputs and outputs</span>
+<span class="n">handler</span> <span class="o">=</span> <span class="n">say_hello_handler</span><span class="p">(</span><span class="n">interceptors</span><span class="o">=</span><span class="n">INTERCEPTORS</span><span class="p">)(</span><span class="n">say_hello</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you wish to deviate from the folder structure of the <code>handlers</code> projects, or wish to implement your operations in a language not supported by Type Safe API, or through a non-lambda interation (such as a server running in a Fargate container) you can omit the <code>@handler</code> trait or <code>x-handler</code> vendor extension.</p>
 </div>
 <p>You can implement your lambda handlers in any of the supported languages, or mix and match languages for different operations if you prefer.</p>
+<h2 id="function-cdk-constructs">Function CDK Constructs</h2>
+<p>As well as generating lambda handler stubs, when you use the <code>@handler</code> Smithy trait or <code>x-handler</code> OpenAPI vendor extension, your generated CDK infrastructure project will include lambda function CDK constructs with preconfigured paths to your handler distributables. This allows you to quickly add lambda integrations to your API:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">TS</label><label for="__tabbed_4_2">JAVA</label><label for="__tabbed_4_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="hll"><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Api</span><span class="p">,</span><span class="w"> </span><span class="nx">SayHelloFunction</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-infra&quot;</span><span class="p">;</span>
+</span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">Api</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">defaultAuthorizer</span><span class="o">:</span><span class="w"> </span><span class="kt">Authorizers.iam</span><span class="p">(),</span>
+<span class="w">  </span><span class="nx">corsOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">allowOrigins</span><span class="o">:</span><span class="w"> </span><span class="kt">Cors.ALL_ORIGINS</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">allowMethods</span><span class="o">:</span><span class="w"> </span><span class="kt">Cors.ALL_METHODS</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">integrations</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">sayHello</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="hll"><span class="w">      </span><span class="nx">integration</span><span class="o">:</span><span class="w"> </span><span class="kt">Integrations.lambda</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">SayHelloFunction</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;SayHello&quot;</span><span class="p">)),</span>
+</span><span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavainfra.infra.Api</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavainfra.infra.ApiProps</span><span class="p">;</span>
+<span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavainfra.infra.functions.SayHelloFunction</span><span class="p">;</span>
+</span>
+<span class="k">new</span><span class="w"> </span><span class="n">Api</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">ApiProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">defaultAuthorizer</span><span class="p">(</span><span class="n">Authorizers</span><span class="p">.</span><span class="na">iam</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">corsOptions</span><span class="p">(</span><span class="n">CorsOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">allowOrigins</span><span class="p">(</span><span class="n">Cors</span><span class="p">.</span><span class="na">ALL_ORIGINS</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">allowMethods</span><span class="p">(</span><span class="n">Cors</span><span class="p">.</span><span class="na">ALL_METHODS</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">integrations</span><span class="p">(</span><span class="n">OperationConfig</span><span class="p">.</span><span class="o">&lt;</span><span class="n">TypeSafeApiIntegration</span><span class="o">&gt;</span><span class="n">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">sayHello</span><span class="p">(</span><span class="n">TypeSafeApiIntegration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">integration</span><span class="p">(</span><span class="n">Integrations</span><span class="p">.</span><span class="na">lambda</span><span class="p">(</span>
+<span class="hll"><span class="w">                                </span><span class="k">new</span><span class="w"> </span><span class="n">SayHelloFunction</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SayHello&quot;</span><span class="p">)))</span>
+</span><span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">myapi_python_infra.api</span> <span class="kn">import</span> <span class="n">Api</span>
+<span class="hll"><span class="kn">from</span> <span class="nn">myapi_python_infra.functions</span> <span class="kn">import</span> <span class="n">SayHelloFunction</span>
+</span>
+<span class="n">Api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span>
+   <span class="n">default_authorizer</span><span class="o">=</span><span class="n">Authorizers</span><span class="o">.</span><span class="n">iam</span><span class="p">(),</span>
+   <span class="n">cors_options</span><span class="o">=</span><span class="n">CorsOptions</span><span class="p">(</span>
+       <span class="n">allow_origins</span><span class="o">=</span><span class="n">Cors</span><span class="o">.</span><span class="n">ALL_ORIGINS</span><span class="p">,</span>
+       <span class="n">allow_methods</span><span class="o">=</span><span class="n">Cors</span><span class="o">.</span><span class="n">ALL_METHODS</span>
+   <span class="p">),</span>
+   <span class="n">integrations</span><span class="o">=</span><span class="n">OperationConfig</span><span class="p">(</span>
+       <span class="n">say_hello</span><span class="o">=</span><span class="n">TypeSafeApiIntegration</span><span class="p">(</span>
+<span class="hll">           <span class="n">integration</span><span class="o">=</span><span class="n">Integrations</span><span class="o">.</span><span class="n">lambda_</span><span class="p">(</span><span class="n">SayHelloFunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;SayHello&#39;</span><span class="p">)),</span>
+</span>       <span class="p">),</span>
+   <span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code>&lt;Operation&gt;Function</code> constructs will point to the implementation in the project corresponding to the <code>language</code> you selected in the <code>@handler</code> Smithy trait or <code>x-handler</code> OpenAPI vendor extension. If you relocate your handler implementation and leave the trait a new handler stub will be generated and the construct will point to that. If you remove the <code>@handler</code> Smithy trait or <code>x-handler</code> OpenAPI vendor extension from an operation, your generated CDK infrastructure will not include a CDK function construct, and you will need to write your own.</p>
+</div>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      2023-09-03
+      2023-09-04
     
   </small>
 </div>
