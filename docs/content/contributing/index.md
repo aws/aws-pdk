@@ -25,7 +25,7 @@ Where each of the projects are synthesized.
 
 ### **packages/pdk**
 
-A special 'uber' package which pulls in all of the other packages into a single distributable. This package shoudl only ever have edits to `scripts` as all src and lib are dynamically created.
+A special 'uber' package which pulls in all of the other packages into a single distributable. This package should only ever have edits to `scripts` as all src and lib are dynamically created.
 
 ## Creating a new construct
 
@@ -41,9 +41,9 @@ To create a new project, create a file in the `projects` directory called `<your
 Create a new class as follows:
 
 ```ts
-import { PDKProject } from "../abstract/pdk-project";
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
+import { PDKProject } from "../abstract/pdk-project";
 
 export class MyPackageProject extends PDKProject {
   constructor(parent: Project) {
@@ -90,7 +90,7 @@ The jsii runtimes in non-javascript languages do not use `pnpm i`, and as a cons
 
 At a minimum, your package should include a `index.ts` file which exports all of your public classes/constructs. Please refer to existing packages for reference.
 
-Your package should also include a `docs/developer_guides/index.md` file which describes your constructs at a high level and optionally provide a tutorial on how to use it. This is very important as this content will be rendered on the docuemntation website and is the first port of call for end users.
+Your package should also include a `docs/developer_guides/<your-package>/index.md` file which describes your constructs at a high level and optionally provide a tutorial on how to use it. This is very important as this content will be rendered on the docuemntation website and is the first port of call for end users.
 
 In terms of testing, it is desired for each package to aim for a _minimum of 80% coverage_ in unit tests.
 
