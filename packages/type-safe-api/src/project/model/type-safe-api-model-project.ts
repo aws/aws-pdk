@@ -4,6 +4,7 @@ import * as path from "path";
 import { Project, ProjectOptions, SampleFile, Task } from "projen";
 import { OpenApiDefinition } from "./openapi/open-api-definition";
 import { SmithyDefinition } from "./smithy/smithy-definition";
+import { TypeSafeApiCommandEnvironment } from "../codegen/components/type-safe-api-command-environment";
 import {
   buildTypeSafeApiExecCommand,
   TypeSafeApiScript,
@@ -48,6 +49,7 @@ export class TypeSafeApiModelProject extends Project {
 
   constructor(options: TypeSafeApiModelProjectOptions) {
     super(options);
+    TypeSafeApiCommandEnvironment.ensure(this);
 
     this.generateTask = this.addTask("generate");
 

@@ -89,16 +89,30 @@ export interface GenerationOptions {
 }
 
 /**
+ * Get the current package version
+ */
+const getPackageVersion = (): string => {
+  const { packageJson } = readPkg.sync({
+    cwd: path.resolve(__dirname),
+  })!;
+  return packageJson.version;
+};
+
+/**
+ * Return the environment that should be used for executing type safe api commands
+ */
+export const getTypeSafeApiTaskEnvironment = (): { [key: string]: string } => ({
+  AWS_PDK_VERSION: getPackageVersion(),
+});
+
+/**
  * Build a command for running a script from this project's bin
  */
 export const buildTypeSafeApiExecCommand = (
   script: TypeSafeApiScript,
   args?: string
-) => {
-  const { packageJson } = readPkg.sync({
-    cwd: path.resolve(__dirname),
-  })!;
-  return `npx --yes -p @aws/pdk@${packageJson.version} ${script}${
+): string => {
+  return `npx --yes -p @aws/pdk@$AWS_PDK_VERSION ${script}${
     args ? ` ${args}` : ""
   }`;
 };

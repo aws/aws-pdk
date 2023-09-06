@@ -131,7 +131,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
 
   private setupSwaggerUi(tsApi: TypeSafeApiProject) {
     this.addDevDeps("@types/swagger-ui-react");
-    this.addDeps("swagger-ui-react", "aws4fetch");
+    this.addDeps("swagger-ui-react@5.5.0", "aws4fetch");
 
     const targetApiSpecPath = `${path.relative(
       tsApi.model.outdir,

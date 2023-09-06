@@ -4,6 +4,7 @@ import { Project, ProjectOptions, Task } from "projen";
 import { DocumentationFormat } from "../../languages";
 import { GeneratedPlantumlDocumentationOptions } from "../../types";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildInvokeOpenApiGeneratorCommandArgs,
   buildTypeSafeApiExecCommand,
@@ -25,6 +26,7 @@ export class GeneratedPlantumlDocumentationProject extends Project {
 
   constructor(options: GeneratedPlantumlDocumentationProjectOptions) {
     super(options);
+    TypeSafeApiCommandEnvironment.ensure(this);
 
     // Add OpenAPI Generator cli configuration
     OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
