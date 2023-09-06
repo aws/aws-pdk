@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Project, ProjectOptions, Task } from "projen";
 import { GeneratedHtmlRedocDocumentationOptions } from "../../types";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildTypeSafeApiExecCommand,
   TypeSafeApiScript,
@@ -22,6 +23,7 @@ export class GeneratedHtmlRedocDocumentationProject extends Project {
 
   constructor(options: GeneratedHtmlRedocDocumentationProjectOptions) {
     super(options);
+    TypeSafeApiCommandEnvironment.ensure(this);
 
     // Add OpenAPI Generator cli configuration
     OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
