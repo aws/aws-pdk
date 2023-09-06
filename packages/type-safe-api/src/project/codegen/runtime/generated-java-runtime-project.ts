@@ -9,6 +9,7 @@ import {
 } from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
@@ -93,6 +94,7 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
       sample: false,
       junit: false,
     });
+    TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
 
     // Ignore files that we will control via projen
