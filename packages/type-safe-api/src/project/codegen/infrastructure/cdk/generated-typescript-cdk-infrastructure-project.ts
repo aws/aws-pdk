@@ -14,6 +14,7 @@ import {
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeMockDataGeneratorCommand,
@@ -78,6 +79,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       },
       npmignoreEnabled: false,
     });
+    TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
 
     this.addDevDeps("@types/aws-lambda");
