@@ -17,18 +17,18 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import { GENERATED_DIR, logCount } from './common';
-import { CfnSpec } from '../src/generated/cfnspec';
-import { AwsAsset } from '../src/generated/assets';
-import { DrawioSpec } from "../src/generated/drawio-spec";
-import { findCfnTypeAssets, parseCfnType } from '../src/internal/mapping/helpers';
-import { CfnResourceMapping, CfnServiceMapping, CfnMappedResource, CfnMappedService } from '../src/internal/mapping/types';
-import { resolveResourceName } from "../src/internal/resources/helpers";
-import { extractResolvedServiceName } from "../src/internal/services/helpers";
-import { normalizeComparisonString } from "../src/utils";
-import { findAwsCategoryDefinition } from "../src/internal/categories/definitions";
-import { DRAWIO_EXPLICIT_MAPPING } from "../src/internal/drawio/mapping";
-import { PricingManifest } from "../src/internal/pricing-manifest";
-import { NORMALIZED_SERVICE_VARIANTS } from "../src/internal/services/variants";
+import { CfnSpec } from '../../src/generated/cfnspec';
+import { AwsAsset } from '../../src/generated/assets';
+import { DrawioSpec } from "../../src/generated/drawio-spec";
+import { findCfnTypeAssets, parseCfnType } from '../../src/internal/mapping/helpers';
+import { CfnResourceMapping, CfnServiceMapping, CfnMappedResource, CfnMappedService } from '../../src/internal/mapping/types';
+import { resolveResourceName } from "../../src/internal/resources/helpers";
+import { extractResolvedServiceName } from "../../src/internal/services/helpers";
+import { normalizeComparisonString } from "../../src/utils";
+import { findAwsCategoryDefinition } from "../../src/internal/categories/definitions";
+import { DRAWIO_EXPLICIT_MAPPING } from "../../src/internal/drawio/mapping";
+import { PricingManifest } from "../../src/internal/pricing-manifest";
+import { NORMALIZED_SERVICE_VARIANTS } from "../../src/internal/services/variants";
 
 const MAPPINGS_TS = path.join(GENERATED_DIR, 'mappings.ts')
 

@@ -19,7 +19,7 @@ import * as path from "node:path";
 import execa = require("execa"); // eslint-disable-line @typescript-eslint/no-require-imports
 
 /** Directory where generated files are output */
-export const GENERATED_DIR = path.resolve(__dirname, "..", "src", "generated");
+export const GENERATED_DIR = path.resolve(__dirname, "..", "..", "src", "generated");
 fs.ensureDirSync(GENERATED_DIR);
 
 // use current head hash to enable reuse of downloaded files

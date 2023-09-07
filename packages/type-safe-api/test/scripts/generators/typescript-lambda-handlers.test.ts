@@ -34,7 +34,7 @@ describe("Typescript Handlers Code Generation Script Unit Tests", () => {
       exec(
         `${path.resolve(
           __dirname,
-          "../../../scripts/generators/generate"
+          "../../../scripts/type-safe-api/generators/generate"
         )} ${project.buildGenerateCommandArgs()}`,
         {
           cwd: handlersOutdir,

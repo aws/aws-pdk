@@ -581,6 +581,7 @@ export class TypeSafeApiProject extends Project {
         "..",
         "..",
         "samples",
+        "type-safe-api",
         "readme",
         "TYPE_SAFE_API.md"
       ),

@@ -49,7 +49,10 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
       readme: {
         contents: fs
           .readFileSync(
-            path.resolve(__dirname, "../../../samples/typescript/README.md")
+            path.resolve(
+              __dirname,
+              "../../../samples/infrastructure/typescript/README.md"
+            )
           )
           .toString(),
       },
@@ -57,8 +60,14 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
 
     this.addDeps("@aws/pdk");
 
-    const srcDir = path.resolve(__dirname, "../../../samples/typescript/src");
-    const testDir = path.resolve(__dirname, "../../../samples/typescript/test");
+    const srcDir = path.resolve(
+      __dirname,
+      "../../../samples/infrastructure/typescript/src"
+    );
+    const testDir = path.resolve(
+      __dirname,
+      "../../../samples/infrastructure/typescript/test"
+    );
 
     if (hasApi) {
       if (!options.typeSafeApi.infrastructure.typescript) {

@@ -48,7 +48,10 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
       readme: {
         contents: fs
           .readFileSync(
-            path.resolve(__dirname, "../../../samples/java/README.md")
+            path.resolve(
+              __dirname,
+              "../../../samples/infrastructure/java/README.md"
+            )
           )
           .toString(),
       },
@@ -74,8 +77,14 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
 
     this.addDependency("software.aws/pdk@^0");
 
-    const srcDir = path.resolve(__dirname, "../../../samples/java/src");
-    const testDir = path.resolve(__dirname, "../../../samples/java/test");
+    const srcDir = path.resolve(
+      __dirname,
+      "../../../samples/infrastructure/java/src"
+    );
+    const testDir = path.resolve(
+      __dirname,
+      "../../../samples/infrastructure/java/test"
+    );
 
     if (hasApi) {
       if (!options.typeSafeApi.infrastructure.java) {
