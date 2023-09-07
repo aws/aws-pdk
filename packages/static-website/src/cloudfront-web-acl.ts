@@ -178,9 +178,7 @@ export class CloudfrontWebAcl extends Construct {
       this,
       "CloudfrontWebAclOnEventHandler",
       {
-        code: Code.fromAsset(
-          path.join(__dirname, "../lib/webacl_event_handler")
-        ),
+        code: Code.fromAsset(path.join(__dirname, "./webacl_event_handler")),
         role: onEventHandlerRole,
         functionName: onEventHandlerName,
         handler: "index.onEvent",

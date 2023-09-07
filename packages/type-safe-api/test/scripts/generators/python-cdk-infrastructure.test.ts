@@ -42,7 +42,7 @@ describe("Python Infrastructure Code Generation Script Unit Tests", () => {
       exec(
         `${path.resolve(
           __dirname,
-          "../../../scripts/generators/generate"
+          "../../../scripts/type-safe-api/generators/generate"
         )} ${project.buildGenerateCommandArgs()}`,
         {
           cwd: infraOutdir,
@@ -94,7 +94,7 @@ describe("Python Infrastructure Code Generation Script Unit Tests", () => {
       exec(
         `${path.resolve(
           __dirname,
-          "../../../scripts/generators/generate"
+          "../../../scripts/type-safe-api/generators/generate"
         )} ${project.buildGenerateCommandArgs()}`,
         {
           cwd: infraOutdir,
@@ -133,7 +133,7 @@ describe("Python Infrastructure Code Generation Script Unit Tests", () => {
       exec(
         `${path.resolve(
           __dirname,
-          "../../../scripts/generators/generate"
+          "../../../scripts/type-safe-api/generators/generate"
         )} ${project.buildGenerateCommandArgs()}`,
         {
           cwd: infraOutdir,

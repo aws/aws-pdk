@@ -2,10 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { NodePackageUtils } from "@aws/monorepo";
 import { IgnoreFile, JsonFile } from "projen";
-import {
-  NodePackageManager,
-  TypeScriptModuleResolution,
-} from "projen/lib/javascript";
+import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Language } from "../../languages";
 import {
@@ -73,7 +70,6 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
           strictNullChecks: false,
           strictPropertyInitialization: false,
           skipLibCheck: true,
-          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           ...options?.tsconfig?.compilerOptions,
         },
       },
@@ -96,7 +92,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
       "@types/aws-lambda",
       "@aws-lambda-powertools/tracer",
       "@aws-lambda-powertools/logger",
-      "@aws-lambda-powertools/metrics"
+      "@aws-lambda-powertools/metrics",
     );
 
     // Minimal .npmignore to avoid impacting OpenAPI Generator
@@ -106,12 +102,12 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     // Tell OpenAPI Generator CLI not to generate files that we will generate via this project, or don't need.
     const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
     openapiGeneratorIgnore.addPatterns(
-      ...GeneratedTypescriptRuntimeProject.openApiIgnorePatterns
+      ...GeneratedTypescriptRuntimeProject.openApiIgnorePatterns,
     );
 
     // Add OpenAPI Generator cli configuration
     OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
+      options.openApiGeneratorCliConfig,
     );
 
     const generateTask = this.addTask("generate");
@@ -119,8 +115,8 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     generateTask.exec(
       buildTypeSafeApiExecCommand(
         TypeSafeApiScript.GENERATE,
-        this.buildGenerateCommandArgs()
-      )
+        this.buildGenerateCommandArgs(),
+      ),
     );
 
     this.preCompileTask.spawn(generateTask);
@@ -146,7 +142,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
       "src",
       ".npmignore",
       "README.md",
-      ".openapi-generator"
+      ".openapi-generator",
     );
 
     // If we're not in a monorepo, we need to link the generated client such that any local dependency on it can be
@@ -159,7 +155,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
           this.tasks
             .tryFind("install")
             ?.exec(
-              NodePackageUtils.command.cmd(this.package.packageManager, "link")
+              NodePackageUtils.command.cmd(this.package.packageManager, "link"),
             );
           break;
         case NodePackageManager.PNPM:
@@ -167,7 +163,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
           break;
         default:
           console.warn(
-            `Unknown package manager ${this.package.packageManager}. Cannot link generated typescript runtime project.`
+            `Unknown package manager ${this.package.packageManager}. Cannot link generated typescript runtime project.`,
           );
       }
     }
