@@ -40,12 +40,12 @@ export class MonorepoProject extends PDKProject {
     );
 
     this.package.addBin({
-      "monorepo.nx-dir-hasher": "./scripts/nx-dir-hasher.js",
+      "monorepo.nx-dir-hasher": "./scripts/monorepo/nx-dir-hasher.js",
     });
 
     this.package.addBin({
       "monorepo.pnpm-link-bundled-transitive-deps":
-        "./scripts/pnpm/link-bundled-transitive-deps.js",
+        "./scripts/monorepo/pnpm/link-bundled-transitive-deps.js",
     });
 
     this.generateInterfaces();

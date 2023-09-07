@@ -17,10 +17,10 @@
 import * as path from 'node:path';
 import * as fs from 'fs-extra';
 import { GENERATED_DIR, logCount } from './common';
-import { normalizeComparisonString, parseAwsUrl } from "../src/utils";
+import { normalizeComparisonString, parseAwsUrl } from "../../src/utils";
 import { sortedUniq } from "lodash";
 
-const PRICING_MANIFEST_JSON = path.join(__dirname, '..', 'static', 'aws-pricing-manifest.json');
+const PRICING_MANIFEST_JSON = path.join(__dirname, '..', '..', 'static', 'aws-pricing-manifest.json');
 
 const PRICING_MANIFEST_TS = path.join(GENERATED_DIR, 'pricing-manifest.ts');
 

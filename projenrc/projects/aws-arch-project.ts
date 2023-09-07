@@ -54,7 +54,7 @@ export class AwsArchProject extends PDKProject {
     ]);
 
     this.addTask("fetch-pricing-manifest", {
-      exec: "ts-node ./scripts/fetch-pricing-manifest.ts",
+      exec: "ts-node ./scripts/aws-arch/fetch-pricing-manifest.ts",
     });
 
     const generateTasks = [
@@ -62,19 +62,19 @@ export class AwsArchProject extends PDKProject {
         exec: "rm -rf assets src/generated",
       }),
       this.addTask("generate:assets", {
-        exec: "ts-node ./scripts/generate-assets.ts",
+        exec: "ts-node ./scripts/aws-arch/generate-assets.ts",
       }),
       this.addTask("generate:cfnspec-types", {
-        exec: "ts-node ./scripts/generate-cfnspec-types.ts",
+        exec: "ts-node ./scripts/aws-arch/generate-cfnspec-types.ts",
       }),
       this.addTask("generate:drawio-spec", {
-        exec: "ts-node ./scripts/generate-drawio-spec.ts",
+        exec: "ts-node ./scripts/aws-arch/generate-drawio-spec.ts",
       }),
       this.addTask("generate:pricing-manifest", {
-        exec: "ts-node ./scripts/generate-pricing-manifest.ts",
+        exec: "ts-node ./scripts/aws-arch/generate-pricing-manifest.ts",
       }),
       this.addTask("generate:mappings", {
-        exec: "ts-node ./scripts/generate-mappings.ts",
+        exec: "ts-node ./scripts/aws-arch/generate-mappings.ts",
       }),
     ];
 

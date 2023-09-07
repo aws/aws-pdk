@@ -22,7 +22,7 @@ import fetch from 'node-fetch';
 
 const URL = 'https://d1qsjq9pzbk1k6.cloudfront.net/manifest/en_US.json';
 
-const FILEPATH = path.join(__dirname, '..', 'static', 'aws-pricing-manifest.json');
+const FILEPATH = path.join(__dirname, '..', '..', 'static', 'aws-pricing-manifest.json');
 
 (async () => {
   console.info('Fetching pricing manifest...');
