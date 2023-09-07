@@ -49,7 +49,10 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
       readme: {
         contents: fs
           .readFileSync(
-            path.resolve(__dirname, "../../../samples/python/README.md")
+            path.resolve(
+              __dirname,
+              "../../../samples/infrastructure/python/README.md"
+            )
           )
           .toString(),
       },
@@ -60,8 +63,14 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
     );
     ["aws_pdk@^0", "python@^3.9"].forEach((dep) => this.addDependency(dep));
 
-    const srcDir = path.resolve(__dirname, "../../../samples/python/src");
-    const testDir = path.resolve(__dirname, "../../../samples/python/test");
+    const srcDir = path.resolve(
+      __dirname,
+      "../../../samples/infrastructure/python/src"
+    );
+    const testDir = path.resolve(
+      __dirname,
+      "../../../samples/infrastructure/python/test"
+    );
 
     if (hasApi) {
       if (!options.typeSafeApi.infrastructure.python) {

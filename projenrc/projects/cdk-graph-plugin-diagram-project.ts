@@ -76,7 +76,7 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
     // Ensure sharp has cross-platform prebuilds included in bundled dependency
     // https://sharp.pixelplumbing.com/install#cross-platform
     const sharpPrebuildTask = this.addTask("sharp:prebuild", {
-      exec: "ts-node ./scripts/sharp-prebuild.ts",
+      exec: "ts-node ./scripts/cdk-graph-plugin-diagram/sharp-prebuild.ts",
     });
     this.packageTask.prependSpawn(sharpPrebuildTask);
     // Ensure build input + output includes `sharp:prebuild` artifacts

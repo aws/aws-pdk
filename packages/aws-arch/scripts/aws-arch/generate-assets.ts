@@ -23,22 +23,22 @@ import { Parse as ZipParse } from 'unzipper';
 import sharp = require('sharp'); // eslint-disable-line @typescript-eslint/no-require-imports
 import tree = require('tree-cli'); // eslint-disable-line @typescript-eslint/no-require-imports
 import { TMP_DIR, GENERATED_DIR, listDirFiles } from './common';
-import { normalizeIdentifier } from "../src/utils";
-import { GENERAL_CATEGORY_ID, findAwsCategoryDefinition } from "../src/internal/categories/definitions";
-import { NORMALIZED_SERVICE_VARIANTS } from "../src/internal/services/variants";
-import { ASSET_DIRNAME, CATEGORY_ICON, PNG_ASSET_SIZE, SERVICE_ICON } from "../src/contants";
+import { normalizeIdentifier } from "../../src/utils";
+import { GENERAL_CATEGORY_ID, findAwsCategoryDefinition } from "../../src/internal/categories/definitions";
+import { NORMALIZED_SERVICE_VARIANTS } from "../../src/internal/services/variants";
+import { ASSET_DIRNAME, CATEGORY_ICON, PNG_ASSET_SIZE, SERVICE_ICON } from "../../src/contants";
 
 // Update this url to fetch updated versions of icons from https://aws.amazon.com/architecture/icons/
 // This should be the zip url of the "Asset Package" link
 const ASSET_PACKAGE_ZIP_URL = 'https://d1.awsstatic.com/webteam/architecture-icons/q3-2022/Asset-Package_07312022.e9f969935ef6aa73b775f3a4cd8c67af2a4cf51e.zip';
 const ASSET_PACKAGE_ZIP_FILENAME = path.basename(ASSET_PACKAGE_ZIP_URL);
 
-const STATIC_ASSETS = path.resolve(__dirname, '..', 'static');
-const ASSET_PACKAGE_DIR = path.resolve(__dirname, '..', ASSET_DIRNAME);
+const STATIC_ASSETS = path.resolve(__dirname, '..', '..', 'static');
+const ASSET_PACKAGE_DIR = path.resolve(__dirname, '..', '..', ...ASSET_DIRNAME.split('/'));
 
 const AWS_ASSETS_TS = path.join(GENERATED_DIR, 'assets.ts');
 
-const ASSETS_MARKDOWN = path.join(__dirname, "..", 'ASSETS.md');
+const ASSETS_MARKDOWN = path.join(__dirname, "..", "..", 'ASSETS.md');
 
 const EXT_PNG = ".png";
 const EXT_SVG = ".svg";

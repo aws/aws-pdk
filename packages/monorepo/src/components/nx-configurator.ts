@@ -5,7 +5,6 @@ import { Component, JsonFile, Project, Task } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
-import { TypeScriptProject } from "projen/lib/typescript";
 import { NxProject } from "./nx-project";
 import { NxWorkspace } from "./nx-workspace";
 import { Nx } from "../nx-types";
@@ -368,25 +367,6 @@ export class NxConfigurator extends Component implements INxProjectCore {
     this._ensureNxProjectGraph();
     this._emitPackageJson();
     this.patchPythonProjects([this.project]);
-
-    // Ensure Ts Projects use modern Node modules to support nice imports
-    this.project.subprojects.forEach((s) => {
-      if (s instanceof TypeScriptProject) {
-        [s.tsconfigDev?.fileName, s.tsconfig?.fileName]
-          .filter((f) => !!f)
-          .forEach((f) => {
-            const configFile = s.tryFindObjectFile(f!);
-
-            // TODO: only do this if user's haven't overriden settings
-            configFile?.addOverride("compilerOptions.target", "ES2021");
-            configFile?.addOverride("compilerOptions.module", "NodeNext");
-            configFile?.addOverride(
-              "compilerOptions.moduleResolution",
-              "NodeNext"
-            );
-          });
-      }
-    });
   }
 
   /**

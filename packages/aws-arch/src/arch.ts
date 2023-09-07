@@ -716,7 +716,11 @@ export class AwsArchitecture {
    */
   static get assetDirectory(): string {
     if (this._assetDirectory == null) {
-      this._assetDirectory = path.join(__dirname, "..", ASSET_DIRNAME);
+      this._assetDirectory = path.join(
+        __dirname,
+        "..",
+        ...ASSET_DIRNAME.split("/")
+      );
     }
     return this._assetDirectory;
   }

@@ -72,6 +72,7 @@ export class TypeSafeApiModelProject extends Project {
         "..",
         "..",
         "samples",
+        "type-safe-api",
         "readme",
         "model",
         `${options.modelLanguage}.md`

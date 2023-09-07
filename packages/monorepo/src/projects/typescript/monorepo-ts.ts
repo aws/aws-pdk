@@ -10,11 +10,7 @@ import {
   YamlFile,
 } from "projen";
 import { JavaProject } from "projen/lib/java";
-import {
-  NodePackageManager,
-  NodeProject,
-  TypeScriptModuleResolution,
-} from "projen/lib/javascript";
+import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
@@ -172,7 +168,6 @@ export class MonorepoTsProject
       tsconfig: options.tsconfig ?? {
         compilerOptions: {
           rootDir: ".",
-          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
         },
         include: ["**/*.ts", ".projenrc.ts"],
       },

@@ -214,7 +214,7 @@ export class TypeSafeRestApi extends Construct {
       handler: "index.handler",
       runtime: Runtime.NODEJS_18_X,
       code: Code.fromAsset(
-        path.join(__dirname, "../../lib/construct/prepare-spec-event-handler")
+        path.join(__dirname, "./prepare-spec-event-handler")
       ),
       timeout: Duration.seconds(30),
       role: prepareSpecRole,
