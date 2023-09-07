@@ -1,11 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { NodePackageUtils } from "@aws/monorepo";
-import {
-  NodePackageManager,
-  TypeScriptJsxMode,
-  TypeScriptModuleResolution,
-} from "projen/lib/javascript";
+import { NodePackageManager, TypeScriptJsxMode } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Library } from "../../languages";
 import {
@@ -15,6 +11,7 @@ import {
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
@@ -74,7 +71,6 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
           strictNullChecks: false,
           strictPropertyInitialization: false,
           skipLibCheck: true,
-          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           ...options?.tsconfig?.compilerOptions,
         },
       },
@@ -83,6 +79,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
       jest: options.jest ?? false,
       npmignoreEnabled: false,
     });
+    TypeSafeApiCommandEnvironment.ensure(this);
 
     this.options = options;
 
@@ -162,7 +159,6 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Library.TYPESCRIPT_REACT_QUERY_HOOKS,
       additionalProperties: {
         npmName: this.package.packageName,

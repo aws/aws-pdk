@@ -86,11 +86,24 @@ export interface GenerationOptions {
    * @default true
    */
   readonly generateAliasAsModel?: boolean;
-  /**
-   * The path to the json smithy model file, if available
-   */
-  readonly smithyJsonPath?: string;
 }
+
+/**
+ * Get the current package version
+ */
+const getPackageVersion = (): string => {
+  const { packageJson } = readPkg.sync({
+    cwd: path.resolve(__dirname),
+  })!;
+  return packageJson.version;
+};
+
+/**
+ * Return the environment that should be used for executing type safe api commands
+ */
+export const getTypeSafeApiTaskEnvironment = (): { [key: string]: string } => ({
+  AWS_PDK_VERSION: getPackageVersion(),
+});
 
 /**
  * Build a command for running a script from this project's bin
@@ -98,11 +111,8 @@ export interface GenerationOptions {
 export const buildTypeSafeApiExecCommand = (
   script: TypeSafeApiScript,
   args?: string
-) => {
-  const { packageJson } = readPkg.sync({
-    cwd: path.resolve(__dirname),
-  })!;
-  return `npx --yes -p @aws/pdk@${packageJson.version} ${script}${
+): string => {
+  return `npx --yes -p @aws/pdk@$AWS_PDK_VERSION ${script}${
     args ? ` ${args}` : ""
   }`;
 };
@@ -142,14 +152,10 @@ export const buildInvokeOpenApiGeneratorCommandArgs = (
   const generateAliasAsModel =
     options.generateAliasAsModel ?? true ? " --generate-alias-as-model" : "";
 
-  const smithyJsonPath = options.smithyJsonPath
-    ? ` --smithy-json-path ${options.smithyJsonPath}`
-    : "";
-
   const specPath = options.specPath;
   const outputPath = ".";
 
-  return `--generator ${options.generator} --spec-path ${specPath} --output-path ${outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${smithyJsonPath}${additionalProperties}${normalizers}${extensions}${generateAliasAsModel}`;
+  return `--generator ${options.generator} --spec-path ${specPath} --output-path ${outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${additionalProperties}${normalizers}${extensions}${generateAliasAsModel}`;
 };
 
 /**

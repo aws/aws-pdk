@@ -8,6 +8,7 @@ import {
 } from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
@@ -64,6 +65,7 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
         include: [options.moduleName, `${options.moduleName}/**/*.py`],
       },
     });
+    TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
 
     // Add dependencies required by the client
@@ -122,7 +124,6 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "python-nextgen",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Language.PYTHON,
       additionalProperties: {
         packageName: this.moduleName,

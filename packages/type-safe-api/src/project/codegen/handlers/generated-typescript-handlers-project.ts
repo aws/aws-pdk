@@ -2,10 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType, IgnoreFile, SampleDir } from "projen";
-import {
-  NodePackageManager,
-  TypeScriptModuleResolution,
-} from "projen/lib/javascript";
+import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import {
   CodeGenerationSourceOptions,
@@ -14,6 +11,7 @@ import {
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
@@ -55,13 +53,14 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
           noUnusedLocals: false,
           noUnusedParameters: false,
           skipLibCheck: true,
-          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           ...options?.tsconfig?.compilerOptions,
         },
       },
       npmignoreEnabled: false,
     });
     this.options = options;
+
+    TypeSafeApiCommandEnvironment.ensure(this);
 
     this.addDeps(
       ...[
@@ -174,7 +173,6 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.TYPESCRIPT_LAMBDA_HANDLERS,
       srcDir: this.srcdir,
       normalizers: {

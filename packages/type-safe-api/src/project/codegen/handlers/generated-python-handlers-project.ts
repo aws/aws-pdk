@@ -10,6 +10,7 @@ import {
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
@@ -47,6 +48,7 @@ export class GeneratedPythonHandlersProject extends PythonProject {
       sample: false,
       poetry: true,
     });
+    TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
 
     [
@@ -115,7 +117,6 @@ export class GeneratedPythonHandlersProject extends PythonProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "python-nextgen",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.PYTHON_LAMBDA_HANDLERS,
       // Tell the generator where python source files live
       srcDir: this.moduleName,

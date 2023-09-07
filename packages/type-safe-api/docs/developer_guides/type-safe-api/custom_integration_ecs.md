@@ -11,35 +11,8 @@ In the usual way, create a monorepo which will be the base of your project:
 ```bash
 mkdir smithy-ecs-workshop
 cd smithy-ecs-workshop
-npx projen new --from @aws-prototyping-sdk/monorepo
+pdk new monorepo-ts
 ```
-
-## Add a Dependency on Type Safe API
-
-Update your `.projenrc.ts` to add a dependency on `@aws-prototyping-sdk/type-safe-api`:
-
-```ts
-import { MonorepoTsProject } from "@aws-prototyping-sdk/monorepo";
-
-const monorepo = new MonorepoTsProject({
-  defaultReleaseBranch: "main",
-  devDeps: [
-    "@aws-prototyping-sdk/monorepo",
-    "@aws-prototyping-sdk/type-safe-api", // <- add this!
-  ],
-  name: "smithy-ecs-workshop",
-});
-
-monorepo.synth();
-```
-
-Then synthesize your project by running:
-
-```bash
-yarn projen
-```
-
-Synthesizing your project will generate the projects you have defined in your `.projenrc.ts` file. Changes to project structure and configuration are defined as code. For more details, take a look at the [Projen Documentation](https://github.com/projen/projen).
 
 ## Set up the API, Server and Infrastructure Projects
 
@@ -47,23 +20,21 @@ In your `.projenrc.ts`, we’ll add three more projects:
 
 - `TypeSafeApiProject` - this will be used for defining our API and provides generated infrastructure, clients, types and documentation
 - `TypeScriptProject` - a basic typescript in which we'll implement our Express server
-- `AwsCdkTypeScriptApp` - a simple CDK app for deploying your API quickly. Note that in a production application you'd likely opt for a CI/CD pipeline to manage your deployments (eg `PDKPipelineTsProject`) instead.
+- `AwsCdkTypeScriptApp` - a simple CDK app for deploying your API. You can also use `InfrastructureTsProject` from PDK if you prefer.
 
 ```ts
-import { MonorepoTsProject } from "@aws-prototyping-sdk/monorepo";
+import { MonorepoTsProject } from "@aws/pdk/monorepo";
 import {
   Language,
   ModelLanguage,
   TypeSafeApiProject,
-} from "@aws-prototyping-sdk/type-safe-api";
+} from "@aws/pdk/type-safe-api";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
+import { InfrastructureTsProject } from "@aws/pdk/infrastructure";
 
 const monorepo = new MonorepoTsProject({
-  defaultReleaseBranch: "main",
   devDeps: [
-    "@aws-prototyping-sdk/monorepo",
-    "@aws-prototyping-sdk/type-safe-api",
+    "@aws/pdk",
   ],
   name: "smithy-ecs-workshop",
 });
@@ -108,7 +79,7 @@ const server = new TypeScriptProject({
     "@types/express",
     "@types/aws-lambda",
     "esbuild",
-    "@aws-prototyping-sdk/type-safe-api",
+    "@aws/pdk",
   ],
   tsconfig: {
     compilerOptions: {
@@ -126,11 +97,11 @@ new AwsCdkTypeScriptApp({
   cdkVersion: "2.0.0",
   defaultReleaseBranch: "main",
   deps: [
-    // Add a dependency on type-safe-api, as well as the generated infrastructure, runtime, and the server
-    "@aws-prototyping-sdk/type-safe-api",
+    // Add a dependency on PDK, as well as the generated infrastructure, runtime, and the server
+    "@aws/pdk",
     api.runtime.typescript!.package.packageName!,
     api.infrastructure.typescript!.package.packageName,
-    server.package.packageName!,
+    server.package.packageName,
   ],
   tsconfig: {
     compilerOptions: {
@@ -145,8 +116,8 @@ monorepo.synth();
 We can now synthesize and build our "empty" suite of projects:
 
 ```bash
-yarn projen
-yarn build
+pdk
+pdk build
 ```
 
 ## ECS Infrastructure
@@ -230,7 +201,7 @@ import {
   ApiGatewayIntegration,
   Integration,
   IntegrationRenderProps,
-} from "@aws-prototyping-sdk/type-safe-api";
+} from "@aws/pdk/type-safe-api";
 import { IVpcLink } from "aws-cdk-lib/aws-apigateway";
 import { INetworkLoadBalancer } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 
@@ -295,7 +266,7 @@ import { App, Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { LoadBalancedEcsService } from "./load-balanced-ecs-service";
 import { Api } from "smithy-ecs-workshop-api-typescript-infra";
-import { Authorizers } from "@aws-prototyping-sdk/type-safe-api";
+import { Authorizers } from "@aws/pdk/type-safe-api";
 import { Operations } from "smithy-ecs-workshop-api-typescript-runtime";
 import { NlbIntegration } from "./nlb-integration";
 
@@ -463,15 +434,12 @@ Note that this may not be a fully comprehensive example - there may be more prop
 We can implement our operation in `packages/server/src/say-hello.ts` using the generated lambda handler wrapper:
 
 ```ts
-import { sayHelloHandler } from "smithy-ecs-workshop-api-typescript-runtime";
+import { sayHelloHandler, Response } from "smithy-ecs-workshop-api-typescript-runtime";
 
 export const sayHello = sayHelloHandler(async ({ input }) => {
-  return {
-    statusCode: 200,
-    body: {
-      message: `Hello ${input.requestParameters.name}`,
-    },
-  };
+  return Response.success({
+    message: `Hello ${input.requestParameters.name}`,
+  });
 });
 ```
 
@@ -551,14 +519,15 @@ Make sure you're running [Docker](https://www.docker.com/) since the deployment 
 Since we updated the `.projenrc.ts` we’ll need to synthesize again. After that we can build all the packages again.
 
 ```bash
-yarn projen
-yarn build
+pdk
+pdk build
 ```
 
 After you have set up AWS credentials for your target AWS account (eg. run `aws configure`), you can deploy the CDK application:
 
 ```bash
-yarn nx run smithy-ecs-workshop-infra:deploy --require-approval never
+cd packages/infra
+pdk run deploy --require-approval never
 ```
 
 Once the deployment has completed, you'll see your API URL printed as a CloudFormation output.

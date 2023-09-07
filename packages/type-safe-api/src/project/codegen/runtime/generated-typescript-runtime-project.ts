@@ -2,10 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { NodePackageUtils } from "@aws/monorepo";
 import { IgnoreFile } from "projen";
-import {
-  NodePackageManager,
-  TypeScriptModuleResolution,
-} from "projen/lib/javascript";
+import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Language } from "../../languages";
 import {
@@ -14,6 +11,7 @@ import {
 } from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
@@ -72,7 +70,6 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
           strictNullChecks: false,
           strictPropertyInitialization: false,
           skipLibCheck: true,
-          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           ...options?.tsconfig?.compilerOptions,
         },
       },
@@ -81,7 +78,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
       jest: options.jest ?? false,
       npmignoreEnabled: false,
     });
-
+    TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
 
     // Disable strict peer dependencies for pnpm as the default typescript project dependencies have type mismatches
@@ -160,7 +157,6 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: Language.TYPESCRIPT,
       additionalProperties: {
         npmName: this.package.packageName,

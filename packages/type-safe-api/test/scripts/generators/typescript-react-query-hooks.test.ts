@@ -30,7 +30,7 @@ describe("Typescript React Query Hooks Code Generation Script Unit Tests", () =>
             exec(
               `${path.resolve(
                 __dirname,
-                "../../../scripts/generators/generate"
+                "../../../scripts/type-safe-api/generators/generate"
               )} ${project.buildGenerateCommandArgs()}`,
               {
                 cwd: outdir,
@@ -48,52 +48,4 @@ describe("Typescript React Query Hooks Code Generation Script Unit Tests", () =>
       ).toMatchSnapshot();
     }
   );
-
-  it("Generates Paginated Hooks With Smithy @paginated trait", () => {
-    const resourcePath = path.resolve(
-      __dirname,
-      "../../resources/smithy/simple-pagination"
-    );
-    const specPath = path.join(resourcePath, "openapi.json");
-    const smithyJsonModelPath = path.join(resourcePath, "model.json");
-
-    const snapshot = withTmpDirSnapshot(
-      os.tmpdir(),
-      (outdir) => {
-        exec(`cp ${specPath} ${outdir}/openapi.json`, {
-          cwd: path.resolve(__dirname),
-        });
-        exec(`cp ${smithyJsonModelPath} ${outdir}/model.json`, {
-          cwd: path.resolve(__dirname),
-        });
-        const project = new TypescriptReactQueryHooksLibrary({
-          name: "test",
-          defaultReleaseBranch: "main",
-          outdir,
-          specPath: "openapi.json",
-          smithyJsonModelPath: "model.json",
-        });
-        // Synth the project so that the generate command honours the .openapi-generator-ignore-handlebars file
-        project.synth();
-        exec(
-          `${path.resolve(
-            __dirname,
-            "../../../scripts/generators/generate"
-          )} ${project.buildGenerateCommandArgs()}`,
-          {
-            cwd: outdir,
-          }
-        );
-      },
-      {
-        excludeGlobs: [
-          ...TypescriptReactQueryHooksLibrary.openApiIgnorePatterns,
-          ".projen/*",
-          "spec.yaml",
-        ],
-      }
-    );
-
-    expect(snapshot["src/apis/DefaultApiHooks.ts"]).toMatchSnapshot();
-  });
 });

@@ -1,5 +1,8 @@
 # Your first AWS PDK Project
 
+!!!warning
+    Some of the steps in this workshop will create resources that may bill your account. If you do not complete the workshop, you may still have AWS resources that are unknowingly charging your account. To ensure your account is clean after completing this workshop, check out the [destroying the deployed resources](./your_first_aws_pdk_project.md#destroying-the-deployed-resources) section towards the end of this page.
+
 You've read [Getting started with the AWS PDK](index.md) and set up your development environment for writing AWS PDK projects? Great! Now let's see how it feels to work with the AWS PDK by building a complex PDK project.
 
 In this tutorial, you'll learn about the following:
@@ -20,6 +23,75 @@ The standard AWS PDK development workflow is similar to the standard Projen work
 This tutorial walks you through creating the PDK Project from start to finish. The final application we create will comprise of a React based website, a Smithy API and the supporting CDK infrastructure to deploy it all.
 
 We'll also show how to add a new API operation, implement an API handler, and wire it up in your infrastructure.
+
+## Prerequisites
+
+The following subsections outline what you need to install and use the AWS PDK.
+
+### Node runtime
+
+All AWS PDK developers, even those working in Python or Java, need Node.js 16 or later. All supported languages use the same backend, which runs on Node.js. We recommend a version in active long-term support. Your organization may have a different recommendation.
+
+!!!tip
+    We recommend installing [`nvm`](https://github.com/nvm-sh/nvm#installing-and-updating) and configuring it to use Node 18.
+
+### PDK CLI
+
+Once your NodeJs ruuntime is set up, run the following command to install the pdk CLI:
+
+```bash
+npm install -g @aws/pdk
+```
+
+Run the following command to verify correct installation and print the version number of the AWS PDK.
+
+`pdk --version`
+
+!!!warning
+    The `pdk` command is a wrapper command which delegates to either a package manager or a projen command depending on the context. As such it may be possible that certain arguments may not operate as expected.
+
+### Git
+
+[Git](https://git-scm.com/) is also required to be installed and configured when bootstrapping new applications unless the `--no-git` flag is specified when executing the `pdk new` command.
+
+Ensure to configure a username and email via the below commands once installed:
+
+```bash
+git config --global user.email "username@domain.com"
+git config --global user.name "username"
+```
+
+### Language specific
+
+Other prerequisites depend on the language in which you develop AWS PDK projects and are as follows.
+
+=== "TYPESCRIPT"
+    - `Node >= 16`
+    - `PNPM >= 8.6.3` [if using `--package-manager=pnpm` flag to bootstrap]
+
+=== "PYTHON"
+    - `Python >= 3.9`
+    - `Poetry >= 1.5.1`
+
+=== "JAVA"
+    - `JDK >= 11`
+    - `Apache Maven >= 3.8`
+
+### Install the AWS CDK
+
+You will need to install the AWS CDK in order to bootstrap and deploy your infrastructure to AWS. To install, run the following command:
+
+`npm install -g aws-cdk`
+
+Run the following command to verify correct installation and print the version number of the AWS CDK.
+
+`cdk --version`
+
+### Authentication with AWS
+
+You must establish how the AWS CDK authenticates with AWS when deploying infrastructure. There are different ways in which you can configure programmatic access to AWS resources, depending on the environment and the AWS access available to you.
+
+For an in depth guide, please refer to: https://docs.aws.amazon.com/sdkref/latest/guide/access.html
 
 ## Create your project
 
@@ -538,16 +610,13 @@ Let's add this infrastructure to the monorepo by modifying our `projenrc` file t
         model: {
             language: ModelLanguage.SMITHY,
             options: {
-            smithy: {
-                serviceName: {
-                namespace: "com.aws",
-                serviceName: "MyApi",
+                smithy: {
+                    serviceName: {
+                        namespace: "com.aws",
+                        serviceName: "MyApi",
+                    },
                 },
             },
-            },
-        },
-        runtime: {
-            languages: [Language.TYPESCRIPT],
         },
         documentation: {
             formats: [DocumentationFormat.HTML_REDOC],
@@ -789,7 +858,9 @@ pdk dev
 
 ## Destroying the deployed resources
 
-Now that you're done creating your first PDK project, destroy your deployed resources to avoid incurring any costs as follows:
+> If you plan to continue the learning series and build the Shopping List application, you can save this step for later.
+
+Now that you're done creating your first PDK project, you can choose to destroy your deployed resources to avoid incurring any costs as follows:
 
 ```bash
 cd packages/infra
@@ -797,6 +868,9 @@ pdk run destroy
 ```
 
 Enter **y** to approve the changes and delete the `infra-dev` stack.
+
+!!!note
+    The Cognito UserPool and DynamoDB table that were created were configured with a `removalPolicy` of `RETAIN` and as such will not be destroyed by the `pdk run destroy` command. If you wish to remove these resources, you can do so via the AWS CLI or Console.
 
 ## Next steps
 

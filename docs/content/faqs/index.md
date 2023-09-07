@@ -1,6 +1,6 @@
 # Frequently Asked Questions
 
-### I want to change a “pre-defined” task (e.g.: add --verbose to a tsc compile task)
+## I want to change a “pre-defined” task (e.g.: add --verbose to a tsc compile task)
 
 Use the `reset` function:
 
@@ -8,14 +8,14 @@ Use the `reset` function:
 myPackage.compileTask.reset("tsc --build --verbose");
 ```
 
-### Passing parameters between CDK stacks will cause `Unresolved resource dependencies` error while trying to deploy
+## Passing parameters between CDK stacks will cause `Unresolved resource dependencies` error while trying to deploy
 
-#### Links
+### Links
 
 - [Cross stack values do not work with Source.data/jsonData [CDK github]](https://github.com/aws/aws-cdk/issues/19257)
 - [Nested stack runtime-config.json properties [PDK github]](https://github.com/aws/aws-pdk/issues/84)
 
-#### TLDR;
+### TLDR;
 
 1. Create SSM Parameters in the stack where you create e.g.: a `userPool`
 
@@ -54,9 +54,9 @@ myPackage.compileTask.reset("tsc --build --verbose");
    })
    ```
 
-### How do I include `js` files in my project?
+## How do I include `js` files in my project?
 
-#### Option #1 - via `tsconfig`
+### Option #1 - via `tsconfig`
 
 ```ts
 const myPackage = new TypeScriptProject({
@@ -79,7 +79,7 @@ myPackage.tsconfig?.addInclude("src/**/*.js");
 // myPackage.tsconfig?.addInclude("src/**/@lambda/**/*.js");
 ```
 
-#### Option #2 - with `rsync` ([example](https://github.com/aws/aws-pdk/blob/392fb8c483a99123d4e8a8b6b95b5aa7ecb014b8/private/projects/monorepo-project.ts#L39))
+### Option #2 - with `rsync` ([example](https://github.com/aws/aws-pdk/blob/392fb8c483a99123d4e8a8b6b95b5aa7ecb014b8/private/projects/monorepo-project.ts#L39))
 
 ```ts
 this.compileTask.exec(
@@ -87,7 +87,7 @@ this.compileTask.exec(
 );
 ```
 
-### I don’t want `projen` to generate sample code and tests
+## I don’t want `projen` to generate sample code and tests
 
 ```ts
 const myPackage = new TypeScriptProject({
@@ -99,9 +99,9 @@ const myPackage = new TypeScriptProject({
 });
 ```
 
-### I get `react`-related duplicate identifier error
+## I get `react`-related duplicate identifier error
 
-#### The error
+### The error
 
 ```bash
 myPackage: ../../../../node_modules/@types/react/index.d.ts(3131,14): error TS2300: Duplicate identifier 'LibraryManagedAttributes'.
@@ -109,7 +109,7 @@ myPackage: ../../../../node_modules/@types/react-dom/node_modules/@types/react/i
 myPackage: 👾 Task "build » compile" failed when executing "tsc --build" (cwd: /Users/<user>/projects/myProject/packages/myPackage/generated/typescript)
 ```
 
-#### Solution
+### Solution
 
 `react-dom` depends on `@types/react@*` while `react` may have another version in your project, meaning multiple versions are present.
 
@@ -118,7 +118,7 @@ myPackage: 👾 Task "build » compile" failed when executing "tsc --build" (cwd
 monorepoProject.package.addPackageResolutions("@types/react@^18.0.21");
 ```
 
-### Fine-tune `typedoc` configuration inside packages
+## Fine-tune `typedoc` configuration inside packages
 
 ```ts
 myProject.addFields({
@@ -133,7 +133,7 @@ myProject.addFields({
 
 Check the typedoc docs for setting up for monorepo: <https://typedoc.org/guides/monorepo/>
 
-### `typedoc` fails while generating docs with `Javascript heap out of memory error`
+## `typedoc` fails while generating docs with `Javascript heap out of memory error`
 
 Set `max_old_space_size` in `NODE_OPTIONS`:
 

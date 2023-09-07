@@ -2,10 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType, IgnoreFile } from "projen";
-import {
-  NodePackageManager,
-  TypeScriptModuleResolution,
-} from "projen/lib/javascript";
+import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import {
   CodeGenerationSourceOptions,
@@ -14,6 +11,7 @@ import {
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeMockDataGeneratorCommand,
@@ -70,7 +68,6 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
           lib: ["dom", "es2019"],
           // Generated code imports all models, and may not reference them all
           noUnusedLocals: false,
-          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           noUnusedParameters: false,
           skipLibCheck: true,
           ...options?.tsconfig?.compilerOptions,
@@ -78,6 +75,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       },
       npmignoreEnabled: false,
     });
+    TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
 
     this.addDevDeps("@types/aws-lambda");
@@ -189,7 +187,6 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.TYPESCRIPT_CDK_INFRASTRUCTURE,
       srcDir: this.srcdir,
       normalizers: {

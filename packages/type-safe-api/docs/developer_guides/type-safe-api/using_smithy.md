@@ -44,17 +44,17 @@ You can use [Smithy](https://smithy.io/2.0), an interface definition language (I
 
     ```python
     TypeSafeApiProject(
-        model={
-            "language": ModelLanguage.SMITHY,
-            "options": {
-                "smithy": {
-                    "service_name": {
-                        "namespace": "com.mycompany",
-                        "service_name": "MyApi"
-                    }
-                }
-            }
-        },
+        model=ModelConfiguration(
+            language=ModelLanguage.SMITHY,
+            options=ModelOptions(
+                smithy=SmithyModelOptions(
+                    service_name=SmithyServiceName(
+                        namespace="com.amazon",
+                        service_name="MyApi"
+                    )
+                )
+            )
+        ),
         ...
     )
     ```
@@ -79,6 +79,7 @@ service Hello {
 }
 
 @readonly
+@handler(language: "typescript")
 @http(method: "GET", uri: "/hello")
 operation SayHello {
     input := {
@@ -152,7 +153,7 @@ Smithy supports [adding API Gateway authorizers in the model itself](https://smi
 
     If you use Smithy generated clients, some authorizer traits such as sigv4 will include configuring the client for that particular method of authorization, so it is beneficial to define authorizers in the model. 
     
-    PDK supports specifying authorizers in both the model and the construct, but the construct will take precedence where the authorizer ID is the same.
+    Type Safe API supports specifying authorizers in both the model and the construct, but the construct will take precedence where the authorizer ID is the same.
 
 ## Customizing the Smithy build
 
@@ -179,7 +180,7 @@ When you synthesize the `TypeSafeApiProject`, it will contain a `model/smithy-bu
                     openapi: {
                       // Customise the openapi projection here.
                       // See: https://smithy.io/2.0/guides/converting-to-openapi.html
-                      useIntegerType: true,
+                      defaultTimestampFormat: "epoch-seconds",
                       ...
                     }
                   }
@@ -212,7 +213,7 @@ When you synthesize the `TypeSafeApiProject`, it will contain a `model/smithy-bu
 === "JAVA"
 
     ```java
-     TypeSafeApiProject.Builder.create()
+     new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
             .name("myapi")
             .model(ModelConfiguration.builder()
                     .language(ModelLanguage.SMITHY)
@@ -229,7 +230,7 @@ When you synthesize the `TypeSafeApiProject`, it will contain a `model/smithy-bu
                                                 "openapi", SmithyProjection.builder()
                                                         .plugins(Map.of(
                                                                 "openapi", Map.of(
-                                                                    "useIntegerType", true
+                                                                    "defaultTimestampFormat", "epoch-seconds"
                                                                 )
                                                         ))
                                                         .build(),
@@ -260,46 +261,46 @@ When you synthesize the `TypeSafeApiProject`, it will contain a `model/smithy-bu
 
     ```python
     TypeSafeApiProject(
-        model={
-            "language": ModelLanguage.SMITHY,
-            "options": {
-                "smithy": {
-                    "service_name": {
-                        "namespace": "com.mycompany",
-                        "service_name": "MyApi"
-                    },
+        ModelConfiguration(
+            language=ModelLanguage.SMITHY,
+            options=ModelOptions(
+                smithy=SmithyModelOptions(
+                    service_name=SmithyServiceName(
+                        namespace="com.amazon",
+                        service_name="MyApi"
+                    ),
                     # Use smithyBuildOptions to control what is added to smithy-build.json.
-                    "smithy_build_options": {
-                        "projections": {
+                    smithy_build_options=SmithyBuildOptions(
+                        projections={
                             # You can customise the built-in openapi projection, used to generate the OpenAPI specification.
-                            "openapi": {
-                                "plugins": {
+                            "openapi": SmithyProjection(
+                                plugins={
                                     "openapi": {
                                         # Customise the openapi projection here.
                                         # See: https://smithy.io/2.0/guides/converting-to-openapi.html
-                                        "use_integer_type": True, ...
+                                        "defaultTimestampFormat": "epoch-seconds"
                                     }
                                 }
-                            },
+                            ),
                             # You can add new projections here too
-                            "ts-client": {
-                                "plugins": {
+                            "ts-client": SmithyProjection(
+                                plugins={
                                     "typescript-codegen": {
                                         "package": "@my-test/smithy-generated-typescript-client",
                                         "package_version": "0.0.1"
                                     }
                                 }
-                            }
+                            )
                         },
                         # Note that any additional dependencies required for projections/plugins can be added here, which in turn will
                         # add them to the `smithy/build.gradle` file
-                        "maven": {
-                            "dependencies": ["software.amazon.smithy:smithy-validation-model:1.27.2"]
-                        }
-                    }
-                }
-            }
-        },
+                        maven=SmithyMavenConfiguration(
+                            dependencies=["software.amazon.smithy:smithy-validation-model:1.27.2"]
+                        )
+                    )
+                )
+            )
+        ),
         ...
     )
     ```

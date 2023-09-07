@@ -57,7 +57,12 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
           : options.packageManager,
       readme: {
         contents: fs
-          .readFileSync(path.resolve(__dirname, "../samples/README.md"))
+          .readFileSync(
+            path.resolve(
+              __dirname,
+              "../samples/cloudscape-react-ts-website/README.md"
+            )
+          )
           .toString(),
       },
       gitignore: [
@@ -81,8 +86,14 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
 
     this.applicationName = options.applicationName ?? "Sample App";
     this.publicDir = options.publicDir ?? "public";
-    const srcDir = path.resolve(__dirname, "../samples/src");
-    const publicDir = path.resolve(__dirname, "../samples/public");
+    const srcDir = path.resolve(
+      __dirname,
+      "../samples/cloudscape-react-ts-website/src"
+    );
+    const publicDir = path.resolve(
+      __dirname,
+      "../samples/cloudscape-react-ts-website/public"
+    );
 
     if (options.typeSafeApi) {
       const hooks = options.typeSafeApi.library?.typescriptReactQueryHooks;
@@ -131,7 +142,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
 
   private setupSwaggerUi(tsApi: TypeSafeApiProject) {
     this.addDevDeps("@types/swagger-ui-react");
-    this.addDeps("swagger-ui-react", "aws4fetch");
+    this.addDeps("swagger-ui-react@5.5.0", "aws4fetch");
 
     const targetApiSpecPath = `${path.relative(
       tsApi.model.outdir,

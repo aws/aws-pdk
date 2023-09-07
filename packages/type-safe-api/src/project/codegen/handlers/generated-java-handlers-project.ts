@@ -10,6 +10,7 @@ import {
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
@@ -52,6 +53,7 @@ export class GeneratedJavaHandlersProject extends JavaProject {
       junit: false,
       ...(options as any),
     });
+    TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
     this.packageName = `${this.pom.groupId}.${this.name}.handlers`;
     this.srcDir = path.join(
@@ -169,7 +171,6 @@ export class GeneratedJavaHandlersProject extends JavaProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "java",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.JAVA_LAMBDA_HANDLERS,
       srcDir: this.srcDir,
       normalizers: {

@@ -10,6 +10,7 @@ import {
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeMockDataGeneratorCommand,
@@ -54,6 +55,7 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         include: [options.moduleName, `${options.moduleName}/**/*.py`],
       },
     });
+    TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
 
     [
@@ -129,7 +131,6 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "python-nextgen",
       specPath: this.options.specPath,
-      smithyJsonPath: this.options.smithyJsonModelPath,
       generatorDirectory: OtherGenerators.PYTHON_CDK_INFRASTRUCTURE,
       // Tell the generator where python source files live
       srcDir: this.moduleName,
