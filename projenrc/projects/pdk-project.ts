@@ -16,18 +16,19 @@ import {
  * Contains configuration for the UberProject.
  */
 export class PdkProject extends PDKProject {
-  private static getJsiiProjects(parent?: Project): JsiiProject[] | undefined {
+  static getJsiiProjects(parent?: Project): JsiiProject[] | undefined {
     return parent?.subprojects
       .filter((subProject) => subProject instanceof JsiiProject)
       .filter((subProject) => subProject.name.startsWith(PDK_NAMESPACE))
       .map((subProject) => subProject as JsiiProject);
   }
 
-  private static getSafeProjectName(project: JsiiProject | string) {
+  static getProjectName(project: JsiiProject | string, snakeCase?: boolean) {
     const pathSegments = (
       project instanceof JsiiProject ? project.outdir : project
     ).split("/");
-    return pathSegments[pathSegments.length - 1].replace(/-/g, "_");
+    const projectName = pathSegments[pathSegments.length - 1];
+    return snakeCase ? projectName.replace(/-/g, "_") : projectName;
   }
 
   constructor(parent: Project) {
@@ -38,11 +39,12 @@ export class PdkProject extends PDKProject {
       (p, c) => ({
         ...p,
         ...{
-          [c.name]: [`./${c.srcdir}/${PdkProject.getSafeProjectName(c)}/lib`],
+          [c.name]: [`./${PdkProject.getProjectName(c)}`],
         },
       }),
       {}
     );
+
     super({
       parent,
       author: "AWS APJ COPE",
@@ -52,23 +54,36 @@ export class PdkProject extends PDKProject {
       eslint: false,
       jest: false,
       docgen: false,
+      sampleCode: false,
       releaseToNpm: true,
       keywords: ["aws", "pdk", "jsii", "projen"],
       repositoryUrl: "https://github.com/aws/aws-pdk",
       stability: Stability.STABLE,
+      excludeTypescript: ["**/samples/**/*.ts", "**/scripts/**/*.ts"],
+      libdir: ".",
+      srcdir: ".",
+      rootdir: ".",
       tsconfigDev: {
         compilerOptions: {
           paths,
+          outDir: ".",
         },
       },
-      excludeTypescript: ["**/samples/**/*.ts", "**/scripts/**/*.ts"],
       publishConfig: {
-        executableFiles: ["./scripts/pdk.sh", "./scripts/exec-command.js"],
+        executableFiles: ["./_scripts/pdk.sh", "./_scripts/exec-command.js"],
       },
     });
+    this.manifest.jsii.tsc.paths = paths;
+    this.manifest.jsii.tsc.rootDir = ".";
 
     this.addBundledDeps("findup");
-    this.addGitIgnore("src");
+    [
+      "scripts",
+      "assets",
+      "samples",
+      "index.*",
+      ...(jsiiProjects || []).map((p) => PdkProject.getProjectName(p)),
+    ].forEach((s) => this.addGitIgnore(s));
 
     // Rewrite imports to use tsconfig paths
     this.compileTask.exec(
@@ -78,7 +93,7 @@ export class PdkProject extends PDKProject {
         "-p",
         "tsconfig.dev.json",
         "--dir",
-        "lib"
+        "."
       )
     );
     this.generateSource(jsiiProjects);
@@ -87,40 +102,17 @@ export class PdkProject extends PDKProject {
       NxProject.ensure(this).addImplicitDependency(p)
     );
 
-    this.manifest.jsii.tsc.paths = paths;
-    this.package.addField("exports", {
-      ".": "./lib/index.js",
-      "./package.json": "./package.json",
-      "./.jsii": "./.jsii",
-      "./.warnings.jsii.js": "./.warnings.jsii.js",
-      ...jsiiProjects?.reduce((p, c) => {
-        return {
-          ...p,
-          [`./${path.basename(
-            c.outdir
-          )}`]: `./lib/${PdkProject.getSafeProjectName(
-            path.basename(c.outdir)
-          )}/lib/index.js`,
-          [`./lib/${PdkProject.getSafeProjectName(
-            path.basename(c.outdir)
-          )}`]: `./lib/${PdkProject.getSafeProjectName(
-            path.basename(c.outdir)
-          )}/lib/index.js`,
-        };
-      }, {}),
-    });
-
     this.package.addField("bin", () =>
       jsiiProjects
         ?.map((p) =>
           Object.fromEntries(
             Object.entries(p.manifest.bin() || {}).map(([k, v]) => [
               k,
-              `./lib/${PdkProject.getSafeProjectName(p)}/${v}`,
+              `./${v}`,
             ])
           )
         )
-        .reduce((p, c) => ({ ...p, ...c }), { pdk: "./scripts/pdk.sh" })
+        .reduce((p, c) => ({ ...p, ...c }), { pdk: "./_scripts/pdk.sh" })
     );
 
     // Make sure this is after NxProject so targets can be updated after inference
@@ -130,7 +122,7 @@ export class PdkProject extends PDKProject {
         ...(jsiiProjects
           ?.map((p) =>
             (p.manifest.publishConfig?.executableFiles || []).map(
-              (_p: string) => `./lib/${PdkProject.getSafeProjectName(p)}/${_p}`
+              (_p: string) => `./${_p}`
             )
           )
           .flatMap((x) => x) || []),
@@ -140,7 +132,9 @@ export class PdkProject extends PDKProject {
 
   private generateSource(jsiiProjects?: JsiiProject[]): void {
     this.preCompileTask.exec(
-      `rm -rf ${this.srcdir} lib && mkdir ${this.srcdir}`
+      `rm -rf index.* samples scripts assets ${jsiiProjects
+        ?.map((p) => PdkProject.getProjectName(p))
+        .join(" ")}`
     );
     jsiiProjects?.forEach((subProject) => {
       this.copyProjectSource(subProject);
@@ -158,11 +152,12 @@ export class PdkProject extends PDKProject {
       `echo '${projects
         .map(
           (p) =>
-            `export * as ${PdkProject.getSafeProjectName(
-              p
-            )} from "./${PdkProject.getSafeProjectName(p)}/lib";`
+            `export * as ${PdkProject.getProjectName(
+              p,
+              true
+            )} from "./${PdkProject.getProjectName(p)}";`
         )
-        .join("\n")}' > ./${this.srcdir}/index.ts`
+        .join("\n")}' > ./index.ts`
     );
   }
 
@@ -170,38 +165,38 @@ export class PdkProject extends PDKProject {
     project: JsiiProject,
     dir: string,
     targetDir: string = dir,
-    copyRoot: string = "lib"
+    copyRoot: string = "."
   ) {
     this.preCompileTask.exec(
       `if [ -d "${path.relative(
         this.outdir,
         project.outdir
-      )}/${dir}/" ]; then mkdir -p ./${copyRoot}/${PdkProject.getSafeProjectName(
+      )}/${dir}/" ]; then mkdir -p ./${copyRoot}/${PdkProject.getProjectName(
         project
       )}/${targetDir} && rsync -a ${path.relative(
         this.outdir,
         project.outdir
-      )}/${dir}/ ./${copyRoot}/${PdkProject.getSafeProjectName(
+      )}/${dir}/ ./${copyRoot}/${PdkProject.getProjectName(
         project
       )}/${targetDir} --prune-empty-dirs; fi;`
     );
   }
 
   private copyProjectSource(project: JsiiProject) {
-    this.conditionallyCopyFiles(project, project.srcdir, "lib", this.srcdir);
-    this.conditionallyCopyFiles(project, "samples");
-    this.conditionallyCopyFiles(project, "scripts");
-    this.conditionallyCopyFiles(project, "assets");
+    this.conditionallyCopyFiles(project, project.srcdir, ".");
+    this.conditionallyCopyFiles(project, "samples", "../samples");
+    this.conditionallyCopyFiles(project, "scripts", "../scripts");
+    this.conditionallyCopyFiles(project, "assets", "../assets");
 
     this.preCompileTask.exec(
-      `mkdir -p ./lib/${PdkProject.getSafeProjectName(
+      `mkdir -p ./${PdkProject.getProjectName(
         project
-      )}/lib && rsync --exclude=**/*.ts -a ${path.relative(
+      )} && rsync --exclude=**/*.ts -a ${path.relative(
         this.outdir,
         project.outdir
-      )}/${project.srcdir}/ ./lib/${PdkProject.getSafeProjectName(
+      )}/${project.srcdir}/ ./${PdkProject.getProjectName(
         project
-      )}/lib --prune-empty-dirs`
+      )} --prune-empty-dirs`
     );
   }
 
@@ -270,7 +265,6 @@ class PDKRelease extends Release {
       )
     );
     project.packageTask.spawn(project.tasks.tryFind("package-all")!);
-    project.npmignore?.addPatterns("!LICENSE_THIRD_PARTY");
 
     const releaseTask = project.tasks.tryFind("release:mainline")!;
     releaseTask.reset();
@@ -282,6 +276,35 @@ class PDKRelease extends Release {
     releaseTask.spawn(project.postCompileTask);
     releaseTask.spawn(project.packageTask);
     releaseTask.spawn(project.tasks.tryFind("unbump")!);
+
+    [
+      ".gitattributes",
+      ".prettier*",
+      "index.ts",
+      "project.json",
+      "!/assets",
+      "!/samples",
+      "!/scripts",
+      "!.jsii",
+      "!README.md",
+      "!LICENSE",
+      "!LICENSE_THIRD_PARTY",
+      "!scripts",
+      "!_scripts",
+      "!assets",
+      "!samples",
+      "!index.js",
+      "!index.d.ts",
+      ...(PdkProject.getJsiiProjects(project.parent) || []).map(
+        (p) => `!/${PdkProject.getProjectName(p)}`
+      ),
+      ...(PdkProject.getJsiiProjects(project.parent) || []).map(
+        (p) => `/${PdkProject.getProjectName(p)}/**/*.ts`
+      ),
+      ...(PdkProject.getJsiiProjects(project.parent) || []).map(
+        (p) => `!/${PdkProject.getProjectName(p)}/**/*.d.ts`
+      ),
+    ].forEach((p) => project.addPackageIgnore(p));
 
     project.package.addField("publishConfig", {
       access: "public",

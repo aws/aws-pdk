@@ -35,7 +35,9 @@ export class PDKNagProject extends PDKProject {
         dirs: ["src", "scripts"],
       },
     });
-    this.packageTask.exec("npx ts-node scripts/generate-pack-markdown.ts");
+    this.packageTask.exec(
+      "npx ts-node scripts/pdk-nag/generate-pack-markdown.ts"
+    );
     this.tsconfigEslint!.addInclude("scripts");
     this.eslint?.addRules({
       "import/no-extraneous-dependencies": [

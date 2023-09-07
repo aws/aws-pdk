@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import { NagMessageLevel } from "cdk-nag";
 import * as fs from "fs-extra";
 import * as Mustache from "mustache";
-import { PackName, RuleMetadata } from "../src/packs/aws-prototyping-rules";
+import { PackName, RuleMetadata } from "../../src/packs/aws-prototyping-rules";
 
 RuleMetadata.forEach((x) => {
   x.info = x.info.replace("\n\n", "<br /><br />");
@@ -31,4 +31,4 @@ const renderedMarkdown = Mustache.render(
   }
 );
 
-fs.writeFileSync(`${__dirname}/../src/packs/README.md`, renderedMarkdown);
+fs.writeFileSync(`${__dirname}/../../src/packs/README.md`, renderedMarkdown);

@@ -2,10 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType, IgnoreFile, SampleDir } from "projen";
-import {
-  NodePackageManager,
-  TypeScriptModuleResolution,
-} from "projen/lib/javascript";
+import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import {
   CodeGenerationSourceOptions,
@@ -56,7 +53,6 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
           noUnusedLocals: false,
           noUnusedParameters: false,
           skipLibCheck: true,
-          moduleResolution: TypeScriptModuleResolution.NODE_NEXT,
           ...options?.tsconfig?.compilerOptions,
         },
       },
