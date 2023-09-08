@@ -3443,7 +3443,7 @@
 <h3 id="packages"><strong>packages</strong></h3>
 <p>Where each of the projects are synthesized.</p>
 <h3 id="packagespdk"><strong>packages/pdk</strong></h3>
-<p>A special 'uber' package which pulls in all of the other packages into a single distributable. This package shoudl only ever have edits to <code>scripts</code> as all src and lib are dynamically created.</p>
+<p>A special 'uber' package which pulls in all of the other packages into a single distributable. This package should only ever have edits to <code>_scripts</code> as all content is dynamically created.</p>
 <h2 id="creating-a-new-construct">Creating a new construct</h2>
 <p>Creating a new construct is a two step process:</p>
 <ol>
@@ -3453,9 +3453,9 @@
 <h3 id="creating-a-new-project">Creating a new Project</h3>
 <p>To create a new project, create a file in the <code>projects</code> directory called <code>&lt;your-package&gt;-project.ts</code>. Ensure <code>&lt;your-package&gt;</code> is the same name of the package you are creating to maintain consistency.</p>
 <p>Create a new class as follows:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PDKProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../abstract/pdk-project&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Project</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen&quot;</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Project</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Stability</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;projen/lib/cdk&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PDKProject</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../abstract/pdk-project&quot;</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">MyPackageProject</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">PDKProject</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">parent</span><span class="o">:</span><span class="w"> </span><span class="kt">Project</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -3494,7 +3494,8 @@
 <p>The jsii runtimes in non-javascript languages do not use <code>pnpm i</code>, and as a consequence cannot rely on <code>pnpm i</code> bringing in a packages dependencies. As a consequence, dependencies that are not themselves jsii modules, must also be referenced in the <code>bundledDependencies</code> section, so that they are bundled within the NPM package.</p>
 <h3 id="write-your-code-and-tests">Write your code and tests</h3>
 <p>At a minimum, your package should include a <code>index.ts</code> file which exports all of your public classes/constructs. Please refer to existing packages for reference.</p>
-<p>Your package should also include a <code>docs/developer_guides/index.md</code> file which describes your constructs at a high level and optionally provide a tutorial on how to use it. This is very important as this content will be rendered on the docuemntation website and is the first port of call for end users.</p>
+<p>Your package should also include a <code>docs/developer_guides/&lt;your-package&gt;/index.md</code> file which describes your constructs at a high level and optionally provide a tutorial on how to use it. This is very important as this content will be rendered on the docuemntation website and is the first port of call for end users.</p>
+<p>If creating either a <code>scripts</code>, <code>samples</code> or <code>assets</code> folder within you package, please be sure to add a subdirectory underneath with you package name to ensure correct bundling of the uber package. For example: <code>scripts/&lt;package-name&gt;</code>.</p>
 <p>In terms of testing, it is desired for each package to aim for a <em>minimum of 80% coverage</em> in unit tests.</p>
 <h4 id="testing-cdk-constructs">Testing CDK constructs</h4>
 <p>A simple way to test CDK constructs is to use snapshot testing as follows:</p>
