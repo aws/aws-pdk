@@ -73,6 +73,7 @@ export class PdkProject extends PDKProject {
         executableFiles: ["./_scripts/pdk.sh", "./_scripts/exec-command.js"],
       },
     });
+    this.manifest.main = "index.js";
     this.manifest.jsii.tsc.paths = paths;
     this.manifest.jsii.tsc.rootDir = ".";
 
