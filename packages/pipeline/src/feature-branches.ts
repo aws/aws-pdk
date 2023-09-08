@@ -50,7 +50,7 @@ export interface FeatureBranchesProps
   readonly branchNamePrefixes: string[];
 
   /**
-   * The directory to run cdk synth from.
+   * The directory with `cdk.json` to run cdk synth from.
    */
   readonly cdkSrcDir: string;
 
@@ -105,13 +105,13 @@ export class FeatureBranches extends Construct {
       this,
       "CreateFeatureBranchProject",
       {
+        ...props.codeBuildDefaults,
         description: "Build project to deploy feature branch pipelines",
         source: Source.codeCommit({ repository: props.codeRepository }),
         environment: {
-          buildImage: LinuxBuildImage.STANDARD_6_0,
-          computeType: props.codeBuildDefaults?.buildEnvironment?.computeType
-            ? props.codeBuildDefaults.buildEnvironment.computeType
-            : ComputeType.SMALL,
+          buildImage: LinuxBuildImage.STANDARD_7_0,
+          computeType: ComputeType.SMALL,
+          ...props.codeBuildDefaults?.buildEnvironment,
           privileged: props.dockerEnabledForSynth,
         },
         buildSpec: BuildSpec.fromObjectToYaml({
@@ -135,6 +135,12 @@ export class FeatureBranches extends Construct {
         }),
       }
     );
+
+    if (props.codeBuildDefaults?.rolePolicy) {
+      props.codeBuildDefaults.rolePolicy.forEach((policy) => {
+        createFeatureBranchProject.addToRolePolicy(policy);
+      });
+    }
 
     createFeatureBranchProject.addToRolePolicy(
       new PolicyStatement({

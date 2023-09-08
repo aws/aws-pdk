@@ -305,6 +305,7 @@ export class TypeSafeRestApi extends Construct {
               scope: this,
               ...operationLookup[operationId],
               corsOptions: serializedCorsOptions,
+              operationLookup,
             }),
             methodAuthorizer: serializeAsAuthorizerReference(
               integration.authorizer
@@ -384,6 +385,7 @@ export class TypeSafeRestApi extends Construct {
         scope: this,
         api: this.api,
         ...operationLookup[operationId],
+        operationLookup,
       });
     });
 
