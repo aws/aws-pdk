@@ -396,11 +396,12 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
   it("With Mixed Auth", () => {
     const stack = new Stack();
 
-    const lambdaIntegration = new Function(stack, "LambdaIntegration", {
-      code: Code.fromInline("integration"),
-      handler: "handler",
-      runtime: Runtime.NODEJS_16_X,
-    });
+    const lambdaIntegration = (id: string) =>
+      new Function(stack, `LambdaIntegration${id}`, {
+        code: Code.fromInline("integration"),
+        handler: "handler",
+        runtime: Runtime.NODEJS_16_X,
+      });
 
     const lambdaAuthorizer = new Function(stack, "LambdaAuthorizer", {
       code: Code.fromInline("auth"),
@@ -430,19 +431,19 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         operationLookup: multiOperationLookup as any,
         integrations: {
           getOperation: {
-            integration: Integrations.lambda(lambdaIntegration),
+            integration: Integrations.lambda(lambdaIntegration("a")),
             authorizer: cognitoAuthorizer,
           },
           putOperation: {
-            integration: Integrations.lambda(lambdaIntegration),
+            integration: Integrations.lambda(lambdaIntegration("b")),
             authorizer: cognitoAuthorizer.withScopes("other/scope"),
           },
           postOperation: {
-            integration: Integrations.lambda(lambdaIntegration),
+            integration: Integrations.lambda(lambdaIntegration("c")),
             authorizer: customAuthorizer,
           },
           deleteOperation: {
-            integration: Integrations.lambda(lambdaIntegration),
+            integration: Integrations.lambda(lambdaIntegration("d")),
             // authorizer not specified default should be used
           },
         },
@@ -840,11 +841,12 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
 
   it("Throws For Unsupported HTTP Method", () => {
     const stack = new Stack();
-    const func = new Function(stack, "Lambda", {
-      code: Code.fromInline("code"),
-      handler: "handler",
-      runtime: Runtime.NODEJS_16_X,
-    });
+    const func = (id: string) =>
+      new Function(stack, `Lambda${id}`, {
+        code: Code.fromInline("code"),
+        handler: "handler",
+        runtime: Runtime.NODEJS_16_X,
+      });
     const spec = {
       ...sampleSpec,
       paths: {
@@ -878,16 +880,16 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         new TypeSafeRestApi(stack, "ApiTest", {
           defaultAuthorizer: Authorizers.custom({
             authorizerId: "my-custom-scheme",
-            function: func,
+            function: func("authorizer"),
           }),
           specPath,
           operationLookup,
           integrations: {
             testOperation: {
-              integration: Integrations.lambda(func),
+              integration: Integrations.lambda(func("a")),
             },
             unsupportedOperation: {
-              integration: Integrations.lambda(func),
+              integration: Integrations.lambda(func("b")),
             },
           },
         });
@@ -1068,6 +1070,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       });
     }
   );
+
   it("Should enable compression", () => {
     const stack = new Stack();
     const func = new Function(stack, "Lambda", {
@@ -1085,6 +1088,41 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
           },
         },
         minCompressionSize: Size.bytes(20),
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
+  it("Should consolidate permissions for reused lambdas", () => {
+    const stack = new Stack();
+    const func1 = new Function(stack, "Lambda1", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    const func2 = new Function(stack, "Lambda2", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    withTempSpec(multiOperationSpec, (specPath) => {
+      new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup: multiOperationLookup as any,
+        integrations: {
+          getOperation: {
+            integration: Integrations.lambda(func1),
+          },
+          putOperation: {
+            integration: Integrations.lambda(func1),
+          },
+          postOperation: {
+            integration: Integrations.lambda(func2),
+          },
+          deleteOperation: {
+            integration: Integrations.lambda(func1),
+          },
+        },
       });
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     });
