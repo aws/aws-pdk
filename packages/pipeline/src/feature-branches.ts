@@ -50,7 +50,7 @@ export interface FeatureBranchesProps
   readonly branchNamePrefixes: string[];
 
   /**
-   * The directory to run cdk synth from.
+   * The directory with `cdk.json` to run cdk synth from.
    */
   readonly cdkSrcDir: string;
 
