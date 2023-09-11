@@ -1,15 +1,12 @@
 # CDK Graph
 
-![experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
-![alpha](https://img.shields.io/badge/version-alpha-red.svg)
-[![API Documetnation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph/index.html)
-[![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/cdk-graph)
+![stable](https://img.shields.io/badge/stability-stable-green.svg)
+[![API Documentation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](../../api/typescript/cdk-graph/index.md)
+[![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-pdk/tree/mainline/packages/cdk-graph)
 
-> More comprehensive documentation to come as this package stabilizes
+> Core framework for supporting additional cdk based automation and tooling, such as diagramming, cost modeling, security and compliance, in a holistic and comprehensive way.
 
-This package is the core framework for supporting additional cdk based automation and tooling, such as diagraming, cost modeling, security and compliance, in a holistic and comprehensive way.
-
-This package provides the following functionality:
+This submodule provides the following functionality:
 
 1. Synthesizes a serialized graph (nodes and edges) from CDK source code.
 1. Provides runtime interface for interacting with the graph (in-memory database-like graph store).
@@ -23,7 +20,7 @@ The goal of this framework is to enable bespoke tooling to be built without havi
 
 | Name        | Description                                           | Screenshot                                                                                                                                                                           | Links                                                                                                                                                                                                                                                                                                                 |
 | ----------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Diagram** | Generate cloud infrastructure diagrams from cdk graph | <img src="https://github.com/aws/aws-prototyping-sdk/blob/mainline/packages/cdk-graph-plugin-diagram/docs/examples/default.png?raw=true" style="max-width:200px;max-height:200px" /> | [![API Documetnation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph/index.html) [![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/cdk-graph) |
+| **Diagram** | Generate cloud infrastructure diagrams from cdk graph | <img src="https://github.com/aws/aws-pdk/blob/mainline/packages/cdk-graph-plugin-diagram/docs/assets/cdk-graph-plugin-diagram/default.png?raw=true" style="max-width:200px;max-height:200px" /> | [![API Documetnation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](https://aws.github.io/aws-pdk/api/typescript/cdk-graph/index.html) [![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-pdk/tree/mainline/packages/cdk-graph) |
 
 ---
 
@@ -36,7 +33,7 @@ The goal of this framework is to enable bespoke tooling to be built without havi
 import * as cdk from "aws-cdk-lib";
 import { MyStack } from "../lib/my-stack";
 
-import { CdkGraph } from "@aws-prototyping-sdk/cdk-graph";
+import { CdkGraph } from "@aws/pdk/cdk-graph";
 
 const app = new cdk.App();
 new MyStack(app, "MyStack");
@@ -52,8 +49,8 @@ new CdkGraph(app);
 import * as cdk from "aws-cdk-lib";
 import { MyStack } from "../lib/my-stack";
 
-import { CdkGraph } from "@aws-prototyping-sdk/cdk-graph";
-import { ExamplePlugin } from "@aws-prototyping-sdk/cdk-graph-plugin-example"; // does not exist, just example
+import { CdkGraph } from "@aws/pdk/cdk-graph";
+import { ExamplePlugin } from "@aws/pdk/cdk-graph-plugin-example"; // does not exist, just example
 
 const app = new cdk.App();
 new MyStack(app, "MyStack");
@@ -91,8 +88,8 @@ module.exports = {
 import * as cdk from "aws-cdk-lib";
 import { MyStack } from "../lib/my-stack";
 
-import { CdkGraph } from "@aws-prototyping-sdk/cdk-graph";
-import { ExamplePlugin } from "@aws-prototyping-sdk/cdk-graph-plugin-example"; // does not exist, just example
+import { CdkGraph } from "@aws/pdk/cdk-graph";
+import { ExamplePlugin } from "@aws/pdk/cdk-graph-plugin-example"; // does not exist, just example
 
 const app = new cdk.App();
 new MyStack(app, "MyStack");
@@ -160,8 +157,8 @@ CdkGraph support asynchronous operations through the `async report()` method of 
 import * as cdk from "aws-cdk-lib";
 import { MyStack } from "../lib/my-stack";
 
-import { CdkGraph } from "@aws-prototyping-sdk/cdk-graph";
-import { ExampleAsyncPlugin } from "@aws-prototyping-sdk/cdk-graph-plugin-async-example"; // does not exist, just example
+import { CdkGraph } from "@aws/pdk/cdk-graph";
+import { ExampleAsyncPlugin } from "@aws/pdk/cdk-graph-plugin-async-example"; // does not exist, just example
 
 (async () => {
   const app = new cdk.App();
@@ -186,7 +183,7 @@ import {
   CdkGraph,
   CdkGraphContext,
   ICdkGraphPlugin,
-} from "@aws-prototyping-sdk/cdk-graph";
+} from "@aws/pdk/cdk-graph";
 
 export class CdkGraphExamplePlugin implements ICdkGraphPlugin {
   static readonly ARTIFACT_NS = "EXAMPLE";
@@ -243,9 +240,9 @@ export class CdkGraphExamplePlugin implements ICdkGraphPlugin {
 }
 ```
 
-### Path to Stability
+### Future enhancements
 
-The below is a rough checklist of task necessary to elevate this from experimental to stable.
+The below is a rough checklist of task necessary to elevate this submodule.
 
 - [ ] Dynamic versioning and Semver enforcement (store, plugins, etc)
 - [ ] Support running `async report()` method outside of CDK synthesis process
@@ -254,5 +251,3 @@ The below is a rough checklist of task necessary to elevate this from experiment
 - [ ] Improve logging, bookkeeping, and debugging
 - [ ] Implement store upgrade solution
 - [ ] Battle test the implementation against several plugins
-- [ ] Battle test the implementation in all target languages (currently tested in Typescript, but vended in all PDK supported languages)
-- [ ] Receive community feedback to validate approach

@@ -1,0 +1,453 @@
+// Import models
+import {
+    {{#apiInfo}}
+    {{#models}}
+    {{#model}}
+    {{classname}},
+    {{classname}}FromJSON,
+    {{classname}}ToJSON,
+    {{/model}}
+    {{/models}}
+    {{/apiInfo}}
+} from '../../models';
+// Import request parameter interfaces
+import {
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    {{#allParams.0}}{{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request,{{/allParams.0}}
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+} from '..';
+
+// API Gateway Types
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+
+// Generic type for object keyed by operation names
+export interface OperationConfig<T> {
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    {{nickname}}: T;
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+}
+
+// Look up path and http method for a given operation name
+export const OperationLookup = {
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    {{nickname}}: {
+        path: '{{path}}',
+        method: '{{httpMethod}}',
+        contentTypes: [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}],
+    },
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+};
+
+export class Operations {
+  /**
+   * Return an OperationConfig with the same value for every operation
+   */
+  public static all = <T>(value: T): OperationConfig<T> => Object.fromEntries(
+    Object.keys(OperationLookup).map((operationId) => [operationId, value])
+  ) as unknown as OperationConfig<T>;
+}
+
+// Standard apigateway request parameters (query parameters or path parameters, multi or single value)
+type ApiGatewayRequestParameters = { [key: string]: string | string[] | undefined };
+
+/**
+ * URI decode for a string or array of strings
+ */
+const uriDecode = (value: string | string[]): string | string[] =>
+    typeof value === 'string' ? decodeURIComponent(value) : value.map((v) => decodeURIComponent(v));
+
+/**
+ * URI decodes apigateway request parameters (query or path parameters)
+ */
+const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGatewayRequestParameters => {
+    const decodedParameters = {};
+    Object.keys(parameters || {}).forEach((key) => {
+        decodedParameters[key] = parameters[key] ? uriDecode(parameters[key]) : parameters[key];
+    });
+    return decodedParameters;
+};
+
+/**
+ * Parse the body if the content type is json, otherwise leave as a raw string
+ */
+const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
+
+const assertRequired = (required: boolean, baseName: string, parameters: any) => {
+    if(required && parameters[baseName] === undefined) {
+        throw new Error(`Missing required request parameter '${baseName}'`);
+    }
+};
+
+const coerceNumber = (baseName: string, s: string, isInteger: boolean): number => {
+    const n = Number(s);
+    if (isNaN(n)) {
+        throw new Error(`Expected a number for request parameter '${baseName}'`);
+    }
+    if (isInteger && !Number.isInteger(n)) {
+        throw new Error(`Expected an integer for request parameter '${baseName}'`);
+    }
+    return n;
+};
+
+const coerceBoolean = (baseName: string, s: string): boolean => {
+    switch (s) {
+        case "true":
+          return true;
+        case "false":
+          return false;
+        default:
+          throw new Error(`Expected a boolean (true or false) for request parameter '${baseName}'`);
+    }
+};
+
+const coerceDate = (baseName: string, s: string): Date => {
+    const d = new Date(s);
+    if (isNaN(d as any)) {
+        throw new Error(`Expected a valid date (iso format) for request parameter '${baseName}'`);
+    }
+    return d;
+};
+
+const coerceParameter = (
+    baseName: string,
+    dataType: string,
+    isInteger: boolean,
+    rawStringParameters: { [key: string]: string | undefined },
+    rawStringArrayParameters: { [key: string]: string[] | undefined },
+    required: boolean,
+) => {
+    switch (dataType) {
+      case "number":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceNumber(baseName, rawStringParameters[baseName], isInteger) : undefined;
+      case "boolean":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceBoolean(baseName, rawStringParameters[baseName]) : undefined;
+      case "Date":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceDate(baseName, rawStringParameters[baseName]) : undefined;
+      case "Array<number>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceNumber(baseName, n, isInteger)) : undefined;
+      case "Array<boolean>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceBoolean(baseName, n)) : undefined;
+      case "Array<Date>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceDate(baseName, n)) : undefined;
+      case "Array<string>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName];
+      case "string":
+      default:
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName];
+    }
+};
+
+const extractResponseHeadersFromInterceptors = (interceptors: any[]): { [key: string]: string } => {
+  return (interceptors ?? []).reduce((interceptor: any, headers: { [key: string]: string }) => ({
+    ...headers,
+    ...(interceptor?.__type_safe_api_response_headers ?? {}),
+  }), {} as { [key: string]: string });
+};
+
+type OperationIds ={{#apiInfo}}{{#apis}}{{#operations}}{{#operation}} | '{{nickname}}'{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
+
+// Api gateway lambda handler type
+type OperationApiGatewayLambdaHandler<T extends OperationIds> = (event: APIGatewayProxyEvent, context: Context) => Promise<OperationApiGatewayProxyResult<T>>;
+
+// Type of the response to be returned by an operation lambda handler
+export interface OperationResponse<StatusCode extends number, Body> {
+    statusCode: StatusCode;
+    headers?: { [key: string]: string };
+    body: Body;
+}
+
+// Input for a lambda handler for an operation
+export type LambdaRequestParameters<RequestParameters, RequestBody> = {
+    requestParameters: RequestParameters,
+    body: RequestBody,
+};
+
+export type InterceptorContext = { [key: string]: any };
+
+export interface RequestInput<RequestParameters, RequestBody> {
+    input: LambdaRequestParameters<RequestParameters, RequestBody>;
+    event: APIGatewayProxyEvent;
+    context: Context;
+    interceptorContext: InterceptorContext;
+}
+
+export interface ChainedRequestInput<RequestParameters, RequestBody, Response> extends RequestInput<RequestParameters, RequestBody> {
+    chain: LambdaHandlerChain<RequestParameters, RequestBody, Response>;
+}
+
+/**
+ * A lambda handler function which is part of a chain. It may invoke the remainder of the chain via the given chain input
+ */
+export type ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response> = (
+  input: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+) => Promise<Response>;
+
+// Type for a lambda handler function to be wrapped
+export type LambdaHandlerFunction<RequestParameters, RequestBody, Response> = (
+  input: RequestInput<RequestParameters, RequestBody>,
+) => Promise<Response>;
+
+export interface LambdaHandlerChain<RequestParameters, RequestBody, Response> {
+  next: LambdaHandlerFunction<RequestParameters, RequestBody, Response>;
+}
+
+// Interceptor is a type alias for ChainedLambdaHandlerFunction
+export type Interceptor<RequestParameters, RequestBody, Response> = ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response>;
+
+/**
+ * Build a chain from the given array of chained lambda handlers
+ */
+const buildHandlerChain = <RequestParameters, RequestBody, Response>(
+  ...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response>[]
+): LambdaHandlerChain<RequestParameters, RequestBody, Response> => {
+  if (handlers.length === 0) {
+    return {
+      next: () => {
+        throw new Error("No more handlers remain in the chain! The last handler should not call next.");
+      }
+    };
+  }
+  const [currentHandler, ...remainingHandlers] = handlers;
+  return {
+    next: (input) => {
+      return currentHandler({
+        ...input,
+        chain: buildHandlerChain(...remainingHandlers),
+      });
+    },
+  };
+};
+
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+/**
+ * Path, Query and Header parameters for {{operationIdCamelCase}}
+ */
+export interface {{operationIdCamelCase}}RequestParameters {
+{{#allParams}}
+{{^isBodyParam}}
+    readonly {{paramName}}{{^required}}?{{/required}}: {{{dataType}}};
+{{/isBodyParam}}
+{{/allParams}}
+}
+
+/**
+ * Request body parameter for {{operationIdCamelCase}}
+ */
+export type {{operationIdCamelCase}}RequestBody = {{#bodyParam}}{{#isPrimitiveType}}string{{/isPrimitiveType}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{/bodyParam}}{{^bodyParam}}never{{/bodyParam}};
+
+{{#responses}}
+export type {{operationIdCamelCase}}{{code}}OperationResponse = OperationResponse<{{code}}, {{#dataType}}{{#isPrimitiveType}}string{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}}{{/dataType}}{{^dataType}}undefined{{/dataType}}>;
+{{/responses}}
+export type {{operationIdCamelCase}}OperationResponses = {{#responses}}| {{operationIdCamelCase}}{{code}}OperationResponse {{/responses}};
+
+// Type that the handler function provided to the wrapper must conform to
+export type {{operationIdCamelCase}}HandlerFunction = LambdaHandlerFunction<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestBody, {{operationIdCamelCase}}OperationResponses>;
+export type {{operationIdCamelCase}}ChainedHandlerFunction = ChainedLambdaHandlerFunction<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestBody, {{operationIdCamelCase}}OperationResponses>;
+export type {{operationIdCamelCase}}ChainedRequestInput = ChainedRequestInput<{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestBody, {{operationIdCamelCase}}OperationResponses>;
+
+/**
+ * Lambda handler wrapper to provide typed interface for the implementation of {{nickname}}
+ */
+export const {{nickname}}Handler = (
+    ...handlers: [{{operationIdCamelCase}}ChainedHandlerFunction, ...{{operationIdCamelCase}}ChainedHandlerFunction[]]
+): OperationApiGatewayLambdaHandler<'{{nickname}}'> => async (event: any, context: any, _callback?: any, additionalInterceptors: {{operationIdCamelCase}}ChainedHandlerFunction[] = []): Promise<any> => {
+    const operationId = "{{nickname}}";
+
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
+
+    const marshal = (statusCode: number, responseBody: any): string => {
+        let marshalledBody = responseBody;
+        switch(statusCode) {
+        {{#responses}}
+            case {{code}}:
+                {{^isPrimitiveType}}
+                marshalledBody = JSON.stringify({{dataType}}ToJSON(marshalledBody));
+                {{/isPrimitiveType}}
+                break;
+        {{/responses}}
+            default:
+                break;
+        }
+
+        return marshalledBody;
+    };
+
+    const errorHeaders = (statusCode: number): { [key: string]: string } => {
+        let headers = {};
+
+        switch(statusCode) {
+        {{#responses}}
+        {{^is2xx}}
+            case {{code}}: {
+                if ("{{dataType}}".endsWith("ResponseContent")) {
+                    headers["x-amzn-errortype"] = "{{dataType}}".slice(0, -"ResponseContent".length);
+                }
+                break;
+            }
+        {{/is2xx}}
+        {{/responses}}
+            default:
+                break;
+        }
+
+        return headers;
+    };
+
+    let requestParameters: {{operationIdCamelCase}}RequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+        {{#allParams}}
+        {{^isBodyParam}}
+          {{paramName}}: coerceParameter("{{baseName}}", "{{{dataType}}}", {{#isArray}}{{#items}}{{isInteger}} || {{isLong}} || {{isShort}}{{/items}}{{/isArray}}{{^isArray}}{{isInteger}} || {{isLong}} || {{isShort}}{{/isArray}}, rawSingleValueParameters, rawMultiValueParameters, {{required}}) as {{{dataType}}}{{^required}} | undefined{{/required}},
+        {{/isBodyParam}}
+        {{/allParams}}
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        {{#bodyParam}}
+        {{^isPrimitiveType}}
+        return {{dataType}}FromJSON(JSON.parse(bodyString));
+        {{/isPrimitiveType}}
+        {{#isPrimitiveType}}
+        return bodyString;
+        {{/isPrimitiveType}}
+        {{/bodyParam}}
+        {{^bodyParam}}
+        return {};
+        {{/bodyParam}}
+    };
+    const body = parseBody(event.body, demarshal, [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}]) as {{operationIdCamelCase}}RequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
+    return {
+        ...response,
+        headers: {
+          ...errorHeaders(response.statusCode),
+          ...response.headers,
+        },
+        body: response.body ? marshal(response.statusCode, response.body) : '',
+    };
+};
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+
+export interface HandlerRouterHandlers {
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+  readonly {{nickname}}: OperationApiGatewayLambdaHandler<'{{nickname}}'>;
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+}
+
+export type AnyOperationRequestParameters = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestParameters{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type AnyOperationRequestBodies = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}RequestBody{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+export type AnyOperationResponses = {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}| {{operationIdCamelCase}}OperationResponses{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}};
+
+export interface HandlerRouterProps<
+  RequestParameters,
+  RequestBody,
+  Response extends AnyOperationResponses
+> {
+  /**
+   * Interceptors to apply to all handlers
+   */
+  readonly interceptors?: ChainedLambdaHandlerFunction<
+    RequestParameters,
+    RequestBody,
+    Response
+  >[];
+
+  /**
+   * Handlers to register for each operation
+   */
+  readonly handlers: HandlerRouterHandlers;
+}
+
+const concatMethodAndPath = (method: string, path: string) => `${method.toLowerCase()}||${path}`;
+
+const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLookup).map(
+  ([operationId, methodAndPath]) => [concatMethodAndPath(methodAndPath.method, methodAndPath.path), operationId]
+));
+
+/**
+ * Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+ */
+export const handlerRouter = (props: HandlerRouterProps<
+  AnyOperationRequestParameters,
+  AnyOperationRequestBodies,
+  AnyOperationResponses
+>): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
+  const operationId = OperationIdByMethodAndPath[concatMethodAndPath(event.requestContext.httpMethod, event.requestContext.resourcePath)];
+  const handler = props.handlers[operationId];
+  return handler(event, context, undefined, props.interceptors);
+};

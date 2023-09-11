@@ -1,23 +1,18 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
+import { PDKNag } from "@aws/pdk-nag";
 import { CfnOutput, RemovalPolicy, Stack } from "aws-cdk-lib";
 import {
   Distribution,
-  DistributionProps,
   IOrigin,
   OriginAccessIdentity,
   OriginBindConfig,
   OriginBindOptions,
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
-import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
-import * as ec2 from "aws-cdk-lib/aws-ec2";
 import { PolicyStatement } from "aws-cdk-lib/aws-iam";
-import * as iam from "aws-cdk-lib/aws-iam";
 import { Key } from "aws-cdk-lib/aws-kms";
-import * as logs from "aws-cdk-lib/aws-logs";
 import {
   BlockPublicAccess,
   Bucket,
@@ -25,234 +20,14 @@ import {
   IBucket,
   ObjectOwnership,
 } from "aws-cdk-lib/aws-s3";
-import * as s3 from "aws-cdk-lib/aws-s3";
-import {
-  BucketDeployment,
-  CacheControl,
-  ServerSideEncryption,
-  Source,
-  StorageClass,
-} from "aws-cdk-lib/aws-s3-deployment";
-import * as cdk from "aws-cdk-lib/core";
+import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
+import { BucketDeploymentProps } from "./bucket-deployment-props";
 import { CloudfrontWebAcl, CloudFrontWebAclProps } from "./cloudfront-web-acl";
+import { DistributionProps } from "./distribution-props";
 
 const DEFAULT_RUNTIME_CONFIG_FILENAME = "runtime-config.json";
-
-/**
- * Bucket Deployment props.
- *
- * NOTE: forked from aws-cdk-lib/s3-deployment without any required props.
- */
-export interface BucketDeploymentProps {
-  /**
-   * Key prefix in the destination bucket.
-   *
-   * Must be <=104 characters
-   *
-   * @default "/" (unzip to root of the destination bucket)
-   */
-  readonly destinationKeyPrefix?: string;
-  /**
-   * If this is set, the zip file will be synced to the destination S3 bucket and extracted.
-   * If false, the file will remain zipped in the destination bucket.
-   * @default true
-   */
-  readonly extract?: boolean;
-  /**
-   * If this is set, matching files or objects will be excluded from the deployment's sync
-   * command. This can be used to exclude a file from being pruned in the destination bucket.
-   *
-   * If you want to just exclude files from the deployment package (which excludes these files
-   * evaluated when invalidating the asset), you should leverage the `exclude` property of
-   * `AssetOptions` when defining your source.
-   *
-   * @default - No exclude filters are used
-   * @see https://docs.aws.amazon.com/cli/latest/reference/s3/index.html#use-of-exclude-and-include-filters
-   */
-  readonly exclude?: string[];
-  /**
-   * If this is set, matching files or objects will be included with the deployment's sync
-   * command. Since all files from the deployment package are included by default, this property
-   * is usually leveraged alongside an `exclude` filter.
-   *
-   * @default - No include filters are used and all files are included with the sync command
-   * @see https://docs.aws.amazon.com/cli/latest/reference/s3/index.html#use-of-exclude-and-include-filters
-   */
-  readonly include?: string[];
-  /**
-   * If this is set to false, files in the destination bucket that
-   * do not exist in the asset, will NOT be deleted during deployment (create/update).
-   *
-   * @see https://docs.aws.amazon.com/cli/latest/reference/s3/sync.html
-   *
-   * @default true
-   */
-  readonly prune?: boolean;
-  /**
-   * If this is set to "false", the destination files will be deleted when the
-   * resource is deleted or the destination is updated.
-   *
-   * NOTICE: Configuring this to "false" might have operational implications. Please
-   * visit to the package documentation referred below to make sure you fully understand those implications.
-   *
-   * @see https://github.com/aws/aws-cdk/tree/main/packages/%40aws-cdk/aws-s3-deployment#retain-on-delete
-   * @default true - when resource is deleted/updated, files are retained
-   */
-  readonly retainOnDelete?: boolean;
-  /**
-   * The CloudFront distribution using the destination bucket as an origin.
-   * Files in the distribution's edge caches will be invalidated after
-   * files are uploaded to the destination bucket.
-   *
-   * @default - No invalidation occurs
-   */
-  readonly distribution?: cloudfront.IDistribution;
-  /**
-   * The file paths to invalidate in the CloudFront distribution.
-   *
-   * @default - All files under the destination bucket key prefix will be invalidated.
-   */
-  readonly distributionPaths?: string[];
-  /**
-   * The number of days that the lambda function's log events are kept in CloudWatch Logs.
-   *
-   * @default logs.RetentionDays.INFINITE
-   */
-  readonly logRetention?: logs.RetentionDays;
-  /**
-   * The amount of memory (in MiB) to allocate to the AWS Lambda function which
-   * replicates the files from the CDK bucket to the destination bucket.
-   *
-   * If you are deploying large files, you will need to increase this number
-   * accordingly.
-   *
-   * @default 128
-   */
-  readonly memoryLimit?: number;
-  /**
-   * The size of the AWS Lambda function’s /tmp directory in MiB.
-   *
-   * @default 512 MiB
-   */
-  readonly ephemeralStorageSize?: cdk.Size;
-  /**
-   *  Mount an EFS file system. Enable this if your assets are large and you encounter disk space errors.
-   *  Enabling this option will require a VPC to be specified.
-   *
-   * @default - No EFS. Lambda has access only to 512MB of disk space.
-   */
-  readonly useEfs?: boolean;
-  /**
-   * Execution role associated with this function
-   *
-   * @default - A role is automatically created
-   */
-  readonly role?: iam.IRole;
-  /**
-   * User-defined object metadata to be set on all objects in the deployment
-   * @default - No user metadata is set
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#UserMetadata
-   */
-  readonly metadata?: {
-    [key: string]: string;
-  };
-  /**
-   * System-defined cache-control metadata to be set on all objects in the deployment.
-   * @default - Not set.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata
-   */
-  readonly cacheControl?: CacheControl[];
-  /**
-   * System-defined cache-disposition metadata to be set on all objects in the deployment.
-   * @default - Not set.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata
-   */
-  readonly contentDisposition?: string;
-  /**
-   * System-defined content-encoding metadata to be set on all objects in the deployment.
-   * @default - Not set.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata
-   */
-  readonly contentEncoding?: string;
-  /**
-   * System-defined content-language metadata to be set on all objects in the deployment.
-   * @default - Not set.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata
-   */
-  readonly contentLanguage?: string;
-  /**
-   * System-defined content-type metadata to be set on all objects in the deployment.
-   * @default - Not set.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata
-   */
-  readonly contentType?: string;
-  /**
-   * System-defined expires metadata to be set on all objects in the deployment.
-   * @default - The objects in the distribution will not expire.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata
-   */
-  readonly expires?: cdk.Expiration;
-  /**
-   * System-defined x-amz-server-side-encryption metadata to be set on all objects in the deployment.
-   * @default - Server side encryption is not used.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata
-   */
-  readonly serverSideEncryption?: ServerSideEncryption;
-  /**
-   * System-defined x-amz-storage-class metadata to be set on all objects in the deployment.
-   * @default - Default storage-class for the bucket is used.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata
-   */
-  readonly storageClass?: StorageClass;
-  /**
-   * System-defined x-amz-website-redirect-location metadata to be set on all objects in the deployment.
-   * @default - No website redirection.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata
-   */
-  readonly websiteRedirectLocation?: string;
-  /**
-   * System-defined x-amz-server-side-encryption-aws-kms-key-id metadata to be set on all objects in the deployment.
-   * @default - Not set.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#SysMetadata
-   */
-  readonly serverSideEncryptionAwsKmsKeyId?: string;
-  /**
-   * System-defined x-amz-server-side-encryption-customer-algorithm metadata to be set on all objects in the deployment.
-   * Warning: This is not a useful parameter until this bug is fixed: https://github.com/aws/aws-cdk/issues/6080
-   * @default - Not set.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html#sse-c-how-to-programmatically-intro
-   */
-  readonly serverSideEncryptionCustomerAlgorithm?: string;
-  /**
-   * System-defined x-amz-acl metadata to be set on all objects in the deployment.
-   * @default - Not set.
-   * @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl
-   */
-  readonly accessControl?: s3.BucketAccessControl;
-  /**
-   * The VPC network to place the deployment lambda handler in.
-   * This is required if `useEfs` is set.
-   *
-   * @default None
-   */
-  readonly vpc?: ec2.IVpc;
-  /**
-   * Where in the VPC to place the deployment lambda handler.
-   * Only used if 'vpc' is supplied.
-   *
-   * @default - the Vpc default strategy if not specified
-   */
-  readonly vpcSubnets?: ec2.SubnetSelection;
-  /**
-   * If set to true, uploads will precompute the value of `x-amz-content-sha256`
-   * and include it in the signed S3 request headers.
-   *
-   * @default - `x-amz-content-sha256` will not be computed
-   */
-  readonly signContent?: boolean;
-}
 
 /**
  * Dynamic configuration which gets resolved only during deployment.

@@ -1,17 +1,16 @@
 # Mocking Responses
 
-You can stand up a working mocked API prior to implementing it, to allow you or others to work on components which interact with it (for example a website) sooner.
+Before you implement `type-safe-api`, you can set up a working mocked API to allow you or others to work on components which interact with it (for example, a website).
 
-To mock an API operation, you can use the `MockIntegrations` class which you'll find in your generated infrastructure package. This contains an integration for every response that can be returned by your operations.
+To mock an API operation, use the `MockIntegrations` class which is included in your generated infrastructure package. This contains an integration for every response that can be returned by your operations.
 
-## Auto-Generated Mock Data
+## Auto-generated mock data
 
-For operations which return JSON structures as responses, you can make use of auto-generated mock responses. 
+For operations which return JSON structures as responses, use the auto-generated mock responses.
 
-### Mock All Operations
+### Mock all operations
 
-You can use `MockIntegrations.mockAll` to mock all the operations in your API by returning the first mock response (usually the HTTP 200 response).
-
+Use `MockIntegrations.mockAll` to mock all the operations in your API by returning the first mock response (usually the HTTP 200 response).
 
 === "TS"
 
@@ -46,13 +45,16 @@ You can use `MockIntegrations.mockAll` to mock all the operations in your API by
     )
     ```
 
-Note that if you have operations which don't return JSON structures and so can't be mocked automatically, these operations will be omitted from those returned by `MockIntegrations.mockAll` so you will need to specify your own integrations in these cases. You can also use this pattern for gradually replacing mocks with real implementations.
+!!! note
 
+    If you have operations which don't return JSON structures and can't be mocked automatically, these operations will be omitted from those returned by `MockIntegrations.mockAll`, so you will need to specify your own integrations in these cases. 
+    
+    You can also use this pattern for gradually replacing mocks with real implementations.
 
 === "TS"
 
     ```ts
-    import { Integrations } from "@aws-prototyping-sdk/type-safe-api";
+    import { Integrations } from "@aws/pdk/type-safe-api";
     import { Api, MockIntegrations } from "myapi-typescript-infra";
 
     new Api(this, "Api", {
@@ -68,8 +70,8 @@ Note that if you have operations which don't return JSON structures and so can't
 === "JAVA"
 
     ```java
-    import software.aws.awsprototypingsdk.typesafeapi.TypeSafeApiIntegration;
-    import software.aws.awsprototypingsdk.typesafeapi.Integrations;
+    import software.aws.awspdk.typesafeapi.TypeSafeApiIntegration;
+    import software.aws.awspdk.typesafeapi.Integrations;
 
     import com.generated.api.myapijavainfra.infra.Api;
     import com.generated.api.myapijavainfra.infra.ApiProps;
@@ -88,8 +90,8 @@ Note that if you have operations which don't return JSON structures and so can't
 === "PYTHON"
 
     ```python
-    from aws_prototyping_sdk.type_safe_api import Integrations, TypeSafeApiIntegration
-    from myapi_python_runtime.apis.tags.default_api_operation_config import OperationConfig
+    from aws_pdk.type_safe_api import Integrations, TypeSafeApiIntegration
+    from myapi_python_runtime.api.operation_config import OperationConfig
     from myapi_python_infra.api import Api
     from myapi_python_infra.mock_integrations import MockIntegrations
 
@@ -102,9 +104,9 @@ Note that if you have operations which don't return JSON structures and so can't
     )
     ```
 
-### Mock Individual Operations
+### Mock individual operations
 
-For operations which return JSON structures as responses, you can make use of the auto-generated mock data by omitting arguments passed to the `MockIntegrations` methods, for example:
+For operations which return JSON structures as responses, use the auto-generated mock data by omitting arguments passed to the `MockIntegrations` methods.
 
 === "TS"
 
@@ -140,7 +142,7 @@ For operations which return JSON structures as responses, you can make use of th
 === "PYTHON"
 
     ```python
-    from myapi_python_runtime.apis.tags.default_api_operation_config import OperationConfig
+    from myapi_python_runtime.api.operation_config import OperationConfig
     from myapi_python_infra.api import Api
     from myapi_python_infra.mock_integrations import MockIntegrations
 
@@ -153,11 +155,11 @@ For operations which return JSON structures as responses, you can make use of th
     )
     ```
 
-Note that for operations which return "primitive types" such as strings, integers or binary responses, you must provide the mock response body.
+For operations which return _primitive types_ such as strings, integers or binary responses, you must provide the mock response body.
 
-## Type-Safe Custom Mock Responses
+## Type-Safe custom Mock Responses
 
-If you would like to customise the mock responses, you can pass the response body to the method for the operation response you wish to mock, for example:
+To customize the mock responses, pass the response body to the method for the operation response you wish to mock.
 
 === "TS"
 
@@ -198,7 +200,7 @@ If you would like to customise the mock responses, you can pass the response bod
 === "PYTHON"
 
     ```python
-    from myapi_python_runtime.apis.tags.default_api_operation_config import OperationConfig
+    from myapi_python_runtime.api.operation_config import OperationConfig
     from myapi_python_infra.api import Api
     from myapi_python_infra.mock_integrations import MockIntegrations
 
@@ -215,7 +217,7 @@ If you would like to customise the mock responses, you can pass the response bod
 
 ## Raw Response Mocks
 
-If you're using the `TypeSafeRestApi` construct directly without generated infrastructure, or need to mock a response not defined in your model, you can use `Integrations.mock` to mock the raw response to return for the operation. API gateway will respond with the status code and body provided, eg:
+If you are using the `TypeSafeRestApi` construct directly without generated infrastructure, or need to mock a response not defined in your model, use `Integrations.mock` to mock the raw response to return for the operation. The API gateway will respond with the status code and body provided.
 
 === "TS"
 
@@ -238,6 +240,8 @@ If you're using the `TypeSafeRestApi` construct directly without generated infra
     Integrations.mock(status_code=200, body=json.dumps({"message": "hello world!"}))
     ```
 
-## Customising Generated Mock Data
+## Customising generated Mock data
 
 You can customise the generated mock data by passing `infrastructure.options.<language>.mockDataOptions` to `TypeSafeApiProject`.
+
+You can completely disable mock data generation by setting `infrastructure.options.<language>.mockDataOptions.disable` to `true`.

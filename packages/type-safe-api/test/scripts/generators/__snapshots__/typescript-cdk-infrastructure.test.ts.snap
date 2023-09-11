@@ -1,7 +1,193 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates Functions 1`] = `
+"import { Construct } from "constructs";
+import { Duration } from "aws-cdk-lib";
+import { Code, Function, Runtime, Tracing, FunctionProps } from "aws-cdk-lib/aws-lambda";
+import * as path from "path";
+
+
+/**
+ * Options for the JavaOneFunction construct
+ */
+export interface JavaOneFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the java implementation of JavaOne
+ */
+export class JavaOneFunction extends Function {
+  constructor(scope: Construct, id: string, props?: JavaOneFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.JAVA_17,
+      handler: "test.test-java-handlers.handlers.JavaOneHandler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../java-handlers/dist/java/test/com.aws.pdk.test.handlers/1.0.0/com.aws.pdk.test.handlers-1.0.0.jar",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the JavaTwoFunction construct
+ */
+export interface JavaTwoFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the java implementation of JavaTwo
+ */
+export class JavaTwoFunction extends Function {
+  constructor(scope: Construct, id: string, props?: JavaTwoFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.JAVA_17,
+      handler: "test.test-java-handlers.handlers.JavaTwoHandler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../java-handlers/dist/java/test/com.aws.pdk.test.handlers/1.0.0/com.aws.pdk.test.handlers-1.0.0.jar",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the PythonOneFunction construct
+ */
+export interface PythonOneFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the python implementation of PythonOne
+ */
+export class PythonOneFunction extends Function {
+  constructor(scope: Construct, id: string, props?: PythonOneFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.PYTHON_3_11,
+      handler: "test_python_handlers.python_one.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../python-handlers/dist/lambda",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the PythonTwoFunction construct
+ */
+export interface PythonTwoFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the python implementation of PythonTwo
+ */
+export class PythonTwoFunction extends Function {
+  constructor(scope: Construct, id: string, props?: PythonTwoFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.PYTHON_3_11,
+      handler: "test_python_handlers.python_two.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../python-handlers/dist/lambda",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the TypescriptOneFunction construct
+ */
+export interface TypescriptOneFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the typescript implementation of TypescriptOne
+ */
+export class TypescriptOneFunction extends Function {
+  constructor(scope: Construct, id: string, props?: TypescriptOneFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.NODEJS_18_X,
+      handler: "index.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../typescript-handlers/dist/lambda",
+        "typescript-one",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the TypescriptTwoFunction construct
+ */
+export interface TypescriptTwoFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the typescript implementation of TypescriptTwo
+ */
+export class TypescriptTwoFunction extends Function {
+  constructor(scope: Construct, id: string, props?: TypescriptTwoFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.NODEJS_18_X,
+      handler: "index.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../typescript-handlers/dist/lambda",
+        "typescript-two",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}"
+`;
+
+exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates With Mocks Disabled 1`] = `
+"import {
+  ApiError,
+  ApiErrorToJSON,
+  MapResponse,
+  MapResponseToJSON,
+  MapResponseMapPropertyValue,
+  MapResponseMapPropertyValueToJSON,
+  TestRequest,
+  TestRequestToJSON,
+  TestResponse,
+  TestResponseToJSON,
+  TestResponseMessagesInner,
+  TestResponseMessagesInnerToJSON,
+} from "test-client";
+import { Integrations, MockIntegration } from "@aws/pdk/type-safe-api";
+import * as fs from "fs";
+import * as path from "path";
+
+/**
+ * Type-safe mock integrations for API operations
+ */
+export class MockIntegrations {
+  /**
+   * Read a mock data file for the given operation
+   */
+  private static readMockDataFile(method: string, urlPath: string, statusCode: number): string {
+    return fs.readFileSync(path.join(__dirname, "..", "mocks", \`\${method.toLowerCase()}\${urlPath.replace(/\\//g, "-")}-\${statusCode}.json\`), "utf-8");
+  }
+
+  
+  
+  // No mock integrations have been generated, since mock data generation is disabled.
+  
+}
+"
+`;
+
 exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates With single.yaml 1`] = `
-"import { TypeSafeRestApi, TypeSafeRestApiProps, TypeSafeApiIntegration } from "@aws-prototyping-sdk/type-safe-api";
+"import { TypeSafeRestApi, TypeSafeRestApiProps, TypeSafeApiIntegration } from "@aws/pdk/type-safe-api";
 import { Construct } from "constructs";
 import { OperationLookup, OperationConfig } from "test-client";
 import * as path from "path";
@@ -21,7 +207,7 @@ export class Api extends TypeSafeRestApi {
     super(scope, id, {
       ...props,
       integrations: props.integrations as any,
-      specPath: path.resolve(__dirname, "../../spec.yaml"),
+      specPath: path.resolve(__dirname, "../assets/api.json"),
       operationLookup: OperationLookup as any,
     });
   }
@@ -44,7 +230,7 @@ exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates W
   TestResponseMessagesInner,
   TestResponseMessagesInnerToJSON,
 } from "test-client";
-import { Integrations, MockIntegration } from "@aws-prototyping-sdk/type-safe-api";
+import { Integrations, MockIntegration } from "@aws/pdk/type-safe-api";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -59,6 +245,7 @@ export class MockIntegrations {
     return fs.readFileSync(path.join(__dirname, "..", "mocks", \`\${method.toLowerCase()}\${urlPath.replace(/\\//g, "-")}-\${statusCode}.json\`), "utf-8");
   }
 
+  
   /**
    * Mock integration to return a 200 response from the anyRequestResponse operation
    */
@@ -168,6 +355,8 @@ export class MockIntegrations {
       },
     };
   }
+  
+  
 }
 "
 `;
@@ -175,5 +364,6 @@ export class MockIntegrations {
 exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates With single.yaml 3`] = `
 "export * from "./api";
 export * from "./mock-integrations";
+export * from "./functions";
 "
 `;

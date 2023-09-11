@@ -36,7 +36,25 @@ export enum FilterStrategy {
 }
 
 /**
+ * A filter than can be applied to the graph
+ * @struct
+ */
+export interface IFilter {
+  /**
+   * Graph Filter
+   */
+  readonly graph?: IGraphFilter;
+
+  /**
+   * Store Filter
+   */
+  readonly store?: IGraphStoreFilter;
+}
+
+/**
  * Graph filter.
+ *
+ * @struct
  */
 export interface IGraphFilter {
   /**
@@ -77,7 +95,7 @@ export interface IGraphFilter {
  * Determines focus node of filter plan.
  */
 export interface IFilterFocusCallback {
-  (store: Graph.Store): Graph.Node;
+  filter(store: Graph.Store): Graph.Node;
 }
 
 /**
@@ -86,12 +104,15 @@ export interface IFilterFocusCallback {
  * definitions.
  */
 export interface IGraphStoreFilter {
-  (store: Graph.Store): void;
+  filter(store: Graph.Store): void;
 }
 
+/**
+ * @struct
+ */
 export interface IGraphFilterPlanFocusConfig {
   /** The node or resolver to determine the node to focus on. */
-  readonly node: IFilterFocusCallback | Graph.Node;
+  readonly filter: IFilterFocusCallback;
   /**
    * Indicates if ancestral containers are preserved (eg: Stages, Stack)
    *
@@ -105,6 +126,8 @@ export interface IGraphFilterPlanFocusConfig {
 
 /**
  * Graph filter plan
+ *
+ * @struct
  */
 export interface IGraphFilterPlan {
   /**
@@ -120,15 +143,12 @@ export interface IGraphFilterPlan {
    * - Filters are applied sequentially against all nodes, as opposed to IAspect.visitor pattern
    * which are sequentially applied per node.
    */
-  readonly filters?: (IGraphFilter | IGraphStoreFilter)[];
+  readonly filters?: IFilter[];
 
   /**
    * Config to focus the graph on specific node.
    */
-  readonly focus?:
-    | IFilterFocusCallback
-    | Graph.Node
-    | IGraphFilterPlanFocusConfig;
+  readonly focus?: IGraphFilterPlanFocusConfig;
 
   /**
    * Indicates that all nodes will be filtered, rather than just Resource and CfnResource nodes.

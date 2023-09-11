@@ -1,64 +1,64 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { DependencyType } from "projen";
+import { DependencyType, IgnoreFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import {
+  CodeGenerationSourceOptions,
   GeneratedTypeScriptInfrastructureOptions,
-  MockResponseDataGenerationOptions,
 } from "../../../types";
+import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeMockDataGeneratorCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
   buildTypeSafeApiExecCommand,
+  getHandlersProjectVendorExtensions,
   OtherGenerators,
   TypeSafeApiScript,
 } from "../../components/utils";
+import { GeneratedHandlersProjects } from "../../generate";
 import { GeneratedTypescriptRuntimeProject } from "../../runtime/generated-typescript-runtime-project";
 
 export interface GeneratedTypescriptCdkInfrastructureProjectOptions
-  extends GeneratedTypeScriptInfrastructureOptions {
-  /**
-   * OpenAPI spec path, relative to the project outdir
-   */
-  readonly specPath: string;
+  extends GeneratedTypeScriptInfrastructureOptions,
+    CodeGenerationSourceOptions {
   /**
    * Generated typescript types project
    */
   readonly generatedTypescriptTypes: GeneratedTypescriptRuntimeProject;
 
   /**
-   * Whether the infrastructure and client projects are parented by an nx-monorepo or not
+   * Generated handlers projects
+   */
+  readonly generatedHandlers: GeneratedHandlersProjects;
+
+  /**
+   * Whether the infrastructure and client projects are parented by an monorepo or not
    */
   readonly isWithinMonorepo?: boolean;
 }
 
 export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProject {
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
+  private readonly options: GeneratedTypescriptCdkInfrastructureProjectOptions;
 
   /**
-   * The generated typescript types
+   * Path to the packaged copy of the openapi specification
    * @private
    */
-  private readonly generatedTypescriptTypes: GeneratedTypescriptRuntimeProject;
-
-  /**
-   * Mock data generator options
-   * @private
-   */
-  private readonly mockDataOptions?: MockResponseDataGenerationOptions;
+  private readonly packagedSpecPath = "assets/api.json";
 
   constructor(options: GeneratedTypescriptCdkInfrastructureProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sampleCode: false,
       jest: false,
       eslint: false,
@@ -75,13 +75,13 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       },
       npmignoreEnabled: false,
     });
-    this.specPath = options.specPath;
-    this.generatedTypescriptTypes = options.generatedTypescriptTypes;
-    this.mockDataOptions = options.mockDataOptions;
+    TypeSafeApiCommandEnvironment.ensure(this);
+    this.options = options;
 
+    this.addDevDeps("@types/aws-lambda");
     this.addDeps(
       ...[
-        "@aws-prototyping-sdk/type-safe-api",
+        "@aws/pdk",
         "constructs",
         "aws-cdk-lib",
         "cdk-nag",
@@ -100,6 +100,10 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       )
     );
 
+    // Minimal .npmignore to avoid impacting OpenAPI Generator
+    const npmignore = new IgnoreFile(this, ".npmignore");
+    npmignore.addPatterns("/.projen/", "/src", "/dist");
+
     // Ignore everything but the target files
     const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
     openapiGeneratorIgnore.addPatterns(
@@ -109,6 +113,15 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       `!${this.srcdir}/index.ts`,
       `!${this.srcdir}/api.ts`,
       `!${this.srcdir}/mock-integrations.ts`
+    );
+
+    const openapiGeneratorHandlebarsIgnore =
+      new OpenApiGeneratorHandlebarsIgnoreFile(this);
+    openapiGeneratorHandlebarsIgnore.addPatterns(
+      "/*",
+      "**/*",
+      "*",
+      `!${this.srcdir}/__functions.ts`
     );
 
     // Add OpenAPI Generator cli configuration
@@ -124,7 +137,16 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
         this.buildGenerateCommandArgs()
       )
     );
-    generateTask.exec(this.buildGenerateMockDataCommand());
+    if (!this.options.mockDataOptions?.disable) {
+      generateTask.exec(this.buildGenerateMockDataCommand());
+    }
+
+    // Copy the api spec to within the package
+    generateTask.exec(`mkdir -p ${path.dirname(this.packagedSpecPath)}`);
+    generateTask.exec(
+      `cp -f ${this.options.specPath} ${this.packagedSpecPath}`
+    );
+    this.gitignore.addPatterns(`/${this.packagedSpecPath}`);
 
     this.preCompileTask.spawn(generateTask);
 
@@ -140,7 +162,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
           this.tasks
             .tryFind("install")
             ?.prependExec(
-              `${this.package.packageManager} link ${this.generatedTypescriptTypes.package.packageName}`
+              `${this.package.packageManager} link ${this.options.generatedTypescriptTypes.package.packageName}`
             );
           break;
         case NodePackageManager.PNPM:
@@ -149,7 +171,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
             ?.prependExec(
               `${this.package.packageManager} link /${path.relative(
                 this.outdir,
-                this.generatedTypescriptTypes.outdir
+                this.options.generatedTypescriptTypes.outdir
               )}`
             );
           break;
@@ -164,7 +186,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
-      specPath: this.specPath,
+      specPath: this.options.specPath,
       generatorDirectory: OtherGenerators.TYPESCRIPT_CDK_INFRASTRUCTURE,
       srcDir: this.srcdir,
       normalizers: {
@@ -172,17 +194,23 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
       },
       extraVendorExtensions: {
         "x-runtime-package-name":
-          this.generatedTypescriptTypes.package.packageName,
+          this.options.generatedTypescriptTypes.package.packageName,
         // Spec path relative to the source directory
-        "x-relative-spec-path": path.join("..", this.specPath),
+        "x-relative-spec-path": path.join("..", this.packagedSpecPath),
+        // Enable mock integration generation by default
+        "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
+        ...getHandlersProjectVendorExtensions(
+          this,
+          this.options.generatedHandlers
+        ),
       },
     });
   };
 
   public buildGenerateMockDataCommand = () => {
     return buildInvokeMockDataGeneratorCommand({
-      specPath: this.specPath,
-      ...this.mockDataOptions,
+      specPath: this.options.specPath,
+      ...this.options.mockDataOptions,
     });
   };
 }

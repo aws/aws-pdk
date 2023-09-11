@@ -3,9 +3,13 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { JavaProject } from "projen/lib/java";
 import { Language } from "../../languages";
-import { GeneratedJavaRuntimeOptions } from "../../types";
+import {
+  CodeGenerationSourceOptions,
+  GeneratedJavaRuntimeOptions,
+} from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
@@ -17,12 +21,8 @@ import {
  * Configuration for the generated java runtime project
  */
 export interface GeneratedJavaTypesProjectOptions
-  extends GeneratedJavaRuntimeOptions {
-  /**
-   * The path to the OpenAPI specification, relative to this project's outdir
-   */
-  readonly specPath: string;
-}
+  extends GeneratedJavaRuntimeOptions,
+    CodeGenerationSourceOptions {}
 
 const DEPENDENCIES: string[] = [
   // Required for open api generated code
@@ -42,6 +42,10 @@ const DEPENDENCIES: string[] = [
   "com.amazonaws/aws-lambda-java-events@3.11.0",
   // Lombok is used to add the builder pattern to models for neater construction
   "org.projectlombok/lombok@1.18.24",
+  // Interceptors
+  "software.amazon.lambda/powertools-logging@^1.16.1",
+  "software.amazon.lambda/powertools-tracing@^1.16.1",
+  "software.amazon.lambda/powertools-metrics@^1.16.1",
 ];
 
 const TEST_DEPENDENCIES: string[] = [
@@ -79,18 +83,19 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
   public readonly packageName: string;
 
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
+  private readonly options: GeneratedJavaTypesProjectOptions;
 
   constructor(options: GeneratedJavaTypesProjectOptions) {
     super({
+      ...(options as any),
       sample: false,
       junit: false,
-      ...options,
     });
-    this.specPath = options.specPath;
+    TypeSafeApiCommandEnvironment.ensure(this);
+    this.options = options;
 
     // Ignore files that we will control via projen
     const ignoreFile = new OpenApiGeneratorIgnoreFile(this);
@@ -134,7 +139,7 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "java",
-      specPath: this.specPath,
+      specPath: this.options.specPath,
       generatorDirectory: Language.JAVA,
       additionalProperties: {
         useSingleRequestParameter: "true",

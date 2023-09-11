@@ -1,6 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { Graph } from "@aws-prototyping-sdk/cdk-graph";
+import { Graph } from "@aws/cdk-graph";
 import * as Dot from "ts-graphviz";
 import { EdgeAttributesObject } from "ts-graphviz";
 import { Node } from "./nodes";
@@ -120,8 +120,10 @@ export abstract class BaseEdge extends Dot.Edge {
         this.isClosedLoop ||
         this.isCompound ||
         this.isSynthetic ||
-        this.from.graphNode.findAncestor((node) => node.isCluster) !==
-          this.to.graphNode.findAncestor((node) => node.isCluster)
+        this.from.graphNode.findAncestor({
+          filter: (node) => node.isCluster,
+        }) !==
+          this.to.graphNode.findAncestor({ filter: (node) => node.isCluster })
       ) {
         this.attributes.set("constraint", false);
 

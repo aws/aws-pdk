@@ -2,11 +2,12 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
+import { TypeSafeApiProject } from "@aws/type-safe-api";
+import * as Mustache from "mustache";
 import { SampleDir } from "projen";
-import {
-  ReactTypeScriptProject,
-  ReactTypeScriptProjectOptions,
-} from "projen/lib/web";
+import { NodeProject } from "projen/lib/javascript";
+import { ReactTypeScriptProject } from "projen/lib/web";
+import { ReactTypeScriptProjectOptions } from "./react-ts-project-options";
 
 /**
  * Configuration options for the CloudscapeReactTsWebsiteProject.
@@ -25,6 +26,11 @@ export interface CloudscapeReactTsWebsiteProjectOptions
    * @default "public"
    */
   readonly publicDir?: string;
+
+  /**
+   * TypeSafeApi instance to use when setting up the initial project sample code.
+   */
+  readonly typeSafeApi?: TypeSafeApiProject;
 }
 
 /**
@@ -37,22 +43,39 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
   public readonly publicDir: string;
 
   constructor(options: CloudscapeReactTsWebsiteProjectOptions) {
+    const hasApi = !!options.typeSafeApi;
+
     super({
       ...options,
-      defaultReleaseBranch: options.defaultReleaseBranch,
+      defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
       name: options.name,
       sampleCode: false,
+      prettier: options.prettier || true,
+      packageManager:
+        options.parent && options.parent instanceof NodeProject
+          ? options.parent.package.packageManager
+          : options.packageManager,
       readme: {
         contents: fs
-          .readFileSync(path.resolve(__dirname, "../README.md"))
+          .readFileSync(
+            path.resolve(
+              __dirname,
+              "../samples/cloudscape-react-ts-website/README.md"
+            )
+          )
           .toString(),
       },
-      gitignore: ["runtime-config.json"],
+      gitignore: [
+        "public/runtime-config.json",
+        "public/api.json",
+        ...(options.gitignore || []),
+      ],
     });
 
     this.addDeps(
       "@aws-northstar/ui",
       "@cloudscape-design/components",
+      "@cloudscape-design/board-components",
       "react-router-dom"
     );
 
@@ -63,53 +86,102 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
 
     this.applicationName = options.applicationName ?? "Sample App";
     this.publicDir = options.publicDir ?? "public";
-    const srcDir = path.resolve(__dirname, "../samples/src");
+    const srcDir = path.resolve(
+      __dirname,
+      "../samples/cloudscape-react-ts-website/src"
+    );
+    const publicDir = path.resolve(
+      __dirname,
+      "../samples/cloudscape-react-ts-website/public"
+    );
+
+    if (options.typeSafeApi) {
+      const hooks = options.typeSafeApi.library?.typescriptReactQueryHooks;
+      const libraryHooksPackage = hooks?.package?.packageName;
+      if (!libraryHooksPackage) {
+        throw new Error(
+          "Cannot pass in a Type Safe Api without React Hooks Library configured!"
+        );
+      }
+      this.addDeps(libraryHooksPackage);
+
+      this.setupSwaggerUi(options.typeSafeApi);
+    }
+
+    const mustacheConfig = {
+      applicationName: this.applicationName,
+      hasApi,
+      apiHooksPackage:
+        options.typeSafeApi?.library?.typescriptReactQueryHooks?.package
+          ?.packageName,
+    };
+
     new SampleDir(this, this.srcdir, {
       files: {
-        ...Object.fromEntries(this.buildSampleDirEntries(srcDir)),
-        "config.json": JSON.stringify(
-          {
-            applicationName: this.applicationName,
-          },
-          undefined,
-          2
+        ...Object.fromEntries(
+          this.buildSampleDirEntries(srcDir, [], mustacheConfig)
         ),
       },
     });
 
-    const publicDir = path.resolve(__dirname, "../samples/public");
     new SampleDir(this, this.publicDir, {
-      sourceDir: publicDir,
       files: {
-        // override index.html to pass through applicationName
-        "index.html": fs
-          .readFileSync(`${publicDir}/index.html`)
-          .toString()
-          .replace("<title></title>", `<title>${this.applicationName}</title>`),
+        ...Object.fromEntries(
+          this.buildSampleDirEntries(publicDir, [], mustacheConfig)
+        ),
       },
     });
 
     // Linting is managed as part of the test task already, so disable react-scripts running eslint again
     this.tasks.addEnvironment("DISABLE_ESLINT_PLUGIN", "true");
+
+    // Relax EsLint and TSC for dev
+    this.tasks.tryFind("dev")?.env("ESLINT_NO_DEV_ERRORS", "true");
+    this.tasks.tryFind("dev")?.env("TSC_COMPILE_ON_ERROR", "true");
+  }
+
+  private setupSwaggerUi(tsApi: TypeSafeApiProject) {
+    this.addDevDeps("@types/swagger-ui-react");
+    this.addDeps("swagger-ui-react@5.5.0", "aws4fetch");
+
+    const targetApiSpecPath = `${path.relative(
+      tsApi.model.outdir,
+      this.outdir
+    )}/public/api.json`;
+    tsApi.model.postCompileTask.exec(`rm -f ${targetApiSpecPath}`);
+    tsApi.model.postCompileTask.exec(`cp .api.json ${targetApiSpecPath}`);
   }
 
   private buildSampleDirEntries(
     dir: string,
-    pathPrefixes: string[] = []
+    pathPrefixes: string[] = [],
+    mustacheConfig: any
   ): [string, string][] {
     return fs
       .readdirSync(dir, { withFileTypes: true })
-      .filter((f) => f.name !== "config.json")
+      .filter(
+        (f) =>
+          mustacheConfig.hasApi ||
+          (!`${pathPrefixes.join("/")}${f.name}`.includes("DefaultApi") &&
+            !`${pathPrefixes.join("/")}${f.name}`.includes("ApiExplorer"))
+      )
       .flatMap((f) =>
         f.isDirectory()
-          ? this.buildSampleDirEntries(`${dir}/${f.name}`, [
-              ...pathPrefixes,
-              f.name,
-            ])
+          ? this.buildSampleDirEntries(
+              `${dir}/${f.name}`,
+              [...pathPrefixes, f.name],
+              mustacheConfig
+            )
           : [
               [
-                `${path.join(...pathPrefixes, f.name)}`,
-                fs.readFileSync(`${dir}/${f.name}`).toString(),
+                `${path.join(
+                  ...pathPrefixes,
+                  f.name.replace(".mustache", "")
+                )}`,
+                Mustache.render(
+                  fs.readFileSync(`${dir}/${f.name}`).toString(),
+                  mustacheConfig
+                ),
               ],
             ]
       );

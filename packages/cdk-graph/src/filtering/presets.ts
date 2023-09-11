@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { Filters, verifyFilterable } from "./filters";
-import { IGraphFilterPlan, IGraphFilterPlanFocusConfig } from "./types";
+import { Filters } from "./filters";
+import { IGraphFilterPlan } from "./types";
 import { Graph } from "../core";
 
 /**
@@ -10,26 +10,16 @@ import { Graph } from "../core";
  * @destructive
  */
 export function focusFilter(store: Graph.Store, plan: IGraphFilterPlan): void {
-  verifyFilterable(store);
+  Filters.verifyFilterable(store);
 
   if (plan.focus == null) return; // noop
 
   let focusedNode: Graph.Node;
   let hoist: boolean = true;
-  if (typeof plan.focus === "function") {
-    focusedNode = plan.focus(store);
-  } else if (plan.focus instanceof Graph.Node) {
-    focusedNode = plan.focus;
-  } else {
-    const { node: _node, noHoist: _noHoist } =
-      plan.focus as IGraphFilterPlanFocusConfig;
-    if (typeof _node === "function") {
-      focusedNode = _node(store);
-    } else {
-      focusedNode = _node;
-    }
-    hoist = !_noHoist;
-  }
+
+  const { filter: _filter, noHoist: _noHoist } = plan.focus;
+  focusedNode = _filter.filter(store);
+  hoist = !_noHoist;
 
   if (focusedNode === store.root) return; // noop
 
@@ -79,7 +69,7 @@ export function focusFilter(store: Graph.Store, plan: IGraphFilterPlan): void {
  * @destructive
  */
 export function nonExtraneousFilterPreset(store: Graph.Store): void {
-  return Filters.pruneExtraneous()(store);
+  return Filters.pruneExtraneous().filter(store);
 }
 
 /**
@@ -88,5 +78,5 @@ export function nonExtraneousFilterPreset(store: Graph.Store): void {
  * @destructive
  */
 export function compactFilterPreset(store: Graph.Store): void {
-  Filters.compact()(store);
+  Filters.compact().filter(store);
 }

@@ -15,7 +15,8 @@ import uniq = require("lodash.uniq"); // eslint-disable-line @typescript-eslint/
 import uniqBy = require("lodash.uniqby"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { GRAPH_ID } from "./constants";
 import { IS_DEBUG } from "./debug";
-import { Graph } from "./graph";
+import * as Graph from "./graph";
+import * as SerializedGraph from "./serialized-graph";
 import {
   CdkConstructIds,
   ConstructInfoFqnEnum,
@@ -23,7 +24,6 @@ import {
   LOGICAL_UNIVERSAL_ID,
   NodeTypeEnum,
   ReferenceTypeEnum,
-  UnresolvedReference,
   UUID,
 } from "./types";
 import {
@@ -58,7 +58,7 @@ export function computeGraph(root: IConstruct): Graph.Store {
   const nodesToIgnore: UUID[] = [];
 
   // List of all unresolved referenced detected during compute, which are resolved after all nodes have been stored
-  const allUnresolvedReferences: UnresolvedReference[] = [];
+  const allUnresolvedReferences: SerializedGraph.SGUnresolvedReference[] = [];
   // List of all unresolved dependencies detected during compute, which are resolved after all nodes have been stored
   const allUnresolvedDependencies: UnresolvedDependency[] = [];
 
@@ -124,7 +124,6 @@ export function computeGraph(root: IConstruct): Graph.Store {
       cfnType,
       flags,
     };
-
     let node: Graph.Node;
     switch (constructInfo?.fqn as ConstructInfoFqnEnum) {
       case ConstructInfoFqnEnum.PDKAPP_MONO:
@@ -332,7 +331,7 @@ export function computeGraph(root: IConstruct): Graph.Store {
  */
 function resolveReference(
   store: Graph.Store,
-  unresolved: UnresolvedReference
+  unresolved: SerializedGraph.SGUnresolvedReference
 ): Graph.Reference | undefined {
   const source = store.getNode(unresolved.source);
   if (source.stack == null) {

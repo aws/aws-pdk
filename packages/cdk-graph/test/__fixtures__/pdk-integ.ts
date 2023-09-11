@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { PDKNagApp } from "@aws-prototyping-sdk/pdk-nag";
-import { PDKPipeline } from "@aws-prototyping-sdk/pipeline";
+import { PDKNagApp } from "@aws/pdk-nag";
+import { PDKPipeline } from "@aws/pipeline";
 import { Stack } from "aws-cdk-lib";
 import { TestStage } from "./apps";
 import { ENVIRONMENTS } from "./env";

@@ -4,54 +4,48 @@ import * as path from "path";
 import { DependencyType } from "projen";
 import { PythonProject } from "projen/lib/python";
 import {
+  CodeGenerationSourceOptions,
   GeneratedPythonInfrastructureOptions,
-  MockResponseDataGenerationOptions,
 } from "../../../types";
+import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeMockDataGeneratorCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
   buildTypeSafeApiExecCommand,
+  getHandlersProjectVendorExtensions,
   OtherGenerators,
   TypeSafeApiScript,
 } from "../../components/utils";
+import { GeneratedHandlersProjects } from "../../generate";
 import { GeneratedPythonRuntimeProject } from "../../runtime/generated-python-runtime-project";
 
 export interface GeneratedPythonCdkInfrastructureProjectOptions
-  extends GeneratedPythonInfrastructureOptions {
-  /**
-   * OpenAPI spec path, relative to the project outdir
-   */
-  readonly specPath: string;
+  extends GeneratedPythonInfrastructureOptions,
+    CodeGenerationSourceOptions {
   /**
    * The generated python types
    */
   readonly generatedPythonTypes: GeneratedPythonRuntimeProject;
+  /**
+   * Generated handlers projects
+   */
+  readonly generatedHandlers: GeneratedHandlersProjects;
 }
 
 export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
-
-  /**
-   * The generated python types
-   * @private
-   */
-  private readonly generatedPythonTypes: GeneratedPythonRuntimeProject;
-
-  /**
-   * Mock data generator options
-   * @private
-   */
-  private readonly mockDataOptions?: MockResponseDataGenerationOptions;
+  private readonly options: GeneratedPythonCdkInfrastructureProjectOptions;
 
   constructor(options: GeneratedPythonCdkInfrastructureProjectOptions) {
     super({
+      ...(options as any),
       sample: false,
       pytest: false,
       poetry: true,
@@ -60,17 +54,16 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         // Module must be explicitly added to include since poetry excludes everything in .gitignore by default
         include: [options.moduleName, `${options.moduleName}/**/*.py`],
       },
-      ...options,
     });
-    this.specPath = options.specPath;
-    this.generatedPythonTypes = options.generatedPythonTypes;
-    this.mockDataOptions = options.mockDataOptions;
+    TypeSafeApiCommandEnvironment.ensure(this);
+    this.options = options;
 
     [
-      "aws_prototyping_sdk.type_safe_api@^0",
+      "aws_pdk@^0",
       "constructs@^10",
       "aws-cdk-lib@^2",
       "cdk-nag@^2",
+      "python@^3.9",
       `${options.generatedPythonTypes.name}@{path="${path.relative(
         this.outdir,
         options.generatedPythonTypes.outdir
@@ -90,10 +83,20 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
       `!${this.moduleName}/mock_integrations.py`
     );
 
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
+    const openapiGeneratorHandlebarsIgnore =
+      new OpenApiGeneratorHandlebarsIgnoreFile(this);
+    openapiGeneratorHandlebarsIgnore.addPatterns(
+      "/*",
+      "**/*",
+      "*",
+      `!${this.moduleName}/__functions.py`
     );
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig({
+      version: "6.6.0",
+      ...options.openApiGeneratorCliConfig,
+    });
 
     const generateTask = this.addTask("generate");
     generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
@@ -103,7 +106,9 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         this.buildGenerateCommandArgs()
       )
     );
-    generateTask.exec(this.buildGenerateMockDataCommand());
+    if (!this.options.mockDataOptions?.disable) {
+      generateTask.exec(this.buildGenerateMockDataCommand());
+    }
 
     this.preCompileTask.spawn(generateTask);
 
@@ -124,8 +129,8 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
 
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
-      generator: "python",
-      specPath: this.specPath,
+      generator: "python-nextgen",
+      specPath: this.options.specPath,
       generatorDirectory: OtherGenerators.PYTHON_CDK_INFRASTRUCTURE,
       // Tell the generator where python source files live
       srcDir: this.moduleName,
@@ -133,17 +138,23 @@ export class GeneratedPythonCdkInfrastructureProject extends PythonProject {
         KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
       },
       extraVendorExtensions: {
-        "x-runtime-module-name": this.generatedPythonTypes.moduleName,
+        "x-runtime-module-name": this.options.generatedPythonTypes.moduleName,
         // Spec path relative to the source directory
-        "x-relative-spec-path": path.join("..", this.specPath),
+        "x-relative-spec-path": path.join("..", this.options.specPath),
+        // Enable mock integration generation by default
+        "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
+        ...getHandlersProjectVendorExtensions(
+          this,
+          this.options.generatedHandlers
+        ),
       },
     });
   };
 
   public buildGenerateMockDataCommand = () => {
     return buildInvokeMockDataGeneratorCommand({
-      specPath: this.specPath,
-      ...this.mockDataOptions,
+      specPath: this.options.specPath,
+      ...this.options.mockDataOptions,
     });
   };
 }

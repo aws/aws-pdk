@@ -36,16 +36,23 @@ dist
 .openapi-generator-ignore
 README.md
 package.json
+src/__interceptors.ts
 src/apis/DefaultApi.ts
 src/apis/DefaultApi/OperationConfig.ts
 src/apis/Tag1Api.ts
 src/apis/Tag2Api.ts
 src/apis/index.ts
 src/index.ts
+src/response/response.ts
 src/runtime.ts
 tsconfig.esm.json
 tsconfig.json
-",
+src/interceptors/try-catch.ts
+src/interceptors/cors.ts
+src/interceptors/powertools/logger.ts
+src/interceptors/powertools/tracer.ts
+src/interceptors/powertools/metrics.ts
+src/interceptors/index.ts",
   ".openapi-generator/VERSION": "6.3.0",
   "README.md": "## test@1.0.0
 
@@ -229,6 +236,86 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
+const assertRequired = (required: boolean, baseName: string, parameters: any) => {
+    if(required && parameters[baseName] === undefined) {
+        throw new Error(\`Missing required request parameter '\${baseName}'\`);
+    }
+};
+
+const coerceNumber = (baseName: string, s: string, isInteger: boolean): number => {
+    const n = Number(s);
+    if (isNaN(n)) {
+        throw new Error(\`Expected a number for request parameter '\${baseName}'\`);
+    }
+    if (isInteger && !Number.isInteger(n)) {
+        throw new Error(\`Expected an integer for request parameter '\${baseName}'\`);
+    }
+    return n;
+};
+
+const coerceBoolean = (baseName: string, s: string): boolean => {
+    switch (s) {
+        case "true":
+          return true;
+        case "false":
+          return false;
+        default:
+          throw new Error(\`Expected a boolean (true or false) for request parameter '\${baseName}'\`);
+    }
+};
+
+const coerceDate = (baseName: string, s: string): Date => {
+    const d = new Date(s);
+    if (isNaN(d as any)) {
+        throw new Error(\`Expected a valid date (iso format) for request parameter '\${baseName}'\`);
+    }
+    return d;
+};
+
+const coerceParameter = (
+    baseName: string,
+    dataType: string,
+    isInteger: boolean,
+    rawStringParameters: { [key: string]: string | undefined },
+    rawStringArrayParameters: { [key: string]: string[] | undefined },
+    required: boolean,
+) => {
+    switch (dataType) {
+      case "number":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceNumber(baseName, rawStringParameters[baseName], isInteger) : undefined;
+      case "boolean":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceBoolean(baseName, rawStringParameters[baseName]) : undefined;
+      case "Date":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceDate(baseName, rawStringParameters[baseName]) : undefined;
+      case "Array<number>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceNumber(baseName, n, isInteger)) : undefined;
+      case "Array<boolean>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceBoolean(baseName, n)) : undefined;
+      case "Array<Date>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceDate(baseName, n)) : undefined;
+      case "Array<string>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName];
+      case "string":
+      default:
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName];
+    }
+};
+
+const extractResponseHeadersFromInterceptors = (interceptors: any[]): { [key: string]: string } => {
+  return (interceptors ?? []).reduce((interceptor: any, headers: { [key: string]: string }) => ({
+    ...headers,
+    ...(interceptor?.__type_safe_api_response_headers ?? {}),
+  }), {} as { [key: string]: string });
+};
+
 type OperationIds = | 'neither' | 'both' | 'tag1' | 'tag2';
 type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
 
@@ -243,50 +330,49 @@ export interface OperationResponse<StatusCode extends number, Body> {
 }
 
 // Input for a lambda handler for an operation
-export type LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody> = {
+export type LambdaRequestParameters<RequestParameters, RequestBody> = {
     requestParameters: RequestParameters,
-    requestArrayParameters: RequestArrayParameters,
     body: RequestBody,
 };
 
 export type InterceptorContext = { [key: string]: any };
 
-export interface RequestInput<RequestParameters, RequestArrayParameters, RequestBody> {
-    input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>;
+export interface RequestInput<RequestParameters, RequestBody> {
+    input: LambdaRequestParameters<RequestParameters, RequestBody>;
     event: APIGatewayProxyEvent;
     context: Context;
     interceptorContext: InterceptorContext;
 }
 
-export interface ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response> extends RequestInput<RequestParameters, RequestArrayParameters, RequestBody> {
-    chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>;
+export interface ChainedRequestInput<RequestParameters, RequestBody, Response> extends RequestInput<RequestParameters, RequestBody> {
+    chain: LambdaHandlerChain<RequestParameters, RequestBody, Response>;
 }
 
 /**
  * A lambda handler function which is part of a chain. It may invoke the remainder of the chain via the given chain input
  */
-export type ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
-  input: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+export type ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response> = (
+  input: ChainedRequestInput<RequestParameters, RequestBody, Response>,
 ) => Promise<Response>;
 
 // Type for a lambda handler function to be wrapped
-export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
-  input: RequestInput<RequestParameters, RequestArrayParameters, RequestBody>,
+export type LambdaHandlerFunction<RequestParameters, RequestBody, Response> = (
+  input: RequestInput<RequestParameters, RequestBody>,
 ) => Promise<Response>;
 
-export interface LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> {
-  next: LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>;
+export interface LambdaHandlerChain<RequestParameters, RequestBody, Response> {
+  next: LambdaHandlerFunction<RequestParameters, RequestBody, Response>;
 }
 
 // Interceptor is a type alias for ChainedLambdaHandlerFunction
-export type Interceptor<RequestParameters, RequestArrayParameters, RequestBody, Response> = ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>;
+export type Interceptor<RequestParameters, RequestBody, Response> = ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response>;
 
 /**
  * Build a chain from the given array of chained lambda handlers
  */
-const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, Response>(
-  ...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>[]
-): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> => {
+const buildHandlerChain = <RequestParameters, RequestBody, Response>(
+  ...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response>[]
+): LambdaHandlerChain<RequestParameters, RequestBody, Response> => {
   if (handlers.length === 0) {
     return {
       next: () => {
@@ -306,15 +392,9 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
 };
 
 /**
- * Single-value path/query/header parameters for Neither
+ * Path, Query and Header parameters for Neither
  */
 export interface NeitherRequestParameters {
-}
-
-/**
- * Multi-value query or header parameters for Neither
- */
-export interface NeitherRequestArrayParameters {
 }
 
 /**
@@ -326,43 +406,27 @@ export type Neither200OperationResponse = OperationResponse<200, undefined>;
 export type NeitherOperationResponses = | Neither200OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
-export type NeitherHandlerFunction = LambdaHandlerFunction<NeitherRequestParameters, NeitherRequestArrayParameters, NeitherRequestBody, NeitherOperationResponses>;
-export type NeitherChainedHandlerFunction = ChainedLambdaHandlerFunction<NeitherRequestParameters, NeitherRequestArrayParameters, NeitherRequestBody, NeitherOperationResponses>;
+export type NeitherHandlerFunction = LambdaHandlerFunction<NeitherRequestParameters, NeitherRequestBody, NeitherOperationResponses>;
+export type NeitherChainedHandlerFunction = ChainedLambdaHandlerFunction<NeitherRequestParameters, NeitherRequestBody, NeitherOperationResponses>;
+export type NeitherChainedRequestInput = ChainedRequestInput<NeitherRequestParameters, NeitherRequestBody, NeitherOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of neither
  */
 export const neitherHandler = (
-    firstHandler: NeitherChainedHandlerFunction,
-    ...remainingHandlers: NeitherChainedHandlerFunction[]
+    ...handlers: [NeitherChainedHandlerFunction, ...NeitherChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'neither'> => async (event: any, context: any, _callback?: any, additionalInterceptors: NeitherChainedHandlerFunction[] = []): Promise<any> => {
-    const requestParameters = decodeRequestParameters({
-        ...(event.pathParameters || {}),
-        ...(event.queryStringParameters || {}),
-        ...(event.headers || {}),
-    }) as unknown as NeitherRequestParameters;
+    const operationId = "neither";
 
-    const requestArrayParameters = decodeRequestParameters({
-        ...(event.multiValueQueryStringParameters || {}),
-        ...(event.multiValueHeaders || {}),
-    }) as unknown as NeitherRequestArrayParameters;
-
-    const demarshal = (bodyString: string): any => {
-        return {};
-    };
-    const body = parseBody(event.body, demarshal, ['application/json']) as NeitherRequestBody;
-
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
-    const response = await chain.next({
-        input: {
-            requestParameters,
-            requestArrayParameters,
-            body,
-        },
-        event,
-        context,
-        interceptorContext: {},
-    });
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
@@ -387,6 +451,43 @@ export const neitherHandler = (
         return headers;
     };
 
+    let requestParameters: NeitherRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as NeitherRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
     return {
         ...response,
         headers: {
@@ -397,15 +498,9 @@ export const neitherHandler = (
     };
 };
 /**
- * Single-value path/query/header parameters for Both
+ * Path, Query and Header parameters for Both
  */
 export interface BothRequestParameters {
-}
-
-/**
- * Multi-value query or header parameters for Both
- */
-export interface BothRequestArrayParameters {
 }
 
 /**
@@ -417,43 +512,27 @@ export type Both200OperationResponse = OperationResponse<200, undefined>;
 export type BothOperationResponses = | Both200OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
-export type BothHandlerFunction = LambdaHandlerFunction<BothRequestParameters, BothRequestArrayParameters, BothRequestBody, BothOperationResponses>;
-export type BothChainedHandlerFunction = ChainedLambdaHandlerFunction<BothRequestParameters, BothRequestArrayParameters, BothRequestBody, BothOperationResponses>;
+export type BothHandlerFunction = LambdaHandlerFunction<BothRequestParameters, BothRequestBody, BothOperationResponses>;
+export type BothChainedHandlerFunction = ChainedLambdaHandlerFunction<BothRequestParameters, BothRequestBody, BothOperationResponses>;
+export type BothChainedRequestInput = ChainedRequestInput<BothRequestParameters, BothRequestBody, BothOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of both
  */
 export const bothHandler = (
-    firstHandler: BothChainedHandlerFunction,
-    ...remainingHandlers: BothChainedHandlerFunction[]
+    ...handlers: [BothChainedHandlerFunction, ...BothChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'both'> => async (event: any, context: any, _callback?: any, additionalInterceptors: BothChainedHandlerFunction[] = []): Promise<any> => {
-    const requestParameters = decodeRequestParameters({
-        ...(event.pathParameters || {}),
-        ...(event.queryStringParameters || {}),
-        ...(event.headers || {}),
-    }) as unknown as BothRequestParameters;
+    const operationId = "both";
 
-    const requestArrayParameters = decodeRequestParameters({
-        ...(event.multiValueQueryStringParameters || {}),
-        ...(event.multiValueHeaders || {}),
-    }) as unknown as BothRequestArrayParameters;
-
-    const demarshal = (bodyString: string): any => {
-        return {};
-    };
-    const body = parseBody(event.body, demarshal, ['application/json']) as BothRequestBody;
-
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
-    const response = await chain.next({
-        input: {
-            requestParameters,
-            requestArrayParameters,
-            body,
-        },
-        event,
-        context,
-        interceptorContext: {},
-    });
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
@@ -478,6 +557,43 @@ export const bothHandler = (
         return headers;
     };
 
+    let requestParameters: BothRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as BothRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
     return {
         ...response,
         headers: {
@@ -488,15 +604,9 @@ export const bothHandler = (
     };
 };
 /**
- * Single-value path/query/header parameters for Tag1
+ * Path, Query and Header parameters for Tag1
  */
 export interface Tag1RequestParameters {
-}
-
-/**
- * Multi-value query or header parameters for Tag1
- */
-export interface Tag1RequestArrayParameters {
 }
 
 /**
@@ -508,43 +618,27 @@ export type Tag1200OperationResponse = OperationResponse<200, undefined>;
 export type Tag1OperationResponses = | Tag1200OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
-export type Tag1HandlerFunction = LambdaHandlerFunction<Tag1RequestParameters, Tag1RequestArrayParameters, Tag1RequestBody, Tag1OperationResponses>;
-export type Tag1ChainedHandlerFunction = ChainedLambdaHandlerFunction<Tag1RequestParameters, Tag1RequestArrayParameters, Tag1RequestBody, Tag1OperationResponses>;
+export type Tag1HandlerFunction = LambdaHandlerFunction<Tag1RequestParameters, Tag1RequestBody, Tag1OperationResponses>;
+export type Tag1ChainedHandlerFunction = ChainedLambdaHandlerFunction<Tag1RequestParameters, Tag1RequestBody, Tag1OperationResponses>;
+export type Tag1ChainedRequestInput = ChainedRequestInput<Tag1RequestParameters, Tag1RequestBody, Tag1OperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of tag1
  */
 export const tag1Handler = (
-    firstHandler: Tag1ChainedHandlerFunction,
-    ...remainingHandlers: Tag1ChainedHandlerFunction[]
+    ...handlers: [Tag1ChainedHandlerFunction, ...Tag1ChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'tag1'> => async (event: any, context: any, _callback?: any, additionalInterceptors: Tag1ChainedHandlerFunction[] = []): Promise<any> => {
-    const requestParameters = decodeRequestParameters({
-        ...(event.pathParameters || {}),
-        ...(event.queryStringParameters || {}),
-        ...(event.headers || {}),
-    }) as unknown as Tag1RequestParameters;
+    const operationId = "tag1";
 
-    const requestArrayParameters = decodeRequestParameters({
-        ...(event.multiValueQueryStringParameters || {}),
-        ...(event.multiValueHeaders || {}),
-    }) as unknown as Tag1RequestArrayParameters;
-
-    const demarshal = (bodyString: string): any => {
-        return {};
-    };
-    const body = parseBody(event.body, demarshal, ['application/json']) as Tag1RequestBody;
-
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
-    const response = await chain.next({
-        input: {
-            requestParameters,
-            requestArrayParameters,
-            body,
-        },
-        event,
-        context,
-        interceptorContext: {},
-    });
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
@@ -568,6 +662,43 @@ export const tag1Handler = (
 
         return headers;
     };
+
+    let requestParameters: Tag1RequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as Tag1RequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
 
     return {
         ...response,
@@ -579,15 +710,9 @@ export const tag1Handler = (
     };
 };
 /**
- * Single-value path/query/header parameters for Tag2
+ * Path, Query and Header parameters for Tag2
  */
 export interface Tag2RequestParameters {
-}
-
-/**
- * Multi-value query or header parameters for Tag2
- */
-export interface Tag2RequestArrayParameters {
 }
 
 /**
@@ -599,43 +724,27 @@ export type Tag2200OperationResponse = OperationResponse<200, undefined>;
 export type Tag2OperationResponses = | Tag2200OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
-export type Tag2HandlerFunction = LambdaHandlerFunction<Tag2RequestParameters, Tag2RequestArrayParameters, Tag2RequestBody, Tag2OperationResponses>;
-export type Tag2ChainedHandlerFunction = ChainedLambdaHandlerFunction<Tag2RequestParameters, Tag2RequestArrayParameters, Tag2RequestBody, Tag2OperationResponses>;
+export type Tag2HandlerFunction = LambdaHandlerFunction<Tag2RequestParameters, Tag2RequestBody, Tag2OperationResponses>;
+export type Tag2ChainedHandlerFunction = ChainedLambdaHandlerFunction<Tag2RequestParameters, Tag2RequestBody, Tag2OperationResponses>;
+export type Tag2ChainedRequestInput = ChainedRequestInput<Tag2RequestParameters, Tag2RequestBody, Tag2OperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of tag2
  */
 export const tag2Handler = (
-    firstHandler: Tag2ChainedHandlerFunction,
-    ...remainingHandlers: Tag2ChainedHandlerFunction[]
+    ...handlers: [Tag2ChainedHandlerFunction, ...Tag2ChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'tag2'> => async (event: any, context: any, _callback?: any, additionalInterceptors: Tag2ChainedHandlerFunction[] = []): Promise<any> => {
-    const requestParameters = decodeRequestParameters({
-        ...(event.pathParameters || {}),
-        ...(event.queryStringParameters || {}),
-        ...(event.headers || {}),
-    }) as unknown as Tag2RequestParameters;
+    const operationId = "tag2";
 
-    const requestArrayParameters = decodeRequestParameters({
-        ...(event.multiValueQueryStringParameters || {}),
-        ...(event.multiValueHeaders || {}),
-    }) as unknown as Tag2RequestArrayParameters;
-
-    const demarshal = (bodyString: string): any => {
-        return {};
-    };
-    const body = parseBody(event.body, demarshal, ['application/json']) as Tag2RequestBody;
-
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
-    const response = await chain.next({
-        input: {
-            requestParameters,
-            requestArrayParameters,
-            body,
-        },
-        event,
-        context,
-        interceptorContext: {},
-    });
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
@@ -659,6 +768,43 @@ export const tag2Handler = (
 
         return headers;
     };
+
+    let requestParameters: Tag2RequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as Tag2RequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
 
     return {
         ...response,
@@ -678,13 +824,11 @@ export interface HandlerRouterHandlers {
 }
 
 export type AnyOperationRequestParameters = | NeitherRequestParameters| BothRequestParameters| Tag1RequestParameters| Tag2RequestParameters;
-export type AnyOperationRequestArrayParameters = | NeitherRequestArrayParameters| BothRequestArrayParameters| Tag1RequestArrayParameters| Tag2RequestArrayParameters;
 export type AnyOperationRequestBodies = | NeitherRequestBody| BothRequestBody| Tag1RequestBody| Tag2RequestBody;
 export type AnyOperationResponses = | NeitherOperationResponses| BothOperationResponses| Tag1OperationResponses| Tag2OperationResponses;
 
 export interface HandlerRouterProps<
   RequestParameters,
-  RequestArrayParameters,
   RequestBody,
   Response extends AnyOperationResponses
 > {
@@ -693,7 +837,6 @@ export interface HandlerRouterProps<
    */
   readonly interceptors?: ChainedLambdaHandlerFunction<
     RequestParameters,
-    RequestArrayParameters,
     RequestBody,
     Response
   >[];
@@ -715,7 +858,6 @@ const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLo
  */
 export const handlerRouter = (props: HandlerRouterProps<
   AnyOperationRequestParameters,
-  AnyOperationRequestArrayParameters,
   AnyOperationRequestBodies,
   AnyOperationResponses
 >): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
@@ -852,7 +994,359 @@ export * from './Tag2Api';
 export * from './runtime';
 export * from './apis';
 export * from './models';
-export * from './apis/DefaultApi/OperationConfig';",
+export * from './apis/DefaultApi/OperationConfig';
+export * from './response/response';
+export * from './interceptors'
+",
+  "src/interceptors/cors.ts": "import { ChainedRequestInput, OperationResponse } from '..';
+
+// By default, allow all origins and headers
+const DEFAULT_CORS_HEADERS: { [key: string]: string } = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': '*',
+};
+
+/**
+ * Create an interceptor for adding headers to the response
+ * @param additionalHeaders headers to add to the response
+ */
+export const buildResponseHeaderInterceptor = (additionalHeaders: { [key: string]: string }) => {
+  const interceptor = async <
+    RequestParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    const result = await request.chain.next(request);
+    return {
+      ...result,
+      headers: {
+        ...additionalHeaders,
+        ...result.headers,
+      },
+    };
+  };
+
+  // Any error responses returned during request validation will include the headers
+  (interceptor as any).__type_safe_api_response_headers = additionalHeaders;
+
+  return interceptor;
+};
+
+/**
+ * An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
+ * Allows all origins and headers. Use buildResponseHeaderInterceptor to customise.
+ */
+export const corsInterceptor = buildResponseHeaderInterceptor(DEFAULT_CORS_HEADERS);
+",
+  "src/interceptors/index.ts": "import { corsInterceptor } from './cors';
+import { LoggingInterceptor } from './powertools/logger';
+import { MetricsInterceptor } from './powertools/metrics';
+import { TracingInterceptor } from './powertools/tracer';
+import { tryCatchInterceptor } from './try-catch';
+
+export * from './cors';
+export * from './try-catch';
+export * from './powertools/tracer';
+export * from './powertools/metrics';
+export * from './powertools/logger';
+
+/**
+ * All default interceptors, for logging, tracing, metrics, cors headers and error handling
+ */
+export const INTERCEPTORS = [
+  corsInterceptor,
+  LoggingInterceptor.intercept,
+  tryCatchInterceptor,
+  TracingInterceptor.intercept,
+  MetricsInterceptor.intercept,
+] as const;
+",
+  "src/interceptors/powertools/logger.ts": "import { Logger } from '@aws-lambda-powertools/logger';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const logger = new Logger();
+
+export class LoggingInterceptor {
+  /**
+   * Interceptor which adds an aws lambda powertools logger to the interceptor context,
+   * and adds the lambda context
+   * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/logger/
+   */
+  public static intercept = async <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    logger.addContext(request.context);
+    logger.appendKeys({ operationId: request.interceptorContext.operationId });
+    request.interceptorContext.logger = logger;
+    const response = await request.chain.next(request);
+    logger.removeKeys(['operationId']);
+    return response;
+  };
+
+  /**
+   * Retrieve the logger from the interceptor context
+   */
+  public static getLogger = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(request: ChainedRequestInput<RequestParameters, RequestBody, Response>): Logger => {
+    if (!request.interceptorContext.logger) {
+      throw new Error('No logger found, did you configure the LoggingInterceptor?');
+    }
+    return request.interceptorContext.logger;
+  };
+}
+",
+  "src/interceptors/powertools/metrics.ts": "import { Metrics } from '@aws-lambda-powertools/metrics';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const metrics = new Metrics();
+
+export class MetricsInterceptor {
+  /**
+   * Interceptor which adds an instance of aws lambda powertools metrics to the interceptor context,
+   * and ensures metrics are flushed prior to finishing the lambda execution
+   * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/metrics/
+   */
+  public static intercept = async <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    metrics.addDimension("operationId", request.interceptorContext.operationId);
+    request.interceptorContext.metrics = metrics;
+    try {
+      return await request.chain.next(request);
+    } finally {
+      // Flush metrics
+      metrics.publishStoredMetrics();
+    }
+  };
+
+  /**
+   * Retrieve the metrics logger from the request
+   */
+  public static getMetrics = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Metrics => {
+    if (!request.interceptorContext.metrics) {
+      throw new Error('No metrics logger found, did you configure the MetricsInterceptor?');
+    }
+    return request.interceptorContext.metrics;
+  };
+}
+",
+  "src/interceptors/powertools/tracer.ts": "import { Tracer } from '@aws-lambda-powertools/tracer';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const tracer = new Tracer();
+
+export interface TracingInterceptorOptions {
+  /**
+   * Whether to add the response as metadata to the trace
+   */
+  readonly addResponseAsMetadata?: boolean;
+}
+
+/**
+ * Create an interceptor which adds an aws lambda powertools tracer to the interceptor context,
+ * creating the appropriate segment for the handler execution and annotating with recommended
+ * details.
+ * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/tracer/#lambda-handler
+ */
+export const buildTracingInterceptor = (options?: TracingInterceptorOptions) => async <
+  RequestParameters,
+  RequestBody,
+  Response extends OperationResponse<number, any>
+>(
+  request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+): Promise<Response> => {
+  const handler = request.interceptorContext.operationId ?? process.env._HANDLER ?? 'index.handler';
+  const segment = tracer.getSegment();
+  let subsegment;
+  if (segment) {
+    subsegment = segment.addNewSubsegment(handler);
+    tracer.setSegment(subsegment);
+  }
+
+  tracer.annotateColdStart();
+  tracer.addServiceNameAnnotation();
+
+  if (request.interceptorContext.logger) {
+    tracer.provider.setLogger(request.interceptorContext.logger);
+  }
+
+  request.interceptorContext.tracer = tracer;
+
+  try {
+    const result = await request.chain.next(request);
+    if (options?.addResponseAsMetadata) {
+      tracer.addResponseAsMetadata(result, handler);
+    }
+    return result;
+  } catch (e) {
+    tracer.addErrorAsMetadata(e as Error);
+    throw e;
+  } finally {
+    if (segment && subsegment) {
+      subsegment.close();
+      tracer.setSegment(segment);
+    }
+  }
+};
+
+export class TracingInterceptor {
+  /**
+   * Interceptor which adds an aws lambda powertools tracer to the interceptor context,
+   * creating the appropriate segment for the handler execution and annotating with recommended
+   * details.
+   */
+  public static intercept = buildTracingInterceptor();
+
+  /**
+   * Get the tracer from the interceptor context
+   */
+  public static getTracer = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Tracer => {
+    if (!request.interceptorContext.tracer) {
+      throw new Error('No tracer found, did you configure the TracingInterceptor?');
+    }
+    return request.interceptorContext.tracer;
+  };
+}
+",
+  "src/interceptors/try-catch.ts": "import {
+  ChainedRequestInput,
+  OperationResponse,
+} from '..';
+
+/**
+ * Create an interceptor which returns the given error response and status should an error occur
+ * @param statusCode the status code to return when an error is thrown
+ * @param errorResponseBody the body to return when an error occurs
+ */
+export const buildTryCatchInterceptor = <TStatus extends number, ErrorResponseBody>(
+  statusCode: TStatus,
+  errorResponseBody: ErrorResponseBody,
+) => async <
+  RequestParameters,
+  RequestBody,
+  Response extends OperationResponse<number, any>,
+>(
+  request: ChainedRequestInput<
+  RequestParameters,
+  RequestBody,
+  Response
+  >,
+): Promise<Response | OperationResponse<TStatus, ErrorResponseBody>> => {
+  try {
+    return await request.chain.next(request);
+  } catch (e: any) {
+    // If the error looks like a response, return it as the response
+    if ('statusCode' in e) {
+      return e;
+    }
+
+    // Log the error if the logger is present
+    if (request.interceptorContext.logger && request.interceptorContext.logger.error) {
+      request.interceptorContext.logger.error('Interceptor caught exception', e as Error);
+    } else {
+      console.error('Interceptor caught exception', e);
+    }
+
+    // Return the default error message
+    return { statusCode, body: errorResponseBody };
+  }
+};
+
+/**
+ * Interceptor for catching unhandled exceptions and returning a 500 error.
+ * Uncaught exceptions which look like OperationResponses will be returned, such that deeply nested code may return error
+ * responses, eg: \`throw ApiResponse.notFound({ message: 'Not found!' })\`
+ */
+export const tryCatchInterceptor = buildTryCatchInterceptor(500, { message: 'Internal Error' });
+",
+  "src/response/response.ts": "import { OperationResponse } from '..';
+
+
+/**
+ * Helpers for constructing api responses
+ */
+export class Response {
+  /**
+   * A successful response
+   */
+  public static success = <T>(
+    body: T
+  ): OperationResponse<200, T> => ({
+    statusCode: 200,
+    body,
+  });
+
+  /**
+   * A response which indicates a client error
+   */
+  public static badRequest = <T>(
+    body: T
+  ): OperationResponse<400, T> => ({
+    statusCode: 400,
+    body,
+  });
+
+  /**
+   * A response which indicates the requested resource was not found
+   */
+  public static notFound = <T>(
+    body: T
+  ): OperationResponse<404, T> => ({
+    statusCode: 404,
+    body,
+  });
+
+  /**
+   * A response which indicates the caller is not authorised to perform the operation or access the resource
+   */
+  public static notAuthorized = <T>(
+    body: T
+  ): OperationResponse<403, T> => ({
+    statusCode: 403,
+    body,
+  });
+
+  /**
+   * A response to indicate a server error
+   */
+  public static internalFailure = <T>(
+    body: T
+  ): OperationResponse<500, T> => ({
+    statusCode: 500,
+    body,
+  });
+}
+",
   "src/runtime.ts": "/* tslint:disable */
 /* eslint-disable */
 /**
@@ -1300,6 +1794,7 @@ dist
 .openapi-generator-ignore
 README.md
 package.json
+src/__interceptors.ts
 src/apis/DefaultApi.ts
 src/apis/DefaultApi/OperationConfig.ts
 src/apis/index.ts
@@ -1323,10 +1818,16 @@ src/models/TestResponseMessagesInner.ts
 src/models/TestResponseMessagesInner.ts
 src/models/TestResponseMessagesInner.ts
 src/models/index.ts
+src/response/response.ts
 src/runtime.ts
 tsconfig.esm.json
 tsconfig.json
-",
+src/interceptors/try-catch.ts
+src/interceptors/cors.ts
+src/interceptors/powertools/logger.ts
+src/interceptors/powertools/tracer.ts
+src/interceptors/powertools/metrics.ts
+src/interceptors/index.ts",
   ".openapi-generator/VERSION": "6.3.0",
   "README.md": "## test@1.0.0
 
@@ -1800,6 +2301,86 @@ const decodeRequestParameters = (parameters: ApiGatewayRequestParameters): ApiGa
  */
 const parseBody = (body: string, demarshal: (body: string) => any, contentTypes: string[]): any => contentTypes.filter((contentType) => contentType !== 'application/json').length === 0 ? demarshal(body || '{}') : body;
 
+const assertRequired = (required: boolean, baseName: string, parameters: any) => {
+    if(required && parameters[baseName] === undefined) {
+        throw new Error(\`Missing required request parameter '\${baseName}'\`);
+    }
+};
+
+const coerceNumber = (baseName: string, s: string, isInteger: boolean): number => {
+    const n = Number(s);
+    if (isNaN(n)) {
+        throw new Error(\`Expected a number for request parameter '\${baseName}'\`);
+    }
+    if (isInteger && !Number.isInteger(n)) {
+        throw new Error(\`Expected an integer for request parameter '\${baseName}'\`);
+    }
+    return n;
+};
+
+const coerceBoolean = (baseName: string, s: string): boolean => {
+    switch (s) {
+        case "true":
+          return true;
+        case "false":
+          return false;
+        default:
+          throw new Error(\`Expected a boolean (true or false) for request parameter '\${baseName}'\`);
+    }
+};
+
+const coerceDate = (baseName: string, s: string): Date => {
+    const d = new Date(s);
+    if (isNaN(d as any)) {
+        throw new Error(\`Expected a valid date (iso format) for request parameter '\${baseName}'\`);
+    }
+    return d;
+};
+
+const coerceParameter = (
+    baseName: string,
+    dataType: string,
+    isInteger: boolean,
+    rawStringParameters: { [key: string]: string | undefined },
+    rawStringArrayParameters: { [key: string]: string[] | undefined },
+    required: boolean,
+) => {
+    switch (dataType) {
+      case "number":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceNumber(baseName, rawStringParameters[baseName], isInteger) : undefined;
+      case "boolean":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceBoolean(baseName, rawStringParameters[baseName]) : undefined;
+      case "Date":
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName] !== undefined ? coerceDate(baseName, rawStringParameters[baseName]) : undefined;
+      case "Array<number>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceNumber(baseName, n, isInteger)) : undefined;
+      case "Array<boolean>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceBoolean(baseName, n)) : undefined;
+      case "Array<Date>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName] !== undefined ? rawStringArrayParameters[baseName].map(n => coerceDate(baseName, n)) : undefined;
+      case "Array<string>":
+        assertRequired(required, baseName, rawStringArrayParameters);
+        return rawStringArrayParameters[baseName];
+      case "string":
+      default:
+        assertRequired(required, baseName, rawStringParameters);
+        return rawStringParameters[baseName];
+    }
+};
+
+const extractResponseHeadersFromInterceptors = (interceptors: any[]): { [key: string]: string } => {
+  return (interceptors ?? []).reduce((interceptor: any, headers: { [key: string]: string }) => ({
+    ...headers,
+    ...(interceptor?.__type_safe_api_response_headers ?? {}),
+  }), {} as { [key: string]: string });
+};
+
 type OperationIds = | 'anyRequestResponse' | 'empty' | 'mapResponse' | 'mediaTypes' | 'multipleContentTypes' | 'operationOne' | 'withoutOperationIdDelete';
 type OperationApiGatewayProxyResult<T extends OperationIds> = APIGatewayProxyResult & { __operationId?: T };
 
@@ -1814,50 +2395,49 @@ export interface OperationResponse<StatusCode extends number, Body> {
 }
 
 // Input for a lambda handler for an operation
-export type LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody> = {
+export type LambdaRequestParameters<RequestParameters, RequestBody> = {
     requestParameters: RequestParameters,
-    requestArrayParameters: RequestArrayParameters,
     body: RequestBody,
 };
 
 export type InterceptorContext = { [key: string]: any };
 
-export interface RequestInput<RequestParameters, RequestArrayParameters, RequestBody> {
-    input: LambdaRequestParameters<RequestParameters, RequestArrayParameters, RequestBody>;
+export interface RequestInput<RequestParameters, RequestBody> {
+    input: LambdaRequestParameters<RequestParameters, RequestBody>;
     event: APIGatewayProxyEvent;
     context: Context;
     interceptorContext: InterceptorContext;
 }
 
-export interface ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response> extends RequestInput<RequestParameters, RequestArrayParameters, RequestBody> {
-    chain: LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response>;
+export interface ChainedRequestInput<RequestParameters, RequestBody, Response> extends RequestInput<RequestParameters, RequestBody> {
+    chain: LambdaHandlerChain<RequestParameters, RequestBody, Response>;
 }
 
 /**
  * A lambda handler function which is part of a chain. It may invoke the remainder of the chain via the given chain input
  */
-export type ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
-  input: ChainedRequestInput<RequestParameters, RequestArrayParameters, RequestBody, Response>,
+export type ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response> = (
+  input: ChainedRequestInput<RequestParameters, RequestBody, Response>,
 ) => Promise<Response>;
 
 // Type for a lambda handler function to be wrapped
-export type LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response> = (
-  input: RequestInput<RequestParameters, RequestArrayParameters, RequestBody>,
+export type LambdaHandlerFunction<RequestParameters, RequestBody, Response> = (
+  input: RequestInput<RequestParameters, RequestBody>,
 ) => Promise<Response>;
 
-export interface LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> {
-  next: LambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>;
+export interface LambdaHandlerChain<RequestParameters, RequestBody, Response> {
+  next: LambdaHandlerFunction<RequestParameters, RequestBody, Response>;
 }
 
 // Interceptor is a type alias for ChainedLambdaHandlerFunction
-export type Interceptor<RequestParameters, RequestArrayParameters, RequestBody, Response> = ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>;
+export type Interceptor<RequestParameters, RequestBody, Response> = ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response>;
 
 /**
  * Build a chain from the given array of chained lambda handlers
  */
-const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBody, Response>(
-  ...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestArrayParameters, RequestBody, Response>[]
-): LambdaHandlerChain<RequestParameters, RequestArrayParameters, RequestBody, Response> => {
+const buildHandlerChain = <RequestParameters, RequestBody, Response>(
+  ...handlers: ChainedLambdaHandlerFunction<RequestParameters, RequestBody, Response>[]
+): LambdaHandlerChain<RequestParameters, RequestBody, Response> => {
   if (handlers.length === 0) {
     return {
       next: () => {
@@ -1877,15 +2457,9 @@ const buildHandlerChain = <RequestParameters, RequestArrayParameters, RequestBod
 };
 
 /**
- * Single-value path/query/header parameters for AnyRequestResponse
+ * Path, Query and Header parameters for AnyRequestResponse
  */
 export interface AnyRequestResponseRequestParameters {
-}
-
-/**
- * Multi-value query or header parameters for AnyRequestResponse
- */
-export interface AnyRequestResponseRequestArrayParameters {
 }
 
 /**
@@ -1897,43 +2471,27 @@ export type AnyRequestResponse200OperationResponse = OperationResponse<200, stri
 export type AnyRequestResponseOperationResponses = | AnyRequestResponse200OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
-export type AnyRequestResponseHandlerFunction = LambdaHandlerFunction<AnyRequestResponseRequestParameters, AnyRequestResponseRequestArrayParameters, AnyRequestResponseRequestBody, AnyRequestResponseOperationResponses>;
-export type AnyRequestResponseChainedHandlerFunction = ChainedLambdaHandlerFunction<AnyRequestResponseRequestParameters, AnyRequestResponseRequestArrayParameters, AnyRequestResponseRequestBody, AnyRequestResponseOperationResponses>;
+export type AnyRequestResponseHandlerFunction = LambdaHandlerFunction<AnyRequestResponseRequestParameters, AnyRequestResponseRequestBody, AnyRequestResponseOperationResponses>;
+export type AnyRequestResponseChainedHandlerFunction = ChainedLambdaHandlerFunction<AnyRequestResponseRequestParameters, AnyRequestResponseRequestBody, AnyRequestResponseOperationResponses>;
+export type AnyRequestResponseChainedRequestInput = ChainedRequestInput<AnyRequestResponseRequestParameters, AnyRequestResponseRequestBody, AnyRequestResponseOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of anyRequestResponse
  */
 export const anyRequestResponseHandler = (
-    firstHandler: AnyRequestResponseChainedHandlerFunction,
-    ...remainingHandlers: AnyRequestResponseChainedHandlerFunction[]
+    ...handlers: [AnyRequestResponseChainedHandlerFunction, ...AnyRequestResponseChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'anyRequestResponse'> => async (event: any, context: any, _callback?: any, additionalInterceptors: AnyRequestResponseChainedHandlerFunction[] = []): Promise<any> => {
-    const requestParameters = decodeRequestParameters({
-        ...(event.pathParameters || {}),
-        ...(event.queryStringParameters || {}),
-        ...(event.headers || {}),
-    }) as unknown as AnyRequestResponseRequestParameters;
+    const operationId = "anyRequestResponse";
 
-    const requestArrayParameters = decodeRequestParameters({
-        ...(event.multiValueQueryStringParameters || {}),
-        ...(event.multiValueHeaders || {}),
-    }) as unknown as AnyRequestResponseRequestArrayParameters;
-
-    const demarshal = (bodyString: string): any => {
-        return bodyString;
-    };
-    const body = parseBody(event.body, demarshal, ['application/json',]) as AnyRequestResponseRequestBody;
-
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
-    const response = await chain.next({
-        input: {
-            requestParameters,
-            requestArrayParameters,
-            body,
-        },
-        event,
-        context,
-        interceptorContext: {},
-    });
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
@@ -1958,6 +2516,43 @@ export const anyRequestResponseHandler = (
         return headers;
     };
 
+    let requestParameters: AnyRequestResponseRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return bodyString;
+    };
+    const body = parseBody(event.body, demarshal, ['application/json',]) as AnyRequestResponseRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
     return {
         ...response,
         headers: {
@@ -1968,15 +2563,9 @@ export const anyRequestResponseHandler = (
     };
 };
 /**
- * Single-value path/query/header parameters for Empty
+ * Path, Query and Header parameters for Empty
  */
 export interface EmptyRequestParameters {
-}
-
-/**
- * Multi-value query or header parameters for Empty
- */
-export interface EmptyRequestArrayParameters {
 }
 
 /**
@@ -1988,43 +2577,27 @@ export type Empty204OperationResponse = OperationResponse<204, undefined>;
 export type EmptyOperationResponses = | Empty204OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
-export type EmptyHandlerFunction = LambdaHandlerFunction<EmptyRequestParameters, EmptyRequestArrayParameters, EmptyRequestBody, EmptyOperationResponses>;
-export type EmptyChainedHandlerFunction = ChainedLambdaHandlerFunction<EmptyRequestParameters, EmptyRequestArrayParameters, EmptyRequestBody, EmptyOperationResponses>;
+export type EmptyHandlerFunction = LambdaHandlerFunction<EmptyRequestParameters, EmptyRequestBody, EmptyOperationResponses>;
+export type EmptyChainedHandlerFunction = ChainedLambdaHandlerFunction<EmptyRequestParameters, EmptyRequestBody, EmptyOperationResponses>;
+export type EmptyChainedRequestInput = ChainedRequestInput<EmptyRequestParameters, EmptyRequestBody, EmptyOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of empty
  */
 export const emptyHandler = (
-    firstHandler: EmptyChainedHandlerFunction,
-    ...remainingHandlers: EmptyChainedHandlerFunction[]
+    ...handlers: [EmptyChainedHandlerFunction, ...EmptyChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'empty'> => async (event: any, context: any, _callback?: any, additionalInterceptors: EmptyChainedHandlerFunction[] = []): Promise<any> => {
-    const requestParameters = decodeRequestParameters({
-        ...(event.pathParameters || {}),
-        ...(event.queryStringParameters || {}),
-        ...(event.headers || {}),
-    }) as unknown as EmptyRequestParameters;
+    const operationId = "empty";
 
-    const requestArrayParameters = decodeRequestParameters({
-        ...(event.multiValueQueryStringParameters || {}),
-        ...(event.multiValueHeaders || {}),
-    }) as unknown as EmptyRequestArrayParameters;
-
-    const demarshal = (bodyString: string): any => {
-        return {};
-    };
-    const body = parseBody(event.body, demarshal, ['application/json']) as EmptyRequestBody;
-
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
-    const response = await chain.next({
-        input: {
-            requestParameters,
-            requestArrayParameters,
-            body,
-        },
-        event,
-        context,
-        interceptorContext: {},
-    });
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
@@ -2049,6 +2622,43 @@ export const emptyHandler = (
         return headers;
     };
 
+    let requestParameters: EmptyRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as EmptyRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
     return {
         ...response,
         headers: {
@@ -2059,15 +2669,9 @@ export const emptyHandler = (
     };
 };
 /**
- * Single-value path/query/header parameters for MapResponse
+ * Path, Query and Header parameters for MapResponse
  */
 export interface MapResponseRequestParameters {
-}
-
-/**
- * Multi-value query or header parameters for MapResponse
- */
-export interface MapResponseRequestArrayParameters {
 }
 
 /**
@@ -2079,43 +2683,27 @@ export type MapResponse200OperationResponse = OperationResponse<200, MapResponse
 export type MapResponseOperationResponses = | MapResponse200OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
-export type MapResponseHandlerFunction = LambdaHandlerFunction<MapResponseRequestParameters, MapResponseRequestArrayParameters, MapResponseRequestBody, MapResponseOperationResponses>;
-export type MapResponseChainedHandlerFunction = ChainedLambdaHandlerFunction<MapResponseRequestParameters, MapResponseRequestArrayParameters, MapResponseRequestBody, MapResponseOperationResponses>;
+export type MapResponseHandlerFunction = LambdaHandlerFunction<MapResponseRequestParameters, MapResponseRequestBody, MapResponseOperationResponses>;
+export type MapResponseChainedHandlerFunction = ChainedLambdaHandlerFunction<MapResponseRequestParameters, MapResponseRequestBody, MapResponseOperationResponses>;
+export type MapResponseChainedRequestInput = ChainedRequestInput<MapResponseRequestParameters, MapResponseRequestBody, MapResponseOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of mapResponse
  */
 export const mapResponseHandler = (
-    firstHandler: MapResponseChainedHandlerFunction,
-    ...remainingHandlers: MapResponseChainedHandlerFunction[]
+    ...handlers: [MapResponseChainedHandlerFunction, ...MapResponseChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'mapResponse'> => async (event: any, context: any, _callback?: any, additionalInterceptors: MapResponseChainedHandlerFunction[] = []): Promise<any> => {
-    const requestParameters = decodeRequestParameters({
-        ...(event.pathParameters || {}),
-        ...(event.queryStringParameters || {}),
-        ...(event.headers || {}),
-    }) as unknown as MapResponseRequestParameters;
+    const operationId = "mapResponse";
 
-    const requestArrayParameters = decodeRequestParameters({
-        ...(event.multiValueQueryStringParameters || {}),
-        ...(event.multiValueHeaders || {}),
-    }) as unknown as MapResponseRequestArrayParameters;
-
-    const demarshal = (bodyString: string): any => {
-        return {};
-    };
-    const body = parseBody(event.body, demarshal, ['application/json']) as MapResponseRequestBody;
-
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
-    const response = await chain.next({
-        input: {
-            requestParameters,
-            requestArrayParameters,
-            body,
-        },
-        event,
-        context,
-        interceptorContext: {},
-    });
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
@@ -2141,6 +2729,43 @@ export const mapResponseHandler = (
         return headers;
     };
 
+    let requestParameters: MapResponseRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as MapResponseRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
     return {
         ...response,
         headers: {
@@ -2151,15 +2776,9 @@ export const mapResponseHandler = (
     };
 };
 /**
- * Single-value path/query/header parameters for MediaTypes
+ * Path, Query and Header parameters for MediaTypes
  */
 export interface MediaTypesRequestParameters {
-}
-
-/**
- * Multi-value query or header parameters for MediaTypes
- */
-export interface MediaTypesRequestArrayParameters {
 }
 
 /**
@@ -2171,43 +2790,27 @@ export type MediaTypes200OperationResponse = OperationResponse<200, string>;
 export type MediaTypesOperationResponses = | MediaTypes200OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
-export type MediaTypesHandlerFunction = LambdaHandlerFunction<MediaTypesRequestParameters, MediaTypesRequestArrayParameters, MediaTypesRequestBody, MediaTypesOperationResponses>;
-export type MediaTypesChainedHandlerFunction = ChainedLambdaHandlerFunction<MediaTypesRequestParameters, MediaTypesRequestArrayParameters, MediaTypesRequestBody, MediaTypesOperationResponses>;
+export type MediaTypesHandlerFunction = LambdaHandlerFunction<MediaTypesRequestParameters, MediaTypesRequestBody, MediaTypesOperationResponses>;
+export type MediaTypesChainedHandlerFunction = ChainedLambdaHandlerFunction<MediaTypesRequestParameters, MediaTypesRequestBody, MediaTypesOperationResponses>;
+export type MediaTypesChainedRequestInput = ChainedRequestInput<MediaTypesRequestParameters, MediaTypesRequestBody, MediaTypesOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of mediaTypes
  */
 export const mediaTypesHandler = (
-    firstHandler: MediaTypesChainedHandlerFunction,
-    ...remainingHandlers: MediaTypesChainedHandlerFunction[]
+    ...handlers: [MediaTypesChainedHandlerFunction, ...MediaTypesChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'mediaTypes'> => async (event: any, context: any, _callback?: any, additionalInterceptors: MediaTypesChainedHandlerFunction[] = []): Promise<any> => {
-    const requestParameters = decodeRequestParameters({
-        ...(event.pathParameters || {}),
-        ...(event.queryStringParameters || {}),
-        ...(event.headers || {}),
-    }) as unknown as MediaTypesRequestParameters;
+    const operationId = "mediaTypes";
 
-    const requestArrayParameters = decodeRequestParameters({
-        ...(event.multiValueQueryStringParameters || {}),
-        ...(event.multiValueHeaders || {}),
-    }) as unknown as MediaTypesRequestArrayParameters;
-
-    const demarshal = (bodyString: string): any => {
-        return bodyString;
-    };
-    const body = parseBody(event.body, demarshal, ['application/pdf',]) as MediaTypesRequestBody;
-
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
-    const response = await chain.next({
-        input: {
-            requestParameters,
-            requestArrayParameters,
-            body,
-        },
-        event,
-        context,
-        interceptorContext: {},
-    });
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
@@ -2232,6 +2835,43 @@ export const mediaTypesHandler = (
         return headers;
     };
 
+    let requestParameters: MediaTypesRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return bodyString;
+    };
+    const body = parseBody(event.body, demarshal, ['application/pdf',]) as MediaTypesRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
     return {
         ...response,
         headers: {
@@ -2242,15 +2882,9 @@ export const mediaTypesHandler = (
     };
 };
 /**
- * Single-value path/query/header parameters for MultipleContentTypes
+ * Path, Query and Header parameters for MultipleContentTypes
  */
 export interface MultipleContentTypesRequestParameters {
-}
-
-/**
- * Multi-value query or header parameters for MultipleContentTypes
- */
-export interface MultipleContentTypesRequestArrayParameters {
 }
 
 /**
@@ -2262,43 +2896,27 @@ export type MultipleContentTypes200OperationResponse = OperationResponse<200, st
 export type MultipleContentTypesOperationResponses = | MultipleContentTypes200OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
-export type MultipleContentTypesHandlerFunction = LambdaHandlerFunction<MultipleContentTypesRequestParameters, MultipleContentTypesRequestArrayParameters, MultipleContentTypesRequestBody, MultipleContentTypesOperationResponses>;
-export type MultipleContentTypesChainedHandlerFunction = ChainedLambdaHandlerFunction<MultipleContentTypesRequestParameters, MultipleContentTypesRequestArrayParameters, MultipleContentTypesRequestBody, MultipleContentTypesOperationResponses>;
+export type MultipleContentTypesHandlerFunction = LambdaHandlerFunction<MultipleContentTypesRequestParameters, MultipleContentTypesRequestBody, MultipleContentTypesOperationResponses>;
+export type MultipleContentTypesChainedHandlerFunction = ChainedLambdaHandlerFunction<MultipleContentTypesRequestParameters, MultipleContentTypesRequestBody, MultipleContentTypesOperationResponses>;
+export type MultipleContentTypesChainedRequestInput = ChainedRequestInput<MultipleContentTypesRequestParameters, MultipleContentTypesRequestBody, MultipleContentTypesOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of multipleContentTypes
  */
 export const multipleContentTypesHandler = (
-    firstHandler: MultipleContentTypesChainedHandlerFunction,
-    ...remainingHandlers: MultipleContentTypesChainedHandlerFunction[]
+    ...handlers: [MultipleContentTypesChainedHandlerFunction, ...MultipleContentTypesChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'multipleContentTypes'> => async (event: any, context: any, _callback?: any, additionalInterceptors: MultipleContentTypesChainedHandlerFunction[] = []): Promise<any> => {
-    const requestParameters = decodeRequestParameters({
-        ...(event.pathParameters || {}),
-        ...(event.queryStringParameters || {}),
-        ...(event.headers || {}),
-    }) as unknown as MultipleContentTypesRequestParameters;
+    const operationId = "multipleContentTypes";
 
-    const requestArrayParameters = decodeRequestParameters({
-        ...(event.multiValueQueryStringParameters || {}),
-        ...(event.multiValueHeaders || {}),
-    }) as unknown as MultipleContentTypesRequestArrayParameters;
-
-    const demarshal = (bodyString: string): any => {
-        return TestRequestFromJSON(JSON.parse(bodyString));
-    };
-    const body = parseBody(event.body, demarshal, ['application/json','application/pdf',]) as MultipleContentTypesRequestBody;
-
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
-    const response = await chain.next({
-        input: {
-            requestParameters,
-            requestArrayParameters,
-            body,
-        },
-        event,
-        context,
-        interceptorContext: {},
-    });
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
@@ -2323,6 +2941,43 @@ export const multipleContentTypesHandler = (
         return headers;
     };
 
+    let requestParameters: MultipleContentTypesRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return TestRequestFromJSON(JSON.parse(bodyString));
+    };
+    const body = parseBody(event.body, demarshal, ['application/json','application/pdf',]) as MultipleContentTypesRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
     return {
         ...response,
         headers: {
@@ -2333,22 +2988,16 @@ export const multipleContentTypesHandler = (
     };
 };
 /**
- * Single-value path/query/header parameters for OperationOne
+ * Path, Query and Header parameters for OperationOne
  */
 export interface OperationOneRequestParameters {
     readonly param1: string;
-    readonly param3: string;
+    readonly param2: Array<string>;
+    readonly param3: number;
     readonly pathParam: string;
-    readonly "x-header-param": string;
+    readonly xHeaderParam: string;
     readonly param4?: string;
-}
-
-/**
- * Multi-value query or header parameters for OperationOne
- */
-export interface OperationOneRequestArrayParameters {
-    readonly param2: string[];
-    readonly "x-multi-value-header-param"?: string[];
+    readonly xMultiValueHeaderParam?: Array<string>;
 }
 
 /**
@@ -2361,43 +3010,27 @@ export type OperationOne400OperationResponse = OperationResponse<400, ApiError>;
 export type OperationOneOperationResponses = | OperationOne200OperationResponse | OperationOne400OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
-export type OperationOneHandlerFunction = LambdaHandlerFunction<OperationOneRequestParameters, OperationOneRequestArrayParameters, OperationOneRequestBody, OperationOneOperationResponses>;
-export type OperationOneChainedHandlerFunction = ChainedLambdaHandlerFunction<OperationOneRequestParameters, OperationOneRequestArrayParameters, OperationOneRequestBody, OperationOneOperationResponses>;
+export type OperationOneHandlerFunction = LambdaHandlerFunction<OperationOneRequestParameters, OperationOneRequestBody, OperationOneOperationResponses>;
+export type OperationOneChainedHandlerFunction = ChainedLambdaHandlerFunction<OperationOneRequestParameters, OperationOneRequestBody, OperationOneOperationResponses>;
+export type OperationOneChainedRequestInput = ChainedRequestInput<OperationOneRequestParameters, OperationOneRequestBody, OperationOneOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of operationOne
  */
 export const operationOneHandler = (
-    firstHandler: OperationOneChainedHandlerFunction,
-    ...remainingHandlers: OperationOneChainedHandlerFunction[]
+    ...handlers: [OperationOneChainedHandlerFunction, ...OperationOneChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'operationOne'> => async (event: any, context: any, _callback?: any, additionalInterceptors: OperationOneChainedHandlerFunction[] = []): Promise<any> => {
-    const requestParameters = decodeRequestParameters({
-        ...(event.pathParameters || {}),
-        ...(event.queryStringParameters || {}),
-        ...(event.headers || {}),
-    }) as unknown as OperationOneRequestParameters;
+    const operationId = "operationOne";
 
-    const requestArrayParameters = decodeRequestParameters({
-        ...(event.multiValueQueryStringParameters || {}),
-        ...(event.multiValueHeaders || {}),
-    }) as unknown as OperationOneRequestArrayParameters;
-
-    const demarshal = (bodyString: string): any => {
-        return TestRequestFromJSON(JSON.parse(bodyString));
-    };
-    const body = parseBody(event.body, demarshal, ['application/json',]) as OperationOneRequestBody;
-
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
-    const response = await chain.next({
-        input: {
-            requestParameters,
-            requestArrayParameters,
-            body,
-        },
-        event,
-        context,
-        interceptorContext: {},
-    });
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
@@ -2432,6 +3065,50 @@ export const operationOneHandler = (
         return headers;
     };
 
+    let requestParameters: OperationOneRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+          param1: coerceParameter("param1", "string", false || false || false, rawSingleValueParameters, rawMultiValueParameters, true) as string,
+          param2: coerceParameter("param2", "Array<string>", false || false || false, rawSingleValueParameters, rawMultiValueParameters, true) as Array<string>,
+          param3: coerceParameter("param3", "number", false || false || false, rawSingleValueParameters, rawMultiValueParameters, true) as number,
+          pathParam: coerceParameter("pathParam", "string", false || false || false, rawSingleValueParameters, rawMultiValueParameters, true) as string,
+          xHeaderParam: coerceParameter("x-header-param", "string", false || false || false, rawSingleValueParameters, rawMultiValueParameters, true) as string,
+          param4: coerceParameter("param4", "string", false || false || false, rawSingleValueParameters, rawMultiValueParameters, false) as string | undefined,
+          xMultiValueHeaderParam: coerceParameter("x-multi-value-header-param", "Array<string>", false || false || false, rawSingleValueParameters, rawMultiValueParameters, false) as Array<string> | undefined,
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return TestRequestFromJSON(JSON.parse(bodyString));
+    };
+    const body = parseBody(event.body, demarshal, ['application/json',]) as OperationOneRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
     return {
         ...response,
         headers: {
@@ -2442,15 +3119,9 @@ export const operationOneHandler = (
     };
 };
 /**
- * Single-value path/query/header parameters for WithoutOperationIdDelete
+ * Path, Query and Header parameters for WithoutOperationIdDelete
  */
 export interface WithoutOperationIdDeleteRequestParameters {
-}
-
-/**
- * Multi-value query or header parameters for WithoutOperationIdDelete
- */
-export interface WithoutOperationIdDeleteRequestArrayParameters {
 }
 
 /**
@@ -2462,43 +3133,27 @@ export type WithoutOperationIdDelete200OperationResponse = OperationResponse<200
 export type WithoutOperationIdDeleteOperationResponses = | WithoutOperationIdDelete200OperationResponse ;
 
 // Type that the handler function provided to the wrapper must conform to
-export type WithoutOperationIdDeleteHandlerFunction = LambdaHandlerFunction<WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestArrayParameters, WithoutOperationIdDeleteRequestBody, WithoutOperationIdDeleteOperationResponses>;
-export type WithoutOperationIdDeleteChainedHandlerFunction = ChainedLambdaHandlerFunction<WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestArrayParameters, WithoutOperationIdDeleteRequestBody, WithoutOperationIdDeleteOperationResponses>;
+export type WithoutOperationIdDeleteHandlerFunction = LambdaHandlerFunction<WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestBody, WithoutOperationIdDeleteOperationResponses>;
+export type WithoutOperationIdDeleteChainedHandlerFunction = ChainedLambdaHandlerFunction<WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestBody, WithoutOperationIdDeleteOperationResponses>;
+export type WithoutOperationIdDeleteChainedRequestInput = ChainedRequestInput<WithoutOperationIdDeleteRequestParameters, WithoutOperationIdDeleteRequestBody, WithoutOperationIdDeleteOperationResponses>;
 
 /**
  * Lambda handler wrapper to provide typed interface for the implementation of withoutOperationIdDelete
  */
 export const withoutOperationIdDeleteHandler = (
-    firstHandler: WithoutOperationIdDeleteChainedHandlerFunction,
-    ...remainingHandlers: WithoutOperationIdDeleteChainedHandlerFunction[]
+    ...handlers: [WithoutOperationIdDeleteChainedHandlerFunction, ...WithoutOperationIdDeleteChainedHandlerFunction[]]
 ): OperationApiGatewayLambdaHandler<'withoutOperationIdDelete'> => async (event: any, context: any, _callback?: any, additionalInterceptors: WithoutOperationIdDeleteChainedHandlerFunction[] = []): Promise<any> => {
-    const requestParameters = decodeRequestParameters({
-        ...(event.pathParameters || {}),
-        ...(event.queryStringParameters || {}),
-        ...(event.headers || {}),
-    }) as unknown as WithoutOperationIdDeleteRequestParameters;
+    const operationId = "withoutOperationIdDelete";
 
-    const requestArrayParameters = decodeRequestParameters({
-        ...(event.multiValueQueryStringParameters || {}),
-        ...(event.multiValueHeaders || {}),
-    }) as unknown as WithoutOperationIdDeleteRequestArrayParameters;
-
-    const demarshal = (bodyString: string): any => {
-        return {};
-    };
-    const body = parseBody(event.body, demarshal, ['application/json']) as WithoutOperationIdDeleteRequestBody;
-
-    const chain = buildHandlerChain(...additionalInterceptors, firstHandler, ...remainingHandlers);
-    const response = await chain.next({
-        input: {
-            requestParameters,
-            requestArrayParameters,
-            body,
-        },
-        event,
-        context,
-        interceptorContext: {},
-    });
+    const rawSingleValueParameters = decodeRequestParameters({
+      ...(event.pathParameters || {}),
+      ...(event.queryStringParameters || {}),
+      ...(event.headers || {}),
+    }) as { [key: string]: string | undefined };
+    const rawMultiValueParameters = decodeRequestParameters({
+      ...(event.multiValueQueryStringParameters || {}),
+      ...(event.multiValueHeaders || {}),
+    }) as { [key: string]: string[] | undefined };
 
     const marshal = (statusCode: number, responseBody: any): string => {
         let marshalledBody = responseBody;
@@ -2524,6 +3179,43 @@ export const withoutOperationIdDeleteHandler = (
         return headers;
     };
 
+    let requestParameters: WithoutOperationIdDeleteRequestParameters | undefined = undefined;
+
+    try {
+      requestParameters = {
+      };
+    } catch (e: any) {
+      const res = {
+        statusCode: 400,
+        body: { message: e.message },
+        headers: extractResponseHeadersFromInterceptors(handlers),
+      };
+      return {
+        ...res,
+        headers: {
+          ...errorHeaders(res.statusCode),
+          ...res.headers,
+        },
+        body: res.body ? marshal(res.statusCode, res.body) : '',
+      };
+    }
+
+    const demarshal = (bodyString: string): any => {
+        return {};
+    };
+    const body = parseBody(event.body, demarshal, ['application/json']) as WithoutOperationIdDeleteRequestBody;
+
+    const chain = buildHandlerChain(...additionalInterceptors, ...handlers);
+    const response = await chain.next({
+        input: {
+            requestParameters,
+            body,
+        },
+        event,
+        context,
+        interceptorContext: { operationId },
+    });
+
     return {
         ...response,
         headers: {
@@ -2545,13 +3237,11 @@ export interface HandlerRouterHandlers {
 }
 
 export type AnyOperationRequestParameters = | AnyRequestResponseRequestParameters| EmptyRequestParameters| MapResponseRequestParameters| MediaTypesRequestParameters| MultipleContentTypesRequestParameters| OperationOneRequestParameters| WithoutOperationIdDeleteRequestParameters;
-export type AnyOperationRequestArrayParameters = | AnyRequestResponseRequestArrayParameters| EmptyRequestArrayParameters| MapResponseRequestArrayParameters| MediaTypesRequestArrayParameters| MultipleContentTypesRequestArrayParameters| OperationOneRequestArrayParameters| WithoutOperationIdDeleteRequestArrayParameters;
 export type AnyOperationRequestBodies = | AnyRequestResponseRequestBody| EmptyRequestBody| MapResponseRequestBody| MediaTypesRequestBody| MultipleContentTypesRequestBody| OperationOneRequestBody| WithoutOperationIdDeleteRequestBody;
 export type AnyOperationResponses = | AnyRequestResponseOperationResponses| EmptyOperationResponses| MapResponseOperationResponses| MediaTypesOperationResponses| MultipleContentTypesOperationResponses| OperationOneOperationResponses| WithoutOperationIdDeleteOperationResponses;
 
 export interface HandlerRouterProps<
   RequestParameters,
-  RequestArrayParameters,
   RequestBody,
   Response extends AnyOperationResponses
 > {
@@ -2560,7 +3250,6 @@ export interface HandlerRouterProps<
    */
   readonly interceptors?: ChainedLambdaHandlerFunction<
     RequestParameters,
-    RequestArrayParameters,
     RequestBody,
     Response
   >[];
@@ -2582,7 +3271,6 @@ const OperationIdByMethodAndPath = Object.fromEntries(Object.entries(OperationLo
  */
 export const handlerRouter = (props: HandlerRouterProps<
   AnyOperationRequestParameters,
-  AnyOperationRequestArrayParameters,
   AnyOperationRequestBodies,
   AnyOperationResponses
 >): OperationApiGatewayLambdaHandler<OperationIds> => async (event, context) => {
@@ -2600,7 +3288,301 @@ export * from './DefaultApi';
 export * from './runtime';
 export * from './apis';
 export * from './models';
-export * from './apis/DefaultApi/OperationConfig';",
+export * from './apis/DefaultApi/OperationConfig';
+export * from './response/response';
+export * from './interceptors'
+",
+  "src/interceptors/cors.ts": "import { ChainedRequestInput, OperationResponse } from '..';
+
+// By default, allow all origins and headers
+const DEFAULT_CORS_HEADERS: { [key: string]: string } = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': '*',
+};
+
+/**
+ * Create an interceptor for adding headers to the response
+ * @param additionalHeaders headers to add to the response
+ */
+export const buildResponseHeaderInterceptor = (additionalHeaders: { [key: string]: string }) => {
+  const interceptor = async <
+    RequestParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    const result = await request.chain.next(request);
+    return {
+      ...result,
+      headers: {
+        ...additionalHeaders,
+        ...result.headers,
+      },
+    };
+  };
+
+  // Any error responses returned during request validation will include the headers
+  (interceptor as any).__type_safe_api_response_headers = additionalHeaders;
+
+  return interceptor;
+};
+
+/**
+ * An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
+ * Allows all origins and headers. Use buildResponseHeaderInterceptor to customise.
+ */
+export const corsInterceptor = buildResponseHeaderInterceptor(DEFAULT_CORS_HEADERS);
+",
+  "src/interceptors/index.ts": "import { corsInterceptor } from './cors';
+import { LoggingInterceptor } from './powertools/logger';
+import { MetricsInterceptor } from './powertools/metrics';
+import { TracingInterceptor } from './powertools/tracer';
+import { tryCatchInterceptor } from './try-catch';
+
+export * from './cors';
+export * from './try-catch';
+export * from './powertools/tracer';
+export * from './powertools/metrics';
+export * from './powertools/logger';
+
+/**
+ * All default interceptors, for logging, tracing, metrics, cors headers and error handling
+ */
+export const INTERCEPTORS = [
+  corsInterceptor,
+  LoggingInterceptor.intercept,
+  tryCatchInterceptor,
+  TracingInterceptor.intercept,
+  MetricsInterceptor.intercept,
+] as const;
+",
+  "src/interceptors/powertools/logger.ts": "import { Logger } from '@aws-lambda-powertools/logger';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const logger = new Logger();
+
+export class LoggingInterceptor {
+  /**
+   * Interceptor which adds an aws lambda powertools logger to the interceptor context,
+   * and adds the lambda context
+   * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/logger/
+   */
+  public static intercept = async <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    logger.addContext(request.context);
+    logger.appendKeys({ operationId: request.interceptorContext.operationId });
+    request.interceptorContext.logger = logger;
+    const response = await request.chain.next(request);
+    logger.removeKeys(['operationId']);
+    return response;
+  };
+
+  /**
+   * Retrieve the logger from the interceptor context
+   */
+  public static getLogger = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(request: ChainedRequestInput<RequestParameters, RequestBody, Response>): Logger => {
+    if (!request.interceptorContext.logger) {
+      throw new Error('No logger found, did you configure the LoggingInterceptor?');
+    }
+    return request.interceptorContext.logger;
+  };
+}
+",
+  "src/interceptors/powertools/metrics.ts": "import { Metrics } from '@aws-lambda-powertools/metrics';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const metrics = new Metrics();
+
+export class MetricsInterceptor {
+  /**
+   * Interceptor which adds an instance of aws lambda powertools metrics to the interceptor context,
+   * and ensures metrics are flushed prior to finishing the lambda execution
+   * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/metrics/
+   */
+  public static intercept = async <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Promise<Response> => {
+    metrics.addDimension("operationId", request.interceptorContext.operationId);
+    request.interceptorContext.metrics = metrics;
+    try {
+      return await request.chain.next(request);
+    } finally {
+      // Flush metrics
+      metrics.publishStoredMetrics();
+    }
+  };
+
+  /**
+   * Retrieve the metrics logger from the request
+   */
+  public static getMetrics = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Metrics => {
+    if (!request.interceptorContext.metrics) {
+      throw new Error('No metrics logger found, did you configure the MetricsInterceptor?');
+    }
+    return request.interceptorContext.metrics;
+  };
+}
+",
+  "src/interceptors/powertools/tracer.ts": "import { Tracer } from '@aws-lambda-powertools/tracer';
+import { ChainedRequestInput, OperationResponse } from '../..';
+
+const tracer = new Tracer();
+
+export interface TracingInterceptorOptions {
+  /**
+   * Whether to add the response as metadata to the trace
+   */
+  readonly addResponseAsMetadata?: boolean;
+}
+
+/**
+ * Create an interceptor which adds an aws lambda powertools tracer to the interceptor context,
+ * creating the appropriate segment for the handler execution and annotating with recommended
+ * details.
+ * @see https://docs.powertools.aws.dev/lambda/typescript/latest/core/tracer/#lambda-handler
+ */
+export const buildTracingInterceptor = (options?: TracingInterceptorOptions) => async <
+  RequestParameters,
+  RequestBody,
+  Response extends OperationResponse<number, any>
+>(
+  request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+): Promise<Response> => {
+  const handler = request.interceptorContext.operationId ?? process.env._HANDLER ?? 'index.handler';
+  const segment = tracer.getSegment();
+  let subsegment;
+  if (segment) {
+    subsegment = segment.addNewSubsegment(handler);
+    tracer.setSegment(subsegment);
+  }
+
+  tracer.annotateColdStart();
+  tracer.addServiceNameAnnotation();
+
+  if (request.interceptorContext.logger) {
+    tracer.provider.setLogger(request.interceptorContext.logger);
+  }
+
+  request.interceptorContext.tracer = tracer;
+
+  try {
+    const result = await request.chain.next(request);
+    if (options?.addResponseAsMetadata) {
+      tracer.addResponseAsMetadata(result, handler);
+    }
+    return result;
+  } catch (e) {
+    tracer.addErrorAsMetadata(e as Error);
+    throw e;
+  } finally {
+    if (segment && subsegment) {
+      subsegment.close();
+      tracer.setSegment(segment);
+    }
+  }
+};
+
+export class TracingInterceptor {
+  /**
+   * Interceptor which adds an aws lambda powertools tracer to the interceptor context,
+   * creating the appropriate segment for the handler execution and annotating with recommended
+   * details.
+   */
+  public static intercept = buildTracingInterceptor();
+
+  /**
+   * Get the tracer from the interceptor context
+   */
+  public static getTracer = <
+    RequestParameters,
+    RequestArrayParameters,
+    RequestBody,
+    Response extends OperationResponse<number, any>
+  >(
+    request: ChainedRequestInput<RequestParameters, RequestBody, Response>,
+  ): Tracer => {
+    if (!request.interceptorContext.tracer) {
+      throw new Error('No tracer found, did you configure the TracingInterceptor?');
+    }
+    return request.interceptorContext.tracer;
+  };
+}
+",
+  "src/interceptors/try-catch.ts": "import {
+  ChainedRequestInput,
+  OperationResponse,
+} from '..';
+
+/**
+ * Create an interceptor which returns the given error response and status should an error occur
+ * @param statusCode the status code to return when an error is thrown
+ * @param errorResponseBody the body to return when an error occurs
+ */
+export const buildTryCatchInterceptor = <TStatus extends number, ErrorResponseBody>(
+  statusCode: TStatus,
+  errorResponseBody: ErrorResponseBody,
+) => async <
+  RequestParameters,
+  RequestBody,
+  Response extends OperationResponse<number, any>,
+>(
+  request: ChainedRequestInput<
+  RequestParameters,
+  RequestBody,
+  Response
+  >,
+): Promise<Response | OperationResponse<TStatus, ErrorResponseBody>> => {
+  try {
+    return await request.chain.next(request);
+  } catch (e: any) {
+    // If the error looks like a response, return it as the response
+    if ('statusCode' in e) {
+      return e;
+    }
+
+    // Log the error if the logger is present
+    if (request.interceptorContext.logger && request.interceptorContext.logger.error) {
+      request.interceptorContext.logger.error('Interceptor caught exception', e as Error);
+    } else {
+      console.error('Interceptor caught exception', e);
+    }
+
+    // Return the default error message
+    return { statusCode, body: errorResponseBody };
+  }
+};
+
+/**
+ * Interceptor for catching unhandled exceptions and returning a 500 error.
+ * Uncaught exceptions which look like OperationResponses will be returned, such that deeply nested code may return error
+ * responses, eg: \`throw ApiResponse.notFound({ message: 'Not found!' })\`
+ */
+export const tryCatchInterceptor = buildTryCatchInterceptor(500, { message: 'Internal Error' });
+",
   "src/models/ApiError.ts": "/* tslint:disable */
 /* eslint-disable */
 /**
@@ -3046,6 +4028,64 @@ export * from './MapResponseMapPropertyValue';
 export * from './TestRequest';
 export * from './TestResponse';
 export * from './TestResponseMessagesInner';
+",
+  "src/response/response.ts": "import { OperationResponse } from '..';
+
+
+/**
+ * Helpers for constructing api responses
+ */
+export class Response {
+  /**
+   * A successful response
+   */
+  public static success = <T>(
+    body: T
+  ): OperationResponse<200, T> => ({
+    statusCode: 200,
+    body,
+  });
+
+  /**
+   * A response which indicates a client error
+   */
+  public static badRequest = <T>(
+    body: T
+  ): OperationResponse<400, T> => ({
+    statusCode: 400,
+    body,
+  });
+
+  /**
+   * A response which indicates the requested resource was not found
+   */
+  public static notFound = <T>(
+    body: T
+  ): OperationResponse<404, T> => ({
+    statusCode: 404,
+    body,
+  });
+
+  /**
+   * A response which indicates the caller is not authorised to perform the operation or access the resource
+   */
+  public static notAuthorized = <T>(
+    body: T
+  ): OperationResponse<403, T> => ({
+    statusCode: 403,
+    body,
+  });
+
+  /**
+   * A response to indicate a server error
+   */
+  public static internalFailure = <T>(
+    body: T
+  ): OperationResponse<500, T> => ({
+    statusCode: 500,
+    body,
+  });
+}
 ",
   "src/runtime.ts": "/* tslint:disable */
 /* eslint-disable */

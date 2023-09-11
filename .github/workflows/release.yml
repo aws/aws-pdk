@@ -25,7 +25,7 @@ jobs:
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         uses: nrwl/nx-set-shas@v2
         with:
-          main-branch-name: 'mainline'
+          main-branch-name: "mainline"
       - name: Set git identity
         run: |-
           git config user.name "github-actions"
@@ -42,7 +42,7 @@ jobs:
         id: git_remote
         run: echo ::set-output name=latest_commit::"$(git ls-remote origin -h ${{ github.ref }} | cut -f1)"
       - name: Extract Dists
-        run: rsync -a . ./dist --include="*/" --include="/public/docs/dist/**" --include="/packages/*/dist/**" --exclude="*" --prune-empty-dirs
+        run: rsync -a . ./dist --include="*/" --include="/docs/dist/**" --include="/packages/pdk/dist/**" --exclude="*" --prune-empty-dirs
       - name: Upload artifact
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
         uses: actions/upload-artifact@v2.1.1
@@ -67,7 +67,7 @@ jobs:
           path: dist
       - name: Release
         run: errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY -F dist/changelog.md -t $(cat dist/releasetag.txt) --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode -ne 0 ] && ! grep -q "Release.tag_name already exists" $errout; then cat $errout; exit $exitcode; fi
-        working-directory: dist/packages/nx-monorepo
+        working-directory: dist/packages/pdk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -92,8 +92,8 @@ jobs:
           name: build-artifact
           path: dist
       - name: Release
-        working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/js" ] && pnpm --package publib@latest dlx publib-npm || echo "Ignore `basename $PWD` - no dist/js" ) && cd ..; done;
+        working-directory: dist/packages/pdk
+        run: pnpm --package publib@latest dlx publib-npm || echo "Ignore `basename $PWD` - no dist/js"
         env:
           NPM_DIST_TAG: latest
           NPM_REGISTRY: registry.npmjs.org
@@ -122,8 +122,8 @@ jobs:
           name: build-artifact
           path: dist
       - name: Release
-        working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/java" ] && pnpm --package publib@latest dlx publib-maven || echo "Ignore `basename $PWD` - no dist/java" ) && cd ..; done;
+        working-directory: dist/packages/pdk
+        run: pnpm --package publib@latest dlx publib-maven || echo "Ignore `basename $PWD` - no dist/java"
         env:
           MAVEN_ENDPOINT: https://aws.oss.sonatype.org
           MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
@@ -154,8 +154,8 @@ jobs:
           name: build-artifact
           path: dist
       - name: Release
-        working-directory: dist/packages
-        run: for d in *; do cd $d && ( [ -d "dist/python" ] && pnpm --package publib@latest dlx publib-pypi || echo "Ignore `basename $PWD` - no dist/python" ) && cd ..; done;
+        working-directory: dist/packages/pdk
+        run: pnpm --package publib@latest dlx publib-pypi || echo "Ignore `basename $PWD` - no dist/python"
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
@@ -181,13 +181,13 @@ jobs:
           git config user.name "AWS PDK Automation"
           git config user.email "aws-pdk+automation@amazon.com"
       - name: Upload docs to Github
-        run: zip -r docs.zip dist/public/docs/dist/docs/* && gh release upload $(cat dist/packages/nx-monorepo/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
+        run: zip -r docs.zip dist/docs/dist/docs/* && gh release upload $(cat dist/packages/pdk/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
       - name: Prepare Commit
         run: |-
-          mv dist/public/docs/dist ${{ runner.temp }}/dist
+          mv dist/docs/dist ${{ runner.temp }}/dist
           rsync --delete --exclude=.git --recursive ${{ runner.temp }}/dist/docs/ .
           touch .nojekyll
           git add .

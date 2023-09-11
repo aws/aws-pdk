@@ -2,9 +2,13 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { PythonProject } from "projen/lib/python";
 import { Language } from "../../languages";
-import { GeneratedPythonRuntimeOptions } from "../../types";
+import {
+  CodeGenerationSourceOptions,
+  GeneratedPythonRuntimeOptions,
+} from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
@@ -16,12 +20,8 @@ import {
  * Configuration for the generated python types project
  */
 export interface GeneratedPythonTypesProjectOptions
-  extends GeneratedPythonRuntimeOptions {
-  /**
-   * The path to the OpenAPI specification, relative to this project's outdir
-   */
-  readonly specPath: string;
-}
+  extends GeneratedPythonRuntimeOptions,
+    CodeGenerationSourceOptions {}
 
 /**
  * Python project containing types generated using OpenAPI Generator CLI
@@ -34,6 +34,9 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
     "test",
     "test/*",
     "test/**/*",
+    ".github",
+    ".github/*",
+    ".github/**/*",
     ".gitlab-ci.yml",
     ".travis.yml",
     "git_push.sh",
@@ -45,13 +48,14 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
   ];
 
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
+  private readonly options: GeneratedPythonTypesProjectOptions;
 
   constructor(options: GeneratedPythonTypesProjectOptions) {
     super({
+      ...(options as any),
       sample: false,
       pytest: false,
       poetry: true,
@@ -60,18 +64,18 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
         // Module must be explicitly added to include since poetry excludes everything in .gitignore by default
         include: [options.moduleName, `${options.moduleName}/**/*.py`],
       },
-      ...options,
     });
-    this.specPath = options.specPath;
+    TypeSafeApiCommandEnvironment.ensure(this);
+    this.options = options;
 
     // Add dependencies required by the client
     [
-      "certifi@^14.5.14",
-      "frozendict@~2.3.4",
-      "python-dateutil@~2.7.0",
-      "setuptools@^21.0.0",
-      "typing_extensions@~4.3.0",
+      "python-dateutil@~2.8.2",
+      "pydantic@^1.10.5",
+      "aenum@^3.1.11",
       "urllib3@~1.26.7",
+      `aws-lambda-powertools@{extras=["all"],version="^2.23.0"}`,
+      "python@^3.9",
     ].forEach((dep) => this.addDependency(dep));
 
     const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
@@ -80,9 +84,10 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
     );
 
     // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
-    );
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig({
+      version: "6.6.0",
+      ...options.openApiGeneratorCliConfig,
+    });
 
     const generateTask = this.addTask("generate");
     generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
@@ -117,8 +122,8 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
 
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
-      generator: "python",
-      specPath: this.specPath,
+      generator: "python-nextgen",
+      specPath: this.options.specPath,
       generatorDirectory: Language.PYTHON,
       additionalProperties: {
         packageName: this.moduleName,

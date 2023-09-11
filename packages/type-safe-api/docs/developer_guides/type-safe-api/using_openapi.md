@@ -40,14 +40,14 @@ To use OpenAPI, in `TypeSafeApiProject`, specify it as the `model.language`.
 
     ```python
     TypeSafeApiProject(
-        model={
-            "language": ModelLanguage.OPENAPI,
-            "options": {
-                "openapi": {
-                    "title": "MyApi"
-                }
-            }
-        },
+        model=ModelConfiguration(
+            language=ModelLanguage.OPENAPI,
+            options=ModelOptions(
+                openapi=OpenApiModelOptions(
+                    title="MyApi"
+                )
+            )
+        ),
         ...
     )
     ```
@@ -65,6 +65,8 @@ paths:
   /hello:
     get:
       operationId: sayHello
+      x-handler:
+        language: typescript
       parameters:
         - in: query
           name: name
@@ -132,6 +134,8 @@ components:
 
 ```yaml
 operationId: sayHello
+x-handler:
+  language: typescript
 parameters:
   - in: query
     name: name
@@ -164,7 +168,3 @@ properties:
 required:
   - message
 ```
-
-!!! warning
-
-    Make sure you put all request/response body schemas in the `components` section and use `$ref` to reference them, as the Python generator may not produce expected results with inline request/response body schemas.

@@ -1,98 +1,130 @@
-# aws-prototyping-sdk
+<a href="https://aws.github.io/aws-pdk/getting_started/migration_guide.html"><img src="docs/content/assets/images/rebrand_banner.png" width="1024px"></a>
 
-## Introduction
+# Getting started
 
-The AWS Prototyping SDK (PDK) aims to accelerate the development of prototypes on AWS. To achieve this, it provides building blocks for common patterns together with development tools to manage and build your projects. The constructs are based on [AWS CDK](https://github.com/aws/aws-cdk) and implement an expanding number of common application/infrastructure patterns, such as the ability to generate complete client and infrastructure code for a REST API from an OpenAPI specification. The project and build tools the PDK provide allows you manage the configuration of multiple related projects in a language-agnostic way, and to efficiently execute parallel incremental builds.
+## What is the AWS PDK?
 
-This combination of project management, build execution, and CDK constructs reduce the effort involved in prototyping new ideas on AWS, and allow developers to seamlessly grow these ideas beyond the prototype phase without requiring a complete re-implementation of the original solution. In addition to the foundation of project configuration and build dependency management provided by the nx-monorepo project, PDK also provides a number of other projen projects (some of which implement common infrastructure patterns using CDK) and stand-alone CDK constructs, which are described below. Note: PDK is currently pre-release, targeting version 1.0 for mid-2023.
+The AWS Project Development Kit (AWS PDK) provides building blocks for common patterns together with development tools to manage and build your projects.
 
-## Core Modules
+The AWS PDK lets you define your projects programatically via the expressive power of type safe constructs available in one of 3 languages (typescript, python or java). This approach yields many benefits, including:
 
-### [nx-monorepo](./packages/nx-monorepo/README.md)
+- Ability to set up new projects within seconds, with all boilerplate already pre-configured.
+- Receive updates to previously bootstrapped projects when new versions become available i.e: updated dependenies or lint configurations.
+- Build polyglot monorepos, with build caching, cross-language build dependencies, dependency visualization and much more.
+- Leverage codified patterns which vend project and infrastructure (CDK) code.
 
-Modern applications are often implemented across multiple packages or libraries, each potentially implemented in a different language. To help manage the complexity that arises from this, PDK provides a [Projen](https://github.com/projen/projen) project called 'nx-monorepo' to support dependency management and builds across packages. Together with the project-as-code provided by Projen, this project utilises [Nx Build](https://nx.dev/) to give developers the ability to manage a collection of different projects within a single repository. Nx Build allows for explicit and implicit dependency management between polyglot projects, and provides shared caching and parallel task execution for super fast builds across multiple languages with ease. By combining Projen and NX Build, 'nx-monorepo' reduces the effort involved in maintaining and building related projects implemented in a mix of languages.
+The AWS PDK is built on top of [Projen](https://github.com/projen/projen) and as such all constructs that you compose together need to be defined via a [projenrc](https://projen.io/programmatic-api.html) file.
 
-### [static-website](./packages/static-website/README.md)
+## Why use the AWS PDK?
 
-This module provides a high-level CDK construct that is able to deploy your pre-packaged static website content into an S3 Bucket, fronted by Cloudfront. This module uses an Origin Access Identity to ensure your Bucket can only be accessed via Cloudfront and is configured to only allow HTTPS requests by default.
+It's much easier to show than explain! Here is some PDK code (within projenrc file) that creates a Polyglot monorepo, with a React Website pre-configured with Cognito Auth and pre-integrated with a Smithy Type Safe Api.
 
-### [cloudscape-react-ts-website](./packages/cloudscape-react-ts-website/README.md)
+```ts
+import { CloudscapeReactTsWebsiteProject } from "@aws/pdk/cloudscape-react-ts-website";
+import { InfrastructureTsProject } from "@aws/pdk/infrastructure";
+import { MonorepoTsProject } from "@aws/pdk/monorepo";
+import {
+    DocumentationFormat,
+    Language,
+    Library,
+    ModelLanguage,
+    TypeSafeApiProject,
+} from "@aws/pdk/type-safe-api";
+import { javascript } from "projen";
 
-This module provides a projen project that has a default directory structure and resources for an empty React website that utilises the Cloudscape design system. This can be used in tandem with the 'static-website' and 'identity' modules to deploy infrastructure to host and provide identity management to host and secure the website content.
+const monorepo = new MonorepoTsProject({
+    name: "my-project",
+    packageManager: javascript.NodePackageManager.PNPM,
+    projenrcTs: true,
+});
 
-### [type-safe-api](./packages/type-safe-api/README.md)
+const api = new TypeSafeApiProject({
+    parent: monorepo,
+    outdir: "packages/api",
+    name: "myapi",
+    infrastructure: {
+        language: Language.TYPESCRIPT,
+    },
+    model: {
+        language: ModelLanguage.SMITHY,
+        options: {
+        smithy: {
+            serviceName: {
+            namespace: "com.aws",
+            serviceName: "MyApi",
+            },
+        },
+        },
+    },
+    runtime: {
+        languages: [Language.TYPESCRIPT],
+    },
+    documentation: {
+        formats: [DocumentationFormat.HTML_REDOC],
+    },
+    library: {
+        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+    },
+    handlers: {
+        languages: [Language.TYPESCRIPT],
+    },
+});
 
-This module provides a projen project that allows you to define an API using either Smithy or OpenAPI v3, and a construct which manages deploying this API in API Gateway, given an integration (eg a lambda) for every operation. It generates type-safe CDK constructs, client, and server code to help you rapidly implement and integrate with your API.
+const website = new CloudscapeReactTsWebsiteProject({
+    parent: monorepo,
+    outdir: "packages/website",
+    name: "website",
+    typeSafeApi: api,
+});
 
-### [pipeline](./packages/pipeline/README.md)
+new InfrastructureTsProject({
+    parent: monorepo,
+    outdir: "packages/infra",
+    name: "infra",
+    cloudscapeReactTsWebsite: website,
+    typeSafeApi: api,
+});
 
-This module provides a projen project that uses a construct based on CDK's CodePipeline construct, named PDKPipeline, to deploy a CI/CD pipeline. It additionally creates a CodeCommit repository and by default is configured to build the project assuming nx-monorepo is being used (although this can be changed). A Sonarqube Scanner can also be configured to trigger a scan whenever the synth build job completes successfully. This Scanner is non-blocking and as such is not instrumented as part of the pipeline.
-
-### [pdk-nag](./packages/pdk-nag/README.md)
-
-This module provides a helper utility that automatically configures [CDKNag]('https://github.com/cdklabs/cdk-nag') within your application, which validates that the state of constructs within a given scope comply with a given set of rules. Additionally, cdk-nag provides a rule suppression and compliance reporting system. cdk-nag validates constructs by extending [AWS CDK Aspects]('https://docs.aws.amazon.com/cdk/v2/guide/aspects.html').
-
-### [cdk-graph](./packages/cdk-graph/README.md)
-
-This module provides a core framework for supporting additional CDK based automation and tooling, such as diagramming, cost modeling, and security and compliance. Currently, it delivers the following functionality:
-
-1. Synthesizes a serialized graph (nodes and edges) from CDK source code.
-1. Provides runtime interface for interacting with the graph (in-memory database-like graph store).
-1. Provides plugin framework for additional tooling to utilize and extend the graph.
-
-### [identity](./packages/identity/README.md)
-
-This module provides a CDK derived construct that can be added to existing CDK project to deploy a configurable Identity Provider with a default Cognito User Pool. It does not depend on projen and can be utilised as an import in an existing CDK application.
-
-## Prerequisites
-
-Ensure you have the following packages installed globally:
-
-* [pnpm](https://pnpm.io/installation)
-* [node > 14](https://nodejs.org/en/download/package-manager/) (or use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to install)
-* [Python >= 3.7](https://www.python.org/downloads/)
-* [Java >= 8](https://aws.amazon.com/fr/corretto/) and [Maven >= 3.6](https://maven.apache.org/download.cgi)
-
-```bash
-# from root directory of this package
-pnpm i
+monorepo.synth();
 ```
 
-## Quickstart
+This code (also available in Python and Java), produces all the source code, packages and infrastructure needed to deploy a fully-operable application in the AWS cloud. All that's left to do is build and deploy it!
 
-The [README for the 'nx-monorepo'](./packages/nx-monorepo/README.md) projen project provides an example of how to get started with PDK.
+From this ~70 lines of code above, the AWS PDK produces the following packages on your behalf:
 
-## Usage of projen/nx
+- `monorepo`: Root level project that manages interdependencies between projects within the Monorepo, provides build caching and dependency visualziation.
+- `api/model`: A project that allows you to define your API using Smithy (or OpenAPI) IDL.
+- `api/generated/documentation`: A project that automatically creates API documentation in a variety of formats.
+- `api/generated/infrastructure`: A project that automatically creates API infrastructure constructs in a type-safe manner.
+- `api/generated/libraries`: A project that automatically generates a react hooks library that can be used to call your API from a React based website.
+- `api/generated/runtime`: A project that contains server bindings for handlers to ensure type safety.
+- `api/handlers`: A project that automatically creates handler stubs, preconfigured with type-safety and a variety of value added features based on your defined API's.
+- `website`: A project which creates a React based website built using [Cloudscape](https://cloudscape.design/) that comes pre-integrated with Cognito Auth and your created API. This provides you with the ability to call your API securely.
+- `infra`: A project which sets up all CDK related infrastructure needed to deploy your application. It also comes pre-configured to generate a diagram based on your CDK code everytime you build.
 
-This package is built using [projen](https://github.com/projen/projen) and [nx](https://nx.dev/getting-started/intro) as such all tasks should be invoked
-via either:
+### Bootstrapped Source
 
-- `pnpm nx run-many --target=<task> --all` - executes the `<task>` on every package, in dependency order.
-- `pnpm nx run <package_name>:<task>` - executes the `<task>` on the specified `<package_name>`.
+<img src="docs/content/assets/images/boilerplate_source.png" width="800" />
 
-To build the full project, run `pnpm nx run-many --target=build --all`
+### Generated Website
 
-Any change to `projects/*` or `.projenrc.ts` requires a synth to be executed. To do this, run: `pnpm projen` from the root directory.
+<img src="docs/content/assets/images/website_screenshot.png" width="800" />
 
-## Nx workspace script alias
-In addition to the above `pnpm nx <command>` format to execute commands, the workspace package contains useful alias for common tasks.
+### Generated Diagram
 
-Executing `pnpm <task>` for common tasks will execute `pnpm nx run-many --target=<task> --output-style=stream --nx-bail`, such as `pnpm build` will execute `pnpx nx run-many --target=build --output-style=stream --nx-bail` across all packages.
+<img src="docs/content/assets/images/generated_diagram.png" width="800" />
 
-All nx run-many alias scripts access additional arguments, such as to only run on specific projects you can use `pnpm build --projects=proj1,proj2`.
-> See [Nx Run-Many options](https://nx.dev/packages/nx/documents/run-many#options) for details.
+As you can see, the AWS PDK provides you with valuable time savings so you can focus on working on what matters most to your project.
 
-## Documentation
+## Developing with the AWS PDK
 
-For documentation including examples and a full API reference, visit: [https://aws.github.io/aws-prototyping-sdk/](https://aws.github.io/aws-prototyping-sdk/)
+Please refer to the full documentation website.
 
-## Contributing
+https://aws.github.io/aws-pdk
 
-See [CONTRIBUTING](CONTRIBUTING.md) for more information.
+## Contributing to the AWS PDK
 
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+https://aws.github.io/aws-pdk/contributing/index.html
 
 ## License
 

@@ -1,12 +1,17 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { NodePackageUtils } from "@aws-prototyping-sdk/nx-monorepo";
+import { NodePackageUtils } from "@aws/monorepo";
+import { IgnoreFile } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Language } from "../../languages";
-import { GeneratedTypeScriptRuntimeOptions } from "../../types";
+import {
+  CodeGenerationSourceOptions,
+  GeneratedTypeScriptRuntimeOptions,
+} from "../../types";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
@@ -18,13 +23,10 @@ import {
  * Configuration for the generated typescript client project
  */
 export interface GeneratedTypescriptTypesProjectOptions
-  extends GeneratedTypeScriptRuntimeOptions {
+  extends GeneratedTypeScriptRuntimeOptions,
+    CodeGenerationSourceOptions {
   /**
-   * The path to the OpenAPI specification, relative to this project's outdir
-   */
-  readonly specPath: string;
-  /**
-   * Whether this project is parented by an nx-monorepo or not
+   * Whether this project is parented by an monorepo or not
    */
   readonly isWithinMonorepo?: boolean;
 }
@@ -44,14 +46,14 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
   ];
 
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
+  private readonly options: GeneratedTypescriptTypesProjectOptions;
 
   constructor(options: GeneratedTypescriptTypesProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sampleCode: false,
       tsconfig: {
         ...options.tsconfig,
@@ -76,8 +78,8 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
       jest: options.jest ?? false,
       npmignoreEnabled: false,
     });
-
-    this.specPath = options.specPath;
+    TypeSafeApiCommandEnvironment.ensure(this);
+    this.options = options;
 
     // Disable strict peer dependencies for pnpm as the default typescript project dependencies have type mismatches
     // (ts-jest@27 and @types/jest@28)
@@ -86,7 +88,16 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     }
 
     // For event and context types
-    this.addDeps("@types/aws-lambda");
+    this.addDeps(
+      "@types/aws-lambda",
+      "@aws-lambda-powertools/tracer",
+      "@aws-lambda-powertools/logger",
+      "@aws-lambda-powertools/metrics"
+    );
+
+    // Minimal .npmignore to avoid impacting OpenAPI Generator
+    const npmignore = new IgnoreFile(this, ".npmignore");
+    npmignore.addPatterns("/.projen/", "/src", "/dist");
 
     // Tell OpenAPI Generator CLI not to generate files that we will generate via this project, or don't need.
     const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
@@ -128,7 +139,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
           this.tasks
             .tryFind("install")
             ?.exec(
-              NodePackageUtils.command.exec(this.package.packageManager, "link")
+              NodePackageUtils.command.cmd(this.package.packageManager, "link")
             );
           break;
         case NodePackageManager.PNPM:
@@ -145,7 +156,7 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
-      specPath: this.specPath,
+      specPath: this.options.specPath,
       generatorDirectory: Language.TYPESCRIPT,
       additionalProperties: {
         npmName: this.package.packageName,

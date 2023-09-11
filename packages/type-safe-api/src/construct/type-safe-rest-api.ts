@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { PDKNag } from "@aws-prototyping-sdk/pdk-nag";
+import { PDKNag } from "@aws/pdk-nag";
 import { CustomResource, Duration, Size, Stack } from "aws-cdk-lib";
 import {
   AccessLogFormat,
@@ -214,7 +214,7 @@ export class TypeSafeRestApi extends Construct {
       handler: "index.handler",
       runtime: Runtime.NODEJS_18_X,
       code: Code.fromAsset(
-        path.join(__dirname, "../../lib/construct/prepare-spec-event-handler")
+        path.join(__dirname, "./prepare-spec-event-handler")
       ),
       timeout: Duration.seconds(30),
       role: prepareSpecRole,
@@ -305,6 +305,7 @@ export class TypeSafeRestApi extends Construct {
               scope: this,
               ...operationLookup[operationId],
               corsOptions: serializedCorsOptions,
+              operationLookup,
             }),
             methodAuthorizer: serializeAsAuthorizerReference(
               integration.authorizer
@@ -344,7 +345,7 @@ export class TypeSafeRestApi extends Construct {
 
     const prepareSpecCustomResource = new CustomResource(
       this,
-      "PrepareSpecCustomResource",
+      "PrepareSpecResource",
       {
         serviceToken: provider.serviceToken,
         properties: prepareApiSpecCustomResourceProperties,
@@ -384,6 +385,7 @@ export class TypeSafeRestApi extends Construct {
         scope: this,
         api: this.api,
         ...operationLookup[operationId],
+        operationLookup,
       });
     });
 

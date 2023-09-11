@@ -7,48 +7,68 @@ import { findReferencesOfSubGraph } from "./utils";
 import { FlagEnum, Graph, NodeTypeEnum } from "../core";
 
 /**
- * Verify that store is filterable, meaning it allows destructive mutations.
- * @throws Error if store is not filterable
+ * Filter value to use.
  */
-export function verifyFilterable(store: Graph.Store): void {
-  if (!store.allowDestructiveMutations) {
-    throw new Error(
-      "Store must allow destructive mutations to perform filtering; clone the store before applying filters using `store.clone(true)` operation and passing the cloned store to filtering operation."
-    );
-  }
+export interface FilterValue {
+  /**
+   * String representation of a regex
+   */
+  readonly regex?: string;
+
+  /**
+   * Raw value
+   */
+  readonly value?: string;
 }
 
-export namespace Filters {
+export class Filters {
+  /**
+   * Verify that store is filterable, meaning it allows destructive mutations.
+   * @throws Error if store is not filterable
+   */
+  public static verifyFilterable(store: Graph.Store): void {
+    if (!store.allowDestructiveMutations) {
+      throw new Error(
+        "Store must allow destructive mutations to perform filtering; clone the store before applying filters using `store.clone(true)` operation and passing the cloned store to filtering operation."
+      );
+    }
+  }
+
   /**
    * Prune **extraneous** nodes and edges
    * @throws Error if store is not filterable
    * @destructive
    */
-  export function pruneExtraneous(): IGraphStoreFilter {
-    return (store) => {
-      verifyFilterable(store);
+  public static pruneExtraneous(): IGraphStoreFilter {
+    return {
+      filter: (store) => {
+        Filters.verifyFilterable(store);
 
-      const extraneousNodes = store.root.findAll({
-        order: ConstructOrder.POSTORDER,
-        predicate: (node) => node.isExtraneous,
-      });
-      // collapse all extraneous nodes to nearest non-extraneous parent, or prune the node
-      for (const extraneousNode of extraneousNodes) {
-        const nonExtraneousAncestor = extraneousNode.findAncestor(
-          (node) => !node.isExtraneous
-        );
-        if (nonExtraneousAncestor && !nonExtraneousAncestor.isGraphContainer) {
-          extraneousNode.mutateCollapseTo(nonExtraneousAncestor);
-        } else {
-          extraneousNode.mutateDestroy();
+        const extraneousNodes = store.root.findAll({
+          order: ConstructOrder.POSTORDER,
+          predicate: { filter: (node) => node.isExtraneous },
+        });
+        // collapse all extraneous nodes to nearest non-extraneous parent, or prune the node
+        for (const extraneousNode of extraneousNodes) {
+          const nonExtraneousAncestor = extraneousNode.findAncestor({
+            filter: (node) => !node.isExtraneous,
+          });
+          if (
+            nonExtraneousAncestor &&
+            !nonExtraneousAncestor.isGraphContainer
+          ) {
+            extraneousNode.mutateCollapseTo(nonExtraneousAncestor);
+          } else {
+            extraneousNode.mutateDestroy();
+          }
         }
-      }
 
-      store.edges.forEach((edge) => {
-        if (edge.isExtraneous) {
-          edge.mutateDestroy();
-        }
-      });
+        store.edges.forEach((edge) => {
+          if (edge.isExtraneous) {
+            edge.mutateDestroy();
+          }
+        });
+      },
     };
   }
 
@@ -56,18 +76,22 @@ export namespace Filters {
    * Collapses all Cdk Owned containers, which more closely mirrors the application code
    * by removing resources that are automatically created by cdk.
    */
-  export function collapseCdkOwnedResources(): IGraphStoreFilter {
-    return (store) => {
-      store.root
-        .findAll({
-          order: ConstructOrder.POSTORDER,
-          predicate: (node) =>
-            Graph.ResourceNode.isResourceNode(node) && node.isCdkOwned,
-        })
-        .forEach((node) => {
-          if (node.isDestroyed) return;
-          node.mutateCollapse();
-        });
+  public static collapseCdkOwnedResources(): IGraphStoreFilter {
+    return {
+      filter: (store) => {
+        store.root
+          .findAll({
+            order: ConstructOrder.POSTORDER,
+            predicate: {
+              filter: (node) =>
+                Graph.ResourceNode.isResourceNode(node) && node.isCdkOwned,
+            },
+          })
+          .forEach((node) => {
+            if (node.isDestroyed) return;
+            node.mutateCollapse();
+          });
+      },
     };
   }
 
@@ -75,76 +99,90 @@ export namespace Filters {
    * Collapses all Cdk Resource wrappers that wrap directly wrap a CfnResource.
    * Example, s3.Bucket wraps s3.CfnBucket.
    */
-  export function collapseCdkWrappers(): IGraphStoreFilter {
-    return (store) => {
-      const cdkResources = store.root.findAll({
-        order: ConstructOrder.POSTORDER,
-        predicate: (node) =>
-          Graph.ResourceNode.isResourceNode(node) && !node.isLeaf,
-      }) as Graph.ResourceNode[];
-      // collapse all cfnResource wrapped by cdk resource
-      for (const cdkResource of cdkResources) {
-        if (cdkResource.isWrapper) {
-          cdkResource.mutateCollapse();
+  public static collapseCdkWrappers(): IGraphStoreFilter {
+    return {
+      filter: (store) => {
+        const cdkResources = store.root.findAll({
+          order: ConstructOrder.POSTORDER,
+          predicate: {
+            filter: (node) =>
+              Graph.ResourceNode.isResourceNode(node) && !node.isLeaf,
+          },
+        }) as Graph.ResourceNode[];
+        // collapse all cfnResource wrapped by cdk resource
+        for (const cdkResource of cdkResources) {
+          if (cdkResource.isWrapper) {
+            cdkResource.mutateCollapse();
+          }
         }
-      }
+      },
     };
   }
 
   /**
    * Collapses Custom Resource nodes to a single node.
    */
-  export function collapseCustomResources(): IGraphStoreFilter {
-    return (store) => {
-      store.root
-        .findAll({
-          predicate: (node) => {
-            return node.hasFlag(FlagEnum.CUSTOM_RESOURCE);
-          },
-        })
-        .forEach((customResource) => {
-          if (customResource.isDestroyed) return;
-
-          customResource.mutateCollapse();
-
-          // const REF_FQN = /^aws-cdk-lib\.aws-(iam|lambda)/
-
-          if (
-            !customResource.hasFlag(FlagEnum.AWS_CUSTOM_RESOURCE) &&
-            !customResource.parent?.hasFlag(FlagEnum.AWS_CUSTOM_RESOURCE)
-          ) {
-            let crId = customResource.id;
-            if (crId !== "Provider" && crId.endsWith("Provider")) {
-              crId = crId.replace(/Provider$/, "");
-            }
-            // Try to find resources that are utilized only for the custom resource
-            findReferencesOfSubGraph(customResource, 3, (node) => {
-              return node.id.includes(crId);
-              // return false && /^aws-cdk-lib\.(aws_)?(iam|lambda)/.test(node.constructInfoFqn || "")
-            }).forEach((_ref) => _ref.mutateMove(customResource));
+  public static collapseCustomResources(): IGraphStoreFilter {
+    return {
+      filter: (store) => {
+        store.root
+          .findAll({
+            predicate: {
+              filter: (node) => {
+                return node.hasFlag(FlagEnum.CUSTOM_RESOURCE);
+              },
+            },
+          })
+          .forEach((customResource) => {
+            if (customResource.isDestroyed) return;
 
             customResource.mutateCollapse();
-          }
-        });
+
+            // const REF_FQN = /^aws-cdk-lib\.aws-(iam|lambda)/
+
+            if (
+              !customResource.hasFlag(FlagEnum.AWS_CUSTOM_RESOURCE) &&
+              !customResource.parent?.hasFlag(FlagEnum.AWS_CUSTOM_RESOURCE)
+            ) {
+              let crId = customResource.id;
+              if (crId !== "Provider" && crId.endsWith("Provider")) {
+                crId = crId.replace(/Provider$/, "");
+              }
+              // Try to find resources that are utilized only for the custom resource
+              findReferencesOfSubGraph(customResource, 3, {
+                filter: (node) => {
+                  return node.id.includes(crId);
+                  // return false && /^aws-cdk-lib\.(aws_)?(iam|lambda)/.test(node.constructInfoFqn || "")
+                },
+              }).forEach((_ref) => _ref.mutateMove(customResource));
+
+              customResource.mutateCollapse();
+            }
+          });
+      },
     };
   }
 
   /**
    * Prune Custom Resource nodes.
    */
-  export function pruneCustomResources(): IGraphStoreFilter {
-    return (store) => {
-      store.root
-        .findAll({
-          predicate: (node) => {
-            return node.hasFlag(FlagEnum.CUSTOM_RESOURCE);
-          },
-        })
-        .forEach((customResource) => {
-          if (customResource.isDestroyed) return;
+  public static pruneCustomResources(): IGraphStoreFilter {
+    return {
+      filter: (store) => {
+        store.root
+          .findAll({
+            predicate: {
+              filter: (node) => {
+                return node.hasFlag(FlagEnum.CUSTOM_RESOURCE);
+              },
+            },
+          })
+          .forEach((customResource) => {
+            if (customResource.isDestroyed) return;
 
-          customResource.mutateDestroy();
-        });
+            customResource.mutateDestroy();
+          });
+      },
     };
   }
 
@@ -154,23 +192,28 @@ export namespace Filters {
    * Generally L3 constructs in which all children have already been pruned, which
    * would be useful as containers, but without children are considered extraneous.
    */
-  export function pruneEmptyContainers(): IGraphStoreFilter {
-    return (store) => {
-      store.root
-        .findAll({
-          predicate: (node) => {
-            if (node.nodeType !== NodeTypeEnum.DEFAULT) return false;
-            if (!node.isLeaf) return false;
-            if (node.cfnType) return false;
-            if (node.constructInfoFqn?.startsWith("aws-cdk-lib.")) return false;
-            return true;
-          },
-        })
-        .forEach((node) => {
-          if (node.isDestroyed) return;
+  public static pruneEmptyContainers(): IGraphStoreFilter {
+    return {
+      filter: (store) => {
+        store.root
+          .findAll({
+            predicate: {
+              filter: (node) => {
+                if (node.nodeType !== NodeTypeEnum.DEFAULT) return false;
+                if (!node.isLeaf) return false;
+                if (node.cfnType) return false;
+                if (node.constructInfoFqn?.startsWith("aws-cdk-lib."))
+                  return false;
+                return true;
+              },
+            },
+          })
+          .forEach((node) => {
+            if (node.isDestroyed) return;
 
-          node.mutateDestroy();
-        });
+            node.mutateDestroy();
+          });
+      },
     };
   }
 
@@ -193,22 +236,27 @@ export namespace Filters {
    * @throws Error if store is not filterable
    * @destructive
    */
-  export function compact(): IGraphStoreFilter {
-    return (store) => {
-      verifyFilterable(store);
+  public static compact(): IGraphStoreFilter {
+    return {
+      filter: (store) => {
+        Filters.verifyFilterable(store);
 
-      pruneExtraneous()(store);
-      collapseCdkOwnedResources()(store);
-      collapseCdkWrappers()(store);
-      collapseCustomResources()(store);
-      // TODO: decide if we should prune custom resources in "compact"
-      // pruneCustomResources()(store);
-      pruneEmptyContainers()(store);
+        Filters.pruneExtraneous().filter(store);
+        Filters.collapseCdkOwnedResources().filter(store);
+        Filters.collapseCdkWrappers().filter(store);
+        Filters.collapseCustomResources().filter(store);
+        // TODO: decide if we should prune custom resources in "compact"
+        // pruneCustomResources()(store);
+        Filters.pruneEmptyContainers().filter(store);
+      },
     };
   }
 
-  function _filterNodeType(
-    values: (string | RegExp)[],
+  /**
+   * @internal
+   */
+  public static _filterNodeType(
+    values: FilterValue[],
     exclude: boolean
   ): IGraphStoreFilter {
     const isMatch = memoize((input: string) => {
@@ -218,26 +266,31 @@ export namespace Filters {
 
       return (
         values.find((_value) => {
-          if (typeof _value === "string") {
-            return input === _value;
+          if (_value.value) {
+            return input === _value.value;
+          } else if (_value.regex) {
+            return new RegExp(_value.regex).test(input);
+          } else {
+            return undefined;
           }
-          return _value.test(input);
         }) != null
       );
     });
 
-    return (store) => {
-      for (const node of store.root.findAll({
-        order: ConstructOrder.POSTORDER,
-      })) {
-        if (isMatch(node.nodeType) === exclude) {
-          if (node.isLeaf) {
-            node.mutateCollapseToParent();
-          } else {
-            node.mutateUncluster();
+    return {
+      filter: (store) => {
+        for (const node of store.root.findAll({
+          order: ConstructOrder.POSTORDER,
+        })) {
+          if (isMatch(node.nodeType) === exclude) {
+            if (node.isLeaf) {
+              node.mutateCollapseToParent();
+            } else {
+              node.mutateUncluster();
+            }
           }
         }
-      }
+      },
     };
   }
 
@@ -248,10 +301,8 @@ export namespace Filters {
    * @throws Error if store is not filterable
    * @destructive
    */
-  export function includeNodeType(
-    nodeTypes: (string | RegExp)[]
-  ): IGraphStoreFilter {
-    return _filterNodeType(nodeTypes, false);
+  public static includeNodeType(nodeTypes: FilterValue[]): IGraphStoreFilter {
+    return Filters._filterNodeType(nodeTypes, false);
   }
 
   /**
@@ -261,14 +312,15 @@ export namespace Filters {
    * @throws Error if store is not filterable
    * @destructive
    */
-  export function excludeNodeType(
-    nodeTypes: (string | RegExp)[]
-  ): IGraphStoreFilter {
-    return _filterNodeType(nodeTypes, true);
+  public static excludeNodeType(nodeTypes: FilterValue[]): IGraphStoreFilter {
+    return Filters._filterNodeType(nodeTypes, true);
   }
 
-  function _filterCfnType(
-    values: (string | RegExp)[],
+  /**
+   * @internal
+   */
+  public static _filterCfnType(
+    values: FilterValue[],
     exclude: boolean
   ): IGraphFilter {
     const isMatch = memoize((input: string) => {
@@ -278,25 +330,30 @@ export namespace Filters {
 
       return (
         values.find((_value) => {
-          if (typeof _value === "string") {
-            return input === _value;
+          if (_value.value) {
+            return input === _value.value;
+          } else if (_value.regex) {
+            return new RegExp(_value.regex).test(input);
+          } else {
+            return undefined;
           }
-          return _value.test(input);
         }) != null
       );
     });
 
     return {
       strategy: FilterStrategy.PRUNE,
-      node: (node) => {
-        // Preserve container structure (stages, stacks, etc.)
-        if (node.isCluster || node.isGraphContainer) return true;
-        if (Graph.isResourceLike(node)) {
-          const match = !!node.cfnType && isMatch(node.cfnType);
-          return (match && !exclude) || (!match && exclude);
-        }
-        // Preserve non *Resource nodes
-        return true;
+      node: {
+        filter: (node) => {
+          // Preserve container structure (stages, stacks, etc.)
+          if (node.isCluster || node.isGraphContainer) return true;
+          if (Graph.isResourceLike(node)) {
+            const match = !!node.cfnType && isMatch(node.cfnType);
+            return (match && !exclude) || (!match && exclude);
+          }
+          // Preserve non *Resource nodes
+          return true;
+        },
       },
     };
   }
@@ -307,8 +364,8 @@ export namespace Filters {
    * @throws Error if store is not filterable
    * @destructive
    */
-  export function includeCfnType(cfnTypes: (string | RegExp)[]): IGraphFilter {
-    return _filterCfnType(cfnTypes, false);
+  public static includeCfnType(cfnTypes: FilterValue[]): IGraphFilter {
+    return Filters._filterCfnType(cfnTypes, false);
   }
 
   /**
@@ -317,8 +374,8 @@ export namespace Filters {
    * @throws Error if store is not filterable
    * @destructive
    */
-  export function excludeCfnType(cfnTypes: (string | RegExp)[]): IGraphFilter {
-    return _filterCfnType(cfnTypes, true);
+  public static excludeCfnType(cfnTypes: FilterValue[]): IGraphFilter {
+    return Filters._filterCfnType(cfnTypes, true);
   }
 
   /**
@@ -329,24 +386,28 @@ export namespace Filters {
    * @see {@link Graph.Node.mutateUncluster}
    * @destructive
    */
-  export function uncluster(clusterTypes?: NodeTypeEnum[]): IGraphStoreFilter {
+  public static uncluster(clusterTypes?: NodeTypeEnum[]): IGraphStoreFilter {
     // Use set for constant lookup
     const clusterTypesSet = new Set<NodeTypeEnum>(clusterTypes);
 
-    return (store): void => {
-      verifyFilterable(store);
+    return {
+      filter: (store): void => {
+        Filters.verifyFilterable(store);
 
-      const clusters = store.root.findAll({
-        predicate: (node) => {
-          if (node.isGraphContainer) return false;
-          if (clusterTypesSet.size === 0) return node.isCluster;
-          return clusterTypesSet.has(node.nodeType);
-        },
-      });
+        const clusters = store.root.findAll({
+          predicate: {
+            filter: (node) => {
+              if (node.isGraphContainer) return false;
+              if (clusterTypesSet.size === 0) return node.isCluster;
+              return clusterTypesSet.has(node.nodeType);
+            },
+          },
+        });
 
-      for (const cluster of clusters) {
-        cluster.mutateUncluster();
-      }
+        for (const cluster of clusters) {
+          cluster.mutateUncluster();
+        }
+      },
     };
   }
 }

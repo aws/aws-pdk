@@ -1,8 +1,9 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { AwsArchitecture, aws_arch } from "@aws-prototyping-sdk/aws-arch";
-import { Graph } from "@aws-prototyping-sdk/cdk-graph";
-import { GraphTheme, GraphThemeRenderingIconTarget } from "../graphviz/theme";
+import { AwsArchitecture, aws_arch } from "@aws/aws-arch";
+import { Graph } from "@aws/cdk-graph";
+import { GraphTheme } from "../graphviz/theme";
+import { GraphThemeRenderingIconTarget } from "../graphviz/theme/theme";
 
 /** Resolves CfnResource image from {@link AwsArchitecture} asset */
 export function resolveCfnResourceImage(

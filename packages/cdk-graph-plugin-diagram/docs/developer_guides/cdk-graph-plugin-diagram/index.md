@@ -1,21 +1,10 @@
 # Cdk Graph Diagram Plugin
 
-`@aws-prototyping-sdk/cdk-graph-plugin-diagram`
+![stable](https://img.shields.io/badge/stability-stable-green.svg)
+[![API Documentation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](../../api/typescript/cdk-graph-plugin-diagram/index.md)
+[![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-pdk/tree/mainline/packages/cdk-graph-plugin-diagram)
 
-![experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
-![alpha](https://img.shields.io/badge/version-alpha-red.svg) \
-[![API Documentation](https://img.shields.io/badge/view-API_Documentation-blue.svg)](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html)
-[![Source Code](https://img.shields.io/badge/view-Source_Code-blue.svg)](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/cdk-graph-plugin-diagram)
-
-This plugin generates diagrams utilizing the [cdk-graph](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph/index.html) framework.
-
-> More comprehensive documentation to come as this package stabilizes.
-
-> **Disclaimer:** This is the first **cdk graph** plugin, it is highly _experimental_, and subject to major refactors as we gain feedback from the community.
-
-> **BREAKING CHANGES** (pre-release)
->
-> - `<= v0.14.8`: Only the last stage of a multi stage app will be rendered by default, which is commonly the production stage. Use the `theme.rendering.stage` config option to override this for each graph or in defaults.
+> This plugin generates diagrams utilizing the [cdk-graph](https://aws.github.io/aws-pdk/typescript/cdk-graph/index.html) framework.
 
 |                                                                             |                                                                          |
 | --------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
@@ -51,9 +40,9 @@ This plugin generates diagrams utilizing the [cdk-graph](https://aws.github.io/a
 
 | Format                                          | Status                                                     | Extends                                         | Provider                             |
 | ----------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------- | ------------------------------------ |
-| [DOT](https://graphviz.org/docs/outputs/canon/) | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | -                                               | [Graphviz](../../graphviz/README.md) |
-| [SVG](https://graphviz.org/docs/outputs/svg/)   | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | [DOT](https://graphviz.org/docs/outputs/canon/) | [Graphviz](../../graphviz/README.md) |
-| [PNG](https://graphviz.org/docs/outputs/png/)   | ![beta](https://img.shields.io/badge/status-beta-cyan.svg) | [SVG](https://graphviz.org/docs/outputs/canon/) | [Graphviz](../../graphviz/README.md) |
+| [DOT](https://graphviz.org/docs/outputs/canon/) | ![beta](https://img.shields.io/badge/status-stable-green.svg) | -                                               | [Graphviz](./graphviz.md) |
+| [SVG](https://graphviz.org/docs/outputs/svg/)   | ![beta](https://img.shields.io/badge/status-stable-green.svg) | [DOT](https://graphviz.org/docs/outputs/canon/) | [Graphviz](./graphviz.md) |
+| [PNG](https://graphviz.org/docs/outputs/png/)   | ![beta](https://img.shields.io/badge/status-stable-green.svg) | [SVG](https://graphviz.org/docs/outputs/canon/) | [Graphviz](./graphviz.md) |
 
 ---
 
@@ -61,14 +50,14 @@ This plugin generates diagrams utilizing the [cdk-graph](https://aws.github.io/a
 
 | Provider                             | Status                                                         | Formats                                                                                                                                       |
 | ------------------------------------ | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Graphviz](../../graphviz/README.md) | ![alpha](https://img.shields.io/badge/status-alpha-orange.svg) | [DOT](https://graphviz.org/docs/outputs/canon/), [SVG](https://graphviz.org/docs/outputs/svg/), [PNG](https://graphviz.org/docs/outputs/png/) |
-| [Drawio](../../drawio/README.md)     | ![design](https://img.shields.io/badge/status-design-tan.svg)  | _TBD: very early stage design and development_                                                                                                |
+| [Graphviz](./graphviz.md) | ![stable](https://img.shields.io/badge/status-stable-green.svg) | [DOT](https://graphviz.org/docs/outputs/canon/), [SVG](https://graphviz.org/docs/outputs/svg/), [PNG](https://graphviz.org/docs/outputs/png/) |
+| [Drawio](./drawio.md)     | ![design](https://img.shields.io/badge/status-design-tan.svg)  | _TBD: very early stage design and development_                                                                                                |
 
 ---
 
 ### Configuration
 
-See [IPluginConfig](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html#ipluginconfig) interface for details, and look in [unit tests](https://github.com/aws/aws-prototyping-sdk/tree/mainline/packages/cdk-graph-plugin-diagram/test/graphviz) for additional examples.
+See [IPluginConfig](https://aws.github.io/aws-pdk/api/typescript/cdk-graph-plugin-diagram/index.html#ipluginconfig) interface for details, and look in [unit tests](https://github.com/aws/aws-pdk/tree/mainline/packages/cdk-graph-plugin-diagram/test/graphviz) for additional examples.
 
 By default the diagram plugin will generate a single "compact" preset diagram.
 It is capable of creating multiple diagrams each with different configurations, as well as defining the defaults to use.
@@ -77,7 +66,7 @@ It is capable of creating multiple diagrams each with different configurations, 
 
 Changing the `defaults` option will modify default options for all diagrams, including the default diagram.
 
-> See [IDiagramConfigBase](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html#idiagramconfigbase) interface for `plugin.defaults` options.
+> See [IDiagramConfigBase](https://aws.github.io/aws-pdk/api/typescript/cdk-graph-plugin-diagram/index.html#idiagramconfigbase) interface for `plugin.defaults` options.
 
 ```ts
 new CdkGraphDiagramPlugin({
@@ -96,7 +85,7 @@ new CdkGraphDiagramPlugin({
 
 By modifying the `diagrams` option of the plugin you have full control over the rendering of diagrams, and can render **multiple** diagrams.
 
-> See [IDiagramConfig](https://aws.github.io/aws-prototyping-sdk/typescript/cdk-graph-plugin-diagram/index.html#idiagramconfig) interface for diagram config options.
+> See [IDiagramConfig](https://aws.github.io/aws-pdk/api/typescript/cdk-graph-plugin-diagram/index.html#idiagramconfig) interface for diagram config options.
 
 ```ts
 new CdkGraphDiagramPlugin({
@@ -183,8 +172,12 @@ new CdkGraphDiagramPlugin({
   name: "focus",
   title: "Focus Lambda Diagram (non-extraneous)",
   filterPlan: {
-    focus: (store) =>
-      store.getNode(getConstructUUID(app.stack.lambda)),
+    focus: {
+        filter: {
+            filter: (store) =>
+                store.getNode(getConstructUUID(app.stack.lambda)),
+            },
+        },
     preset: FilterPreset.NON_EXTRANEOUS,
   },
   ignoreDefaults: true,
@@ -200,14 +193,17 @@ new CdkGraphDiagramPlugin({
 
 ```ts
 {
-  name: "focus-nohoist",
-  title: "Focus WebServer Diagram (noHoist, verbose)",
+  name: "focus",
+  title: "Focus Lambda Diagram (non-extraneous)",
   filterPlan: {
     focus: {
-      node: (store) =>
-        store.getNode(getConstructUUID(app.stack.webServer)),
-      noHoist: true,
+        filter: {
+            filter: (store) =>
+                store.getNode(getConstructUUID(app.stack.lambda)),
+        },
+        noHoist: true,
     },
+    preset: FilterPreset.NON_EXTRANEOUS,
   },
   ignoreDefaults: true,
 },
@@ -228,12 +224,14 @@ new CdkGraphDiagramPlugin({
   title: "Include CfnType Diagram (filter)",
   filterPlan: {
     filters: [
-      Filters.includeCfnType([
-        aws_arch.CfnSpec.ServiceResourceDictionary.EC2.Instance,
-        /AWS::Lambda::Function.*/,
-        "AWS::IAM::Role",
-      ]),
-      Filters.compact(),
+      {
+        graph: Filters.includeCfnType([
+          aws_arch.CfnSpec.ServiceResourceDictionary.EC2.Instance,
+          /AWS::Lambda::Function.*/,
+          "AWS::IAM::Role",
+        ]),
+      },
+      { store: Filters.compact() },
     ],
   },
 },
@@ -252,11 +250,13 @@ new CdkGraphDiagramPlugin({
   title: "Exclude CfnType Diagram (filter)",
   filterPlan: {
     filters: [
-      Filters.excludeCfnType([
-        /AWS::EC2::VPC.*/,
-        aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
-      ]),
-      Filters.compact(),
+      {
+        graph: Filters.excludeCfnType([
+          /AWS::EC2::VPC.*/,
+          aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
+        ]),
+      },
+      { store: Filters.compact() },
     ],
   },
 },
@@ -275,34 +275,13 @@ new CdkGraphDiagramPlugin({
   title: "Include NodeType Diagram (filter)",
   filterPlan: {
     filters: [
-      Filters.includeNodeType([
-        NodeTypeEnum.STACK,
-        NodeTypeEnum.RESOURCE,
-      ]),
-      Filters.compact(),
-    ],
-  },
-},
-```
-
-</details>
-
-<details>
-<summary>Filter: Include specific graph node types</summary>
-
-<img src="../../assets/cdk-graph-plugin-diagram/filter-nodetype-include.png" height="200" />
-
-```ts
-{
-  name: "includeNodeType",
-  title: "Include NodeType Diagram (filter)",
-  filterPlan: {
-    filters: [
-      Filters.includeNodeType([
-        NodeTypeEnum.STACK,
-        NodeTypeEnum.RESOURCE,
-      ]),
-      Filters.compact(),
+      {
+        graph: Filters.includeNodeType([
+          NodeTypeEnum.STACK,
+          NodeTypeEnum.RESOURCE,
+        ]),
+      },
+      { store: Filters.compact() },
     ],
   },
 },
@@ -321,13 +300,15 @@ new CdkGraphDiagramPlugin({
   title: "Exclude NodeType Diagram (filter)",
   filterPlan: {
     filters: [
-      Filters.excludeNodeType([
-        NodeTypeEnum.NESTED_STACK,
-        NodeTypeEnum.CFN_RESOURCE,
-        NodeTypeEnum.OUTPUT,
-        NodeTypeEnum.PARAMETER,
-      ]),
-      Filters.compact(),
+      {
+        graph: Filters.excludeNodeType([
+          NodeTypeEnum.NESTED_STACK,
+          NodeTypeEnum.CFN_RESOURCE,
+          NodeTypeEnum.OUTPUT,
+          NodeTypeEnum.PARAMETER,
+        ])
+      },
+      { store: Filters.compact() },
     ],
   },
 },
@@ -392,9 +373,8 @@ new CdkGraphDiagramPlugin({
 
 ---
 
-### Next Steps
+### Future Enhancements
 
-- [ ] Battle test in the wild and get community feedback
 - [ ] Improve image coverage and non-image node rendering
 - [ ] Add drawio support
 - [ ] Add common filter patterns and helpers

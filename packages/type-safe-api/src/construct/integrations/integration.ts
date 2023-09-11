@@ -2,7 +2,11 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { SpecRestApi } from "aws-cdk-lib/aws-apigateway";
 import { Construct } from "constructs";
-import { OperationDetails, SerializedCorsOptions } from "../spec";
+import {
+  OperationDetails,
+  OperationLookup,
+  SerializedCorsOptions,
+} from "../spec";
 
 /**
  * Specifies an API method integration type
@@ -183,6 +187,10 @@ export interface IntegrationRenderProps extends OperationDetails {
    * Cross Origin Resource Sharing options for the API
    */
   readonly corsOptions?: SerializedCorsOptions;
+  /**
+   * Details about all operations in the API
+   */
+  readonly operationLookup: OperationLookup;
 }
 
 /**
@@ -201,6 +209,10 @@ export interface IntegrationGrantProps extends OperationDetails {
    * The api to grant permissions for
    */
   readonly api: SpecRestApi;
+  /**
+   * Details about all operations in the API
+   */
+  readonly operationLookup: OperationLookup;
 }
 
 /**

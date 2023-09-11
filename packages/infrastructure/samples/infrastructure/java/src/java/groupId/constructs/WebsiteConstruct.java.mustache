@@ -1,0 +1,48 @@
+package {{{groupId}}}.constructs;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.static_website.DistributionProps;
+import software.aws.pdk.static_website.RuntimeOptions;
+import software.aws.pdk.static_website.StaticWebsite;
+import software.aws.pdk.static_website.StaticWebsiteProps;
+import software.constructs.Construct;
+
+/**
+ * Construct to deploy a Static Website
+ */
+public class WebsiteConstruct extends Construct {
+    public WebsiteConstruct(Construct scope, String id, UserIdentity userIdentity) {
+        this(scope, id, userIdentity{{^hasApi}}/* {{/hasApi}}, null{{^hasApi}} */{{/hasApi}});
+    }
+
+    public WebsiteConstruct(Construct scope, String id, UserIdentity userIdentity{{^hasApi}}/* {{/hasApi}}, ApiConstruct apiConstruct{{^hasApi}} */{{/hasApi}}) {
+        super(scope, id);
+
+        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+                .websiteContentPath("{{{websiteDistRelativePath}}}")
+                .runtimeOptions(RuntimeOptions.builder()
+                        .jsonPayload(new TreeMap<>(Map.of(
+                                "region", Stack.of(this).getRegion(),
+                                "identityPoolId", userIdentity.getIdentityPool().getIdentityPoolId(),
+                                "userPoolId", userIdentity.getUserPool().getUserPoolId(),
+                                "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(){{#hasApi}},{{/hasApi}}
+                                {{^hasApi}}// {{/hasApi}}"apiUrl", apiConstruct.api.getApi().urlForPath())))
+                        .build())
+                .distributionProps(DistributionProps.builder()
+                    .geoRestriction(GeoRestriction.allowlist(
+                        "AU",
+                        "ID",
+                        "IN",
+                        "JP",
+                        "KR",
+                        "SG",
+                        "US"))
+                    .build())
+                .build());
+    }
+}

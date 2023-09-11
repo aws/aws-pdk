@@ -1,0 +1,26 @@
+package {{{groupId}}}.stacks;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.StackProps;
+{{#hasApi}}
+import {{{groupId}}}.constructs.ApiConstruct;
+{{/hasApi}}
+{{#hasWebsite}}
+import {{{groupId}}}.constructs.WebsiteConstruct;
+{{/hasWebsite}}
+import software.aws.pdk.identity.UserIdentity;
+import software.constructs.Construct;
+
+public class ApplicationStack extends Stack {
+    public ApplicationStack(Construct scope, String id, StackProps props) {
+        super(scope, id, props);
+
+        UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
+        {{#hasApi}}
+        {{#hasWebsite}}ApiConstruct apiConstruct = {{/hasWebsite}}new ApiConstruct(this, "Api", userIdentity);
+        {{/hasApi}}
+        {{#hasWebsite}}
+        new WebsiteConstruct(this, "Website", userIdentity{{#hasApi}}, apiConstruct{{/hasApi}});
+        {{/hasWebsite}}
+    }
+}

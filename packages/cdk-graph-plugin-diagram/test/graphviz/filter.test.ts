@@ -1,12 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { aws_arch } from "@aws-prototyping-sdk/aws-arch";
-import {
-  CdkGraph,
-  Filters,
-  NodeTypeEnum,
-} from "@aws-prototyping-sdk/cdk-graph";
-import { FixtureApp } from "@aws-prototyping-sdk/cdk-graph/test/__fixtures__/apps";
+import { aws_arch } from "@aws/aws-arch";
+import { CdkGraph, Filters, NodeTypeEnum } from "@aws/cdk-graph";
+import { FixtureApp } from "@aws/cdk-graph/test/__fixtures__/apps";
 import * as fs from "fs-extra";
 import * as testUtils from "./test-utils";
 import { CdkGraphDiagramPlugin, DiagramFormat } from "../../src";
@@ -33,12 +29,23 @@ describe("filter", () => {
           title: "Include CfnType Diagram (filter)",
           filterPlan: {
             filters: [
-              Filters.includeCfnType([
-                aws_arch.CfnSpec.ServiceResourceDictionary.EC2.Instance,
-                aws_arch.CfnSpec.ServiceResourceDictionary.Lambda.Function,
-                aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
-              ]),
-              Filters.compact(),
+              {
+                graph: Filters.includeCfnType([
+                  {
+                    value:
+                      aws_arch.CfnSpec.ServiceResourceDictionary.EC2.Instance,
+                  },
+                  {
+                    value:
+                      aws_arch.CfnSpec.ServiceResourceDictionary.Lambda
+                        .Function,
+                  },
+                  {
+                    value: aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
+                  },
+                ]),
+              },
+              { store: Filters.compact() },
             ],
           },
         },
@@ -47,11 +54,15 @@ describe("filter", () => {
           title: "Exclude CfnType Diagram (filter)",
           filterPlan: {
             filters: [
-              Filters.excludeCfnType([
-                /AWS::EC2::VPC.*/,
-                aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
-              ]),
-              Filters.compact(),
+              {
+                graph: Filters.excludeCfnType([
+                  { regex: "/AWS::EC2::VPC.*/" },
+                  {
+                    value: aws_arch.CfnSpec.ServiceResourceDictionary.IAM.Role,
+                  },
+                ]),
+              },
+              { store: Filters.compact() },
             ],
           },
         },
@@ -60,11 +71,13 @@ describe("filter", () => {
           title: "Include NodeType Diagram (filter)",
           filterPlan: {
             filters: [
-              Filters.includeNodeType([
-                NodeTypeEnum.STACK,
-                NodeTypeEnum.RESOURCE,
-              ]),
-              Filters.compact(),
+              {
+                store: Filters.includeNodeType([
+                  { value: NodeTypeEnum.STACK },
+                  { value: NodeTypeEnum.RESOURCE },
+                ]),
+              },
+              { store: Filters.compact() },
             ],
           },
         },
@@ -73,13 +86,15 @@ describe("filter", () => {
           title: "Exclude NodeType Diagram (filter)",
           filterPlan: {
             filters: [
-              Filters.excludeNodeType([
-                NodeTypeEnum.NESTED_STACK,
-                NodeTypeEnum.CFN_RESOURCE,
-                NodeTypeEnum.OUTPUT,
-                NodeTypeEnum.PARAMETER,
-              ]),
-              Filters.compact(),
+              {
+                store: Filters.excludeNodeType([
+                  { value: NodeTypeEnum.NESTED_STACK },
+                  { value: NodeTypeEnum.CFN_RESOURCE },
+                  { value: NodeTypeEnum.OUTPUT },
+                  { value: NodeTypeEnum.PARAMETER },
+                ]),
+              },
+              { store: Filters.compact() },
             ],
           },
         },
@@ -87,7 +102,10 @@ describe("filter", () => {
           name: "filter-uncluster",
           title: "Uncluster Diagram (filter)",
           filterPlan: {
-            filters: [Filters.uncluster(), Filters.compact()],
+            filters: [
+              { store: Filters.uncluster() },
+              { store: Filters.compact() },
+            ],
           },
         },
       ],

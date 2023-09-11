@@ -4,10 +4,12 @@ import * as path from "path";
 import { Project, ProjectOptions, SampleFile, Task } from "projen";
 import { OpenApiDefinition } from "./openapi/open-api-definition";
 import { SmithyDefinition } from "./smithy/smithy-definition";
+import { TypeSafeApiCommandEnvironment } from "../codegen/components/type-safe-api-command-environment";
 import {
   buildTypeSafeApiExecCommand,
   TypeSafeApiScript,
 } from "../codegen/components/utils";
+import { Language } from "../languages";
 import { ModelLanguage, ModelOptions } from "../types";
 
 export interface TypeSafeApiModelProjectOptions extends ProjectOptions {
@@ -19,6 +21,10 @@ export interface TypeSafeApiModelProjectOptions extends ProjectOptions {
    * Options for the model
    */
   readonly modelOptions: ModelOptions;
+  /**
+   * The languages users have specified for handler projects (if any)
+   */
+  readonly handlerLanguages?: Language[];
 }
 
 export class TypeSafeApiModelProject extends Project {
@@ -43,14 +49,12 @@ export class TypeSafeApiModelProject extends Project {
 
   constructor(options: TypeSafeApiModelProjectOptions) {
     super(options);
+    TypeSafeApiCommandEnvironment.ensure(this);
 
     this.generateTask = this.addTask("generate");
 
     // Add the API definition
-    const { specPath, smithy, openapi } = this.addApiDefinition(
-      options.modelLanguage,
-      options.modelOptions
-    );
+    const { specPath, smithy, openapi } = this.addApiDefinition(options);
     this.smithy = smithy;
     this.openapi = openapi;
 
@@ -68,6 +72,7 @@ export class TypeSafeApiModelProject extends Project {
         "..",
         "..",
         "samples",
+        "type-safe-api",
         "readme",
         "model",
         `${options.modelLanguage}.md`
@@ -75,10 +80,11 @@ export class TypeSafeApiModelProject extends Project {
     });
   }
 
-  private addApiDefinition = (
-    modelLanguage: ModelLanguage,
-    modelOptions: ModelOptions
-  ) => {
+  private addApiDefinition = ({
+    modelLanguage,
+    modelOptions,
+    handlerLanguages,
+  }: TypeSafeApiModelProjectOptions) => {
     if (modelLanguage === ModelLanguage.SMITHY) {
       if (!modelOptions.smithy) {
         throw new Error(
@@ -89,6 +95,7 @@ export class TypeSafeApiModelProject extends Project {
       const smithyOptions = modelOptions.smithy;
       const smithy = new SmithyDefinition(this, {
         smithyOptions,
+        handlerLanguages,
       });
 
       return { smithy, specPath: smithy.openApiSpecificationPath };
@@ -102,6 +109,7 @@ export class TypeSafeApiModelProject extends Project {
       const openApiOptions = modelOptions.openapi;
       const openapi = new OpenApiDefinition(this, {
         openApiOptions,
+        handlerLanguages,
       });
       return { openapi, specPath: openapi.openApiSpecificationPath };
     } else {
@@ -113,7 +121,13 @@ export class TypeSafeApiModelProject extends Project {
     this.generateTask.exec(
       buildTypeSafeApiExecCommand(
         TypeSafeApiScript.PARSE_OPENAPI_SPEC,
-        `--spec-path ${openApiSpecificationPath} --output-path ${this.parsedSpecFile}`
+        `--spec-path ${openApiSpecificationPath} --output-path ${
+          this.parsedSpecFile
+        }${
+          this.smithy
+            ? ` --smithy-json-path ${this.smithy.smithyJsonModelPath}`
+            : ""
+        }`
       )
     );
 

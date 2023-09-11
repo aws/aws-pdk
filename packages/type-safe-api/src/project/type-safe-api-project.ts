@@ -1,11 +1,15 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import * as fs from "fs";
 import * as path from "path";
 import {
-  NxMonorepoProject,
+  MonorepoTsProject,
+  MonorepoJavaProject,
+  MonorepoPythonProject,
   NxProject,
   NxWorkspace,
-} from "@aws-prototyping-sdk/nx-monorepo";
+  ProjectUtils,
+} from "@aws/monorepo";
 import { Project, ProjectOptions, SampleFile } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
@@ -16,7 +20,11 @@ import {
   generateDocsProjects,
   generateInfraProject,
   generateLibraryProjects,
+  generateHandlersProjects,
 } from "./codegen/generate";
+import { GeneratedJavaHandlersProject } from "./codegen/handlers/generated-java-handlers-project";
+import { GeneratedPythonHandlersProject } from "./codegen/handlers/generated-python-handlers-project";
+import { GeneratedTypescriptHandlersProject } from "./codegen/handlers/generated-typescript-handlers-project";
 import { GeneratedJavaRuntimeProject } from "./codegen/runtime/generated-java-runtime-project";
 import { GeneratedPythonRuntimeProject } from "./codegen/runtime/generated-python-runtime-project";
 import { GeneratedTypescriptRuntimeProject } from "./codegen/runtime/generated-typescript-runtime-project";
@@ -32,6 +40,8 @@ import {
   ModelLanguage,
   ModelOptions,
   GeneratedInfrastructureCodeOptions,
+  GeneratedHandlersCodeOptions,
+  ProjectCollections,
 } from "./types";
 
 /**
@@ -78,6 +88,21 @@ export interface InfrastructureConfiguration {
 }
 
 /**
+ * Configuration for generated lambda handlers
+ */
+export interface HandlersConfiguration {
+  /**
+   * The languages lambda handlers are written in. Specify multiple languages if you wish to implement different operations
+   * as AWS Lambda functions in different languages.
+   */
+  readonly languages: Language[];
+  /**
+   * Options for the infrastructure package. Note that only those provided for the specified language will apply.
+   */
+  readonly options?: GeneratedHandlersCodeOptions;
+}
+
+/**
  * Configuration for generated documentation
  */
 export interface DocumentationConfiguration {
@@ -116,11 +141,15 @@ export interface TypeSafeApiProjectOptions extends ProjectOptions {
   /**
    * Configuration for generated runtime projects (containing types, clients and server code)
    */
-  readonly runtime: RuntimeConfiguration;
+  readonly runtime?: RuntimeConfiguration;
   /**
    * Configuration for generated infrastructure
    */
   readonly infrastructure: InfrastructureConfiguration;
+  /**
+   * Configuration for lambda handlers for implementing the API
+   */
+  readonly handlers?: HandlersConfiguration;
   /**
    * Configuration for generated documentation
    */
@@ -154,6 +183,10 @@ export class TypeSafeApiProject extends Project {
    */
   public readonly infrastructure: GeneratedCodeProjects;
   /**
+   * Lambda handlers projects. Only the properties corresponding to `handlers.languages` will be defined.
+   */
+  public readonly handlers: GeneratedCodeProjects;
+  /**
    * Generated library projects. Only the properties corresponding to specified `library.libraries` will be defined.
    */
   public readonly library: GeneratedLibraryProjects;
@@ -161,12 +194,23 @@ export class TypeSafeApiProject extends Project {
    * Generated documentation projects. Only the properties corresponding to specified `documentation.formats` will be defined.
    */
   public readonly documentation: GeneratedDocumentationProjects;
+  /**
+   * Collections of all sub-projects managed by this project
+   */
+  public readonly all: ProjectCollections;
 
   constructor(options: TypeSafeApiProjectOptions) {
     super(options);
 
     const nxWorkspace = this.getNxWorkspace(options);
-    const isNxTsWorkspace = this.parent instanceof NxMonorepoProject;
+
+    const isNxWorkspace =
+      this.parent &&
+      (ProjectUtils.isNamedInstanceOf(this.parent, MonorepoTsProject) ||
+        ProjectUtils.isNamedInstanceOf(this.parent, MonorepoJavaProject) ||
+        ProjectUtils.isNamedInstanceOf(this.parent, MonorepoPythonProject));
+
+    const handlerLanguages = [...new Set(options.handlers?.languages ?? [])];
 
     // API Definition project containing the model
     const modelDir = "model";
@@ -176,56 +220,62 @@ export class TypeSafeApiProject extends Project {
       name: `${options.name}-model`,
       modelLanguage: options.model.language,
       modelOptions: options.model.options,
+      handlerLanguages,
     });
-    const parsedSpecPathRelativeToProjectRoot = path.join(
-      modelDir,
-      this.model.parsedSpecFile
-    );
 
     // Ensure we always generate a runtime project for the infrastructure language, regardless of what was specified by
-    // the user
+    // the user. Likewise we generate a runtime project for any handler languages specified
     const runtimeLanguages = [
       ...new Set([
-        ...options.runtime.languages,
+        ...(options.runtime?.languages ?? []),
         options.infrastructure.language,
+        ...(options.handlers?.languages ?? []),
       ]),
     ];
 
-    const runtimeDir = "runtime";
+    const generatedDir = "generated";
+    const runtimeDir = path.join(generatedDir, "runtime");
     const runtimeDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, runtimeDir)
       : runtimeDir;
+
+    // Path from a generated package directory (eg api/generated/runtime/typescript) to the model dir (ie api/model)
+    const relativePathToModelDirFromGeneratedPackageDir = path.relative(
+      path.join(this.outdir, runtimeDir, "language"),
+      path.join(this.outdir, modelDir)
+    );
+    const parsedSpecRelativeToGeneratedPackageDir = path.join(
+      relativePathToModelDirFromGeneratedPackageDir,
+      this.model.parsedSpecFile
+    );
 
     // Declare the generated runtime projects
     const generatedRuntimeProjects = generateRuntimeProjects(runtimeLanguages, {
       parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: runtimeDirRelativeToParent,
-      isWithinMonorepo: isNxTsWorkspace,
-      // Spec path relative to each generated client dir
-      parsedSpecPath: path.join(
-        "..",
-        "..",
-        parsedSpecPathRelativeToProjectRoot
-      ),
+      isWithinMonorepo: isNxWorkspace,
+      // Spec path relative to each generated runtime dir
+      parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       typescriptOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected?.defaultBase ?? "mainline",
         packageManager:
-          this.parent && this.parent instanceof NodeProject
+          this.parent &&
+          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
             ? this.parent.package.packageManager
             : NodePackageManager.YARN,
-        ...options.runtime.options?.typescript,
+        ...options.runtime?.options?.typescript,
       },
       pythonOptions: {
         authorName: "APJ Cope",
         authorEmail: "apj-cope@amazon.com",
         version: "0.0.0",
-        ...options.runtime.options?.python,
+        ...options.runtime?.options?.python,
       },
       javaOptions: {
         version: "0.0.0",
-        ...options.runtime.options?.java,
+        ...options.runtime?.options?.java,
       },
     });
 
@@ -233,7 +283,7 @@ export class TypeSafeApiProject extends Project {
       ...new Set(options.documentation?.formats ?? []),
     ];
 
-    const docsDir = "documentation";
+    const docsDir = path.join(generatedDir, "documentation");
     const docsDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, docsDir)
       : docsDir;
@@ -243,11 +293,7 @@ export class TypeSafeApiProject extends Project {
       parentPackageName: this.name,
       generatedDocsDir: docsDirRelativeToParent,
       // Spec path relative to each generated doc format dir
-      parsedSpecPath: path.join(
-        "..",
-        "..",
-        parsedSpecPathRelativeToProjectRoot
-      ),
+      parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       documentationOptions: options.documentation?.options,
     });
 
@@ -260,7 +306,7 @@ export class TypeSafeApiProject extends Project {
 
     const libraries = [...new Set(options.library?.libraries ?? [])];
 
-    const libraryDir = "libraries";
+    const libraryDir = path.join(generatedDir, "libraries");
     const libraryDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, libraryDir)
       : libraryDir;
@@ -270,21 +316,18 @@ export class TypeSafeApiProject extends Project {
       parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: libraryDirRelativeToParent,
-      isWithinMonorepo: isNxTsWorkspace,
-      // Spec path relative to each generated client dir
-      parsedSpecPath: path.join(
-        "..",
-        "..",
-        parsedSpecPathRelativeToProjectRoot
-      ),
+      isWithinMonorepo: isNxWorkspace,
+      // Spec path relative to each generated library dir
+      parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       typescriptReactQueryHooksOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
         packageManager:
-          this.parent && this.parent instanceof NodeProject
+          this.parent &&
+          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
             ? this.parent.package.packageManager
             : NodePackageManager.YARN,
-        ...options.runtime.options?.typescript,
+        ...options.library?.options?.typescriptReactQueryHooks,
       },
     });
 
@@ -321,7 +364,92 @@ export class TypeSafeApiProject extends Project {
         : undefined,
     };
 
-    const infraDir = "infrastructure";
+    const handlersDir = "handlers";
+    const handlersDirRelativeToParent = nxWorkspace
+      ? path.join(options.outdir!, handlersDir)
+      : handlersDir;
+
+    const relativePathToModelDirFromHandlersDir = path.relative(
+      path.join(this.outdir, handlersDir, "language"),
+      path.join(this.outdir, modelDir)
+    );
+    const parsedSpecRelativeToHandlersDir = path.join(
+      relativePathToModelDirFromHandlersDir,
+      this.model.parsedSpecFile
+    );
+
+    // Declare the generated handlers projects
+    const generatedHandlersProjects = generateHandlersProjects(
+      handlerLanguages,
+      {
+        parent: nxWorkspace ? this.parent! : this,
+        parentPackageName: this.name,
+        generatedCodeDir: handlersDirRelativeToParent,
+        isWithinMonorepo: isNxWorkspace,
+        // Spec path relative to each generated handlers package dir
+        parsedSpecPath: parsedSpecRelativeToHandlersDir,
+        typescriptOptions: {
+          // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
+          defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
+          packageManager:
+            this.parent &&
+            ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
+              ? this.parent.package.packageManager
+              : NodePackageManager.YARN,
+          ...options.handlers?.options?.typescript,
+        },
+        pythonOptions: {
+          authorName: "APJ Cope",
+          authorEmail: "apj-cope@amazon.com",
+          version: "0.0.0",
+          ...options.handlers?.options?.python,
+        },
+        javaOptions: {
+          version: "0.0.0",
+          ...options.handlers?.options?.java,
+        },
+        generatedRuntimes: {
+          typescript: this.runtime.typescript as
+            | GeneratedTypescriptRuntimeProject
+            | undefined,
+          python: this.runtime.python as
+            | GeneratedPythonRuntimeProject
+            | undefined,
+          java: this.runtime.java as GeneratedJavaRuntimeProject | undefined,
+        },
+      }
+    );
+
+    this.handlers = {
+      typescript: generatedHandlersProjects[Language.TYPESCRIPT]
+        ? (generatedHandlersProjects[Language.TYPESCRIPT] as TypeScriptProject)
+        : undefined,
+      java: generatedHandlersProjects[Language.JAVA]
+        ? (generatedHandlersProjects[Language.JAVA] as JavaProject)
+        : undefined,
+      python: generatedHandlersProjects[Language.PYTHON]
+        ? (generatedHandlersProjects[Language.PYTHON] as PythonProject)
+        : undefined,
+    };
+
+    // Ensure the handlers project depends on the appropriate runtime projects
+    if (this.handlers.typescript) {
+      NxProject.ensure(this.handlers.typescript).addImplicitDependency(
+        this.runtime.typescript!
+      );
+    }
+    if (this.handlers.java) {
+      NxProject.ensure(this.handlers.java).addImplicitDependency(
+        this.runtime.java!
+      );
+    }
+    if (this.handlers.python) {
+      NxProject.ensure(this.handlers.python).addImplicitDependency(
+        this.runtime.python!
+      );
+    }
+
+    const infraDir = path.join(generatedDir, "infrastructure");
     const infraDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, infraDir)
       : infraDir;
@@ -331,18 +459,15 @@ export class TypeSafeApiProject extends Project {
       parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedCodeDir: infraDirRelativeToParent,
-      isWithinMonorepo: isNxTsWorkspace,
+      isWithinMonorepo: isNxWorkspace,
       // Spec path relative to each generated infra package dir
-      parsedSpecPath: path.join(
-        "..",
-        "..",
-        parsedSpecPathRelativeToProjectRoot
-      ),
+      parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
       typescriptOptions: {
         // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
         defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
         packageManager:
-          this.parent && this.parent instanceof NodeProject
+          this.parent &&
+          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
             ? this.parent.package.packageManager
             : NodePackageManager.YARN,
         ...options.infrastructure.options?.typescript,
@@ -365,6 +490,15 @@ export class TypeSafeApiProject extends Project {
           | GeneratedPythonRuntimeProject
           | undefined,
         java: this.runtime.java as GeneratedJavaRuntimeProject | undefined,
+      },
+      generatedHandlers: {
+        typescript: this.handlers.typescript as
+          | GeneratedTypescriptHandlersProject
+          | undefined,
+        python: this.handlers.python as
+          | GeneratedPythonHandlersProject
+          | undefined,
+        java: this.handlers.java as GeneratedJavaHandlersProject | undefined,
       },
     });
 
@@ -401,6 +535,30 @@ export class TypeSafeApiProject extends Project {
 
     NxProject.ensure(infraProject).addImplicitDependency(this.model);
 
+    // Expose collections of projects
+    const allRuntimes = Object.values(generatedRuntimeProjects);
+    const allInfrastructure = [infraProject];
+    const allLibraries = Object.values(generatedLibraryProjects);
+    const allDocumentation = Object.values(generatedDocs);
+    const allHandlers = Object.values(generatedHandlersProjects);
+
+    this.all = {
+      model: [this.model],
+      runtimes: allRuntimes,
+      infrastructure: allInfrastructure,
+      libraries: allLibraries,
+      documentation: allDocumentation,
+      handlers: allHandlers,
+      projects: [
+        this.model,
+        ...allRuntimes,
+        ...allInfrastructure,
+        ...allLibraries,
+        ...allDocumentation,
+        ...allHandlers,
+      ],
+    };
+
     if (!nxWorkspace) {
       // Add a task for the non-monorepo case to build the projects in the right order
       [
@@ -423,10 +581,25 @@ export class TypeSafeApiProject extends Project {
         "..",
         "..",
         "samples",
+        "type-safe-api",
         "readme",
         "TYPE_SAFE_API.md"
       ),
     });
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public postSynthesize() {
+    // Migration code, since we've moved these generated directories under a parent "generated"
+    // folder, we delete the generated projects which would otherwise be orphaned and still
+    // checked into VCS
+    ["runtime", "libraries", "infrastructure", "documentation"].forEach((dir) =>
+      fs.rmSync(path.join(this.outdir, dir), { force: true, recursive: true })
+    );
+
+    super.postSynthesize();
   }
 
   private getNxWorkspace = (

@@ -1,12 +1,17 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { NodePackageUtils } from "@aws/monorepo";
 import { NodePackageManager, TypeScriptJsxMode } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { Library } from "../../languages";
-import { GeneratedTypeScriptReactQueryHooksOptions } from "../../types";
+import {
+  CodeGenerationSourceOptions,
+  GeneratedTypeScriptReactQueryHooksOptions,
+} from "../../types";
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
 import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
   buildCleanOpenApiGeneratedCodeCommand,
   buildInvokeOpenApiGeneratorCommandArgs,
@@ -18,13 +23,10 @@ import {
  * Configuration for the generated typescript client project
  */
 export interface GeneratedTypescriptReactQueryHooksProjectOptions
-  extends GeneratedTypeScriptReactQueryHooksOptions {
+  extends GeneratedTypeScriptReactQueryHooksOptions,
+    CodeGenerationSourceOptions {
   /**
-   * The path to the OpenAPI specification, relative to this project's outdir
-   */
-  readonly specPath: string;
-  /**
-   * Whether this project is parented by an nx-monorepo or not
+   * Whether this project is parented by an monorepo or not
    */
   readonly isWithinMonorepo?: boolean;
 }
@@ -44,14 +46,14 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
   ];
 
   /**
-   * Path to the openapi specification
+   * Options configured for the project
    * @private
    */
-  private readonly specPath: string;
+  private readonly options: GeneratedTypescriptReactQueryHooksProjectOptions;
 
   constructor(options: GeneratedTypescriptReactQueryHooksProjectOptions) {
     super({
-      ...options,
+      ...(options as any),
       sampleCode: false,
       tsconfig: {
         ...options.tsconfig,
@@ -77,8 +79,9 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
       jest: options.jest ?? false,
       npmignoreEnabled: false,
     });
+    TypeSafeApiCommandEnvironment.ensure(this);
 
-    this.specPath = options.specPath;
+    this.options = options;
 
     // Disable strict peer dependencies for pnpm as the default typescript project dependencies have type mismatches
     // (ts-jest@27 and @types/jest@28)
@@ -137,7 +140,9 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
         case NodePackageManager.YARN2:
           this.tasks
             .tryFind("install")
-            ?.exec(`${this.package.packageManager} link`);
+            ?.exec(
+              NodePackageUtils.command.cmd(this.package.packageManager, "link")
+            );
           break;
         case NodePackageManager.PNPM:
           // Nothing to do for pnpm, since the pnpm link command handles both the dependant and dependee
@@ -153,7 +158,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
       generator: "typescript-fetch",
-      specPath: this.specPath,
+      specPath: this.options.specPath,
       generatorDirectory: Library.TYPESCRIPT_REACT_QUERY_HOOKS,
       additionalProperties: {
         npmName: this.package.packageName,

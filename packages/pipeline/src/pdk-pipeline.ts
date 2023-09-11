@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import * as path from "path";
 import {
   Aspects,
   CfnOutput,
@@ -32,6 +33,7 @@ import {
   SonarCodeScanner,
   SonarCodeScannerConfig,
 } from "./code_scanner/sonar-code-scanner";
+import { CodePipelineProps as _CodePipelineProps } from "./codepipeline-props";
 import { FeatureBranches } from "./feature-branches";
 
 export * from "./code_scanner/sonar-code-scanner";
@@ -49,7 +51,7 @@ export const DEFAULT_BRANCH_NAME = "mainline";
  * synthShellStepPartialProps.commands is marked as a required field, however
  * if you pass in [] the default commands of this construct will be retained.
  */
-export interface PDKPipelineProps extends CodePipelineProps {
+export interface PDKPipelineProps extends _CodePipelineProps {
   /**
    * Name of the CodeCommit repository to create.
    */
@@ -113,6 +115,15 @@ export interface PDKPipelineProps extends CodePipelineProps {
    * @default undefined
    */
   readonly branchNamePrefixes?: string[];
+
+  /**
+   * The directory with `cdk.json` to run cdk synth from. Set this if you enabled
+   * feature branches and `cdk.json` is not located in the parent directory of
+   * `primarySynthDirectory`.
+   *
+   * @default The parent directory of `primarySynthDirectory`
+   */
+  readonly cdkSrcDir?: string;
 
   /**
    * CDK command. Override the command used to call cdk for synth and deploy.
@@ -304,14 +315,9 @@ export class PDKPipeline extends Construct {
               BRANCH: branch,
             }
           : undefined,
-      installCommands: [
-        "npm install -g aws-cdk",
-        "yarn install --frozen-lockfile || npx projen && yarn install --frozen-lockfile",
-      ],
+      installCommands: ["npm install -g aws-cdk", "npx projen install"],
       commands:
-        commands && commands.length > 0
-          ? commands
-          : ["npx nx run-many --target=build --all"],
+        commands && commands.length > 0 ? commands : ["npx projen build"],
       primaryOutputDirectory: props.primarySynthDirectory,
       ...(synthShellStepPartialProps || {}),
     });
@@ -346,10 +352,7 @@ export class PDKPipeline extends Construct {
     ) {
       new FeatureBranches(this, "FeatureBranchPipelines", {
         codeRepository: this.codeRepository,
-        cdkSrcDir: props.primarySynthDirectory
-          .split("/")
-          .slice(0, -1)
-          .join("/"),
+        cdkSrcDir: props.cdkSrcDir || path.dirname(props.primarySynthDirectory),
         synthShellStepPartialProps: props.synthShellStepPartialProps,
         cdkCommand: props.cdkCommand,
         branchNamePrefixes: props.branchNamePrefixes,
