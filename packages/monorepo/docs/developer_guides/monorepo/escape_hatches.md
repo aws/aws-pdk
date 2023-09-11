@@ -1,10 +1,10 @@
 # Escape hatches
 
-It’s possible that the PDK and/or Projen doesn’t have the right high-level or low-level APIs that you need for managing your project configuration. If you think there’s an API that would be useful, first consider checking on GitHub to see if anyone else has the same problem, or consider opening an issue! But in the meantime, there are ways you can bypass projen’s regular APIs to add special configuration code.
+It is possible that the PDK and/or Projen doesn’t have the right high-level or low-level APIs that you need for managing your project configuration. If you think there’s an API that would be useful, first consider checking on GitHub to see if anyone else has the same problem, or consider opening an issue. In the meantime, there are ways you can bypass projen’s regular APIs to add a special configuration code.
 
 ## Overrides
 
-For any “object”-based files, such as JSON, YAML, TOML, or XML, you can override properties through the addOverride, addDeletionOverride, addToArray and patch methods accessible on file objects:
+For any “object”-based files, such as JSON, YAML, TOML, or XML, you can override properties through the `addOverride`, `addDeletionOverride`, `addToArray` and patch methods accessible on file objects:
 
 ```typescript
 // Get the ObjectFile
@@ -23,7 +23,7 @@ packageJson.addOverride('bundledDependencies.3', 'react');
 
 ## Removing files
 
-You can remove a file from the project through tryRemoveFile method on the Project class.
+You can remove a file from the project through `tryRemoveFile` method on the Project class.
 
 ```typescript
 new TextFile(project, "hello.txt", { lines: "original" });
@@ -34,6 +34,6 @@ new TextFile(project, "hello.txt", { lines: "better" });
 ```
 
 !!!note
-    It’s recommended that this is used carefully since removing files may be unexpected for users depending on where it’s used. For example, if you created a component named MyFancyGitIgnore and had it remove any existing .gitignore files in the project, then users may be surprised when customizations for their existing .gitignore file are nullified.
+    It is recommended that this is used carefully as removing files may be unexpected for users depending on where it is used. For example, if you created a component named MyFancyGitIgnore and had it remove any existing `.gitignore` files in the project, then users may be surprised when customizations for their existing .gitignore file are nullified.
 
 _Sourced from: https://projen.io/escape-hatches.html_
