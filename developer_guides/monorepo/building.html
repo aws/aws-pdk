@@ -3413,17 +3413,19 @@
 <h1 id="building-your-projects">Building your projects</h1>
 <h2 id="build-phases">Build phases</h2>
 <p>Projen defines a standard way for building software through a fixed set of build phases. This is implemented via a set of tasks defined in the Project base class which all constructs extend from.</p>
-<p>The <code>build</code> task spawns a set of sub-tasks which represent the various build phases:</p>
-<p><strong>default</strong> - this task is responsible to execute your projenrc and synthesize all project files.
-<strong>pre-compile</strong> - runs before compilation (eg. bundle assets)
-<strong>compile</strong> - compile your code (if needed)
-<strong>post-compile</strong> - runs immediately after a successful compilation
-<strong>test</strong> - runs tests
-<strong>package</strong> - creates a distribution package</p>
-<p>To extend the build process, components and projects can use project.projectBuild.xxxTask and interact with the Task object (i.e. project.projectBuild.postCompileTask.exec("echo hi") will execute echo hi after compilation).</p>
+<p>The <code>build</code> task contains a set of sub-tasks which represent the various build phases:</p>
+<ul>
+<li><strong>default</strong> - responsible for running your projenrc and synthesizing all project files.</li>
+<li><strong>pre-compile</strong> - runs before compilation (eg. bundle assets).</li>
+<li><strong>compile</strong> - compiles your code (if needed).</li>
+<li><strong>post-compile</strong> - runs immediately after a successful compilation.</li>
+<li><strong>test</strong> - runs tests.</li>
+<li><strong>package</strong> - creates a distribution package.</li>
+</ul>
+<p>To extend the build process, components and projects can use <code>project.projectBuild.xxxTask</code> and interact with the Task object (for example, <code>project.projectBuild.postCompileTask.exec("echo hi")</code> will run `echo hi`` after compilation).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The build task itself is locked. This means that any attempt to extend it (i.e. call spawn, exec, reset, etc) will throw an exception Instead of extending build, just extend one of the phases. This ensures that phases are always executed in the right order.</p>
+<p>The build task itself is locked. This means that any attempt to extend it (i.e. call spawn, exec, reset, etc) will throw an exception. We recommend just extend one of the phases instead of extending the build. This ensures that phases are always executed in the right order.</p>
 </div>
 <p><em>Sourced from: <a href="https://projen.io/build.html">https://projen.io/build.html</a></em></p>
 <h2 id="modifying-tasks">Modifying tasks</h2>
@@ -3432,30 +3434,30 @@
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">helloTask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">project</span><span class="p">.</span><span class="nx">tasks</span><span class="p">.</span><span class="nx">addTask</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">);</span>
 <span class="nx">helloTask</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s2">&quot;echo world&quot;</span><span class="p">);</span>
 </code></pre></div>
-<p>After you synthesize this change, you will be able to call your task by executing <code>pdk hello</code>.</p>
+<p>After you synthesize this change, you can call your task by executing <code>pdk hello</code>.</p>
 <h3 id="changing-a-task">Changing a task</h3>
 <p>There is no way to currently delete a task, however you can <em>reset</em> a task as follows:</p>
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">someTask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">project</span><span class="p">.</span><span class="nx">tasks</span><span class="p">.</span><span class="nx">tryFind</span><span class="p">(</span><span class="s2">&quot;&lt;some-task&gt;&quot;</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">reset</span><span class="p">();</span>
 <span class="nx">someTask</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="s1">&#39;echo something&#39;</span><span class="p">);</span>
 <span class="nx">someTask</span><span class="p">.</span><span class="nx">spawn</span><span class="p">(</span><span class="nx">someOtherTask</span><span class="p">);</span>
 </code></pre></div>
-<p>This will make the <code>&lt;some-task&gt;</code> task a no-op. You can then add your own steps by calling <code>exec/spawn</code> on the task</p>
+<p>This will make the <code>&lt;some-task&gt;</code> task a no-op. You can then add your own steps by calling <code>exec/spawn</code> on the task.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>The default phase tasks are available directly within the project as they always exist and can be reference like <code>project.compileTask</code>.</p>
+<p>The default phase tasks are available directly within the project as they always exist and can be referenced like <code>project.compileTask</code>.</p>
 </div>
 <h2 id="full-build">Full build</h2>
-<p>In order to perform a full build of your codebase, run the <code>pdk build</code> command from the root of your monorepo. This will build each of your projects in dependency order.</p>
-<p>The <code>pdk build</code> command is a convenience wrapper around an underlying <code>nx run-many --target=build --output-style=stream --nx-bail</code> command. As such you can pass in any options available in the <a href="https://nx.dev/packages/nx/documents/run-many">nx cli</a> for example <code>pdk build --parallel=10</code> will perform the build with up to 10 parallel processes.</p>
+<p>In order to perform a full build of your codebase, run the <code>pdk build</code> command from the root of your monorepo. This will build each of your projects in the dependency order.</p>
+<p>The <code>pdk build</code> command is a convenience wrapper around an underlying <code>nx run-many --target=build --output-style=stream --nx-bail</code> command. You can pass in any options available in the <a href="https://nx.dev/packages/nx/documents/run-many">nx cli</a>, for example <code>pdk build --parallel=10</code> will perform the build with up to 10 parallel processes.</p>
 <h2 id="targeted-build">Targeted build</h2>
-<p>In order to perform a targeted build of a single package and it's dependencies, run the <code>pdk nx run &lt;package-name&gt;:build</code> command. This will build the <code>package-name</code> and all of it's dependencies in correct dependency order.</p>
+<p>In order to perform a targeted build of a single package and its dependencies, run the <code>pdk nx run &lt;package-name&gt;:build</code> command. This will build the <code>package-name</code> and all of its dependencies in the correct dependency order.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      2023-09-08
+      2023-09-15
     
   </small>
 </div>
