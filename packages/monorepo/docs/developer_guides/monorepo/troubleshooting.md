@@ -58,7 +58,7 @@ myPackage: 👾 Task "build » compile" failed when executing "tsc --build" (cwd
 
 #### Solution
 
-When you instantiate a `TypeScriptProject` or extend it, add this to the constructor
+When you instantiate a `TypeScriptProject` or extend it, add this to the constructor:
 
 ```ts
 tsconfig: {

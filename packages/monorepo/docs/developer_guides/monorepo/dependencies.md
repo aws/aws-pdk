@@ -2,9 +2,9 @@
 
 Dependencies are an intrinsic part of every software project.
 
-The Dependencies component is responsible to track the list of dependencies a project has, and then used by project types as the model for rendering project-specific dependency manifests such as the dependencies section package.json, pom.xml or pyproject.toml files.
+The `Dependencies` component is responsible to track the list of dependencies a project has, and then used by project types as the model for rendering project-specific dependency manifests such as the dependencies section `package.json`, `pom.xml` or `pyproject.toml` files.
 
-To add a dependency, you can use a project-type specific API such as `nodeProject.addDeps()` or use the generic API of `project.deps`:
+To add a dependency, use a project-type specific API such as `nodeProject.addDeps()` or use the generic API `project.deps`:
 
 ```typescript
 project.deps.addDependency(dep, type);
@@ -12,11 +12,11 @@ project.deps.addDependency(dep, type);
 
 By default, `pdk` will automatically install dependencies in your project if they are not already installed. You can also install your dependencies manually by running `pdk install` from the root of your monorepo.
 
-## Semantic Requirements
+## Semantic requirements
 
-The first argument (dep) is a string in the form MODULE@VERSION where MODULE is the package-manager specific name of the dependency (i.e. for node projects, this is the npm module name) and VERSION is an optional semantic version requirement (e.g. @^7).
+The first argument (dep) is a string in the form MODULE@VERSION where MODULE is the package-manager specific name of the dependency (for node projects, this is the npm module name) and VERSION is an optional semantic version requirement (for example, @^7).
 
-## Dependency Types
+## Dependency types
 
 The second argument (type) defines the dependency type and is one of:
 
