@@ -377,20 +377,22 @@ export const generateHandlersProjects = (
   languages: Language[],
   options: GenerateHandlersProjectOptions
 ): { [language: string]: Project } => {
-  new TextFile(
-    options.parent,
-    path.join(options.generatedCodeDir, "README.md"),
-    {
-      lines: [
-        "## Handlers",
-        "",
-        "This directory contains lambda handlers for implementing your API.",
-        "",
-        "Whenever an operation is annotated with the `@handler` trait in Smithy (or the `x-handler` vendor extension in OpenAPI), a stub handler implementation will be generated for you, which you are free to modify.",
-      ],
-      readonly: true,
-    }
-  );
+  if (languages.length > 0) {
+    new TextFile(
+      options.parent,
+      path.join(options.generatedCodeDir, "README.md"),
+      {
+        lines: [
+          "## Handlers",
+          "",
+          "This directory contains lambda handlers for implementing your API.",
+          "",
+          "Whenever an operation is annotated with the `@handler` trait in Smithy (or the `x-handler` vendor extension in OpenAPI), a stub handler implementation will be generated for you, which you are free to modify.",
+        ],
+        readonly: true,
+      }
+    );
+  }
 
   const generatedHandlers: { [language: string]: Project } = {};
   languages.forEach((language) => {

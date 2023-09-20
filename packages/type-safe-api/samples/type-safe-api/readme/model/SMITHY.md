@@ -6,7 +6,7 @@ The default entrypoint for the API is `src/main/smithy/main.smithy`. You can add
 
 Resources:
  - [Smithy Documentation](https://smithy.io/2.0/)
- - [Type Safe API Documentation](https://github.com/aws/aws-pdk/tree/mainline/packages/type-safe-api)
+ - [Type Safe API Documentation](https://aws.github.io/aws-pdk/developer_guides/type-safe-api/index.html)
 
 ## Adding Operations
 
@@ -97,6 +97,6 @@ For more details, see the [Smithy documentation](https://smithy.io/2.0/spec/serv
 
 The build task for this project will by default generate an Open API specification from the Smithy model, which is then used to generate the runtime, infrastructure, and documentation projects.
 
-You can further customise the build via editing the `TypeSafeApiProject` `model.options.smithyBuildOptions` in the root `.projenrc` file. This includes adding projections, or customising the `openapi` projection used to generate the Open API specification.
+You can further customise the build via editing the `TypeSafeApiProject` `model.options.smithy.smithyBuildOptions` in the root `.projenrc` file. This includes adding projections, or customising the `openapi` projection used to generate the Open API specification.
 
-For details about customising the build, please see the [Type Safe API README](https://github.com/aws/aws-pdk/tree/mainline/packages/type-safe-api), and refer to the [Smithy Build documentation](https://smithy.io/2.0/guides/building-models/build-config.html).
+For details about customising the build, please refer to the [Smithy Build documentation](https://smithy.io/2.0/guides/building-models/build-config.html).

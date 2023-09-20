@@ -6,7 +6,7 @@ The entrypoint for the API is `src/main/openapi/main.yaml`. You can add more yam
 
 Resources:
  - [OpenAPI v3 Documentation](https://swagger.io/specification/v3/)
- - [Type Safe API Documentation](https://github.com/aws/aws-pdk/tree/mainline/packages/type-safe-api)
+ - [Type Safe API Documentation](https://aws.github.io/aws-pdk/developer_guides/type-safe-api/index.html)
 
 ## Adding Operations
 
