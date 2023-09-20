@@ -1127,4 +1127,111 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     });
   });
+
+  it("Should add header parameters to CORS Access-Control-Allow-Headers", () => {
+    const stack = new Stack();
+
+    const spec: OpenAPIV3.Document = {
+      ...multiOperationSpec,
+      paths: {
+        "/test": {
+          ...multiOperationSpec.paths["/test"]!,
+          get: {
+            ...multiOperationSpec.paths["/test"]!.get!,
+            parameters: [
+              {
+                in: "query",
+                name: "notAHeader",
+                schema: { type: "string" },
+              },
+              {
+                in: "header",
+                name: "x-shared-header",
+                schema: { type: "string" },
+              },
+              {
+                in: "header",
+                name: "X-Different-Header",
+                schema: { type: "number" },
+              },
+            ],
+          },
+          put: {
+            ...multiOperationSpec.paths["/test"]!.put!,
+            parameters: [
+              {
+                in: "query",
+                name: "anotherQueryParam",
+                schema: { type: "string" },
+              },
+              {
+                in: "header",
+                name: "x-shared-header",
+                schema: { type: "string" },
+              },
+              {
+                in: "header",
+                name: "x-another-header",
+                schema: { type: "integer" },
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    withTempSpec(spec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        defaultAuthorizer: Authorizers.iam(),
+        corsOptions: {
+          allowOrigins: Cors.ALL_ORIGINS,
+          allowMethods: Cors.ALL_METHODS,
+          allowCredentials: true,
+          statusCode: 200,
+        },
+        specPath,
+        operationLookup: multiOperationLookup as any,
+        integrations: {
+          getOperation: {
+            integration: Integrations.lambda(
+              new Function(stack, "Lambda1", {
+                code: Code.fromInline("code"),
+                handler: "handler",
+                runtime: Runtime.NODEJS_16_X,
+              })
+            ),
+          },
+          putOperation: {
+            integration: Integrations.lambda(
+              new Function(stack, "Lambda2", {
+                code: Code.fromInline("code"),
+                handler: "handler",
+                runtime: Runtime.NODEJS_16_X,
+              })
+            ),
+          },
+          deleteOperation: {
+            integration: Integrations.lambda(
+              new Function(stack, "Lambda3", {
+                code: Code.fromInline("code"),
+                handler: "handler",
+                runtime: Runtime.NODEJS_16_X,
+              })
+            ),
+          },
+          postOperation: {
+            integration: Integrations.lambda(
+              new Function(stack, "Lambda4", {
+                code: Code.fromInline("code"),
+                handler: "handler",
+                runtime: Runtime.NODEJS_16_X,
+              })
+            ),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
 });

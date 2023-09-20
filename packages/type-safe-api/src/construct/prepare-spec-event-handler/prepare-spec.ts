@@ -471,6 +471,25 @@ const validateAuthorizerReference = (
 };
 
 /**
+ * Find all unique header parameters used in operations
+ */
+const findHeaderParameters = (spec: OpenAPIV3.Document): string[] => {
+  const allHeaderParameters = Object.values(spec.paths).flatMap((pathDetails) =>
+    Object.values(HttpMethods).flatMap((method) =>
+      (pathDetails?.[method]?.parameters ?? []).flatMap((parameter) =>
+        "in" in parameter && parameter.in === "header" ? [parameter.name] : []
+      )
+    )
+  );
+  const headerParameterSet = new Set<string>();
+  return allHeaderParameters.filter((p) => {
+    const seen = headerParameterSet.has(p);
+    headerParameterSet.add(p);
+    return !seen;
+  });
+};
+
+/**
  * Prepares the api spec for deployment by adding integrations, configuring auth, etc
  */
 export const prepareApiSpec = (
@@ -498,6 +517,23 @@ export const prepareApiSpec = (
     spec.security
   );
 
+  // If there are cors options, add any header parameters defined in the spec as allowed headers to
+  // save users from having to manually specify these (or face cors issues!)
+  const corsOptions: SerializedCorsOptions | undefined = options.corsOptions
+    ? {
+        ...options.corsOptions,
+        allowHeaders: [
+          ...options.corsOptions.allowHeaders,
+          ...findHeaderParameters(spec),
+        ],
+      }
+    : undefined;
+
+  const updatedOptions: PrepareApiSpecOptions = {
+    ...options,
+    corsOptions,
+  };
+
   return {
     ...spec,
     // https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-request-validators.html
@@ -516,10 +552,10 @@ export const prepareApiSpec = (
           "application/json":
             '{"message": "$context.error.validationErrorString"}',
         },
-        ...(options.corsOptions
+        ...(corsOptions
           ? {
               responseParameters: generateCorsResponseParameters(
-                options.corsOptions,
+                corsOptions,
                 "gatewayresponse.header"
               ),
             }
@@ -530,7 +566,7 @@ export const prepareApiSpec = (
       ...Object.fromEntries(
         Object.entries(spec.paths).map(([path, pathDetails]) => [
           path,
-          preparePathSpec(path, pathDetails!, options, getOperationName),
+          preparePathSpec(path, pathDetails!, updatedOptions, getOperationName),
         ])
       ),
     },
@@ -540,13 +576,14 @@ export const prepareApiSpec = (
         // Apply any security schemes that already exist in the spec
         ...spec.components?.securitySchemes,
         // Construct security schemes override any in the spec with the same id
-        ...options.securitySchemes,
+        ...updatedOptions.securitySchemes,
       },
     },
-    ...(options.apiKeyOptions
+    ...(updatedOptions.apiKeyOptions
       ? {
           // https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-api-key-source.html
-          "x-amazon-apigateway-api-key-source": options.apiKeyOptions.source,
+          "x-amazon-apigateway-api-key-source":
+            updatedOptions.apiKeyOptions.source,
         }
       : {}),
   } as any;
