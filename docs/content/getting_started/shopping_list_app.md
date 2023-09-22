@@ -174,8 +174,8 @@ Now let's define our operations. For this application we need 3 operations as fo
 
 !!! tip
     The `@handler` trait is used to automatically generate lambda handler stubs within `api/handlers/src`, pre-configured with [AWS Powertools](https://github.com/aws-powertools/) and all type-safe bindings.
-    
-    You can generate handlers in either `typescript`, `python` or `java` by simply changing the `language` attribute. 
+
+    You can generate handlers in either `typescript`, `python` or `java` by simply changing the `language` attribute.
 
 ### Expose our operations to the API
 
@@ -250,7 +250,7 @@ Having built our project, we should now have access to 3 handler stubs which wil
      * Entry point for the AWS Lambda handler for the PutShoppingList operation.
      * The putShoppingListHandler method wraps the type-safe handler and manages marshalling inputs and outputs
      */
-    export const handler = putShoppingListHandler(...INTERCEPTORS, putShoppingList);    
+    export const handler = putShoppingListHandler(...INTERCEPTORS, putShoppingList);
     ```
 
 === "delete-shopping-list.ts"
@@ -440,7 +440,7 @@ We now have everything we need to start implementing our handlers. Modify the re
     ```
 
 === "get-shopping-lists.ts"
-    
+
     *This logic either calls the Scan or Query command depending on the presense of a shoppingListId request parameter. It also handles pagination based on the presense of a pageSize and/or nextToken. The shoppingItems are stored as a serialized JSON string in the table/*
 
     ```typescript
@@ -737,7 +737,6 @@ Within the `packages/website/src` directory, create the following three files wi
       Header,
       Link,
       SpaceBetween,
-      Table,
       TableProps,
     } from "@cloudscape-design/components";
     import {
@@ -746,10 +745,13 @@ Within the `packages/website/src` directory, create the following three files wi
       useDeleteShoppingList,
       useGetShoppingLists,
     } from "myapi-typescript-react-query-hooks";
+    import { InfiniteQueryTable } from "@aws-northstar/ui/components";
     import { useContext, useEffect, useMemo, useState } from "react";
     import { useNavigate } from "react-router-dom";
     import CreateItem from "../../components/CreateItem";
     import { AppLayoutContext } from "../../layouts/App";
+
+    const PAGE_SIZE = 50;
 
     /**
      * Component to render the ShoppingLists "/" route.
@@ -759,18 +761,18 @@ Within the `packages/website/src` directory, create the following three files wi
       const [selectedShoppingList, setSelectedShoppingList] = useState<
         ShoppingList[]
       >([]);
-      const getShoppingLists = useGetShoppingLists({ pageSize: 50 });
+      const getShoppingLists = useGetShoppingLists({ pageSize: PAGE_SIZE });
       const putShoppingList = usePutShoppingList();
       const deleteShoppingList = useDeleteShoppingList();
       const navigate = useNavigate();
       const { setAppLayoutProps } = useContext(AppLayoutContext);
-    
+
       useEffect(() => {
         setAppLayoutProps({
           contentType: "table",
         });
       }, [setAppLayoutProps]);
-    
+
       const columnDefinitions = useMemo<
         TableProps.ColumnDefinition<ShoppingList>[]
       >(
@@ -804,7 +806,7 @@ Within the `packages/website/src` directory, create the following three files wi
         ],
         [navigate],
       );
-    
+
       return (
         <>
           <CreateItem
@@ -821,7 +823,10 @@ Within the `packages/website/src` directory, create the following three files wi
             visibleModal={visibleModal}
             setVisibleModal={setVisibleModal}
           />
-          <Table
+          <InfiniteQueryTable
+            query={getShoppingLists}
+            itemsKey="shoppingLists"
+            pageSize={PAGE_SIZE}
             selectionType="single"
             stickyHeader={true}
             selectedItems={selectedShoppingList}
@@ -861,14 +866,13 @@ Within the `packages/website/src` directory, create the following three files wi
               </Header>
             }
             variant="full-page"
-            items={getShoppingLists.data?.pages[0].shoppingLists!}
             columnDefinitions={columnDefinitions}
           />
         </>
       );
     };
-    
-    export default ShoppingLists;    
+
+    export default ShoppingLists;
     ```
 
 === "pages/ShoppingList/index.tsx"
@@ -898,9 +902,9 @@ Within the `packages/website/src` directory, create the following three files wi
     import { useEffect, useState } from "react";
     import { useParams } from "react-router-dom";
     import CreateItem from "../../components/CreateItem";
-    
+
     type ListItem = { name: string };
-    
+
     /**
      * Component to render a singular Shopping List "/:shoppingListId" route.
      */
@@ -913,7 +917,7 @@ Within the `packages/website/src` directory, create the following three files wi
         getShoppingLists.data?.pages[0].shoppingLists[0]!;
       const [shoppingItems, setShoppingItems] =
         useState<BoardProps.Item<ListItem>[]>();
-    
+
       useEffect(() => {
         setShoppingItems(
           shoppingList?.shoppingItems?.map((i) => ({
@@ -923,7 +927,7 @@ Within the `packages/website/src` directory, create the following three files wi
           })),
         );
       }, [shoppingList?.shoppingItems]);
-    
+
       return (
         <ContentLayout
           header={
@@ -1024,7 +1028,7 @@ Within the `packages/website/src` directory, create the following three files wi
         </ContentLayout>
       );
     };
-    
+
     export default ShoppingList;
     ```
 
@@ -1043,7 +1047,7 @@ Within the `packages/website/src` directory, create the following three files wi
       SpaceBetween,
     } from "@cloudscape-design/components";
     import { useState } from "react";
-    
+
     /**
      * Component to render a widget to add an item.
      */
@@ -1108,10 +1112,10 @@ Within the `packages/website/src` directory, create the following three files wi
         </Modal>
       );
     };
-    
+
     export default CreateItem;
     ```
-    
+
 ### Wire in the new pages
 
 Next we need to modify the following two files in order to instrument the new pages correctly:
