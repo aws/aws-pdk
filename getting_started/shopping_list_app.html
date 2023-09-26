@@ -3805,7 +3805,7 @@
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>The <code>@handler</code> trait is used to automatically generate lambda handler stubs within <code>api/handlers/src</code>, pre-configured with <a href="https://github.com/aws-powertools/">AWS Powertools</a> and all type-safe bindings.</p>
-<p>You can generate handlers in either <code>typescript</code>, <code>python</code> or <code>java</code> by simply changing the <code>language</code> attribute. </p>
+<p>You can generate handlers in either <code>typescript</code>, <code>python</code> or <code>java</code> by simply changing the <code>language</code> attribute.</p>
 </div>
 <h3 id="expose-our-operations-to-the-api">Expose our operations to the API</h3>
 <p>The final step is the ensure our operations are exposed as part of the API by listing them in the <code>operations</code> field as per the below snippet.</p>
@@ -3878,7 +3878,7 @@
 <span class="cm"> * Entry point for the AWS Lambda handler for the PutShoppingList operation.</span>
 <span class="cm"> * The putShoppingListHandler method wraps the type-safe handler and manages marshalling inputs and outputs</span>
 <span class="cm"> */</span>
-<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">putShoppingListHandler</span><span class="p">(...</span><span class="nx">INTERCEPTORS</span><span class="p">,</span><span class="w"> </span><span class="nx">putShoppingList</span><span class="p">);</span><span class="w">    </span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">putShoppingListHandler</span><span class="p">(...</span><span class="nx">INTERCEPTORS</span><span class="p">,</span><span class="w"> </span><span class="nx">putShoppingList</span><span class="p">);</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -4325,7 +4325,6 @@ pdk<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> </s
 <span class="w">  </span><span class="nx">Header</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">Link</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">SpaceBetween</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">Table</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">TableProps</span><span class="p">,</span>
 <span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@cloudscape-design/components&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span>
@@ -4334,10 +4333,13 @@ pdk<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> </s
 <span class="w">  </span><span class="nx">useDeleteShoppingList</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">useGetShoppingLists</span><span class="p">,</span>
 <span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-react-query-hooks&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">InfiniteQueryTable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws-northstar/ui/components&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useContext</span><span class="p">,</span><span class="w"> </span><span class="nx">useEffect</span><span class="p">,</span><span class="w"> </span><span class="nx">useMemo</span><span class="p">,</span><span class="w"> </span><span class="nx">useState</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;react&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useNavigate</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;react-router-dom&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="nx">CreateItem</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../../components/CreateItem&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AppLayoutContext</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../../layouts/App&quot;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">PAGE_SIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">50</span><span class="p">;</span>
 
 <span class="cm">/**</span>
 <span class="cm"> * Component to render the ShoppingLists &quot;/&quot; route.</span>
@@ -4347,7 +4349,7 @@ pdk<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> </s
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">selectedShoppingList</span><span class="p">,</span><span class="w"> </span><span class="nx">setSelectedShoppingList</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useState</span><span class="o">&lt;</span>
 <span class="w">    </span><span class="nx">ShoppingList</span><span class="p">[]</span>
 <span class="w">  </span><span class="o">&gt;</span><span class="p">([]);</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">getShoppingLists</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useGetShoppingLists</span><span class="p">({</span><span class="w"> </span><span class="nx">pageSize</span><span class="o">:</span><span class="w"> </span><span class="kt">50</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">getShoppingLists</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useGetShoppingLists</span><span class="p">({</span><span class="w"> </span><span class="nx">pageSize</span><span class="o">:</span><span class="w"> </span><span class="kt">PAGE_SIZE</span><span class="w"> </span><span class="p">});</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">putShoppingList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">usePutShoppingList</span><span class="p">();</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">deleteShoppingList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useDeleteShoppingList</span><span class="p">();</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">navigate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useNavigate</span><span class="p">();</span>
@@ -4409,7 +4411,10 @@ pdk<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> </s
 <span class="w">        </span><span class="nx">visibleModal</span><span class="o">=</span><span class="p">{</span><span class="nx">visibleModal</span><span class="p">}</span>
 <span class="w">        </span><span class="nx">setVisibleModal</span><span class="o">=</span><span class="p">{</span><span class="nx">setVisibleModal</span><span class="p">}</span>
 <span class="w">      </span><span class="o">/&gt;</span>
-<span class="w">      </span><span class="o">&lt;</span><span class="nx">Table</span>
+<span class="w">      </span><span class="o">&lt;</span><span class="nx">InfiniteQueryTable</span>
+<span class="w">        </span><span class="nx">query</span><span class="o">=</span><span class="p">{</span><span class="nx">getShoppingLists</span><span class="p">}</span>
+<span class="w">        </span><span class="nx">itemsKey</span><span class="o">=</span><span class="s2">&quot;shoppingLists&quot;</span>
+<span class="w">        </span><span class="nx">pageSize</span><span class="o">=</span><span class="p">{</span><span class="nx">PAGE_SIZE</span><span class="p">}</span>
 <span class="w">        </span><span class="nx">selectionType</span><span class="o">=</span><span class="s2">&quot;single&quot;</span>
 <span class="w">        </span><span class="nx">stickyHeader</span><span class="o">=</span><span class="p">{</span><span class="kc">true</span><span class="p">}</span>
 <span class="w">        </span><span class="nx">selectedItems</span><span class="o">=</span><span class="p">{</span><span class="nx">selectedShoppingList</span><span class="p">}</span>
@@ -4449,14 +4454,13 @@ pdk<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> </s
 <span class="w">          </span><span class="o">&lt;</span><span class="err">/Header&gt;</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="nx">variant</span><span class="o">=</span><span class="s2">&quot;full-page&quot;</span>
-<span class="w">        </span><span class="nx">items</span><span class="o">=</span><span class="p">{</span><span class="nx">getShoppingLists</span><span class="p">.</span><span class="nx">data</span><span class="o">?</span><span class="p">.</span><span class="nx">pages</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">shoppingLists</span><span class="o">!</span><span class="p">}</span>
 <span class="w">        </span><span class="nx">columnDefinitions</span><span class="o">=</span><span class="p">{</span><span class="nx">columnDefinitions</span><span class="p">}</span>
 <span class="w">      </span><span class="o">/&gt;</span>
 <span class="w">    </span><span class="o">&lt;</span><span class="err">/&gt;</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="p">};</span>
 
-<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">ShoppingLists</span><span class="p">;</span><span class="w">    </span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">ShoppingLists</span><span class="p">;</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
