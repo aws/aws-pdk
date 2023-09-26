@@ -70,7 +70,7 @@ The AWS PDK lets you define your project structure as code in one of its support
     !!!info
         These code snippets are intended for illustration only. They are incomplete and won't run as they are.
 
-    Whilst this example is trivial, imagine a construct which creates a secure S3 bucket with yoru organizations preferred settings. This construct could be re-used on all projects without having to think about which settings should or shouldn't be set. By abstracting your constructs, you can also gain significant time savings as you could have higher level constructs that create multiple resources from a single CDK construct configuration.
+    Whilst this example is trivial, imagine a construct which creates a secure S3 bucket with your organizations preferred settings. This construct could be re-used on all projects without having to think about which settings should or shouldn't be set. By abstracting your constructs, you can also gain significant time savings as you could have higher level constructs that create multiple resources from a single CDK construct configuration.
 
 ??? "Projen Primer"
 
