@@ -45,6 +45,7 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
     "test-requirements.txt",
     "setup.py",
     "setup.cfg",
+    "pyproject.toml",
   ];
 
   /**
