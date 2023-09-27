@@ -14,10 +14,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ******************************************************************************************************************** */
-import * as path from 'path';
-import * as util from 'util';
-import * as stream from 'stream';
-import * as fs from 'fs-extra';
+import * as path from 'node:path';
+import * as fs from 'node:fs/promises';
 import fetch from 'node-fetch';
 
 const URL = 'https://d1qsjq9pzbk1k6.cloudfront.net/manifest/en_US.json';
@@ -31,6 +29,7 @@ const FILEPATH = path.join(__dirname, '..', '..', 'static', 'aws-pricing-manifes
     console.debug(response);
     throw new Error(`Failed to download pricing manifest: ${response.statusText} - ${response.statusText}`);
   }
-  await util.promisify(stream.pipeline)(response.body, fs.createWriteStream(FILEPATH));
+  const jsonData = await response.json();
+  await fs.writeFile(FILEPATH, JSON.stringify(jsonData, null, 2));
   console.info('Done - pricing manifest fetched')
 })();

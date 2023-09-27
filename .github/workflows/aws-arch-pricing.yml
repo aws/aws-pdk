@@ -30,10 +30,16 @@ jobs:
           pnpm projen post-compile
           pnpm jest --updateSnapshot
           pnpm projen package
-      - id: create_patch
-        name: Find mutations
+      - id: mutation_check
+        name: Find Mutations
+        # ignore diff if only the pricing manifest json was modified
         run: |-
           git add .
+          git diff --staged --name-only --exit-code -- ':!packages/aws-arch/static/aws-pricing-manifest.json' || echo "::set-output name=has_mutations::true"
+      - if: steps.mutation_check.outputs.has_mutations
+        id: create_patch
+        name: Create Patch
+        run: |-
           git diff --staged --patch --exit-code > .repo.patch || echo "::set-output name=patch_created::true"
       - if: steps.create_patch.outputs.patch_created
         name: Upload patch
