@@ -143,7 +143,7 @@ Now that the new dependency is installed, we can perform the following modificat
 -
 -const monorepo = new NxMonorepoProject({
 +import { CloudscapeReactTsWebsiteProject } from "@aws/pdk/cloudscape-react-ts-website";
-+import { MonorepoTsProject } from "@aws/pdk/nx-monorepo";
++import { MonorepoTsProject } from "@aws/pdk/monorepo";
 +import {
 +    DocumentationFormat,
 +    Language,
