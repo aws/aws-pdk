@@ -58,4 +58,20 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
       );
     });
   });
+
+  it("Permits parameter references (and circular references)", () => {
+    expect(
+      withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
+        const specPath = "../../resources/specs/parameter-refs.yaml";
+        const outputPath = path.join(
+          path.relative(path.resolve(__dirname), tmpDir),
+          ".api.json"
+        );
+        const command = `../../../scripts/type-safe-api/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath}`;
+        exec(command, {
+          cwd: path.resolve(__dirname),
+        });
+      })
+    ).toMatchSnapshot();
+  });
 });

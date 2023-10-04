@@ -366,3 +366,73 @@ exports[`Parse OpenAPI Spec Script Unit Tests Injects @handler and @paginated tr
   },
 }
 `;
+
+exports[`Parse OpenAPI Spec Script Unit Tests Permits parameter references (and circular references) 1`] = `
+{
+  ".api.json": {
+    "components": {
+      "parameters": {
+        "HelloId": {
+          "in": "query",
+          "name": "id",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/HelloId",
+          },
+        },
+      },
+      "schemas": {
+        "HelloId": {
+          "type": "string",
+        },
+        "HelloResponse": {
+          "properties": {
+            "id": {
+              "$ref": "#/components/schemas/HelloId",
+            },
+            "message": {
+              "$ref": "#/components/schemas/HelloResponse",
+            },
+          },
+          "required": [
+            "id",
+          ],
+          "type": "object",
+        },
+      },
+    },
+    "info": {
+      "title": "Example API",
+      "version": "1.0.0",
+    },
+    "openapi": "3.0.3",
+    "paths": {
+      "/hello": {
+        "get": {
+          "operationId": "sayHello",
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/HelloId",
+            },
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HelloResponse",
+                  },
+                },
+              },
+              "description": "Successful response",
+            },
+          },
+          "x-handler": {
+            "language": "typescript",
+          },
+        },
+      },
+    },
+  },
+}
+`;

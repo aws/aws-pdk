@@ -4,7 +4,9 @@ import SwaggerParser from "@apidevtools/swagger-parser";
 import { writeFile } from "projen/lib/util";
 import { parse } from "ts-command-line-args";
 import * as path from 'path';
+import * as _ from "lodash";
 import fs from "fs";
+import type { OpenAPIV3 } from "openapi-types";
 
 // Smithy HTTP trait is used to map Smithy operations to their location in the spec
 const SMITHY_HTTP_TRAIT_ID = "smithy.api#http";
@@ -48,6 +50,7 @@ interface Arguments {
    */
   readonly outputPath: string;
 }
+
 
 void (async () => {
   const args = parse<Arguments>({
@@ -101,8 +104,16 @@ void (async () => {
 
   const invalidRequestParameters: InvalidRequestParameter[] = [];
 
+  // Dereference a clone of the spec to test parameters
+  const dereferencedSpec = await SwaggerParser.dereference(JSON.parse(JSON.stringify(spec)), {
+    dereference: {
+      // Circular references are valid, we just ignore them for the purpose of validation
+      circular: "ignore",
+    },
+  });
+
   // Validate the request parameters
-  Object.entries(spec.paths || {}).forEach(([p, pathOp]: [string, any]) => {
+  Object.entries(dereferencedSpec.paths || {}).forEach(([p, pathOp]: [string, any]) => {
     Object.entries(pathOp ?? {}).forEach(([method, operation]: [string, any]) => {
       (operation?.parameters ?? []).forEach((parameter: any) => {
         // Check if the parameter is an allowed type

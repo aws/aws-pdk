@@ -1,0 +1,39 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Example API
+paths:
+  /hello:
+    get:
+      operationId: sayHello
+      x-handler:
+        language: typescript
+      parameters:
+        - $ref: '#/components/parameters/HelloId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/HelloResponse'
+components:
+  parameters:
+    HelloId:
+      in: query
+      name: id
+      schema:
+        $ref: '#/components/schemas/HelloId'
+      required: false
+  schemas:
+    HelloId:
+      type: string
+    HelloResponse:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/HelloId'
+        message:
+          $ref: '#/components/schemas/HelloResponse'
+      required:
+        - id
