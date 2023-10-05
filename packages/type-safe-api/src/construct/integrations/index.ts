@@ -4,3 +4,4 @@ export * from "./integration";
 export * from "./integrations";
 export * from "./lambda";
 export * from "./mock";
+export * from "./s3";
