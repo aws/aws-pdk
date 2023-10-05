@@ -8,6 +8,7 @@ import { Template } from "aws-cdk-lib/assertions";
 import { ApiKeySourceType, Cors } from "aws-cdk-lib/aws-apigateway";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
+import { Bucket } from "aws-cdk-lib/aws-s3";
 import { NagSuppressions } from "cdk-nag";
 import * as _ from "lodash";
 import { OpenAPIV3 } from "openapi-types";
@@ -290,6 +291,48 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
             integration: Integrations.mock({
               statusCode: 200,
               body: JSON.stringify({ message: "message" }),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With S3 Integration", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket", {}),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With S3 Integration and CORS", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        corsOptions: {
+          allowOrigins: Cors.ALL_ORIGINS,
+          allowMethods: Cors.ALL_METHODS,
+        },
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket", {}),
             }),
           },
         },
