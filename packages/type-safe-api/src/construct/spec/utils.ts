@@ -20,16 +20,12 @@ export const functionInvocationUri = (
 
 /**
  * Generate the s3 bucket invocation uri for the given s3 within the given scope
- * @param scope scope in which the s3 is deployed
  * @param bucket the s3 bucket to be invoked
+ * @param path? the path to object to invoke, default to none
  */
-export const bucketInvocationUri = (
-  scope: Construct,
-  bucket: IBucket,
-  pathOverride?: string
-): string => {
-  const stack = Stack.of(scope);
+export const bucketInvocationUri = (bucket: IBucket, path?: string): string => {
+  const stack = bucket.stack;
   return `arn:${stack.partition}:apigateway:${stack.region}:s3:path/${
     bucket.bucketName
-  }/${pathOverride ?? ""}`;
+  }/${path ?? ""}`;
 };

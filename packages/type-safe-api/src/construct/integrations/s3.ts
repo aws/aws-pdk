@@ -62,11 +62,7 @@ export class S3Integration extends Integration {
     return {
       type: "AWS",
       httpMethod: props.method.toUpperCase(),
-      uri: bucketInvocationUri(
-        props.scope,
-        this.bucket,
-        this.pathOverride ?? props.path
-      ),
+      uri: bucketInvocationUri(this.bucket, this.pathOverride ?? props.path),
       credentials: this.role.roleArn,
       responses: {
         default: {
