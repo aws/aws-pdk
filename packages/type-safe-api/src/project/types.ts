@@ -172,6 +172,11 @@ export interface MockResponseDataGenerationOptions {
    * @default 3
    */
   readonly maxArrayLength?: number;
+  /**
+   * Seed for faker to generate data with
+   * @default 1337
+   */
+  readonly seed?: number;
 }
 
 /**
