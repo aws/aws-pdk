@@ -24,11 +24,11 @@ export class LambdaIntegration extends Integration {
   /**
    * Render the lambda integration as a snippet of OpenAPI
    */
-  public render(props: IntegrationRenderProps): ApiGatewayIntegration {
+  public render(_props: IntegrationRenderProps): ApiGatewayIntegration {
     return {
       type: "AWS_PROXY",
       httpMethod: "POST",
-      uri: functionInvocationUri(props.scope, this.lambdaFunction),
+      uri: functionInvocationUri(this.lambdaFunction),
       passthroughBehavior: "WHEN_NO_MATCH",
     };
   }
