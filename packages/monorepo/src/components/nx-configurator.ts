@@ -4,7 +4,7 @@ import * as path from "path";
 import { Component, JsonFile, Project, Task } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
-import { PythonProject } from "projen/lib/python";
+import { Poetry, PythonProject } from "projen/lib/python";
 import { NxProject } from "./nx-project";
 import { NxWorkspace } from "./nx-workspace";
 import { Nx } from "../nx-types";
@@ -136,19 +136,26 @@ export class NxConfigurator extends Component implements INxProjectCore {
     this.nx.affected.defaultBase = options?.defaultReleaseBranch ?? "mainline";
   }
 
-  public patchPoetryInstall(project: PythonProject): void {
-    const installTask = project.tasks.tryFind("install");
-
-    if (installTask?.steps[0]?.exec !== "unset VIRTUAL_ENV") {
-      installTask?.env("VIRTUAL_ENV", "");
-      installTask?.prependExec("unset VIRTUAL_ENV");
+  public patchPoetryEnv(project: PythonProject): void {
+    // Since the root monorepo is a poetry project and sets the VIRTUAL_ENV, and poetry env info -p will print
+    // the virtual env set in the VIRTUAL_ENV variable if set, we need to unset it to ensure the local project's
+    // env is used.
+    if (ProjectUtils.isNamedInstanceOf(project.depsManager as any, Poetry)) {
+      project.tasks.addEnvironment(
+        "VIRTUAL_ENV",
+        "$(env -u VIRTUAL_ENV poetry env info -p || echo '')"
+      );
+      project.tasks.addEnvironment(
+        "PATH",
+        "$(echo $(env -u VIRTUAL_ENV poetry env info -p || echo '')/bin:$PATH)"
+      );
     }
   }
 
   public patchPythonProjects(projects: Project[]): void {
     projects.forEach((p) => {
       if (ProjectUtils.isNamedInstanceOf(p, PythonProject)) {
-        this.patchPoetryInstall(p);
+        this.patchPoetryEnv(p);
       }
       this.patchPythonProjects(p.subprojects);
     });
