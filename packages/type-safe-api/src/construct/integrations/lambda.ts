@@ -8,6 +8,7 @@ import {
   IntegrationGrantProps,
   IntegrationRenderProps,
 } from "./integration";
+import { SnapStartFunction } from "../functions/snap-start-java-function";
 import { functionInvocationUri } from "../spec/utils";
 
 /**
@@ -18,7 +19,12 @@ export class LambdaIntegration extends Integration {
 
   constructor(lambdaFunction: IFunction) {
     super();
-    this.lambdaFunction = lambdaFunction;
+    // Snap Start applies only to versions, so if the function is a SnapStartFunction, we'll reference the current version
+    if (lambdaFunction instanceof SnapStartFunction) {
+      this.lambdaFunction = lambdaFunction.currentVersion;
+    } else {
+      this.lambdaFunction = lambdaFunction;
+    }
   }
 
   /**

@@ -10,6 +10,7 @@
 from aws_cdk.aws_lambda import (
     Function, Runtime, Tracing, Code
 )
+from aws_pdk.type_safe_api import SnapStartFunction
 from os import path
 from pathlib import Path
 
@@ -19,7 +20,7 @@ from pathlib import Path
 {{#operation ~}}
 {{#if vendorExtensions.x-handler}}
 
-class {{operationIdCamelCase}}Function(Function):
+class {{operationIdCamelCase}}Function({{#startsWith vendorExtensions.x-handler.language 'java' ~}}SnapStart{{~/startsWith}}Function):
     """
     Lambda function construct which points to the {{vendorExtensions.x-handler.language}} implementation of {{operationIdCamelCase}}
     """
