@@ -31,7 +31,7 @@ export class PDKMonorepoProject extends MonorepoTsProject {
         ignorePatterns: ["packages/**/*.*"],
       },
       depsUpgrade: false,
-      name: "aws-pdk-monorepo",
+      name: "@aws/pdk-monorepo",
       devDeps: [
         "lerna",
         "nx",
