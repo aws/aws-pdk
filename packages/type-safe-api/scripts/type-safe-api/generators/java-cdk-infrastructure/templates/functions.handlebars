@@ -15,12 +15,13 @@
 
 import org.jetbrains.annotations.NotNull;
 import software.amazon.awscdk.services.lambda.Function;
+import software.aws.pdk.type_safe_api.SnapStartFunction;
 import software.constructs.Construct;
 
 /**
  * Lambda function construct which points to the {{vendorExtensions.x-handler.language}} implementation of {{operationIdCamelCase}}
  */
-public class {{operationIdCamelCase}}Function extends Function {
+public class {{operationIdCamelCase}}Function extends {{#startsWith vendorExtensions.x-handler.language 'java' ~}}SnapStart{{~/startsWith}}Function {
     public {{operationIdCamelCase}}Function(@NotNull Construct scope, @NotNull String id, @NotNull {{operationIdCamelCase}}FunctionProps props) {
         super(scope, id, props);
     }
@@ -67,6 +68,7 @@ import software.amazon.awscdk.services.lambda.VersionOptions;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.sns.ITopic;
 import software.amazon.awscdk.services.sqs.IQueue;
+import software.aws.pdk.type_safe_api.SnapStartFunctionProps;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -77,7 +79,7 @@ import java.util.List;
 import java.util.Map;
 
 @lombok.Builder @lombok.Getter
-public class {{operationIdCamelCase}}FunctionProps implements FunctionProps {
+public class {{operationIdCamelCase}}FunctionProps implements {{#startsWith vendorExtensions.x-handler.language 'java' ~}}SnapStart{{~/startsWith}}FunctionProps {
     private static String infraProjectAbsolutePath;
 
     static {

@@ -4825,6 +4825,11 @@ public abstract class Both implements RequestHandler<APIGatewayProxyRequestEvent
     public abstract BothResponse handle(final BothRequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<BothInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(Both.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -4849,9 +4854,6 @@ public abstract class Both implements RequestHandler<APIGatewayProxyRequestEvent
 
         List<Interceptor<BothInput>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<BothInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 
@@ -5145,6 +5147,11 @@ public abstract class Neither implements RequestHandler<APIGatewayProxyRequestEv
     public abstract NeitherResponse handle(final NeitherRequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<NeitherInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(Neither.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -5169,9 +5176,6 @@ public abstract class Neither implements RequestHandler<APIGatewayProxyRequestEv
 
         List<Interceptor<NeitherInput>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<NeitherInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 
@@ -5465,6 +5469,11 @@ public abstract class Tag1 implements RequestHandler<APIGatewayProxyRequestEvent
     public abstract Tag1Response handle(final Tag1RequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<Tag1Input>> annotationInterceptors = Handlers.getAnnotationInterceptors(Tag1.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -5489,9 +5498,6 @@ public abstract class Tag1 implements RequestHandler<APIGatewayProxyRequestEvent
 
         List<Interceptor<Tag1Input>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<Tag1Input>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 
@@ -5785,6 +5791,11 @@ public abstract class Tag2 implements RequestHandler<APIGatewayProxyRequestEvent
     public abstract Tag2Response handle(final Tag2RequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<Tag2Input>> annotationInterceptors = Handlers.getAnnotationInterceptors(Tag2.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -5809,9 +5820,6 @@ public abstract class Tag2 implements RequestHandler<APIGatewayProxyRequestEvent
 
         List<Interceptor<Tag2Input>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<Tag2Input>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 
@@ -6199,6 +6207,7 @@ import software.amazon.lambda.powertools.logging.LoggingUtils;
  * See https://docs.powertools.aws.dev/lambda/java/latest/core/logging/
  */
 public class LoggingInterceptor<Input> implements Interceptor<Input> {
+    private Logger logger = LogManager.getLogger(LoggingInterceptor.class);
 
     /**
      * Return the instance of the logger from the interceptor context
@@ -6237,7 +6246,6 @@ public class LoggingInterceptor<Input> implements Interceptor<Input> {
         LoggingUtils.appendKey("operationId", operationId);
 
         // Add the logger to the interceptor context
-        Logger logger = LogManager.getLogger(operationId);
         input.getInterceptorContext().put("logger", logger);
 
         Response response = input.getChain().next(input);
@@ -6269,6 +6277,7 @@ import software.amazon.lambda.powertools.metrics.MetricsUtils;
  * See: https://docs.powertools.aws.dev/lambda/typescript/latest/core/metrics
  */
 public class MetricsInterceptor<Input> implements Interceptor<Input> {
+    private MetricsLogger metrics = MetricsUtils.metricsLogger();
 
     /**
      * Return the instance of the metrics logger from the interceptor context
@@ -6283,7 +6292,6 @@ public class MetricsInterceptor<Input> implements Interceptor<Input> {
 
     @Override
     public Response handle(final ChainedRequestInput<Input> input) {
-        MetricsLogger metrics = MetricsUtils.metricsLogger();
         metrics.putDimensions(DimensionSet.of("operationId", (String) input.getInterceptorContext().get("operationId")));
 
         input.getInterceptorContext().put("metrics", metrics);
@@ -6325,6 +6333,13 @@ import software.amazon.lambda.powertools.tracing.TracingUtils;
  * See: https://docs.powertools.aws.dev/lambda/java/latest/core/tracing/
  */
 public class TracingInterceptor<Input> implements Interceptor<Input> {
+
+    {
+        // Create a segment during the lambda init phase to ensure xray emitter
+        // is warmed up prior to invocation phase
+        AWSXRay.beginSubsegment("Tracing Interceptor - Init");
+        AWSXRay.endSubsegment();
+    }
 
     private final boolean captureResponse;
 
@@ -12684,6 +12699,11 @@ public abstract class AnyRequestResponse implements RequestHandler<APIGatewayPro
     public abstract AnyRequestResponseResponse handle(final AnyRequestResponseRequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<AnyRequestResponseInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(AnyRequestResponse.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -12708,9 +12728,6 @@ public abstract class AnyRequestResponse implements RequestHandler<APIGatewayPro
 
         List<Interceptor<AnyRequestResponseInput>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<AnyRequestResponseInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 
@@ -13012,6 +13029,11 @@ public abstract class Empty implements RequestHandler<APIGatewayProxyRequestEven
     public abstract EmptyResponse handle(final EmptyRequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<EmptyInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(Empty.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -13036,9 +13058,6 @@ public abstract class Empty implements RequestHandler<APIGatewayProxyRequestEven
 
         List<Interceptor<EmptyInput>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<EmptyInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 
@@ -13332,6 +13351,11 @@ public abstract class MapResponse implements RequestHandler<APIGatewayProxyReque
     public abstract MapResponseResponse handle(final MapResponseRequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<MapResponseInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(MapResponse.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -13356,9 +13380,6 @@ public abstract class MapResponse implements RequestHandler<APIGatewayProxyReque
 
         List<Interceptor<MapResponseInput>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<MapResponseInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 
@@ -13655,6 +13676,11 @@ public abstract class MediaTypes implements RequestHandler<APIGatewayProxyReques
     public abstract MediaTypesResponse handle(final MediaTypesRequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<MediaTypesInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(MediaTypes.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -13679,9 +13705,6 @@ public abstract class MediaTypes implements RequestHandler<APIGatewayProxyReques
 
         List<Interceptor<MediaTypesInput>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<MediaTypesInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 
@@ -13983,6 +14006,11 @@ public abstract class MultipleContentTypes implements RequestHandler<APIGatewayP
     public abstract MultipleContentTypesResponse handle(final MultipleContentTypesRequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<MultipleContentTypesInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(MultipleContentTypes.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -14007,9 +14035,6 @@ public abstract class MultipleContentTypes implements RequestHandler<APIGatewayP
 
         List<Interceptor<MultipleContentTypesInput>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<MultipleContentTypesInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 
@@ -14315,6 +14340,11 @@ public abstract class OperationOne implements RequestHandler<APIGatewayProxyRequ
     public abstract OperationOneResponse handle(final OperationOneRequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<OperationOneInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(OperationOne.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -14342,9 +14372,6 @@ public abstract class OperationOne implements RequestHandler<APIGatewayProxyRequ
 
         List<Interceptor<OperationOneInput>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<OperationOneInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 
@@ -14747,6 +14774,11 @@ public abstract class WithoutOperationIdDelete implements RequestHandler<APIGate
     public abstract WithoutOperationIdDeleteResponse handle(final WithoutOperationIdDeleteRequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<WithoutOperationIdDeleteInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(WithoutOperationIdDelete.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -14771,9 +14803,6 @@ public abstract class WithoutOperationIdDelete implements RequestHandler<APIGate
 
         List<Interceptor<WithoutOperationIdDeleteInput>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<WithoutOperationIdDeleteInput>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 
@@ -15164,6 +15193,7 @@ import software.amazon.lambda.powertools.logging.LoggingUtils;
  * See https://docs.powertools.aws.dev/lambda/java/latest/core/logging/
  */
 public class LoggingInterceptor<Input> implements Interceptor<Input> {
+    private Logger logger = LogManager.getLogger(LoggingInterceptor.class);
 
     /**
      * Return the instance of the logger from the interceptor context
@@ -15202,7 +15232,6 @@ public class LoggingInterceptor<Input> implements Interceptor<Input> {
         LoggingUtils.appendKey("operationId", operationId);
 
         // Add the logger to the interceptor context
-        Logger logger = LogManager.getLogger(operationId);
         input.getInterceptorContext().put("logger", logger);
 
         Response response = input.getChain().next(input);
@@ -15234,6 +15263,7 @@ import software.amazon.lambda.powertools.metrics.MetricsUtils;
  * See: https://docs.powertools.aws.dev/lambda/typescript/latest/core/metrics
  */
 public class MetricsInterceptor<Input> implements Interceptor<Input> {
+    private MetricsLogger metrics = MetricsUtils.metricsLogger();
 
     /**
      * Return the instance of the metrics logger from the interceptor context
@@ -15248,7 +15278,6 @@ public class MetricsInterceptor<Input> implements Interceptor<Input> {
 
     @Override
     public Response handle(final ChainedRequestInput<Input> input) {
-        MetricsLogger metrics = MetricsUtils.metricsLogger();
         metrics.putDimensions(DimensionSet.of("operationId", (String) input.getInterceptorContext().get("operationId")));
 
         input.getInterceptorContext().put("metrics", metrics);
@@ -15290,6 +15319,13 @@ import software.amazon.lambda.powertools.tracing.TracingUtils;
  * See: https://docs.powertools.aws.dev/lambda/java/latest/core/tracing/
  */
 public class TracingInterceptor<Input> implements Interceptor<Input> {
+
+    {
+        // Create a segment during the lambda init phase to ensure xray emitter
+        // is warmed up prior to invocation phase
+        AWSXRay.beginSubsegment("Tracing Interceptor - Init");
+        AWSXRay.endSubsegment();
+    }
 
     private final boolean captureResponse;
 
