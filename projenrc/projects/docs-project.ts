@@ -19,7 +19,7 @@ export class DocsProject extends TypeScriptProject {
       defaultReleaseBranch: "mainline",
       sampleCode: false,
       jest: false,
-      name: "docs",
+      name: "@aws/docs",
       depsUpgrade: false,
       deps: ["fs-extra"],
     });
