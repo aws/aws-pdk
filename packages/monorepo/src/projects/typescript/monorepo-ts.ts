@@ -171,6 +171,9 @@ export class MonorepoTsProject
         },
         include: ["**/*.ts", ".projenrc.ts"],
       },
+      peerDeps: ["nx@^16", ...(options.peerDeps || [])],
+      devDeps: ["nx@^16", "@aws/pdk@^0", ...(options.devDeps || [])],
+      deps: ["aws-cdk-lib", "constructs", "cdk-nag", ...(options.deps || [])],
     });
 
     this.nxConfigurator = new NxConfigurator(this, {
@@ -199,6 +202,12 @@ export class MonorepoTsProject
           "!.yarn/releases",
           "!.yarn/plugins"
         );
+        break;
+      }
+      case NodePackageManager.NPM: {
+        // Allow older versions of peer deps to resolv compatibility issues
+        this.tasks.tryFind("install")?.reset("npm install --legacy-peer-deps");
+        this.tasks.tryFind("install:ci")?.reset("npm ci --legacy-peer-deps");
         break;
       }
     }
@@ -272,10 +281,6 @@ export class MonorepoTsProject
       });
     }
 
-    // Add dependency on nx 16
-    this.addPeerDeps("nx@^16");
-    this.addDevDeps("nx@^16", "@aws/pdk@^0");
-    this.addDeps("aws-cdk-lib", "constructs", "cdk-nag"); // Needed as this can be bundled in @aws/pdk
     this.package.addPackageResolutions(
       "@types/babel__traverse@7.18.2",
       "wrap-ansi@^7.0.0",

@@ -27,8 +27,8 @@ const engines = JSON.parse(
 ).engines;
 
 if (engines) {
-  const pkgMgr = engines.pnpm ? "pnpm" : engines.yarn ? "yarn" : "npm";
-  execa.commandSync(`${pkgMgr}${isSynth ? " projen" : ""} ${process.argv.join(" ")}`, { stdio: "inherit" });
+  const pkgMgrCmd = engines.pnpm ? "pnpm" : engines.yarn ? "yarn" : "npm run";
+  execa.commandSync(`${pkgMgrCmd}${isSynth ? " default" : ""} ${process.argv.join(" ")}`, { stdio: "inherit" });
 } else {
   execa.commandSync(`npx projen ${process.argv.join(" ")}`, { stdio: "inherit"});
 }
