@@ -197,9 +197,10 @@ export const buildInvokeMockDataGeneratorCommand = (
     options.maxArrayLength !== undefined
       ? ` --max-array-length ${options.maxArrayLength}`
       : "";
+  const seed = options.seed !== undefined ? ` --seed ${options.seed}` : "";
   return buildTypeSafeApiExecCommand(
     TypeSafeApiScript.GENERATE_MOCK_DATA,
-    `--spec-path ${options.specPath} --output-path ${outputPath}${locale}${maxArrayLength}`
+    `--spec-path ${options.specPath} --output-path ${outputPath}${locale}${maxArrayLength}${seed}`
   );
 };
 
