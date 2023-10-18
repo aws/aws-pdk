@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import kebabCase from "lodash/kebabCase";
+import camelCase from "lodash/camelCase";
 import { parse } from "ts-command-line-args";
 
 // Used to split OpenAPI generated files into multiple files in order to work around
@@ -32,6 +33,8 @@ const applyReplacementFunction = (functionConfig: FunctionConfig): string => {
   switch (functionConfig.function) {
     case "kebabCase":
       return kebabCase(functionConfig.args[0]);
+    case "camelCase":
+      return camelCase(functionConfig.args[0]);
     default:
       throw new Error(`Unsupported TSAPI_FN function ${functionConfig.function}`);
   }
@@ -127,6 +130,9 @@ void (async () => {
 
         // Delete the original file
         fs.rmSync(filePath);
+      } else {
+        // Apply the replacement functions directly
+        fs.writeFileSync(filePath, applyReplacementFunctions(contents));
       }
     }
   });
