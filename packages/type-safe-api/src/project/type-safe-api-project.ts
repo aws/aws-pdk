@@ -329,6 +329,16 @@ export class TypeSafeApiProject extends Project {
             : NodePackageManager.YARN,
         ...options.library?.options?.typescriptReactQueryHooks,
       },
+      typescriptReactQueryV5HooksOptions: {
+        // Try to infer monorepo default release branch, otherwise default to mainline unless overridden
+        defaultReleaseBranch: nxWorkspace?.affected.defaultBase ?? "mainline",
+        packageManager:
+          this.parent &&
+          ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
+            ? this.parent.package.packageManager
+            : NodePackageManager.YARN,
+        ...options.library?.options?.typescriptReactQueryV5Hooks,
+      },
     });
 
     // Ensure the generated runtime, libraries and docs projects have a dependency on the model project
@@ -360,6 +370,13 @@ export class TypeSafeApiProject extends Project {
       ]
         ? (generatedLibraryProjects[
             Library.TYPESCRIPT_REACT_QUERY_HOOKS
+          ] as TypeScriptProject)
+        : undefined,
+      typescriptReactQueryV5Hooks: generatedLibraryProjects[
+        Library.TYPESCRIPT_REACT_QUERY_V5_HOOKS
+      ]
+        ? (generatedLibraryProjects[
+            Library.TYPESCRIPT_REACT_QUERY_V5_HOOKS
           ] as TypeScriptProject)
         : undefined,
     };

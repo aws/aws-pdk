@@ -95,9 +95,12 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       "../samples/cloudscape-react-ts-website/public"
     );
 
+    const libraryHooksPackage = (
+      options.typeSafeApi?.library?.typescriptReactQueryV5Hooks ??
+      options.typeSafeApi?.library?.typescriptReactQueryHooks
+    )?.package?.packageName;
+
     if (options.typeSafeApi) {
-      const hooks = options.typeSafeApi.library?.typescriptReactQueryHooks;
-      const libraryHooksPackage = hooks?.package?.packageName;
       if (!libraryHooksPackage) {
         throw new Error(
           "Cannot pass in a Type Safe Api without React Hooks Library configured!"
@@ -111,9 +114,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
     const mustacheConfig = {
       applicationName: this.applicationName,
       hasApi,
-      apiHooksPackage:
-        options.typeSafeApi?.library?.typescriptReactQueryHooks?.package
-          ?.packageName,
+      apiHooksPackage: libraryHooksPackage,
     };
 
     new SampleDir(this, this.srcdir, {

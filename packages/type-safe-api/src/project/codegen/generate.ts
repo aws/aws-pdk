@@ -14,6 +14,7 @@ import { GeneratedJavaCdkInfrastructureProject } from "./infrastructure/cdk/gene
 import { GeneratedPythonCdkInfrastructureProject } from "./infrastructure/cdk/generated-python-cdk-infrastructure-project";
 import { GeneratedTypescriptCdkInfrastructureProject } from "./infrastructure/cdk/generated-typescript-cdk-infrastructure-project";
 import { TypescriptReactQueryHooksLibrary } from "./library/typescript-react-query-hooks-library";
+import { TypescriptReactQueryV5HooksLibrary } from "./library/typescript-react-query-v5-hooks-library";
 import {
   GeneratedJavaRuntimeProject,
   GeneratedJavaTypesProjectOptions,
@@ -27,7 +28,10 @@ import {
   GeneratedTypescriptTypesProjectOptions,
 } from "./runtime/generated-typescript-runtime-project";
 import { DocumentationFormat, Language, Library } from "../languages";
-import { GeneratedDocumentationOptions } from "../types";
+import {
+  GeneratedDocumentationOptions,
+  GeneratedTypeScriptReactQueryV5HooksOptions,
+} from "../types";
 
 const logger = getLogger();
 
@@ -107,6 +111,15 @@ export interface GenerateLibraryProjectsOptions
    */
   readonly typescriptReactQueryHooksOptions: Omit<
     GeneratedTypescriptTypesProjectOptions,
+    CommonProjectOptions
+  >;
+
+  /**
+   * Options for the react query v5 hooks project
+   * These will override any inferred properties (such as the package name)
+   */
+  readonly typescriptReactQueryV5HooksOptions: Omit<
+    GeneratedTypeScriptReactQueryV5HooksOptions,
     CommonProjectOptions
   >;
 }
@@ -460,6 +473,14 @@ const generateLibraryProject = (
         ...commonOptions,
         name: sanitiseTypescriptPackageName(packageName),
         ...options.typescriptReactQueryHooksOptions,
+        isWithinMonorepo: options.isWithinMonorepo,
+      });
+    }
+    case Library.TYPESCRIPT_REACT_QUERY_V5_HOOKS: {
+      return new TypescriptReactQueryV5HooksLibrary({
+        ...commonOptions,
+        name: sanitiseTypescriptPackageName(packageName),
+        ...options.typescriptReactQueryV5HooksOptions,
         isWithinMonorepo: options.isWithinMonorepo,
       });
     }

@@ -248,6 +248,13 @@ export interface GeneratedTypeScriptReactQueryHooksOptions
     GeneratedWithOpenApiGeneratorOptions {}
 
 /**
+ * Options for configuring a generated typescript react-query v5 hooks library project
+ */
+export interface GeneratedTypeScriptReactQueryV5HooksOptions
+  extends TypeScriptProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions {}
+
+/**
  * Options for generated runtimes
  */
 export interface GeneratedRuntimeCodeOptions {
@@ -359,8 +366,14 @@ export interface GeneratedCodeProjects {
 export interface GeneratedLibraryOptions {
   /**
    * Options for the generated typescript react-query hooks library. These override the default inferred options.
+   * @deprecated Use react-query v5 hooks instead. This will be removed in PDK 1.0 release.
    */
   readonly typescriptReactQueryHooks?: GeneratedTypeScriptReactQueryHooksOptions;
+
+  /**
+   * Options for the generated typescript react-query v5 hooks library. These override the default inferred options.
+   */
+  readonly typescriptReactQueryV5Hooks?: GeneratedTypeScriptReactQueryV5HooksOptions;
 }
 
 /**
@@ -369,8 +382,13 @@ export interface GeneratedLibraryOptions {
 export interface GeneratedLibraryProjects {
   /**
    * Generated typescript react-query hooks project
+   * @deprecated Use react query v5 hooks instead. This will be removed in PDK 1.0 release.
    */
   readonly typescriptReactQueryHooks?: TypeScriptProject;
+  /**
+   * Generated typescript react-query hooks project
+   */
+  readonly typescriptReactQueryV5Hooks?: TypeScriptProject;
 }
 
 /**

@@ -7,7 +7,7 @@ You can generate [react-query](https://tanstack.com/query/latest) hooks for inte
     ```ts
     new TypeSafeApiProject({
       library: {
-        libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+        libraries: [Library.TYPESCRIPT_REACT_QUERY_V5_HOOKS],
       },
       ...
     });
@@ -18,7 +18,7 @@ You can generate [react-query](https://tanstack.com/query/latest) hooks for inte
     ```java
     TypeSafeApiProject.Builder.create()
             .library(LibraryConfiguration.builder()
-                    .libraries(Arrays.asList(Library.TYPESCRIPT_REACT_QUERY_HOOKS))
+                    .libraries(Arrays.asList(Library.TYPESCRIPT_REACT_QUERY_V5_HOOKS))
                     .build())
             ...
             .build();
@@ -29,7 +29,7 @@ You can generate [react-query](https://tanstack.com/query/latest) hooks for inte
     ```python
     TypeSafeApiProject(
         library=LibraryConfiguration(
-            libraries=[Library.TYPESCRIPT_REACT_QUERY_HOOKS]
+            libraries=[Library.TYPESCRIPT_REACT_QUERY_V5_HOOKS]
         )
         ...
     )
@@ -76,7 +76,7 @@ First, make sure you add a dependency on the generated hooks library. This is do
 
 !!!note
 
-    If you are not using `CloudscapeReactTsWebsite`, you can add the dependency manually using `api.library.typescriptReactQueryHooks!.package.packageName`
+    If you are not using `CloudscapeReactTsWebsite`, you can add the dependency manually using `api.library.typescriptReactQueryV5Hooks!.package.packageName`
 
 Make sure to run `pdk` to synthesize your `.projenrc` changes.
 
@@ -84,7 +84,7 @@ Next, create an instance of the API client in your React Website (making sure to
 
 ```ts
 // NB: client may be named differently if you have tagged your operations
-import { DefaultApi } from "myapi-typescript-react-query-hooks";
+import { DefaultApi } from "myapi-typescript-react-query-v5-hooks";
 
 export const useApiClient = () =>
   useMemo(
@@ -124,7 +124,7 @@ Next, instantiate the client provider above where you would like to use the hook
 
 ```tsx
 // NB: client provider may be named differently if you have tagged your operations
-import { DefaultApiClientProvider } from "myapi-typescript-react-query-hooks";
+import { DefaultApiClientProvider } from "myapi-typescript-react-query-v5-hooks";
 
 const api = useApiClient();
 
@@ -138,7 +138,7 @@ return (
 Finally, you can import and use your generated hooks. For example:
 
 ```tsx
-import { useSayHello } from "myapi-typescript-react-query-hooks";
+import { useSayHello } from "myapi-typescript-react-query-v5-hooks";
 
 export const MyComponent: FC<MyComponentProps> = () => {
   const sayHello = useSayHello({ name: "World" });
@@ -223,7 +223,7 @@ You can generate `useInfiniteQuery` hooks instead of `useQuery` hooks for pagina
 If you wish to customise the react-query `QueryClient`, pass a custom instance to the client provider, eg:
 
 ```tsx
-import { DefaultApiClientProvider } from "myapi-typescript-react-query-hooks";
+import { DefaultApiClientProvider } from "myapi-typescript-react-query-v5-hooks";
 import { QueryClient } from "@tanstack/react-query";
 
 const queryClient = new QueryClient({ ... });

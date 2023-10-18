@@ -13,7 +13,15 @@ export enum Language {
  * Supported libraries for code generation
  */
 export enum Library {
+  /**
+   * React query v4 hooks library
+   * @deprecated Use react query v5 hooks library instead. This will be removed in PDK 1.0 release.
+   */
   TYPESCRIPT_REACT_QUERY_HOOKS = "typescript-react-query-hooks",
+  /**
+   * React query v5 hooks library
+   */
+  TYPESCRIPT_REACT_QUERY_V5_HOOKS = "typescript-react-query-v5-hooks",
 }
 
 /**

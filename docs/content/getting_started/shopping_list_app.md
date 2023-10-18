@@ -744,7 +744,7 @@ Within the `packages/website/src` directory, create the following three files wi
       usePutShoppingList,
       useDeleteShoppingList,
       useGetShoppingLists,
-    } from "myapi-typescript-react-query-hooks";
+    } from "myapi-typescript-react-query-v5-hooks";
     import { InfiniteQueryTable } from "@aws-northstar/ui/components";
     import { useContext, useEffect, useMemo, useState } from "react";
     import { useNavigate } from "react-router-dom";
@@ -898,7 +898,7 @@ Within the `packages/website/src` directory, create the following three files wi
       ShoppingList as _ShoppingList,
       usePutShoppingList,
       useGetShoppingLists,
-    } from "myapi-typescript-react-query-hooks";
+    } from "myapi-typescript-react-query-v5-hooks";
     import { useEffect, useState } from "react";
     import { useParams } from "react-router-dom";
     import CreateItem from "../../components/CreateItem";
