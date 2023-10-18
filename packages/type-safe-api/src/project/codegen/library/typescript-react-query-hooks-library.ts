@@ -90,7 +90,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
     }
 
     // Add dependencies on react-query and react
-    this.addDeps("@tanstack/react-query");
+    this.addDeps("@tanstack/react-query@^4"); // Pin at 4 for now - requires generated code updates to upgrade to 5
     this.addDevDeps("react", "@types/react");
     this.addPeerDeps("react");
 
