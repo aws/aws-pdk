@@ -130,53 +130,56 @@ describe("Java Infrastructure Code Generation Script Unit Tests", () => {
     ).toMatchSnapshot();
   });
 
-  it("Generates Functions", () => {
-    const specPath = path.resolve(
-      __dirname,
-      `../../resources/specs/handlers.yaml`
-    );
+  it.each(["handlers.yaml", "inline-body.yaml"])(
+    "Generates Functions for %s",
+    (specFile) => {
+      const specPath = path.resolve(
+        __dirname,
+        `../../resources/specs/${specFile}`
+      );
 
-    const snapshot = withTmpDirSnapshot(
-      os.tmpdir(),
-      (outdir) => {
-        exec(`cp ${specPath} ${outdir}/spec.yaml`, {
-          cwd: path.resolve(__dirname),
-        });
+      const snapshot = withTmpDirSnapshot(
+        os.tmpdir(),
+        (outdir) => {
+          exec(`cp ${specPath} ${outdir}/spec.yaml`, {
+            cwd: path.resolve(__dirname),
+          });
 
-        const { runtimes, handlers } = getTestHandlerProjects(outdir);
+          const { runtimes, handlers } = getTestHandlerProjects(outdir);
 
-        const infraOutdir = path.join(outdir, "infra");
-        const project = new GeneratedJavaCdkInfrastructureProject({
-          name: "test-infra",
-          artifactId: "com.aws.pdk.test.infra",
-          groupId: "test",
-          version: "1.0.0",
-          outdir: infraOutdir,
-          specPath: "../spec.yaml",
-          generatedJavaTypes: runtimes.java,
-          generatedHandlers: handlers,
-        });
-        project.synth();
-        exec(
-          `${path.resolve(
-            __dirname,
-            "../../../scripts/type-safe-api/generators/generate"
-          )} ${project.buildGenerateCommandArgs()}`,
-          {
-            cwd: infraOutdir,
-          }
-        );
-      },
-      {
-        excludeGlobs: GeneratedJavaRuntimeProject.openApiIgnorePatterns,
-        parseJson: false,
-      }
-    );
+          const infraOutdir = path.join(outdir, "infra");
+          const project = new GeneratedJavaCdkInfrastructureProject({
+            name: "test-infra",
+            artifactId: "com.aws.pdk.test.infra",
+            groupId: "test",
+            version: "1.0.0",
+            outdir: infraOutdir,
+            specPath: "../spec.yaml",
+            generatedJavaTypes: runtimes.java,
+            generatedHandlers: handlers,
+          });
+          project.synth();
+          exec(
+            `${path.resolve(
+              __dirname,
+              "../../../scripts/type-safe-api/generators/generate"
+            )} ${project.buildGenerateCommandArgs()}`,
+            {
+              cwd: infraOutdir,
+            }
+          );
+        },
+        {
+          excludeGlobs: GeneratedJavaRuntimeProject.openApiIgnorePatterns,
+          parseJson: false,
+        }
+      );
 
-    expect(
-      Object.entries(snapshot).filter(([file]: [string, any]) =>
-        file.startsWith("infra/src/main/java/test/test-infra/infra/functions")
-      )
-    ).toMatchSnapshot();
-  });
+      expect(
+        Object.entries(snapshot).filter(([file]: [string, any]) =>
+          file.startsWith("infra/src/main/java/test/test-infra/infra/functions")
+        )
+      ).toMatchSnapshot();
+    }
+  );
 });

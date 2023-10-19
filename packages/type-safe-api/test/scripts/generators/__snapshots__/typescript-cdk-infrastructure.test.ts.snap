@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates Functions 1`] = `
+exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates Functions for handlers.yaml 1`] = `
 "import { Construct } from "constructs";
 import { Duration } from "aws-cdk-lib";
 import { SnapStartFunction, SnapStartFunctionProps } from "@aws/pdk/type-safe-api";
@@ -140,6 +140,85 @@ export class TypescriptTwoFunction extends Function {
       code: Code.fromAsset(path.resolve(__dirname, "..",
         "../typescript-handlers/dist/lambda",
         "typescript-two",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}"
+`;
+
+exports[`Typescript Infrastructure Code Generation Script Unit Tests Generates Functions for inline-body.yaml 1`] = `
+"import { Construct } from "constructs";
+import { Duration } from "aws-cdk-lib";
+import { SnapStartFunction, SnapStartFunctionProps } from "@aws/pdk/type-safe-api";
+import { Code, Function, Runtime, Tracing, FunctionProps } from "aws-cdk-lib/aws-lambda";
+import * as path from "path";
+
+
+/**
+ * Options for the JavaTestFunction construct
+ */
+export interface JavaTestFunctionProps extends Omit<SnapStartFunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the java implementation of JavaTest
+ */
+export class JavaTestFunction extends SnapStartFunction {
+  constructor(scope: Construct, id: string, props?: JavaTestFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.JAVA_17,
+      handler: "test.test-java-handlers.handlers.JavaTestHandler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../java-handlers/dist/java/test/com.aws.pdk.test.handlers/1.0.0/com.aws.pdk.test.handlers-1.0.0.jar",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the PythonTestFunction construct
+ */
+export interface PythonTestFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the python implementation of PythonTest
+ */
+export class PythonTestFunction extends Function {
+  constructor(scope: Construct, id: string, props?: PythonTestFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.PYTHON_3_11,
+      handler: "test_python_handlers.python_test.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../python-handlers/dist/lambda",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the TypescriptTestOperationFunction construct
+ */
+export interface TypescriptTestOperationFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the typescript implementation of TypescriptTestOperation
+ */
+export class TypescriptTestOperationFunction extends Function {
+  constructor(scope: Construct, id: string, props?: TypescriptTestOperationFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.NODEJS_18_X,
+      handler: "index.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../typescript-handlers/dist/lambda",
+        "typescript-test",
       )),
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(30),

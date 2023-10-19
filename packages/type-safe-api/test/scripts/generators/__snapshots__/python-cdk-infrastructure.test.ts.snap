@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Python Infrastructure Code Generation Script Unit Tests Generates Functions 1`] = `
+exports[`Python Infrastructure Code Generation Script Unit Tests Generates Functions for handlers.yaml 1`] = `
 "from aws_cdk import Duration
 from aws_cdk.aws_lambda import (
     Function, Runtime, Tracing, Code
@@ -103,6 +103,67 @@ class TypescriptTwoFunction(Function):
             code=Code.from_asset(path.join(str(Path(__file__).absolute().parent), "..",
                 "../typescript-handlers/dist/lambda",
                 "typescript-two",
+            )),
+            tracing=Tracing.ACTIVE,
+            timeout=Duration.seconds(30),
+            **kwargs,
+        )"
+`;
+
+exports[`Python Infrastructure Code Generation Script Unit Tests Generates Functions for inline-body.yaml 1`] = `
+"from aws_cdk import Duration
+from aws_cdk.aws_lambda import (
+    Function, Runtime, Tracing, Code
+)
+from aws_pdk.type_safe_api import SnapStartFunction
+from os import path
+from pathlib import Path
+
+
+
+class JavaTestFunction(SnapStartFunction):
+    """
+    Lambda function construct which points to the java implementation of JavaTest
+    """
+    def __init__(self, scope, id, **kwargs):
+        super().__init__(scope, id,
+            runtime=Runtime.JAVA_17,
+            handler="test.test-java-handlers.handlers.JavaTestHandler",
+            code=Code.from_asset(path.join(str(Path(__file__).absolute().parent), "..",
+                "../java-handlers/dist/java/test/com.aws.pdk.test.handlers/1.0.0/com.aws.pdk.test.handlers-1.0.0.jar",
+            )),
+            tracing=Tracing.ACTIVE,
+            timeout=Duration.seconds(30),
+            **kwargs,
+        )
+
+class PythonTestFunction(Function):
+    """
+    Lambda function construct which points to the python implementation of PythonTest
+    """
+    def __init__(self, scope, id, **kwargs):
+        super().__init__(scope, id,
+            runtime=Runtime.PYTHON_3_11,
+            handler="test_python_handlers.python_test.handler",
+            code=Code.from_asset(path.join(str(Path(__file__).absolute().parent), "..",
+                "../python-handlers/dist/lambda",
+            )),
+            tracing=Tracing.ACTIVE,
+            timeout=Duration.seconds(30),
+            **kwargs,
+        )
+
+class TypescriptTestFunction(Function):
+    """
+    Lambda function construct which points to the typescript implementation of TypescriptTest
+    """
+    def __init__(self, scope, id, **kwargs):
+        super().__init__(scope, id,
+            runtime=Runtime.NODEJS_18_X,
+            handler="index.handler",
+            code=Code.from_asset(path.join(str(Path(__file__).absolute().parent), "..",
+                "../typescript-handlers/dist/lambda",
+                "typescript-test",
             )),
             tracing=Tracing.ACTIVE,
             timeout=Duration.seconds(30),
