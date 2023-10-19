@@ -182,21 +182,30 @@ git config --global user.email "username@domain.com"
 git config --global user.name "username"
 ```
 
+### JDK + Maven (If using Type Safe API)
+
+The Type Safe API requires JDK >= 11 and Maven >= 3.8 in order to perform the required code generation.
+
+To install these, follow the below links:
+
+- JDK: We recommend installing any Coretto version >= 11 https://docs.aws.amazon.com/corretto/
+- Maven: You can any version of Maven >= 3.8: https://maven.apache.org/install.html
+
 ### Language specific
 
 Other prerequisites depend on the language in which you develop AWS PDK projects and are as follows.
 
 === "TYPESCRIPT"
-    - `Node >= 16`
-    - `PNPM >= 8.6.3` [if using `--package-manager=pnpm` flag to bootstrap]
+    - `PNPM >= 8.6.3` [if using `--package-manager=pnpm` flag to bootstrap]: https://pnpm.io/installation
+    - `YARN` [if `--package-manager` flag is unset]: https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable
 
 === "PYTHON"
-    - `Python >= 3.9`
-    - `Poetry >= 1.5.1`
+    - `Python >= 3.9`: https://github.com/pyenv/pyenv
+    - `Poetry >= 1.5.1`: https://python-poetry.org/docs/
+    - `YARN`: https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable
 
 === "JAVA"
-    - `JDK >= 11`
-    - `Apache Maven >= 3.8`
+    - `YARN`: https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable
 
 ### Install the AWS CDK
 
