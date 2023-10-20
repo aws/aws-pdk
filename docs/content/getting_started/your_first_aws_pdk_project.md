@@ -26,72 +26,7 @@ We'll also show how to add a new API operation, implement an API handler, and wi
 
 ## Prerequisites
 
-The following subsections outline what you need to install and use the AWS PDK.
-
-### Node runtime
-
-All AWS PDK developers, even those working in Python or Java, need Node.js 16 or later. All supported languages use the same backend, which runs on Node.js. We recommend a version in active long-term support. Your organization may have a different recommendation.
-
-!!!tip
-    We recommend installing [`nvm`](https://github.com/nvm-sh/nvm#installing-and-updating) and configuring it to use Node 18.
-
-### PDK CLI
-
-Once your NodeJs ruuntime is set up, run the following command to install the pdk CLI:
-
-```bash
-npm install -g @aws/pdk
-```
-
-Run the following command to verify correct installation and print the version number of the AWS PDK.
-
-`pdk --version`
-
-!!!warning
-    The `pdk` command is a wrapper command which delegates to either a package manager or a projen command depending on the context. As such it may be possible that certain arguments may not operate as expected.
-
-### Git
-
-[Git](https://git-scm.com/) is also required to be installed and configured when bootstrapping new applications unless the `--no-git` flag is specified when executing the `pdk new` command.
-
-Ensure to configure a username and email via the below commands once installed:
-
-```bash
-git config --global user.email "username@domain.com"
-git config --global user.name "username"
-```
-
-### Language specific
-
-Other prerequisites depend on the language in which you develop AWS PDK projects and are as follows.
-
-=== "TYPESCRIPT"
-    - `Node >= 16`
-    - `PNPM >= 8.6.3` [if using `--package-manager=pnpm` flag to bootstrap]
-
-=== "PYTHON"
-    - `Python >= 3.9`
-    - `Poetry >= 1.5.1`
-
-=== "JAVA"
-    - `JDK >= 11`
-    - `Apache Maven >= 3.8`
-
-### Install the AWS CDK
-
-You will need to install the AWS CDK in order to bootstrap and deploy your infrastructure to AWS. To install, run the following command:
-
-`npm install -g aws-cdk`
-
-Run the following command to verify correct installation and print the version number of the AWS CDK.
-
-`cdk --version`
-
-### Authentication with AWS
-
-You must establish how the AWS CDK authenticates with AWS when deploying infrastructure. There are different ways in which you can configure programmatic access to AWS resources, depending on the environment and the AWS access available to you.
-
-For an in depth guide, please refer to: https://docs.aws.amazon.com/sdkref/latest/guide/access.html
+Refer to [prerequisites](./index.md#prerequisites).
 
 ## Create your project
 
