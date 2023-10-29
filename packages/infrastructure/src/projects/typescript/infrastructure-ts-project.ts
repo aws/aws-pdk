@@ -10,12 +10,20 @@ import { SampleFile } from "projen";
 import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
 import { NodeProject } from "projen/lib/javascript";
 import { AwsCdkTypeScriptAppOptions } from "./aws-cdk-ts-app-options";
+import { DEFAULT_STACK_NAME } from "../../consts";
 
 /**
  * Configuration options for the InfrastructureTsProject.
  */
 export interface InfrastructureTsProjectOptions
   extends AwsCdkTypeScriptAppOptions {
+  /**
+   * Stack name.
+   *
+   * @default infra-dev
+   */
+  readonly stackName?: string;
+
   /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
    */
@@ -91,6 +99,7 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
     const mustacheConfig = {
       hasApi,
       hasWebsite,
+      stackName: options.stackName || DEFAULT_STACK_NAME,
       infraPackage:
         options.typeSafeApi?.infrastructure.typescript?.package.packageName,
       websiteDistRelativePath:
