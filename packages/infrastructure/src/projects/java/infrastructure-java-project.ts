@@ -9,11 +9,19 @@ import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkJavaApp } from "projen/lib/awscdk";
 import { AwsCdkJavaAppOptions } from "./aws-cdk-java-app-options";
+import { DEFAULT_STACK_NAME } from "../../consts";
 
 /**
  * Configuration options for the InfrastructureJavaProject.
  */
 export interface InfrastructureJavaProjectOptions extends AwsCdkJavaAppOptions {
+  /**
+   * Stack name.
+   *
+   * @default infra-dev
+   */
+  readonly stackName?: string;
+
   /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
    */
@@ -110,6 +118,7 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
     const mustacheConfig = {
       hasApi,
       hasWebsite,
+      stackName: options.stackName || DEFAULT_STACK_NAME,
       infraPackage: `${options.typeSafeApi?.infrastructure.java?.pom.groupId}.${options.typeSafeApi?.infrastructure.java?.pom.name}.infra`,
       groupId,
       websiteDistRelativePath:

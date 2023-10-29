@@ -9,11 +9,19 @@ import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkPythonApp } from "projen/lib/awscdk";
 import { AwsCdkPythonAppOptions } from "./aws-cdk-py-app-options";
+import { DEFAULT_STACK_NAME } from "../../consts";
 
 /**
  * Configuration options for the InfrastructurePyProject.
  */
 export interface InfrastructurePyProjectOptions extends AwsCdkPythonAppOptions {
+  /**
+   * Stack name.
+   *
+   * @default infra-dev
+   */
+  readonly stackName?: string;
+
   /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
    */
@@ -96,6 +104,7 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
     const mustacheConfig = {
       hasApi,
       hasWebsite,
+      stackName: options.stackName || DEFAULT_STACK_NAME,
       infraPackage: options.typeSafeApi?.infrastructure.python?.moduleName,
       moduleName,
       websiteDistRelativePath:
