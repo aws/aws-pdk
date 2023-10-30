@@ -211,6 +211,13 @@ export class MonorepoTsProject
         break;
       }
     }
+    this.package.setScript(
+      "install:ci",
+      NodePackageUtils.command.exec(
+        this.package.packageManager,
+        "projen install:ci"
+      )
+    );
 
     this.workspaceConfig = options.workspaceConfig;
     this.workspacePackages = options.workspaceConfig?.additionalPackages ?? [];
