@@ -401,7 +401,8 @@ export class MonorepoTsProject
     // Any subprojects that were added since the last call to this method need to be added first, in order to ensure
     // we add the workspace packages in a sane order.
     const relativeSubProjectWorkspacePackages = this.sortedSubProjects.map(
-      (project) => path.relative(this.outdir, project.outdir)
+      (project) =>
+        path.relative(this.outdir, project.outdir).split(path.sep).join("/")
     );
     const existingWorkspacePackages = new Set(this.workspacePackages);
     this.workspacePackages.push(

@@ -106,7 +106,11 @@ export class NxProject extends Component {
 
     const _obj: Record<keyof Nx.ProjectConfig, () => any> = {
       name: () => this.project.name,
-      root: () => path.relative(this.project.root.outdir, this.project.outdir),
+      root: () =>
+        path
+          .relative(this.project.root.outdir, this.project.outdir)
+          .split(path.sep)
+          .join("/"),
       namedInputs: () => asUndefinedIfEmpty(this.namedInputs),
       targets: () => asUndefinedIfEmpty(this.targets),
       tags: () => asUndefinedIfEmpty(this.tags),
@@ -313,10 +317,10 @@ export class NxProject extends Component {
 
   /** @interface */
   synthesize() {
-    const projectPath = path.relative(
-      this.project.root.outdir,
-      this.project.outdir
-    );
+    const projectPath = path
+      .relative(this.project.root.outdir, this.project.outdir)
+      .split(path.sep)
+      .join("/");
 
     const isNodeProject = NodePackageUtils.isNodeProject(this.project);
 
