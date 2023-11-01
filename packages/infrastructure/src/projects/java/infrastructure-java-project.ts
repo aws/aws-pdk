@@ -142,13 +142,16 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
   ) {
     fs.readdirSync(dir, { withFileTypes: true })
       .filter((f) => {
+        let shouldIncludeFile = true;
         if (!mustacheConfig.hasApi) {
-          return !f.name.endsWith("api.ts.mustache");
-        } else if (!mustacheConfig.hasWebsite) {
-          return !f.name.endsWith("website.ts.mustache");
-        } else {
-          return true;
+          shouldIncludeFile &&= !f.name.endsWith("ApiConstruct.java.mustache");
         }
+        if (!mustacheConfig.hasWebsite) {
+          shouldIncludeFile &&= !f.name.endsWith(
+            "WebsiteConstruct.java.mustache"
+          );
+        }
+        return shouldIncludeFile;
       })
       .forEach((f) => {
         if (f.isDirectory()) {
