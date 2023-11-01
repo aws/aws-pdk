@@ -173,7 +173,13 @@ export class MonorepoTsProject
       },
       peerDeps: ["nx@^16", ...(options.peerDeps || [])],
       devDeps: ["nx@^16", "@aws/pdk@^0", ...(options.devDeps || [])],
-      deps: ["aws-cdk-lib", "constructs", "cdk-nag", ...(options.deps || [])],
+      deps: [
+        "aws-cdk-lib",
+        "constructs",
+        "cdk-nag",
+        "@aws-cdk/aws-cognito-identitypool-alpha",
+        ...(options.deps || []),
+      ],
     });
 
     this.nxConfigurator = new NxConfigurator(this, {
