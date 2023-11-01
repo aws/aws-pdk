@@ -119,6 +119,8 @@ export namespace NodePackageUtils {
       switch (packageManager) {
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_BERRY:
+        case NodePackageManager.YARN_CLASSIC:
           return withArgs("yarn run", args);
         case NodePackageManager.PNPM:
           return withArgs("pnpm run", args);
@@ -146,9 +148,11 @@ export namespace NodePackageUtils {
     ): string {
       switch (packageManager) {
         case NodePackageManager.YARN:
+        case NodePackageManager.YARN_CLASSIC:
           // "yarn exec" is not propagating transient args (`yarn exec nx run-many --target=build` does not receive `--target=build`)
           return withArgs("yarn", args);
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_BERRY:
           return withArgs("yarn exec", args);
         case NodePackageManager.PNPM:
           return withArgs("pnpm exec", args);
@@ -166,6 +170,7 @@ export namespace NodePackageUtils {
     ): string {
       switch (packageManager) {
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_BERRY:
           return withArgs("yarn dlx", args);
         case NodePackageManager.PNPM:
           return withArgs("pnpm dlx", args);
@@ -183,6 +188,8 @@ export namespace NodePackageUtils {
       switch (packageManager) {
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_CLASSIC:
+        case NodePackageManager.YARN_BERRY:
           return withArgs("yarn install", args);
         case NodePackageManager.PNPM:
           return withArgs("pnpm i", args);
@@ -201,6 +208,8 @@ export namespace NodePackageUtils {
       switch (packageManager) {
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_CLASSIC:
+        case NodePackageManager.YARN_BERRY:
           return withArgs("yarn", args);
         case NodePackageManager.PNPM:
           return withArgs("pnpm", args);
@@ -217,6 +226,8 @@ export namespace NodePackageUtils {
       switch (packageManager) {
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_CLASSIC:
+        case NodePackageManager.YARN_BERRY:
           return withArgs("yarn workspace", [packageName, ...args]);
         case NodePackageManager.PNPM:
           return withArgs("pnpm", [
@@ -240,6 +251,8 @@ export namespace NodePackageUtils {
       switch (packageManager) {
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_CLASSIC:
+        case NodePackageManager.YARN_BERRY:
           return `$(yarn bin)/${_cmd}`;
         case NodePackageManager.PNPM:
           return `$(pnpm bin)/${_cmd}`;

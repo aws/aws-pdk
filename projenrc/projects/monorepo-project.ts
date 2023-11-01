@@ -26,7 +26,7 @@ export class MonorepoProject extends PDKProject {
         "@types/semver",
         "@nx/devkit",
       ],
-      peerDeps: ["projen"],
+      peerDeps: ["projen", "constructs"],
       bundledDeps: [
         "fs-extra",
         "semver",
