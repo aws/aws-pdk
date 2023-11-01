@@ -128,13 +128,14 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
   ) {
     fs.readdirSync(dir, { withFileTypes: true })
       .filter((f) => {
+        let shouldIncludeFile = true;
         if (!mustacheConfig.hasApi) {
-          return !f.name.endsWith("api.ts.mustache");
-        } else if (!mustacheConfig.hasWebsite) {
-          return !f.name.endsWith("website.ts.mustache");
-        } else {
-          return true;
+          shouldIncludeFile &&= !f.name.endsWith("api.ts.mustache");
         }
+        if (!mustacheConfig.hasWebsite) {
+          shouldIncludeFile &&= !f.name.endsWith("website.ts.mustache");
+        }
+        return shouldIncludeFile;
       })
       .forEach((f) =>
         f.isDirectory()
