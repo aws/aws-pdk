@@ -708,7 +708,7 @@ We are now ready to deploy our API. To do so, run the following steps:
 ```bash
 pdk build
 cd packages/infra
-pdk run deploy --require-approval never
+pdk deploy:dev
 ```
 
 Once the deployment completes, we can test our API by navigating the the website (either via Cloudfront or locally) and trying out the API Explorer.
@@ -1192,7 +1192,7 @@ If you are happy with your website locally, you can go ahead and deploy it to AW
 ```bash
 pdk build
 cd packages/infra
-pdk run deploy --require-approval never
+pdk deploy:dev
 ```
 
 Once the deployment completes, navigate to your cloudfront URL to play around with your deployed website.
