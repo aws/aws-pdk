@@ -185,8 +185,8 @@ describe("Type Safe Api Project Unit Tests", () => {
 
   it.each([
     NodePackageManager.NPM,
-    NodePackageManager.YARN,
-    NodePackageManager.YARN2,
+    NodePackageManager.YARN_CLASSIC,
+    NodePackageManager.YARN_BERRY,
     NodePackageManager.PNPM,
   ])("Smithy With %s Package Manager", (packageManager) => {
     const project = new TypeSafeApiProject({
@@ -242,8 +242,8 @@ describe("Type Safe Api Project Unit Tests", () => {
 
   it.each([
     NodePackageManager.NPM,
-    NodePackageManager.YARN,
-    NodePackageManager.YARN2,
+    NodePackageManager.YARN_CLASSIC,
+    NodePackageManager.YARN_BERRY,
     NodePackageManager.PNPM,
   ])("Smithy With %s Package Manager in Monorepo", (packageManager) => {
     const monorepo = new MonorepoTsProject({

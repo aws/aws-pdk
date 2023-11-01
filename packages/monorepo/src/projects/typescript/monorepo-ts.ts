@@ -190,10 +190,12 @@ export class MonorepoTsProject
         this.package.addEngine("pnpm", ">=8");
         break;
       }
+      case NodePackageManager.YARN_CLASSIC:
       case NodePackageManager.YARN: {
         this.package.addEngine("yarn", ">=1 <2");
         break;
       }
+      case NodePackageManager.YARN_BERRY:
       case NodePackageManager.YARN2: {
         this.package.addEngine("yarn", ">=2");
         this.gitignore.addPatterns(
@@ -593,8 +595,12 @@ export class MonorepoTsProject
     // Automatically add all sub-project "bundledDependencies" to workspace "hohoist", otherwise they are not bundled in npm package
     if (
       this.workspaceConfig?.yarn?.disableNoHoistBundled !== true &&
-      (this.package.packageManager === NodePackageManager.YARN ||
-        this.package.packageManager === NodePackageManager.YARN2)
+      [
+        NodePackageManager.YARN,
+        NodePackageManager.YARN2,
+        NodePackageManager.YARN_BERRY,
+        NodePackageManager.YARN_CLASSIC,
+      ].includes(this.package.packageManager)
     ) {
       const noHoistBundled = this.subprojects.flatMap((sub) => {
         if (ProjectUtils.isNamedInstanceOf(sub, NodeProject)) {

@@ -159,6 +159,8 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
         case NodePackageManager.NPM:
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_CLASSIC:
+        case NodePackageManager.YARN_BERRY:
           this.tasks
             .tryFind("install")
             ?.prependExec(

@@ -35,7 +35,7 @@ export class AwsArchProject extends PDKProject {
         "unzipper",
         "xml-flow",
       ],
-      peerDeps: ["projen"],
+      peerDeps: ["projen", "constructs"],
       stability: Stability.STABLE,
     });
 

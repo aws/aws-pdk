@@ -66,8 +66,8 @@ describe("NX Monorepo Unit Tests", () => {
 
   it.each([
     NodePackageManager.PNPM,
-    NodePackageManager.YARN,
-    NodePackageManager.YARN2,
+    NodePackageManager.YARN_CLASSIC,
+    NodePackageManager.YARN_BERRY,
   ])("Additional Workspace Packages", (packageManager) => {
     const project = new MonorepoTsProject({
       defaultReleaseBranch: "mainline",
