@@ -27,7 +27,12 @@ const engines = JSON.parse(
 ).engines;
 
 if (engines) {
-  const pkgMgrCmd = engines.pnpm ? "pnpm" : engines.yarn ? "yarn" : engines.bun ? "bun" : "npm run";
+  let pkgMgrCmd = engines.pnpm ? "pnpm" : engines.yarn ? "yarn" : engines.bun ? "bun" : "npm run";
+
+  // Deploy is a pnpm command, but it's more likely users want to run the deploy task
+  if (engines.pnpm && process.argv[0] === "deploy") {
+    pkgMgrCmd += " run";
+  }
   execa.commandSync(`${pkgMgrCmd}${isSynth ? " default" : ""} ${process.argv.join(" ")}`, { stdio: "inherit" });
 } else {
   execa.commandSync(`npx projen ${process.argv.join(" ")}`, { stdio: "inherit"});

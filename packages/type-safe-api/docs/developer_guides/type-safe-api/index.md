@@ -331,21 +331,21 @@ You can implement your lambda handlers in any of the supported languages, or mix
       Response,
       LoggingInterceptor,
     } from "myapi-typescript-runtime";
-    
+
     /**
      * Type-safe handler for the SayHello operation
      */
     export const sayHello: SayHelloChainedHandlerFunction = async (request) => {
       LoggingInterceptor.getLogger(request).info("Start SayHello Operation");
-    
+
       // TODO: Implement SayHello Operation. `input` contains the request input.
       const { input } = request;
-    
+
       return Response.internalFailure({
         message: "Not Implemented!",
       });
     };
-    
+
     /**
      * Entry point for the AWS Lambda handler for the SayHello operation.
      * The sayHelloHandler method wraps the type-safe handler and manages marshalling inputs and outputs
@@ -356,10 +356,10 @@ You can implement your lambda handlers in any of the supported languages, or mix
 === "JAVA"
 
     In Java, you'll notice you have a lambda handler stub in `packages/api/handlers/java/src/main/java/com/generated/api/myapijavahandlers/handlers/SayHelloHandler.java`:
-    
+
     ```java
     package com.generated.api.myapijavahandlers.handlers;
-    
+
     import com.generated.api.myapijavaruntime.runtime.api.interceptors.DefaultInterceptors;
     import com.generated.api.myapijavaruntime.runtime.api.interceptors.powertools.LoggingInterceptor;
     import com.generated.api.myapijavaruntime.runtime.api.handlers.Interceptor;
@@ -369,9 +369,9 @@ You can implement your lambda handlers in any of the supported languages, or mix
     import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput;
     import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse;
     import com.generated.api.myapijavaruntime.runtime.model.*;
-    
+
     import java.util.List;
-    
+
     /**
      * Entry point for the AWS Lambda handler for the SayHello operation.
      * The SayHello class manages marshalling inputs and outputs.
@@ -385,17 +385,17 @@ You can implement your lambda handlers in any of the supported languages, or mix
         public List<Interceptor<SayHelloInput>> getInterceptors() {
             return DefaultInterceptors.all();
         }
-    
+
         /**
          * Type-safe handler for the SayHello operation
          */
         @Override
         public SayHelloResponse handle(final SayHelloRequestInput request) {
             LoggingInterceptor.getLogger(request).info("Start SayHello Operation");
-    
+
             // TODO: Implement SayHello Operation. `input` contains the request input.
             SayHelloInput input = request.getInput();
-    
+
             return SayHello500Response.of(InternalFailureErrorResponseContent.builder()
                     .message("Not Implemented!")
                     .build());
@@ -415,21 +415,21 @@ You can implement your lambda handlers in any of the supported languages, or mix
     from myapi_python_runtime.api.operation_config import (
         say_hello_handler, SayHelloRequest, SayHelloOperationResponses
     )
-    
-    
+
+
     def say_hello(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
         """
         Type-safe handler for the SayHello operation
         """
         LoggingInterceptor.get_logger(input).info("Start SayHello Operation")
-    
+
         # TODO: Implement SayHello Operation. `input` contains the request input
-    
+
         return Response.internal_failure(InternalFailureErrorResponseContent(
             message="Not Implemented!"
         ))
-    
-    
+
+
     # Entry point for the AWS Lambda handler for the SayHello operation.
     # The say_hello_handler method wraps the type-safe handler and manages marshalling inputs and outputs
     handler = say_hello_handler(interceptors=INTERCEPTORS)(say_hello)
@@ -448,9 +448,9 @@ We can replace the stubbed response with a real implementation:
      */
     export const sayHello: SayHelloChainedHandlerFunction = async (request) => {
       LoggingInterceptor.getLogger(request).info("Start SayHello Operation");
-    
+
       const { input } = request;
-    
+
       return Response.success({
         message: `Hello ${input.requestParameters.name}!`,
       });
@@ -484,7 +484,7 @@ We can replace the stubbed response with a real implementation:
         Type-safe handler for the SayHello operation
         """
         LoggingInterceptor.get_logger(input).info("Start SayHello Operation")
-    
+
         return Response.success(SayHelloResponseContent(
             message=f"Hello {input.request_parameters.name}!"
         ))
@@ -521,7 +521,7 @@ Given we used the AWS PDK vended infrastructure project, this will be configured
       Api,
       SayHelloFunction,
     } from "myapi-typescript-infra";
-    
+
     /**
      * Api construct props.
      */
@@ -531,7 +531,7 @@ Given we used the AWS PDK vended infrastructure project, this will be configured
        */
       readonly userIdentity: UserIdentity;
     }
-    
+
     /**
      * Infrastructure construct to deploy a Type Safe API.
      */
@@ -540,10 +540,10 @@ Given we used the AWS PDK vended infrastructure project, this will be configured
        * API instance
        */
       public readonly api: Api;
-    
+
       constructor(scope: Construct, id: string, props?: ApiConstructProps) {
         super(scope, id);
-    
+
         this.api = new Api(this, id, {
           defaultAuthorizer: Authorizers.iam(),
           corsOptions: {
@@ -578,7 +578,7 @@ Given we used the AWS PDK vended infrastructure project, this will be configured
             ],
           }),
         });
-    
+
         // Grant authenticated users access to invoke the api
         props?.userIdentity.identityPool.authenticatedRole.addToPrincipalPolicy(
           new PolicyStatement({
@@ -597,14 +597,14 @@ Given we used the AWS PDK vended infrastructure project, this will be configured
 
     ```java hl_lines="5 44-49"
     package software.aws.infra.constructs;
-    
+
     import com.generated.api.myapijavainfra.infra.Api;
     import com.generated.api.myapijavainfra.infra.ApiProps;
     import com.generated.api.myapijavainfra.infra.functions.SayHelloFunction;
     import com.generated.api.myapijavaruntime.runtime.api.operation_config.OperationConfig;
-    
+
     import java.util.Arrays;
-    
+
     import software.amazon.awscdk.Stack;
     import software.amazon.awscdk.services.apigateway.Cors;
     import software.amazon.awscdk.services.apigateway.CorsOptions;
@@ -620,7 +620,7 @@ Given we used the AWS PDK vended infrastructure project, this will be configured
     import software.aws.pdk.type_safe_api.TypeSafeApiIntegration;
     import software.aws.pdk.type_safe_api.Integrations;
     import software.constructs.Construct;
-    
+
     /**
      * Infrastructure construct to deploy a Type Safe API.
      */
@@ -629,10 +629,10 @@ Given we used the AWS PDK vended infrastructure project, this will be configured
          * API instance
          */
         public final Api api;
-    
+
         public ApiConstruct(Construct scope, String id, UserIdentity userIdentity) {
             super(scope, id);
-    
+
             this.api = new Api(this, id, ApiProps.builder()
                     .defaultAuthorizer(Authorizers.iam())
                     .corsOptions(CorsOptions.builder()
@@ -668,7 +668,7 @@ Given we used the AWS PDK vended infrastructure project, this will be configured
                         ))
                         .build()))
                     .build());
-            
+
             userIdentity.getIdentityPool().getAuthenticatedRole()
                 .addToPrincipalPolicy(new PolicyStatement(PolicyStatementProps.builder()
                     .effect(Effect.ALLOW)
@@ -693,12 +693,12 @@ Given we used the AWS PDK vended infrastructure project, this will be configured
     from aws_pdk.type_safe_api import Authorizers, TypeSafeApiIntegration, Integrations
     from aws_cdk.aws_apigateway import CorsOptions, Cors
     from aws_cdk.aws_iam import AccountPrincipal, AnyPrincipal, Effect, PolicyDocument, PolicyStatement
-    
+
     # Infrastructure construct to deploy a Type Safe API.
     class ApiConstruct(Construct):
         def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
             super().__init__(scope, id, **kwargs)
-    
+
             self.api = Api(self, id,
                default_authorizer=Authorizers.iam(),
                cors_options=CorsOptions(
@@ -732,7 +732,7 @@ Given we used the AWS PDK vended infrastructure project, this will be configured
                        )
                    ]
                ))
-    
+
             user_identity.identity_pool.authenticated_role.add_to_principal_policy(
                 PolicyStatement(
                     effect=Effect.ALLOW,
@@ -920,7 +920,14 @@ After you implement your new operation, build your project again and deploy it:
 ```bash
 pdk build
 cd packages/infra
-pdk run deploy --require-approval never
+pdk deploy:dev
 ```
+
+!!!tip
+    If you want to quickly test changes to your lambda handler code, you can re-package the handlers, then run `pdk deploy:dev` in your infrastructure project to perform a fast [hotswap deployment](https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/). For example from the root of your project:
+
+    ```bash
+    pdk nx run myapi-typescript-handlers:package && pdk nx run infra:deploy\:dev
+    ```
 
 Try out your new API! You can use a tool such as [awscurl](https://github.com/okigan/awscurl) to make Sigv4 signed requests to your API, since we set the default authorizer to `Authorizers.iam()`. Alternatively, you can deploy the [`CloudscapeReactTsWebsiteProject`](../cloudscape-react-ts-website/index.md) and try out the [API Explorer](../cloudscape-react-ts-website/api_explorer.md).

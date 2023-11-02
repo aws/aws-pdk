@@ -9,6 +9,7 @@ import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkJavaApp } from "projen/lib/awscdk";
 import { AwsCdkJavaAppOptions } from "./aws-cdk-java-app-options";
+import { InfrastructureCommands } from "../../components/infrastructure-commands";
 import { DEFAULT_STACK_NAME } from "../../consts";
 
 /**
@@ -64,6 +65,8 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
           .toString(),
       },
     });
+
+    InfrastructureCommands.ensure(this);
 
     this.pom.addPlugin("org.apache.maven.plugins/maven-surefire-plugin@3.1.2");
     this.pom.addPlugin("org.apache.maven.plugins/maven-compiler-plugin@3.8.1", {

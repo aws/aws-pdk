@@ -9,6 +9,7 @@ import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkPythonApp } from "projen/lib/awscdk";
 import { AwsCdkPythonAppOptions } from "./aws-cdk-py-app-options";
+import { InfrastructureCommands } from "../../components/infrastructure-commands";
 import { DEFAULT_STACK_NAME } from "../../consts";
 
 /**
@@ -65,6 +66,8 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
           .toString(),
       },
     });
+
+    InfrastructureCommands.ensure(this);
 
     ["pytest@^7", "syrupy@^4"].forEach((devDep) =>
       this.addDevDependency(devDep)

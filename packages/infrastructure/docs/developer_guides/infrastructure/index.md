@@ -145,6 +145,9 @@ Congratulations! You have successfully deployed a website and api to AWS!
 
 To check out your website, navigate to the distribution link in the CDK deployment output above to view your website.
 
+!!!tip
+    Use the `pdk deploy:dev` command in your infrastructure package to perform a CDK hotswap deployment for faster development iterations!
+
 ## Destroying the deployed resources
 
 Now that you're done creating your first PDK project, destroy your deployed resources to avoid incurring any costs as follows:
