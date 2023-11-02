@@ -142,17 +142,6 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
     // If we're not in a monorepo, we need to link the generated types such that the local dependency can be resolved
     if (!options.isWithinMonorepo) {
       switch (this.package.packageManager) {
-        case NodePackageManager.NPM:
-        case NodePackageManager.YARN:
-        case NodePackageManager.YARN2:
-        case NodePackageManager.YARN_CLASSIC:
-        case NodePackageManager.YARN_BERRY:
-          this.tasks
-            .tryFind("install")
-            ?.prependExec(
-              `${this.package.packageManager} link ${this.options.generatedTypescriptTypes.package.packageName}`
-            );
-          break;
         case NodePackageManager.PNPM:
           this.tasks
             .tryFind("install")
@@ -164,9 +153,12 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
             );
           break;
         default:
-          console.warn(
-            `Unknown package manager ${this.package.packageManager}. Cannot link generated typescript client.`
-          );
+          this.tasks
+            .tryFind("install")
+            ?.prependExec(
+              `${this.package.packageManager} link ${this.options.generatedTypescriptTypes.package.packageName}`
+            );
+          break;
       }
     }
   }

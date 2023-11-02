@@ -182,6 +182,23 @@ describe("NX Monorepo Unit Tests", () => {
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
 
+  it("BUN", () => {
+    const project = new MonorepoTsProject({
+      defaultReleaseBranch: "mainline",
+      name: "BUN",
+      packageManager: NodePackageManager.BUN,
+    });
+    new TypeScriptProject({
+      name: "ts-subproject",
+      outdir: "packages/ts-subproject",
+      parent: project,
+      packageManager: NodePackageManager.BUN,
+      defaultReleaseBranch: "mainline",
+    });
+
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
   it("Validate consistent Package Managers", () => {
     const project = new MonorepoTsProject({
       defaultReleaseBranch: "mainline",

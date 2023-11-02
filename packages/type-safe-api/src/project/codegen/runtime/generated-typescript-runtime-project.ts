@@ -133,24 +133,16 @@ export class GeneratedTypescriptRuntimeProject extends TypeScriptProject {
     // resolved
     if (!options.isWithinMonorepo) {
       switch (this.package.packageManager) {
-        case NodePackageManager.NPM:
-        case NodePackageManager.YARN:
-        case NodePackageManager.YARN2:
-        case NodePackageManager.YARN_CLASSIC:
-        case NodePackageManager.YARN_BERRY:
+        case NodePackageManager.PNPM:
+          // Nothing to do for pnpm, since the pnpm link command handles both the dependant and dependee
+          break;
+        default:
           this.tasks
             .tryFind("install")
             ?.exec(
               NodePackageUtils.command.cmd(this.package.packageManager, "link")
             );
           break;
-        case NodePackageManager.PNPM:
-          // Nothing to do for pnpm, since the pnpm link command handles both the dependant and dependee
-          break;
-        default:
-          console.warn(
-            `Unknown package manager ${this.package.packageManager}. Cannot link generated typescript runtime project.`
-          );
       }
     }
   }
