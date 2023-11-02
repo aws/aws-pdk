@@ -86,7 +86,7 @@ Inspecting the `projenrc` file, we notice that a single construct is instantiate
     - Any parameter listed here can be passed in via the `pdk new` command i.e: `--name="some-other-name"`.
 - For python, the moduleName defaults to a snake-cased project name.
 
-You will also notice that the `synth()` method is called on this instance at the end of the file. When you run the `pdk` command, this file will be executed by your runtime and will synthesize this instance which will result in all the files that you see in the previous image. 
+You will also notice that the `synth()` method is called on this instance at the end of the file. When you run the `pdk` command, this file will be executed by your runtime and will synthesize this instance which will result in all the files that you see in the previous image.
 
 !!!info
     Whenever you change the `projenrc` file, make sure you run the `pdk` command from the root of your project to ensure your files are synthesized.
@@ -293,7 +293,7 @@ For more details on these packages, refer to the [Type-Safe API Developer Guide]
 Now, lets build our API by running `pdk build` from the root of our monorepo. You will notice that each package in the monorepo is built in dependency order.
 
 !!!tip
-    If you run the `pdk build` command again without changing any files, you will notice that the build completes in a fraction of the time (1.7s as per below snippet) as it uses [cached results](https://nx.dev/concepts/how-caching-works) and will only re-build packages that have changed since the last time it was built.  
+    If you run the `pdk build` command again without changing any files, you will notice that the build completes in a fraction of the time (1.7s as per below snippet) as it uses [cached results](https://nx.dev/concepts/how-caching-works) and will only re-build packages that have changed since the last time it was built.
 
     ```bash
     >  NX   Successfully ran target build for 7 projects
@@ -738,8 +738,11 @@ We now can deploy our infrastructure by running the following command:
 
 ```bash
 cd packages/infra
-pdk run deploy --require-approval never
+pdk deploy:dev
 ```
+
+!!!note
+    The `pdk deploy:dev` command attempts a [CDK hotswap deployment](https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/) if possible. In a production setting (for example in a ci/cd pipeline) use the `pdk deploy` command to ensure a full CloudFormation deployment is performed.
 
 Once the deployment completes, you should see an output that resembles the following:
 
@@ -756,7 +759,7 @@ In order to log in to your website, you first need to create a Cognito user. By 
 1. Navigate to the Cognito AWS console within the account you just deployed to.
 1. Click on the user pool you just created
 1. Click "Create user"
-1. In invitation settings, select "Send an email invitation" 
+1. In invitation settings, select "Send an email invitation"
 1. Enter a username
 1. Enter an email address
 1. In temporary password, select "Generate a password"

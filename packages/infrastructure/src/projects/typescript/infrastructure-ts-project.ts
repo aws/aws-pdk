@@ -10,6 +10,7 @@ import { SampleFile } from "projen";
 import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
 import { NodeProject } from "projen/lib/javascript";
 import { AwsCdkTypeScriptAppOptions } from "./aws-cdk-ts-app-options";
+import { InfrastructureCommands } from "../../components/infrastructure-commands";
 import { DEFAULT_STACK_NAME } from "../../consts";
 
 /**
@@ -65,6 +66,8 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
           .toString(),
       },
     });
+
+    InfrastructureCommands.ensure(this);
 
     this.addDeps("@aws/pdk");
 
