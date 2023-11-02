@@ -175,9 +175,8 @@ export class MonorepoTsProject
       devDeps: ["nx@^16", "@aws/pdk@^0", ...(options.devDeps || [])],
       deps: [
         "aws-cdk-lib",
-        "constructs",
         "cdk-nag",
-        "@aws-cdk/aws-cognito-identitypool-alpha",
+        "@aws-cdk/aws-cognito-identitypool-alpha@latest",
         ...(options.deps || []),
       ],
     });
@@ -190,6 +189,10 @@ export class MonorepoTsProject
     // engines
     this.package.addEngine("node", ">=16");
     switch (this.package.packageManager) {
+      case NodePackageManager.BUN: {
+        this.package.addEngine("bun", ">=1");
+        break;
+      }
       case NodePackageManager.PNPM: {
         // https://pnpm.io/package_json
         // https://github.com/pnpm/pnpm/releases/tag/v8.0.0
@@ -408,9 +411,9 @@ export class MonorepoTsProject
   public addWorkspacePackages(...packageGlobs: string[]) {
     // Any subprojects that were added since the last call to this method need to be added first, in order to ensure
     // we add the workspace packages in a sane order.
-    const relativeSubProjectWorkspacePackages = this.sortedSubProjects.map(
-      (project) => path.relative(this.outdir, project.outdir)
-    );
+    const relativeSubProjectWorkspacePackages = this.sortedSubProjects
+      .filter((s) => ProjectUtils.isNamedInstanceOf(s, NodeProject))
+      .map((project) => path.relative(this.outdir, project.outdir));
     const existingWorkspacePackages = new Set(this.workspacePackages);
     this.workspacePackages.push(
       ...relativeSubProjectWorkspacePackages.filter(

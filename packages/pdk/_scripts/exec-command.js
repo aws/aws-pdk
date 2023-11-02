@@ -27,7 +27,8 @@ const engines = JSON.parse(
 ).engines;
 
 if (engines) {
-  let pkgMgrCmd = engines.pnpm ? "pnpm" : engines.yarn ? "yarn" : "npm run";
+  let pkgMgrCmd = engines.pnpm ? "pnpm" : engines.yarn ? "yarn" : engines.bun ? "bun" : "npm run";
+
   // Deploy is a pnpm command, but it's more likely users want to run the deploy task
   if (engines.pnpm && process.argv[0] === "deploy") {
     pkgMgrCmd += " run";
