@@ -4231,8 +4231,14 @@
 <p>After you implement your new operation, build your project again and deploy it:</p>
 <div class="highlight"><pre><span></span><code>pdk<span class="w"> </span>build
 <span class="nb">cd</span><span class="w"> </span>packages/infra
-pdk<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> </span>--require-approval<span class="w"> </span>never
+pdk<span class="w"> </span>deploy:dev
 </code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you want to quickly test changes to your lambda handler code, you can re-package the handlers, then run <code>pdk deploy:dev</code> in your infrastructure project to perform a fast <a href="https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/">hotswap deployment</a>. For example from the root of your project:</p>
+<div class="highlight"><pre><span></span><code>pdk<span class="w"> </span>nx<span class="w"> </span>run<span class="w"> </span>myapi-typescript-handlers:package<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pdk<span class="w"> </span>nx<span class="w"> </span>run<span class="w"> </span>infra:deploy<span class="se">\:</span>dev
+</code></pre></div>
+</div>
 <p>Try out your new API! You can use a tool such as <a href="https://github.com/okigan/awscurl">awscurl</a> to make Sigv4 signed requests to your API, since we set the default authorizer to <code>Authorizers.iam()</code>. Alternatively, you can deploy the <a href="../cloudscape-react-ts-website/index.html"><code>CloudscapeReactTsWebsiteProject</code></a> and try out the <a href="../cloudscape-react-ts-website/api_explorer.html">API Explorer</a>.</p>
 
   <hr>
@@ -4240,7 +4246,7 @@ pdk<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> </s
   <small>
     
       Last update:
-      2023-11-01
+      2023-11-02
     
   </small>
 </div>
