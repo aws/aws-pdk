@@ -1,27 +1,14 @@
-/*********************************************************************************************************************
- Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- ******************************************************************************************************************** */
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
 
  // eslint-disable-line
 
-import { Rule, WAFV2 } from "@aws-sdk/client-wafv2";
+import { Rule, WAFV2 } from "@aws-sdk/client-wafv2"; // eslint-disable-line
 
 const DELIMITER = ":";
 const SCOPE = "CLOUDFRONT";
 const client = new WAFV2({
-  region: "us-east-1"
+  region: "us-east-1",
 });
 
 /**
@@ -134,31 +121,29 @@ const createWaf = async (
   cidrAllowList?: any
 ) => {
   const ipSetName = getIpSetName(id);
-  const createIpSetResponse = await client
-    .createIPSet({
-      Name: ipSetName,
-      Scope: SCOPE,
-      Addresses: cidrAllowList?.cidrRanges ?? [],
-      IPAddressVersion: cidrAllowList?.cidrType ?? "IPV4",
-    });
+  const createIpSetResponse = await client.createIPSet({
+    Name: ipSetName,
+    Scope: SCOPE,
+    Addresses: cidrAllowList?.cidrRanges ?? [],
+    IPAddressVersion: cidrAllowList?.cidrType ?? "IPV4",
+  });
 
-  const createWebAclResponse = await client
-    .createWebACL({
-      Name: id,
-      DefaultAction: { Allow: {} },
-      Scope: SCOPE,
-      VisibilityConfig: {
-        CloudWatchMetricsEnabled: true,
-        MetricName: id,
-        SampledRequestsEnabled: true,
-      },
-      Rules: getWafRules(
-        createIpSetResponse.Summary!.ARN!,
-        ipSetName,
-        managedRules,
-        cidrAllowList
-      ),
-    });
+  const createWebAclResponse = await client.createWebACL({
+    Name: id,
+    DefaultAction: { Allow: {} },
+    Scope: SCOPE,
+    VisibilityConfig: {
+      CloudWatchMetricsEnabled: true,
+      MetricName: id,
+      SampledRequestsEnabled: true,
+    },
+    Rules: getWafRules(
+      createIpSetResponse.Summary!.ARN!,
+      ipSetName,
+      managedRules,
+      cidrAllowList
+    ),
+  });
 
   return {
     PhysicalResourceId: `${createWebAclResponse.Summary?.Id}${DELIMITER}${createIpSetResponse.Summary?.Id}`,
@@ -179,48 +164,44 @@ const updateWaf = async (
   managedRules?: any,
   cidrAllowList?: any
 ) => {
-  const getIpSetResponse = await client
-    .getIPSet({
-      Id: ipSetId,
-      Name: ipSetName,
-      Scope: SCOPE,
-    });
+  const getIpSetResponse = await client.getIPSet({
+    Id: ipSetId,
+    Name: ipSetName,
+    Scope: SCOPE,
+  });
 
-  await client
-    .updateIPSet({
-      Id: ipSetId,
-      Name: ipSetName,
-      Addresses: cidrAllowList?.cidrRanges ?? [],
-      Scope: SCOPE,
-      LockToken: getIpSetResponse.LockToken!,
-    });
+  await client.updateIPSet({
+    Id: ipSetId,
+    Name: ipSetName,
+    Addresses: cidrAllowList?.cidrRanges ?? [],
+    Scope: SCOPE,
+    LockToken: getIpSetResponse.LockToken!,
+  });
 
-  const getWebAclResponse = await client
-    .getWebACL({
-      Id: webAclId,
-      Name: id,
-      Scope: SCOPE,
-    });
+  const getWebAclResponse = await client.getWebACL({
+    Id: webAclId,
+    Name: id,
+    Scope: SCOPE,
+  });
 
-  await client
-    .updateWebACL({
-      Name: id,
-      DefaultAction: { Allow: {} },
-      Scope: SCOPE,
-      VisibilityConfig: {
-        CloudWatchMetricsEnabled: true,
-        MetricName: id,
-        SampledRequestsEnabled: true,
-      },
-      Rules: getWafRules(
-        getIpSetResponse.IPSet?.ARN!,
-        ipSetName,
-        managedRules,
-        cidrAllowList
-      ),
-      Id: getWebAclResponse.WebACL?.Id!,
-      LockToken: getWebAclResponse.LockToken!,
-    });
+  await client.updateWebACL({
+    Name: id,
+    DefaultAction: { Allow: {} },
+    Scope: SCOPE,
+    VisibilityConfig: {
+      CloudWatchMetricsEnabled: true,
+      MetricName: id,
+      SampledRequestsEnabled: true,
+    },
+    Rules: getWafRules(
+      getIpSetResponse.IPSet?.ARN!,
+      ipSetName,
+      managedRules,
+      cidrAllowList
+    ),
+    Id: getWebAclResponse.WebACL?.Id!,
+    LockToken: getWebAclResponse.LockToken!,
+  });
 
   return {
     Data: {
@@ -238,35 +219,31 @@ const deleteWaf = async (
   id: string,
   ipSetName: string
 ) => {
-  const getWebAclResponse = await client
-    .getWebACL({
-      Id: webAclId,
-      Name: id,
-      Scope: SCOPE,
-    });
+  const getWebAclResponse = await client.getWebACL({
+    Id: webAclId,
+    Name: id,
+    Scope: SCOPE,
+  });
 
-  await client
-    .deleteWebACL({
-      Id: webAclId,
-      Name: id,
-      Scope: SCOPE,
-      LockToken: getWebAclResponse.LockToken!,
-    });
+  await client.deleteWebACL({
+    Id: webAclId,
+    Name: id,
+    Scope: SCOPE,
+    LockToken: getWebAclResponse.LockToken!,
+  });
 
-  const getIpSetResponse = await client
-    .getIPSet({
-      Id: ipSetId,
-      Name: ipSetName,
-      Scope: SCOPE,
-    });
+  const getIpSetResponse = await client.getIPSet({
+    Id: ipSetId,
+    Name: ipSetName,
+    Scope: SCOPE,
+  });
 
-  await client
-    .deleteIPSet({
-      Id: ipSetId,
-      Name: ipSetName,
-      Scope: SCOPE,
-      LockToken: getIpSetResponse.LockToken!,
-    });
+  await client.deleteIPSet({
+    Id: ipSetId,
+    Name: ipSetName,
+    Scope: SCOPE,
+    LockToken: getIpSetResponse.LockToken!,
+  });
 
   return {
     Data: {
