@@ -14,12 +14,14 @@
  limitations under the License.
  ******************************************************************************************************************** */
 
-import { WAFV2 } from 'aws-sdk'; // eslint-disable-line
+ // eslint-disable-line
+
+import { Rule, WAFV2 } from "@aws-sdk/client-wafv2";
 
 const DELIMITER = ":";
 const SCOPE = "CLOUDFRONT";
 const client = new WAFV2({
-  region: "us-east-1",
+  region: "us-east-1"
 });
 
 /**
@@ -78,8 +80,8 @@ const getWafRules = (
   ipSetName: string,
   managedRules?: any,
   cidrAllowList?: any
-): WAFV2.Rules => {
-  const rules: WAFV2.Rules = [];
+): Array<Rule> => {
+  const rules: Array<Rule> = [];
 
   if (cidrAllowList) {
     rules.push({
@@ -138,8 +140,7 @@ const createWaf = async (
       Scope: SCOPE,
       Addresses: cidrAllowList?.cidrRanges ?? [],
       IPAddressVersion: cidrAllowList?.cidrType ?? "IPV4",
-    })
-    .promise();
+    });
 
   const createWebAclResponse = await client
     .createWebACL({
@@ -157,8 +158,7 @@ const createWaf = async (
         managedRules,
         cidrAllowList
       ),
-    })
-    .promise();
+    });
 
   return {
     PhysicalResourceId: `${createWebAclResponse.Summary?.Id}${DELIMITER}${createIpSetResponse.Summary?.Id}`,
@@ -184,8 +184,7 @@ const updateWaf = async (
       Id: ipSetId,
       Name: ipSetName,
       Scope: SCOPE,
-    })
-    .promise();
+    });
 
   await client
     .updateIPSet({
@@ -194,16 +193,14 @@ const updateWaf = async (
       Addresses: cidrAllowList?.cidrRanges ?? [],
       Scope: SCOPE,
       LockToken: getIpSetResponse.LockToken!,
-    })
-    .promise();
+    });
 
   const getWebAclResponse = await client
     .getWebACL({
       Id: webAclId,
       Name: id,
       Scope: SCOPE,
-    })
-    .promise();
+    });
 
   await client
     .updateWebACL({
@@ -223,8 +220,7 @@ const updateWaf = async (
       ),
       Id: getWebAclResponse.WebACL?.Id!,
       LockToken: getWebAclResponse.LockToken!,
-    })
-    .promise();
+    });
 
   return {
     Data: {
@@ -247,8 +243,7 @@ const deleteWaf = async (
       Id: webAclId,
       Name: id,
       Scope: SCOPE,
-    })
-    .promise();
+    });
 
   await client
     .deleteWebACL({
@@ -256,16 +251,14 @@ const deleteWaf = async (
       Name: id,
       Scope: SCOPE,
       LockToken: getWebAclResponse.LockToken!,
-    })
-    .promise();
+    });
 
   const getIpSetResponse = await client
     .getIPSet({
       Id: ipSetId,
       Name: ipSetName,
       Scope: SCOPE,
-    })
-    .promise();
+    });
 
   await client
     .deleteIPSet({
@@ -273,8 +266,7 @@ const deleteWaf = async (
       Name: ipSetName,
       Scope: SCOPE,
       LockToken: getIpSetResponse.LockToken!,
-    })
-    .promise();
+    });
 
   return {
     Data: {
