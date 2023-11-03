@@ -82,7 +82,7 @@ This interceptor can be used to add headers to the responses returned by your la
                     "x-my-response-header", "value"
             )));
         }
-    
+
         ...
     }
     ```
@@ -114,14 +114,14 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
 === "TS"
 
     In typescript, interceptors are passed as separate arguments to the generated handler wrapper, in the order in which they should be executed. Call `request.chain.next(request)` from an interceptor to delegate to the rest of the chain to handle a request. Note that the last handler in the chain (ie the actual request handler which transforms the input to the output) should not call `chain.next`.
-    
+
     ```ts
     import {
       sayHelloHandler,
       ChainedRequestInput,
       OperationResponse,
     } from "myapi-typescript-runtime";
-    
+
     // Interceptor to wrap invocations in a try/catch, returning a 500 error for any unhandled exceptions.
     const tryCatchInterceptor = async <
       RequestParameters,
@@ -140,7 +140,7 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
         return { statusCode: 500, body: { errorMessage: e.message } };
       }
     };
-    
+
     // tryCatchInterceptor is passed first, so it runs first and calls the second argument function (the request handler) via chain.next
     export const handler = sayHelloHandler(
       tryCatchInterceptor,
@@ -154,12 +154,12 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
       }
     );
     ```
-    
+
     Another example interceptor might be to record request time metrics. The example below includes the full generic type signature for an interceptor:
-    
+
     ```ts
     import { ChainedRequestInput, OperationResponse } from "myapi-typescript-runtime";
-    
+
     const timingInterceptor = async <
       RequestParameters,
       RequestBody,
@@ -178,9 +178,9 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
       return response;
     };
     ```
-    
+
     Interceptors may mutate the `interceptorContext` to pass state to further interceptors or the final lambda handler, for example an `identityInterceptor` might want to extract the authenticated user from the request so that it is available in handlers.
-    
+
     ```ts
     import {
       LambdaRequestParameters,
@@ -188,7 +188,7 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
       OperationResponse,
       ChainedRequestInput,
     } from "myapi-typescript-runtime";
-    
+
     const identityInterceptor = async <
       RequestParameters,
       RequestBody,
@@ -217,7 +217,7 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
 
     ```java
     import com.generated.api.myjavaapiruntime.runtime.api.Handlers.Interceptors;
-    
+
     @Interceptors({ TimingInterceptor.class, TryCatchInterceptor.class })
     public class SayHelloHandler extends SayHello {
         @Override
@@ -228,14 +228,14 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
         }
     }
     ```
-    
+
     To write an interceptor, you can implement the `Interceptor` interface. For example, a timing interceptor:
-    
+
     ```java
     import com.generated.api.myjavaapiruntime.runtime.api.Handlers.Interceptor;
     import com.generated.api.myjavaapiruntime.runtime.api.Handlers.ChainedRequestInput;
     import com.generated.api.myjavaapiruntime.runtime.api.Handlers.Response;
-    
+
     public class TimingInterceptor<Input> implements Interceptor<Input> {
         @Override
         public Response handle(ChainedRequestInput<Input> input) {
@@ -247,16 +247,16 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
         }
     }
     ```
-    
+
     Interceptors may choose to return different responses, for example to return a 500 response for any unhandled exceptions:
-    
+
     ```java
     import com.generated.api.myjavaapiruntime.runtime.api.Handlers.Interceptor;
     import com.generated.api.myjavaapiruntime.runtime.api.Handlers.ChainedRequestInput;
     import com.generated.api.myjavaapiruntime.runtime.api.Handlers.Response;
     import com.generated.api.myjavaapiruntime.runtime.api.Handlers.ApiResponse;
     import com.generated.api.myjavaapiruntime.runtime.model.InternalFailureErrorResponseContent;
-    
+
     public class TryCatchInterceptor<Input> implements Interceptor<Input> {
         @Override
         public Response handle(ChainedRequestInput<Input> input) {
@@ -273,9 +273,9 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
         }
     }
     ```
-    
+
     Interceptors are permitted to mutate the "interceptor context", which is a `Map<String, Object>`. Each interceptor in the chain, and the final handler, can access this context:
-    
+
     ```java
     public class IdentityInterceptor<Input> implements Interceptor<Input> {
         @Override
@@ -285,9 +285,9 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
         }
     }
     ```
-    
+
     Interceptors can also mutate the response returned by the handler chain. An example use case might be adding cross-origin resource sharing headers:
-    
+
     ```java
     public static class AddCorsHeadersInterceptor<Input> implements Interceptor<Input> {
         @Override
@@ -299,9 +299,9 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
         }
     }
     ```
-    
+
     Interceptors referenced by the `@Interceptors` annotation must be constructable with no arguments. If more complex instantiation of your interceptor is required (for example if you are using dependency injection or wish to pass configuration to your interceptor), you may instead override the `getInterceptors` method in your handler:
-    
+
     ```java
     public class SayHelloHandler extends SayHello {
         @Override
@@ -310,7 +310,7 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
                     new MyConfiguredInterceptor<>(42),
                     new MyOtherConfiguredInterceptor<>("configuration"));
         }
-    
+
         @Override
         public SayHelloResponse handle(SayHelloRequestInput sayHelloRequestInput) {
             return SayHello200Response.of(HelloResponse.builder()
@@ -320,15 +320,35 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
     }
     ```
 
+    Note also that in Java, you can opt to implement your interceptor by extending the `InterceptorWithWarmup` class, which by default will prime your interceptor by calling the `handle` method with an empty event. You can override the `warmUp` method to change the default warmup behaviour.
+
+    ```java
+    public class MyWarmupInterceptor<Input> extends InterceptorWithWarmup<Input> {
+
+      @Override
+      public void warmUp() {
+        // Invoke the "handle" method with an empty input
+        super.warmUp();
+
+        // Perform additional priming here...
+      }
+
+      @Override
+      public Response handle(ChainedRequestInput<Input> input) {
+          ...
+      }
+    }
+    ```
+
 === "PYTHON"
 
     In Python, a list of interceptors can be passed as a keyword argument to the generated lambda handler decorator, for example:
-    
+
     ```python
     from myapi_python_runtime.apis.tags.default_api_operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
     from myapi_python_runtime.model.api_error import ApiError
     from myapi_python_runtime.model.hello_response import HelloResponse
-    
+
     @say_hello_handler(interceptors=[timing_interceptor, try_catch_interceptor])
     def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
         return ApiResponse(
@@ -337,13 +357,13 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
             headers={}
         )
     ```
-    
+
     Writing an interceptor is just like writing a lambda handler. Call `chain.next(input)` from an interceptor to delegate to the rest of the chain to handle a request.
-    
+
     ```python
     import time
     from myapi_python_runtime.apis.tags.default_api_operation_config import ChainedApiRequest, ApiResponse
-    
+
     def timing_interceptor(input: ChainedApiRequest) -> ApiResponse:
         start = int(round(time.time() * 1000))
         response = input.chain.next(input)
@@ -351,14 +371,14 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
         print("Took {} ms".format(end - start))
         return response
     ```
-    
+
     Interceptors may choose to return different responses, for example to return a 500 response for any unhandled exceptions:
-    
+
     ```python
     import time
     from myapi_python_runtime.model.api_error import ApiError
     from myapi_python_runtime.apis.tags.default_api_operation_config import ChainedApiRequest, ApiResponse
-    
+
     def try_catch_interceptor(input: ChainedApiRequest) -> ApiResponse:
         try:
             return input.chain.next(input)
@@ -369,17 +389,17 @@ The lambda handler wrappers allow you to pass in a _chain_ of handler functions 
                 headers={}
             )
     ```
-    
+
     Interceptors are permitted to mutate the "interceptor context", which is a `Dict[str, Any]`. Each interceptor in the chain, and the final handler, can access this context:
-    
+
     ```python
     def identity_interceptor(input: ChainedApiRequest) -> ApiResponse:
         input.interceptor_context["AuthenticatedUser"] = get_authenticated_user(input.event)
         return input.chain.next(input)
     ```
-    
+
     Interceptors can also mutate the response returned by the handler chain. An example use case might be adding cross-origin resource sharing headers:
-    
+
     ```python
     def add_cors_headers_interceptor(input: ChainedApiRequest) -> ApiResponse:
         response = input.chain.next(input)
@@ -408,7 +428,7 @@ The lambda handler wrappers can be used in isolation as handlers for separate la
     } from "myapi-typescript-runtime";
     import { corsInterceptor } from "./interceptors";
     import { sayGoodbye } from "./handlers/say-goodbye";
-    
+
     const sayHello = sayHelloHandler(async ({ input }) => {
       return {
         statusCode: 200,
@@ -417,7 +437,7 @@ The lambda handler wrappers can be used in isolation as handlers for separate la
         },
       };
     });
-    
+
     export const handler = handlerRouter({
       // Interceptors declared in this list will apply to all operations
       interceptors: [corsInterceptor],
@@ -436,10 +456,10 @@ The lambda handler wrappers can be used in isolation as handlers for separate la
     import com.generated.api.myapijavaruntime.runtime.api.Handlers.HandlerRouter;
     import com.generated.api.myapijavaruntime.runtime.api.Handlers.Interceptors;
     import com.generated.api.myapijavaruntime.runtime.api.Handlers.SayHello;
-    
+
     import java.util.Arrays;
     import java.util.List;
-    
+
     // Interceptors defined here apply to all operations
     @Interceptors({ TimingInterceptor.class })
     public class ApiHandlerRouter extends HandlerRouter {
@@ -448,7 +468,7 @@ The lambda handler wrappers can be used in isolation as handlers for separate la
         public SayHello sayHello() {
             return new SayHelloHandler();
         }
-    
+
         @Override
         public SayGoodbye sayGoodbye() {
             return new SayGoodbyeHandler();
@@ -464,7 +484,7 @@ The lambda handler wrappers can be used in isolation as handlers for separate la
     from myapi_python_runtime.model.hello_response import HelloResponse
     from other_handlers import say_goodbye
     from my_interceptors import cors_interceptor
-    
+
     @say_hello_handler
     def say_hello(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
         return ApiResponse(
@@ -472,7 +492,7 @@ The lambda handler wrappers can be used in isolation as handlers for separate la
             body=HelloResponse(message="Hello {}!".format(input.request_parameters["name"])),
             headers={}
         )
-    
+
     handler = handler_router(
         # Interceptors defined here will apply to all operations
         interceptors=[cors_interceptor],

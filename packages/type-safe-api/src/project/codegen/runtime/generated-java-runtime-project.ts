@@ -46,6 +46,8 @@ const DEPENDENCIES: string[] = [
   "software.amazon.lambda/powertools-logging@^1.16.1",
   "software.amazon.lambda/powertools-tracing@^1.16.1",
   "software.amazon.lambda/powertools-metrics@^1.16.1",
+  // SnapStart
+  "io.github.crac/org-crac@^0.1.3",
 ];
 
 const TEST_DEPENDENCIES: string[] = [
