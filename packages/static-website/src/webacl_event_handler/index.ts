@@ -1,8 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 
- // eslint-disable-line
-
 import { Rule, WAFV2 } from "@aws-sdk/client-wafv2"; // eslint-disable-line
 
 const DELIMITER = ":";
