@@ -123,6 +123,7 @@ import software.amazon.lambda.powertools.logging.LoggingUtils;
  * See https://docs.powertools.aws.dev/lambda/java/latest/core/logging/
  */
 public class LoggingInterceptor<Input> implements Interceptor<Input> {
+    private Logger logger = LogManager.getLogger(LoggingInterceptor.class);
 
     /**
      * Return the instance of the logger from the interceptor context
@@ -161,7 +162,6 @@ public class LoggingInterceptor<Input> implements Interceptor<Input> {
         LoggingUtils.appendKey("operationId", operationId);
 
         // Add the logger to the interceptor context
-        Logger logger = LogManager.getLogger(operationId);
         input.getInterceptorContext().put("logger", logger);
 
         Response response = input.getChain().next(input);
@@ -201,6 +201,13 @@ import software.amazon.lambda.powertools.tracing.TracingUtils;
  * See: https://docs.powertools.aws.dev/lambda/java/latest/core/tracing/
  */
 public class TracingInterceptor<Input> implements Interceptor<Input> {
+
+    {
+        // Create a segment during the lambda init phase to ensure xray emitter
+        // is warmed up prior to invocation phase
+        AWSXRay.beginSubsegment("Tracing Interceptor - Init");
+        AWSXRay.endSubsegment();
+    }
 
     private final boolean captureResponse;
 
@@ -284,6 +291,7 @@ import software.amazon.lambda.powertools.metrics.MetricsUtils;
  * See: https://docs.powertools.aws.dev/lambda/typescript/latest/core/metrics
  */
 public class MetricsInterceptor<Input> implements Interceptor<Input> {
+    private MetricsLogger metrics = MetricsUtils.metricsLogger();
 
     /**
      * Return the instance of the metrics logger from the interceptor context
@@ -298,7 +306,6 @@ public class MetricsInterceptor<Input> implements Interceptor<Input> {
 
     @Override
     public Response handle(final ChainedRequestInput<Input> input) {
-        MetricsLogger metrics = MetricsUtils.metricsLogger();
         metrics.putDimensions(DimensionSet.of("operationId", (String) input.getInterceptorContext().get("operationId")));
 
         input.getInterceptorContext().put("metrics", metrics);

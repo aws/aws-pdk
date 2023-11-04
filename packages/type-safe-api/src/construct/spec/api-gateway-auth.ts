@@ -179,7 +179,7 @@ const cognitoSecurityScheme = (
  * @param authorizer custom authorizer
  */
 const customSecurityScheme = (
-  scope: Construct,
+  _scope: Construct,
   authorizer: CustomAuthorizer
 ): CustomSecurityScheme => {
   const singleHeaderMatch = authorizer.identitySource.match(
@@ -205,7 +205,7 @@ const customSecurityScheme = (
     "x-amazon-apigateway-authtype": authorizer.authorizationType,
     "x-amazon-apigateway-authorizer": {
       type: authorizer.type,
-      authorizerUri: functionInvocationUri(scope, authorizer.function),
+      authorizerUri: functionInvocationUri(authorizer.function),
       authorizerResultTtlInSeconds: authorizer.authorizerResultTtlInSeconds,
       identitySource: authorizer.identitySource,
     },

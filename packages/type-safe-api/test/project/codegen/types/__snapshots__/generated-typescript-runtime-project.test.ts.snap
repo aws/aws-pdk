@@ -13,7 +13,6 @@ exports[`Generated Typescript Runtime Unit Tests Synth 1`] = `
 /.gitignore linguist-generated
 /.mergify.yml linguist-generated
 /.npmignore linguist-generated
-/.npmrc linguist-generated
 /.openapi-generator-ignore linguist-generated
 /.projen/** linguist-generated
 /.projen/deps.json linguist-generated
@@ -183,7 +182,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
@@ -325,7 +324,6 @@ jspm_packages/
 !/.mergify.yml
 !/.github/workflows/upgrade-main.yml
 !/.github/pull_request_template.md
-!/.npmrc
 !/test/
 !/tsconfig.json
 !/tsconfig.dev.json
@@ -386,6 +384,11 @@ tsconfig.esm.json
         "version": "^16",
       },
       {
+        "name": "constructs",
+        "type": "build",
+        "version": "^10.0.0",
+      },
+      {
         "name": "npm-check-updates",
         "type": "build",
         "version": "^16",
@@ -433,7 +436,6 @@ tsconfig.esm.json
       ".gitignore",
       ".mergify.yml",
       ".npmignore",
-      ".npmrc",
       ".openapi-generator-ignore",
       ".projen/deps.json",
       ".projen/files.json",
@@ -670,13 +672,13 @@ tsconfig.esm.json
             "exec": "yarn upgrade npm-check-updates",
           },
           {
-            "exec": "npm-check-updates --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/node,npm-check-updates,projen,standard-version,typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@types/aws-lambda",
+            "exec": "npm-check-updates --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/node,constructs,npm-check-updates,projen,standard-version,typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@types/aws-lambda",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @types/node npm-check-updates projen standard-version typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @types/aws-lambda",
+            "exec": "yarn upgrade @types/node constructs npm-check-updates projen standard-version typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -920,6 +922,7 @@ tsconfig.esm.json
     },
     "devDependencies": {
       "@types/node": "^16",
+      "constructs": "^10.0.0",
       "npm-check-updates": "^16",
       "projen": "*",
       "standard-version": "^9",

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Java Infrastructure Code Generation Script Unit Tests Generates Functions 1`] = `
+exports[`Java Infrastructure Code Generation Script Unit Tests Generates Functions for handlers.yaml 1`] = `
 [
   [
     "infra/src/main/java/test/test-infra/infra/functions/JavaOneFunction.java",
@@ -8,12 +8,13 @@ exports[`Java Infrastructure Code Generation Script Unit Tests Generates Functio
 
 import org.jetbrains.annotations.NotNull;
 import software.amazon.awscdk.services.lambda.Function;
+import software.aws.pdk.type_safe_api.SnapStartFunction;
 import software.constructs.Construct;
 
 /**
  * Lambda function construct which points to the java implementation of JavaOne
  */
-public class JavaOneFunction extends Function {
+public class JavaOneFunction extends SnapStartFunction {
     public JavaOneFunction(@NotNull Construct scope, @NotNull String id, @NotNull JavaOneFunctionProps props) {
         super(scope, id, props);
     }
@@ -57,6 +58,7 @@ import software.amazon.awscdk.services.lambda.VersionOptions;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.sns.ITopic;
 import software.amazon.awscdk.services.sqs.IQueue;
+import software.aws.pdk.type_safe_api.SnapStartFunctionProps;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,7 +69,7 @@ import java.util.List;
 import java.util.Map;
 
 @lombok.Builder @lombok.Getter
-public class JavaOneFunctionProps implements FunctionProps {
+public class JavaOneFunctionProps implements SnapStartFunctionProps {
     private static String infraProjectAbsolutePath;
 
     static {
@@ -144,12 +146,13 @@ public class JavaOneFunctionProps implements FunctionProps {
 
 import org.jetbrains.annotations.NotNull;
 import software.amazon.awscdk.services.lambda.Function;
+import software.aws.pdk.type_safe_api.SnapStartFunction;
 import software.constructs.Construct;
 
 /**
  * Lambda function construct which points to the java implementation of JavaTwo
  */
-public class JavaTwoFunction extends Function {
+public class JavaTwoFunction extends SnapStartFunction {
     public JavaTwoFunction(@NotNull Construct scope, @NotNull String id, @NotNull JavaTwoFunctionProps props) {
         super(scope, id, props);
     }
@@ -193,6 +196,7 @@ import software.amazon.awscdk.services.lambda.VersionOptions;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.sns.ITopic;
 import software.amazon.awscdk.services.sqs.IQueue;
+import software.aws.pdk.type_safe_api.SnapStartFunctionProps;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -203,7 +207,7 @@ import java.util.List;
 import java.util.Map;
 
 @lombok.Builder @lombok.Getter
-public class JavaTwoFunctionProps implements FunctionProps {
+public class JavaTwoFunctionProps implements SnapStartFunctionProps {
     private static String infraProjectAbsolutePath;
 
     static {
@@ -280,6 +284,7 @@ public class JavaTwoFunctionProps implements FunctionProps {
 
 import org.jetbrains.annotations.NotNull;
 import software.amazon.awscdk.services.lambda.Function;
+import software.aws.pdk.type_safe_api.SnapStartFunction;
 import software.constructs.Construct;
 
 /**
@@ -329,6 +334,7 @@ import software.amazon.awscdk.services.lambda.VersionOptions;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.sns.ITopic;
 import software.amazon.awscdk.services.sqs.IQueue;
+import software.aws.pdk.type_safe_api.SnapStartFunctionProps;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -416,6 +422,7 @@ public class PythonOneFunctionProps implements FunctionProps {
 
 import org.jetbrains.annotations.NotNull;
 import software.amazon.awscdk.services.lambda.Function;
+import software.aws.pdk.type_safe_api.SnapStartFunction;
 import software.constructs.Construct;
 
 /**
@@ -465,6 +472,7 @@ import software.amazon.awscdk.services.lambda.VersionOptions;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.sns.ITopic;
 import software.amazon.awscdk.services.sqs.IQueue;
+import software.aws.pdk.type_safe_api.SnapStartFunctionProps;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -552,6 +560,7 @@ public class PythonTwoFunctionProps implements FunctionProps {
 
 import org.jetbrains.annotations.NotNull;
 import software.amazon.awscdk.services.lambda.Function;
+import software.aws.pdk.type_safe_api.SnapStartFunction;
 import software.constructs.Construct;
 
 /**
@@ -601,6 +610,7 @@ import software.amazon.awscdk.services.lambda.VersionOptions;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.sns.ITopic;
 import software.amazon.awscdk.services.sqs.IQueue;
+import software.aws.pdk.type_safe_api.SnapStartFunctionProps;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -688,6 +698,7 @@ public class TypescriptOneFunctionProps implements FunctionProps {
 
 import org.jetbrains.annotations.NotNull;
 import software.amazon.awscdk.services.lambda.Function;
+import software.aws.pdk.type_safe_api.SnapStartFunction;
 import software.constructs.Construct;
 
 /**
@@ -737,6 +748,7 @@ import software.amazon.awscdk.services.lambda.VersionOptions;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.sns.ITopic;
 import software.amazon.awscdk.services.sqs.IQueue;
+import software.aws.pdk.type_safe_api.SnapStartFunctionProps;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -767,6 +779,424 @@ public class TypescriptTwoFunctionProps implements FunctionProps {
     // Fixed props
     private final Code code = Code.fromAsset(Paths.get(infraProjectAbsolutePath).resolve(
         "../typescript-handlers/dist/lambda/typescript-two"
+    ).toAbsolutePath().toString());
+    private final String handler = "index.handler";
+    private final Runtime runtime = Runtime.NODEJS_18_X;
+
+    // Props with defaults
+    @lombok.Builder.Default
+    Duration timeout = Duration.seconds(30);
+    @lombok.Builder.Default
+    Tracing tracing = Tracing.ACTIVE;
+
+    // Remaining Function Props
+    AdotInstrumentationConfig adotInstrumentation;
+    Boolean allowAllOutbound;
+    Boolean allowPublicSubnet;
+    Architecture architecture;
+    ICodeSigningConfig codeSigningConfig;
+    VersionOptions currentVersionOptions;
+    IQueue deadLetterQueue;
+    Boolean deadLetterQueueEnabled;
+    ITopic deadLetterTopic;
+    String description;
+    Map<String, String> environment;
+    IKey environmentEncryption;
+    Size ephemeralStorageSize;
+    List<IEventSource> events;
+    FileSystem filesystem;
+    String functionName;
+    List<PolicyStatement> initialPolicy;
+    LambdaInsightsVersion insightsVersion;
+    List<ILayerVersion> layers;
+    RetentionDays logRetention;
+    LogRetentionRetryOptions logRetentionRetryOptions;
+    IRole logRetentionRole;
+    Number memorySize;
+    ParamsAndSecretsLayerVersion paramsAndSecrets;
+    Boolean profiling;
+    IProfilingGroup profilingGroup;
+    Number reservedConcurrentExecutions;
+    IRole role;
+    RuntimeManagementMode runtimeManagementMode;
+    List<ISecurityGroup> securityGroups;
+    IVpc vpc;
+    SubnetSelection vpcSubnets;
+    Duration maxEventAge;
+    IDestination onFailure;
+    IDestination onSuccess;
+    Number retryAttempts;
+}
+",
+  ],
+]
+`;
+
+exports[`Java Infrastructure Code Generation Script Unit Tests Generates Functions for inline-body.yaml 1`] = `
+[
+  [
+    "infra/src/main/java/test/test-infra/infra/functions/JavaTestFunction.java",
+    "package test.test-infra.infra.functions;
+
+import org.jetbrains.annotations.NotNull;
+import software.amazon.awscdk.services.lambda.Function;
+import software.aws.pdk.type_safe_api.SnapStartFunction;
+import software.constructs.Construct;
+
+/**
+ * Lambda function construct which points to the java implementation of JavaTest
+ */
+public class JavaTestFunction extends SnapStartFunction {
+    public JavaTestFunction(@NotNull Construct scope, @NotNull String id, @NotNull JavaTestFunctionProps props) {
+        super(scope, id, props);
+    }
+
+    public JavaTestFunction(@NotNull Construct scope, @NotNull String id) {
+        this(scope, id, JavaTestFunctionProps.builder().build());
+    }
+}
+",
+  ],
+  [
+    "infra/src/main/java/test/test-infra/infra/functions/JavaTestFunctionProps.java",
+    "package test.test-infra.infra.functions;
+
+import org.jetbrains.annotations.NotNull;
+import software.amazon.awscdk.Duration;
+import software.amazon.awscdk.Size;
+import software.amazon.awscdk.services.codeguruprofiler.IProfilingGroup;
+import software.amazon.awscdk.services.ec2.ISecurityGroup;
+import software.amazon.awscdk.services.ec2.IVpc;
+import software.amazon.awscdk.services.ec2.SubnetSelection;
+import software.amazon.awscdk.services.iam.IRole;
+import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.kms.IKey;
+import software.amazon.awscdk.services.lambda.AdotInstrumentationConfig;
+import software.amazon.awscdk.services.lambda.Architecture;
+import software.amazon.awscdk.services.lambda.Code;
+import software.amazon.awscdk.services.lambda.FileSystem;
+import software.amazon.awscdk.services.lambda.FunctionProps;
+import software.amazon.awscdk.services.lambda.ICodeSigningConfig;
+import software.amazon.awscdk.services.lambda.IDestination;
+import software.amazon.awscdk.services.lambda.IEventSource;
+import software.amazon.awscdk.services.lambda.ILayerVersion;
+import software.amazon.awscdk.services.lambda.LambdaInsightsVersion;
+import software.amazon.awscdk.services.lambda.LogRetentionRetryOptions;
+import software.amazon.awscdk.services.lambda.ParamsAndSecretsLayerVersion;
+import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.lambda.RuntimeManagementMode;
+import software.amazon.awscdk.services.lambda.Tracing;
+import software.amazon.awscdk.services.lambda.VersionOptions;
+import software.amazon.awscdk.services.logs.RetentionDays;
+import software.amazon.awscdk.services.sns.ITopic;
+import software.amazon.awscdk.services.sqs.IQueue;
+import software.aws.pdk.type_safe_api.SnapStartFunctionProps;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+
+@lombok.Builder @lombok.Getter
+public class JavaTestFunctionProps implements SnapStartFunctionProps {
+    private static String infraProjectAbsolutePath;
+
+    static {
+        try {
+            try (InputStream stream = JavaTestFunctionProps.class.getClassLoader()
+                    .getResourceAsStream("project-absolute-path.txt")) {
+                try (InputStreamReader inputStreamReader = new InputStreamReader(stream)) {
+                    infraProjectAbsolutePath = new BufferedReader(inputStreamReader).lines().findFirst()
+                            .orElseThrow(() -> new RuntimeException("No project-absolute-path.txt resource found"));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Fixed props
+    private final Code code = Code.fromAsset(Paths.get(infraProjectAbsolutePath).resolve(
+        "../java-handlers/dist/java/test/com.aws.pdk.test.handlers/1.0.0/com.aws.pdk.test.handlers-1.0.0.jar"
+    ).toAbsolutePath().toString());
+    private final String handler = "test.test-java-handlers.handlers.JavaTestHandler";
+    private final Runtime runtime = Runtime.JAVA_17;
+
+    // Props with defaults
+    @lombok.Builder.Default
+    Duration timeout = Duration.seconds(30);
+    @lombok.Builder.Default
+    Tracing tracing = Tracing.ACTIVE;
+
+    // Remaining Function Props
+    AdotInstrumentationConfig adotInstrumentation;
+    Boolean allowAllOutbound;
+    Boolean allowPublicSubnet;
+    Architecture architecture;
+    ICodeSigningConfig codeSigningConfig;
+    VersionOptions currentVersionOptions;
+    IQueue deadLetterQueue;
+    Boolean deadLetterQueueEnabled;
+    ITopic deadLetterTopic;
+    String description;
+    Map<String, String> environment;
+    IKey environmentEncryption;
+    Size ephemeralStorageSize;
+    List<IEventSource> events;
+    FileSystem filesystem;
+    String functionName;
+    List<PolicyStatement> initialPolicy;
+    LambdaInsightsVersion insightsVersion;
+    List<ILayerVersion> layers;
+    RetentionDays logRetention;
+    LogRetentionRetryOptions logRetentionRetryOptions;
+    IRole logRetentionRole;
+    Number memorySize;
+    ParamsAndSecretsLayerVersion paramsAndSecrets;
+    Boolean profiling;
+    IProfilingGroup profilingGroup;
+    Number reservedConcurrentExecutions;
+    IRole role;
+    RuntimeManagementMode runtimeManagementMode;
+    List<ISecurityGroup> securityGroups;
+    IVpc vpc;
+    SubnetSelection vpcSubnets;
+    Duration maxEventAge;
+    IDestination onFailure;
+    IDestination onSuccess;
+    Number retryAttempts;
+}
+
+",
+  ],
+  [
+    "infra/src/main/java/test/test-infra/infra/functions/PythonTestFunction.java",
+    "package test.test-infra.infra.functions;
+
+import org.jetbrains.annotations.NotNull;
+import software.amazon.awscdk.services.lambda.Function;
+import software.aws.pdk.type_safe_api.SnapStartFunction;
+import software.constructs.Construct;
+
+/**
+ * Lambda function construct which points to the python implementation of PythonTest
+ */
+public class PythonTestFunction extends Function {
+    public PythonTestFunction(@NotNull Construct scope, @NotNull String id, @NotNull PythonTestFunctionProps props) {
+        super(scope, id, props);
+    }
+
+    public PythonTestFunction(@NotNull Construct scope, @NotNull String id) {
+        this(scope, id, PythonTestFunctionProps.builder().build());
+    }
+}
+",
+  ],
+  [
+    "infra/src/main/java/test/test-infra/infra/functions/PythonTestFunctionProps.java",
+    "package test.test-infra.infra.functions;
+
+import org.jetbrains.annotations.NotNull;
+import software.amazon.awscdk.Duration;
+import software.amazon.awscdk.Size;
+import software.amazon.awscdk.services.codeguruprofiler.IProfilingGroup;
+import software.amazon.awscdk.services.ec2.ISecurityGroup;
+import software.amazon.awscdk.services.ec2.IVpc;
+import software.amazon.awscdk.services.ec2.SubnetSelection;
+import software.amazon.awscdk.services.iam.IRole;
+import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.kms.IKey;
+import software.amazon.awscdk.services.lambda.AdotInstrumentationConfig;
+import software.amazon.awscdk.services.lambda.Architecture;
+import software.amazon.awscdk.services.lambda.Code;
+import software.amazon.awscdk.services.lambda.FileSystem;
+import software.amazon.awscdk.services.lambda.FunctionProps;
+import software.amazon.awscdk.services.lambda.ICodeSigningConfig;
+import software.amazon.awscdk.services.lambda.IDestination;
+import software.amazon.awscdk.services.lambda.IEventSource;
+import software.amazon.awscdk.services.lambda.ILayerVersion;
+import software.amazon.awscdk.services.lambda.LambdaInsightsVersion;
+import software.amazon.awscdk.services.lambda.LogRetentionRetryOptions;
+import software.amazon.awscdk.services.lambda.ParamsAndSecretsLayerVersion;
+import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.lambda.RuntimeManagementMode;
+import software.amazon.awscdk.services.lambda.Tracing;
+import software.amazon.awscdk.services.lambda.VersionOptions;
+import software.amazon.awscdk.services.logs.RetentionDays;
+import software.amazon.awscdk.services.sns.ITopic;
+import software.amazon.awscdk.services.sqs.IQueue;
+import software.aws.pdk.type_safe_api.SnapStartFunctionProps;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+
+@lombok.Builder @lombok.Getter
+public class PythonTestFunctionProps implements FunctionProps {
+    private static String infraProjectAbsolutePath;
+
+    static {
+        try {
+            try (InputStream stream = PythonTestFunctionProps.class.getClassLoader()
+                    .getResourceAsStream("project-absolute-path.txt")) {
+                try (InputStreamReader inputStreamReader = new InputStreamReader(stream)) {
+                    infraProjectAbsolutePath = new BufferedReader(inputStreamReader).lines().findFirst()
+                            .orElseThrow(() -> new RuntimeException("No project-absolute-path.txt resource found"));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Fixed props
+    private final Code code = Code.fromAsset(Paths.get(infraProjectAbsolutePath).resolve(
+        "../python-handlers/dist/lambda"
+    ).toAbsolutePath().toString());
+    private final String handler = "test_python_handlers.python_test.handler";
+    private final Runtime runtime = Runtime.PYTHON_3_11;
+
+    // Props with defaults
+    @lombok.Builder.Default
+    Duration timeout = Duration.seconds(30);
+    @lombok.Builder.Default
+    Tracing tracing = Tracing.ACTIVE;
+
+    // Remaining Function Props
+    AdotInstrumentationConfig adotInstrumentation;
+    Boolean allowAllOutbound;
+    Boolean allowPublicSubnet;
+    Architecture architecture;
+    ICodeSigningConfig codeSigningConfig;
+    VersionOptions currentVersionOptions;
+    IQueue deadLetterQueue;
+    Boolean deadLetterQueueEnabled;
+    ITopic deadLetterTopic;
+    String description;
+    Map<String, String> environment;
+    IKey environmentEncryption;
+    Size ephemeralStorageSize;
+    List<IEventSource> events;
+    FileSystem filesystem;
+    String functionName;
+    List<PolicyStatement> initialPolicy;
+    LambdaInsightsVersion insightsVersion;
+    List<ILayerVersion> layers;
+    RetentionDays logRetention;
+    LogRetentionRetryOptions logRetentionRetryOptions;
+    IRole logRetentionRole;
+    Number memorySize;
+    ParamsAndSecretsLayerVersion paramsAndSecrets;
+    Boolean profiling;
+    IProfilingGroup profilingGroup;
+    Number reservedConcurrentExecutions;
+    IRole role;
+    RuntimeManagementMode runtimeManagementMode;
+    List<ISecurityGroup> securityGroups;
+    IVpc vpc;
+    SubnetSelection vpcSubnets;
+    Duration maxEventAge;
+    IDestination onFailure;
+    IDestination onSuccess;
+    Number retryAttempts;
+}
+
+",
+  ],
+  [
+    "infra/src/main/java/test/test-infra/infra/functions/TypescriptTestFunction.java",
+    "package test.test-infra.infra.functions;
+
+import org.jetbrains.annotations.NotNull;
+import software.amazon.awscdk.services.lambda.Function;
+import software.aws.pdk.type_safe_api.SnapStartFunction;
+import software.constructs.Construct;
+
+/**
+ * Lambda function construct which points to the typescript implementation of TypescriptTest
+ */
+public class TypescriptTestFunction extends Function {
+    public TypescriptTestFunction(@NotNull Construct scope, @NotNull String id, @NotNull TypescriptTestFunctionProps props) {
+        super(scope, id, props);
+    }
+
+    public TypescriptTestFunction(@NotNull Construct scope, @NotNull String id) {
+        this(scope, id, TypescriptTestFunctionProps.builder().build());
+    }
+}
+",
+  ],
+  [
+    "infra/src/main/java/test/test-infra/infra/functions/TypescriptTestFunctionProps.java",
+    "package test.test-infra.infra.functions;
+
+import org.jetbrains.annotations.NotNull;
+import software.amazon.awscdk.Duration;
+import software.amazon.awscdk.Size;
+import software.amazon.awscdk.services.codeguruprofiler.IProfilingGroup;
+import software.amazon.awscdk.services.ec2.ISecurityGroup;
+import software.amazon.awscdk.services.ec2.IVpc;
+import software.amazon.awscdk.services.ec2.SubnetSelection;
+import software.amazon.awscdk.services.iam.IRole;
+import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.kms.IKey;
+import software.amazon.awscdk.services.lambda.AdotInstrumentationConfig;
+import software.amazon.awscdk.services.lambda.Architecture;
+import software.amazon.awscdk.services.lambda.Code;
+import software.amazon.awscdk.services.lambda.FileSystem;
+import software.amazon.awscdk.services.lambda.FunctionProps;
+import software.amazon.awscdk.services.lambda.ICodeSigningConfig;
+import software.amazon.awscdk.services.lambda.IDestination;
+import software.amazon.awscdk.services.lambda.IEventSource;
+import software.amazon.awscdk.services.lambda.ILayerVersion;
+import software.amazon.awscdk.services.lambda.LambdaInsightsVersion;
+import software.amazon.awscdk.services.lambda.LogRetentionRetryOptions;
+import software.amazon.awscdk.services.lambda.ParamsAndSecretsLayerVersion;
+import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.lambda.RuntimeManagementMode;
+import software.amazon.awscdk.services.lambda.Tracing;
+import software.amazon.awscdk.services.lambda.VersionOptions;
+import software.amazon.awscdk.services.logs.RetentionDays;
+import software.amazon.awscdk.services.sns.ITopic;
+import software.amazon.awscdk.services.sqs.IQueue;
+import software.aws.pdk.type_safe_api.SnapStartFunctionProps;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+
+@lombok.Builder @lombok.Getter
+public class TypescriptTestFunctionProps implements FunctionProps {
+    private static String infraProjectAbsolutePath;
+
+    static {
+        try {
+            try (InputStream stream = TypescriptTestFunctionProps.class.getClassLoader()
+                    .getResourceAsStream("project-absolute-path.txt")) {
+                try (InputStreamReader inputStreamReader = new InputStreamReader(stream)) {
+                    infraProjectAbsolutePath = new BufferedReader(inputStreamReader).lines().findFirst()
+                            .orElseThrow(() -> new RuntimeException("No project-absolute-path.txt resource found"));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Fixed props
+    private final Code code = Code.fromAsset(Paths.get(infraProjectAbsolutePath).resolve(
+        "../typescript-handlers/dist/lambda/typescript-test"
     ).toAbsolutePath().toString());
     private final String handler = "index.handler";
     private final Runtime runtime = Runtime.NODEJS_18_X;

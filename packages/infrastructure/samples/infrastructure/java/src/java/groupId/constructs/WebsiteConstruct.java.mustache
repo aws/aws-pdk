@@ -16,9 +16,6 @@ import software.constructs.Construct;
  * Construct to deploy a Static Website
  */
 public class WebsiteConstruct extends Construct {
-    public WebsiteConstruct(Construct scope, String id, UserIdentity userIdentity) {
-        this(scope, id, userIdentity{{^hasApi}}/* {{/hasApi}}, null{{^hasApi}} */{{/hasApi}});
-    }
 
     public WebsiteConstruct(Construct scope, String id, UserIdentity userIdentity{{^hasApi}}/* {{/hasApi}}, ApiConstruct apiConstruct{{^hasApi}} */{{/hasApi}}) {
         super(scope, id);
@@ -31,7 +28,8 @@ public class WebsiteConstruct extends Construct {
                                 "identityPoolId", userIdentity.getIdentityPool().getIdentityPoolId(),
                                 "userPoolId", userIdentity.getUserPool().getUserPoolId(),
                                 "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(){{#hasApi}},{{/hasApi}}
-                                {{^hasApi}}// {{/hasApi}}"apiUrl", apiConstruct.api.getApi().urlForPath())))
+                                {{^hasApi}}// {{/hasApi}}"apiUrl", apiConstruct.api.getApi().urlForPath()
+                                )))
                         .build())
                 .distributionProps(DistributionProps.builder()
                     .geoRestriction(GeoRestriction.allowlist(

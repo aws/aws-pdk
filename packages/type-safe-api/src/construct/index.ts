@@ -5,3 +5,4 @@ export * from "./waf/types";
 export * from "./authorizers";
 export * from "./integrations";
 export * from "./spec";
+export * from "./functions";

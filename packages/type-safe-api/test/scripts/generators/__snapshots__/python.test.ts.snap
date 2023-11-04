@@ -947,7 +947,7 @@ class DefaultApi(object):
   "test_project/api/operation_config.py": "from __future__ import annotations
 import urllib.parse
 import json
-from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal, Annotated
 from functools import wraps
 from dataclasses import dataclass, fields
 from datetime import datetime
@@ -1171,7 +1171,7 @@ class NeitherRequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> NeitherRequestParameters:
@@ -1284,7 +1284,7 @@ class BothRequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> BothRequestParameters:
@@ -1397,7 +1397,7 @@ class Tag1RequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> Tag1RequestParameters:
@@ -1510,7 +1510,7 @@ class Tag2RequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> Tag2RequestParameters:
@@ -4872,11 +4872,11 @@ configuration = test_project.Configuration(
 with test_project.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = test_project.DefaultApi(api_client)
-    param1 = 'param1_example' # str | 
-    param2 = ['param2_example'] # List[str] | 
+    param1 = 'param1_example' # str | This is parameter 1
+    param2 = ['param2_example'] # List[str] | This is parameter 2
     param3 = 3.4 # float | 
     path_param = 'path_param_example' # str | 
-    x_header_param = 'x_header_param_example' # str | 
+    x_header_param = 'x_header_param_example' # str | This is a header parameter
     test_request = test_project.TestRequest() # TestRequest | 
     param4 = 'param4_example' # str |  (optional)
     x_multi_value_header_param = ['x_multi_value_header_param_example'] # List[str] |  (optional)
@@ -4894,11 +4894,11 @@ with test_project.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **param1** | **str**|  | 
- **param2** | [**List[str]**](str.md)|  | 
+ **param1** | **str**| This is parameter 1 | 
+ **param2** | [**List[str]**](str.md)| This is parameter 2 | 
  **param3** | **float**|  | 
  **path_param** | **str**|  | 
- **x_header_param** | **str**|  | 
+ **x_header_param** | **str**| This is a header parameter | 
  **test_request** | [**TestRequest**](TestRequest.md)|  | 
  **param4** | **str**|  | [optional] 
  **x_multi_value_header_param** | [**List[str]**](str.md)|  | [optional] 
@@ -5045,6 +5045,7 @@ map_response_map_property_value_form_dict = map_response_map_property_value.from
 ",
   "docs/TestRequest.md": "# TestRequest
 
+This is a test request
 
 ## Properties
 Name | Type | Description | Notes
@@ -5074,6 +5075,7 @@ test_request_form_dict = test_request.from_dict(test_request_dict)
 ",
   "docs/TestResponse.md": "# TestResponse
 
+This is a test response
 
 ## Properties
 Name | Type | Description | Notes
@@ -5107,7 +5109,7 @@ test_response_form_dict = test_response.from_dict(test_response_dict)
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message** | **str** |  | [optional] 
+**message** | **str** | This is a message | [optional] 
 **id** | **int** |  | 
 
 ## Example
@@ -5212,7 +5214,7 @@ import warnings
 from pydantic import validate_arguments, ValidationError
 from typing_extensions import Annotated
 
-from pydantic import StrictBytes, StrictFloat, StrictInt, StrictStr, conlist
+from pydantic import Field, StrictBytes, StrictFloat, StrictInt, StrictStr, conlist
 
 from typing import Any, Optional, Union
 
@@ -5930,7 +5932,7 @@ class DefaultApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def operation_one(self, param1 : StrictStr, param2 : conlist(StrictStr), param3 : Union[StrictFloat, StrictInt], path_param : StrictStr, x_header_param : StrictStr, test_request : TestRequest, param4 : Optional[StrictStr] = None, x_multi_value_header_param : Optional[conlist(StrictStr)] = None, **kwargs) -> TestResponse:  # noqa: E501
+    def operation_one(self, param1 : Annotated[StrictStr, Field(..., description="This is parameter 1")], param2 : Annotated[conlist(StrictStr), Field(..., description="This is parameter 2")], param3 : Union[StrictFloat, StrictInt], path_param : StrictStr, x_header_param : Annotated[StrictStr, Field(..., description="This is a header parameter")], test_request : TestRequest, param4 : Optional[StrictStr] = None, x_multi_value_header_param : Optional[conlist(StrictStr)] = None, **kwargs) -> TestResponse:  # noqa: E501
         """operation_one  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
@@ -5939,15 +5941,15 @@ class DefaultApi(object):
         >>> thread = api.operation_one(param1, param2, param3, path_param, x_header_param, test_request, param4, x_multi_value_header_param, async_req=True)
         >>> result = thread.get()
 
-        :param param1: (required)
+        :param param1: This is parameter 1 (required)
         :type param1: str
-        :param param2: (required)
+        :param param2: This is parameter 2 (required)
         :type param2: List[str]
         :param param3: (required)
         :type param3: float
         :param path_param: (required)
         :type path_param: str
-        :param x_header_param: (required)
+        :param x_header_param: This is a header parameter (required)
         :type x_header_param: str
         :param test_request: (required)
         :type test_request: TestRequest
@@ -5972,7 +5974,7 @@ class DefaultApi(object):
         return self.operation_one_with_http_info(param1, param2, param3, path_param, x_header_param, test_request, param4, x_multi_value_header_param, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def operation_one_with_http_info(self, param1 : StrictStr, param2 : conlist(StrictStr), param3 : Union[StrictFloat, StrictInt], path_param : StrictStr, x_header_param : StrictStr, test_request : TestRequest, param4 : Optional[StrictStr] = None, x_multi_value_header_param : Optional[conlist(StrictStr)] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def operation_one_with_http_info(self, param1 : Annotated[StrictStr, Field(..., description="This is parameter 1")], param2 : Annotated[conlist(StrictStr), Field(..., description="This is parameter 2")], param3 : Union[StrictFloat, StrictInt], path_param : StrictStr, x_header_param : Annotated[StrictStr, Field(..., description="This is a header parameter")], test_request : TestRequest, param4 : Optional[StrictStr] = None, x_multi_value_header_param : Optional[conlist(StrictStr)] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """operation_one  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
@@ -5981,15 +5983,15 @@ class DefaultApi(object):
         >>> thread = api.operation_one_with_http_info(param1, param2, param3, path_param, x_header_param, test_request, param4, x_multi_value_header_param, async_req=True)
         >>> result = thread.get()
 
-        :param param1: (required)
+        :param param1: This is parameter 1 (required)
         :type param1: str
-        :param param2: (required)
+        :param param2: This is parameter 2 (required)
         :type param2: List[str]
         :param param3: (required)
         :type param3: float
         :param path_param: (required)
         :type path_param: str
-        :param x_header_param: (required)
+        :param x_header_param: This is a header parameter (required)
         :type x_header_param: str
         :param test_request: (required)
         :type test_request: TestRequest
@@ -6264,7 +6266,7 @@ class DefaultApi(object):
   "test_project/api/operation_config.py": "from __future__ import annotations
 import urllib.parse
 import json
-from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal, Annotated
 from functools import wraps
 from dataclasses import dataclass, fields
 from datetime import datetime
@@ -6506,7 +6508,7 @@ class AnyRequestResponseRequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> AnyRequestResponseRequestParameters:
@@ -6620,7 +6622,7 @@ class EmptyRequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> EmptyRequestParameters:
@@ -6733,7 +6735,7 @@ class MapResponseRequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> MapResponseRequestParameters:
@@ -6846,7 +6848,7 @@ class MediaTypesRequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> MediaTypesRequestParameters:
@@ -6960,7 +6962,7 @@ class MultipleContentTypesRequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> MultipleContentTypesRequestParameters:
@@ -7060,13 +7062,13 @@ class OperationOneRequestParameters(BaseModel):
     """
     Query, path and header parameters for the OperationOne operation
     """
-    param1: StrictStr = Field(alias='param1')
-    param2: conlist(StrictStr) = Field(alias='param2')
-    param3: Union[StrictFloat, StrictInt] = Field(alias='param3')
-    path_param: StrictStr = Field(alias='pathParam')
-    x_header_param: StrictStr = Field(alias='x-header-param')
-    param4: Optional[StrictStr] = Field(alias='param4', default=None)
-    x_multi_value_header_param: Optional[conlist(StrictStr)] = Field(alias='x-multi-value-header-param', default=None)
+    param1: Annotated[StrictStr, Field(..., description="This is parameter 1")]
+    param2: Annotated[conlist(StrictStr), Field(..., description="This is parameter 2")]
+    param3: Union[StrictFloat, StrictInt]
+    path_param: StrictStr
+    x_header_param: Annotated[StrictStr, Field(..., description="This is a header parameter")]
+    param4: Optional[StrictStr]
+    x_multi_value_header_param: Optional[conlist(StrictStr)]
 
     class Config:
         """Pydantic configuration"""
@@ -7081,7 +7083,7 @@ class OperationOneRequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> OperationOneRequestParameters:
@@ -7207,7 +7209,7 @@ class WithoutOperationIdDeleteRequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> WithoutOperationIdDeleteRequestParameters:
@@ -9170,7 +9172,7 @@ from pydantic import BaseModel, Field, StrictFloat, StrictInt
 
 class TestRequest(BaseModel):
     """
-    TestRequest
+    This is a test request
     """
     my_input: Optional[Union[StrictFloat, StrictInt]] = Field(None, alias="myInput")
     __properties = ["myInput"]
@@ -9242,7 +9244,7 @@ from test_project.models.test_response_messages_inner import TestResponseMessage
 
 class TestResponse(BaseModel):
     """
-    TestResponse
+    This is a test response
     """
     messages: conlist(TestResponseMessagesInner) = Field(...)
     __properties = ["messages"]
@@ -9322,7 +9324,7 @@ class TestResponseMessagesInner(BaseModel):
     """
     TestResponseMessagesInner
     """
-    message: Optional[StrictStr] = None
+    message: Optional[StrictStr] = Field(None, description="This is a message")
     id: StrictInt = Field(...)
     __properties = ["message", "id"]
 

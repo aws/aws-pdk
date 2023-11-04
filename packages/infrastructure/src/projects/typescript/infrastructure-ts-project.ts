@@ -10,12 +10,21 @@ import { SampleFile } from "projen";
 import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
 import { NodeProject } from "projen/lib/javascript";
 import { AwsCdkTypeScriptAppOptions } from "./aws-cdk-ts-app-options";
+import { InfrastructureCommands } from "../../components/infrastructure-commands";
+import { DEFAULT_STACK_NAME } from "../../consts";
 
 /**
  * Configuration options for the InfrastructureTsProject.
  */
 export interface InfrastructureTsProjectOptions
   extends AwsCdkTypeScriptAppOptions {
+  /**
+   * Stack name.
+   *
+   * @default infra-dev
+   */
+  readonly stackName?: string;
+
   /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
    */
@@ -58,6 +67,8 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
       },
     });
 
+    InfrastructureCommands.ensure(this);
+
     this.addDeps("@aws/pdk");
 
     const srcDir = path.resolve(
@@ -91,6 +102,7 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
     const mustacheConfig = {
       hasApi,
       hasWebsite,
+      stackName: options.stackName || DEFAULT_STACK_NAME,
       infraPackage:
         options.typeSafeApi?.infrastructure.typescript?.package.packageName,
       websiteDistRelativePath:
@@ -119,13 +131,14 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
   ) {
     fs.readdirSync(dir, { withFileTypes: true })
       .filter((f) => {
+        let shouldIncludeFile = true;
         if (!mustacheConfig.hasApi) {
-          return !f.name.endsWith("api.ts.mustache");
-        } else if (!mustacheConfig.hasWebsite) {
-          return !f.name.endsWith("website.ts.mustache");
-        } else {
-          return true;
+          shouldIncludeFile &&= !f.name.endsWith("api.ts.mustache");
         }
+        if (!mustacheConfig.hasWebsite) {
+          shouldIncludeFile &&= !f.name.endsWith("website.ts.mustache");
+        }
+        return shouldIncludeFile;
       })
       .forEach((f) =>
         f.isDirectory()

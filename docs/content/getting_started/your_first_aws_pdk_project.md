@@ -26,72 +26,7 @@ We'll also show how to add a new API operation, implement an API handler, and wi
 
 ## Prerequisites
 
-The following subsections outline what you need to install and use the AWS PDK.
-
-### Node runtime
-
-All AWS PDK developers, even those working in Python or Java, need Node.js 16 or later. All supported languages use the same backend, which runs on Node.js. We recommend a version in active long-term support. Your organization may have a different recommendation.
-
-!!!tip
-    We recommend installing [`nvm`](https://github.com/nvm-sh/nvm#installing-and-updating) and configuring it to use Node 18.
-
-### PDK CLI
-
-Once your NodeJs ruuntime is set up, run the following command to install the pdk CLI:
-
-```bash
-npm install -g @aws/pdk
-```
-
-Run the following command to verify correct installation and print the version number of the AWS PDK.
-
-`pdk --version`
-
-!!!warning
-    The `pdk` command is a wrapper command which delegates to either a package manager or a projen command depending on the context. As such it may be possible that certain arguments may not operate as expected.
-
-### Git
-
-[Git](https://git-scm.com/) is also required to be installed and configured when bootstrapping new applications unless the `--no-git` flag is specified when executing the `pdk new` command.
-
-Ensure to configure a username and email via the below commands once installed:
-
-```bash
-git config --global user.email "username@domain.com"
-git config --global user.name "username"
-```
-
-### Language specific
-
-Other prerequisites depend on the language in which you develop AWS PDK projects and are as follows.
-
-=== "TYPESCRIPT"
-    - `Node >= 16`
-    - `PNPM >= 8.6.3` [if using `--package-manager=pnpm` flag to bootstrap]
-
-=== "PYTHON"
-    - `Python >= 3.9`
-    - `Poetry >= 1.5.1`
-
-=== "JAVA"
-    - `JDK >= 11`
-    - `Apache Maven >= 3.8`
-
-### Install the AWS CDK
-
-You will need to install the AWS CDK in order to bootstrap and deploy your infrastructure to AWS. To install, run the following command:
-
-`npm install -g aws-cdk`
-
-Run the following command to verify correct installation and print the version number of the AWS CDK.
-
-`cdk --version`
-
-### Authentication with AWS
-
-You must establish how the AWS CDK authenticates with AWS when deploying infrastructure. There are different ways in which you can configure programmatic access to AWS resources, depending on the environment and the AWS access available to you.
-
-For an in depth guide, please refer to: https://docs.aws.amazon.com/sdkref/latest/guide/access.html
+Refer to [prerequisites](./index.md#prerequisites).
 
 ## Create your project
 
@@ -151,7 +86,7 @@ Inspecting the `projenrc` file, we notice that a single construct is instantiate
     - Any parameter listed here can be passed in via the `pdk new` command i.e: `--name="some-other-name"`.
 - For python, the moduleName defaults to a snake-cased project name.
 
-You will also notice that the `synth()` method is called on this instance at the end of the file. When you run the `pdk` command, this file will be executed by your runtime and will synthesize this instance which will result in all the files that you see in the previous image. 
+You will also notice that the `synth()` method is called on this instance at the end of the file. When you run the `pdk` command, this file will be executed by your runtime and will synthesize this instance which will result in all the files that you see in the previous image.
 
 !!!info
     Whenever you change the `projenrc` file, make sure you run the `pdk` command from the root of your project to ensure your files are synthesized.
@@ -358,7 +293,7 @@ For more details on these packages, refer to the [Type-Safe API Developer Guide]
 Now, lets build our API by running `pdk build` from the root of our monorepo. You will notice that each package in the monorepo is built in dependency order.
 
 !!!tip
-    If you run the `pdk build` command again without changing any files, you will notice that the build completes in a fraction of the time (1.7s as per below snippet) as it uses [cached results](https://nx.dev/concepts/how-caching-works) and will only re-build packages that have changed since the last time it was built.  
+    If you run the `pdk build` command again without changing any files, you will notice that the build completes in a fraction of the time (1.7s as per below snippet) as it uses [cached results](https://nx.dev/concepts/how-caching-works) and will only re-build packages that have changed since the last time it was built.
 
     ```bash
     >  NX   Successfully ran target build for 7 projects
@@ -803,8 +738,11 @@ We now can deploy our infrastructure by running the following command:
 
 ```bash
 cd packages/infra
-pdk run deploy --require-approval never
+pdk deploy:dev
 ```
+
+!!!note
+    The `pdk deploy:dev` command attempts a [CDK hotswap deployment](https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/) if possible. In a production setting (for example in a ci/cd pipeline) use the `pdk deploy` command to ensure a full CloudFormation deployment is performed.
 
 Once the deployment completes, you should see an output that resembles the following:
 
@@ -821,7 +759,7 @@ In order to log in to your website, you first need to create a Cognito user. By 
 1. Navigate to the Cognito AWS console within the account you just deployed to.
 1. Click on the user pool you just created
 1. Click "Create user"
-1. In invitation settings, select "Send an email invitation" 
+1. In invitation settings, select "Send an email invitation"
 1. Enter a username
 1. Enter an email address
 1. In temporary password, select "Generate a password"

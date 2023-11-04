@@ -1024,6 +1024,11 @@ public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGate
     public abstract {{operationIdCamelCase}}Response handle(final {{operationIdCamelCase}}RequestInput request);
 
     /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<{{operationIdCamelCase}}Input>> annotationInterceptors = Handlers.getAnnotationInterceptors({{operationIdCamelCase}}.class);
+
+    /**
      * For more complex interceptors that require instantiation with parameters, you may override this method to
      * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
      * prefer the @Interceptors annotation.
@@ -1055,9 +1060,6 @@ public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGate
 
         List<Interceptor<{{operationIdCamelCase}}Input>> interceptors = new ArrayList<>();
         interceptors.addAll(additionalInterceptors);
-
-        List<Interceptor<{{operationIdCamelCase}}Input>> annotationInterceptors = Handlers.getAnnotationInterceptors(this.getClass());
-
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
 

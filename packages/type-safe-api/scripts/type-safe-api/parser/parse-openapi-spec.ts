@@ -3,24 +3,42 @@ SPDX-License-Identifier: Apache-2.0 */
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { writeFile } from "projen/lib/util";
 import { parse } from "ts-command-line-args";
-import * as path from 'path';
 import * as _ from "lodash";
 import fs from "fs";
-import type { OpenAPIV3 } from "openapi-types";
 
 // Smithy HTTP trait is used to map Smithy operations to their location in the spec
 const SMITHY_HTTP_TRAIT_ID = "smithy.api#http";
 
+// The OpenAPI vendor extension used for paginated operations
+const PAGINATED_VENDOR_EXTENSION = "x-paginated";
+
+// Traits that will "rename" members in the generated OpenAPI spec
+const SMITHY_RENAME_TRAITS = [
+  "smithy.api#httpQuery",
+  "smithy.api#httpHeader",
+];
+
 // Maps traits to specific vendor extensions which we also support specifying in OpenAPI
 const TRAIT_TO_SUPPORTED_OPENAPI_VENDOR_EXTENSION: { [key: string]: string } = {
-  "smithy.api#paginated": "x-paginated",
+  "smithy.api#paginated": PAGINATED_VENDOR_EXTENSION,
 };
+
+interface SmithyMember {
+  readonly target: string;
+  readonly traits?: { [key: string]: any };
+}
+
+interface SmithyOperationInput {
+  readonly type: string;
+  readonly members?: { [key: string]: SmithyMember }
+}
 
 interface SmithyOperationDetails {
   readonly id: string;
   readonly method: string;
   readonly path: string;
   readonly traits: { [key: string]: any };
+  readonly input?: SmithyOperationInput;
 }
 
 interface InvalidRequestParameter {
@@ -80,6 +98,7 @@ void (async () => {
         method: shape.traits[SMITHY_HTTP_TRAIT_ID].method?.toLowerCase(),
         path: shape.traits[SMITHY_HTTP_TRAIT_ID].uri,
         traits: shape.traits,
+        input: smithyModel.shapes[shape.input?.target],
       }));
 
     // Apply all operation-level traits as vendor extensions to the relevant operation in the spec
@@ -96,7 +115,20 @@ void (async () => {
           if (traitId.endsWith("#handler")) {
             vendorExtension = "x-handler";
           }
-          spec.paths[operation.path][operation.method][vendorExtension] = value;
+
+          let extensionValue = value;
+
+          // The smithy paginated trait is written in terms of inputs which may have different names in openapi
+          // so we must map them here
+          if (vendorExtension === PAGINATED_VENDOR_EXTENSION) {
+            extensionValue = Object.fromEntries(Object.entries(value as {[key: string]: string}).map(([traitProperty, memberName]) => {
+              const member = operation.input?.members?.[memberName];
+              const renamedMemberName = SMITHY_RENAME_TRAITS.map(trait => member?.traits?.[trait]).find(x => x) ?? memberName;
+              return [traitProperty, renamedMemberName];
+            }));
+          }
+
+          spec.paths[operation.path][operation.method][vendorExtension] = extensionValue;
         });
       }
     });

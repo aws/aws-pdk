@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import { PDKNag } from "@aws/pdk-nag";
-import { Size, Stack } from "aws-cdk-lib";
+import { App, Size, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { ApiKeySourceType, Cors } from "aws-cdk-lib/aws-apigateway";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
@@ -1275,6 +1275,69 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       });
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
       snapshotExtendedSpec(api);
+    });
+  });
+
+  it("Should allow for lambdas in different regions", () => {
+    const app = new App();
+    const usStack = new Stack(app, "USStack", {
+      env: {
+        region: "us-east-1",
+      },
+    });
+    const auStack = new Stack(app, "AUStack", {
+      env: {
+        region: "ap-southeast-2",
+      },
+    });
+    const func = Function.fromFunctionName(usStack, "Func", "Test");
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(auStack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func),
+          },
+        },
+      });
+
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("Should not create any lambdas with names longer than 64 characters", () => {
+    const stack = new Stack(undefined, "Id", {
+      stackName: [...new Array(100).keys()]
+        .map(() => `Long`)
+        .join("")
+        .slice(0, 128),
+    });
+
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    withTempSpec(sampleSpec, (specPath) => {
+      new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func),
+          },
+        },
+      });
+    });
+
+    const functionNames = Object.values(
+      Template.fromStack(stack).findResources("AWS::Lambda::Function")
+    )
+      .map((r) => r.Properties.FunctionName)
+      .filter((x) => x);
+    functionNames.forEach((functionName) => {
+      expect(functionName.length).toBeLessThanOrEqual(64);
     });
   });
 });

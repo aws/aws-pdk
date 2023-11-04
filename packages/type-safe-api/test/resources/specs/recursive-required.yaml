@@ -1,0 +1,30 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Recursive schema with required children
+paths:
+  /tree:
+    get:
+      operationId: getTree
+      responses:
+        '200':
+          description: Ok
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/Node'
+components:
+  schemas:
+    Node:
+      type: object
+      properties:
+        next:
+          $ref: '#/components/schemas/Node'
+        number:
+          type: number
+          minimum: 0
+          maximum: 10
+      required:
+        - next
+        - number
+

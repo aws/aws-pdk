@@ -9,11 +9,20 @@ import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkPythonApp } from "projen/lib/awscdk";
 import { AwsCdkPythonAppOptions } from "./aws-cdk-py-app-options";
+import { InfrastructureCommands } from "../../components/infrastructure-commands";
+import { DEFAULT_STACK_NAME } from "../../consts";
 
 /**
  * Configuration options for the InfrastructurePyProject.
  */
 export interface InfrastructurePyProjectOptions extends AwsCdkPythonAppOptions {
+  /**
+   * Stack name.
+   *
+   * @default infra-dev
+   */
+  readonly stackName?: string;
+
   /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
    */
@@ -58,6 +67,8 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
       },
     });
 
+    InfrastructureCommands.ensure(this);
+
     ["pytest@^7", "syrupy@^4"].forEach((devDep) =>
       this.addDevDependency(devDep)
     );
@@ -96,6 +107,7 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
     const mustacheConfig = {
       hasApi,
       hasWebsite,
+      stackName: options.stackName || DEFAULT_STACK_NAME,
       infraPackage: options.typeSafeApi?.infrastructure.python?.moduleName,
       moduleName,
       websiteDistRelativePath:
@@ -121,13 +133,14 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
   ) {
     fs.readdirSync(dir, { withFileTypes: true })
       .filter((f) => {
+        let shouldIncludeFile = true;
         if (!mustacheConfig.hasApi) {
-          return !f.name.endsWith("api.ts.mustache");
-        } else if (!mustacheConfig.hasWebsite) {
-          return !f.name.endsWith("website.ts.mustache");
-        } else {
-          return true;
+          shouldIncludeFile &&= !f.name.endsWith("api.py.mustache");
         }
+        if (!mustacheConfig.hasWebsite) {
+          shouldIncludeFile &&= !f.name.endsWith("website.py.mustache");
+        }
+        return shouldIncludeFile;
       })
       .forEach((f) => {
         if (f.isDirectory()) {

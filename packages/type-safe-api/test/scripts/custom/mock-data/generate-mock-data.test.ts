@@ -18,4 +18,43 @@ describe("Generate Mock Data Unit Tests", () => {
       })
     ).toMatchSnapshot();
   });
+
+  it("Generates Mock Data For Recursive Definitions", () => {
+    expect(
+      withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
+        const specPath = "../../../resources/specs/recursive.yaml";
+        const outputPath = path.relative(path.resolve(__dirname), tmpDir);
+        const command = `../../../../scripts/type-safe-api/custom/mock-data/generate-mock-data --spec-path ${specPath} --output-path ${outputPath}`;
+        exec(command, {
+          cwd: path.resolve(__dirname),
+        });
+      })
+    ).toMatchSnapshot();
+  });
+
+  it("Generates Mock Data For Recursive Definitions With Required Recursive Reference", () => {
+    expect(
+      withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
+        const specPath = "../../../resources/specs/recursive-required.yaml";
+        const outputPath = path.relative(path.resolve(__dirname), tmpDir);
+        const command = `../../../../scripts/type-safe-api/custom/mock-data/generate-mock-data --spec-path ${specPath} --output-path ${outputPath}`;
+        exec(command, {
+          cwd: path.resolve(__dirname),
+        });
+      })
+    ).toMatchSnapshot();
+  });
+
+  it("Generates Mock Data For Many Data Types", () => {
+    expect(
+      withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
+        const specPath = "../../../resources/specs/data-types.yaml";
+        const outputPath = path.relative(path.resolve(__dirname), tmpDir);
+        const command = `../../../../scripts/type-safe-api/custom/mock-data/generate-mock-data --spec-path ${specPath} --output-path ${outputPath}`;
+        exec(command, {
+          cwd: path.resolve(__dirname),
+        });
+      })
+    ).toMatchSnapshot();
+  });
 });

@@ -30,7 +30,8 @@ install_packages() {
     ts-node@10.9.1 \
     ts-command-line-args@2.4.2 \
     @redocly/cli@1.0.0-beta.126 \
-    @7nohe/openapi-mock-json-generator@0.1.1 \
+    reregexp@1.6.1 \
+    @faker-js/faker@8.1.0 \
     @openapitools/openapi-generator-cli@2.6.0 \
     lodash@4.17.21 \
     @types/lodash@4.14.197 \

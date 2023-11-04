@@ -94,6 +94,7 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
           },
         ],
         outputs: [
+          "{projectRoot}/node_modules/sharp/package.json",
           "{projectRoot}/node_modules/sharp/build",
           "{projectRoot}/node_modules/sharp/vendor",
         ],

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import urllib.parse
 import json
-from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal, Annotated
 from functools import wraps
 from dataclasses import dataclass, fields
 from datetime import datetime
@@ -215,7 +215,7 @@ class {{operationIdCamelCase}}RequestParameters(BaseModel):
     """
     {{#allParams}}
     {{^isBodyParam}}
-    {{paramName}}: {{vendorExtensions.x-py-typing}} = Field(alias='{{baseName}}'{{^required}}, default=None{{/required}})
+    {{paramName}}: {{{vendorExtensions.x-py-typing}}}
     {{/isBodyParam}}
     {{/allParams}}
 
@@ -232,7 +232,7 @@ class {{operationIdCamelCase}}RequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(by_alias=True, exclude={}, exclude_none=True)
+        return self.dict(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> {{operationIdCamelCase}}RequestParameters:

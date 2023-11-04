@@ -35,6 +35,10 @@ export class TypeSafeApiProject extends PDKProject {
         "projen",
         "@aws-sdk/client-s3",
         `${PDK_NAMESPACE}monorepo@^0.x`,
+        "@apidevtools/swagger-parser@10.1.0", // Used by scripts
+        "ts-command-line-args@2.4.2", // Used by scripts
+        "@faker-js/faker@8.1.0", // Used by scripts
+        "reregexp@1.6.1", // Used by scripts
       ],
       deps: [
         `${PDK_NAMESPACE}pdk-nag@^0.x`,

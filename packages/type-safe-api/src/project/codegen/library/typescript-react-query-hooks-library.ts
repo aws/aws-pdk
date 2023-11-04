@@ -90,7 +90,7 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
     }
 
     // Add dependencies on react-query and react
-    this.addDeps("@tanstack/react-query");
+    this.addDeps("@tanstack/react-query@^4"); // Pin at 4 for now - requires generated code updates to upgrade to 5
     this.addDevDeps("react", "@types/react");
     this.addPeerDeps("react");
 
@@ -135,22 +135,16 @@ export class TypescriptReactQueryHooksLibrary extends TypeScriptProject {
     // resolved
     if (!options.isWithinMonorepo) {
       switch (this.package.packageManager) {
-        case NodePackageManager.NPM:
-        case NodePackageManager.YARN:
-        case NodePackageManager.YARN2:
+        case NodePackageManager.PNPM:
+          // Nothing to do for pnpm, since the pnpm link command handles both the dependant and dependee
+          break;
+        default:
           this.tasks
             .tryFind("install")
             ?.exec(
               NodePackageUtils.command.cmd(this.package.packageManager, "link")
             );
           break;
-        case NodePackageManager.PNPM:
-          // Nothing to do for pnpm, since the pnpm link command handles both the dependant and dependee
-          break;
-        default:
-          console.warn(
-            `Unknown package manager ${this.package.packageManager}. Cannot link generated typescript runtime project.`
-          );
       }
     }
   }

@@ -9,6 +9,7 @@
 }
 ###/TSAPI_WRITE_FILE###import { Construct } from "constructs";
 import { Duration } from "aws-cdk-lib";
+import { SnapStartFunction, SnapStartFunctionProps } from "@aws/pdk/type-safe-api";
 import { Code, Function, Runtime, Tracing, FunctionProps } from "aws-cdk-lib/aws-lambda";
 import * as path from "path";
 {{#apiInfo ~}}
@@ -20,12 +21,12 @@ import * as path from "path";
 /**
  * Options for the {{operationIdCamelCase}}Function construct
  */
-export interface {{operationIdCamelCase}}FunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+export interface {{operationIdCamelCase}}FunctionProps extends Omit<{{#startsWith vendorExtensions.x-handler.language 'java' ~}}SnapStart{{~/startsWith}}FunctionProps, 'code' | 'handler' | 'runtime'> {}
 
 /**
  * Lambda function construct which points to the {{vendorExtensions.x-handler.language}} implementation of {{operationIdCamelCase}}
  */
-export class {{operationIdCamelCase}}Function extends Function {
+export class {{operationIdCamelCase}}Function extends {{#startsWith vendorExtensions.x-handler.language 'java' ~}}SnapStart{{~/startsWith}}Function {
   constructor(scope: Construct, id: string, props?: {{operationIdCamelCase}}FunctionProps) {
     super(scope, id, {
       {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
@@ -45,7 +46,7 @@ export class {{operationIdCamelCase}}Function extends Function {
       code: Code.fromAsset(path.resolve(__dirname, "..",
         {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
         "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-typescript-asset-path}}{{/apis.0}}{{/apiInfo}}",
-        "###TSAPI_FN###{ "function": "kebabCase", "args": ["{{operationIdCamelCase}}"] }###/TSAPI_FN###",
+        "###TSAPI_FN###{ "function": "kebabCase", "args": ["{{nickname}}"] }###/TSAPI_FN###",
         {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'python' ~}}
         "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-python-asset-path}}{{/apis.0}}{{/apiInfo}}",
         {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'java' ~}}

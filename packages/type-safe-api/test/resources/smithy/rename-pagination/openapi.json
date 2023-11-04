@@ -1,0 +1,165 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+      "title": "MyService",
+      "version": "1.0",
+      "description": "A sample smithy api"
+  },
+  "paths": {
+      "/hello": {
+          "get": {
+              "operationId": "SayHello",
+              "parameters": [
+                  {
+                      "name": "name",
+                      "in": "query",
+                      "schema": {
+                          "type": "string"
+                      },
+                      "required": true
+                  },
+                  {
+                      "name": "myInToken",
+                      "in": "query",
+                      "schema": {
+                          "type": "string"
+                      }
+                  },
+                  {
+                      "name": "x-page-size",
+                      "in": "header",
+                      "schema": {
+                          "type": "integer",
+                          "format": "int32"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "SayHello 200 response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/SayHelloResponseContent"
+                              }
+                          }
+                      }
+                  },
+                  "400": {
+                      "description": "BadRequestError 400 response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/BadRequestErrorResponseContent"
+                              }
+                          }
+                      }
+                  },
+                  "403": {
+                      "description": "NotAuthorizedError 403 response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/NotAuthorizedErrorResponseContent"
+                              }
+                          }
+                      }
+                  },
+                  "404": {
+                      "description": "NotFoundError 404 response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/NotFoundErrorResponseContent"
+                              }
+                          }
+                      }
+                  },
+                  "500": {
+                      "description": "InternalFailureError 500 response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/InternalFailureErrorResponseContent"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      }
+  },
+  "components": {
+      "schemas": {
+          "BadRequestErrorResponseContent": {
+              "type": "object",
+              "description": "An error at the fault of the client sending invalid input",
+              "properties": {
+                  "message": {
+                      "type": "string",
+                      "description": "Message with details about the error"
+                  }
+              },
+              "required": [
+                  "message"
+              ]
+          },
+          "InternalFailureErrorResponseContent": {
+              "type": "object",
+              "description": "An internal failure at the fault of the server",
+              "properties": {
+                  "message": {
+                      "type": "string",
+                      "description": "Message with details about the error"
+                  }
+              },
+              "required": [
+                  "message"
+              ]
+          },
+          "NotAuthorizedErrorResponseContent": {
+              "type": "object",
+              "description": "An error due to the client not being authorized to access the resource",
+              "properties": {
+                  "message": {
+                      "type": "string",
+                      "description": "Message with details about the error"
+                  }
+              },
+              "required": [
+                  "message"
+              ]
+          },
+          "NotFoundErrorResponseContent": {
+              "type": "object",
+              "description": "An error due to the client attempting to access a missing resource",
+              "properties": {
+                  "message": {
+                      "type": "string",
+                      "description": "Message with details about the error"
+                  }
+              },
+              "required": [
+                  "message"
+              ]
+          },
+          "SayHelloResponseContent": {
+              "type": "object",
+              "properties": {
+                  "messages": {
+                      "type": "array",
+                      "items": {
+                          "type": "string"
+                      }
+                  },
+                  "outToken": {
+                      "type": "string"
+                  }
+              },
+              "required": [
+                  "messages"
+              ]
+          }
+      }
+  }
+}

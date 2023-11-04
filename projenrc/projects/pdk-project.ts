@@ -139,8 +139,8 @@ export class PdkProject extends PDKProject {
     );
     jsiiProjects?.forEach((subProject) => {
       this.copyProjectSource(subProject);
-      this.addProjectDeps(subProject);
     });
+    this.addProjectDeps((jsiiProjects || []).flatMap((p) => p.deps.all));
     this.emitIndexFile(jsiiProjects);
   }
 
@@ -201,14 +201,21 @@ export class PdkProject extends PDKProject {
     );
   }
 
-  private addProjectDeps(project: JsiiProject) {
-    project.deps.all
+  private addProjectDeps(deps: Dependency[]) {
+    const bundledDeps = new Set(
+      deps
+        .filter((dep) => dep.type === DependencyType.BUNDLED)
+        .map((dep) => dep.name)
+    );
+
+    deps
       .filter((dep) => !dep.name.startsWith(PDK_NAMESPACE))
       .forEach((dep) => {
         switch (dep.type) {
           case DependencyType.BUILD:
           case DependencyType.TEST:
-            this.addDevDeps(this.renderDependency(dep));
+            !bundledDeps.has(dep.name) &&
+              this.addDevDeps(this.renderDependency(dep));
             break;
           case DependencyType.BUNDLED:
             this.addBundledDeps(this.renderDependency(dep));
