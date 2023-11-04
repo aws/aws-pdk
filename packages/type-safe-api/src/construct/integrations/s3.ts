@@ -23,10 +23,10 @@ export interface S3IntegrationProps {
   readonly role?: IRole;
 
   /**
-   * The path override for the integration
+   * The path override to use when invoking the S3 bucket
    * @default - integration path is used
    */
-  readonly pathOverride?: string;
+  readonly path?: string;
 }
 
 /**
@@ -36,7 +36,7 @@ export interface S3IntegrationProps {
 export class S3Integration extends Integration {
   private readonly bucket: IBucket;
   private readonly role: IRole;
-  private readonly pathOverride?: string;
+  private readonly path?: string;
 
   constructor(props: S3IntegrationProps) {
     super();
@@ -51,8 +51,8 @@ export class S3Integration extends Integration {
       });
     }
 
-    this.bucket.grantReadWrite(this.role, this.pathOverride ?? "*");
-    this.pathOverride = props.pathOverride;
+    this.bucket.grantReadWrite(this.role, this.path ?? "*");
+    this.path = props.path;
   }
 
   /**
@@ -62,7 +62,7 @@ export class S3Integration extends Integration {
     return {
       type: "AWS",
       httpMethod: props.method.toUpperCase(),
-      uri: bucketInvocationUri(this.bucket, this.pathOverride ?? props.path),
+      uri: bucketInvocationUri(this.bucket, this.path ?? props.path),
       credentials: this.role.roleArn,
       responses: {
         default: {
