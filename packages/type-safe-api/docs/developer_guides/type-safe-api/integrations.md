@@ -47,6 +47,31 @@ When you instantiate your generated `Api` construct, you will need to provide an
 
 For integrating an API operation with a lambda, use `Integrations.lambda(yourLambdaFunction)`.
 
+## S3 integration
+
+For integrating an API operation with an S3 bucket, use `Integrations.s3(s3IntegrationProps)`.
+
+With:
+
+```ts
+s3IntegrationProps = {
+    bucket: yourS3Bucket,
+
+    // Optional props
+
+    // A role to grant access to the S3 bucket to API Gateway, a role with required access is created by default
+    role: yourS3BucketRole
+
+    // The method to use to interact with the S3 bucket, default to integration method
+    method: 'get'
+
+    // The path to use to interact with the S3 bucket, default to integration path
+    path: 'example.json'
+}
+```
+
+For more information, refer to the [Tutorial: Create a REST API as an Amazon S3 proxy in API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/integrating-api-with-aws-services-s3.html).
+
 ## Mock integration
 
 To mock an API operation, use the `MockIntegrations` class, which is included in your generated infrastructure package. This contains an integration for every response that can be returned by your operations.
