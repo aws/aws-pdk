@@ -8,6 +8,7 @@ import {
   IntegrationRenderProps,
 } from "./integration";
 import { generateCorsResponseParameters } from "../prepare-spec-event-handler/prepare-spec";
+import { Method } from "../spec";
 import { bucketInvocationUri } from "../spec/utils";
 
 export interface S3IntegrationProps {
@@ -23,6 +24,12 @@ export interface S3IntegrationProps {
   readonly role?: IRole;
 
   /**
+   * The HTTP method to use when invoking the S3 bucket
+   * @default - integration method is used
+   */
+  readonly method?: Method;
+
+  /**
    * The path override to use when invoking the S3 bucket
    * @default - integration path is used
    */
@@ -36,6 +43,7 @@ export interface S3IntegrationProps {
 export class S3Integration extends Integration {
   private readonly bucket: IBucket;
   private readonly role: IRole;
+  private readonly method?: Method;
   private readonly path?: string;
 
   constructor(props: S3IntegrationProps) {
@@ -52,6 +60,7 @@ export class S3Integration extends Integration {
     }
 
     this.bucket.grantReadWrite(this.role, this.path ?? "*");
+    this.method = props.method;
     this.path = props.path;
   }
 
@@ -61,7 +70,7 @@ export class S3Integration extends Integration {
   public render(props: IntegrationRenderProps): ApiGatewayIntegration {
     return {
       type: "AWS",
-      httpMethod: props.method.toUpperCase(),
+      httpMethod: (this.method ?? props.method).toUpperCase(),
       uri: bucketInvocationUri(this.bucket, this.path ?? props.path),
       credentials: this.role.roleArn,
       responses: {
