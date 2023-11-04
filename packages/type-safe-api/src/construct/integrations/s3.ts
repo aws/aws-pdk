@@ -2,6 +2,8 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { IRole, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { IBucket } from "aws-cdk-lib/aws-s3";
+import { ErrorIntegrationResponse } from "./error-integration-response";
+import { ErrorIntegrationResponses } from "./error-integration-responses";
 import {
   ApiGatewayIntegration,
   Integration,
@@ -34,6 +36,12 @@ export interface S3IntegrationProps {
    * @default - integration path is used
    */
   readonly path?: string;
+
+  /**
+   * The error integration response to use when the S3 bucket returns an error
+   * @default ErrorIntegrationResponses.catchAll()
+   */
+  readonly errorIntegrationResponse?: ErrorIntegrationResponse;
 }
 
 /**
@@ -45,6 +53,7 @@ export class S3Integration extends Integration {
   private readonly role: IRole;
   private readonly method?: Method;
   private readonly path?: string;
+  private readonly errorIntegrationResponse?: ErrorIntegrationResponse;
 
   constructor(props: S3IntegrationProps) {
     super();
@@ -62,10 +71,11 @@ export class S3Integration extends Integration {
     this.bucket.grantReadWrite(this.role, this.path ?? "*");
     this.method = props.method;
     this.path = props.path;
+    this.errorIntegrationResponse = props.errorIntegrationResponse;
   }
 
   /**
-   * Render the lambda integration as a snippet of OpenAPI
+   * Render the S3 integration as a snippet of OpenAPI
    */
   public render(props: IntegrationRenderProps): ApiGatewayIntegration {
     return {
@@ -81,13 +91,10 @@ export class S3Integration extends Integration {
             : {},
           responseTemplates: {},
         },
-        "4|5\\d{2}": {
-          statusCode: "500", // force 500 because 4XX errors is not a real client error, it's a misconfiguration on the server side
-          responseParameters: props.corsOptions
-            ? generateCorsResponseParameters(props.corsOptions)
-            : {},
-          responseTemplates: {},
-        },
+
+        ...(
+          this.errorIntegrationResponse ?? ErrorIntegrationResponses.catchAll()
+        ).render(props),
       },
     };
   }

@@ -23,7 +23,9 @@ export abstract class ErrorIntegrationResponse {
  * An error integration response that returns no error responses
  */
 export class NoneErrorIntegrationResponse extends ErrorIntegrationResponse {
-  render() {
+  public render(): {
+    [responseStatusPattern: string]: ApiGatewayIntegrationResponse;
+  } {
     return {};
   }
 }
@@ -32,7 +34,9 @@ export class NoneErrorIntegrationResponse extends ErrorIntegrationResponse {
  * An error integration response that catches all errors and returns a 500
  */
 export class CatchAllErrorIntegrationResponse extends ErrorIntegrationResponse {
-  render(props: IntegrationRenderProps) {
+  public render(props: IntegrationRenderProps): {
+    [responseStatusPattern: string]: ApiGatewayIntegrationResponse;
+  } {
     return {
       "4|5\\d{2}": {
         statusCode: "500",
@@ -68,7 +72,9 @@ export class CustomErrorIntegrationResponse extends ErrorIntegrationResponse {
     this.errorResponses = props.errorResponses;
   }
 
-  render(props: IntegrationRenderProps) {
+  public render(props: IntegrationRenderProps): {
+    [responseStatusPattern: string]: ApiGatewayIntegrationResponse;
+  } {
     const result: {
       [responseStatusPattern: string]: ApiGatewayIntegrationResponse;
     } = {};
