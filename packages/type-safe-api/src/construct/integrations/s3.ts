@@ -25,13 +25,13 @@ export interface S3IntegrationProps {
   /**
    * The path override for the integration
    * @default - integration path is used
-   * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/integrating-api-with-aws-services-s3.html
    */
   readonly pathOverride?: string;
 }
 
 /**
  * An S3 integration
+ * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/integrating-api-with-aws-services-s3.html
  */
 export class S3Integration extends Integration {
   private readonly bucket: IBucket;

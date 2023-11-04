@@ -28,6 +28,7 @@ export class Integrations {
   /**
    * An integration that can read/write to an S3 bucket
    * @param props the integration props
+   * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/integrating-api-with-aws-services-s3.html
    */
   public static s3(props: S3IntegrationProps): S3Integration {
     return new S3Integration(props);
