@@ -173,7 +173,12 @@ export class MonorepoTsProject
       },
       peerDeps: ["nx@^16", ...(options.peerDeps || [])],
       devDeps: ["nx@^16", "@aws/pdk@^0", ...(options.devDeps || [])],
-      deps: ["aws-cdk-lib", "constructs", "cdk-nag", ...(options.deps || [])],
+      deps: [
+        "aws-cdk-lib",
+        "cdk-nag",
+        "@aws-cdk/aws-cognito-identitypool-alpha@latest",
+        ...(options.deps || []),
+      ],
     });
 
     this.nxConfigurator = new NxConfigurator(this, {
@@ -184,16 +189,22 @@ export class MonorepoTsProject
     // engines
     this.package.addEngine("node", ">=16");
     switch (this.package.packageManager) {
+      case NodePackageManager.BUN: {
+        this.package.addEngine("bun", ">=1");
+        break;
+      }
       case NodePackageManager.PNPM: {
         // https://pnpm.io/package_json
         // https://github.com/pnpm/pnpm/releases/tag/v8.0.0
         this.package.addEngine("pnpm", ">=8");
         break;
       }
+      case NodePackageManager.YARN_CLASSIC:
       case NodePackageManager.YARN: {
         this.package.addEngine("yarn", ">=1 <2");
         break;
       }
+      case NodePackageManager.YARN_BERRY:
       case NodePackageManager.YARN2: {
         this.package.addEngine("yarn", ">=2");
         this.gitignore.addPatterns(
@@ -211,6 +222,13 @@ export class MonorepoTsProject
         break;
       }
     }
+    this.package.setScript(
+      "install:ci",
+      NodePackageUtils.command.exec(
+        this.package.packageManager,
+        "projen install:ci"
+      )
+    );
 
     this.workspaceConfig = options.workspaceConfig;
     this.workspacePackages = options.workspaceConfig?.additionalPackages ?? [];
@@ -393,9 +411,9 @@ export class MonorepoTsProject
   public addWorkspacePackages(...packageGlobs: string[]) {
     // Any subprojects that were added since the last call to this method need to be added first, in order to ensure
     // we add the workspace packages in a sane order.
-    const relativeSubProjectWorkspacePackages = this.sortedSubProjects.map(
-      (project) => path.relative(this.outdir, project.outdir)
-    );
+    const relativeSubProjectWorkspacePackages = this.sortedSubProjects
+      .filter((s) => ProjectUtils.isNamedInstanceOf(s, NodeProject))
+      .map((project) => path.relative(this.outdir, project.outdir));
     const existingWorkspacePackages = new Set(this.workspacePackages);
     this.workspacePackages.push(
       ...relativeSubProjectWorkspacePackages.filter(
@@ -586,8 +604,12 @@ export class MonorepoTsProject
     // Automatically add all sub-project "bundledDependencies" to workspace "hohoist", otherwise they are not bundled in npm package
     if (
       this.workspaceConfig?.yarn?.disableNoHoistBundled !== true &&
-      (this.package.packageManager === NodePackageManager.YARN ||
-        this.package.packageManager === NodePackageManager.YARN2)
+      [
+        NodePackageManager.YARN,
+        NodePackageManager.YARN2,
+        NodePackageManager.YARN_BERRY,
+        NodePackageManager.YARN_CLASSIC,
+      ].includes(this.package.packageManager)
     ) {
       const noHoistBundled = this.subprojects.flatMap((sub) => {
         if (ProjectUtils.isNamedInstanceOf(sub, NodeProject)) {

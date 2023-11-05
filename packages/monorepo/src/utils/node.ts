@@ -119,9 +119,13 @@ export namespace NodePackageUtils {
       switch (packageManager) {
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_BERRY:
+        case NodePackageManager.YARN_CLASSIC:
           return withArgs("yarn run", args);
         case NodePackageManager.PNPM:
           return withArgs("pnpm run", args);
+        case NodePackageManager.BUN:
+          return withArgs("bun run", args);
         default:
           return withArgs("npm run", args);
       }
@@ -146,12 +150,16 @@ export namespace NodePackageUtils {
     ): string {
       switch (packageManager) {
         case NodePackageManager.YARN:
+        case NodePackageManager.YARN_CLASSIC:
           // "yarn exec" is not propagating transient args (`yarn exec nx run-many --target=build` does not receive `--target=build`)
           return withArgs("yarn", args);
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_BERRY:
           return withArgs("yarn exec", args);
         case NodePackageManager.PNPM:
           return withArgs("pnpm exec", args);
+        case NodePackageManager.BUN:
+          return withArgs("bun x", args);
         default:
           return withArgs("npx", args);
       }
@@ -166,9 +174,12 @@ export namespace NodePackageUtils {
     ): string {
       switch (packageManager) {
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_BERRY:
           return withArgs("yarn dlx", args);
         case NodePackageManager.PNPM:
           return withArgs("pnpm dlx", args);
+        case NodePackageManager.BUN:
+          return withArgs("bun x", args);
         default:
           return withArgs("npx", args);
       }
@@ -183,9 +194,13 @@ export namespace NodePackageUtils {
       switch (packageManager) {
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_CLASSIC:
+        case NodePackageManager.YARN_BERRY:
           return withArgs("yarn install", args);
         case NodePackageManager.PNPM:
           return withArgs("pnpm i", args);
+        case NodePackageManager.BUN:
+          return withArgs("bun install", args);
         default:
           return withArgs("npm install", args);
       }
@@ -201,31 +216,15 @@ export namespace NodePackageUtils {
       switch (packageManager) {
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_CLASSIC:
+        case NodePackageManager.YARN_BERRY:
           return withArgs("yarn", args);
         case NodePackageManager.PNPM:
           return withArgs("pnpm", args);
+        case NodePackageManager.BUN:
+          return withArgs("bun", args);
         default:
           return withArgs("npm", args);
-      }
-    }
-
-    export function execInWorkspace(
-      packageManager: NodePackageManager,
-      packageName: string,
-      ...args: string[]
-    ) {
-      switch (packageManager) {
-        case NodePackageManager.YARN:
-        case NodePackageManager.YARN2:
-          return withArgs("yarn workspace", [packageName, ...args]);
-        case NodePackageManager.PNPM:
-          return withArgs("pnpm", [
-            `--filter "${packageName}"`,
-            "exec",
-            ...args,
-          ]);
-        default:
-          return withArgs("npx", ["-p", packageName, ...args]);
       }
     }
 
@@ -240,11 +239,14 @@ export namespace NodePackageUtils {
       switch (packageManager) {
         case NodePackageManager.YARN:
         case NodePackageManager.YARN2:
+        case NodePackageManager.YARN_CLASSIC:
+        case NodePackageManager.YARN_BERRY:
           return `$(yarn bin)/${_cmd}`;
         case NodePackageManager.PNPM:
           return `$(pnpm bin)/${_cmd}`;
+        case NodePackageManager.BUN:
         default:
-          return `$(npm bin)/${_cmd}`;
+          return `$(npm root)/.bin/${_cmd}`;
       }
     }
   }

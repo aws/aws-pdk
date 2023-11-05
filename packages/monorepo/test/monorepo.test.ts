@@ -66,8 +66,8 @@ describe("NX Monorepo Unit Tests", () => {
 
   it.each([
     NodePackageManager.PNPM,
-    NodePackageManager.YARN,
-    NodePackageManager.YARN2,
+    NodePackageManager.YARN_CLASSIC,
+    NodePackageManager.YARN_BERRY,
   ])("Additional Workspace Packages", (packageManager) => {
     const project = new MonorepoTsProject({
       defaultReleaseBranch: "mainline",
@@ -176,6 +176,23 @@ describe("NX Monorepo Unit Tests", () => {
       outdir: "packages/ts-subproject",
       parent: project,
       packageManager: NodePackageManager.PNPM,
+      defaultReleaseBranch: "mainline",
+    });
+
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("BUN", () => {
+    const project = new MonorepoTsProject({
+      defaultReleaseBranch: "mainline",
+      name: "BUN",
+      packageManager: NodePackageManager.BUN,
+    });
+    new TypeScriptProject({
+      name: "ts-subproject",
+      outdir: "packages/ts-subproject",
+      parent: project,
+      packageManager: NodePackageManager.BUN,
       defaultReleaseBranch: "mainline",
     });
 

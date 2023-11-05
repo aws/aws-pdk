@@ -1262,4 +1262,39 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       snapshotExtendedSpec(api);
     });
   });
+
+  it("Should not create any lambdas with names longer than 64 characters", () => {
+    const stack = new Stack(undefined, "Id", {
+      stackName: [...new Array(100).keys()]
+        .map(() => `Long`)
+        .join("")
+        .slice(0, 128),
+    });
+
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    withTempSpec(sampleSpec, (specPath) => {
+      new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func),
+          },
+        },
+      });
+    });
+
+    const functionNames = Object.values(
+      Template.fromStack(stack).findResources("AWS::Lambda::Function")
+    )
+      .map((r) => r.Properties.FunctionName)
+      .filter((x) => x);
+    functionNames.forEach((functionName) => {
+      expect(functionName.length).toBeLessThanOrEqual(64);
+    });
+  });
 });

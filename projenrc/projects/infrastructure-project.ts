@@ -27,6 +27,7 @@ export class InfrastructureProject extends PDKProject {
       ],
       peerDeps: [
         "projen",
+        "constructs",
         `${PDK_NAMESPACE}monorepo@^0.x`,
         `${PDK_NAMESPACE}type-safe-api@^0.x`,
         `${PDK_NAMESPACE}cloudscape-react-ts-website@^0.x`,

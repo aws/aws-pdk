@@ -17,7 +17,7 @@ To extend the synth process, components and projects can override each of these 
 
 Whenever you make a change to the `.projenrc` file, you will need to re-synthesize your project(s). To do so, run the `pdk` command from the root of your monorepo. This will re-generate all managed files and will any new dependencies.
 
-## Synthesizing your project within installing dependencies
+## Synthesizing your project without installing dependencies
 
-In some instances, it may be desirable to synthesize all your files without installing any dependencies. 
+In some instances, it may be desirable to synthesize all your files without installing any dependencies.
 To do this, run the `pdk --no-post` command.

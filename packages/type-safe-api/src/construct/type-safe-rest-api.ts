@@ -125,9 +125,12 @@ export class TypeSafeRestApi extends Construct {
 
     const stack = Stack.of(this);
 
-    const prepareSpecLambdaName = `${PDKNag.getStackPrefix(stack)
+    // Lambda name prefix is truncated to 48 characters (16 below the max of 64)
+    const lambdaNamePrefix = `${PDKNag.getStackPrefix(stack)
       .split("/")
-      .join("-")}PrepareSpec${this.node.addr.slice(-8).toUpperCase()}`;
+      .join("-")
+      .slice(0, 40)}${this.node.addr.slice(-8).toUpperCase()}`;
+    const prepareSpecLambdaName = `${lambdaNamePrefix}PrepSpec`;
     const prepareSpecRole = new Role(this, "PrepareSpecRole", {
       assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
       inlinePolicies: {
@@ -210,7 +213,7 @@ export class TypeSafeRestApi extends Construct {
     );
 
     // Create a custom resource for preparing the spec for deployment (adding integrations, authorizers, etc)
-    const prepareSpec = new LambdaFunction(this, "PrepareSpec", {
+    const prepareSpec = new LambdaFunction(this, "PrepareSpecHandler", {
       handler: "index.handler",
       runtime: Runtime.NODEJS_18_X,
       code: Code.fromAsset(
@@ -221,7 +224,7 @@ export class TypeSafeRestApi extends Construct {
       functionName: prepareSpecLambdaName,
     });
 
-    const providerFunctionName = `${prepareSpecLambdaName}-Provider`;
+    const providerFunctionName = `${lambdaNamePrefix}PrepSpecProvider`;
     const providerRole = new Role(this, "PrepareSpecProviderRole", {
       assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
       inlinePolicies: {
@@ -244,7 +247,7 @@ export class TypeSafeRestApi extends Construct {
       },
     });
 
-    const provider = new Provider(this, "PrepareSpecResourceProvider", {
+    const provider = new Provider(this, "PrepareSpecProvider", {
       onEventHandler: prepareSpec,
       role: providerRole,
       providerFunctionName,
@@ -345,7 +348,7 @@ export class TypeSafeRestApi extends Construct {
 
     const prepareSpecCustomResource = new CustomResource(
       this,
-      "PrepareSpecResource",
+      "PrepareSpecCustomResource",
       {
         serviceToken: provider.serviceToken,
         properties: prepareApiSpecCustomResourceProperties,
