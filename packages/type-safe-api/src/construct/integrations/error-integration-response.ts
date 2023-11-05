@@ -75,35 +75,21 @@ export class CustomErrorIntegrationResponse extends ErrorIntegrationResponse {
   public render(props: IntegrationRenderProps): {
     [responseStatusPattern: string]: ApiGatewayIntegrationResponse;
   } {
-    const result: {
-      [responseStatusPattern: string]: ApiGatewayIntegrationResponse;
-    } = {};
-
-    for (const responseStatusPattern in this.errorResponses) {
-      if (
-        Object.prototype.hasOwnProperty.call(
-          this.errorResponses,
-          responseStatusPattern
-        )
-      ) {
-        var errorResponse = this.errorResponses[responseStatusPattern];
-
-        if (props.corsOptions) {
-          errorResponse = {
-            statusCode: errorResponse.statusCode,
-            responseTemplates: errorResponse.responseTemplates,
+    return Object.fromEntries(
+      Object.entries(this.errorResponses ?? {}).map(
+        ([responseStatusPattern, errorResponse]) => [
+          responseStatusPattern,
+          {
+            ...errorResponse,
             responseParameters: {
               ...errorResponse.responseParameters,
-              ...generateCorsResponseParameters(props.corsOptions),
+              ...(props.corsOptions
+                ? generateCorsResponseParameters(props.corsOptions)
+                : {}),
             },
-            contentHandling: errorResponse.contentHandling,
-          };
-        }
-
-        result[responseStatusPattern] = errorResponse;
-      }
-    }
-
-    return result;
+          },
+        ]
+      )
+    );
   }
 }
