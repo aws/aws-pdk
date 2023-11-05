@@ -143,8 +143,8 @@ export class S3Integration extends Integration {
       })
     );
     const grantMethod = this.method ?? method;
-    var bucketActions: string[] = [];
-    var keyActions: string[] = [];
+    let bucketActions: string[] = [];
+    let keyActions: string[] = [];
 
     switch (grantMethod) {
       case "get":
