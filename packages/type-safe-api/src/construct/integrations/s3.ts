@@ -142,13 +142,11 @@ export class S3Integration extends Integration {
         },
       })
     );
-
-    const bucketMethod = this.method ?? method;
-
+    const grantMethod = this.method ?? method;
     var bucketActions: string[] = [];
     var keyActions: string[] = [];
 
-    switch (bucketMethod) {
+    switch (grantMethod) {
       case "get":
       case "head":
       case "options":
@@ -173,12 +171,15 @@ export class S3Integration extends Integration {
         break;
     }
 
+    const grantPath = this.path ?? path;
+    const permissionPath = grantPath.replace(/{[^\}]*\}/g, "*");
+
     Grant.addToPrincipalOrResource({
       grantee: this.role,
       actions: bucketActions,
       resourceArns: [
         this.bucket.bucketArn,
-        this.bucket.arnForObjects(this.path ?? path),
+        this.bucket.arnForObjects(permissionPath),
       ],
       resource: this.bucket,
     });
