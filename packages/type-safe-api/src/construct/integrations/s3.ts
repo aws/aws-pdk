@@ -93,6 +93,17 @@ export class S3Integration extends Integration {
       httpMethod: (this.method ?? props.method).toUpperCase(),
       uri: bucketInvocationUri(this.bucket, this.path ?? props.path),
       credentials: this.role.roleArn,
+      requestParameters: {
+        // Add every path parameter to the integration request
+        ...Object.fromEntries(
+          [...props.path.matchAll(/\{([^\}]*)\}/g)]
+            .map((m) => m[1])
+            .map((param) => [
+              `integration.request.path.${param}`,
+              `method.request.path.${param}`,
+            ])
+        ),
+      },
       responses: {
         default: {
           statusCode: "200",
