@@ -9,6 +9,7 @@ import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkPythonApp } from "projen/lib/awscdk";
 import { AwsCdkPythonAppOptions } from "./aws-cdk-py-app-options";
+import { InfrastructureCommands } from "../../components/infrastructure-commands";
 import { DEFAULT_STACK_NAME } from "../../consts";
 
 /**
@@ -65,6 +66,8 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
           .toString(),
       },
     });
+
+    InfrastructureCommands.ensure(this);
 
     ["pytest@^7", "syrupy@^4"].forEach((devDep) =>
       this.addDevDependency(devDep)
@@ -130,13 +133,14 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
   ) {
     fs.readdirSync(dir, { withFileTypes: true })
       .filter((f) => {
+        let shouldIncludeFile = true;
         if (!mustacheConfig.hasApi) {
-          return !f.name.endsWith("api.ts.mustache");
-        } else if (!mustacheConfig.hasWebsite) {
-          return !f.name.endsWith("website.ts.mustache");
-        } else {
-          return true;
+          shouldIncludeFile &&= !f.name.endsWith("api.py.mustache");
         }
+        if (!mustacheConfig.hasWebsite) {
+          shouldIncludeFile &&= !f.name.endsWith("website.py.mustache");
+        }
+        return shouldIncludeFile;
       })
       .forEach((f) => {
         if (f.isDirectory()) {

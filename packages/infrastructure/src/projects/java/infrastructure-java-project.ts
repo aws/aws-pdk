@@ -9,6 +9,7 @@ import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkJavaApp } from "projen/lib/awscdk";
 import { AwsCdkJavaAppOptions } from "./aws-cdk-java-app-options";
+import { InfrastructureCommands } from "../../components/infrastructure-commands";
 import { DEFAULT_STACK_NAME } from "../../consts";
 
 /**
@@ -64,6 +65,8 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
           .toString(),
       },
     });
+
+    InfrastructureCommands.ensure(this);
 
     this.pom.addPlugin("org.apache.maven.plugins/maven-surefire-plugin@3.1.2");
     this.pom.addPlugin("org.apache.maven.plugins/maven-compiler-plugin@3.8.1", {
@@ -142,13 +145,16 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
   ) {
     fs.readdirSync(dir, { withFileTypes: true })
       .filter((f) => {
+        let shouldIncludeFile = true;
         if (!mustacheConfig.hasApi) {
-          return !f.name.endsWith("api.ts.mustache");
-        } else if (!mustacheConfig.hasWebsite) {
-          return !f.name.endsWith("website.ts.mustache");
-        } else {
-          return true;
+          shouldIncludeFile &&= !f.name.endsWith("ApiConstruct.java.mustache");
         }
+        if (!mustacheConfig.hasWebsite) {
+          shouldIncludeFile &&= !f.name.endsWith(
+            "WebsiteConstruct.java.mustache"
+          );
+        }
+        return shouldIncludeFile;
       })
       .forEach((f) => {
         if (f.isDirectory()) {

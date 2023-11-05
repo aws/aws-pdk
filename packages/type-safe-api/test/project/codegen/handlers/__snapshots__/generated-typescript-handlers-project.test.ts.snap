@@ -246,7 +246,6 @@ exports[`Generated Typescript Handlers Code Unit Tests Synth 1`] = `
 /.gitignore linguist-generated
 /.mergify.yml linguist-generated
 /.npmignore linguist-generated
-/.npmrc linguist-generated
 /.openapi-generator-ignore linguist-generated
 /.openapi-generator-ignore-handlebars linguist-generated
 /.projen/** linguist-generated
@@ -417,7 +416,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
@@ -562,7 +561,6 @@ junit.xml
 !/.mergify.yml
 !/.github/workflows/upgrade-main.yml
 !/.github/pull_request_template.md
-!/.npmrc
 !/test/
 !/tsconfig.json
 !/tsconfig.dev.json
@@ -645,6 +643,11 @@ pull_request_rules:
         "version": "^6",
       },
       {
+        "name": "constructs",
+        "type": "build",
+        "version": "^10.0.0",
+      },
+      {
         "name": "esbuild",
         "type": "build",
       },
@@ -716,7 +719,6 @@ pull_request_rules:
       ".gitignore",
       ".mergify.yml",
       ".npmignore",
-      ".npmrc",
       ".openapi-generator-ignore",
       ".openapi-generator-ignore-handlebars",
       ".projen/deps.json",
@@ -863,7 +865,7 @@ pull_request_rules:
         "name": "install",
         "steps": [
           {
-            "exec": "yarn link test-ts-client",
+            "exec": "yarn_classic link test-ts-client",
           },
           {
             "exec": "yarn install --check-files",
@@ -990,13 +992,13 @@ pull_request_rules:
             "exec": "yarn upgrade npm-check-updates",
           },
           {
-            "exec": "npm-check-updates --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/aws-lambda,@types/jest,@types/node,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,esbuild,eslint-import-resolver-node,eslint-import-resolver-typescript,eslint-plugin-import,eslint,jest,jest-junit,npm-check-updates,projen,standard-version,ts-jest,typescript",
+            "exec": "npm-check-updates --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/aws-lambda,@types/jest,@types/node,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,constructs,esbuild,eslint-import-resolver-node,eslint-import-resolver-typescript,eslint-plugin-import,eslint,jest,jest-junit,npm-check-updates,projen,standard-version,ts-jest,typescript",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser esbuild eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit npm-check-updates projen standard-version ts-jest typescript",
+            "exec": "yarn upgrade @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser constructs esbuild eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit npm-check-updates projen standard-version ts-jest typescript",
           },
           {
             "exec": "npx projen",
@@ -1241,6 +1243,7 @@ pull_request_rules:
       "@types/node": "^16",
       "@typescript-eslint/eslint-plugin": "^6",
       "@typescript-eslint/parser": "^6",
+      "constructs": "^10.0.0",
       "esbuild": "*",
       "eslint": "^8",
       "eslint-import-resolver-node": "*",

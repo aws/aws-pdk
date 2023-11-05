@@ -21,7 +21,7 @@ export class CloudscapeReactTsWebsiteProject extends PDKProject {
       repositoryUrl: "https://github.com/aws/aws-pdk",
       devDeps: ["projen", "@types/mustache", `${PDK_NAMESPACE}monorepo@^0.x`],
       deps: [`${PDK_NAMESPACE}type-safe-api@^0.x`],
-      peerDeps: ["projen", `${PDK_NAMESPACE}type-safe-api@^0.x`],
+      peerDeps: ["projen", `${PDK_NAMESPACE}type-safe-api@^0.x`, "constructs"],
       bundledDeps: ["mustache"],
       stability: Stability.STABLE,
     });
