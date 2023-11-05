@@ -124,7 +124,7 @@ export class S3Integration extends Integration {
    * Grant API Gateway permissions to invoke the S3 bucket
    */
   public grant({ scope, api, method, path }: IntegrationGrantProps) {
-    this.role.grant(
+    this.role.grantAssumeRole(
       new ServicePrincipal("apigateway.amazonaws.com", {
         conditions: {
           "ForAnyValue:StringEquals": {
