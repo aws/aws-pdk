@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import path from "path";
 import { Project } from "projen";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { MonorepoTsProject, DEFAULT_CONFIG } from "../../packages/monorepo/src";
@@ -163,32 +162,14 @@ export class PDKMonorepoProject extends MonorepoTsProject {
 }
 
 /**
- * Uses a local maven repository when packaging for java. This significantly improves peformance as the default behaviour
- * is to create a new tmp cache and re-download all dependencies.
- *
- * This logic will by default attempt to symlink in the user .m2 repository if it exists. Otherwise a fresh repository
- * will be created in node_modules/.cache/.m2/repository.
- *
- * This also configures pnpm as the pack command.
+ * Updates the java package task to use the pack command.
  *
  * @param project project to update.
  */
 const updateJavaPackageTask = (project: Project): void => {
-  const defaultM2 = "~/.m2/repository";
-  const localM2Root = path.relative(
-    project.outdir,
-    path.join(process.cwd(), "node_modules/.cache/.m2")
-  );
-  const localM2Repository = path.join(localM2Root, "repository");
-  const javaTask = project.tasks.tryFind("package:java");
-
-  javaTask?.reset();
-  javaTask?.exec(
-    `[ -d ${defaultM2} ] && [ ! -d "${localM2Repository}" ] && mkdir -p ${localM2Root} && ln -s ${defaultM2} ${localM2Repository} || true`
-  );
-  javaTask?.exec(
-    `jsii-pacmak -v --target java --maven-local-repository=${localM2Repository} --pack-command='pnpm pack'`
-  );
+  project.tasks
+    .tryFind("package:java")
+    ?.reset("jsii-pacmak -v --target java --pack-command='pnpm pack'");
 };
 
 /**
@@ -221,20 +202,20 @@ const updatePythonPackageTask = (project: Project): void => {
 const resolveDependencies = (project: any): void => {
   // resolutions
   if (project instanceof NodeProject || project.package) {
-    project.package.addPackageResolutions(
-      "@types/prettier@2.6.0",
-      "ansi-regex@^5.0.1",
-      "underscore@^1.12.1",
-      "deep-extend@^0.5.1",
-      "argparse@^1.0.10",
-      "debug@^2.6.9",
-      "minimist@^1.2.6",
-      "ejs@^3.1.7",
-      "async@^2.6.4",
-      "nth-check@^2.0.1",
-      "got@^11.8.5",
-      "@types/yargs@17.0.10",
-      "tar@^4.4.18"
-    );
+    // project.package.addPackageResolutions(
+    //   "@types/prettier@2.6.0",
+    //   "ansi-regex@^5.0.1",
+    //   "underscore@^1.12.1",
+    //   "deep-extend@^0.5.1",
+    //   "argparse@^1.0.10",
+    //   "debug@^2.6.9",
+    //   "minimist@^1.2.6",
+    //   "ejs@^3.1.7",
+    //   "async@^2.6.4",
+    //   "nth-check@^2.0.1",
+    //   "got@^11.8.5",
+    //   "@types/yargs@17.0.10",
+    //   "tar@^4.4.18"
+    // );
   }
 };
