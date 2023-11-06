@@ -67,7 +67,7 @@ export class S3Integration extends Integration {
   private executionRole(scope: IConstruct): IRole {
     // Retrieve or create the shared S3 execution role
     return (scope.node.tryFindChild(this.executionRoleId) ??
-      new Role(this.bucket, this.executionRoleId, {
+      new Role(scope, this.executionRoleId, {
         assumedBy: new ServicePrincipal("apigateway.amazonaws.com"),
       })) as IRole;
   }
