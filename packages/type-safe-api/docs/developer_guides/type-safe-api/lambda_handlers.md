@@ -148,7 +148,6 @@ This will give you generated lambda handler stubs which look like the following:
     package com.generated.api.myapijavahandlers.handlers;
 
     import com.generated.api.myapijavaruntime.runtime.api.interceptors.DefaultInterceptors;
-    import com.generated.api.myapijavaruntime.runtime.api.interceptors.powertools.LoggingInterceptor;
     import com.generated.api.myapijavaruntime.runtime.api.handlers.Interceptor;
     import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello;
     import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloInput;
@@ -156,6 +155,8 @@ This will give you generated lambda handler stubs which look like the following:
     import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput;
     import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse;
     import com.generated.api.myapijavaruntime.runtime.model.*;
+    import org.apache.logging.log4j.LogManager;
+    import org.apache.logging.log4j.Logger;
 
     import java.util.List;
 
@@ -168,6 +169,11 @@ This will give you generated lambda handler stubs which look like the following:
          * Interceptors are initialised once during the lambda "init" phase
          */
         private final List<Interceptor<SayHelloInput>> interceptors = DefaultInterceptors.all();
+
+        /**
+         * Use the logger to log requests. The LoggingInterceptor sets up all loggers to include lambda context values in your logs.
+         */
+        private final Logger log = LogManager.getLogger(SayHelloHandler.class);
 
         /**
          * Return the interceptors for this handler.
@@ -195,7 +201,7 @@ This will give you generated lambda handler stubs which look like the following:
          */
         @Override
         public SayHelloResponse handle(final SayHelloRequestInput request) {
-            LoggingInterceptor.getLogger(request).info("Start SayHello Operationnn");
+            log.info("Start SayHello Operation");
 
             // TODO: Implement SayHello Operation. `input` contains the request input.
             SayHelloInput input = request.getInput();
