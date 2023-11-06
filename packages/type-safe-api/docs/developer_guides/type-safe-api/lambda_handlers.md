@@ -8,7 +8,7 @@ For example:
 
     ```ts
     import { sayHelloHandler, Response } from "myapi-typescript-runtime";
-    
+
     export const handler = sayHelloHandler(async ({ input }) => {
       return Response.success({
         message: `Hello ${input.requestParameters.name}!`,
@@ -24,8 +24,8 @@ For example:
     import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput;
     import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse;
     import com.generated.api.myapijavaruntime.runtime.model.SayHelloResponseContent;
-    
-    
+
+
     public class SayHelloHandler extends SayHello {
         @Override
         public SayHelloResponse handle(final SayHelloRequestInput request) {
@@ -42,7 +42,7 @@ For example:
     from myapi_python_runtime.api.operation_config import say_hello_handler, SayHelloRequest, ApiResponse, SayHelloOperationResponses
     from myapi_python_runtime.model.api_error import ApiError
     from myapi_python_runtime.model.say_hello_response_content import SayHelloResponseContent
-    
+
     @say_hello_handler
     def handler(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
         return Response.success(
@@ -116,21 +116,21 @@ This will give you generated lambda handler stubs which look like the following:
       Response,
       LoggingInterceptor,
     } from "myapi-typescript-runtime";
-    
+
     /**
      * Type-safe handler for the SayHello operation
      */
     export const sayHello: SayHelloChainedHandlerFunction = async (request) => {
       LoggingInterceptor.getLogger(request).info('Start SayHello Operation');
-    
+
       // TODO: Implement SayHello Operation. `input` contains the request input.
       const { input } = request;
-    
+
       return Response.internalFailure({
         message: 'Not Implemented!',
       });
     };
-    
+
     /**
      * Entry point for the AWS Lambda handler for the SayHello operation.
      * The sayHelloHandler method wraps the type-safe handler and manages marshalling inputs and outputs
@@ -146,7 +146,7 @@ This will give you generated lambda handler stubs which look like the following:
 
     ```java
     package com.generated.api.myapijavahandlers.handlers;
-    
+
     import com.generated.api.myapijavaruntime.runtime.api.interceptors.DefaultInterceptors;
     import com.generated.api.myapijavaruntime.runtime.api.interceptors.powertools.LoggingInterceptor;
     import com.generated.api.myapijavaruntime.runtime.api.handlers.Interceptor;
@@ -156,33 +156,50 @@ This will give you generated lambda handler stubs which look like the following:
     import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput;
     import com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse;
     import com.generated.api.myapijavaruntime.runtime.model.*;
-    
+
     import java.util.List;
-    
+
     /**
      * Entry point for the AWS Lambda handler for the SayHello operation.
      * The SayHello class manages marshalling inputs and outputs.
      */
     public class SayHelloHandler extends SayHello {
         /**
+         * Interceptors are initialised once during the lambda "init" phase
+         */
+        private final List<Interceptor<SayHelloInput>> interceptors = DefaultInterceptors.all();
+
+        /**
          * Return the interceptors for this handler.
          * You can also use the @Interceptors annotation on the class to add interceptors
          */
         @Override
         public List<Interceptor<SayHelloInput>> getInterceptors() {
-            return DefaultInterceptors.all();
+            return this.interceptors;
         }
-    
+
+        /**
+         * This method is executed prior to the Java SnapStart snapshot being taken.
+         * Perform any warmup activities to "prime" your function here. Code in this function will be just-in-time compiled,
+         * before the snapshot is taken, and thus optimised ready for the first invocation.
+         * For example if your function interacts with DynamoDB, perform a simple read operation here.
+         * @see https://aws.amazon.com/blogs/compute/reducing-java-cold-starts-on-aws-lambda-functions-with-snapstart/
+         */
+        @Override
+        public void warmUp() {
+
+        }
+
         /**
          * Type-safe handler for the SayHello operation
          */
         @Override
         public SayHelloResponse handle(final SayHelloRequestInput request) {
             LoggingInterceptor.getLogger(request).info("Start SayHello Operationnn");
-    
+
             // TODO: Implement SayHello Operation. `input` contains the request input.
             SayHelloInput input = request.getInput();
-    
+
             return SayHello500Response.of(InternalFailureErrorResponseContent.builder()
                     .message("Not Implemented!")
                     .build());
@@ -204,21 +221,21 @@ This will give you generated lambda handler stubs which look like the following:
     from myapi_python_runtime.api.operation_config import (
         say_hello_handler, SayHelloRequest, SayHelloOperationResponses
     )
-    
-    
+
+
     def say_hello(input: SayHelloRequest, **kwargs) -> SayHelloOperationResponses:
         """
         Type-safe handler for the SayHello operation
         """
         LoggingInterceptor.get_logger(input).info("Start SayHello Operation")
-    
+
         # TODO: Implement SayHello Operation. `input` contains the request input
-    
+
         return Response.internal_failure(InternalFailureErrorResponseContent(
             message="Not Implemented!"
         ))
-    
-    
+
+
     # Entry point for the AWS Lambda handler for the SayHello operation.
     # The say_hello_handler method wraps the type-safe handler and manages marshalling inputs and outputs
     handler = say_hello_handler(interceptors=INTERCEPTORS)(say_hello)
@@ -235,7 +252,7 @@ You can implement your lambda handlers in any of the supported languages, or mix
 As well as generating lambda handler stubs, when you use the `@handler` Smithy trait or `x-handler` OpenAPI vendor extension, your generated CDK infrastructure project will include lambda function CDK constructs with preconfigured paths to your handler distributables. This allows you to quickly add lambda integrations to your API:
 
 === "TS"
-    
+
     ```ts hl_lines="1 11"
     import { Api, SayHelloFunction } from "myapi-typescript-infra";
 
@@ -254,6 +271,8 @@ As well as generating lambda handler stubs, when you use the `@handler` Smithy t
     ```
 
 === "JAVA"
+
+    The generated Java functions are configured to enable [SnapStart](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html) by default.
 
     ```java hl_lines="3 14"
     import com.generated.api.myapijavainfra.infra.Api;
@@ -276,11 +295,11 @@ As well as generating lambda handler stubs, when you use the `@handler` Smithy t
     ```
 
 === "PYTHON"
-    
+
     ```python hl_lines="2 12"
     from myapi_python_infra.api import Api
     from myapi_python_infra.functions import SayHelloFunction
-    
+
     Api(self, id,
        default_authorizer=Authorizers.iam(),
        cors_options=CorsOptions(

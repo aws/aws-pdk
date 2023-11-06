@@ -64,8 +64,10 @@ public class Handlers {
 
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
-        // Create an instance here to ensure that the static Gson instance is always available.
-        new JSON();
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
     }
 
     private static String decodeParameter(final String parameter) {
@@ -616,6 +618,179 @@ public interface ChainedRequestInput<TInput> extends RequestInput<TInput> {
      */
     HandlerChain<TInput> getChain();
 }
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "InterceptorWarmupChainedRequestInput",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+import com.amazonaws.services.lambda.runtime.ClientContext;
+import com.amazonaws.services.lambda.runtime.CognitoIdentity;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * An "empty" chained request input used to warm up interceptors which extend the InterceptorWithWarmup
+ */
+public class InterceptorWarmupChainedRequestInput<T> implements ChainedRequestInput<T> {
+
+  @Override
+  public HandlerChain<T> getChain() {
+    return new HandlerChain<T>() {
+      @Override
+      public Response next(ChainedRequestInput<T> input) {
+        return new Response() {
+          @Override
+          public String getBody() {
+            return "";
+          }
+
+          @Override
+          public int getStatusCode() {
+            return 0;
+          }
+
+          @Override
+          public Map<String, String> getHeaders() {
+            return new HashMap<>();
+          }
+        };
+      }
+    };
+  }
+
+  @Override
+  public Context getContext() {
+    return new Context() {
+      @Override
+      public String getAwsRequestId() {
+        return "";
+      }
+
+      @Override
+      public String getLogGroupName() {
+        return "";
+      }
+
+      @Override
+      public String getLogStreamName() {
+        return "";
+      }
+
+      @Override
+      public String getFunctionName() {
+        return "";
+      }
+
+      @Override
+      public String getFunctionVersion() {
+        return "";
+      }
+
+      @Override
+      public String getInvokedFunctionArn() {
+        return "";
+      }
+
+      @Override
+      public CognitoIdentity getIdentity() {
+        return null;
+      }
+
+      @Override
+      public ClientContext getClientContext() {
+        return null;
+      }
+
+      @Override
+      public int getRemainingTimeInMillis() {
+        return 0;
+      }
+
+      @Override
+      public int getMemoryLimitInMB() {
+        return 0;
+      }
+
+      @Override
+      public LambdaLogger getLogger() {
+        return null;
+      }
+    };
+  }
+
+  @Override
+  public APIGatewayProxyRequestEvent getEvent() {
+    return new APIGatewayProxyRequestEvent();
+  }
+
+  @Override
+  public T getInput() {
+    return null;
+  }
+
+  @Override
+  public Map<String, Object> getInterceptorContext() {
+    Map<String, Object> context = new HashMap<>();
+    context.put("operationId", "__tsapi_interceptor_warmup");
+    return context;
+  }
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "InterceptorWithWarmup",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+import org.crac.Resource;
+import org.crac.Core;
+import org.crac.Context;
+
+/**
+ * An interceptor with a "warmUp" method with default snap-start warmup behaviour, which can be overridden if desired.
+ */
+public abstract class InterceptorWithWarmup<TInput> implements Interceptor<TInput>, Resource {
+    {
+        Core.getGlobalContext().register(this);
+    }
+
+    @Override
+    public void beforeCheckpoint(Context<? extends Resource> context) {
+        this.warmUp();
+    }
+
+    @Override
+    public void afterRestore(Context<? extends Resource> context) {
+
+    }
+
+    /**
+     * Called prior to the lambda snap-start snapshot.
+     * Override this to change the default behaviour, which is to call the interceptor's handle method with an empty
+     * chained request.
+     */
+    public void warmUp() {
+        this.handle(new InterceptorWarmupChainedRequestInput<>());
+    }
+}
 {{#apiInfo}}
 {{#apis}}
 {{#operations}}
@@ -680,8 +855,10 @@ import java.util.HashMap;
 public class {{operationIdCamelCase}}{{code}}Response extends RuntimeException implements {{operationIdCamelCase}}Response {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
-        // Create an instance here to ensure that the static Gson instance is always available.
-        new JSON();
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
     }
 
     private String body;
@@ -848,8 +1025,10 @@ import java.io.IOException;
 public class {{operationIdCamelCase}}Input {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
-        // Create an instance here to ensure that the static Gson instance is always available.
-        new JSON();
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
     }
 
     private {{operationIdCamelCase}}RequestParameters requestParameters;
@@ -1012,12 +1191,18 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import java.io.IOException;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import org.crac.Core;
+import org.crac.Resource;
 
 
 /**
  * Lambda handler wrapper for the {{nickname}} operation
  */
-public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>, Resource {
+    {
+        Core.getGlobalContext().register(this);
+    }
+
     /**
      * Handle the request for the {{nickname}} operation
      */
@@ -1037,54 +1222,24 @@ public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGate
         return Collections.emptyList();
     }
 
-    @Override
-    public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
-        return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
-    }
-
-    private Map<String, String> getErrorResponseHeaders(final int statusCode) {
-        Map<String, String> headers = new HashMap<>();
-        {{#responses}}
-        {{^is2xx}}
-        if (statusCode == {{code}} && "{{dataType}}".endsWith("ResponseContent")) {
-            headers.put("x-amzn-errortype", "{{dataType}}".substring(0, "{{dataType}}".length() - "ResponseContent".length()));
-        }
-        {{/is2xx}}
-        {{/responses}}
-        return headers;
-    }
-
-    public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<{{operationIdCamelCase}}Input>> additionalInterceptors) {
-        final Map<String, Object> interceptorContext = new HashMap<>();
-        interceptorContext.put("operationId", "{{nickname}}");
-
+    private List<Interceptor<{{operationIdCamelCase}}Input>> getHandlerInterceptors() {
         List<Interceptor<{{operationIdCamelCase}}Input>> interceptors = new ArrayList<>();
-        interceptors.addAll(additionalInterceptors);
         interceptors.addAll(annotationInterceptors);
         interceptors.addAll(this.getInterceptors());
+        return interceptors;
+    }
 
-        final HandlerChain chain = Handlers.buildHandlerChain(interceptors, new HandlerChain<{{operationIdCamelCase}}Input>() {
+    private HandlerChain<{{operationIdCamelCase}}Input> buildChain(List<Interceptor<{{operationIdCamelCase}}Input>> interceptors) {
+        return Handlers.buildHandlerChain(interceptors, new HandlerChain<{{operationIdCamelCase}}Input>() {
             @Override
             public Response next(ChainedRequestInput<{{operationIdCamelCase}}Input> input) {
                 return handle(new {{operationIdCamelCase}}RequestInput(input.getEvent(), input.getContext(), input.getInterceptorContext(), input.getInput()));
             }
         });
+    }
 
-        {{operationIdCamelCase}}Input input;
-
-        try {
-            input = new {{operationIdCamelCase}}Input(event);
-        } catch (RuntimeException e) {
-            Map<String, String> headers = new HashMap<>();
-            headers.putAll(Handlers.extractResponseHeadersFromInterceptors(interceptors));
-            headers.putAll(this.getErrorResponseHeaders(400));
-            return new APIGatewayProxyResponseEvent()
-                .withStatusCode(400)
-                .withHeaders(headers)
-                .withBody("{\"message\": \"" + e.getMessage() + "\"}");
-        }
-
-        final Response response = chain.next(new ChainedRequestInput<{{operationIdCamelCase}}Input>() {
+    private ChainedRequestInput<{{operationIdCamelCase}}Input> buildChainedRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final {{operationIdCamelCase}}Input input, final Map<String, Object> interceptorContext) {
+        return new ChainedRequestInput<{{operationIdCamelCase}}Input>() {
             @Override
             public HandlerChain getChain() {
                 // The chain's next method ignores the chain given as input, and is pre-built to follow the remaining
@@ -1111,7 +1266,91 @@ public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGate
             public Map<String, Object> getInterceptorContext() {
                 return interceptorContext;
             }
-        });
+        };
+    }
+
+    @Override
+    public void beforeCheckpoint(org.crac.Context<? extends Resource> context) {
+        // Prime building the handler chain which can take a few 100ms to JIT.
+        this.buildChain(this.getHandlerInterceptors());
+        this.buildChainedRequestInput(null, null, null, null);
+
+        // Initialise instance of Gson and prime serialisation and deserialisation
+        new JSON();
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+
+        try {
+            // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
+            // ready for a real invocation
+            new {{operationIdCamelCase}}Input(new APIGatewayProxyRequestEvent()
+                    .withBody("{}")
+                    .withPathParameters(new HashMap<>())
+                    .withQueryStringParameters(new HashMap<>())
+                    .withMultiValueQueryStringParameters(new HashMap<>())
+                    .withHeaders(new HashMap<>())
+                    .withMultiValueHeaders(new HashMap<>())
+            );
+        } catch (Exception e) {
+
+        }
+
+        this.warmUp();
+    }
+
+    @Override
+    public void afterRestore(org.crac.Context<? extends Resource> context) {
+
+    }
+
+    /**
+     * Override this method to perform any warmup activities which will be executed prior to the snap-start snapshot.
+     */
+    public void warmUp() {
+
+    }
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+        return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+    }
+
+    private Map<String, String> getErrorResponseHeaders(final int statusCode) {
+        Map<String, String> headers = new HashMap<>();
+        {{#responses}}
+        {{^is2xx}}
+        if (statusCode == {{code}} && "{{dataType}}".endsWith("ResponseContent")) {
+            headers.put("x-amzn-errortype", "{{dataType}}".substring(0, "{{dataType}}".length() - "ResponseContent".length()));
+        }
+        {{/is2xx}}
+        {{/responses}}
+        return headers;
+    }
+
+    public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<{{operationIdCamelCase}}Input>> additionalInterceptors) {
+        final Map<String, Object> interceptorContext = new HashMap<>();
+        interceptorContext.put("operationId", "{{nickname}}");
+
+        List<Interceptor<{{operationIdCamelCase}}Input>> interceptors = new ArrayList<>();
+        interceptors.addAll(additionalInterceptors);
+        interceptors.addAll(this.getHandlerInterceptors());
+
+        final HandlerChain chain = this.buildChain(interceptors);
+
+        {{operationIdCamelCase}}Input input;
+
+        try {
+            input = new {{operationIdCamelCase}}Input(event);
+        } catch (RuntimeException e) {
+            Map<String, String> headers = new HashMap<>();
+            headers.putAll(Handlers.extractResponseHeadersFromInterceptors(interceptors));
+            headers.putAll(this.getErrorResponseHeaders(400));
+            return new APIGatewayProxyResponseEvent()
+                .withStatusCode(400)
+                .withHeaders(headers)
+                .withBody("{\"message\": \"" + e.getMessage() + "\"}");
+        }
+
+        final Response response = chain.next(this.buildChainedRequestInput(event, context, input, interceptorContext));
 
         Map<String, String> responseHeaders = new HashMap<>();
         responseHeaders.putAll(this.getErrorResponseHeaders(response.getStatusCode()));
