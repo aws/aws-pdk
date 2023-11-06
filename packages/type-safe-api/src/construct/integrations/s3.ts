@@ -1,16 +1,11 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { FeatureFlags, Stack } from "aws-cdk-lib";
-import {
-  CompositePrincipal,
-  Grant,
-  IRole,
-  Role,
-  ServicePrincipal,
-} from "aws-cdk-lib/aws-iam";
+import { FeatureFlags } from "aws-cdk-lib";
+import { Grant, IRole, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { IBucket } from "aws-cdk-lib/aws-s3";
 import * as perms from "aws-cdk-lib/aws-s3/lib/perms";
 import * as cxapi from "aws-cdk-lib/cx-api";
+import { IConstruct } from "constructs";
 import { ErrorIntegrationResponse } from "./error-integration-response";
 import { ErrorIntegrationResponses } from "./error-integration-responses";
 import {
@@ -28,12 +23,6 @@ export interface S3IntegrationProps {
    * The S3 bucket to be invoked on integration
    */
   readonly bucket: IBucket;
-
-  /**
-   * The IAM role to be used to grant permissions to the API Gateway to invoke the S3 bucket
-   * @default - a new role will be created
-   */
-  readonly role?: IRole;
 
   /**
    * The HTTP method to use when invoking the S3 bucket
@@ -60,28 +49,27 @@ export interface S3IntegrationProps {
  */
 export class S3Integration extends Integration {
   private readonly bucket: IBucket;
-  private readonly role: IRole;
   private readonly method?: Method;
   private readonly path?: string;
   private readonly errorIntegrationResponse?: ErrorIntegrationResponse;
+
+  private readonly executionRoleId = "S3IntegrationsExecutionRole";
 
   constructor(props: S3IntegrationProps) {
     super();
 
     this.bucket = props.bucket;
-
-    if (props.role) {
-      this.role = props.role;
-    } else {
-      this.role = (this.bucket.node.tryFindChild("ExecutionRole") ??
-        new Role(this.bucket, "ExecutionRole", {
-          assumedBy: new CompositePrincipal(),
-        })) as IRole;
-    }
-
     this.method = props.method;
     this.path = props.path;
     this.errorIntegrationResponse = props.errorIntegrationResponse;
+  }
+
+  private executionRole(scope: IConstruct): IRole {
+    // Retrieve or create the shared S3 execution role
+    return (scope.node.tryFindChild(this.executionRoleId) ??
+      new Role(this.bucket, this.executionRoleId, {
+        assumedBy: new ServicePrincipal("apigateway.amazonaws.com"),
+      })) as IRole;
   }
 
   /**
@@ -92,7 +80,7 @@ export class S3Integration extends Integration {
       type: "AWS",
       httpMethod: (this.method ?? props.method).toUpperCase(),
       uri: bucketInvocationUri(this.bucket, this.path ?? props.path),
-      credentials: this.role.roleArn,
+      credentials: this.executionRole(props.scope).roleArn,
       requestParameters: {
         // Add every path parameter to the integration request
         ...Object.fromEntries(
@@ -123,25 +111,7 @@ export class S3Integration extends Integration {
   /**
    * Grant API Gateway permissions to invoke the S3 bucket
    */
-  public grant({ scope, api, method, path }: IntegrationGrantProps) {
-    this.role.grantAssumeRole(
-      new ServicePrincipal("apigateway.amazonaws.com", {
-        conditions: {
-          "ForAnyValue:StringEquals": {
-            "aws.SourceArn": Stack.of(scope).formatArn({
-              service: "execute-api",
-              resource: api.restApiId,
-              // Scope permissions to any stage and a specific method and path of the operation.
-              // Path parameters (eg {param} are replaced with wildcards)
-              resourceName: `*/${method.toUpperCase()}${path.replace(
-                /{[^\}]*\}/g,
-                "*"
-              )}`,
-            }),
-          },
-        },
-      })
-    );
+  public grant({ scope, method, path }: IntegrationGrantProps) {
     const grantMethod = this.method ?? method;
     let bucketActions: string[] = [];
     let keyActions: string[] = [];
@@ -171,11 +141,12 @@ export class S3Integration extends Integration {
         break;
     }
 
+    const executionRole = this.executionRole(scope);
     const grantPath = this.path ?? path;
     const permissionPath = grantPath.replace(/{[^\}]*\}/g, "*");
 
     Grant.addToPrincipalOrResource({
-      grantee: this.role,
+      grantee: executionRole,
       actions: bucketActions,
       resourceArns: [
         this.bucket.bucketArn,
@@ -185,7 +156,7 @@ export class S3Integration extends Integration {
     });
 
     if (this.bucket.encryptionKey) {
-      this.bucket.encryptionKey.grant(this.role, ...keyActions);
+      this.bucket.encryptionKey.grant(executionRole, ...keyActions);
     }
   }
 }
