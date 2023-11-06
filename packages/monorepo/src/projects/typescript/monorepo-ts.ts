@@ -331,6 +331,7 @@ export class MonorepoTsProject
           "fix-mismatches"
         )
       );
+      upgradeDepsTask.exec(`rm ${this.package.lockFile}`);
       upgradeDepsTask.exec(
         NodePackageUtils.command.install(this.package.packageManager)
       );
