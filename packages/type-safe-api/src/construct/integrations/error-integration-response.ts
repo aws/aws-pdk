@@ -23,7 +23,7 @@ export abstract class ErrorIntegrationResponse {
  * An error integration response that returns no error responses
  */
 export class NoneErrorIntegrationResponse extends ErrorIntegrationResponse {
-  public render(): {
+  public render(_props: IntegrationRenderProps): {
     [responseStatusPattern: string]: ApiGatewayIntegrationResponse;
   } {
     return {};

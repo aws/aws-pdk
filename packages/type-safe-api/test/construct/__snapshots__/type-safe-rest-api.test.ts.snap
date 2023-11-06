@@ -23897,7 +23897,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC4785fc5682d93b2af25b98b28a0827544f2": {
+    "ApiTestDeployment153EC478e2aebe685611183a70490fe4435def66": {
       "DependsOn": [
         "ApiTestPrepareSpecCustomResourceC9800EE6",
       ],
@@ -23989,7 +23989,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration 1`] = `
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC4785fc5682d93b2af25b98b28a0827544f2",
+          "Ref": "ApiTestDeployment153EC478e2aebe685611183a70490fe4435def66",
         },
         "MethodSettings": [
           {
@@ -24110,11 +24110,12 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration 1`] = `
             "integration": {
               "credentials": {
                 "Fn::GetAtt": [
-                  "BucketRole06F92C3C",
+                  "ApiTestS3IntegrationsExecutionRole635C75E5",
                   "Arn",
                 ],
               },
               "httpMethod": "GET",
+              "requestParameters": {},
               "responses": {
                 "4|5\\d{2}": {
                   "responseParameters": {},
@@ -24676,12 +24677,39 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration 1`] = `
       },
       "Type": "AWS::IAM::Role",
     },
-    "Bucket83908E77": {
-      "DeletionPolicy": "Retain",
-      "Type": "AWS::S3::Bucket",
-      "UpdateReplacePolicy": "Retain",
-    },
-    "BucketRole06F92C3C": {
+    "ApiTestS3IntegrationsExecutionRole635C75E5": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -24698,7 +24726,39 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration 1`] = `
       },
       "Type": "AWS::IAM::Role",
     },
-    "BucketRoleDefaultPolicy8728EC68": {
+    "ApiTestS3IntegrationsExecutionRoleDefaultPolicyD81F6360": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -24707,13 +24767,6 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration 1`] = `
                 "s3:GetObject*",
                 "s3:GetBucket*",
                 "s3:List*",
-                "s3:DeleteObject*",
-                "s3:PutObject",
-                "s3:PutObjectLegalHold",
-                "s3:PutObjectRetention",
-                "s3:PutObjectTagging",
-                "s3:PutObjectVersionTagging",
-                "s3:Abort*",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -24733,7 +24786,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration 1`] = `
                           "Arn",
                         ],
                       },
-                      "/*",
+                      "//test",
                     ],
                   ],
                 },
@@ -24742,14 +24795,19 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration 1`] = `
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "BucketRoleDefaultPolicy8728EC68",
+        "PolicyName": "ApiTestS3IntegrationsExecutionRoleDefaultPolicyD81F6360",
         "Roles": [
           {
-            "Ref": "BucketRole06F92C3C",
+            "Ref": "ApiTestS3IntegrationsExecutionRole635C75E5",
           },
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "Bucket83908E77": {
+      "DeletionPolicy": "Retain",
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
     },
   },
   "Rules": {
@@ -24817,6 +24875,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration 2`] = `
         "x-amazon-apigateway-integration": {
           "credentials": "\${<TOKEN>}",
           "httpMethod": "GET",
+          "requestParameters": {},
           "responses": {
             "4|5\\d{2}": {
               "responseParameters": {},
@@ -25181,7 +25240,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 1`
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "ApiTestDeployment153EC4786cd4a36de685ef28236b54d1bfbeccf3": {
+    "ApiTestDeployment153EC4782361ad8519447ce859aa5a4f47453aca": {
       "DependsOn": [
         "ApiTestPrepareSpecCustomResourceC9800EE6",
       ],
@@ -25273,7 +25332,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 1`
           "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
         },
         "DeploymentId": {
-          "Ref": "ApiTestDeployment153EC4786cd4a36de685ef28236b54d1bfbeccf3",
+          "Ref": "ApiTestDeployment153EC4782361ad8519447ce859aa5a4f47453aca",
         },
         "MethodSettings": [
           {
@@ -25418,11 +25477,12 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 1`
             "integration": {
               "credentials": {
                 "Fn::GetAtt": [
-                  "BucketRole06F92C3C",
+                  "ApiTestS3IntegrationsExecutionRole635C75E5",
                   "Arn",
                 ],
               },
               "httpMethod": "GET",
+              "requestParameters": {},
               "responses": {
                 "4|5\\d{2}": {
                   "responseParameters": {
@@ -25992,12 +26052,39 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 1`
       },
       "Type": "AWS::IAM::Role",
     },
-    "Bucket83908E77": {
-      "DeletionPolicy": "Retain",
-      "Type": "AWS::S3::Bucket",
-      "UpdateReplacePolicy": "Retain",
-    },
-    "BucketRole06F92C3C": {
+    "ApiTestS3IntegrationsExecutionRole635C75E5": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -26014,7 +26101,39 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 1`
       },
       "Type": "AWS::IAM::Role",
     },
-    "BucketRoleDefaultPolicy8728EC68": {
+    "ApiTestS3IntegrationsExecutionRoleDefaultPolicyD81F6360": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -26023,13 +26142,6 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 1`
                 "s3:GetObject*",
                 "s3:GetBucket*",
                 "s3:List*",
-                "s3:DeleteObject*",
-                "s3:PutObject",
-                "s3:PutObjectLegalHold",
-                "s3:PutObjectRetention",
-                "s3:PutObjectTagging",
-                "s3:PutObjectVersionTagging",
-                "s3:Abort*",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -26049,7 +26161,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 1`
                           "Arn",
                         ],
                       },
-                      "/*",
+                      "//test",
                     ],
                   ],
                 },
@@ -26058,14 +26170,19 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 1`
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "BucketRoleDefaultPolicy8728EC68",
+        "PolicyName": "ApiTestS3IntegrationsExecutionRoleDefaultPolicyD81F6360",
         "Roles": [
           {
-            "Ref": "BucketRole06F92C3C",
+            "Ref": "ApiTestS3IntegrationsExecutionRole635C75E5",
           },
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "Bucket83908E77": {
+      "DeletionPolicy": "Retain",
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
     },
   },
   "Rules": {
@@ -26149,6 +26266,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 2`
         "x-amazon-apigateway-integration": {
           "credentials": "\${<TOKEN>}",
           "httpMethod": "GET",
+          "requestParameters": {},
           "responses": {
             "4|5\\d{2}": {
               "responseParameters": {

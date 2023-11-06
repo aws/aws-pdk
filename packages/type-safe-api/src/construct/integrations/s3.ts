@@ -1,10 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { FeatureFlags } from "aws-cdk-lib";
-import { Grant, IRole, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
+import { IRole, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { IBucket } from "aws-cdk-lib/aws-s3";
-import * as perms from "aws-cdk-lib/aws-s3/lib/perms";
-import * as cxapi from "aws-cdk-lib/cx-api";
 import { IConstruct } from "constructs";
 import { ErrorIntegrationResponse } from "./error-integration-response";
 import { ErrorIntegrationResponses } from "./error-integration-responses";
@@ -112,51 +109,20 @@ export class S3Integration extends Integration {
    * Grant API Gateway permissions to invoke the S3 bucket
    */
   public grant({ scope, method, path }: IntegrationGrantProps) {
-    const grantMethod = this.method ?? method;
-    let bucketActions: string[] = [];
-    let keyActions: string[] = [];
-
-    switch (grantMethod) {
-      case "get":
-      case "head":
-      case "options":
-      case "trace":
-        bucketActions = perms.BUCKET_READ_ACTIONS;
-        keyActions = perms.KEY_READ_ACTIONS;
-        break;
-
-      case "post":
-      case "put":
-      case "patch":
-        bucketActions = FeatureFlags.of(scope).isEnabled(
-          cxapi.S3_GRANT_WRITE_WITHOUT_ACL
-        )
-          ? perms.BUCKET_PUT_ACTIONS
-          : perms.LEGACY_BUCKET_PUT_ACTIONS;
-        keyActions = perms.KEY_WRITE_ACTIONS;
-        break;
-
-      case "delete":
-        bucketActions = perms.BUCKET_DELETE_ACTIONS;
-        break;
-    }
-
     const executionRole = this.executionRole(scope);
-    const grantPath = this.path ?? path;
-    const permissionPath = grantPath.replace(/{[^\}]*\}/g, "*");
 
-    Grant.addToPrincipalOrResource({
-      grantee: executionRole,
-      actions: bucketActions,
-      resourceArns: [
-        this.bucket.bucketArn,
-        this.bucket.arnForObjects(permissionPath),
-      ],
-      resource: this.bucket,
-    });
+    // Replace path parameters with * to grant access to arbitrary values for path parameters
+    const permissionPath = (this.path ?? path).replace(/{[^\}]*\}/g, "*");
 
-    if (this.bucket.encryptionKey) {
-      this.bucket.encryptionKey.grant(executionRole, ...keyActions);
+    // Grant read access for GET/HEAD/OPTIONS/TRACE, otherwise write
+    if (
+      ["get", "head", "options", "trace"].includes(
+        (this.method ?? method).toLowerCase()
+      )
+    ) {
+      this.bucket.grantRead(executionRole, permissionPath);
+    } else {
+      this.bucket.grantWrite(executionRole, permissionPath);
     }
   }
 }
