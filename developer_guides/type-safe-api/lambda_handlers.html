@@ -3493,12 +3493,29 @@
 <span class="cm"> */</span>
 <span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SayHelloHandler</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">SayHello</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Interceptors are initialised once during the lambda &quot;init&quot; phase</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Interceptor</span><span class="o">&lt;</span><span class="n">SayHelloInput</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">interceptors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DefaultInterceptors</span><span class="p">.</span><span class="na">all</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/**</span>
 <span class="cm">     * Return the interceptors for this handler.</span>
 <span class="cm">     * You can also use the @Interceptors annotation on the class to add interceptors</span>
 <span class="cm">     */</span>
 <span class="w">    </span><span class="nd">@Override</span>
 <span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Interceptor</span><span class="o">&lt;</span><span class="n">SayHelloInput</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nf">getInterceptors</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">DefaultInterceptors</span><span class="p">.</span><span class="na">all</span><span class="p">();</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">interceptors</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * This method is executed prior to the Java SnapStart snapshot being taken.</span>
+<span class="cm">     * Perform any warmup activities to &quot;prime&quot; your function here. Code in this function will be just-in-time compiled,</span>
+<span class="cm">     * before the snapshot is taken, and thus optimised ready for the first invocation.</span>
+<span class="cm">     * For example if your function interacts with DynamoDB, perform a simple read operation here.</span>
+<span class="cm">     * @see https://aws.amazon.com/blogs/compute/reducing-java-cold-starts-on-aws-lambda-functions-with-snapstart/</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">warmUp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="cm">/**</span>
@@ -3577,6 +3594,7 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
+<p>The generated Java functions are configured to enable <a href="https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html">SnapStart</a> by default.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavainfra.infra.Api</span><span class="p">;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavainfra.infra.ApiProps</span><span class="p">;</span>
 <span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavainfra.infra.functions.SayHelloFunction</span><span class="p">;</span>
@@ -3626,7 +3644,7 @@
   <small>
     
       Last update:
-      2023-11-05
+      2023-11-06
     
   </small>
 </div>

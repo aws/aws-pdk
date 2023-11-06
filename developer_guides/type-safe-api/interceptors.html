@@ -3687,6 +3687,23 @@
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
+<p>Note also that in Java, you can opt to implement your interceptor by extending the <code>InterceptorWithWarmup</code> class, which by default will prime your interceptor by calling the <code>handle</code> method with an empty event. You can override the <code>warmUp</code> method to change the default warmup behaviour.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MyWarmupInterceptor</span><span class="o">&lt;</span><span class="n">Input</span><span class="o">&gt;</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">InterceptorWithWarmup</span><span class="o">&lt;</span><span class="n">Input</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="nd">@Override</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">warmUp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Invoke the &quot;handle&quot; method with an empty input</span>
+<span class="w">    </span><span class="kd">super</span><span class="p">.</span><span class="na">warmUp</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Perform additional priming here...</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nd">@Override</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">Response</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="n">ChainedRequestInput</span><span class="o">&lt;</span><span class="n">Input</span><span class="o">&gt;</span><span class="w"> </span><span class="n">input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="p">...</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
 </div>
 <div class="tabbed-block">
 <p>In Python, a list of interceptors can be passed as a keyword argument to the generated lambda handler decorator, for example:</p>
@@ -3891,7 +3908,7 @@
   <small>
     
       Last update:
-      2023-11-05
+      2023-11-06
     
   </small>
 </div>
