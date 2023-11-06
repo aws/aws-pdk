@@ -331,6 +331,7 @@ export class MonorepoTsProject
           "fix-mismatches"
         )
       );
+      upgradeDepsTask.exec(`rm ${this.package.lockFile}`);
       upgradeDepsTask.exec(
         NodePackageUtils.command.install(this.package.packageManager)
       );
@@ -514,6 +515,7 @@ export class MonorepoTsProject
     this.validateSubProjects();
     this.updateWorkspace();
     this.installNonNodeDependencies();
+    this.resolveLocalBunDependencies();
 
     // Disable node warnings if configured
     if (this._options.disableNodeWarnings) {
@@ -688,6 +690,45 @@ export class MonorepoTsProject
     this.subprojects.forEach((subProject) =>
       subProject.tasks.addEnvironment("NODE_NO_WARNINGS", "1")
     );
+  }
+
+  /**
+   * Resolve all local workspace dependencies to keep bun happy.
+   */
+  private resolveLocalBunDependencies(): void {
+    if (this.package.packageManager !== NodePackageManager.BUN) {
+      return;
+    }
+
+    const nodeSubProjectNames = new Set(
+      this.subprojects
+        .filter((s) => NodePackageUtils.isNodeProject(s))
+        .map((s) => (s as NodeProject).package.packageName)
+    );
+
+    this.subprojects.forEach((subProject) => {
+      if (NodePackageUtils.isNodeProject(subProject)) {
+        subProject.deps.all
+          .filter((dep) => nodeSubProjectNames.has(dep.name))
+          .forEach((d) => {
+            switch (d.type) {
+              case DependencyType.RUNTIME:
+                subProject.addDeps(`${d.name}@workspace:*`);
+                break;
+              case DependencyType.BUILD:
+                subProject.addDevDeps(`${d.name}@workspace:*`);
+                break;
+              case DependencyType.PEER:
+                subProject.addPeerDeps(`${d.name}@workspace:*`);
+                break;
+              default:
+                console.warn(
+                  `Cannot update local dependency due to unsupported type: ${d.type}`
+                );
+            }
+          });
+      }
+    });
   }
 }
 

@@ -6,6 +6,7 @@ const { sync } = require("find-up");
 
 process.argv.splice(0, 2);
 const isSynth = process.argv.filter(p => !p.startsWith("--")).length === 0;
+const isInstall = process.argv[0] === "install";
 
 if (process.argv[0] == "new") {
   execa.commandSync(`npx --yes projen@latest new --from @aws/pdk ${process.argv.slice(1).join(" ")}`, { stdio: "inherit" });
@@ -27,7 +28,7 @@ const engines = JSON.parse(
 ).engines;
 
 if (engines) {
-  let pkgMgrCmd = engines.pnpm ? "pnpm" : engines.yarn ? "yarn" : engines.bun ? "bun" : "npm run";
+  let pkgMgrCmd = engines.pnpm ? "pnpm" : engines.yarn ? "yarn" : engines.bun ? `bun${isInstall ? '' : ' run'}` : "npm run";
 
   // Deploy is a pnpm command, but it's more likely users want to run the deploy task
   if (engines.pnpm && process.argv[0] === "deploy") {
