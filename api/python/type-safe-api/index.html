@@ -4524,6 +4524,7 @@ this type-testing method instead.</p>
   <span class="n">role</span><span class="p">:</span> <span class="n">IRole</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">runtime_management_mode</span><span class="p">:</span> <span class="n">RuntimeManagementMode</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">security_groups</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ISecurityGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">snap_start</span><span class="p">:</span> <span class="n">SnapStartConf</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">timeout</span><span class="p">:</span> <span class="n">Duration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tracing</span><span class="p">:</span> <span class="n">Tracing</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">vpc</span><span class="p">:</span> <span class="n">IVpc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4722,6 +4723,11 @@ this type-testing method instead.</p>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunction.Initializer.parameter.securityGroups">security_groups</a></code></td>
 <td><code>typing.List[aws_cdk.aws_ec2.ISecurityGroup]</code></td>
 <td>The list of security groups to associate with the Lambda's network interfaces.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/type-safe-api.SnapStartFunction.Initializer.parameter.snapStart">snap_start</a></code></td>
+<td><code>aws_cdk.aws_lambda.SnapStartConf</code></td>
+<td>Enable SnapStart for Lambda Function.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunction.Initializer.parameter.timeout">timeout</a></code></td>
@@ -5070,6 +5076,14 @@ provide a Role, you must add the relevant AWS managed policies yourself.</p>
 <p>The list of security groups to associate with the Lambda's network interfaces.</p>
 <p>Only used if 'vpc' is supplied.</p>
 <hr />
+<h5 id="snap_startoptional"><code>snap_start</code><sup>Optional</sup> <a name="snap_start" id="@aws/type-safe-api.SnapStartFunction.Initializer.parameter.snapStart"></a></h5>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_lambda.SnapStartConf</li>
+<li><em>Default:</em> No snapstart</li>
+</ul>
+<p>Enable SnapStart for Lambda Function.</p>
+<p>SnapStart is currently supported only for Java 11, 17 runtime</p>
+<hr />
 <h5 id="timeoutoptional"><code>timeout</code><sup>Optional</sup> <a name="timeout" id="@aws/type-safe-api.SnapStartFunction.Initializer.parameter.timeout"></a></h5>
 <ul>
 <li><em>Type:</em> aws_cdk.Duration</li>
@@ -5192,6 +5206,10 @@ Guide.</p>
 <tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunction.grantInvoke">grant_invoke</a></code></td>
 <td>Grant the given identity permissions to invoke this Lambda.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/type-safe-api.SnapStartFunction.grantInvokeCompositePrincipal">grant_invoke_composite_principal</a></code></td>
+<td>Grant multiple principals the ability to invoke this Lambda via CompositePrincipal.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunction.grantInvokeUrl">grant_invoke_url</a></code></td>
@@ -5701,6 +5719,17 @@ This function is overridden as a noOp for QualifiedFunctionBase.</p>
 <h6 id="granteerequired"><code>grantee</code><sup>Required</sup> <a name="grantee" id="@aws/type-safe-api.SnapStartFunction.grantInvoke.parameter.grantee"></a></h6>
 <ul>
 <li><em>Type:</em> aws_cdk.aws_iam.IGrantable</li>
+</ul>
+<hr />
+<h5 id="grant_invoke_composite_principal"><code>grant_invoke_composite_principal</code> <a name="grant_invoke_composite_principal" id="@aws/type-safe-api.SnapStartFunction.grantInvokeCompositePrincipal"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">grant_invoke_composite_principal</span><span class="p">(</span>
+  <span class="n">composite_principal</span><span class="p">:</span> <span class="n">CompositePrincipal</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Grant</span><span class="p">]</span>
+</code></pre></div>
+<p>Grant multiple principals the ability to invoke this Lambda via CompositePrincipal.</p>
+<h6 id="composite_principalrequired"><code>composite_principal</code><sup>Required</sup> <a name="composite_principal" id="@aws/type-safe-api.SnapStartFunction.grantInvokeCompositePrincipal.parameter.compositePrincipal"></a></h6>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_iam.CompositePrincipal</li>
 </ul>
 <hr />
 <h5 id="grant_invoke_url"><code>grant_invoke_url</code> <a name="grant_invoke_url" id="@aws/type-safe-api.SnapStartFunction.grantInvokeUrl"></a></h5>
@@ -28935,6 +28964,7 @@ of gradle to the one provided by default</p>
   <span class="n">role</span><span class="p">:</span> <span class="n">IRole</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">runtime_management_mode</span><span class="p">:</span> <span class="n">RuntimeManagementMode</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">security_groups</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ISecurityGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">snap_start</span><span class="p">:</span> <span class="n">SnapStartConf</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">timeout</span><span class="p">:</span> <span class="n">Duration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tracing</span><span class="p">:</span> <span class="n">Tracing</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">vpc</span><span class="p">:</span> <span class="n">IVpc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -29124,6 +29154,11 @@ of gradle to the one provided by default</p>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunctionProps.property.securityGroups">security_groups</a></code></td>
 <td><code>typing.List[aws_cdk.aws_ec2.ISecurityGroup]</code></td>
 <td>The list of security groups to associate with the Lambda's network interfaces.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/type-safe-api.SnapStartFunctionProps.property.snapStart">snap_start</a></code></td>
+<td><code>aws_cdk.aws_lambda.SnapStartConf</code></td>
+<td>Enable SnapStart for Lambda Function.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.SnapStartFunctionProps.property.timeout">timeout</a></code></td>
@@ -29529,6 +29564,16 @@ provide a Role, you must add the relevant AWS managed policies yourself.</p>
 </ul>
 <p>The list of security groups to associate with the Lambda's network interfaces.</p>
 <p>Only used if 'vpc' is supplied.</p>
+<hr />
+<h5 id="snap_startoptional_1"><code>snap_start</code><sup>Optional</sup> <a name="snap_start" id="@aws/type-safe-api.SnapStartFunctionProps.property.snapStart"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">snap_start</span><span class="p">:</span> <span class="n">SnapStartConf</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> aws_cdk.aws_lambda.SnapStartConf</li>
+<li><em>Default:</em> No snapstart</li>
+</ul>
+<p>Enable SnapStart for Lambda Function.</p>
+<p>SnapStart is currently supported only for Java 11, 17 runtime</p>
 <hr />
 <h5 id="timeoutoptional_2"><code>timeout</code><sup>Optional</sup> <a name="timeout" id="@aws/type-safe-api.SnapStartFunctionProps.property.timeout"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">timeout</span><span class="p">:</span> <span class="n">Duration</span>
