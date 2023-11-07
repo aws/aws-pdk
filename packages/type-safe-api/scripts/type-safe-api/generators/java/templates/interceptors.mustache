@@ -12,12 +12,13 @@ import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ApiRes
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.InterceptorWithWarmup;
 import org.apache.logging.log4j.Logger;
 
 /**
  * Interceptor for handling uncaught exceptions and responding with a default error response
  */
-public class TryCatchInterceptor<Input> implements Interceptor<Input> {
+public class TryCatchInterceptor<Input> extends InterceptorWithWarmup<Input> {
     private final int statusCode;
     private final String errorResponseBody;
 
@@ -66,6 +67,7 @@ public class TryCatchInterceptor<Input> implements Interceptor<Input> {
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.InterceptorWithWarmup;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -73,7 +75,7 @@ import java.util.HashMap;
  * An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
  * Allows all origins and headers.
  */
-public class ResponseHeadersInterceptor<Input> implements Interceptor<Input> {
+public class ResponseHeadersInterceptor<Input> extends InterceptorWithWarmup<Input> {
     private final Map<String, String> additionalHeaders;
 
     public ResponseHeadersInterceptor() {
@@ -110,6 +112,7 @@ import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Chaine
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.RequestInput;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.InterceptorWithWarmup;
 import com.amazonaws.services.lambda.runtime.Context;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -122,8 +125,14 @@ import software.amazon.lambda.powertools.logging.LoggingUtils;
  * and adds the lambda context.
  * See https://docs.powertools.aws.dev/lambda/java/latest/core/logging/
  */
-public class LoggingInterceptor<Input> implements Interceptor<Input> {
+public class LoggingInterceptor<Input> extends InterceptorWithWarmup<Input> {
     private Logger logger = LogManager.getLogger(LoggingInterceptor.class);
+
+    @Override
+    public void warmUp() {
+        super.warmUp();
+        logger.info("LoggingInterceptor: init");
+    }
 
     /**
      * Return the instance of the logger from the interceptor context
@@ -187,7 +196,9 @@ public class LoggingInterceptor<Input> implements Interceptor<Input> {
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.InterceptorWithWarmup;
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.entities.Subsegment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.Logger;
@@ -200,13 +211,11 @@ import software.amazon.lambda.powertools.tracing.TracingUtils;
  * details.
  * See: https://docs.powertools.aws.dev/lambda/java/latest/core/tracing/
  */
-public class TracingInterceptor<Input> implements Interceptor<Input> {
+public class TracingInterceptor<Input> extends InterceptorWithWarmup<Input> {
 
-    {
-        // Create a segment during the lambda init phase to ensure xray emitter
-        // is warmed up prior to invocation phase
-        AWSXRay.beginSubsegment("Tracing Interceptor - Init");
-        AWSXRay.endSubsegment();
+    static {
+        AWSXRayRecorderBuilder builder = AWSXRayRecorderBuilder.standard();
+        AWSXRay.setGlobalRecorder(builder.build());
     }
 
     private final boolean captureResponse;
@@ -217,6 +226,18 @@ public class TracingInterceptor<Input> implements Interceptor<Input> {
 
     public TracingInterceptor() {
         this(false);
+    }
+
+    @Override
+    public void warmUp() {
+        try {
+            // Set a dummy trace header to ensure the regular subsegment code path is followed and warmed.
+            // The segment is not actually recorded by xray.
+            System.setProperty("com.amazonaws.xray.traceHeader", "Root=1-xxx;Parent=yyy;Sampled=1");
+            super.warmUp();
+        } finally {
+            System.clearProperty("com.amazonaws.xray.traceHeader");
+        }
     }
 
     private void logError(final String message, final ChainedRequestInput<Input> input, final Throwable e) {
@@ -280,6 +301,7 @@ import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Chaine
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.RequestInput;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
 import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.InterceptorWithWarmup;
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.lambda.powertools.core.internal.LambdaHandlerProcessor;
@@ -290,7 +312,7 @@ import software.amazon.lambda.powertools.metrics.MetricsUtils;
  * and ensures metrics are flushed prior to finishing the lambda execution
  * See: https://docs.powertools.aws.dev/lambda/typescript/latest/core/metrics
  */
-public class MetricsInterceptor<Input> implements Interceptor<Input> {
+public class MetricsInterceptor<Input> extends InterceptorWithWarmup<Input> {
     private MetricsLogger metrics = MetricsUtils.metricsLogger();
 
     /**
