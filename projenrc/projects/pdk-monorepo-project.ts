@@ -202,20 +202,9 @@ const updatePythonPackageTask = (project: Project): void => {
 const resolveDependencies = (project: any): void => {
   // resolutions
   if (project instanceof NodeProject || project.package) {
-    // project.package.addPackageResolutions(
-    //   "@types/prettier@2.6.0",
-    //   "ansi-regex@^5.0.1",
-    //   "underscore@^1.12.1",
-    //   "deep-extend@^0.5.1",
-    //   "argparse@^1.0.10",
-    //   "debug@^2.6.9",
-    //   "minimist@^1.2.6",
-    //   "ejs@^3.1.7",
-    //   "async@^2.6.4",
-    //   "nth-check@^2.0.1",
-    //   "got@^11.8.5",
-    //   "@types/yargs@17.0.10",
-    //   "tar@^4.4.18"
-    // );
+    project.package.addPackageResolutions(
+      "tar@^4.4.18",
+      "@babel/traverse@7.23.2"
+    );
   }
 };
