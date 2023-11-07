@@ -49,28 +49,78 @@ For integrating an API operation with a lambda, use `Integrations.lambda(yourLam
 
 ## S3 integration
 
-For integrating an API operation with an S3 bucket, use `Integrations.s3(s3IntegrationProps)`.
+For integrating an API operation with an S3 bucket, use `Integrations.s3`.
 
-With:
+=== "TS"
 
-```ts
-s3IntegrationProps = {
-    bucket: yourS3Bucket,
+    ```ts
+    Integrations.s3({ bucket: yourS3Bucket });
+    ```
 
-    // Optional props
+=== "Java"
 
-    // A role to grant access to the S3 bucket to API Gateway, a role with required access is created by default
-    role: yourS3BucketRole
+    ```java
+    Integrations.s3(S3IntegrationProps.builder()
+            .bucket(yourS3Bucket)
+            .build());
+    ```
 
-    // The method to use to interact with the S3 bucket, default to integration method
-    method: 'get'
+=== "Python"
 
-    // The path to use to interact with the S3 bucket, default to integration path
-    path: 'example.json'
-}
-```
+    ```python
+    Integrations.s3(bucket=your_s3_bucket)
+    ```
 
-For more information, refer to the [Tutorial: Create a REST API as an Amazon S3 proxy in API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/integrating-api-with-aws-services-s3.html).
+!!!note
+By default, this will request an S3 object with the HTTP method and path defined in your API, for example: `GET /pets/{petId}` would perform a `GetObject` for `s3://<yourS3Bucket>/pets/{petId}`, where the path parameter `{petId}` is substituted by the user supplied value.
+
+For more information, for example how the HTTP methods map to S3 operations, refer to the [Tutorial: Create a REST API as an Amazon S3 proxy in API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/integrating-api-with-aws-services-s3.html).
+
+### Customise S3 Integrations
+
+You can customise the integration to access objects in S3 at a different key to the API operation path. You can also reference path parameters in the overridden path.
+
+For example, you could have an API operation `POST /pets/{petId}/delete`, but map it to an S3 `DeleteObject` operation for a different object key:
+
+=== "TS"
+
+    ```ts
+    Integrations.s3({
+        bucket: yourS3Bucket,
+        method: "delete",
+        path: "my-pets/{petId}/details.json"
+    });
+    ```
+
+=== "Java"
+
+    ```java
+    Integrations.s3(S3IntegrationProps.builder()
+            .bucket(yourS3Bucket)
+            .method("delete")
+            .path("my-pets/{petId}/details.json")
+            .build());
+    ```
+
+=== "Python"
+
+    ```python
+    Integrations.s3(
+        bucket=your_s3_bucket,
+        method="delete",
+        path="my-pets/{petId}/details.json"
+    )
+    ```
+
+### Error Behaviour
+
+By default, if the S3 operation throws an error (for example an object at the requested path does not exist), these will be mapped to an empty `500` error response.
+
+You can customise the error behaviour by passing an `errorIntegrationResponse`.
+
+- `ErrorIntegrationResponses.catchAll()` - default behaviour, returns a `500` response for any S3 error
+- `ErrorIntegrationResponses.none()` - all failed responses are returned as-is in `200` response (as in successful responses)
+- `ErrorIntegrationResponses.custom(...)` - custom error responses, mapping an S3 HTTP status regex to the corresponding response API gateway should return
 
 ## Mock integration
 
