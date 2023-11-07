@@ -88,7 +88,8 @@ For example, you could have an API operation `POST /pets/{petId}/delete`, but ma
     Integrations.s3({
         bucket: yourS3Bucket,
         method: "delete",
-        path: "my-pets/{petId}/details.json"
+        path: "my-pets/{petId}/details.json",
+        successResponseStatusCode: 204,
     });
     ```
 
@@ -99,6 +100,7 @@ For example, you could have an API operation `POST /pets/{petId}/delete`, but ma
             .bucket(yourS3Bucket)
             .method("delete")
             .path("my-pets/{petId}/details.json")
+            .successResponseStatusCode(204)
             .build());
     ```
 
@@ -108,7 +110,8 @@ For example, you could have an API operation `POST /pets/{petId}/delete`, but ma
     Integrations.s3(
         bucket=your_s3_bucket,
         method="delete",
-        path="my-pets/{petId}/details.json"
+        path="my-pets/{petId}/details.json",
+        successResponseStatusCode=204
     )
     ```
 

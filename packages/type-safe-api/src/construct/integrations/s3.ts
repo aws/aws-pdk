@@ -34,6 +34,13 @@ export interface S3IntegrationProps {
   readonly path?: string;
 
   /**
+   * The response status code to use when the S3 bucket returns no error. You can overidde the status code in case of POST or DELETE to follow REST best practices
+   * @default - 200
+   * @example - 201 (with method: "post")
+   */
+  readonly successResponseStatusCode?: number;
+
+  /**
    * The error integration response to use when the S3 bucket returns an error
    * @default ErrorIntegrationResponses.catchAll()
    */
@@ -48,6 +55,7 @@ export class S3Integration extends Integration {
   private readonly bucket: IBucket;
   private readonly method?: Method;
   private readonly path?: string;
+  private readonly successResponseStatusCode?: number;
   private readonly errorIntegrationResponse?: ErrorIntegrationResponse;
 
   private readonly executionRoleId = "S3IntegrationsExecutionRole";
@@ -58,6 +66,7 @@ export class S3Integration extends Integration {
     this.bucket = props.bucket;
     this.method = props.method;
     this.path = props.path;
+    this.successResponseStatusCode = props.successResponseStatusCode;
     this.errorIntegrationResponse = props.errorIntegrationResponse;
   }
 
@@ -91,7 +100,7 @@ export class S3Integration extends Integration {
       },
       responses: {
         default: {
-          statusCode: "200",
+          statusCode: `${this.successResponseStatusCode ?? 200}`,
           responseParameters: props.corsOptions
             ? generateCorsResponseParameters(props.corsOptions)
             : {},
