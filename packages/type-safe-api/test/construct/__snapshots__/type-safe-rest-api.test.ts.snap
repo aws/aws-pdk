@@ -24466,7 +24466,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "f2d30cfc360482320a52a4fcde8a70f3569df79ab30be24650fda58eb60052cf.zip",
+          "S3Key": "7382a0addb9f34974a1ea6c6c9b063882af874828f366f5c93b2b7b64db15c94.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (Default/ApiTest/PrepareSpecProvider)",
         "Environment": {
@@ -25841,7 +25841,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 1`
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "f2d30cfc360482320a52a4fcde8a70f3569df79ab30be24650fda58eb60052cf.zip",
+          "S3Key": "7382a0addb9f34974a1ea6c6c9b063882af874828f366f5c93b2b7b64db15c94.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (Default/ApiTest/PrepareSpecProvider)",
         "Environment": {
@@ -26350,6 +26350,4039 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 2`
         "gatewayresponse.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
         "gatewayresponse.header.Access-Control-Allow-Origin": "'*'",
       },
+      "responseTemplates": {
+        "application/json": "{"message": "$context.error.validationErrorString"}",
+      },
+      "statusCode": 400,
+    },
+  },
+  "x-amazon-apigateway-request-validator": "all",
+  "x-amazon-apigateway-request-validators": {
+    "all": {
+      "validateRequestBody": true,
+      "validateRequestParameters": true,
+    },
+  },
+}
+`;
+
+exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and custom error responses 1`] = `
+{
+  "Outputs": {
+    "ApiTestEndpoint34A72375": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "ApiTestEE73F324",
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "ApiTestDeploymentStageprod660267A6",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "ApiTestAccessLogs92CFE051": {
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestAccount272B5CDD": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "ApiTestEE73F324",
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "ApiTestCloudWatchRole56ED0814",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestApiTestAclWebACL9E75156F": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "DefaultAction": {
+          "Allow": {},
+        },
+        "Name": "Default--ApiTest-Acl-WebAcl",
+        "Rules": [
+          {
+            "Name": "AWS-AWSManagedRulesCommonRuleSet",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 2,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesCommonRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "Default--ApiTest-Acl-WebAcl-AWS-AWSManagedRulesCommonRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+        ],
+        "Scope": "REGIONAL",
+        "VisibilityConfig": {
+          "CloudWatchMetricsEnabled": true,
+          "MetricName": "Default--ApiTest-Acl-WebAcl",
+          "SampledRequestsEnabled": true,
+        },
+      },
+      "Type": "AWS::WAFv2::WebACL",
+    },
+    "ApiTestApiTestAclWebACLAssociation54801610": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ResourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":apigateway:",
+              {
+                "Ref": "AWS::Region",
+              },
+              "::/restapis/",
+              {
+                "Ref": "ApiTestEE73F324",
+              },
+              "/stages/",
+              {
+                "Ref": "ApiTestDeploymentStageprod660267A6",
+              },
+            ],
+          ],
+        },
+        "WebACLArn": {
+          "Fn::GetAtt": [
+            "ApiTestApiTestAclWebACL9E75156F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::WAFv2::WebACLAssociation",
+    },
+    "ApiTestCloudWatchRole56ED0814": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestDeployment153EC478fefc088658fe169eae079143df6c6a3a": {
+      "DependsOn": [
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "ApiTestDeploymentStageprod660267A6": {
+      "DependsOn": [
+        "ApiTestAccount272B5CDD",
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AccessLogSetting": {
+          "DestinationArn": {
+            "Fn::GetAtt": [
+              "ApiTestAccessLogs92CFE051",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": {
+          "Ref": "ApiTestDeployment153EC478fefc088658fe169eae079143df6c6a3a",
+        },
+        "MethodSettings": [
+          {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
+        "RestApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "StageName": "prod",
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "ApiTestEE73F324": {
+      "DependsOn": [
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "BodyS3Location": {
+          "Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "Key": {
+            "Fn::GetAtt": [
+              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "outputSpecKey",
+            ],
+          },
+        },
+        "Name": "ApiTest",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "ApiTestPrepareSpecCustomResourceC9800EE6": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecProviderframeworkonEvent2FA9E188",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "credentials": {
+                "Fn::GetAtt": [
+                  "ApiTestS3IntegrationsExecutionRole635C75E5",
+                  "Arn",
+                ],
+              },
+              "httpMethod": "GET",
+              "requestParameters": {},
+              "responses": {
+                "4\\d{2}": {
+                  "responseParameters": {},
+                  "responseTemplates": {},
+                  "statusCode": "400",
+                },
+                "5\\d{2}": {
+                  "responseParameters": {},
+                  "responseTemplates": {},
+                  "statusCode": "500",
+                },
+                "default": {
+                  "responseParameters": {},
+                  "responseTemplates": {},
+                  "statusCode": "200",
+                },
+              },
+              "type": "AWS",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":s3:path/",
+                    {
+                      "Ref": "Bucket83908E77",
+                    },
+                    "//test",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "ApiTestPrepareSpecHandler46C6FEB5": {
+      "DependsOn": [
+        "ApiTestPrepareSpecRole44D562E5",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+        },
+        "FunctionName": "Default-3E755E54PrepSpec",
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecRole44D562E5",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 30,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ApiTestPrepareSpecHandler46C6FEB5",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ApiTestPrepareSpecHandler46C6FEB5",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "Roles": [
+          {
+            "Ref": "ApiTestPrepareSpecProviderRoleF47822B8",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ApiTestPrepareSpecProviderRoleF47822B8": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpecProvider",
+                        ],
+                      ],
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpecProvider:*",
+                        ],
+                      ],
+                    },
+                  ],
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecProviderframeworkonEvent2FA9E188": {
+      "DependsOn": [
+        "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "ApiTestPrepareSpecProviderRoleF47822B8",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "7382a0addb9f34974a1ea6c6c9b063882af874828f366f5c93b2b7b64db15c94.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/ApiTest/PrepareSpecProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "ApiTestPrepareSpecHandler46C6FEB5",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "FunctionName": "Default-3E755E54PrepSpecProvider",
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecProviderRoleF47822B8",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestPrepareSpecRole44D562E5": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-3E755E54PrepSpec:*/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:s3:.*/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared/*/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "S3 resources have been scoped down to the appropriate prefix in the CDK asset bucket, however * is still needed as since the prepared spec hash is not known until deploy time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-3E755E54PrepSpec:*/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:s3:.*/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared/*/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "S3 resources have been scoped down to the appropriate prefix in the CDK asset bucket, however * is still needed as since the prepared spec hash is not known until deploy time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpec",
+                        ],
+                      ],
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpec:*",
+                        ],
+                      ],
+                    },
+                  ],
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": "s3:getObject",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":s3:::",
+                        {
+                          "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                        },
+                        "/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+                      ],
+                    ],
+                  },
+                },
+                {
+                  "Action": "s3:putObject",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":s3:::",
+                        {
+                          "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                        },
+                        "/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared/*",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "s3",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestS3IntegrationsExecutionRole635C75E5": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestS3IntegrationsExecutionRoleDefaultPolicyD81F6360": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "Bucket83908E77",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "Bucket83908E77",
+                          "Arn",
+                        ],
+                      },
+                      "//test",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestS3IntegrationsExecutionRoleDefaultPolicyD81F6360",
+        "Roles": [
+          {
+            "Ref": "ApiTestS3IntegrationsExecutionRole635C75E5",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "Bucket83908E77": {
+      "DeletionPolicy": "Retain",
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and custom error responses 2`] = `
+{
+  "components": {
+    "securitySchemes": {},
+  },
+  "info": {
+    "title": "Test API",
+    "version": "1.0.0",
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/test": {
+      "get": {
+        "operationId": "testOperation",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                    },
+                  },
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Successful response",
+            "headers": {},
+          },
+        },
+        "x-amazon-apigateway-integration": {
+          "credentials": "\${<TOKEN>}",
+          "httpMethod": "GET",
+          "requestParameters": {},
+          "responses": {
+            "4\\d{2}": {
+              "responseParameters": {},
+              "responseTemplates": {},
+              "statusCode": "400",
+            },
+            "5\\d{2}": {
+              "responseParameters": {},
+              "responseTemplates": {},
+              "statusCode": "500",
+            },
+            "default": {
+              "responseParameters": {},
+              "responseTemplates": {},
+              "statusCode": "200",
+            },
+          },
+          "type": "AWS",
+          "uri": "arn:\${<TOKEN>}:apigateway:\${<TOKEN>}:s3:path/\${<TOKEN>}//test",
+        },
+      },
+    },
+  },
+  "x-amazon-apigateway-gateway-responses": {
+    "BAD_REQUEST_BODY": {
+      "responseTemplates": {
+        "application/json": "{"message": "$context.error.validationErrorString"}",
+      },
+      "statusCode": 400,
+    },
+  },
+  "x-amazon-apigateway-request-validator": "all",
+  "x-amazon-apigateway-request-validators": {
+    "all": {
+      "validateRequestBody": true,
+      "validateRequestParameters": true,
+    },
+  },
+}
+`;
+
+exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and no error responses 1`] = `
+{
+  "Outputs": {
+    "ApiTestEndpoint34A72375": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "ApiTestEE73F324",
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "ApiTestDeploymentStageprod660267A6",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "ApiTestAccessLogs92CFE051": {
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestAccount272B5CDD": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "ApiTestEE73F324",
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "ApiTestCloudWatchRole56ED0814",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestApiTestAclWebACL9E75156F": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "DefaultAction": {
+          "Allow": {},
+        },
+        "Name": "Default--ApiTest-Acl-WebAcl",
+        "Rules": [
+          {
+            "Name": "AWS-AWSManagedRulesCommonRuleSet",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 2,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesCommonRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "Default--ApiTest-Acl-WebAcl-AWS-AWSManagedRulesCommonRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+        ],
+        "Scope": "REGIONAL",
+        "VisibilityConfig": {
+          "CloudWatchMetricsEnabled": true,
+          "MetricName": "Default--ApiTest-Acl-WebAcl",
+          "SampledRequestsEnabled": true,
+        },
+      },
+      "Type": "AWS::WAFv2::WebACL",
+    },
+    "ApiTestApiTestAclWebACLAssociation54801610": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ResourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":apigateway:",
+              {
+                "Ref": "AWS::Region",
+              },
+              "::/restapis/",
+              {
+                "Ref": "ApiTestEE73F324",
+              },
+              "/stages/",
+              {
+                "Ref": "ApiTestDeploymentStageprod660267A6",
+              },
+            ],
+          ],
+        },
+        "WebACLArn": {
+          "Fn::GetAtt": [
+            "ApiTestApiTestAclWebACL9E75156F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::WAFv2::WebACLAssociation",
+    },
+    "ApiTestCloudWatchRole56ED0814": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestDeployment153EC478afa544429e35ba377dd3e9879ce7dfea": {
+      "DependsOn": [
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "ApiTestDeploymentStageprod660267A6": {
+      "DependsOn": [
+        "ApiTestAccount272B5CDD",
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AccessLogSetting": {
+          "DestinationArn": {
+            "Fn::GetAtt": [
+              "ApiTestAccessLogs92CFE051",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": {
+          "Ref": "ApiTestDeployment153EC478afa544429e35ba377dd3e9879ce7dfea",
+        },
+        "MethodSettings": [
+          {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
+        "RestApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "StageName": "prod",
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "ApiTestEE73F324": {
+      "DependsOn": [
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "BodyS3Location": {
+          "Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "Key": {
+            "Fn::GetAtt": [
+              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "outputSpecKey",
+            ],
+          },
+        },
+        "Name": "ApiTest",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "ApiTestPrepareSpecCustomResourceC9800EE6": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecProviderframeworkonEvent2FA9E188",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "credentials": {
+                "Fn::GetAtt": [
+                  "ApiTestS3IntegrationsExecutionRole635C75E5",
+                  "Arn",
+                ],
+              },
+              "httpMethod": "GET",
+              "requestParameters": {},
+              "responses": {
+                "default": {
+                  "responseParameters": {},
+                  "responseTemplates": {},
+                  "statusCode": "200",
+                },
+              },
+              "type": "AWS",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":s3:path/",
+                    {
+                      "Ref": "Bucket83908E77",
+                    },
+                    "//test",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "ApiTestPrepareSpecHandler46C6FEB5": {
+      "DependsOn": [
+        "ApiTestPrepareSpecRole44D562E5",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+        },
+        "FunctionName": "Default-3E755E54PrepSpec",
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecRole44D562E5",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 30,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ApiTestPrepareSpecHandler46C6FEB5",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ApiTestPrepareSpecHandler46C6FEB5",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "Roles": [
+          {
+            "Ref": "ApiTestPrepareSpecProviderRoleF47822B8",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ApiTestPrepareSpecProviderRoleF47822B8": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpecProvider",
+                        ],
+                      ],
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpecProvider:*",
+                        ],
+                      ],
+                    },
+                  ],
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecProviderframeworkonEvent2FA9E188": {
+      "DependsOn": [
+        "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "ApiTestPrepareSpecProviderRoleF47822B8",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "7382a0addb9f34974a1ea6c6c9b063882af874828f366f5c93b2b7b64db15c94.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/ApiTest/PrepareSpecProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "ApiTestPrepareSpecHandler46C6FEB5",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "FunctionName": "Default-3E755E54PrepSpecProvider",
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecProviderRoleF47822B8",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestPrepareSpecRole44D562E5": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-3E755E54PrepSpec:*/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:s3:.*/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared/*/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "S3 resources have been scoped down to the appropriate prefix in the CDK asset bucket, however * is still needed as since the prepared spec hash is not known until deploy time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-3E755E54PrepSpec:*/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:s3:.*/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared/*/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "S3 resources have been scoped down to the appropriate prefix in the CDK asset bucket, however * is still needed as since the prepared spec hash is not known until deploy time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpec",
+                        ],
+                      ],
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpec:*",
+                        ],
+                      ],
+                    },
+                  ],
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": "s3:getObject",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":s3:::",
+                        {
+                          "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                        },
+                        "/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+                      ],
+                    ],
+                  },
+                },
+                {
+                  "Action": "s3:putObject",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":s3:::",
+                        {
+                          "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                        },
+                        "/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared/*",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "s3",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestS3IntegrationsExecutionRole635C75E5": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestS3IntegrationsExecutionRoleDefaultPolicyD81F6360": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "Bucket83908E77",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "Bucket83908E77",
+                          "Arn",
+                        ],
+                      },
+                      "//test",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestS3IntegrationsExecutionRoleDefaultPolicyD81F6360",
+        "Roles": [
+          {
+            "Ref": "ApiTestS3IntegrationsExecutionRole635C75E5",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "Bucket83908E77": {
+      "DeletionPolicy": "Retain",
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and no error responses 2`] = `
+{
+  "components": {
+    "securitySchemes": {},
+  },
+  "info": {
+    "title": "Test API",
+    "version": "1.0.0",
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/test": {
+      "get": {
+        "operationId": "testOperation",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                    },
+                  },
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Successful response",
+            "headers": {},
+          },
+        },
+        "x-amazon-apigateway-integration": {
+          "credentials": "\${<TOKEN>}",
+          "httpMethod": "GET",
+          "requestParameters": {},
+          "responses": {
+            "default": {
+              "responseParameters": {},
+              "responseTemplates": {},
+              "statusCode": "200",
+            },
+          },
+          "type": "AWS",
+          "uri": "arn:\${<TOKEN>}:apigateway:\${<TOKEN>}:s3:path/\${<TOKEN>}//test",
+        },
+      },
+    },
+  },
+  "x-amazon-apigateway-gateway-responses": {
+    "BAD_REQUEST_BODY": {
+      "responseTemplates": {
+        "application/json": "{"message": "$context.error.validationErrorString"}",
+      },
+      "statusCode": 400,
+    },
+  },
+  "x-amazon-apigateway-request-validator": "all",
+  "x-amazon-apigateway-request-validators": {
+    "all": {
+      "validateRequestBody": true,
+      "validateRequestParameters": true,
+    },
+  },
+}
+`;
+
+exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and props 1`] = `
+{
+  "Outputs": {
+    "ApiTestEndpoint34A72375": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "ApiTestEE73F324",
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "ApiTestDeploymentStageprod660267A6",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "ApiTestAccessLogs92CFE051": {
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestAccount272B5CDD": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "ApiTestEE73F324",
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "ApiTestCloudWatchRole56ED0814",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestApiTestAclWebACL9E75156F": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "DefaultAction": {
+          "Allow": {},
+        },
+        "Name": "Default--ApiTest-Acl-WebAcl",
+        "Rules": [
+          {
+            "Name": "AWS-AWSManagedRulesCommonRuleSet",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 2,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesCommonRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "Default--ApiTest-Acl-WebAcl-AWS-AWSManagedRulesCommonRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+        ],
+        "Scope": "REGIONAL",
+        "VisibilityConfig": {
+          "CloudWatchMetricsEnabled": true,
+          "MetricName": "Default--ApiTest-Acl-WebAcl",
+          "SampledRequestsEnabled": true,
+        },
+      },
+      "Type": "AWS::WAFv2::WebACL",
+    },
+    "ApiTestApiTestAclWebACLAssociation54801610": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ResourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":apigateway:",
+              {
+                "Ref": "AWS::Region",
+              },
+              "::/restapis/",
+              {
+                "Ref": "ApiTestEE73F324",
+              },
+              "/stages/",
+              {
+                "Ref": "ApiTestDeploymentStageprod660267A6",
+              },
+            ],
+          ],
+        },
+        "WebACLArn": {
+          "Fn::GetAtt": [
+            "ApiTestApiTestAclWebACL9E75156F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::WAFv2::WebACLAssociation",
+    },
+    "ApiTestCloudWatchRole56ED0814": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestDeployment153EC478cfa65892a537cf3fe683b5fe77af4304": {
+      "DependsOn": [
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "ApiTestDeploymentStageprod660267A6": {
+      "DependsOn": [
+        "ApiTestAccount272B5CDD",
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AccessLogSetting": {
+          "DestinationArn": {
+            "Fn::GetAtt": [
+              "ApiTestAccessLogs92CFE051",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId",
+        },
+        "DeploymentId": {
+          "Ref": "ApiTestDeployment153EC478cfa65892a537cf3fe683b5fe77af4304",
+        },
+        "MethodSettings": [
+          {
+            "DataTraceEnabled": false,
+            "HttpMethod": "*",
+            "LoggingLevel": "INFO",
+            "ResourcePath": "/*",
+          },
+        ],
+        "RestApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "StageName": "prod",
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "ApiTestEE73F324": {
+      "DependsOn": [
+        "ApiTestPrepareSpecCustomResourceC9800EE6",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "BodyS3Location": {
+          "Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "Key": {
+            "Fn::GetAtt": [
+              "ApiTestPrepareSpecCustomResourceC9800EE6",
+              "outputSpecKey",
+            ],
+          },
+        },
+        "Name": "ApiTest",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "ApiTestPrepareSpecCustomResourceC9800EE6": {
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecProviderframeworkonEvent2FA9E188",
+            "Arn",
+          ],
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+        },
+        "integrations": {
+          "testOperation": {
+            "integration": {
+              "credentials": {
+                "Fn::GetAtt": [
+                  "ApiTestS3IntegrationsExecutionRole635C75E5",
+                  "Arn",
+                ],
+              },
+              "httpMethod": "DELETE",
+              "requestParameters": {},
+              "responses": {
+                "4|5\\d{2}": {
+                  "responseParameters": {},
+                  "responseTemplates": {},
+                  "statusCode": "500",
+                },
+                "default": {
+                  "responseParameters": {},
+                  "responseTemplates": {},
+                  "statusCode": "204",
+                },
+              },
+              "type": "AWS",
+              "uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":s3:path/",
+                    {
+                      "Ref": "Bucket83908E77",
+                    },
+                    "//my-pets/{petId}/details.json",
+                  ],
+                ],
+              },
+            },
+          },
+        },
+        "operationLookup": {
+          "testOperation": {
+            "method": "get",
+            "path": "/test",
+          },
+        },
+        "outputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared",
+        },
+        "securitySchemes": {},
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "ApiTestPrepareSpecHandler46C6FEB5": {
+      "DependsOn": [
+        "ApiTestPrepareSpecRole44D562E5",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+        },
+        "FunctionName": "Default-3E755E54PrepSpec",
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecRole44D562E5",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 30,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ApiTestPrepareSpecHandler46C6FEB5",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ApiTestPrepareSpecHandler46C6FEB5",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "Roles": [
+          {
+            "Ref": "ApiTestPrepareSpecProviderRoleF47822B8",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ApiTestPrepareSpecProviderRoleF47822B8": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpecProvider",
+                        ],
+                      ],
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpecProvider:*",
+                        ],
+                      ],
+                    },
+                  ],
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestPrepareSpecProviderframeworkonEvent2FA9E188": {
+      "DependsOn": [
+        "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "ApiTestPrepareSpecProviderRoleF47822B8",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Latest runtime cannot be configured. CDK will need to upgrade the Provider construct accordingly.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "7382a0addb9f34974a1ea6c6c9b063882af874828f366f5c93b2b7b64db15c94.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/ApiTest/PrepareSpecProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "ApiTestPrepareSpecHandler46C6FEB5",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "FunctionName": "Default-3E755E54PrepSpecProvider",
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecProviderRoleF47822B8",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestPrepareSpecRole44D562E5": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-3E755E54PrepSpec:*/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:s3:.*/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared/*/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "S3 resources have been scoped down to the appropriate prefix in the CDK asset bucket, however * is still needed as since the prepared spec hash is not known until deploy time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:aws:logs:<AWS::Region>:<AWS::AccountId>:log-group:/aws/lambda/Default-3E755E54PrepSpec:*/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Cloudwatch resources have been scoped down to the LogGroup level, however * is still needed as stream names are created just in time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:s3:.*/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared/*/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "S3 resources have been scoped down to the appropriate prefix in the CDK asset bucket, however * is still needed as since the prepared spec hash is not known until deploy time.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpec",
+                        ],
+                      ],
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region",
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId",
+                          },
+                          ":log-group:/aws/lambda/Default-3E755E54PrepSpec:*",
+                        ],
+                      ],
+                    },
+                  ],
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": "s3:getObject",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":s3:::",
+                        {
+                          "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                        },
+                        "/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json",
+                      ],
+                    ],
+                  },
+                },
+                {
+                  "Action": "s3:putObject",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":s3:::",
+                        {
+                          "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                        },
+                        "/ec22714a0fde30e0834df19bc639f3cb3519abd3ccd6dcf6b761d105827ca227.json-prepared/*",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "s3",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestS3IntegrationsExecutionRole635C75E5": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestS3IntegrationsExecutionRoleDefaultPolicyD81F6360": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM4",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Policy::arn:<AWS::Partition>:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "Cloudwatch Role requires access to create/read groups at the root level.",
+            },
+            {
+              "id": "AwsSolutions-APIG2",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+            {
+              "id": "AwsPrototyping-APIGWRequestValidation",
+              "reason": "This construct implements fine grained validation via OpenApi.",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "Bucket83908E77",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "Bucket83908E77",
+                          "Arn",
+                        ],
+                      },
+                      "//my-pets/*/details.json",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestS3IntegrationsExecutionRoleDefaultPolicyD81F6360",
+        "Roles": [
+          {
+            "Ref": "ApiTestS3IntegrationsExecutionRole635C75E5",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "Bucket83908E77": {
+      "DeletionPolicy": "Retain",
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and props 2`] = `
+{
+  "components": {
+    "securitySchemes": {},
+  },
+  "info": {
+    "title": "Test API",
+    "version": "1.0.0",
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/test": {
+      "get": {
+        "operationId": "testOperation",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                    },
+                  },
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Successful response",
+            "headers": {},
+          },
+        },
+        "x-amazon-apigateway-integration": {
+          "credentials": "\${<TOKEN>}",
+          "httpMethod": "DELETE",
+          "requestParameters": {},
+          "responses": {
+            "4|5\\d{2}": {
+              "responseParameters": {},
+              "responseTemplates": {},
+              "statusCode": "500",
+            },
+            "default": {
+              "responseParameters": {},
+              "responseTemplates": {},
+              "statusCode": "204",
+            },
+          },
+          "type": "AWS",
+          "uri": "arn:\${<TOKEN>}:apigateway:\${<TOKEN>}:s3:path/\${<TOKEN>}//my-pets/{petId}/details.json",
+        },
+      },
+    },
+  },
+  "x-amazon-apigateway-gateway-responses": {
+    "BAD_REQUEST_BODY": {
       "responseTemplates": {
         "application/json": "{"message": "$context.error.validationErrorString"}",
       },

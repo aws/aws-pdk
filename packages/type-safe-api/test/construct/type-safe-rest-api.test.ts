@@ -12,7 +12,7 @@ import { Bucket } from "aws-cdk-lib/aws-s3";
 import { NagSuppressions } from "cdk-nag";
 import * as _ from "lodash";
 import { OpenAPIV3 } from "openapi-types";
-import { Integrations } from "../../lib";
+import { ErrorIntegrationResponses, Integrations } from "../../lib";
 import {
   MethodAndPath,
   TypeSafeRestApi,
@@ -309,7 +309,7 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         integrations: {
           testOperation: {
             integration: Integrations.s3({
-              bucket: new Bucket(stack, "Bucket", {}),
+              bucket: new Bucket(stack, "Bucket"),
             }),
           },
         },
@@ -332,7 +332,82 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         integrations: {
           testOperation: {
             integration: Integrations.s3({
-              bucket: new Bucket(stack, "Bucket", {}),
+              bucket: new Bucket(stack, "Bucket"),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With S3 Integration and props", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket"),
+              method: "delete",
+              path: "/my-pets/{petId}/details.json",
+              successResponseStatusCode: 204,
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With S3 Integration and no error responses", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket"),
+              errorIntegrationResponse: ErrorIntegrationResponses.none(),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With S3 Integration and custom error responses", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket"),
+              errorIntegrationResponse: ErrorIntegrationResponses.custom({
+                errorResponses: {
+                  "4\\d{2}": {
+                    statusCode: "400",
+                    responseParameters: {},
+                    responseTemplates: {},
+                  },
+                  "5\\d{2}": {
+                    statusCode: "500",
+                    responseParameters: {},
+                    responseTemplates: {},
+                  },
+                },
+              }),
             }),
           },
         },
