@@ -61,3 +61,87 @@ export const typescriptTwo: TypescriptTwoChainedHandlerFunction = async (request
  */
 export const handler = typescriptTwoHandler(...INTERCEPTORS, typescriptTwo);"
 `;
+
+exports[`Typescript Handlers Code Generation Script Unit Tests Generates With handlers.yaml 3`] = `
+"import {
+  InternalFailureErrorResponseContent,
+  TypescriptOneChainedRequestInput,
+} from "test-client";
+import {
+  typescriptOne
+} from "../src/typescript-one";
+
+// Common request arguments
+const requestArguments = {
+  chain: undefined as never,
+  event: {} as any,
+  context: {} as any,
+  interceptorContext: {
+    logger: {
+      info: jest.fn(),
+    },
+  },
+} satisfies Omit<TypescriptOneChainedRequestInput, 'input'>;
+
+describe('TypescriptOne', () => {
+
+  it('should return not implemented error', async () => {
+    // TODO: Update the test as appropriate when you implement your handler
+    const response = await typescriptOne({
+      ...requestArguments,
+      input: {
+        // TODO: remove the "as any" below and fill in test values for the requestParameters
+        requestParameters: {} as any,
+        body: {} as never,
+      },
+    });
+
+    expect(response.statusCode).toBe(500);
+    expect((response.body as InternalFailureErrorResponseContent).message).toEqual('Not Implemented!');
+  });
+
+});
+
+"
+`;
+
+exports[`Typescript Handlers Code Generation Script Unit Tests Generates With handlers.yaml 4`] = `
+"import {
+  InternalFailureErrorResponseContent,
+  TypescriptTwoChainedRequestInput,
+} from "test-client";
+import {
+  typescriptTwo
+} from "../src/typescript-two";
+
+// Common request arguments
+const requestArguments = {
+  chain: undefined as never,
+  event: {} as any,
+  context: {} as any,
+  interceptorContext: {
+    logger: {
+      info: jest.fn(),
+    },
+  },
+} satisfies Omit<TypescriptTwoChainedRequestInput, 'input'>;
+
+describe('TypescriptTwo', () => {
+
+  it('should return not implemented error', async () => {
+    // TODO: Update the test as appropriate when you implement your handler
+    const response = await typescriptTwo({
+      ...requestArguments,
+      input: {
+        // TODO: remove the "as any" below and fill in test values for the requestParameters
+        requestParameters: {} as any,
+        body: {} as never,
+      },
+    });
+
+    expect(response.statusCode).toBe(500);
+    expect((response.body as InternalFailureErrorResponseContent).message).toEqual('Not Implemented!');
+  });
+
+});"
+`;

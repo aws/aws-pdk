@@ -95,7 +95,8 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
       "**/*",
       "*",
       // This will be split into a file per targeted handler
-      `!${this.srcdir}/__all_handlers.ts`
+      `!${this.srcdir}/__all_handlers.ts`,
+      `!${this.testdir}/__all_tests.ts`
     );
 
     // Add OpenAPI Generator cli configuration
@@ -169,6 +170,7 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
       specPath: this.options.specPath,
       generatorDirectory: OtherGenerators.TYPESCRIPT_LAMBDA_HANDLERS,
       srcDir: this.srcdir,
+      tstDir: this.testdir,
       normalizers: {
         KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
       },

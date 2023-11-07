@@ -253,6 +253,8 @@ This will give you generated lambda handler stubs which look like the following:
 
 You can implement your lambda handlers in any of the supported languages, or mix and match languages for different operations if you prefer.
 
+An example unit test will also be generated for each handler. These unit tests are only generated when the corresponding handler is initially generated, so you can safely delete the generated test if you do not want it.
+
 ## Function CDK Constructs
 
 As well as generating lambda handler stubs, when you use the `@handler` Smithy trait or `x-handler` OpenAPI vendor extension, your generated CDK infrastructure project will include lambda function CDK constructs with preconfigured paths to your handler distributables. This allows you to quickly add lambda integrations to your API:
