@@ -63,6 +63,16 @@ describe("Java Handlers Code Generation Script Unit Tests", () => {
         "handlers/src/main/java/test/test-handlers/handlers/JavaTwoHandler.java"
       ]
     ).toMatchSnapshot();
+    expect(
+      snapshot[
+        "handlers/src/test/java/test/test-handlers/handlers/JavaOneHandlerTest.java"
+      ]
+    ).toMatchSnapshot();
+    expect(
+      snapshot[
+        "handlers/src/test/java/test/test-handlers/handlers/JavaTwoHandlerTest.java"
+      ]
+    ).toMatchSnapshot();
 
     // Other language handlers should be skipped
     expect(

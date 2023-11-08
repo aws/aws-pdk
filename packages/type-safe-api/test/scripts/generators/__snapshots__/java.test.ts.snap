@@ -112,11 +112,11 @@ src/main/java/test/test/runtime/ProgressResponseBody.java
 src/main/java/test/test/runtime/ServerConfiguration.java
 src/main/java/test/test/runtime/ServerVariable.java
 src/main/java/test/test/runtime/StringUtil.java
+src/main/java/test/test/runtime/__handlers.java
+src/main/java/test/test/runtime/__interceptors.java
 src/main/java/test/test/runtime/api/DefaultApi.java
 src/main/java/test/test/runtime/api/Tag1Api.java
 src/main/java/test/test/runtime/api/Tag2Api.java
-src/main/java/test/test/runtime/api/handlers/__handlers.java
-src/main/java/test/test/runtime/api/interceptors/__interceptors.java
 src/main/java/test/test/runtime/api/operation_config/OperationConfig.java
 src/main/java/test/test/runtime/api/operation_config/OperationLookup.java
 src/main/java/test/test/runtime/api/operation_config/Operations.java
@@ -5157,9 +5157,9 @@ public class Both200Response extends RuntimeException implements BothResponse {
         }
     }
 
-    private String body;
+    private final String body;
     
-    private Map<String, String> headers;
+    private final Map<String, String> headers;
 
     private Both200Response(final Map<String, String> headers) {
         
@@ -5214,6 +5214,8 @@ import java.io.IOException;
 /**
  * Input for the both operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class BothInput {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -5223,7 +5225,7 @@ public class BothInput {
         }
     }
 
-    private BothRequestParameters requestParameters;
+    private final BothRequestParameters requestParameters;
 
     public BothInput(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new BothRequestParameters(event);
@@ -5251,18 +5253,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the both operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class BothRequestInput implements RequestInput<BothInput> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private BothInput input;
-
-    public BothRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final BothInput input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final BothInput input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
@@ -5310,6 +5307,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the Both operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class BothRequestParameters {
 
     public BothRequestParameters(final APIGatewayProxyRequestEvent event) {
@@ -5543,9 +5542,9 @@ public class Neither200Response extends RuntimeException implements NeitherRespo
         }
     }
 
-    private String body;
+    private final String body;
     
-    private Map<String, String> headers;
+    private final Map<String, String> headers;
 
     private Neither200Response(final Map<String, String> headers) {
         
@@ -5600,6 +5599,8 @@ import java.io.IOException;
 /**
  * Input for the neither operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class NeitherInput {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -5609,7 +5610,7 @@ public class NeitherInput {
         }
     }
 
-    private NeitherRequestParameters requestParameters;
+    private final NeitherRequestParameters requestParameters;
 
     public NeitherInput(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new NeitherRequestParameters(event);
@@ -5637,18 +5638,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the neither operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class NeitherRequestInput implements RequestInput<NeitherInput> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private NeitherInput input;
-
-    public NeitherRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final NeitherInput input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final NeitherInput input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
@@ -5696,6 +5692,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the Neither operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class NeitherRequestParameters {
 
     public NeitherRequestParameters(final APIGatewayProxyRequestEvent event) {
@@ -5929,9 +5927,9 @@ public class Tag1200Response extends RuntimeException implements Tag1Response {
         }
     }
 
-    private String body;
+    private final String body;
     
-    private Map<String, String> headers;
+    private final Map<String, String> headers;
 
     private Tag1200Response(final Map<String, String> headers) {
         
@@ -5986,6 +5984,8 @@ import java.io.IOException;
 /**
  * Input for the tag1 operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class Tag1Input {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -5995,7 +5995,7 @@ public class Tag1Input {
         }
     }
 
-    private Tag1RequestParameters requestParameters;
+    private final Tag1RequestParameters requestParameters;
 
     public Tag1Input(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new Tag1RequestParameters(event);
@@ -6023,18 +6023,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the tag1 operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class Tag1RequestInput implements RequestInput<Tag1Input> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private Tag1Input input;
-
-    public Tag1RequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final Tag1Input input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final Tag1Input input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
@@ -6082,6 +6077,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the Tag1 operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class Tag1RequestParameters {
 
     public Tag1RequestParameters(final APIGatewayProxyRequestEvent event) {
@@ -6315,9 +6312,9 @@ public class Tag2200Response extends RuntimeException implements Tag2Response {
         }
     }
 
-    private String body;
+    private final String body;
     
-    private Map<String, String> headers;
+    private final Map<String, String> headers;
 
     private Tag2200Response(final Map<String, String> headers) {
         
@@ -6372,6 +6369,8 @@ import java.io.IOException;
 /**
  * Input for the tag2 operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class Tag2Input {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -6381,7 +6380,7 @@ public class Tag2Input {
         }
     }
 
-    private Tag2RequestParameters requestParameters;
+    private final Tag2RequestParameters requestParameters;
 
     public Tag2Input(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new Tag2RequestParameters(event);
@@ -6409,18 +6408,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the tag2 operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class Tag2RequestInput implements RequestInput<Tag2Input> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private Tag2Input input;
-
-    public Tag2RequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final Tag2Input input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final Tag2Input input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
@@ -6468,6 +6462,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the Tag2 operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class Tag2RequestParameters {
 
     public Tag2RequestParameters(final APIGatewayProxyRequestEvent event) {
@@ -7445,9 +7441,9 @@ src/main/java/test/test/runtime/ProgressResponseBody.java
 src/main/java/test/test/runtime/ServerConfiguration.java
 src/main/java/test/test/runtime/ServerVariable.java
 src/main/java/test/test/runtime/StringUtil.java
+src/main/java/test/test/runtime/__handlers.java
+src/main/java/test/test/runtime/__interceptors.java
 src/main/java/test/test/runtime/api/DefaultApi.java
-src/main/java/test/test/runtime/api/handlers/__handlers.java
-src/main/java/test/test/runtime/api/interceptors/__interceptors.java
 src/main/java/test/test/runtime/api/operation_config/OperationConfig.java
 src/main/java/test/test/runtime/api/operation_config/OperationLookup.java
 src/main/java/test/test/runtime/api/operation_config/Operations.java
@@ -13476,9 +13472,9 @@ public class AnyRequestResponse200Response extends RuntimeException implements A
         }
     }
 
-    private String body;
-    private String typedBody;
-    private Map<String, String> headers;
+    private final String body;
+    private final String typedBody;
+    private final Map<String, String> headers;
 
     private AnyRequestResponse200Response(final String body, final Map<String, String> headers) {
         this.typedBody = body;
@@ -13536,6 +13532,8 @@ import java.io.IOException;
 /**
  * Input for the anyRequestResponse operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class AnyRequestResponseInput {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -13545,8 +13543,8 @@ public class AnyRequestResponseInput {
         }
     }
 
-    private AnyRequestResponseRequestParameters requestParameters;
-    private String body;
+    private final AnyRequestResponseRequestParameters requestParameters;
+    private final String body;
 
     public AnyRequestResponseInput(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new AnyRequestResponseRequestParameters(event);
@@ -13578,18 +13576,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the anyRequestResponse operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class AnyRequestResponseRequestInput implements RequestInput<AnyRequestResponseInput> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private AnyRequestResponseInput input;
-
-    public AnyRequestResponseRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final AnyRequestResponseInput input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final AnyRequestResponseInput input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
@@ -13637,6 +13630,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the AnyRequestResponse operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class AnyRequestResponseRequestParameters {
 
     public AnyRequestResponseRequestParameters(final APIGatewayProxyRequestEvent event) {
@@ -13870,9 +13865,9 @@ public class Empty204Response extends RuntimeException implements EmptyResponse 
         }
     }
 
-    private String body;
+    private final String body;
     
-    private Map<String, String> headers;
+    private final Map<String, String> headers;
 
     private Empty204Response(final Map<String, String> headers) {
         
@@ -13927,6 +13922,8 @@ import java.io.IOException;
 /**
  * Input for the empty operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class EmptyInput {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -13936,7 +13933,7 @@ public class EmptyInput {
         }
     }
 
-    private EmptyRequestParameters requestParameters;
+    private final EmptyRequestParameters requestParameters;
 
     public EmptyInput(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new EmptyRequestParameters(event);
@@ -13964,18 +13961,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the empty operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class EmptyRequestInput implements RequestInput<EmptyInput> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private EmptyInput input;
-
-    public EmptyRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final EmptyInput input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final EmptyInput input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
@@ -14023,6 +14015,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the Empty operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class EmptyRequestParameters {
 
     public EmptyRequestParameters(final APIGatewayProxyRequestEvent event) {
@@ -14256,9 +14250,9 @@ public class MapResponse200Response extends RuntimeException implements MapRespo
         }
     }
 
-    private String body;
-    private MapResponse typedBody;
-    private Map<String, String> headers;
+    private final String body;
+    private final MapResponse typedBody;
+    private final Map<String, String> headers;
 
     private MapResponse200Response(final MapResponse body, final Map<String, String> headers) {
         this.typedBody = body;
@@ -14316,6 +14310,8 @@ import java.io.IOException;
 /**
  * Input for the mapResponse operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class MapResponseInput {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -14325,7 +14321,7 @@ public class MapResponseInput {
         }
     }
 
-    private MapResponseRequestParameters requestParameters;
+    private final MapResponseRequestParameters requestParameters;
 
     public MapResponseInput(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new MapResponseRequestParameters(event);
@@ -14353,18 +14349,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the mapResponse operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class MapResponseRequestInput implements RequestInput<MapResponseInput> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private MapResponseInput input;
-
-    public MapResponseRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final MapResponseInput input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final MapResponseInput input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
@@ -14412,6 +14403,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the MapResponse operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class MapResponseRequestParameters {
 
     public MapResponseRequestParameters(final APIGatewayProxyRequestEvent event) {
@@ -14645,9 +14638,9 @@ public class MediaTypes200Response extends RuntimeException implements MediaType
         }
     }
 
-    private String body;
-    private String typedBody;
-    private Map<String, String> headers;
+    private final String body;
+    private final String typedBody;
+    private final Map<String, String> headers;
 
     private MediaTypes200Response(final String body, final Map<String, String> headers) {
         this.typedBody = body;
@@ -14705,6 +14698,8 @@ import java.io.IOException;
 /**
  * Input for the mediaTypes operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class MediaTypesInput {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -14714,8 +14709,8 @@ public class MediaTypesInput {
         }
     }
 
-    private MediaTypesRequestParameters requestParameters;
-    private String body;
+    private final MediaTypesRequestParameters requestParameters;
+    private final String body;
 
     public MediaTypesInput(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new MediaTypesRequestParameters(event);
@@ -14747,18 +14742,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the mediaTypes operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class MediaTypesRequestInput implements RequestInput<MediaTypesInput> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private MediaTypesInput input;
-
-    public MediaTypesRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final MediaTypesInput input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final MediaTypesInput input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
@@ -14806,6 +14796,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the MediaTypes operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class MediaTypesRequestParameters {
 
     public MediaTypesRequestParameters(final APIGatewayProxyRequestEvent event) {
@@ -15039,9 +15031,9 @@ public class MultipleContentTypes200Response extends RuntimeException implements
         }
     }
 
-    private String body;
-    private String typedBody;
-    private Map<String, String> headers;
+    private final String body;
+    private final String typedBody;
+    private final Map<String, String> headers;
 
     private MultipleContentTypes200Response(final String body, final Map<String, String> headers) {
         this.typedBody = body;
@@ -15099,6 +15091,8 @@ import java.io.IOException;
 /**
  * Input for the multipleContentTypes operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class MultipleContentTypesInput {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -15108,8 +15102,8 @@ public class MultipleContentTypesInput {
         }
     }
 
-    private MultipleContentTypesRequestParameters requestParameters;
-    private TestRequest body;
+    private final MultipleContentTypesRequestParameters requestParameters;
+    private final TestRequest body;
 
     public MultipleContentTypesInput(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new MultipleContentTypesRequestParameters(event);
@@ -15145,18 +15139,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the multipleContentTypes operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class MultipleContentTypesRequestInput implements RequestInput<MultipleContentTypesInput> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private MultipleContentTypesInput input;
-
-    public MultipleContentTypesRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final MultipleContentTypesInput input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final MultipleContentTypesInput input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
@@ -15204,6 +15193,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the MultipleContentTypes operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class MultipleContentTypesRequestParameters {
 
     public MultipleContentTypesRequestParameters(final APIGatewayProxyRequestEvent event) {
@@ -15440,9 +15431,9 @@ public class OperationOne200Response extends RuntimeException implements Operati
         }
     }
 
-    private String body;
-    private TestResponse typedBody;
-    private Map<String, String> headers;
+    private final String body;
+    private final TestResponse typedBody;
+    private final Map<String, String> headers;
 
     private OperationOne200Response(final TestResponse body, final Map<String, String> headers) {
         this.typedBody = body;
@@ -15504,9 +15495,9 @@ public class OperationOne400Response extends RuntimeException implements Operati
         }
     }
 
-    private String body;
-    private ApiError typedBody;
-    private Map<String, String> headers;
+    private final String body;
+    private final ApiError typedBody;
+    private final Map<String, String> headers;
 
     private OperationOne400Response(final ApiError body, final Map<String, String> headers) {
         this.typedBody = body;
@@ -15564,6 +15555,8 @@ import java.io.IOException;
 /**
  * Input for the operationOne operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class OperationOneInput {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -15573,8 +15566,8 @@ public class OperationOneInput {
         }
     }
 
-    private OperationOneRequestParameters requestParameters;
-    private TestRequest body;
+    private final OperationOneRequestParameters requestParameters;
+    private final TestRequest body;
 
     public OperationOneInput(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new OperationOneRequestParameters(event);
@@ -15610,18 +15603,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the operationOne operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class OperationOneRequestInput implements RequestInput<OperationOneInput> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private OperationOneInput input;
-
-    public OperationOneRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final OperationOneInput input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final OperationOneInput input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
@@ -15669,14 +15657,16 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the OperationOne operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class OperationOneRequestParameters {
-    private String param1;
-    private List<String> param2;
-    private BigDecimal param3;
-    private String pathParam;
-    private String xHeaderParam;
-    private Optional<String> param4;
-    private Optional<List<String>> xMultiValueHeaderParam;
+    private final String param1;
+    private final List<String> param2;
+    private final BigDecimal param3;
+    private final String pathParam;
+    private final String xHeaderParam;
+    private final Optional<String> param4;
+    private final Optional<List<String>> xMultiValueHeaderParam;
 
     public OperationOneRequestParameters(final APIGatewayProxyRequestEvent event) {
         Map<String, String> rawStringParameters = new HashMap<>();
@@ -15937,9 +15927,9 @@ public class WithoutOperationIdDelete200Response extends RuntimeException implem
         }
     }
 
-    private String body;
-    private TestResponse typedBody;
-    private Map<String, String> headers;
+    private final String body;
+    private final TestResponse typedBody;
+    private final Map<String, String> headers;
 
     private WithoutOperationIdDelete200Response(final TestResponse body, final Map<String, String> headers) {
         this.typedBody = body;
@@ -15997,6 +15987,8 @@ import java.io.IOException;
 /**
  * Input for the withoutOperationIdDelete operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class WithoutOperationIdDeleteInput {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -16006,7 +15998,7 @@ public class WithoutOperationIdDeleteInput {
         }
     }
 
-    private WithoutOperationIdDeleteRequestParameters requestParameters;
+    private final WithoutOperationIdDeleteRequestParameters requestParameters;
 
     public WithoutOperationIdDeleteInput(final APIGatewayProxyRequestEvent event) {
         this.requestParameters = new WithoutOperationIdDeleteRequestParameters(event);
@@ -16034,18 +16026,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the withoutOperationIdDelete operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class WithoutOperationIdDeleteRequestInput implements RequestInput<WithoutOperationIdDeleteInput> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private WithoutOperationIdDeleteInput input;
-
-    public WithoutOperationIdDeleteRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final WithoutOperationIdDeleteInput input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final WithoutOperationIdDeleteInput input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
@@ -16093,6 +16080,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the WithoutOperationIdDelete operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class WithoutOperationIdDeleteRequestParameters {
 
     public WithoutOperationIdDeleteRequestParameters(final APIGatewayProxyRequestEvent event) {

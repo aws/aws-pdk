@@ -44,6 +44,8 @@ describe("Typescript Handlers Code Generation Script Unit Tests", () => {
 
     expect(snapshot["handlers/src/typescript-one.ts"]).toMatchSnapshot();
     expect(snapshot["handlers/src/typescript-two.ts"]).toMatchSnapshot();
+    expect(snapshot["handlers/test/typescript-one.test.ts"]).toMatchSnapshot();
+    expect(snapshot["handlers/test/typescript-two.test.ts"]).toMatchSnapshot();
 
     // Other language handlers should be skipped
     expect(

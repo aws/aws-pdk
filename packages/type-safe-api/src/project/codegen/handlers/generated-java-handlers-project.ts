@@ -43,6 +43,12 @@ export class GeneratedJavaHandlersProject extends JavaProject {
   private readonly srcDir: string;
 
   /**
+   * Test directory
+   * @private
+   */
+  private readonly tstDir: string;
+
+  /**
    * Java package name
    */
   public readonly packageName: string;
@@ -62,6 +68,12 @@ export class GeneratedJavaHandlersProject extends JavaProject {
       "java",
       ...this.packageName.split(".")
     );
+    this.tstDir = path.join(
+      "src",
+      "test",
+      "java",
+      ...this.packageName.split(".")
+    );
 
     [
       `${options.generatedJavaTypes.pom.groupId}/${options.generatedJavaTypes.pom.artifactId}@${options.generatedJavaTypes.pom.version}`,
@@ -71,6 +83,12 @@ export class GeneratedJavaHandlersProject extends JavaProject {
           !this.deps.tryGetDependency(dep.split("@")[0], DependencyType.RUNTIME)
       )
       .forEach((dep) => this.addDependency(dep));
+
+    // Dependency on junit for tests
+    this.deps.addDependency(
+      "org.junit.jupiter/junit-jupiter-engine@^5.10.0",
+      DependencyType.TEST
+    );
 
     // Remove the projen test dependency since otherwise it takes precedence, causing projen to be unavailable at synth time
     this.deps.removeDependency("io.github.cdklabs/projen", DependencyType.TEST);
@@ -95,7 +113,8 @@ export class GeneratedJavaHandlersProject extends JavaProject {
       "**/*",
       "*",
       // This will be split into a file per targeted handler
-      `!${this.srcDir}/__all_handlers.java`
+      `!${this.srcDir}/__all_handlers.java`,
+      `!${this.tstDir}/__all_tests.java`
     );
 
     // Add OpenAPI Generator cli configuration
@@ -144,6 +163,9 @@ export class GeneratedJavaHandlersProject extends JavaProject {
       ],
     });
 
+    // Use the maven surefire plugin to run junit tests
+    this.pom.addPlugin("org.apache.maven.plugins/maven-surefire-plugin@3.2.1");
+
     // Log4j2 configuration for powertools logger
     new SampleDir(this, "src/main/resources", {
       files: {
@@ -173,6 +195,7 @@ export class GeneratedJavaHandlersProject extends JavaProject {
       specPath: this.options.specPath,
       generatorDirectory: OtherGenerators.JAVA_LAMBDA_HANDLERS,
       srcDir: this.srcDir,
+      tstDir: this.tstDir,
       normalizers: {
         KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
       },

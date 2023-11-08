@@ -50,6 +50,8 @@ describe("Python Handlers Code Generation Script Unit Tests", () => {
 
     expect(snapshot["handlers/test_handlers/python_one.py"]).toMatchSnapshot();
     expect(snapshot["handlers/test_handlers/python_two.py"]).toMatchSnapshot();
+    expect(snapshot["handlers/test/test_python_one.py"]).toMatchSnapshot();
+    expect(snapshot["handlers/test/test_python_two.py"]).toMatchSnapshot();
 
     // Other language handlers should be skipped
     expect(

@@ -861,9 +861,9 @@ public class {{operationIdCamelCase}}{{code}}Response extends RuntimeException i
         }
     }
 
-    private String body;
-    {{#dataType}}private {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} typedBody;{{/dataType}}
-    private Map<String, String> headers;
+    private final String body;
+    {{#dataType}}private final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} typedBody;{{/dataType}}
+    private final Map<String, String> headers;
 
     private {{operationIdCamelCase}}{{code}}Response({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers) {
         {{#dataType}}this.typedBody = body;{{/dataType}}
@@ -946,10 +946,12 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 /**
  * Query, path and header parameters for the {{operationIdCamelCase}} operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class {{operationIdCamelCase}}RequestParameters {
     {{#allParams}}
     {{^isBodyParam}}
-    private {{^required}}Optional<{{/required}}{{{dataType}}}{{^required}}>{{/required}} {{paramName}};
+    private final {{^required}}Optional<{{/required}}{{{dataType}}}{{^required}}>{{/required}} {{paramName}};
     {{/isBodyParam}}
     {{/allParams}}
 
@@ -1022,6 +1024,8 @@ import java.io.IOException;
 /**
  * Input for the {{nickname}} operation
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class {{operationIdCamelCase}}Input {
     static {
         // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
@@ -1031,9 +1035,9 @@ public class {{operationIdCamelCase}}Input {
         }
     }
 
-    private {{operationIdCamelCase}}RequestParameters requestParameters;
+    private final {{operationIdCamelCase}}RequestParameters requestParameters;
     {{#bodyParam}}
-    private {{#isModel}}{{dataType}}{{/isModel}}{{^isModel}}String{{/isModel}} body;
+    private final {{#isModel}}{{dataType}}{{/isModel}}{{^isModel}}String{{/isModel}} body;
     {{/bodyParam}}
 
     public {{operationIdCamelCase}}Input(final APIGatewayProxyRequestEvent event) {
@@ -1104,18 +1108,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 /**
  * Full request input for the {{nickname}} operation, including the raw API Gateway event
  */
+@lombok.Builder
+@lombok.AllArgsConstructor
 public class {{operationIdCamelCase}}RequestInput implements RequestInput<{{operationIdCamelCase}}Input> {
-    private APIGatewayProxyRequestEvent event;
-    private Context context;
-    private Map<String, Object> interceptorContext;
-    private {{operationIdCamelCase}}Input input;
-
-    public {{operationIdCamelCase}}RequestInput(final APIGatewayProxyRequestEvent event, final Context context, final Map<String, Object> interceptorContext, final {{operationIdCamelCase}}Input input) {
-        this.event = event;
-        this.context = context;
-        this.interceptorContext = interceptorContext;
-        this.input = input;
-    }
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final {{operationIdCamelCase}}Input input;
 
     /**
      * Returns the typed request input, with path, query and body parameters
