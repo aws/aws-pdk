@@ -315,7 +315,7 @@ export class PDKPipeline extends Construct {
               BRANCH: branch,
             }
           : undefined,
-      installCommands: ["npm install -g aws-cdk", "npx projen install"],
+      installCommands: ["npm install -g aws-cdk pnpm", "npx projen install"],
       commands:
         commands && commands.length > 0 ? commands : ["npx projen build"],
       primaryOutputDirectory: props.primarySynthDirectory,
