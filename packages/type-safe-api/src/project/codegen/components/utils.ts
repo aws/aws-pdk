@@ -70,6 +70,11 @@ export interface GenerationOptions {
    */
   readonly srcDir?: string;
   /**
+   * Supply the relative path from the code project root to the test directory in which custom generated test files
+   * should be generated
+   */
+  readonly tstDir?: string;
+  /**
    * Normalizers to apply to the spec prior to generation, if any
    * @see https://openapi-generator.tech/docs/customization/#openapi-normalizer
    */
@@ -129,6 +134,8 @@ export const buildInvokeOpenApiGeneratorCommandArgs = (
   options: GenerationOptions
 ): string => {
   const srcDir = options.srcDir ?? "src";
+  const tstDir = options.tstDir ?? "test";
+
   const additionalProperties = options.additionalProperties
     ? ` --additional-properties "${serializeProperties(
         options.additionalProperties
@@ -155,7 +162,7 @@ export const buildInvokeOpenApiGeneratorCommandArgs = (
   const specPath = options.specPath;
   const outputPath = ".";
 
-  return `--generator ${options.generator} --spec-path ${specPath} --output-path ${outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir}${additionalProperties}${normalizers}${extensions}${generateAliasAsModel}`;
+  return `--generator ${options.generator} --spec-path ${specPath} --output-path ${outputPath} --generator-dir ${options.generatorDirectory} --src-dir ${srcDir} --tst-dir ${tstDir}${additionalProperties}${normalizers}${extensions}${generateAliasAsModel}`;
 };
 
 /**

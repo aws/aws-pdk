@@ -1,7 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { DependencyType, SampleFile } from "projen";
+import { ProjectUtils } from "@aws/monorepo";
+import { DependencyType, SampleDir, SampleFile } from "projen";
 import { PythonProject } from "projen/lib/python";
 import {
   CodeGenerationSourceOptions,
@@ -36,9 +37,18 @@ export class GeneratedPythonHandlersProject extends PythonProject {
    */
   private readonly options: GeneratedPythonHandlersProjectOptions;
 
+  /**
+   * Directory containing tests
+   * @private
+   */
+  private readonly tstDir: string;
+
   constructor(options: GeneratedPythonHandlersProjectOptions) {
     super({
-      pytest: false,
+      pytest: true,
+      pytestOptions: {
+        version: "^7.4.3",
+      },
       poetryOptions: {
         packages: [{ include: options.moduleName }],
         // Module must be explicitly added to include since poetry excludes everything in .gitignore by default
@@ -50,6 +60,26 @@ export class GeneratedPythonHandlersProject extends PythonProject {
     });
     TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
+
+    this.tstDir = "test";
+
+    if (options.pytest ?? true) {
+      // Pytest fails with exit code 5 when there are no tests.
+      // We want to allow users to delete all their tests, or to upgrade an existing project without breaking their build
+      // See: https://github.com/pytest-dev/pytest/issues/2393
+      this.testTask.reset("pytest || ([ $? = 5 ] && exit 0 || exit $?)");
+
+      // Remove the example test dir as it's always generated when pytest is true
+      // TODO: remove this when https://github.com/projen/projen/issues/3094 is resolved
+      const testsSampleDir = this.components.find(
+        (c) =>
+          ProjectUtils.isNamedInstanceOf(c, SampleDir) &&
+          (c as any).dir === "tests"
+      );
+      if (testsSampleDir) {
+        this.node.tryRemoveChild(testsSampleDir.node.id);
+      }
+    }
 
     [
       "python@^3.9",
@@ -72,7 +102,8 @@ export class GeneratedPythonHandlersProject extends PythonProject {
       "**/*",
       "*",
       // This will be split into a file per targeted handler
-      `!${this.moduleName}/__all_handlers.py`
+      `!${this.moduleName}/__all_handlers.py`,
+      `!${this.tstDir}/__all_tests.py`
     );
 
     // Add OpenAPI Generator cli configuration
@@ -120,6 +151,11 @@ export class GeneratedPythonHandlersProject extends PythonProject {
       generatorDirectory: OtherGenerators.PYTHON_LAMBDA_HANDLERS,
       // Tell the generator where python source files live
       srcDir: this.moduleName,
+      tstDir: this.tstDir,
+      additionalProperties: {
+        packageName: this.moduleName,
+        projectName: this.name,
+      },
       normalizers: {
         KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
       },

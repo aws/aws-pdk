@@ -7,6 +7,7 @@
 {{#startsWith vendorExtensions.x-handler.language 'java'}}
 ###TSAPI_WRITE_FILE###
 {
+  "id": "{{operationIdCamelCase}}Handler",
   "dir": ".",
   "name": "{{operationIdCamelCase}}Handler",
   "ext": ".java",
@@ -15,7 +16,6 @@
 ###/TSAPI_WRITE_FILE###package {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-package}}{{/apis.0}}{{/apiInfo}};
 
 import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.interceptors.DefaultInterceptors;
-import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.interceptors.powertools.LoggingInterceptor;
 import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.handlers.Interceptor;
 import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.handlers.{{operationIdSnakeCase}}.{{operationIdCamelCase}};
 import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.handlers.{{operationIdSnakeCase}}.{{operationIdCamelCase}}Input;
@@ -23,6 +23,8 @@ import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{
 import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.handlers.{{operationIdSnakeCase}}.{{operationIdCamelCase}}RequestInput;
 import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.handlers.{{operationIdSnakeCase}}.{{operationIdCamelCase}}Response;
 import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.model.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
@@ -35,6 +37,11 @@ public class {{operationIdCamelCase}}Handler extends {{operationIdCamelCase}} {
      * Interceptors are initialised once during the lambda "init" phase
      */
     private final List<Interceptor<{{operationIdCamelCase}}Input>> interceptors = DefaultInterceptors.all();
+
+    /**
+     * Use the logger to log requests. The LoggingInterceptor sets up all loggers to include lambda context values in your logs.
+     */
+    private final Logger log = LogManager.getLogger({{operationIdCamelCase}}Handler.class);
 
     /**
      * Return the interceptors for this handler.
@@ -62,7 +69,7 @@ public class {{operationIdCamelCase}}Handler extends {{operationIdCamelCase}} {
      */
     @Override
     public {{operationIdCamelCase}}Response handle(final {{operationIdCamelCase}}RequestInput request) {
-        LoggingInterceptor.getLogger(request).info("Start {{operationIdCamelCase}} Operation");
+        log.info("Start {{operationIdCamelCase}} Operation");
 
         // TODO: Implement {{operationIdCamelCase}} Operation. `input` contains the request input.
         {{operationIdCamelCase}}Input input = request.getInput();
