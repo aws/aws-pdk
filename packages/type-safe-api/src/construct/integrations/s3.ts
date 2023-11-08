@@ -3,18 +3,20 @@ SPDX-License-Identifier: Apache-2.0 */
 import { IRole, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { IBucket } from "aws-cdk-lib/aws-s3";
 import { IConstruct } from "constructs";
-import { ErrorIntegrationResponse } from "./error-integration-response";
-import { ErrorIntegrationResponses } from "./error-integration-responses";
 import {
   ApiGatewayIntegration,
   Integration,
   IntegrationGrantProps,
   IntegrationRenderProps,
 } from "./integration";
-import { generateCorsResponseParameters } from "../prepare-spec-event-handler/prepare-spec";
+import { IntegrationResponseSet } from "./integration-response-set";
+import { IntegrationResponseSets } from "./integration-response-sets";
 import { Method } from "../spec";
 import { bucketInvocationUri } from "../spec/utils";
 
+/**
+ * Options for S3Integration
+ */
 export interface S3IntegrationProps {
   /**
    * The S3 bucket to be invoked on integration
@@ -34,17 +36,10 @@ export interface S3IntegrationProps {
   readonly path?: string;
 
   /**
-   * The response status code to use when the S3 bucket returns no error. You can overidde the status code in case of POST or DELETE to follow REST best practices
-   * @default - 200
-   * @example - 201 (with method: "post")
+   * Override the integration response set for the S3 integration
+   * @default - a combination of IntegrationResponseSets.defaultPassthrough() and IntegrationResponseSets.s3JsonErrorMessage()
    */
-  readonly successResponseStatusCode?: number;
-
-  /**
-   * The error integration response to use when the S3 bucket returns an error
-   * @default ErrorIntegrationResponses.catchAll()
-   */
-  readonly errorIntegrationResponse?: ErrorIntegrationResponse;
+  readonly integrationResponseSet?: IntegrationResponseSet;
 }
 
 /**
@@ -55,8 +50,7 @@ export class S3Integration extends Integration {
   private readonly bucket: IBucket;
   private readonly method?: Method;
   private readonly path?: string;
-  private readonly successResponseStatusCode?: number;
-  private readonly errorIntegrationResponse?: ErrorIntegrationResponse;
+  private readonly integrationResponseSet?: IntegrationResponseSet;
 
   private readonly executionRoleId = "S3IntegrationsExecutionRole";
 
@@ -66,8 +60,7 @@ export class S3Integration extends Integration {
     this.bucket = props.bucket;
     this.method = props.method;
     this.path = props.path;
-    this.successResponseStatusCode = props.successResponseStatusCode;
-    this.errorIntegrationResponse = props.errorIntegrationResponse;
+    this.integrationResponseSet = props.integrationResponseSet;
   }
 
   private executionRole(scope: IConstruct): IRole {
@@ -99,16 +92,12 @@ export class S3Integration extends Integration {
         ),
       },
       responses: {
-        default: {
-          statusCode: `${this.successResponseStatusCode ?? 200}`,
-          responseParameters: props.corsOptions
-            ? generateCorsResponseParameters(props.corsOptions)
-            : {},
-          responseTemplates: {},
-        },
-
         ...(
-          this.errorIntegrationResponse ?? ErrorIntegrationResponses.catchAll()
+          this.integrationResponseSet ??
+          IntegrationResponseSets.composite(
+            IntegrationResponseSets.defaultPassthrough(),
+            IntegrationResponseSets.s3JsonErrorMessage()
+          )
         ).render(props),
       },
     };

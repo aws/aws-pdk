@@ -12,7 +12,7 @@ import { Bucket } from "aws-cdk-lib/aws-s3";
 import { NagSuppressions } from "cdk-nag";
 import * as _ from "lodash";
 import { OpenAPIV3 } from "openapi-types";
-import { ErrorIntegrationResponses, Integrations } from "../../lib";
+import { IntegrationResponseSets, Integrations } from "../../src";
 import {
   MethodAndPath,
   TypeSafeRestApi,
@@ -354,27 +354,10 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
               bucket: new Bucket(stack, "Bucket"),
               method: "delete",
               path: "/my-pets/{petId}/details.json",
-              successResponseStatusCode: 204,
-            }),
-          },
-        },
-      });
-      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
-      snapshotExtendedSpec(api);
-    });
-  });
-
-  it("With S3 Integration and no error responses", () => {
-    const stack = new Stack();
-    withTempSpec(sampleSpec, (specPath) => {
-      const api = new TypeSafeRestApi(stack, "ApiTest", {
-        specPath,
-        operationLookup,
-        integrations: {
-          testOperation: {
-            integration: Integrations.s3({
-              bucket: new Bucket(stack, "Bucket"),
-              errorIntegrationResponse: ErrorIntegrationResponses.none(),
+              integrationResponseSet: IntegrationResponseSets.composite(
+                IntegrationResponseSets.defaultPassthrough({ statusCode: 204 }),
+                IntegrationResponseSets.s3JsonErrorMessage()
+              ),
             }),
           },
         },
@@ -394,20 +377,46 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
           testOperation: {
             integration: Integrations.s3({
               bucket: new Bucket(stack, "Bucket"),
-              errorIntegrationResponse: ErrorIntegrationResponses.custom({
-                errorResponses: {
-                  "4\\d{2}": {
-                    statusCode: "400",
-                    responseParameters: {},
-                    responseTemplates: {},
+              integrationResponseSet: IntegrationResponseSets.composite(
+                IntegrationResponseSets.defaultPassthrough(),
+                IntegrationResponseSets.custom({
+                  responses: {
+                    "4\\d{2}": {
+                      statusCode: "400",
+                      responseParameters: {},
+                      responseTemplates: {},
+                    },
+                    "5\\d{2}": {
+                      statusCode: "500",
+                      responseParameters: {},
+                      responseTemplates: {},
+                    },
                   },
-                  "5\\d{2}": {
-                    statusCode: "500",
-                    responseParameters: {},
-                    responseTemplates: {},
-                  },
-                },
-              }),
+                })
+              ),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With S3 Integration and catch all error response", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket"),
+              integrationResponseSet: IntegrationResponseSets.composite(
+                IntegrationResponseSets.defaultPassthrough(),
+                IntegrationResponseSets.catchAll()
+              ),
             }),
           },
         },

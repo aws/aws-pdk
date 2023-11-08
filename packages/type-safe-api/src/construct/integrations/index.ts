@@ -5,5 +5,5 @@ export * from "./integrations";
 export * from "./lambda";
 export * from "./mock";
 export * from "./s3";
-export * from "./error-integration-response";
-export * from "./error-integration-responses";
+export * from "./integration-response-set";
+export * from "./integration-response-sets";
