@@ -3476,7 +3476,6 @@
 <div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nn">com.generated.api.myapijavahandlers.handlers</span><span class="p">;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.interceptors.DefaultInterceptors</span><span class="p">;</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.interceptors.powertools.LoggingInterceptor</span><span class="p">;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.Interceptor</span><span class="p">;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHello</span><span class="p">;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloInput</span><span class="p">;</span>
@@ -3484,6 +3483,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloRequestInput</span><span class="p">;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.api.handlers.say_hello.SayHelloResponse</span><span class="p">;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">com.generated.api.myapijavaruntime.runtime.model.*</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.logging.log4j.LogManager</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.logging.log4j.Logger</span><span class="p">;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
 
@@ -3496,6 +3497,11 @@
 <span class="cm">     * Interceptors are initialised once during the lambda &quot;init&quot; phase</span>
 <span class="cm">     */</span>
 <span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Interceptor</span><span class="o">&lt;</span><span class="n">SayHelloInput</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">interceptors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DefaultInterceptors</span><span class="p">.</span><span class="na">all</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Use the logger to log requests. The LoggingInterceptor sets up all loggers to include lambda context values in your logs.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Logger</span><span class="w"> </span><span class="n">log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LogManager</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="n">SayHelloHandler</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
 
 <span class="w">    </span><span class="cm">/**</span>
 <span class="cm">     * Return the interceptors for this handler.</span>
@@ -3523,7 +3529,7 @@
 <span class="cm">     */</span>
 <span class="w">    </span><span class="nd">@Override</span>
 <span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">SayHelloResponse</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">SayHelloRequestInput</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">LoggingInterceptor</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="n">request</span><span class="p">).</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;Start SayHello Operationnn&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;Start SayHello Operation&quot;</span><span class="p">);</span>
 
 <span class="w">        </span><span class="c1">// TODO: Implement SayHello Operation. `input` contains the request input.</span>
 <span class="w">        </span><span class="n">SayHelloInput</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getInput</span><span class="p">();</span>
@@ -3572,6 +3578,7 @@
 <p>If you wish to deviate from the folder structure of the <code>handlers</code> projects, or wish to implement your operations in a language not supported by Type Safe API, or through a non-lambda interation (such as a server running in a Fargate container) you can omit the <code>@handler</code> trait or <code>x-handler</code> vendor extension.</p>
 </div>
 <p>You can implement your lambda handlers in any of the supported languages, or mix and match languages for different operations if you prefer.</p>
+<p>An example unit test will also be generated for each handler. These unit tests are only generated when the corresponding handler is initially generated, so you can safely delete the generated test if you do not want it.</p>
 <h2 id="function-cdk-constructs">Function CDK Constructs</h2>
 <p>As well as generating lambda handler stubs, when you use the <code>@handler</code> Smithy trait or <code>x-handler</code> OpenAPI vendor extension, your generated CDK infrastructure project will include lambda function CDK constructs with preconfigured paths to your handler distributables. This allows you to quickly add lambda integrations to your API:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">TS</label><label for="__tabbed_4_2">JAVA</label><label for="__tabbed_4_3">PYTHON</label></div>
@@ -3644,7 +3651,7 @@
   <small>
     
       Last update:
-      2023-11-06
+      2023-11-07
     
   </small>
 </div>
