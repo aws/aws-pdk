@@ -13,11 +13,16 @@ const TSAPI_WRITE_FILE_START = "###TSAPI_WRITE_FILE###";
 const TSAPI_WRITE_FILE_END = "###/TSAPI_WRITE_FILE###";
 
 interface WriteFileConfig {
+  readonly id?: string;
   readonly dir: string;
   readonly name: string;
   readonly ext: string;
   readonly overwrite?: boolean;
   readonly kebabCaseFileName?: boolean;
+  /**
+   * Generate conditionally based on whether we generated the file with the given id
+   */
+  readonly generateConditionallyId?: string;
 }
 
 // Delimiters for applying functions
@@ -52,21 +57,23 @@ const applyReplacementFunctions = (fileContents: string): string => {
     .join('');
 };
 
+interface SplitFile {
+  readonly contents: string;
+  readonly pathRelativeToOutputPath: string;
+  readonly config: WriteFileConfig;
+  readonly shouldWrite?: boolean;
+}
+
 interface Arguments {
   /**
    * Path to the directory containing output files
    */
   readonly outputPath: string;
-  /**
-   * Path to the source directory relative to the output directory
-   */
-  readonly srcDir: string;
 }
 
 void (async () => {
   const args = parse<Arguments>({
     outputPath: { type: String },
-    srcDir: { type: String },
   });
 
   // OpenAPI generator writes a manifest called FILES which lists the files it generated.
@@ -82,11 +89,12 @@ void (async () => {
     .split("\n")
     .filter((x) => x);
 
-  const additionalGeneratedFiles: string[] = [];
+  const splitFiles: SplitFile[] = [];
 
   // Loop over generated files
   generatedFiles.forEach((generatedFile) => {
     const filePath = path.join(args.outputPath, generatedFile);
+    const generatedFileDir = path.dirname(filePath);
 
     if (fs.existsSync(filePath)) {
       const contents = fs.readFileSync(filePath, "utf-8");
@@ -105,27 +113,19 @@ void (async () => {
             const newFileName = `${
               config.kebabCaseFileName ? kebabCase(config.name) : config.name
             }${config.ext}`;
-            const relativeNewFileDir = path.join(args.srcDir, config.dir);
+
             const relativeNewFilePath = path.join(
-              relativeNewFileDir,
+              config.dir,
               newFileName
             );
-            const newFilePath = path.join(args.outputPath, relativeNewFilePath);
+            const newFilePath = path.join(generatedFileDir, relativeNewFilePath);
 
-            // Write to the instructed file path (relative to the src dir)
-            if (!fs.existsSync(newFilePath) || config.overwrite) {
-              // Create it's containing directory if needed
-              fs.mkdirSync(path.join(args.outputPath, relativeNewFileDir), {
-                recursive: true,
-              });
-              fs.writeFileSync(newFilePath, applyReplacementFunctions(newFileContents));
-
-              // Overwritten files are added to the manifest so that they can be cleaned up
-              // by clean-openapi-generated-code
-              if (config.overwrite) {
-                additionalGeneratedFiles.push(relativeNewFilePath);
-              }
-            }
+            splitFiles.push({
+              contents: applyReplacementFunctions(newFileContents),
+              pathRelativeToOutputPath: path.relative(args.outputPath, newFilePath),
+              shouldWrite: !fs.existsSync(newFilePath) || config.overwrite,
+              config,
+            });
           });
 
         // Delete the original file
@@ -133,6 +133,32 @@ void (async () => {
       } else {
         // Apply the replacement functions directly
         fs.writeFileSync(filePath, applyReplacementFunctions(contents));
+      }
+    }
+  });
+
+  const splitFilesById: { [id: string]: SplitFile } = Object.fromEntries(splitFiles.filter((s) => s.config.id).map((s) => [s.config.id, s]));
+
+  const additionalGeneratedFiles: string[] = [];
+
+  // Write the split files
+  splitFiles.forEach(({ pathRelativeToOutputPath, config, contents, shouldWrite }) => {
+    const newFilePath = path.join(args.outputPath, pathRelativeToOutputPath);
+
+    const conditionalShouldWrite = splitFilesById[config.generateConditionallyId ?? '']?.shouldWrite ?? true;
+
+    // Write to the instructed file path (relative to the src dir)
+    if (shouldWrite && conditionalShouldWrite) {
+      // Create it's containing directory if needed
+      fs.mkdirSync(path.dirname(newFilePath), {
+        recursive: true,
+      });
+      fs.writeFileSync(newFilePath, applyReplacementFunctions(contents));
+
+      // Overwritten files are added to the manifest so that they can be cleaned up
+      // by clean-openapi-generated-code
+      if (config.overwrite) {
+        additionalGeneratedFiles.push(pathRelativeToOutputPath);
       }
     }
   });

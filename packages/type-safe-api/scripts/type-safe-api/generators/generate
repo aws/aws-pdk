@@ -10,6 +10,7 @@ generator_dir=''
 additional_properties=''
 openapi_normalizer=''
 src_dir='src'
+tst_dir='test'
 extra_vendor_extensions=''
 generate_alias_as_model=''
 while [[ "$#" -gt 0 ]]; do case $1 in
@@ -20,6 +21,7 @@ while [[ "$#" -gt 0 ]]; do case $1 in
   --additional-properties) additional_properties="$2"; shift;;
   --openapi-normalizer) openapi_normalizer="$2"; shift;;
   --src-dir) src_dir="$2"; shift;;
+  --tst-dir) tst_dir="$2"; shift;;
   --extra-vendor-extensions) extra_vendor_extensions="$2"; shift;;
   --generate-alias-as-model) generate_alias_as_model='true'; ;;
 esac; shift; done
@@ -55,8 +57,9 @@ run_command ts-node pre-process-spec.ts \
   --outputSpecPath="$processed_spec_path" \
   --extraVendorExtensions="$extra_vendor_extensions"
 
-# Support a special placeholder of {{src}} in config.yaml to ensure our custom templates get written to the correct folder
-sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.final.yaml
+# Support special placeholders of {{src}} and {{tst}} in config.yaml to ensure our custom templates get written to the correct folder
+sed 's|{{src}}|'"$src_dir"'|g' config.yaml > config.tmp.yaml
+sed 's|{{tst}}|'"$tst_dir"'|g' config.tmp.yaml > config.final.yaml
 
 # Copy the openapitools.json config into the working directory so it's honoured by the generator cli
 cp $working_dir/$output_path/openapitools.json .
@@ -106,8 +109,7 @@ fi
 # Post processing
 cp $script_dir/post-process.ts .
 run_command ts-node post-process.ts \
-  --outputPath="$working_dir/$output_path" \
-  --srcDir="$src_dir"
+  --outputPath="$working_dir/$output_path"
 
 # Clean up empty directories left over by openapi generator
 log "Cleaning up empty directories"

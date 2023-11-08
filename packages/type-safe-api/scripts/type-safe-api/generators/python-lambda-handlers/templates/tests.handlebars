@@ -1,0 +1,72 @@
+###TSAPI_SPLIT_FILE###
+###TSAPI_WRITE_FILE###
+{
+  "dir": ".",
+  "name": "__init__",
+  "ext": ".py",
+  "overwrite": false
+}
+###/TSAPI_WRITE_FILE####
+{{#apiInfo ~}}
+{{#apis ~}}
+{{#operations ~}}
+{{#operation ~}}
+{{#if vendorExtensions.x-handler}}
+{{#startsWith vendorExtensions.x-handler.language 'python'}}
+###TSAPI_WRITE_FILE###
+{
+  "id": "test_{{operationId}}",
+  "dir": ".",
+  "name": "test_{{operationId}}",
+  "ext": ".py",
+  "overwrite": false,
+  "generateConditionallyId": "{{operationId}}"
+}
+###/TSAPI_WRITE_FILE###import pytest
+from aws_lambda_powertools import Logger
+
+from {{packageName}}.{{operationId}} import {{operationId}}
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.api.operation_config import (
+    {{operationIdCamelCase}}Request, {{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestBody
+)
+
+
+@pytest.fixture
+def request_arguments():
+    """
+    Fixture for constructing common request arguments
+    """
+    return {
+        "event": {},
+        "context": None,
+        "interceptor_context": {
+            "logger": Logger(),
+        },
+    }
+
+
+def test_{{operationId}}_should_return_not_implemented_error(request_arguments):
+    # TODO: Update the test as appropriate when you implement your handler
+    response = {{operationId}}({{operationIdCamelCase}}Request(
+        **request_arguments,
+        # request_parameters={{operationIdCamelCase}}RequestParameters(
+        #     # Add request parameters here...
+        # ),
+        request_parameters=None,
+        {{#unless bodyParams.isEmpty ~}}
+        # body={{operationIdCamelCase}}RequestBody(
+        #     # Add body fields here...
+        # )
+        {{~/unless}}
+        body=None,
+    ))
+
+    assert response.status_code == 500
+    assert response.body.message == "Not Implemented!"
+
+{{~/startsWith}}
+{{~/if}}
+{{~/operation}}
+{{~/operations}}
+{{~/apis}}
+{{~/apiInfo}}
