@@ -1,8 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { ProjectUtils } from "@aws/monorepo";
-import { DependencyType, SampleDir, SampleFile } from "projen";
+import { DependencyType, SampleFile } from "projen";
 import { PythonProject } from "projen/lib/python";
 import {
   CodeGenerationSourceOptions,
@@ -46,9 +45,6 @@ export class GeneratedPythonHandlersProject extends PythonProject {
   constructor(options: GeneratedPythonHandlersProjectOptions) {
     super({
       pytest: true,
-      pytestOptions: {
-        version: "^7.4.3",
-      },
       poetryOptions: {
         packages: [{ include: options.moduleName }],
         // Module must be explicitly added to include since poetry excludes everything in .gitignore by default
@@ -68,17 +64,6 @@ export class GeneratedPythonHandlersProject extends PythonProject {
       // We want to allow users to delete all their tests, or to upgrade an existing project without breaking their build
       // See: https://github.com/pytest-dev/pytest/issues/2393
       this.testTask.reset("pytest || ([ $? = 5 ] && exit 0 || exit $?)");
-
-      // Remove the example test dir as it's always generated when pytest is true
-      // TODO: remove this when https://github.com/projen/projen/issues/3094 is resolved
-      const testsSampleDir = this.components.find(
-        (c) =>
-          ProjectUtils.isNamedInstanceOf(c, SampleDir) &&
-          (c as any).dir === "tests"
-      );
-      if (testsSampleDir) {
-        this.node.tryRemoveChild(testsSampleDir.node.id);
-      }
     }
 
     [
