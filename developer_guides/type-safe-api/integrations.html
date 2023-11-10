@@ -1386,6 +1386,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#s3-integration" class="md-nav__link">
+    S3 integration
+  </a>
+  
+    <nav class="md-nav" aria-label="S3 integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#customise-s3-operations" class="md-nav__link">
+    Customise S3 Operations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customise-s3-integration-responses" class="md-nav__link">
+    Customise S3 Integration Responses
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mock-integration" class="md-nav__link">
     Mock integration
   </a>
@@ -3325,6 +3352,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#s3-integration" class="md-nav__link">
+    S3 integration
+  </a>
+  
+    <nav class="md-nav" aria-label="S3 integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#customise-s3-operations" class="md-nav__link">
+    Customise S3 Operations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customise-s3-integration-responses" class="md-nav__link">
+    Customise S3 Integration Responses
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mock-integration" class="md-nav__link">
     Mock integration
   </a>
@@ -3398,6 +3452,132 @@
 </div>
 <h2 id="lambda-integration">Lambda integration</h2>
 <p>For integrating an API operation with a lambda, use <code>Integrations.lambda(yourLambdaFunction)</code>.</p>
+<h2 id="s3-integration">S3 integration</h2>
+<p>For integrating an API operation with an S3 bucket, use <code>Integrations.s3</code>.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">TS</label><label for="__tabbed_2_2">Java</label><label for="__tabbed_2_3">Python</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nx">Integrations</span><span class="p">.</span><span class="nx">s3</span><span class="p">({</span><span class="w"> </span><span class="nx">bucket</span><span class="o">:</span><span class="w"> </span><span class="kt">yourS3Bucket</span><span class="w"> </span><span class="p">});</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">Integrations</span><span class="p">.</span><span class="na">s3</span><span class="p">(</span><span class="n">S3IntegrationProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">bucket</span><span class="p">(</span><span class="n">yourS3Bucket</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">Integrations</span><span class="o">.</span><span class="n">s3</span><span class="p">(</span><span class="n">bucket</span><span class="o">=</span><span class="n">your_s3_bucket</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this will request an S3 object with the HTTP method and path defined in your API, for example: <code>GET /pets/{petId}</code> would perform a <code>GetObject</code> for <code>s3://&lt;yourS3Bucket&gt;/pets/{petId}</code>, where the path parameter <code>{petId}</code> is substituted by the user supplied value.</p>
+</div>
+<p>For more information, for example how the HTTP methods map to S3 operations, refer to the <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/integrating-api-with-aws-services-s3.html">Tutorial: Create a REST API as an Amazon S3 proxy in API Gateway</a>.</p>
+<h3 id="customise-s3-operations">Customise S3 Operations</h3>
+<p>You can customise the integration to access objects in S3 at a different key to the API operation path. You can also reference path parameters in the overridden path.</p>
+<p>For example, you could have an API operation <code>POST /pets/{petId}/delete</code>, but map it to an S3 <code>DeleteObject</code> operation for a different object key:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">TS</label><label for="__tabbed_3_2">Java</label><label for="__tabbed_3_3">Python</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nx">Integrations</span><span class="p">.</span><span class="nx">s3</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">bucket</span><span class="o">:</span><span class="w"> </span><span class="kt">yourS3Bucket</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">method</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;delete&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-pets/{petId}/details.json&quot;</span><span class="p">,</span>
+<span class="p">});</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">Integrations</span><span class="p">.</span><span class="na">s3</span><span class="p">(</span><span class="n">S3IntegrationProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">bucket</span><span class="p">(</span><span class="n">yourS3Bucket</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">method</span><span class="p">(</span><span class="s">&quot;delete&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">path</span><span class="p">(</span><span class="s">&quot;my-pets/{petId}/details.json&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">Integrations</span><span class="o">.</span><span class="n">s3</span><span class="p">(</span>
+    <span class="n">bucket</span><span class="o">=</span><span class="n">your_s3_bucket</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;delete&quot;</span><span class="p">,</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">&quot;my-pets/</span><span class="si">{petId}</span><span class="s2">/details.json&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<h3 id="customise-s3-integration-responses">Customise S3 Integration Responses</h3>
+<p>By default, if the S3 operation throws an error (for example an object at the requested path does not exist), these will be mapped to a JSON response with a <code>message</code> property containing the error message from S3, otherwise the response from S3 will be returned with a <code>200</code> status code.</p>
+<p>You can customise the responses returned in certain scenarios by utilising an <code>IntegrationResponseSet</code>, which can be passed to <code>Integrations.s3</code>.</p>
+<p>The following predefined integration response sets are available:</p>
+<ul>
+<li><code>IntegrationResponseSet.defaultPassthrough()</code> - all responses are returned with a <code>200</code> status code and the response body from S3 is returned</li>
+<li><code>IntegrationResponseSet.s3JsonErrorMessage()</code> - returns the error message from S3 in a JSON response for <code>400</code>, <code>403</code>, <code>404</code> and <code>500</code> S3 errors</li>
+<li><code>IntegrationResponseSet.catchAll()</code> - returns a <code>500</code> response for any <code>4XX</code> or <code>5XX</code> error, and the response body from S3 is returned</li>
+<li><code>IntegrationResponseSet.custom(...)</code> - custom responses, mapping S3 HTTP status regexes to the corresponding responses API gateway should return. Refer to <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/rest-api-data-transformations.html">the API Gateway data transformations documentation</a> for more details</li>
+<li><code>IntegrationResponseSet.composite(...)</code> - combine integration response sets</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code>composite</code> and <code>custom</code> still do not provide enough functionality, you can create your own by extending the <code>IntegrationResponseSet</code> class and implementing its <code>render</code> method.</p>
+</div>
+<p>The default behaviour described above is defined a combination of <code>defaultPassthrough</code> and <code>s3JsonErrorMessage</code>, ie:</p>
+<div class="highlight"><pre><span></span><code><span class="nx">IntegrationResponseSet</span><span class="p">.</span><span class="nx">composite</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">IntegrationResponseSet</span><span class="p">.</span><span class="nx">defaultPassthrough</span><span class="p">(),</span>
+<span class="w">    </span><span class="nx">IntegrationResponseSet</span><span class="p">.</span><span class="nx">s3JsonErrorMessage</span><span class="p">()</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>The following example demonstrates how to override the default status code for an S3 DeleteObject operation:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">TS</label><label for="__tabbed_4_2">Java</label><label for="__tabbed_4_3">Python</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nx">Integrations</span><span class="p">.</span><span class="nx">s3</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">bucket</span><span class="o">:</span><span class="w"> </span><span class="kt">yourS3Bucket</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">method</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;delete&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-pets/{petId}/details.json&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">integrationResponseSet</span><span class="o">:</span><span class="w"> </span><span class="kt">IntegrationResponseSet.composite</span><span class="p">(</span>
+<span class="w">        </span><span class="nx">IntegrationResponseSet</span><span class="p">.</span><span class="nx">defaultPassthrough</span><span class="p">({</span>
+<span class="w">            </span><span class="nx">statusCode</span><span class="o">:</span><span class="w"> </span><span class="kt">204</span><span class="p">,</span>
+<span class="w">        </span><span class="p">}),</span>
+<span class="w">        </span><span class="nx">IntegrationResponseSet</span><span class="p">.</span><span class="nx">s3JsonErrorMessage</span><span class="p">()</span>
+<span class="w">    </span><span class="p">),</span>
+<span class="p">});</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">Integrations</span><span class="p">.</span><span class="na">s3</span><span class="p">(</span><span class="n">S3IntegrationProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">bucket</span><span class="p">(</span><span class="n">yourS3Bucket</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">method</span><span class="p">(</span><span class="s">&quot;delete&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">path</span><span class="p">(</span><span class="s">&quot;my-pets/{petId}/details.json&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">integrationResponseSet</span><span class="p">(</span><span class="n">IntegrationResponseSet</span><span class="p">.</span><span class="na">composite</span><span class="p">(</span>
+<span class="w">            </span><span class="n">IntegrationResponseSet</span><span class="p">.</span><span class="na">defaultPassthrough</span><span class="p">(</span><span class="n">DefaultPassthroughIntegrationResponseSetProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">statusCode</span><span class="p">(</span><span class="mi">204</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">()),</span>
+<span class="w">            </span><span class="n">IntegrationResponseSet</span><span class="p">.</span><span class="na">s3JsonErrorMessage</span><span class="p">()</span>
+<span class="w">        </span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">Integrations</span><span class="o">.</span><span class="n">s3</span><span class="p">(</span>
+    <span class="n">bucket</span><span class="o">=</span><span class="n">your_s3_bucket</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;delete&quot;</span><span class="p">,</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">&quot;my-pets/</span><span class="si">{petId}</span><span class="s2">/details.json&quot;</span><span class="p">,</span>
+    <span class="n">integration_response_set</span><span class="o">=</span><span class="n">IntegrationResponseSet</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span>
+        <span class="n">IntegrationResponseSet</span><span class="o">.</span><span class="n">default_passthrough</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">204</span><span class="p">),</span>
+        <span class="n">IntegrationResponseSet</span><span class="o">.</span><span class="n">s3_json_error_message</span><span class="p">()</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You must make sure that you only respond with status codes which correspond to responses in your model. For example if you do not have a response with a <code>204</code> status code defined in your model, you may see an "Internal server error" message returned from API gateway, with a message in the execution logs like "Output mapping refers to an invalid method response: 204"</p>
+</div>
 <h2 id="mock-integration">Mock integration</h2>
 <p>To mock an API operation, use the <code>MockIntegrations</code> class, which is included in your generated infrastructure package. This contains an integration for every response that can be returned by your operations.</p>
 <div class="admonition info">
@@ -3416,7 +3596,7 @@
   <small>
     
       Last update:
-      2023-11-08
+      2023-11-10
     
   </small>
 </div>
