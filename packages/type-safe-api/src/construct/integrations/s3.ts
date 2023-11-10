@@ -63,12 +63,24 @@ export class S3Integration extends Integration {
     this.integrationResponseSet = props.integrationResponseSet;
   }
 
+  private isRole(construct: IConstruct): construct is IRole {
+    return "roleArn" in construct && "grantPrincipal" in construct;
+  }
+
   private executionRole(scope: IConstruct): IRole {
     // Retrieve or create the shared S3 execution role
-    return (scope.node.tryFindChild(this.executionRoleId) ??
-      new Role(scope, this.executionRoleId, {
-        assumedBy: new ServicePrincipal("apigateway.amazonaws.com"),
-      })) as IRole;
+    const existingExecutionRole = scope.node.tryFindChild(this.executionRoleId);
+    if (existingExecutionRole) {
+      if (this.isRole(existingExecutionRole)) {
+        return existingExecutionRole;
+      }
+      throw new Error(
+        `Found construct with ID ${this.executionRoleId} in API scope which was not a role`
+      );
+    }
+    return new Role(scope, this.executionRoleId, {
+      assumedBy: new ServicePrincipal("apigateway.amazonaws.com"),
+    });
   }
 
   /**
