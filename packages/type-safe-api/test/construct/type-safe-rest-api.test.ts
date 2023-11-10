@@ -3,20 +3,23 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import { PDKNag } from "@aws/pdk-nag";
-import { App, Size, Stack } from "aws-cdk-lib";
+import { App, CfnOutput, Size, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { ApiKeySourceType, Cors } from "aws-cdk-lib/aws-apigateway";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
+import { Bucket } from "aws-cdk-lib/aws-s3";
 import { NagSuppressions } from "cdk-nag";
 import * as _ from "lodash";
 import { OpenAPIV3 } from "openapi-types";
-import { Integrations } from "../../lib";
+import { IntegrationResponseSets, Integrations } from "../../src";
 import {
   MethodAndPath,
   TypeSafeRestApi,
   ApiKeyOptions,
   TypeSafeApiIntegrationOptions,
+  Integration,
+  IntegrationRenderProps,
 } from "../../src/construct";
 import { Authorizers, Authorizer } from "../../src/construct/authorizers";
 import { CustomAuthorizerType } from "../../src/construct/authorizers/authorizers";
@@ -296,6 +299,176 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
       });
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
       snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With S3 Integration", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket"),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With S3 Integration and CORS", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        corsOptions: {
+          allowOrigins: Cors.ALL_ORIGINS,
+          allowMethods: Cors.ALL_METHODS,
+        },
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket"),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With S3 Integration and props", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket"),
+              method: "delete",
+              path: "/my-pets/{petId}/details.json",
+              integrationResponseSet: IntegrationResponseSets.composite(
+                IntegrationResponseSets.defaultPassthrough({ statusCode: 204 }),
+                IntegrationResponseSets.s3JsonErrorMessage()
+              ),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With S3 Integration and custom error responses", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket"),
+              integrationResponseSet: IntegrationResponseSets.composite(
+                IntegrationResponseSets.defaultPassthrough(),
+                IntegrationResponseSets.custom({
+                  responses: {
+                    "4\\d{2}": {
+                      statusCode: "400",
+                      responseParameters: {},
+                      responseTemplates: {},
+                    },
+                    "5\\d{2}": {
+                      statusCode: "500",
+                      responseParameters: {},
+                      responseTemplates: {},
+                    },
+                  },
+                })
+              ),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("With S3 Integration and catch all error response", () => {
+    const stack = new Stack();
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.s3({
+              bucket: new Bucket(stack, "Bucket"),
+              integrationResponseSet: IntegrationResponseSets.composite(
+                IntegrationResponseSets.defaultPassthrough(),
+                IntegrationResponseSets.catchAll()
+              ),
+            }),
+          },
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("S3 Integration validates shared role is a role", () => {
+    const stack = new Stack();
+
+    class HackIntegration extends Integration {
+      public render({ scope }: IntegrationRenderProps) {
+        if (!scope.node.tryFindChild("S3IntegrationsExecutionRole")) {
+          new CfnOutput(scope, "S3IntegrationsExecutionRole", {
+            value: "hack",
+          });
+        }
+        return {};
+      }
+    }
+    const hackIntegration = new HackIntegration();
+
+    withTempSpec(multiOperationSpec, (specPath) => {
+      expect(() => {
+        new TypeSafeRestApi(stack, "ApiTest", {
+          defaultAuthorizer: Authorizers.iam(),
+          specPath,
+          operationLookup: multiOperationLookup as any,
+          integrations: {
+            getOperation: {
+              integration: hackIntegration,
+            },
+            putOperation: {
+              integration: hackIntegration,
+            },
+            postOperation: {
+              integration: hackIntegration,
+            },
+            deleteOperation: {
+              integration: Integrations.s3({
+                bucket: new Bucket(stack, "Bucket"),
+              }),
+            },
+          },
+        });
+      }).toThrow(
+        "Found construct with ID S3IntegrationsExecutionRole in API scope which was not a role"
+      );
     });
   });
 
