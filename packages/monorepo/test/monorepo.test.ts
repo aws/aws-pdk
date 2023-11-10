@@ -9,7 +9,7 @@ import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { tryReadFileSync } from "projen/lib/util";
 import { synthSnapshot } from "projen/lib/util/synth";
-import { MonorepoTsProject, Nx } from "../src";
+import { MonorepoPythonProject, MonorepoTsProject, Nx } from "../src";
 
 describe("NX Monorepo Unit Tests", () => {
   it("Empty Monorepo", () => {
@@ -388,5 +388,22 @@ describe("NX Monorepo Unit Tests", () => {
     }).toThrow(
       "consumer must be a PythonProject with Poetry enabled to add this dependency"
     );
+  });
+
+  it("Empty Python Monorepo", () => {
+    const project = new MonorepoPythonProject({
+      name: "test",
+      moduleName: "test",
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
+  it("Removes incorrect @aws/pdk dependency for Python", () => {
+    const py = new MonorepoPythonProject({
+      name: "py",
+      devDeps: ["@aws/pdk"],
+      moduleName: "py",
+    });
+    expect(synthSnapshot(py)["pyproject.toml"]).toMatchSnapshot();
   });
 });

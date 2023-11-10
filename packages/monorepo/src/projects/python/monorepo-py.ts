@@ -45,6 +45,10 @@ export class MonorepoPythonProject
       authorEmail: options.authorEmail ?? "user@pdk.com",
     });
 
+    // Remove dependency on typescript package which projen incorrectly adds to initial .projenrc.py
+    // See: https://github.com/projen/projen/issues/2475
+    this.deps.removeDependency("@aws/pdk");
+
     this.addDevDependency("aws_pdk@^0");
 
     this.nxConfigurator = new NxConfigurator(this, {
