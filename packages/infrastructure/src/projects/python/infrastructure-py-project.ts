@@ -118,12 +118,16 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
         ),
     };
 
+    const tstDir = "tests";
+
     options.sample !== false &&
       this.emitSampleFiles(srcDir, [this.moduleName], mustacheConfig);
     options.sample !== false &&
-      this.emitSampleFiles(testDir, ["tests"], mustacheConfig);
+      this.emitSampleFiles(testDir, [tstDir], mustacheConfig);
 
-    this.testTask.reset("poetry run pytest ${CI:-'--snapshot-update'}");
+    this.testTask.reset(
+      `poetry run pytest ${tstDir}/ \${CI:-'--snapshot-update'}`
+    );
   }
 
   private emitSampleFiles(

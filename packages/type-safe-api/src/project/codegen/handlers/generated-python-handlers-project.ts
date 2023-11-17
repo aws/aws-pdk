@@ -63,7 +63,9 @@ export class GeneratedPythonHandlersProject extends PythonProject {
       // Pytest fails with exit code 5 when there are no tests.
       // We want to allow users to delete all their tests, or to upgrade an existing project without breaking their build
       // See: https://github.com/pytest-dev/pytest/issues/2393
-      this.testTask.reset("pytest || ([ $? = 5 ] && exit 0 || exit $?)");
+      this.testTask.reset(
+        `pytest ${this.tstDir}/ || ([ $? = 5 ] && exit 0 || exit $?)`
+      );
     }
 
     [
