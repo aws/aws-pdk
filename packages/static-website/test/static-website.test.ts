@@ -41,6 +41,28 @@ describe("Static Website Unit Tests", () => {
     expect(Template.fromStack(stack)).toMatchSnapshot();
   });
 
+  it("OAC - using AwsPrototyping NagPack", () => {
+    const app = PDKNag.app({ nagPacks: [new AwsPrototypingChecks()] });
+    const stack = new Stack(app);
+
+    new StaticWebsite(stack, "Defaults", {
+      originAccessType: "OAC",
+      websiteContentPath: path.join(__dirname, "./sample-website"),
+    });
+
+    app.synth();
+
+    const message = app
+      .nagResults()
+      .flatMap((r) => r.messages.map((m) => m.messageDescription))
+      .find((desc) =>
+        desc.startsWith("AwsPrototyping-CloudFrontDistributionGeoRestrictions:")
+      );
+
+    expect(message).toBeTruthy();
+    expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
   it("Defaults with suppression rule - using AwsPrototyping NagPack", () => {
     const app = PDKNag.app({ nagPacks: [new AwsPrototypingChecks()] });
     const stack = new Stack(app);

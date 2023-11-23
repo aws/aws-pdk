@@ -26,6 +26,7 @@ import { Construct } from "constructs";
 import { BucketDeploymentProps } from "./bucket-deployment-props";
 import { CloudfrontWebAcl, CloudFrontWebAclProps } from "./cloudfront-web-acl";
 import { DistributionProps } from "./distribution-props";
+import { OriginAccessControl } from "./origin-access-control";
 
 const DEFAULT_RUNTIME_CONFIG_FILENAME = "runtime-config.json";
 
@@ -62,6 +63,13 @@ export interface RuntimeOptions {
  * Properties for configuring the StaticWebsite.
  */
 export interface StaticWebsiteProps {
+  /**
+   * Whether to use Origin Access Control over OriginIdentity (recommend to use OAC).
+   *
+   * @stability experimental
+   * @default OAI
+   */
+  readonly originAccessType?: "OAC" | "OAI";
   /**
    * Path to the directory containing the static website files and assets. This directory must contain an index.html file.
    */
@@ -194,17 +202,18 @@ export class StaticWebsite extends Construct {
         serverAccessLogsBucket: accessLogsBucket,
       });
 
-    const originAccessIdentity = new OriginAccessIdentity(
-      this,
-      "OriginAccessIdentity"
-    );
-    this.websiteBucket.addToResourcePolicy(
-      new PolicyStatement({
-        resources: [this.websiteBucket.bucketArn],
-        actions: ["s3:ListBucket"],
-        principals: [originAccessIdentity.grantPrincipal],
-      })
-    );
+    const originAccessIdentity =
+      !props.originAccessType || props.originAccessType === "OAI"
+        ? new OriginAccessIdentity(this, "OriginAccessIdentity")
+        : undefined;
+    originAccessIdentity &&
+      this.websiteBucket.addToResourcePolicy(
+        new PolicyStatement({
+          resources: [this.websiteBucket.bucketArn],
+          actions: ["s3:ListBucket"],
+          principals: [originAccessIdentity.grantPrincipal],
+        })
+      );
 
     const defaultRootObject =
       distributionProps?.defaultRootObject ?? "index.html";
@@ -233,6 +242,12 @@ export class StaticWebsite extends Construct {
         ],
       }
     );
+
+    props.originAccessType === "OAC" &&
+      new OriginAccessControl(this, "OriginAccessControl", {
+        bucket: this.websiteBucket,
+        distribution: this.cloudFrontDistribution,
+      });
 
     // Deploy Website
     this.bucketDeployment = new BucketDeployment(this, "WebsiteDeployment", {

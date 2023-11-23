@@ -20,6 +20,9 @@ export class StaticWebsiteProject extends PDKProject {
       repositoryUrl: "https://github.com/aws/aws-pdk",
       devDeps: [
         "projen",
+        "@types/aws-lambda",
+        "@aws-sdk/client-s3",
+        "@aws-sdk/client-kms",
         "@aws-sdk/client-wafv2",
         "aws-cdk-lib",
         "constructs",
