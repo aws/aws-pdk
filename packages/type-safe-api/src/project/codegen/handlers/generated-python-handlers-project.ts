@@ -6,6 +6,7 @@ import { PythonProject } from "projen/lib/python";
 import {
   CodeGenerationSourceOptions,
   GeneratedPythonHandlersOptions,
+  Architecture,
 } from "../../types";
 import { OpenApiGeneratorHandlebarsIgnoreFile } from "../components/open-api-generator-handlebars-ignore-file";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
@@ -126,8 +127,14 @@ export class GeneratedPythonHandlersProject extends PythonProject {
     this.packageTask.exec(
       "poetry export --without-hashes --format=requirements.txt > dist/lambda/requirements.txt"
     );
+    // Select the platform based on the specified architecture, defaulting to x86_64
+    // See: https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-native-libraries
+    const platform =
+      options.architecture === Architecture.ARM_64
+        ? "manylinux2014_aarch64"
+        : "manylinux2014_x86_64";
     this.packageTask.exec(
-      "pip install -r dist/lambda/requirements.txt --target dist/lambda --upgrade"
+      `pip install -r dist/lambda/requirements.txt --target dist/lambda --upgrade --platform ${platform} --only-binary :all:`
     );
   }
 

@@ -26,6 +26,20 @@ export enum ModelLanguage {
 }
 
 /**
+ * Represents an instruction set architecture
+ */
+export enum Architecture {
+  /**
+   * 64-bit x86 architecture
+   */
+  X86_64 = "X86_64",
+  /**
+   * 64-bit ARM architecture
+   */
+  ARM_64 = "ARM_64",
+}
+
+/**
  * Options for a Smithy model
  */
 export interface SmithyModelOptions {
@@ -231,7 +245,15 @@ export interface GeneratedTypeScriptHandlersOptions
  */
 export interface GeneratedPythonHandlersOptions
   extends PythonProjectOptions,
-    GeneratedWithOpenApiGeneratorOptions {}
+    GeneratedWithOpenApiGeneratorOptions {
+  /**
+   * The architecture to target for python handlers.
+   * This determines the --platform argument passed to the pip install command used to build the lambda distributable.
+   * @see https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-native-libraries
+   * @default Architecture.X86_64
+   */
+  readonly architecture?: Architecture;
+}
 
 /**
  * Options for configuring a generated java handlers project

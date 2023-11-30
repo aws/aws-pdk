@@ -325,3 +325,93 @@ As well as generating lambda handler stubs, when you use the `@handler` Smithy t
 !!!warning
 
     The `<Operation>Function` constructs will point to the implementation in the project corresponding to the `language` you selected in the `@handler` Smithy trait or `x-handler` OpenAPI vendor extension. If you relocate your handler implementation and leave the trait a new handler stub will be generated and the construct will point to that. If you remove the `@handler` Smithy trait or `x-handler` OpenAPI vendor extension from an operation, your generated CDK infrastructure will not include a CDK function construct, and you will need to write your own.
+
+### Lambda Architectures
+
+AWS Lambda allows you to [specify the instruction set architecture of functions](https://docs.aws.amazon.com/lambda/latest/dg/foundation-arch.html). Since the generated function CDK constructs allow you to configure all properties of the lambda function, you may [configure the `architecture` property](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda.Function.html#architecture) to target your desired architecture.
+
+The `x86_64` architecture is targetted by default, but you can target `arm64` as follows:
+
+=== "TS"
+
+    ```ts
+    new SayHelloFunction(this, "SayHello", {
+      architecture: Architecture.ARM_64,
+    });
+    ```
+
+=== "JAVA"
+
+    ```java
+    new SayHelloFunction(this, "SayHello", SayHelloFunctionProps.builder()
+            .architecture(Architecture.ARM_64)
+            .build());
+    ```
+
+=== "PYTHON"
+
+    ```python
+    SayHelloFunction(self, "SayHello",
+        architecture=Architecture.ARM_64,
+    )
+    ```
+
+#### Native Dependencies
+
+If your lambda handlers rely on native dependencies, you will need to ensure you target the appropriate architecture when building the lambda distributable. For convenience when using the Python handlers project, you can select your target architecture by configuring your `TypeSafeApiProject`'s handler options in your `.projenrc`, for example:
+
+
+=== "TS"
+
+    ```ts
+    new TypeSafeApiProject({
+      ...
+      handlers: {
+        languages: [Language.PYTHON],
+        options: {
+          python: {
+            // Target lambdas in arm64
+            architecture: Architecture.ARM_64,
+          }
+        }
+      }
+    });
+    ```
+
+=== "JAVA"
+
+    ```java
+    new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
+            ...
+            .handlers(HandlersConfiguration.builder()
+                    .languages(Arrays.asList(Language.PYTHON))
+                    .options(GeneratedHandlersCodeOptions.builder()
+                            .python(GeneratedPythonHandlersOptions.builder()
+                                    // Target lambdas in arm64
+                                    .architecture(Architecture.ARM_64)
+                                    .build())
+                            .build())
+                    .build())
+            .build());
+    ```
+
+=== "PYTHON"
+
+    ```python
+
+    TypeSafeApiProject(
+        ...
+        handlers=HandlersConfiguration(
+            languages=[Language.PYTHON],
+            options=GeneratedHandlersCodeOptions(
+                python=GeneratedPythonHandlersOptions(
+                    # Target lambdas in arm64
+                    architecture=Architecture.ARM_64
+                )
+            )
+        ),
+    )
+    ```
+
+!!!warning
+    For TypeScript and Java, you may need to override the `package` task for the handlers project to run the appropriate commands to build your handlers with their native dependencies, or consider consuming them using a [Lambda layer](https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html).
