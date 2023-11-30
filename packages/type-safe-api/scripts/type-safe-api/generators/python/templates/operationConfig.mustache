@@ -221,7 +221,7 @@ class {{operationIdCamelCase}}RequestParameters(BaseModel):
 
     class Config:
         """Pydantic configuration"""
-        allow_population_by_field_name = True
+        populate_by_name = True
         validate_assignment = True
 
     def to_json(self) -> str:
@@ -232,13 +232,13 @@ class {{operationIdCamelCase}}RequestParameters(BaseModel):
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
-        return self.dict(exclude={}, exclude_none=True)
+        return self.model_dump(exclude={}, exclude_none=True)
 
     @classmethod
     def from_dict(cls, obj: dict) -> {{operationIdCamelCase}}RequestParameters:
         if obj is None:
             return None
-        return {{operationIdCamelCase}}RequestParameters.parse_obj(obj)
+        return {{operationIdCamelCase}}RequestParameters.model_validate(obj)
 
 
 # Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)

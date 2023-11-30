@@ -72,10 +72,10 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
     // Add dependencies required by the client
     [
       "python-dateutil@~2.8.2",
-      "pydantic@^1.10.5",
+      "pydantic@^2.5.2",
       "aenum@^3.1.11",
       "urllib3@~1.26.7",
-      `aws-lambda-powertools@{extras=["all"],version="^2.23.0"}`,
+      `aws-lambda-powertools@{extras=["tracer", "aws-sdk"],version="^2.28.0"}`,
       "python@^3.9",
     ].forEach((dep) => this.addDependency(dep));
 
@@ -86,7 +86,7 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
 
     // Add OpenAPI Generator cli configuration
     OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig({
-      version: "6.6.0",
+      version: "7.1.0",
       ...options.openApiGeneratorCliConfig,
     });
 
@@ -123,7 +123,7 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
 
   public buildGenerateCommandArgs = () => {
     return buildInvokeOpenApiGeneratorCommandArgs({
-      generator: "python-nextgen",
+      generator: "python",
       specPath: this.options.specPath,
       generatorDirectory: Language.PYTHON,
       additionalProperties: {
