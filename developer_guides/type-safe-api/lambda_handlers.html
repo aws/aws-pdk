@@ -1362,6 +1362,19 @@
     Function CDK Constructs
   </a>
   
+    <nav class="md-nav" aria-label="Function CDK Constructs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lambda-architectures" class="md-nav__link">
+    Lambda Architectures
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3322,6 +3335,19 @@
     Function CDK Constructs
   </a>
   
+    <nav class="md-nav" aria-label="Function CDK Constructs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lambda-architectures" class="md-nav__link">
+    Lambda Architectures
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3645,13 +3671,93 @@
 <p class="admonition-title">Warning</p>
 <p>The <code>&lt;Operation&gt;Function</code> constructs will point to the implementation in the project corresponding to the <code>language</code> you selected in the <code>@handler</code> Smithy trait or <code>x-handler</code> OpenAPI vendor extension. If you relocate your handler implementation and leave the trait a new handler stub will be generated and the construct will point to that. If you remove the <code>@handler</code> Smithy trait or <code>x-handler</code> OpenAPI vendor extension from an operation, your generated CDK infrastructure will not include a CDK function construct, and you will need to write your own.</p>
 </div>
+<h3 id="lambda-architectures">Lambda Architectures</h3>
+<p>AWS Lambda allows you to <a href="https://docs.aws.amazon.com/lambda/latest/dg/foundation-arch.html">specify the instruction set architecture of functions</a>. Since the generated function CDK constructs allow you to configure all properties of the lambda function, you may <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda.Function.html#architecture">configure the <code>architecture</code> property</a> to target your desired architecture.</p>
+<p>The <code>x86_64</code> architecture is targetted by default, but you can target <code>arm64</code> as follows:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">TS</label><label for="__tabbed_5_2">JAVA</label><label for="__tabbed_5_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">SayHelloFunction</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;SayHello&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">architecture</span><span class="o">:</span><span class="w"> </span><span class="kt">Architecture.ARM_64</span><span class="p">,</span>
+<span class="p">});</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="k">new</span><span class="w"> </span><span class="n">SayHelloFunction</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;SayHello&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">SayHelloFunctionProps</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">architecture</span><span class="p">(</span><span class="n">Architecture</span><span class="p">.</span><span class="na">ARM_64</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">SayHelloFunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;SayHello&quot;</span><span class="p">,</span>
+    <span class="n">architecture</span><span class="o">=</span><span class="n">Architecture</span><span class="o">.</span><span class="n">ARM_64</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<h4 id="native-dependencies">Native Dependencies</h4>
+<p>If your lambda handlers rely on native dependencies, you will need to ensure you target the appropriate architecture when building the lambda distributable. For convenience when using the Python handlers project, you can select your target architecture by configuring your <code>TypeSafeApiProject</code>'s handler options in your <code>.projenrc</code>, for example:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">TS</label><label for="__tabbed_6_2">JAVA</label><label for="__tabbed_6_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="w">  </span><span class="nx">handlers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">languages</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Language</span><span class="p">.</span><span class="nx">PYTHON</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">python</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Target lambdas in arm64</span>
+<span class="w">        </span><span class="nx">architecture</span><span class="o">:</span><span class="w"> </span><span class="kt">Architecture.ARM_64</span><span class="p">,</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="k">new</span><span class="w"> </span><span class="n">TypeSafeApiProject</span><span class="p">(</span><span class="n">TypeSafeApiProjectOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">...</span>
+<span class="w">        </span><span class="p">.</span><span class="na">handlers</span><span class="p">(</span><span class="n">HandlersConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">languages</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">PYTHON</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">options</span><span class="p">(</span><span class="n">GeneratedHandlersCodeOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">python</span><span class="p">(</span><span class="n">GeneratedPythonHandlersOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                </span><span class="c1">// Target lambdas in arm64</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">architecture</span><span class="p">(</span><span class="n">Architecture</span><span class="p">.</span><span class="na">ARM_64</span><span class="p">)</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">TypeSafeApiProject</span><span class="p">(</span>
+    <span class="o">...</span>
+    <span class="n">handlers</span><span class="o">=</span><span class="n">HandlersConfiguration</span><span class="p">(</span>
+        <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">],</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">GeneratedHandlersCodeOptions</span><span class="p">(</span>
+            <span class="n">python</span><span class="o">=</span><span class="n">GeneratedPythonHandlersOptions</span><span class="p">(</span>
+                <span class="c1"># Target lambdas in arm64</span>
+                <span class="n">architecture</span><span class="o">=</span><span class="n">Architecture</span><span class="o">.</span><span class="n">ARM_64</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For TypeScript and Java, you may need to override the <code>package</code> task for the handlers project to run the appropriate commands to build your handlers with their native dependencies, or consider consuming them using a <a href="https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html">Lambda layer</a>.</p>
+</div>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      2023-11-16
+      2023-11-30
     
   </small>
 </div>
