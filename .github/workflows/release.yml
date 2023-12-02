@@ -40,7 +40,7 @@ jobs:
         run: git diff --ignore-space-at-eol --exit-code
       - name: Check for new commits
         id: git_remote
-        run: echo ::set-output name=latest_commit::"$(git ls-remote origin -h ${{ github.ref }} | cut -f1)"
+        run: echo "latest_commit=$(git ls-remote origin -h ${{ github.ref }} | cut -f1)" >> $GITHUB_OUTPUT
       - name: Extract Dists
         run: rsync -a . ./dist --include="*/" --include="/docs/dist/**" --include="/packages/pdk/dist/**" --exclude="*" --prune-empty-dirs
       - name: Upload artifact
