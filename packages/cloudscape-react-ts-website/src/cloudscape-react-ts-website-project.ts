@@ -98,12 +98,13 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
     if (options.typeSafeApi) {
       const hooks = options.typeSafeApi.library?.typescriptReactQueryHooks;
       const libraryHooksPackage = hooks?.package?.packageName;
+      const libraryHooksPackageVersion = hooks?.package?.manifest.version;
       if (!libraryHooksPackage) {
         throw new Error(
           "Cannot pass in a Type Safe Api without React Hooks Library configured!"
         );
       }
-      this.addDeps(libraryHooksPackage);
+      this.addDeps(`${libraryHooksPackage}@${libraryHooksPackageVersion}`);
 
       this.setupSwaggerUi(options.typeSafeApi);
     }

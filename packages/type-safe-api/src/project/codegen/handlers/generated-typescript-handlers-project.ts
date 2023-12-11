@@ -67,7 +67,7 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
         // If within a monorepo, add a regular dependency. Otherwise, use a file dependency to ensure the runtime can be
         // resolved
         options.isWithinMonorepo
-          ? options.generatedTypescriptTypes.package.packageName
+          ? `${options.generatedTypescriptTypes.package.packageName}@${options.generatedTypescriptTypes.package.manifest.version}`
           : `${
               options.generatedTypescriptTypes.package.packageName
             }@file:${path.relative(

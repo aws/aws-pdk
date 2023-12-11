@@ -88,7 +88,7 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
         // If within a monorepo, add a regular dependency. Otherwise, use a file dependency to ensure the types can be
         // resolved
         options.isWithinMonorepo
-          ? options.generatedTypescriptTypes.package.packageName
+          ? `${options.generatedTypescriptTypes.package.packageName}@${options.generatedTypescriptTypes.package.manifest.version}`
           : `${
               options.generatedTypescriptTypes.package.packageName
             }@file:${path.relative(

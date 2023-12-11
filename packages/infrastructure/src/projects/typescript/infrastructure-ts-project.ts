@@ -87,7 +87,11 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
         );
       }
       this.addDeps(
-        options.typeSafeApi.infrastructure.typescript?.package.packageName!
+        `${options.typeSafeApi.infrastructure.typescript?.package
+          .packageName!}@${
+          options.typeSafeApi.infrastructure.typescript?.package.manifest
+            .version
+        }`
       );
       // Ensure handlers are built before infra
       options.typeSafeApi.all.handlers?.forEach((handler) => {
@@ -96,7 +100,9 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
     }
     if (hasWebsite) {
       // Ensure website is built before infra
-      this.addDevDeps(options.cloudscapeReactTsWebsite.package.packageName);
+      this.addDevDeps(
+        `${options.cloudscapeReactTsWebsite.package.packageName}@${options.cloudscapeReactTsWebsite.package.manifest.version}`
+      );
     }
 
     const mustacheConfig = {
