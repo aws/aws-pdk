@@ -81,10 +81,6 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
     this.addDevDeps("@types/aws-lambda");
     this.addDeps(
       ...[
-        "@aws/pdk",
-        "constructs",
-        "aws-cdk-lib",
-        "cdk-nag",
         // If within a monorepo, add a regular dependency. Otherwise, use a file dependency to ensure the types can be
         // resolved
         options.isWithinMonorepo
@@ -97,6 +93,18 @@ export class GeneratedTypescriptCdkInfrastructureProject extends TypeScriptProje
             )}`,
       ].filter(
         (dep) => !this.deps.tryGetDependency(dep, DependencyType.RUNTIME)
+      )
+    );
+
+    const devAndPeerDeps = ["@aws/pdk", "constructs", "aws-cdk-lib", "cdk-nag"];
+    this.addDevDeps(
+      ...devAndPeerDeps.filter(
+        (dep) => !this.deps.tryGetDependency(dep, DependencyType.BUILD)
+      )
+    );
+    this.addPeerDeps(
+      ...devAndPeerDeps.filter(
+        (dep) => !this.deps.tryGetDependency(dep, DependencyType.PEER)
       )
     );
 
