@@ -70,7 +70,7 @@ export class GeneratedPythonHandlersProject extends PythonProject {
     }
 
     [
-      "python@^3.9",
+      "python@^3.11",
       `${options.generatedPythonTypes.name}@{path="${path.relative(
         this.outdir,
         options.generatedPythonTypes.outdir
