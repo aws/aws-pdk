@@ -1070,6 +1070,52 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
     });
   });
 
+  it("Permits path-level parameters, summary and description", () => {
+    const stack = new Stack();
+    const func = (id: string) =>
+      new Function(stack, `Lambda${id}`, {
+        code: Code.fromInline("code"),
+        handler: "handler",
+        runtime: Runtime.NODEJS_16_X,
+      });
+    const spec = {
+      ...sampleSpec,
+      paths: {
+        ...sampleSpec.paths,
+        "/test": {
+          ...sampleSpec.paths["/test"],
+          summary: "Summary",
+          description: "Description",
+          parameters: [
+            {
+              in: "query",
+              name: "queryParam",
+              schema: {
+                type: "string",
+              },
+            } as const,
+          ],
+        },
+      },
+    };
+    withTempSpec(spec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        defaultAuthorizer: Authorizers.custom({
+          authorizerId: "my-custom-scheme",
+          function: func("authorizer"),
+        }),
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func("a")),
+          },
+        },
+      });
+      snapshotExtendedSpec(api);
+    });
+  });
+
   interface ApiKeyTestCase {
     defaultAuthorizer?: Authorizer;
     apiKeyOptions?: ApiKeyOptions;

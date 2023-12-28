@@ -721,7 +721,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-85532C36PrepSpec",
         "Handler": "index.handler",
@@ -1845,7 +1845,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Create 2 APIs on same stack 1`]
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-300D0E5FPrepSpec",
         "Handler": "index.handler",
@@ -3183,7 +3183,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Local Mode 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -4429,7 +4429,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Permits Matching No Authorizers
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -4972,6 +4972,94 @@ exports[`Type Safe Rest Api Construct Unit Tests Permits Matching No Authorizers
           "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
         },
       ],
+    },
+  },
+}
+`;
+
+exports[`Type Safe Rest Api Construct Unit Tests Permits path-level parameters, summary and description 1`] = `
+{
+  "components": {
+    "securitySchemes": {
+      "my-custom-scheme": {
+        "in": "header",
+        "name": "Authorization",
+        "type": "apiKey",
+        "x-amazon-apigateway-authorizer": {
+          "authorizerResultTtlInSeconds": 300,
+          "authorizerUri": "arn:\${<TOKEN>}:apigateway:\${<TOKEN>}:lambda:path/2015-03-31/functions/\${<TOKEN>}/invocations",
+          "identitySource": "method.request.header.Authorization",
+          "type": "token",
+        },
+        "x-amazon-apigateway-authtype": "CUSTOM",
+      },
+    },
+  },
+  "info": {
+    "title": "Test API",
+    "version": "1.0.0",
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/test": {
+      "description": "Description",
+      "get": {
+        "operationId": "testOperation",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                    },
+                  },
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Successful response",
+            "headers": {},
+          },
+        },
+        "security": [
+          {
+            "my-custom-scheme": [],
+          },
+        ],
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "passthroughBehavior": "WHEN_NO_MATCH",
+          "type": "AWS_PROXY",
+          "uri": "arn:\${<TOKEN>}:apigateway:\${<TOKEN>}:lambda:path/2015-03-31/functions/\${<TOKEN>}/invocations",
+        },
+      },
+      "parameters": [
+        {
+          "in": "query",
+          "name": "queryParam",
+          "schema": {
+            "type": "string",
+          },
+        },
+      ],
+      "summary": "Summary",
+    },
+  },
+  "x-amazon-apigateway-gateway-responses": {
+    "BAD_REQUEST_BODY": {
+      "responseTemplates": {
+        "application/json": "{"message": "$context.error.validationErrorString"}",
+      },
+      "statusCode": 400,
+    },
+  },
+  "x-amazon-apigateway-request-validator": "all",
+  "x-amazon-apigateway-request-validators": {
+    "all": {
+      "validateRequestBody": true,
+      "validateRequestParameters": true,
     },
   },
 }
@@ -6015,7 +6103,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Should add header parameters to
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -7970,7 +8058,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Should consolidate permissions 
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -9264,7 +9352,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Should enable compression 1`] =
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -10507,7 +10595,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Synth 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -12870,7 +12958,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Cognito Auth 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -14328,7 +14416,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Auth 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -15716,7 +15804,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Custom Managed Rules 1`] =
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -16993,7 +17081,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With IAM Auth and CORS 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -18832,7 +18920,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mixed Auth 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -20419,7 +20507,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -21626,7 +21714,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Mock Integration and CORS 
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -22962,7 +23050,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Path Parameters 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -24241,7 +24329,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -25690,7 +25778,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and CORS 1`
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -27155,7 +27243,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and catch a
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -28503,7 +28591,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and custom 
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -29882,7 +29970,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With S3 Integration and props 1
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -31383,7 +31471,7 @@ exports[`Type Safe Rest Api Construct Unit Tests With Waf IP Set 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",
@@ -32493,7 +32581,7 @@ exports[`Type Safe Rest Api Construct Unit Tests Without Waf 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f5f734c4b1912c2e0519cc77c4a123953110c510f49ff2b58500ae796674fbf.zip",
+          "S3Key": "52c974482685e83fe8597c89751626b694912c724e2c663bd27f6d92d4bfd193.zip",
         },
         "FunctionName": "Default-3E755E54PrepSpec",
         "Handler": "index.handler",

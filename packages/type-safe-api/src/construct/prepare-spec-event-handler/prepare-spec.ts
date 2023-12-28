@@ -301,9 +301,17 @@ const preparePathSpec = (
   options: PrepareApiSpecOptions,
   getOperationName: (methodAndPath: MethodAndPath) => string
 ): OpenAPIV3.PathItemObject => {
-  const supportedHttpMethods = new Set<string>(Object.values(HttpMethods));
+  const supportedPathItemKeys = new Set<string>([
+    // https://spec.openapis.org/oas/v3.0.3#path-item-object
+    ...Object.values(HttpMethods),
+    "summary",
+    "description",
+    "parameters",
+    "servers",
+    // All $refs should be resolved already, so we'll error if one remains somehow
+  ]);
   const unsupportedMethodsInSpec = Object.keys(pathItem).filter(
-    (method) => !supportedHttpMethods.has(method)
+    (method) => !supportedPathItemKeys.has(method)
   );
   if (unsupportedMethodsInSpec.length > 0) {
     throw new Error(
