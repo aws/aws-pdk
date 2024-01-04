@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { AwsArchProject } from "./projenrc/projects/aws-arch-project";
 import { CdkGraphPluginDiagramProject } from "./projenrc/projects/cdk-graph-plugin-diagram-project";
+import { CdkGraphPluginThreatComposerProject } from "./projenrc/projects/cdk-graph-plugin-threat-composer-project";
 import { CdkGraphProject } from "./projenrc/projects/cdk-graph-project";
 import { CloudscapeReactTsWebsiteProject } from "./projenrc/projects/cloudscape-react-ts-website-project";
 import { DocsProject } from "./projenrc/projects/docs-project";
@@ -29,6 +30,7 @@ new CloudscapeReactTsWebsiteProject(monorepoProject);
 new AwsArchProject(monorepoProject);
 new CdkGraphProject(monorepoProject);
 new CdkGraphPluginDiagramProject(monorepoProject);
+new CdkGraphPluginThreatComposerProject(monorepoProject);
 new PipelineProject(monorepoProject);
 new InfrastructureProject(monorepoProject);
 

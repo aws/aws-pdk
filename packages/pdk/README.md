@@ -14,6 +14,10 @@ Please refer to [Developer Guide](./docs/developer_guides/cdk-graph/index.md).
 
 Please refer to [Developer Guide](./docs/developer_guides/cdk-graph-plugin-diagram/index.md).
 
+# cdk-graph-plugin-threat-composer
+
+Please refer to [Developer Guide](./docs/developer_guides/cdk-graph-plugin-threat-composer/index.md).
+
 # cloudscape-react-ts-website
 
 Please refer to [Developer Guide](./docs/developer_guides/cloudscape-react-ts-website/index.md).

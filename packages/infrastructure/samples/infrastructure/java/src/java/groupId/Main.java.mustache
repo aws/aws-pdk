@@ -9,6 +9,7 @@ import software.aws.pdk.cdk_graph.IGraphFilterPlan;
 import software.aws.pdk.cdk_graph_plugin_diagram.CdkGraphDiagramPlugin;
 import software.aws.pdk.cdk_graph_plugin_diagram.IDiagramConfigBase;
 import software.aws.pdk.cdk_graph_plugin_diagram.IPluginConfig;
+import software.aws.pdk.cdk_graph_plugin_threat_composer.CdkGraphThreatComposerPlugin;
 import software.aws.pdk.pdk_nag.AwsPrototypingChecks;
 import software.aws.pdk.pdk_nag.PDKNag;
 import software.aws.pdk.pdk_nag.PDKNagAppProps;
@@ -35,16 +36,19 @@ public class Main {
         .build());
 
     CdkGraph graph = new CdkGraph(app, ICdkGraphProps.builder()
-        .plugins(Arrays.asList(new CdkGraphDiagramPlugin(IPluginConfig.builder()
-            .defaults(IDiagramConfigBase.builder()
-                .filterPlan(IGraphFilterPlan.builder()
-                    .preset(FilterPreset.COMPACT)
-                    .filters(Arrays.asList(IFilter.builder()
-                        .store(Filters.pruneCustomResources())
-                        .build()))
+        .plugins(Arrays.asList(
+            new CdkGraphDiagramPlugin(IPluginConfig.builder()
+                .defaults(IDiagramConfigBase.builder()
+                    .filterPlan(IGraphFilterPlan.builder()
+                        .preset(FilterPreset.COMPACT)
+                        .filters(Arrays.asList(IFilter.builder()
+                            .store(Filters.pruneCustomResources())
+                            .build()))
+                        .build())
                     .build())
-                .build())
-            .build())))
+                .build()),
+            new CdkGraphThreatComposerPlugin()
+        ))
         .build());
 
     app.synth();

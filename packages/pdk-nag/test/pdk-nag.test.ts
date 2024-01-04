@@ -43,6 +43,11 @@ describe("PDK Nag Aspect Tests", () => {
         );
 
       expect(messages.length).toEqual(0);
+
+      expect(app.extendedNagResults().length).toBeGreaterThan(0);
+      expect(
+        app.extendedNagResults().filter((m) => !nagPacksSet.has(m.nagPackName))
+      ).toHaveLength(0);
     });
   });
 });
