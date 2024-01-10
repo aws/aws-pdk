@@ -17,6 +17,8 @@ import {
   NagSuppressions,
 } from "cdk-nag";
 import { IConstruct } from "constructs";
+import { MemoryLogger } from "./loggers/memory-logger";
+import { ExtendedNagResult } from "./loggers/types";
 
 const CDK_NAG_MESSAGE_TYPES = {
   ERROR: "aws:cdk:error",
@@ -91,6 +93,7 @@ export interface PDKNagAppProps extends AppProps {
  */
 export class PDKNagApp extends App {
   private readonly _nagResults: NagResult[] = [];
+  private readonly _extendedNagResults: ExtendedNagResult[] = [];
   private readonly failOnError: boolean;
   private readonly failOnWarning: boolean;
   public readonly nagPacks: NagPack[];
@@ -100,6 +103,8 @@ export class PDKNagApp extends App {
     this.failOnError = props?.failOnError ?? false;
     this.failOnWarning = props?.failOnWarning ?? false;
     this.nagPacks = props?.nagPacks ?? DEFAULT_NAG_PACKS;
+
+    Aspects.of(this).add(new PDKNagAspect(this));
   }
 
   synth(options?: StageSynthesisOptions): CloudAssembly {
@@ -134,6 +139,19 @@ export class PDKNagApp extends App {
   public nagResults(): NagResult[] {
     return this._nagResults;
   }
+
+  addExtendedNagResults(...results: ExtendedNagResult[]) {
+    this._extendedNagResults.push(...results);
+  }
+
+  /**
+   * Returns a list of ExtendedNagResult.
+   *
+   * Note: app.synth() must be called before this to retrieve results.
+   */
+  public extendedNagResults(): ExtendedNagResult[] {
+    return this._extendedNagResults;
+  }
 }
 
 class PDKNagAspect implements IAspect {
@@ -144,7 +162,16 @@ class PDKNagAspect implements IAspect {
   }
 
   visit(node: IConstruct): void {
-    this.app.nagPacks.forEach((nagPack) => nagPack.visit(node));
+    const memoryLogger = new MemoryLogger();
+
+    this.app.nagPacks.forEach((nagPack) => {
+      // @ts-ignore loggers is private, but since we haven't called "visit" yet it's safe to add another
+      nagPack.loggers.push(memoryLogger);
+      nagPack.visit(node);
+      // @ts-ignore loggers is private, but remove the memory logger to clean up
+      nagPack.loggers.pop();
+    });
+    this.app.addExtendedNagResults(...memoryLogger.results);
 
     const results = node.node.metadata.filter((m) =>
       CDK_NAG_MESSAGE_TYPES_SET.has(m.type)
@@ -170,10 +197,7 @@ export class PDKNag {
    * @param props props to initialize the app with.
    */
   public static app(props?: PDKNagAppProps): PDKNagApp {
-    const app = new PDKNagApp(props);
-    Aspects.of(app).add(new PDKNagAspect(app));
-
-    return app;
+    return new PDKNagApp(props);
   }
 
   /**
