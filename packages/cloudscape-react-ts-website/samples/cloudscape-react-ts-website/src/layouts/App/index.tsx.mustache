@@ -44,16 +44,14 @@ const App: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    if (getAuthenticatedUser) {
-      const authUser = getAuthenticatedUser();
-      setUsername(authUser?.getUsername());
+    const authUser = getAuthenticatedUser();
+    setUsername(authUser?.getUsername());
 
-      authUser?.getSession(() => {
-        authUser.getUserAttributes((_, attributes) => {
-          setEmail(attributes?.find((a) => a.Name === "email")?.Value);
-        });
+    authUser?.getSession(() => {
+      authUser.getUserAttributes((_, attributes) => {
+        setEmail(attributes?.find((a) => a.Name === "email")?.Value);
       });
-    }
+    });
   }, [getAuthenticatedUser, setUsername, setEmail]);
 
   const setAppLayoutPropsSafe = useCallback(
@@ -103,7 +101,7 @@ const App: React.FC = () => {
         }
         onSignout={() =>
           new Promise(() => {
-            getAuthenticatedUser && getAuthenticatedUser()?.signOut();
+            getAuthenticatedUser()?.signOut();
             window.location.href = "/";
           })
         }
