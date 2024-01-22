@@ -4153,6 +4153,7 @@ public class Tag2Api {
 package test.test.runtime.api.handlers;
 
 import java.util.Map;
+import java.util.List;
 
 @lombok.experimental.SuperBuilder
 @lombok.AllArgsConstructor
@@ -4161,6 +4162,7 @@ public class ApiResponse implements Response {
     private String body;
     private int statusCode;
     private Map<String, String> headers;
+    private Map<String, List<String>> multiValueHeaders;
 }
 ",
   "src/main/java/test/test/runtime/api/handlers/ChainedRequestInput.java": "
@@ -4737,6 +4739,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 /**
  * An "empty" chained request input used to warm up interceptors which extend the InterceptorWithWarmup
@@ -4761,6 +4764,11 @@ public class InterceptorWarmupChainedRequestInput<T> implements ChainedRequestIn
 
           @Override
           public Map<String, String> getHeaders() {
+            return new HashMap<>();
+          }
+
+          @Override
+          public Map<String, List<String>> getMultiValueHeaders() {
             return new HashMap<>();
           }
         };
@@ -4933,6 +4941,7 @@ public interface RequestInput<TInput> {
 package test.test.runtime.api.handlers;
 
 import java.util.Map;
+import java.util.List;
 
 /**
  * Represents an HTTP response from an api operation
@@ -4950,6 +4959,10 @@ public interface Response {
      * Returns the response headers
      */
     Map<String, String> getHeaders();
+    /**
+     * Returns the multi-value response headers
+     */
+    Map<String, List<String>> getMultiValueHeaders();
 }
 ",
   "src/main/java/test/test/runtime/api/handlers/both/Both.java": "
@@ -5058,7 +5071,7 @@ public abstract class Both implements RequestHandler<APIGatewayProxyRequestEvent
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -5133,6 +5146,7 @@ public abstract class Both implements RequestHandler<APIGatewayProxyRequestEvent
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
@@ -5144,6 +5158,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 200 for the both operation
@@ -5160,11 +5175,13 @@ public class Both200Response extends RuntimeException implements BothResponse {
     private final String body;
     
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private Both200Response(final Map<String, String> headers) {
+    private Both200Response(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         
         this.body = "";
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -5183,18 +5200,30 @@ public class Both200Response extends RuntimeException implements BothResponse {
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a Both200Response without a body
      */
     public static Both200Response of() {
-        return new Both200Response(new HashMap<>());
+        return new Both200Response(new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a Both200Response without a body and headers
      */
     public static Both200Response of(final Map<String, String> headers) {
-        return new Both200Response(headers);
+        return new Both200Response(headers, new HashMap<>());
+    }
+
+    /**
+     * Create a Both200Response without a body, headers and multi-value headers
+     */
+    public static Both200Response of(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new Both200Response(headers, multiValueHeaders);
     }
 }
 ",
@@ -5443,7 +5472,7 @@ public abstract class Neither implements RequestHandler<APIGatewayProxyRequestEv
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -5518,6 +5547,7 @@ public abstract class Neither implements RequestHandler<APIGatewayProxyRequestEv
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
@@ -5529,6 +5559,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 200 for the neither operation
@@ -5545,11 +5576,13 @@ public class Neither200Response extends RuntimeException implements NeitherRespo
     private final String body;
     
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private Neither200Response(final Map<String, String> headers) {
+    private Neither200Response(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         
         this.body = "";
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -5568,18 +5601,30 @@ public class Neither200Response extends RuntimeException implements NeitherRespo
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a Neither200Response without a body
      */
     public static Neither200Response of() {
-        return new Neither200Response(new HashMap<>());
+        return new Neither200Response(new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a Neither200Response without a body and headers
      */
     public static Neither200Response of(final Map<String, String> headers) {
-        return new Neither200Response(headers);
+        return new Neither200Response(headers, new HashMap<>());
+    }
+
+    /**
+     * Create a Neither200Response without a body, headers and multi-value headers
+     */
+    public static Neither200Response of(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new Neither200Response(headers, multiValueHeaders);
     }
 }
 ",
@@ -5828,7 +5873,7 @@ public abstract class Tag1 implements RequestHandler<APIGatewayProxyRequestEvent
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -5903,6 +5948,7 @@ public abstract class Tag1 implements RequestHandler<APIGatewayProxyRequestEvent
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
@@ -5914,6 +5960,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 200 for the tag1 operation
@@ -5930,11 +5977,13 @@ public class Tag1200Response extends RuntimeException implements Tag1Response {
     private final String body;
     
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private Tag1200Response(final Map<String, String> headers) {
+    private Tag1200Response(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         
         this.body = "";
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -5953,18 +6002,30 @@ public class Tag1200Response extends RuntimeException implements Tag1Response {
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a Tag1200Response without a body
      */
     public static Tag1200Response of() {
-        return new Tag1200Response(new HashMap<>());
+        return new Tag1200Response(new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a Tag1200Response without a body and headers
      */
     public static Tag1200Response of(final Map<String, String> headers) {
-        return new Tag1200Response(headers);
+        return new Tag1200Response(headers, new HashMap<>());
+    }
+
+    /**
+     * Create a Tag1200Response without a body, headers and multi-value headers
+     */
+    public static Tag1200Response of(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new Tag1200Response(headers, multiValueHeaders);
     }
 }
 ",
@@ -6213,7 +6274,7 @@ public abstract class Tag2 implements RequestHandler<APIGatewayProxyRequestEvent
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -6288,6 +6349,7 @@ public abstract class Tag2 implements RequestHandler<APIGatewayProxyRequestEvent
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
@@ -6299,6 +6361,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 200 for the tag2 operation
@@ -6315,11 +6378,13 @@ public class Tag2200Response extends RuntimeException implements Tag2Response {
     private final String body;
     
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private Tag2200Response(final Map<String, String> headers) {
+    private Tag2200Response(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         
         this.body = "";
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -6338,18 +6403,30 @@ public class Tag2200Response extends RuntimeException implements Tag2Response {
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a Tag2200Response without a body
      */
     public static Tag2200Response of() {
-        return new Tag2200Response(new HashMap<>());
+        return new Tag2200Response(new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a Tag2200Response without a body and headers
      */
     public static Tag2200Response of(final Map<String, String> headers) {
-        return new Tag2200Response(headers);
+        return new Tag2200Response(headers, new HashMap<>());
+    }
+
+    /**
+     * Create a Tag2200Response without a body, headers and multi-value headers
+     */
+    public static Tag2200Response of(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new Tag2200Response(headers, multiValueHeaders);
     }
 }
 ",
@@ -12420,6 +12497,7 @@ public class DefaultApi {
 package test.test.runtime.api.handlers;
 
 import java.util.Map;
+import java.util.List;
 
 @lombok.experimental.SuperBuilder
 @lombok.AllArgsConstructor
@@ -12428,6 +12506,7 @@ public class ApiResponse implements Response {
     private String body;
     private int statusCode;
     private Map<String, String> headers;
+    private Map<String, List<String>> multiValueHeaders;
 }
 ",
   "src/main/java/test/test/runtime/api/handlers/ChainedRequestInput.java": "
@@ -13052,6 +13131,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 /**
  * An "empty" chained request input used to warm up interceptors which extend the InterceptorWithWarmup
@@ -13076,6 +13156,11 @@ public class InterceptorWarmupChainedRequestInput<T> implements ChainedRequestIn
 
           @Override
           public Map<String, String> getHeaders() {
+            return new HashMap<>();
+          }
+
+          @Override
+          public Map<String, List<String>> getMultiValueHeaders() {
             return new HashMap<>();
           }
         };
@@ -13248,6 +13333,7 @@ public interface RequestInput<TInput> {
 package test.test.runtime.api.handlers;
 
 import java.util.Map;
+import java.util.List;
 
 /**
  * Represents an HTTP response from an api operation
@@ -13265,6 +13351,10 @@ public interface Response {
      * Returns the response headers
      */
     Map<String, String> getHeaders();
+    /**
+     * Returns the multi-value response headers
+     */
+    Map<String, List<String>> getMultiValueHeaders();
 }
 ",
   "src/main/java/test/test/runtime/api/handlers/any_request_response/AnyRequestResponse.java": "
@@ -13373,7 +13463,7 @@ public abstract class AnyRequestResponse implements RequestHandler<APIGatewayPro
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -13448,6 +13538,7 @@ public abstract class AnyRequestResponse implements RequestHandler<APIGatewayPro
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
@@ -13459,6 +13550,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 200 for the anyRequestResponse operation
@@ -13475,11 +13567,13 @@ public class AnyRequestResponse200Response extends RuntimeException implements A
     private final String body;
     private final String typedBody;
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private AnyRequestResponse200Response(final String body, final Map<String, String> headers) {
+    private AnyRequestResponse200Response(final String body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         this.typedBody = body;
         this.body = body;
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -13501,18 +13595,30 @@ public class AnyRequestResponse200Response extends RuntimeException implements A
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a AnyRequestResponse200Response with a body
      */
     public static AnyRequestResponse200Response of(final String body) {
-        return new AnyRequestResponse200Response(body, new HashMap<>());
+        return new AnyRequestResponse200Response(body, new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a AnyRequestResponse200Response with a body and headers
      */
     public static AnyRequestResponse200Response of(final String body, final Map<String, String> headers) {
-        return new AnyRequestResponse200Response(body, headers);
+        return new AnyRequestResponse200Response(body, headers, new HashMap<>());
+    }
+
+    /**
+     * Create a AnyRequestResponse200Response with a body, headers and multi-value headers
+     */
+    public static AnyRequestResponse200Response of(final String body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new AnyRequestResponse200Response(body, headers, multiValueHeaders);
     }
 }
 ",
@@ -13766,7 +13872,7 @@ public abstract class Empty implements RequestHandler<APIGatewayProxyRequestEven
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -13841,6 +13947,7 @@ public abstract class Empty implements RequestHandler<APIGatewayProxyRequestEven
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
@@ -13852,6 +13959,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 204 for the empty operation
@@ -13868,11 +13976,13 @@ public class Empty204Response extends RuntimeException implements EmptyResponse 
     private final String body;
     
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private Empty204Response(final Map<String, String> headers) {
+    private Empty204Response(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         
         this.body = "";
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -13891,18 +14001,30 @@ public class Empty204Response extends RuntimeException implements EmptyResponse 
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a Empty204Response without a body
      */
     public static Empty204Response of() {
-        return new Empty204Response(new HashMap<>());
+        return new Empty204Response(new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a Empty204Response without a body and headers
      */
     public static Empty204Response of(final Map<String, String> headers) {
-        return new Empty204Response(headers);
+        return new Empty204Response(headers, new HashMap<>());
+    }
+
+    /**
+     * Create a Empty204Response without a body, headers and multi-value headers
+     */
+    public static Empty204Response of(final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new Empty204Response(headers, multiValueHeaders);
     }
 }
 ",
@@ -14151,7 +14273,7 @@ public abstract class MapResponse implements RequestHandler<APIGatewayProxyReque
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -14226,6 +14348,7 @@ public abstract class MapResponse implements RequestHandler<APIGatewayProxyReque
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
@@ -14237,6 +14360,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 200 for the mapResponse operation
@@ -14253,11 +14377,13 @@ public class MapResponse200Response extends RuntimeException implements MapRespo
     private final String body;
     private final MapResponse typedBody;
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private MapResponse200Response(final MapResponse body, final Map<String, String> headers) {
+    private MapResponse200Response(final MapResponse body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         this.typedBody = body;
         this.body = body.toJson();
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -14279,18 +14405,30 @@ public class MapResponse200Response extends RuntimeException implements MapRespo
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a MapResponse200Response with a body
      */
     public static MapResponse200Response of(final MapResponse body) {
-        return new MapResponse200Response(body, new HashMap<>());
+        return new MapResponse200Response(body, new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a MapResponse200Response with a body and headers
      */
     public static MapResponse200Response of(final MapResponse body, final Map<String, String> headers) {
-        return new MapResponse200Response(body, headers);
+        return new MapResponse200Response(body, headers, new HashMap<>());
+    }
+
+    /**
+     * Create a MapResponse200Response with a body, headers and multi-value headers
+     */
+    public static MapResponse200Response of(final MapResponse body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new MapResponse200Response(body, headers, multiValueHeaders);
     }
 }
 ",
@@ -14539,7 +14677,7 @@ public abstract class MediaTypes implements RequestHandler<APIGatewayProxyReques
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -14614,6 +14752,7 @@ public abstract class MediaTypes implements RequestHandler<APIGatewayProxyReques
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
@@ -14625,6 +14764,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 200 for the mediaTypes operation
@@ -14641,11 +14781,13 @@ public class MediaTypes200Response extends RuntimeException implements MediaType
     private final String body;
     private final String typedBody;
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private MediaTypes200Response(final String body, final Map<String, String> headers) {
+    private MediaTypes200Response(final String body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         this.typedBody = body;
         this.body = body;
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -14667,18 +14809,30 @@ public class MediaTypes200Response extends RuntimeException implements MediaType
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a MediaTypes200Response with a body
      */
     public static MediaTypes200Response of(final String body) {
-        return new MediaTypes200Response(body, new HashMap<>());
+        return new MediaTypes200Response(body, new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a MediaTypes200Response with a body and headers
      */
     public static MediaTypes200Response of(final String body, final Map<String, String> headers) {
-        return new MediaTypes200Response(body, headers);
+        return new MediaTypes200Response(body, headers, new HashMap<>());
+    }
+
+    /**
+     * Create a MediaTypes200Response with a body, headers and multi-value headers
+     */
+    public static MediaTypes200Response of(final String body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new MediaTypes200Response(body, headers, multiValueHeaders);
     }
 }
 ",
@@ -14932,7 +15086,7 @@ public abstract class MultipleContentTypes implements RequestHandler<APIGatewayP
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -15007,6 +15161,7 @@ public abstract class MultipleContentTypes implements RequestHandler<APIGatewayP
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
@@ -15018,6 +15173,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 200 for the multipleContentTypes operation
@@ -15034,11 +15190,13 @@ public class MultipleContentTypes200Response extends RuntimeException implements
     private final String body;
     private final String typedBody;
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private MultipleContentTypes200Response(final String body, final Map<String, String> headers) {
+    private MultipleContentTypes200Response(final String body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         this.typedBody = body;
         this.body = body;
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -15060,18 +15218,30 @@ public class MultipleContentTypes200Response extends RuntimeException implements
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a MultipleContentTypes200Response with a body
      */
     public static MultipleContentTypes200Response of(final String body) {
-        return new MultipleContentTypes200Response(body, new HashMap<>());
+        return new MultipleContentTypes200Response(body, new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a MultipleContentTypes200Response with a body and headers
      */
     public static MultipleContentTypes200Response of(final String body, final Map<String, String> headers) {
-        return new MultipleContentTypes200Response(body, headers);
+        return new MultipleContentTypes200Response(body, headers, new HashMap<>());
+    }
+
+    /**
+     * Create a MultipleContentTypes200Response with a body, headers and multi-value headers
+     */
+    public static MultipleContentTypes200Response of(final String body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new MultipleContentTypes200Response(body, headers, multiValueHeaders);
     }
 }
 ",
@@ -15329,7 +15499,7 @@ public abstract class OperationOne implements RequestHandler<APIGatewayProxyRequ
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -15407,6 +15577,7 @@ public abstract class OperationOne implements RequestHandler<APIGatewayProxyRequ
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
@@ -15418,6 +15589,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 200 for the operationOne operation
@@ -15434,11 +15606,13 @@ public class OperationOne200Response extends RuntimeException implements Operati
     private final String body;
     private final TestResponse typedBody;
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private OperationOne200Response(final TestResponse body, final Map<String, String> headers) {
+    private OperationOne200Response(final TestResponse body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         this.typedBody = body;
         this.body = body.toJson();
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -15460,18 +15634,30 @@ public class OperationOne200Response extends RuntimeException implements Operati
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a OperationOne200Response with a body
      */
     public static OperationOne200Response of(final TestResponse body) {
-        return new OperationOne200Response(body, new HashMap<>());
+        return new OperationOne200Response(body, new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a OperationOne200Response with a body and headers
      */
     public static OperationOne200Response of(final TestResponse body, final Map<String, String> headers) {
-        return new OperationOne200Response(body, headers);
+        return new OperationOne200Response(body, headers, new HashMap<>());
+    }
+
+    /**
+     * Create a OperationOne200Response with a body, headers and multi-value headers
+     */
+    public static OperationOne200Response of(final TestResponse body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new OperationOne200Response(body, headers, multiValueHeaders);
     }
 }
 ",
@@ -15482,6 +15668,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 400 for the operationOne operation
@@ -15498,11 +15685,13 @@ public class OperationOne400Response extends RuntimeException implements Operati
     private final String body;
     private final ApiError typedBody;
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private OperationOne400Response(final ApiError body, final Map<String, String> headers) {
+    private OperationOne400Response(final ApiError body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         this.typedBody = body;
         this.body = body.toJson();
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -15524,18 +15713,30 @@ public class OperationOne400Response extends RuntimeException implements Operati
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a OperationOne400Response with a body
      */
     public static OperationOne400Response of(final ApiError body) {
-        return new OperationOne400Response(body, new HashMap<>());
+        return new OperationOne400Response(body, new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a OperationOne400Response with a body and headers
      */
     public static OperationOne400Response of(final ApiError body, final Map<String, String> headers) {
-        return new OperationOne400Response(body, headers);
+        return new OperationOne400Response(body, headers, new HashMap<>());
+    }
+
+    /**
+     * Create a OperationOne400Response with a body, headers and multi-value headers
+     */
+    public static OperationOne400Response of(final ApiError body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new OperationOne400Response(body, headers, multiValueHeaders);
     }
 }
 ",
@@ -15828,7 +16029,7 @@ public abstract class WithoutOperationIdDelete implements RequestHandler<APIGate
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -15903,6 +16104,7 @@ public abstract class WithoutOperationIdDelete implements RequestHandler<APIGate
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
@@ -15914,6 +16116,7 @@ import test.test.runtime.model.*;
 import test.test.runtime.JSON;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code 200 for the withoutOperationIdDelete operation
@@ -15930,11 +16133,13 @@ public class WithoutOperationIdDelete200Response extends RuntimeException implem
     private final String body;
     private final TestResponse typedBody;
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private WithoutOperationIdDelete200Response(final TestResponse body, final Map<String, String> headers) {
+    private WithoutOperationIdDelete200Response(final TestResponse body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         this.typedBody = body;
         this.body = body.toJson();
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -15956,18 +16161,30 @@ public class WithoutOperationIdDelete200Response extends RuntimeException implem
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a WithoutOperationIdDelete200Response with a body
      */
     public static WithoutOperationIdDelete200Response of(final TestResponse body) {
-        return new WithoutOperationIdDelete200Response(body, new HashMap<>());
+        return new WithoutOperationIdDelete200Response(body, new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a WithoutOperationIdDelete200Response with a body and headers
      */
     public static WithoutOperationIdDelete200Response of(final TestResponse body, final Map<String, String> headers) {
-        return new WithoutOperationIdDelete200Response(body, headers);
+        return new WithoutOperationIdDelete200Response(body, headers, new HashMap<>());
+    }
+
+    /**
+     * Create a WithoutOperationIdDelete200Response with a body, headers and multi-value headers
+     */
+    public static WithoutOperationIdDelete200Response of(final TestResponse body, final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new WithoutOperationIdDelete200Response(body, headers, multiValueHeaders);
     }
 }
 ",

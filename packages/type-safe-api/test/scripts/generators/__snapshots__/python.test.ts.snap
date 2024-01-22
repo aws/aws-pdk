@@ -1243,6 +1243,7 @@ class ApiResponse(Exception, Generic[StatusCode, ResponseBody]):
     status_code: StatusCode
     headers: Dict[str, str]
     body: ResponseBody
+    multi_value_headers: Optional[Dict[str, List[str]]] = None
 
 class HandlerChain(Generic[RequestParameters, RequestBody, StatusCode, ResponseBody]):
     def next(self, request: ChainedApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
@@ -1371,6 +1372,7 @@ def neither_handler(_handler: NeitherHandlerFunction = None, interceptors: List[
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
@@ -1484,6 +1486,7 @@ def both_handler(_handler: BothHandlerFunction = None, interceptors: List[BothIn
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
@@ -1597,6 +1600,7 @@ def tag1_handler(_handler: Tag1HandlerFunction = None, interceptors: List[Tag1In
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
@@ -1710,6 +1714,7 @@ def tag2_handler(_handler: Tag2HandlerFunction = None, interceptors: List[Tag2In
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
@@ -4095,7 +4100,7 @@ def try_catch_interceptor(request: ChainedApiRequest) -> ApiResponse:
 # import models into model package
 ",
   "test_project/py.typed": "",
-  "test_project/response.py": "from typing import TypeVar, Generic, Dict
+  "test_project/response.py": "from typing import TypeVar, Generic, Dict, List
 from test_project.api.operation_config import ApiResponse
 
 ResponseBody = TypeVar("ResponseBody")
@@ -4106,39 +4111,39 @@ class Response(Generic[ResponseBody]):
   """
 
   @staticmethod
-  def success(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[200, ResponseBody]:
+  def success(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[200, ResponseBody]:
     """
     A successful response
     """
-    return ApiResponse(status_code=200, body=body, headers={**headers})
+    return ApiResponse(status_code=200, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def bad_request(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[400, ResponseBody]:
+  def bad_request(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[400, ResponseBody]:
     """
     A response which indicates a client error
     """
-    return ApiResponse(status_code=400, body=body, headers={**headers})
+    return ApiResponse(status_code=400, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def not_found(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[404, ResponseBody]:
+  def not_found(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[404, ResponseBody]:
     """
     A response which indicates the requested resource was not found
     """
-    return ApiResponse(status_code=404, body=body, headers={**headers})
+    return ApiResponse(status_code=404, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def not_authorized(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[403, ResponseBody]:
+  def not_authorized(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[403, ResponseBody]:
     """
     A response which indicates the caller is not authorised to perform the operation or access the resource
     """
-    return ApiResponse(status_code=403, body=body, headers={**headers})
+    return ApiResponse(status_code=403, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def internal_failure(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[500, ResponseBody]:
+  def internal_failure(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[500, ResponseBody]:
     """
     A response to indicate a server error
     """
-    return ApiResponse(status_code=500, body=body, headers={**headers})
+    return ApiResponse(status_code=500, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 ",
   "test_project/rest.py": "# coding: utf-8
 
@@ -7743,6 +7748,7 @@ class ApiResponse(Exception, Generic[StatusCode, ResponseBody]):
     status_code: StatusCode
     headers: Dict[str, str]
     body: ResponseBody
+    multi_value_headers: Optional[Dict[str, List[str]]] = None
 
 class HandlerChain(Generic[RequestParameters, RequestBody, StatusCode, ResponseBody]):
     def next(self, request: ChainedApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
@@ -7872,6 +7878,7 @@ def any_request_response_handler(_handler: AnyRequestResponseHandlerFunction = N
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
@@ -7985,6 +7992,7 @@ def empty_handler(_handler: EmptyHandlerFunction = None, interceptors: List[Empt
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
@@ -8098,6 +8106,7 @@ def map_response_handler(_handler: MapResponseHandlerFunction = None, intercepto
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
@@ -8212,6 +8221,7 @@ def media_types_handler(_handler: MediaTypesHandlerFunction = None, interceptors
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
@@ -8326,6 +8336,7 @@ def multiple_content_types_handler(_handler: MultipleContentTypesHandlerFunction
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
@@ -8459,6 +8470,7 @@ def operation_one_handler(_handler: OperationOneHandlerFunction = None, intercep
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
@@ -8572,6 +8584,7 @@ def without_operation_id_delete_handler(_handler: WithoutOperationIdDeleteHandle
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
@@ -10735,7 +10748,7 @@ class TestResponseMessagesInner(BaseModel):
 
 ",
   "test_project/py.typed": "",
-  "test_project/response.py": "from typing import TypeVar, Generic, Dict
+  "test_project/response.py": "from typing import TypeVar, Generic, Dict, List
 from test_project.api.operation_config import ApiResponse
 
 ResponseBody = TypeVar("ResponseBody")
@@ -10746,39 +10759,39 @@ class Response(Generic[ResponseBody]):
   """
 
   @staticmethod
-  def success(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[200, ResponseBody]:
+  def success(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[200, ResponseBody]:
     """
     A successful response
     """
-    return ApiResponse(status_code=200, body=body, headers={**headers})
+    return ApiResponse(status_code=200, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def bad_request(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[400, ResponseBody]:
+  def bad_request(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[400, ResponseBody]:
     """
     A response which indicates a client error
     """
-    return ApiResponse(status_code=400, body=body, headers={**headers})
+    return ApiResponse(status_code=400, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def not_found(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[404, ResponseBody]:
+  def not_found(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[404, ResponseBody]:
     """
     A response which indicates the requested resource was not found
     """
-    return ApiResponse(status_code=404, body=body, headers={**headers})
+    return ApiResponse(status_code=404, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def not_authorized(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[403, ResponseBody]:
+  def not_authorized(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[403, ResponseBody]:
     """
     A response which indicates the caller is not authorised to perform the operation or access the resource
     """
-    return ApiResponse(status_code=403, body=body, headers={**headers})
+    return ApiResponse(status_code=403, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def internal_failure(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[500, ResponseBody]:
+  def internal_failure(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[500, ResponseBody]:
     """
     A response to indicate a server error
     """
-    return ApiResponse(status_code=500, body=body, headers={**headers})
+    return ApiResponse(status_code=500, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 ",
   "test_project/rest.py": "# coding: utf-8
 
