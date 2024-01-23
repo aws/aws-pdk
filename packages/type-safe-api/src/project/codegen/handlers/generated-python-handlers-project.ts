@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType, SampleFile } from "projen";
 import { PythonProject } from "projen/lib/python";
+import { PythonVersion } from "../../languages";
 import {
   CodeGenerationSourceOptions,
   GeneratedPythonHandlersOptions,
@@ -20,6 +21,7 @@ import {
   TypeSafeApiScript,
 } from "../components/utils";
 import { GeneratedPythonRuntimeProject } from "../runtime/generated-python-runtime-project";
+import { RuntimeVersionUtils } from "../runtime-version-utils";
 
 export interface GeneratedPythonHandlersProjectOptions
   extends GeneratedPythonHandlersOptions,
@@ -43,6 +45,11 @@ export class GeneratedPythonHandlersProject extends PythonProject {
    */
   private readonly tstDir: string;
 
+  /**
+   * Python runtime version for the handlers
+   */
+  public readonly runtimeVersion: PythonVersion;
+
   constructor(options: GeneratedPythonHandlersProjectOptions) {
     super({
       pytest: true,
@@ -57,7 +64,7 @@ export class GeneratedPythonHandlersProject extends PythonProject {
     });
     TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
-
+    this.runtimeVersion = options.runtimeVersion ?? PythonVersion.PYTHON_3_11;
     this.tstDir = "test";
 
     if (options.pytest ?? true) {
@@ -70,7 +77,9 @@ export class GeneratedPythonHandlersProject extends PythonProject {
     }
 
     [
-      "python@^3.11",
+      RuntimeVersionUtils.PYTHON.getPythonDependencyVersion(
+        this.runtimeVersion
+      ),
       `${options.generatedPythonTypes.name}@{path="${path.relative(
         this.outdir,
         options.generatedPythonTypes.outdir
@@ -134,7 +143,9 @@ export class GeneratedPythonHandlersProject extends PythonProject {
         ? "manylinux2014_aarch64"
         : "manylinux2014_x86_64";
     this.packageTask.exec(
-      `pip install -r dist/lambda/requirements.txt --target dist/lambda --upgrade --platform ${platform} --only-binary :all:`
+      `pip install -r dist/lambda/requirements.txt --target dist/lambda --upgrade --platform ${platform} --only-binary :all: --python-version ${RuntimeVersionUtils.PYTHON.getPipPackagingPythonVersion(
+        this.runtimeVersion
+      )}`
     );
   }
 

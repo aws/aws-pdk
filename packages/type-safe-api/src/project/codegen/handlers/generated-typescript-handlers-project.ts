@@ -4,6 +4,7 @@ import * as path from "path";
 import { DependencyType, IgnoreFile, SampleDir } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import { TypeScriptProject } from "projen/lib/typescript";
+import { NodeVersion } from "../../languages";
 import {
   CodeGenerationSourceOptions,
   GeneratedTypeScriptHandlersOptions,
@@ -20,6 +21,7 @@ import {
   TypeSafeApiScript,
 } from "../components/utils";
 import { GeneratedTypescriptRuntimeProject } from "../runtime/generated-typescript-runtime-project";
+import { RuntimeVersionUtils } from "../runtime-version-utils";
 
 export interface GeneratedTypescriptHandlersProjectOptions
   extends GeneratedTypeScriptHandlersOptions,
@@ -42,6 +44,11 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
    */
   private readonly options: GeneratedTypescriptHandlersProjectOptions;
 
+  /**
+   * Node runtime version for the handlers
+   */
+  public readonly runtimeVersion: NodeVersion;
+
   constructor(options: GeneratedTypescriptHandlersProjectOptions) {
     super({
       ...(options as any),
@@ -59,6 +66,7 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
       npmignoreEnabled: false,
     });
     this.options = options;
+    this.runtimeVersion = options.runtimeVersion ?? NodeVersion.NODE_18;
 
     TypeSafeApiCommandEnvironment.ensure(this);
 
@@ -122,10 +130,15 @@ export class GeneratedTypescriptHandlersProject extends TypeScriptProject {
     // Note that every typescript file directly in src is bundled by default, but users may specify their own
     // entry point globs if they prefer a different directory structure.
     this.packageTask.exec(`mkdir -p dist/lambda && rm -rf dist/lambda/*`);
+
     this.packageTask.exec(
       `esbuild --bundle ${(
         options.handlerEntryPoints ?? [`${this.srcdir}/*.ts`]
-      ).join(" ")} --platform=node --outdir=dist/lambda`
+      ).join(
+        " "
+      )} --platform=node --outdir=dist/lambda --target=${RuntimeVersionUtils.NODE.getEsbuildNodeTarget(
+        this.runtimeVersion
+      )}`
     );
     // Move each bundled file into a separate directory
     this.packageTask.exec(

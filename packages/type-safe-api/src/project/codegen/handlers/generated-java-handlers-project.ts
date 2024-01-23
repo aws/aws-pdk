@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { DependencyType, SampleDir } from "projen";
 import { JavaProject } from "projen/lib/java";
+import { JavaVersion } from "../../languages";
 import {
   CodeGenerationSourceOptions,
   GeneratedJavaHandlersOptions,
@@ -19,6 +20,7 @@ import {
   TypeSafeApiScript,
 } from "../components/utils";
 import { GeneratedJavaRuntimeProject } from "../runtime/generated-java-runtime-project";
+import { RuntimeVersionUtils } from "../runtime-version-utils";
 
 export interface GeneratedJavaHandlersProjectOptions
   extends GeneratedJavaHandlersOptions,
@@ -53,14 +55,23 @@ export class GeneratedJavaHandlersProject extends JavaProject {
    */
   public readonly packageName: string;
 
+  /**
+   * Java runtime version for the handlers
+   */
+  public readonly runtimeVersion: JavaVersion;
+
   constructor(options: GeneratedJavaHandlersProjectOptions) {
     super({
       sample: false,
       junit: false,
+      compileOptions: RuntimeVersionUtils.JAVA.getMavenCompileOptions(
+        options.runtimeVersion
+      ),
       ...(options as any),
     });
     TypeSafeApiCommandEnvironment.ensure(this);
     this.options = options;
+    this.runtimeVersion = options.runtimeVersion ?? JavaVersion.JAVA_17;
     this.packageName = `${this.pom.groupId}.${this.name}.handlers`;
     this.srcDir = path.join(
       "src",

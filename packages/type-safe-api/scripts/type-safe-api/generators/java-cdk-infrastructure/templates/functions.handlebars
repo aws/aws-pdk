@@ -114,11 +114,11 @@ public class {{operationIdCamelCase}}FunctionProps implements {{#startsWith vend
     private final String handler = "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-java-package}}{{/apis.0}}{{/apiInfo}}.{{operationIdCamelCase}}Handler";
     {{~/startsWith}}
     {{#startsWith vendorExtensions.x-handler.language 'typescript' ~}}
-    private final Runtime runtime = Runtime.NODEJS_18_X;
+    private final Runtime runtime = Runtime.{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-node-lambda-runtime-version}}{{/apis.0}}{{/apiInfo}};
     {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'python' ~}}
-    private final Runtime runtime = Runtime.PYTHON_3_11;
+    private final Runtime runtime = Runtime.{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-python-lambda-runtime-version}}{{/apis.0}}{{/apiInfo}};
     {{~/startsWith}}{{#startsWith vendorExtensions.x-handler.language 'java' ~}}
-    private final Runtime runtime = Runtime.JAVA_17;
+    private final Runtime runtime = Runtime.{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-java-lambda-runtime-version}}{{/apis.0}}{{/apiInfo}};
     {{~/startsWith}}
 
     // Props with defaults
