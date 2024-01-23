@@ -6,6 +6,7 @@ import * as readPkg from "read-pkg-up";
 import { Language, Library } from "../../languages";
 import { MockResponseDataGenerationOptions } from "../../types";
 import { GeneratedHandlersProjects } from "../generate";
+import { RuntimeVersionUtils } from "../runtime-version-utils";
 
 /**
  * Enum for generator directories for non-runtime generators
@@ -243,5 +244,14 @@ export const getHandlersProjectVendorExtensions = (
         java.pom.version,
         `${java.pom.artifactId}-${java.pom.version}.jar`
       )
+    : "",
+  "x-handlers-node-lambda-runtime-version": typescript
+    ? RuntimeVersionUtils.NODE.getLambdaRuntime(typescript.runtimeVersion)
+    : "",
+  "x-handlers-python-lambda-runtime-version": python
+    ? RuntimeVersionUtils.PYTHON.getLambdaRuntime(python.runtimeVersion)
+    : "",
+  "x-handlers-java-lambda-runtime-version": java
+    ? RuntimeVersionUtils.JAVA.getLambdaRuntime(java.runtimeVersion)
     : "",
 });

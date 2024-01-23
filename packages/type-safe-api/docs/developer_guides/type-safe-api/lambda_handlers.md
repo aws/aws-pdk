@@ -415,3 +415,79 @@ If your lambda handlers rely on native dependencies, you will need to ensure you
 
 !!!warning
     For TypeScript and Java, you may need to override the `package` task for the handlers project to run the appropriate commands to build your handlers with their native dependencies, or consider consuming them using a [Lambda layer](https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html).
+
+## Runtime Versions
+
+You can configure the desired runtime versions of your handler projects in your `.projenrc`. This adjusts the appropriate project settings (such as the language level and packaging command), as well as configures the function CDK constructs to target this runtime version.
+
+For example:
+
+=== "TS"
+
+    ```ts
+    new TypeSafeApiProject({
+      ...
+      handlers: {
+        languages: [Language.PYTHON, Language.JAVA, Language.TYPESCRIPT],
+        options: {
+          python: {
+            runtimeVersion: PythonVersion.PYTHON_3_12,
+          },
+          java: {
+            runtimeVersion: JavaVersion.JAVA_21,
+          },
+          typescript: {
+            runtimeVersion: NodeVersion.NODE_20,
+          },
+        }
+      }
+    });
+    ```
+
+=== "JAVA"
+
+    ```java
+    new TypeSafeApiProject(TypeSafeApiProjectOptions.builder()
+            ...
+            .handlers(HandlersConfiguration.builder()
+                    .languages(Arrays.asList(Language.PYTHON))
+                    .options(GeneratedHandlersCodeOptions.builder()
+                            .python(GeneratedPythonHandlersOptions.builder()
+                                    .runtimeVersion(PythonVersion.PYTHON_3_12)
+                                    .build())
+                            .java(GeneratedJavaHandlersOptions.builder()
+                                    .runtimeVersion(JavaVersion.JAVA_21)
+                                    .build())
+                            .typescript(GeneratedTypeScriptHandlersOptions.builder()
+                                    .runtimeVersion(NodeVersion.NODE_20)
+                                    .build())
+                            .build())
+                    .build())
+            .build());
+    ```
+
+=== "PYTHON"
+
+    ```python
+
+    TypeSafeApiProject(
+        ...
+        handlers=HandlersConfiguration(
+            languages=[Language.PYTHON],
+            options=GeneratedHandlersCodeOptions(
+                python=GeneratedPythonHandlersOptions(
+                    runtime_version=PythonVersion.PYTHON_3_12
+                ),
+                java=GeneratedJavaHandlersOptions(
+                    runtime_version=JavaVersion.JAVA_21
+                ),
+                typescript=GeneratedTypeScriptHandlersOptions(
+                    runtime_version=NodeVersion.NODE_20
+                ),
+            )
+        ),
+    )
+    ```
+
+!!!note
+    You will need to have the specified runtime version (or greater) installed on your system in order to make use of it.

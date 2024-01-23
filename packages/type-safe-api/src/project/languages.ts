@@ -10,6 +10,32 @@ export enum Language {
 }
 
 /**
+ * Versions of node
+ */
+export enum NodeVersion {
+  NODE_18 = "NODE_18",
+  NODE_20 = "NODE_20",
+}
+
+/**
+ * Versions of java
+ */
+export enum JavaVersion {
+  JAVA_8 = "JAVA_8",
+  JAVA_11 = "JAVA_11",
+  JAVA_17 = "JAVA_17",
+  JAVA_21 = "JAVA_21",
+}
+
+/**
+ * Versions of python
+ */
+export enum PythonVersion {
+  PYTHON_3_11 = "PYTHON_3_11",
+  PYTHON_3_12 = "PYTHON_3_12",
+}
+
+/**
  * Supported libraries for code generation
  */
 export enum Library {

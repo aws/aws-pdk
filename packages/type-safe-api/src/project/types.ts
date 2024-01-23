@@ -5,6 +5,7 @@ import { JavaProject } from "projen/lib/java";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
 import { JavaProjectOptions } from "./java-project-options";
+import { JavaVersion, NodeVersion, PythonVersion } from "./languages";
 import { SmithyBuildOptions } from "./model/smithy/types";
 import { PythonProjectOptions } from "./python-project-options";
 import { TypeScriptProjectOptions } from "./typescript-project-options";
@@ -238,6 +239,12 @@ export interface GeneratedTypeScriptHandlersOptions
    * @default src/*.ts - all files directly under the src directory
    */
   readonly handlerEntryPoints?: string[];
+
+  /**
+   * Runtime version to target for the handlers
+   * @default NodeVersion.NODE_18
+   */
+  readonly runtimeVersion?: NodeVersion;
 }
 
 /**
@@ -253,6 +260,12 @@ export interface GeneratedPythonHandlersOptions
    * @default Architecture.X86_64
    */
   readonly architecture?: Architecture;
+
+  /**
+   * Runtime version to target for the handlers
+   * @default PythonVersion.PYTHON_3_11
+   */
+  readonly runtimeVersion?: PythonVersion;
 }
 
 /**
@@ -260,7 +273,13 @@ export interface GeneratedPythonHandlersOptions
  */
 export interface GeneratedJavaHandlersOptions
   extends JavaProjectOptions,
-    GeneratedWithOpenApiGeneratorOptions {}
+    GeneratedWithOpenApiGeneratorOptions {
+  /**
+   * Runtime version to target for the handlers
+   * @default JavaVersion.JAVA_17
+   */
+  readonly runtimeVersion?: JavaVersion;
+}
 
 /**
  * Options for configuring a generated typescript hooks library project
