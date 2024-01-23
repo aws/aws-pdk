@@ -71,7 +71,7 @@ def parse_body(body, content_types, model):
     """
     if len([c for c in content_types if c != 'application/json']) == 0:
         if model != Any:
-            body = model.from_json(body)
+            body = model.model_validate(json.loads(body))
         else:
             body = json.loads(body or '{}')
     return body
@@ -178,6 +178,7 @@ class ApiResponse(Exception, Generic[StatusCode, ResponseBody]):
     status_code: StatusCode
     headers: Dict[str, str]
     body: ResponseBody
+    multi_value_headers: Optional[Dict[str, List[str]]] = None
 
 class HandlerChain(Generic[RequestParameters, RequestBody, StatusCode, ResponseBody]):
     def next(self, request: ChainedApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
@@ -349,6 +350,7 @@ def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = 
             return {
                 'statusCode': response.status_code,
                 'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
                 'body': response_body,
             }
         return wrapper
