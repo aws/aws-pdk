@@ -1136,7 +1136,7 @@ def parse_body(body, content_types, model):
     """
     if len([c for c in content_types if c != 'application/json']) == 0:
         if model != Any:
-            body = model.from_json(body)
+            body = model.model_validate(json.loads(body))
         else:
             body = json.loads(body or '{}')
     return body
@@ -7636,7 +7636,7 @@ def parse_body(body, content_types, model):
     """
     if len([c for c in content_types if c != 'application/json']) == 0:
         if model != Any:
-            body = model.from_json(body)
+            body = model.model_validate(json.loads(body))
         else:
             body = json.loads(body or '{}')
     return body
