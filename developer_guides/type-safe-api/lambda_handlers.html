@@ -1423,6 +1423,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#runtime-versions" class="md-nav__link">
+    Runtime Versions
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3534,6 +3541,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#runtime-versions" class="md-nav__link">
+    Runtime Versions
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3934,6 +3948,77 @@
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>For TypeScript and Java, you may need to override the <code>package</code> task for the handlers project to run the appropriate commands to build your handlers with their native dependencies, or consider consuming them using a <a href="https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html">Lambda layer</a>.</p>
+</div>
+<h2 id="runtime-versions">Runtime Versions</h2>
+<p>You can configure the desired runtime versions of your handler projects in your <code>.projenrc</code>. This adjusts the appropriate project settings (such as the language level and packaging command), as well as configures the function CDK constructs to target this runtime version.</p>
+<p>For example:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="7:3"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><input id="__tabbed_7_3" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">TS</label><label for="__tabbed_7_2">JAVA</label><label for="__tabbed_7_3">PYTHON</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">TypeSafeApiProject</span><span class="p">({</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="w">  </span><span class="nx">handlers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">languages</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Language</span><span class="p">.</span><span class="nx">PYTHON</span><span class="p">,</span><span class="w"> </span><span class="nx">Language</span><span class="p">.</span><span class="nx">JAVA</span><span class="p">,</span><span class="w"> </span><span class="nx">Language</span><span class="p">.</span><span class="nx">TYPESCRIPT</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">options</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">python</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">runtimeVersion</span><span class="o">:</span><span class="w"> </span><span class="kt">PythonVersion.PYTHON_3_12</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">java</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">runtimeVersion</span><span class="o">:</span><span class="w"> </span><span class="kt">JavaVersion.JAVA_21</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">typescript</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">runtimeVersion</span><span class="o">:</span><span class="w"> </span><span class="kt">NodeVersion.NODE_20</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="k">new</span><span class="w"> </span><span class="n">TypeSafeApiProject</span><span class="p">(</span><span class="n">TypeSafeApiProjectOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">...</span>
+<span class="w">        </span><span class="p">.</span><span class="na">handlers</span><span class="p">(</span><span class="n">HandlersConfiguration</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">languages</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Language</span><span class="p">.</span><span class="na">PYTHON</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">options</span><span class="p">(</span><span class="n">GeneratedHandlersCodeOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">python</span><span class="p">(</span><span class="n">GeneratedPythonHandlersOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">runtimeVersion</span><span class="p">(</span><span class="n">PythonVersion</span><span class="p">.</span><span class="na">PYTHON_3_12</span><span class="p">)</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">java</span><span class="p">(</span><span class="n">GeneratedJavaHandlersOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">runtimeVersion</span><span class="p">(</span><span class="n">JavaVersion</span><span class="p">.</span><span class="na">JAVA_21</span><span class="p">)</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">typescript</span><span class="p">(</span><span class="n">GeneratedTypeScriptHandlersOptions</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">runtimeVersion</span><span class="p">(</span><span class="n">NodeVersion</span><span class="p">.</span><span class="na">NODE_20</span><span class="p">)</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">TypeSafeApiProject</span><span class="p">(</span>
+    <span class="o">...</span>
+    <span class="n">handlers</span><span class="o">=</span><span class="n">HandlersConfiguration</span><span class="p">(</span>
+        <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">],</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">GeneratedHandlersCodeOptions</span><span class="p">(</span>
+            <span class="n">python</span><span class="o">=</span><span class="n">GeneratedPythonHandlersOptions</span><span class="p">(</span>
+                <span class="n">runtime_version</span><span class="o">=</span><span class="n">PythonVersion</span><span class="o">.</span><span class="n">PYTHON_3_12</span>
+            <span class="p">),</span>
+            <span class="n">java</span><span class="o">=</span><span class="n">GeneratedJavaHandlersOptions</span><span class="p">(</span>
+                <span class="n">runtime_version</span><span class="o">=</span><span class="n">JavaVersion</span><span class="o">.</span><span class="n">JAVA_21</span>
+            <span class="p">),</span>
+            <span class="n">typescript</span><span class="o">=</span><span class="n">GeneratedTypeScriptHandlersOptions</span><span class="p">(</span>
+                <span class="n">runtime_version</span><span class="o">=</span><span class="n">NodeVersion</span><span class="o">.</span><span class="n">NODE_20</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You will need to have the specified runtime version (or greater) installed on your system in order to make use of it.</p>
 </div>
 
   <hr>
