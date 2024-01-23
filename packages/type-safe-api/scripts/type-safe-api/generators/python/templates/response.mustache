@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, Dict
+from typing import TypeVar, Generic, Dict, List
 from {{packageName}}.api.operation_config import ApiResponse
 
 ResponseBody = TypeVar("ResponseBody")
@@ -9,36 +9,36 @@ class Response(Generic[ResponseBody]):
   """
 
   @staticmethod
-  def success(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[200, ResponseBody]:
+  def success(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[200, ResponseBody]:
     """
     A successful response
     """
-    return ApiResponse(status_code=200, body=body, headers={**headers})
+    return ApiResponse(status_code=200, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def bad_request(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[400, ResponseBody]:
+  def bad_request(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[400, ResponseBody]:
     """
     A response which indicates a client error
     """
-    return ApiResponse(status_code=400, body=body, headers={**headers})
+    return ApiResponse(status_code=400, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def not_found(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[404, ResponseBody]:
+  def not_found(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[404, ResponseBody]:
     """
     A response which indicates the requested resource was not found
     """
-    return ApiResponse(status_code=404, body=body, headers={**headers})
+    return ApiResponse(status_code=404, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def not_authorized(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[403, ResponseBody]:
+  def not_authorized(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[403, ResponseBody]:
     """
     A response which indicates the caller is not authorised to perform the operation or access the resource
     """
-    return ApiResponse(status_code=403, body=body, headers={**headers})
+    return ApiResponse(status_code=403, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})
 
   @staticmethod
-  def internal_failure(body: ResponseBody, headers: Dict[str, str] = {}) -> ApiResponse[500, ResponseBody]:
+  def internal_failure(body: ResponseBody, headers: Dict[str, str] = {}, multi_value_headers: Dict[str, List[str]] = {}) -> ApiResponse[500, ResponseBody]:
     """
     A response to indicate a server error
     """
-    return ApiResponse(status_code=500, body=body, headers={**headers})
+    return ApiResponse(status_code=500, body=body, headers={**headers}, multi_value_headers={**multi_value_headers})

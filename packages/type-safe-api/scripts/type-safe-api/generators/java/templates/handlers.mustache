@@ -443,6 +443,7 @@ package {{package}}.handlers;
 {{/apiInfo}}
 
 import java.util.Map;
+import java.util.List;
 
 /**
  * Represents an HTTP response from an api operation
@@ -460,6 +461,10 @@ public interface Response {
      * Returns the response headers
      */
     Map<String, String> getHeaders();
+    /**
+     * Returns the multi-value response headers
+     */
+    Map<String, List<String>> getMultiValueHeaders();
 }
 ###TSAPI_WRITE_FILE###
 {
@@ -475,6 +480,7 @@ package {{package}}.handlers;
 {{/apiInfo}}
 
 import java.util.Map;
+import java.util.List;
 
 @lombok.experimental.SuperBuilder
 @lombok.AllArgsConstructor
@@ -483,6 +489,7 @@ public class ApiResponse implements Response {
     private String body;
     private int statusCode;
     private Map<String, String> headers;
+    private Map<String, List<String>> multiValueHeaders;
 }
 ###TSAPI_WRITE_FILE###
 {
@@ -639,6 +646,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 /**
  * An "empty" chained request input used to warm up interceptors which extend the InterceptorWithWarmup
@@ -663,6 +671,11 @@ public class InterceptorWarmupChainedRequestInput<T> implements ChainedRequestIn
 
           @Override
           public Map<String, String> getHeaders() {
+            return new HashMap<>();
+          }
+
+          @Override
+          public Map<String, List<String>> getMultiValueHeaders() {
             return new HashMap<>();
           }
         };
@@ -848,6 +861,7 @@ import {{invokerPackage}}.JSON;
 {{/apiInfo}}
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Response with status code {{code}} for the {{nickname}} operation
@@ -864,11 +878,13 @@ public class {{operationIdCamelCase}}{{code}}Response extends RuntimeException i
     private final String body;
     {{#dataType}}private final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} typedBody;{{/dataType}}
     private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
 
-    private {{operationIdCamelCase}}{{code}}Response({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers) {
+    private {{operationIdCamelCase}}{{code}}Response({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
         {{#dataType}}this.typedBody = body;{{/dataType}}
         this.body = {{#dataType}}{{#isPrimitiveType}}body{{/isPrimitiveType}}{{^isPrimitiveType}}body.toJson(){{/isPrimitiveType}}{{/dataType}}{{^dataType}}""{{/dataType}};
         this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
     }
 
     @Override
@@ -892,18 +908,30 @@ public class {{operationIdCamelCase}}{{code}}Response extends RuntimeException i
         return this.headers;
     }
 
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
     /**
      * Create a {{operationIdCamelCase}}{{code}}Response with{{^dataType}}out{{/dataType}} a body
      */
     public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body{{/dataType}}) {
-        return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}new HashMap<>());
+        return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}new HashMap<>(), new HashMap<>());
     }
 
     /**
      * Create a {{operationIdCamelCase}}{{code}}Response with{{^dataType}}out{{/dataType}} a body and headers
      */
     public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers) {
-        return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}headers);
+        return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}headers, new HashMap<>());
+    }
+
+    /**
+     * Create a {{operationIdCamelCase}}{{code}}Response with{{^dataType}}out{{/dataType}} a body, headers and multi-value headers
+     */
+    public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}headers, multiValueHeaders);
     }
 }
 {{/responses}}
@@ -1276,7 +1304,7 @@ public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGate
 
         // Initialise instance of Gson and prime serialisation and deserialisation
         new JSON();
-        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>())), ApiResponse.class);
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
 
         try {
             // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
@@ -1358,6 +1386,7 @@ public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGate
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(response.getStatusCode())
                 .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
                 .withBody(response.getBody());
     }
 }
