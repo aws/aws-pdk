@@ -125,7 +125,8 @@ export class PDKMonorepoProject extends MonorepoTsProject {
       ".yarn/cache",
       ".yarn/__virtual__",
       ".pnp.cjs",
-      ".pnp.loader.cjs"
+      ".pnp.loader.cjs",
+      ".pnpm-store"
     );
 
     // add to local `.npmrc` to automatically avoid build hangs if npx is prompting to install a package
