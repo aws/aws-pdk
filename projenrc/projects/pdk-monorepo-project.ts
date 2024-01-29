@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
-import { MonorepoTsProject, DEFAULT_CONFIG } from "../../packages/monorepo/src";
+import { MonorepoTsProject, Syncpack } from "../../packages/monorepo/src";
 import { PDK_NAMESPACE } from "../abstract/pdk-project";
 
 const HEADER_RULE = {
@@ -47,7 +47,10 @@ export class PDKMonorepoProject extends MonorepoTsProject {
         "@jsii/spec",
       ],
       monorepoUpgradeDepsOptions: {
-        syncpackConfig: { ...DEFAULT_CONFIG, workspace: false },
+        syncpackConfig: {
+          ...Syncpack.DEFAULT_CONFIG,
+          dependencyTypes: ["!local"],
+        },
       },
       deps: [
         "fast-xml-parser",
