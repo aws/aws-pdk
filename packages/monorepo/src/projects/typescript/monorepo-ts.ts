@@ -13,7 +13,7 @@ import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { PythonProject } from "projen/lib/python";
 import { TypeScriptProject } from "projen/lib/typescript";
-import { DEFAULT_CONFIG, SyncpackConfig } from "./syncpack-options";
+import { Syncpack } from "./syncpack-options";
 import { TypeScriptProjectOptions } from "./typescript-project-options";
 import {
   NxConfigurator,
@@ -88,9 +88,9 @@ export interface MonorepoUpgradeDepsOptions {
    *
    * No merging is performed and as such a complete syncpackConfig is required if supplied.
    *
-   * @default SyncpackConfig.DEFAULT_CONFIG
+   * @default Syncpack.DEFAULT_CONFIG
    */
-  readonly syncpackConfig?: SyncpackConfig;
+  readonly syncpackConfig?: Syncpack.SyncpackConfig;
 }
 
 /**
@@ -306,7 +306,7 @@ export class MonorepoTsProject
     );
 
     if (options.monorepoUpgradeDeps !== false) {
-      this.addDevDeps("npm-check-updates", "syncpack");
+      this.addDevDeps("npm-check-updates", "syncpack@^12");
 
       const upgradeDepsTask = this.addTask(
         options.monorepoUpgradeDepsOptions?.taskName || "upgrade-deps"
@@ -341,7 +341,8 @@ export class MonorepoTsProject
 
       new JsonFile(this, ".syncpackrc.json", {
         obj:
-          options.monorepoUpgradeDepsOptions?.syncpackConfig || DEFAULT_CONFIG,
+          options.monorepoUpgradeDepsOptions?.syncpackConfig ||
+          Syncpack.DEFAULT_CONFIG,
         readonly: true,
       });
     }
