@@ -43,6 +43,11 @@ export interface ReactTypeScriptProjectOptions {
    */
   readonly typescriptVersion?: string;
   /**
+   * Options for ts-jest.
+   * @stability experimental
+   */
+  readonly tsJestOptions?: typescript.TsJestOptions;
+  /**
    * The name of the development tsconfig.json file.
    * @default "tsconfig.dev.json"
    * @stability experimental
@@ -329,6 +334,13 @@ export interface ReactTypeScriptProjectOptions {
    */
   readonly codeCov?: boolean;
   /**
+   * Configure which licenses should be deemed acceptable for use by dependencies.
+   * This setting will cause the build to fail, if any prohibited or not allowed licenses ares encountered.
+   * @default - no license checks are run during the build and all licenses will be accepted
+   * @stability experimental
+   */
+  readonly checkLicenses?: javascript.LicenseCheckerOptions;
+  /**
    * Options for `Bundler`.
    * @stability experimental
    */
@@ -399,7 +411,7 @@ export interface ReactTypeScriptProjectOptions {
   readonly releaseWorkflowSetupSteps?: Array<github.workflows.JobStep>;
   /**
    * The name of the default release workflow.
-   * @default "Release"
+   * @default "release"
    * @stability experimental
    */
   readonly releaseWorkflowName?: string;
