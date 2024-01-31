@@ -11,6 +11,10 @@ import {
   INxProjectCore,
 } from "../../components/nx-configurator";
 import { NxWorkspace } from "../../components/nx-workspace";
+import {
+  DEFAULT_PROJEN_VERSION,
+  syncProjenVersions,
+} from "../../components/projen-dependency";
 import { Nx } from "../../nx-types";
 
 const MVN_PLUGIN_PATH = "./.nx/plugins/nx_plugin.js";
@@ -32,6 +36,11 @@ export class MonorepoJavaProject extends JavaProject implements INxProjectCore {
   public readonly nxConfigurator: NxConfigurator;
   private readonly installTask: Task;
 
+  /**
+   * Version of projen used by the monorepo and its subprojects
+   */
+  private readonly projenVersion: string;
+
   constructor(options: MonorepoJavaOptions) {
     super({
       ...options,
@@ -40,7 +49,14 @@ export class MonorepoJavaProject extends JavaProject implements INxProjectCore {
       version: options.version ?? "0.0.0",
       groupId: options.groupId ?? "com.aws",
       artifactId: options.artifactId ?? "monorepo",
+      projenrcJavaOptions: {
+        ...options.projenrcJavaOptions,
+        projenVersion:
+          options.projenrcJavaOptions?.projenVersion ?? DEFAULT_PROJEN_VERSION,
+      },
     });
+    this.projenVersion =
+      options.projenrcJavaOptions?.projenVersion ?? DEFAULT_PROJEN_VERSION;
 
     this.addTestDependency("software.aws/pdk@^0");
 
@@ -155,6 +171,8 @@ export class MonorepoJavaProject extends JavaProject implements INxProjectCore {
     this.nxConfigurator.preSynthesize();
 
     super.preSynthesize();
+
+    syncProjenVersions(this.subprojects, this.projenVersion);
   }
 
   /**
