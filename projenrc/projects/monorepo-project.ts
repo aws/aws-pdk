@@ -51,6 +51,9 @@ export class MonorepoProject extends PDKProject {
     // Don't check for a license header etc for projen-version.ts so this can be written via automation
     this.eslint?.addIgnorePattern("src/components/projen-version.ts");
 
+    // Add a task to upgrade the projen version. Ideally run before upgrade-deps in the root.
+    this.addTask("upgrade-projen").exec("ts-node ./scripts/upgrade-projen.ts")
+
     this.generateInterfaces();
   }
 
