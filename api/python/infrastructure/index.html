@@ -7650,6 +7650,7 @@ this task should synthesize the project files.</p>
   <span class="n">cdk_test_dependencies</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">cdk_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">cdk_version_pinning</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_artifact_options</span><span class="p">:</span> <span class="n">CodeArtifactOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_cov</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -7771,6 +7772,7 @@ this task should synthesize the project files.</p>
   <span class="n">tsconfig</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">versionrc_options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">vscode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -7942,6 +7944,11 @@ this task should synthesize the project files.</p>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.cdkVersionPinning">cdk_version_pinning</a></code></td>
 <td><code>bool</code></td>
 <td>Use pinned version instead of caret version for CDK.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.checkLicenses">check_licenses</a></code></td>
+<td><code>projen.javascript.LicenseCheckerOptions</code></td>
+<td>Configure which licenses should be deemed acceptable for use by dependencies.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.clobber">clobber</a></code></td>
@@ -8549,6 +8556,11 @@ this task should synthesize the project files.</p>
 <td>The name of the development tsconfig.json file.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.tsJestOptions">ts_jest_options</a></code></td>
+<td><code>projen.typescript.TsJestOptions</code></td>
+<td>Options for ts-jest.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.typescriptVersion">typescript_version</a></code></td>
 <td><code>str</code></td>
 <td>TypeScript version to use.</td>
@@ -8872,6 +8884,14 @@ they are present during development.</p>
 <p>Use pinned version instead of caret version for CDK.</p>
 <p>You can use this to prevent mixed versions for your CDK dependencies and to prevent auto-updates.
 If you use experimental features this will let you define the moment you include breaking changes.</p>
+<hr />
+<h5 id="check_licensesoptional"><code>check_licenses</code><sup>Optional</sup> <a name="check_licenses" id="@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.checkLicenses"></a></h5>
+<ul>
+<li><em>Type:</em> projen.javascript.LicenseCheckerOptions</li>
+<li><em>Default:</em> no license checks are run during the build and all licenses will be accepted</li>
+</ul>
+<p>Configure which licenses should be deemed acceptable for use by dependencies.</p>
+<p>This setting will cause the build to fail, if any prohibited or not allowed licenses ares encountered.</p>
 <hr />
 <h5 id="clobberoptional_2"><code>clobber</code><sup>Optional</sup> <a name="clobber" id="@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.clobber"></a></h5>
 <ul>
@@ -9697,7 +9717,7 @@ with the new prefix.</p>
 <h5 id="release_workflow_nameoptional"><code>release_workflow_name</code><sup>Optional</sup> <a name="release_workflow_name" id="@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.releaseWorkflowName"></a></h5>
 <ul>
 <li><em>Type:</em> str</li>
-<li><em>Default:</em> "Release"</li>
+<li><em>Default:</em> "release"</li>
 </ul>
 <p>The name of the default release workflow.</p>
 <hr />
@@ -9831,6 +9851,12 @@ compile the code in-memory.</p>
 <li><em>Default:</em> "tsconfig.dev.json"</li>
 </ul>
 <p>The name of the development tsconfig.json file.</p>
+<hr />
+<h5 id="ts_jest_optionsoptional"><code>ts_jest_options</code><sup>Optional</sup> <a name="ts_jest_options" id="@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.tsJestOptions"></a></h5>
+<ul>
+<li><em>Type:</em> projen.typescript.TsJestOptions</li>
+</ul>
+<p>Options for ts-jest.</p>
 <hr />
 <h5 id="typescript_versionoptional"><code>typescript_version</code><sup>Optional</sup> <a name="typescript_version" id="@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.typescriptVersion"></a></h5>
 <ul>
@@ -9968,7 +9994,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 </tr>
 <tr>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProject.addPackageIgnore">add_package_ignore</a></code></td>
-<td>Exclude these files from the bundled package.</td>
+<td>Adds patterns to be ignored by npm.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProject.addTask">add_task</a></code></td>
@@ -10116,13 +10142,12 @@ source files include the projen marker and we don't want them to be erased durin
   <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p>Exclude these files from the bundled package.</p>
-<p>Implemented by project types based on the
-packaging mechanism. For example, <code>NodeProject</code> delegates this to <code>.npmignore</code>.</p>
+<p>Adds patterns to be ignored by npm.</p>
 <h6 id="patternrequired_3"><code>pattern</code><sup>Required</sup> <a name="pattern" id="@aws/infrastructure.InfrastructureTsProject.addPackageIgnore.parameter.pattern"></a></h6>
 <ul>
 <li><em>Type:</em> str</li>
 </ul>
+<p>The pattern to ignore.</p>
 <hr />
 <h5 id="add_task_2"><code>add_task</code> <a name="add_task" id="@aws/infrastructure.InfrastructureTsProject.addTask"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add_task</span><span class="p">(</span>
@@ -10514,16 +10539,27 @@ add/upgrade</code>. If you wish to specify a version range use this syntax:
 <hr />
 <h5 id="render_workflow_setup"><code>render_workflow_setup</code> <a name="render_workflow_setup" id="@aws/infrastructure.InfrastructureTsProject.renderWorkflowSetup"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">render_workflow_setup</span><span class="p">(</span>
+  <span class="n">install_step_configuration</span><span class="p">:</span> <span class="n">JobStepConfiguration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">mutable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">JobStep</span><span class="p">]</span>
 </code></pre></div>
 <p>Returns the set of workflow steps which should be executed to bootstrap a workflow.</p>
+<h6 id="install_step_configurationoptional"><code>install_step_configuration</code><sup>Optional</sup> <a name="install_step_configuration" id="@aws/infrastructure.InfrastructureTsProject.renderWorkflowSetup.parameter.installStepConfiguration"></a></h6>
+<ul>
+<li><em>Type:</em> projen.github.workflows.JobStepConfiguration</li>
+<li><em>Default:</em> <code>{ name: "Install dependencies" }</code></li>
+</ul>
+<p>Configure the install step in the workflow setup.</p>
+<hr />
+<p><em>Example</em></p>
+<div class="highlight"><pre><span></span><code><span class="o">-</span> <span class="p">{</span> <span class="n">env</span><span class="p">:</span> <span class="p">{</span> <span class="n">NPM_TOKEN</span><span class="p">:</span> <span class="s2">&quot;token&quot;</span> <span class="p">}}</span> <span class="k">for</span> <span class="n">installing</span> <span class="kn">from</span> <span class="nn">private</span> <span class="n">npm</span> <span class="n">registry</span><span class="o">.</span>
+</code></pre></div>
 <h6 id="mutableoptional"><code>mutable</code><sup>Optional</sup> <a name="mutable" id="@aws/infrastructure.InfrastructureTsProject.renderWorkflowSetup.parameter.mutable"></a></h6>
 <ul>
 <li><em>Type:</em> bool</li>
 <li><em>Default:</em> false</li>
 </ul>
-<p>Should the pacakge lockfile be updated?</p>
+<p>Should the package lockfile be updated?</p>
 <hr />
 <h5 id="set_script"><code>set_script</code> <a name="set_script" id="@aws/infrastructure.InfrastructureTsProject.setScript"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">set_script</span><span class="p">(</span>
@@ -11545,6 +11581,11 @@ release workflow.</p>
 <td><code>str</code></td>
 <td>The name of the default task (the task executed when <code>projen</code> is run without arguments).</td>
 </tr>
+<tr>
+<td><code><a href="#@aws/infrastructure.InfrastructureTsProject.property.DEFAULT_TS_JEST_TRANFORM_PATTERN">DEFAULT_TS_JEST_TRANFORM_PATTERN</a></code></td>
+<td><code>str</code></td>
+<td><em>No description.</em></td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -11557,6 +11598,13 @@ release workflow.</p>
 <p>The name of the default task (the task executed when <code>projen</code> is run without arguments).</p>
 <p>Normally
 this task should synthesize the project files.</p>
+<hr />
+<h5 id="default_ts_jest_tranform_patternrequired"><code>DEFAULT_TS_JEST_TRANFORM_PATTERN</code><sup>Required</sup> <a name="DEFAULT_TS_JEST_TRANFORM_PATTERN" id="@aws/infrastructure.InfrastructureTsProject.property.DEFAULT_TS_JEST_TRANFORM_PATTERN"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">DEFAULT_TS_JEST_TRANFORM_PATTERN</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> str</li>
+</ul>
 <hr />
 <h2 id="structs">Structs <a name="Structs" id="Structs"></a></h2>
 <h3 id="awscdkjavaappoptions">AwsCdkJavaAppOptions <a name="AwsCdkJavaAppOptions" id="@aws/infrastructure.AwsCdkJavaAppOptions"></a></h3>
@@ -13632,6 +13680,7 @@ and <code>packages</code> scope.</p>
   <span class="n">cdk_test_dependencies</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">cdk_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">cdk_version_pinning</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_artifact_options</span><span class="p">:</span> <span class="n">CodeArtifactOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_cov</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -13753,6 +13802,7 @@ and <code>packages</code> scope.</p>
   <span class="n">tsconfig</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">versionrc_options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">vscode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -13922,6 +13972,11 @@ and <code>packages</code> scope.</p>
 <td><code><a href="#@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.cdkVersionPinning">cdk_version_pinning</a></code></td>
 <td><code>bool</code></td>
 <td>Use pinned version instead of caret version for CDK.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.checkLicenses">check_licenses</a></code></td>
+<td><code>projen.javascript.LicenseCheckerOptions</code></td>
+<td>Configure which licenses should be deemed acceptable for use by dependencies.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.clobber">clobber</a></code></td>
@@ -14529,6 +14584,11 @@ and <code>packages</code> scope.</p>
 <td>The name of the development tsconfig.json file.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.tsJestOptions">ts_jest_options</a></code></td>
+<td><code>projen.typescript.TsJestOptions</code></td>
+<td>Options for ts-jest.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.typescriptVersion">typescript_version</a></code></td>
 <td><code>str</code></td>
 <td>TypeScript version to use.</td>
@@ -14887,6 +14947,16 @@ they are present during development.</p>
 <p>Use pinned version instead of caret version for CDK.</p>
 <p>You can use this to prevent mixed versions for your CDK dependencies and to prevent auto-updates.
 If you use experimental features this will let you define the moment you include breaking changes.</p>
+<hr />
+<h5 id="check_licensesoptional_1"><code>check_licenses</code><sup>Optional</sup> <a name="check_licenses" id="@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.checkLicenses"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.javascript.LicenseCheckerOptions</li>
+<li><em>Default:</em> no license checks are run during the build and all licenses will be accepted</li>
+</ul>
+<p>Configure which licenses should be deemed acceptable for use by dependencies.</p>
+<p>This setting will cause the build to fail, if any prohibited or not allowed licenses ares encountered.</p>
 <hr />
 <h5 id="clobberoptional_5"><code>clobber</code><sup>Optional</sup> <a name="clobber" id="@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.clobber"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span>
@@ -15902,7 +15972,7 @@ with the new prefix.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> str</li>
-<li><em>Default:</em> "Release"</li>
+<li><em>Default:</em> "release"</li>
 </ul>
 <p>The name of the default release workflow.</p>
 <hr />
@@ -16068,6 +16138,14 @@ compile the code in-memory.</p>
 <li><em>Default:</em> "tsconfig.dev.json"</li>
 </ul>
 <p>The name of the development tsconfig.json file.</p>
+<hr />
+<h5 id="ts_jest_optionsoptional_1"><code>ts_jest_options</code><sup>Optional</sup> <a name="ts_jest_options" id="@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.tsJestOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.typescript.TsJestOptions</li>
+</ul>
+<p>Options for ts-jest.</p>
 <hr />
 <h5 id="typescript_versionoptional_1"><code>typescript_version</code><sup>Optional</sup> <a name="typescript_version" id="@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.typescriptVersion"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span>
@@ -18348,6 +18426,7 @@ and <code>packages</code> scope.</p>
   <span class="n">cdk_test_dependencies</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">cdk_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">cdk_version_pinning</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_artifact_options</span><span class="p">:</span> <span class="n">CodeArtifactOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_cov</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -18469,6 +18548,7 @@ and <code>packages</code> scope.</p>
   <span class="n">tsconfig</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">versionrc_options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">vscode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -18641,6 +18721,11 @@ and <code>packages</code> scope.</p>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProjectOptions.property.cdkVersionPinning">cdk_version_pinning</a></code></td>
 <td><code>bool</code></td>
 <td>Use pinned version instead of caret version for CDK.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/infrastructure.InfrastructureTsProjectOptions.property.checkLicenses">check_licenses</a></code></td>
+<td><code>projen.javascript.LicenseCheckerOptions</code></td>
+<td>Configure which licenses should be deemed acceptable for use by dependencies.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProjectOptions.property.clobber">clobber</a></code></td>
@@ -19248,6 +19333,11 @@ and <code>packages</code> scope.</p>
 <td>The name of the development tsconfig.json file.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/infrastructure.InfrastructureTsProjectOptions.property.tsJestOptions">ts_jest_options</a></code></td>
+<td><code>projen.typescript.TsJestOptions</code></td>
+<td>Options for ts-jest.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProjectOptions.property.typescriptVersion">typescript_version</a></code></td>
 <td><code>str</code></td>
 <td>TypeScript version to use.</td>
@@ -19621,6 +19711,16 @@ they are present during development.</p>
 <p>Use pinned version instead of caret version for CDK.</p>
 <p>You can use this to prevent mixed versions for your CDK dependencies and to prevent auto-updates.
 If you use experimental features this will let you define the moment you include breaking changes.</p>
+<hr />
+<h5 id="check_licensesoptional_2"><code>check_licenses</code><sup>Optional</sup> <a name="check_licenses" id="@aws/infrastructure.InfrastructureTsProjectOptions.property.checkLicenses"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.javascript.LicenseCheckerOptions</li>
+<li><em>Default:</em> no license checks are run during the build and all licenses will be accepted</li>
+</ul>
+<p>Configure which licenses should be deemed acceptable for use by dependencies.</p>
+<p>This setting will cause the build to fail, if any prohibited or not allowed licenses ares encountered.</p>
 <hr />
 <h5 id="clobberoptional_8"><code>clobber</code><sup>Optional</sup> <a name="clobber" id="@aws/infrastructure.InfrastructureTsProjectOptions.property.clobber"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span>
@@ -20636,7 +20736,7 @@ with the new prefix.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> str</li>
-<li><em>Default:</em> "Release"</li>
+<li><em>Default:</em> "release"</li>
 </ul>
 <p>The name of the default release workflow.</p>
 <hr />
@@ -20803,6 +20903,14 @@ compile the code in-memory.</p>
 </ul>
 <p>The name of the development tsconfig.json file.</p>
 <hr />
+<h5 id="ts_jest_optionsoptional_2"><code>ts_jest_options</code><sup>Optional</sup> <a name="ts_jest_options" id="@aws/infrastructure.InfrastructureTsProjectOptions.property.tsJestOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.typescript.TsJestOptions</li>
+</ul>
+<p>Options for ts-jest.</p>
+<hr />
 <h5 id="typescript_versionoptional_2"><code>typescript_version</code><sup>Optional</sup> <a name="typescript_version" id="@aws/infrastructure.InfrastructureTsProjectOptions.property.typescriptVersion"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
@@ -20954,7 +21062,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <small>
     
       Last update:
-      2024-01-29
+      2024-02-01
     
   </small>
 </div>

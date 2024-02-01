@@ -16966,6 +16966,7 @@ and <code>packages</code> scope.</p>
   <span class="n">build_workflow_triggers</span><span class="p">:</span> <span class="n">Triggers</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">bundled_deps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">bundler_options</span><span class="p">:</span> <span class="n">BundlerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_artifact_options</span><span class="p">:</span> <span class="n">CodeArtifactOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_cov</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -17078,6 +17079,7 @@ and <code>packages</code> scope.</p>
   <span class="n">tsconfig</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">versionrc_options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">vscode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -17193,6 +17195,11 @@ and <code>packages</code> scope.</p>
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptHandlersOptions.property.bundlerOptions">bundler_options</a></code></td>
 <td><code>projen.javascript.BundlerOptions</code></td>
 <td>Options for <code>Bundler</code>.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptHandlersOptions.property.checkLicenses">check_licenses</a></code></td>
+<td><code>projen.javascript.LicenseCheckerOptions</code></td>
+<td>Configure which licenses should be deemed acceptable for use by dependencies.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptHandlersOptions.property.clobber">clobber</a></code></td>
@@ -17755,6 +17762,11 @@ and <code>packages</code> scope.</p>
 <td>The name of the development tsconfig.json file.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptHandlersOptions.property.tsJestOptions">ts_jest_options</a></code></td>
+<td><code>projen.typescript.TsJestOptions</code></td>
+<td>Options for ts-jest.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptHandlersOptions.property.typescriptVersion">typescript_version</a></code></td>
 <td><code>str</code></td>
 <td>TypeScript version to use.</td>
@@ -17998,6 +18010,16 @@ this will be what you <code>package.json</code> will eventually include.</p>
 <li><em>Type:</em> projen.javascript.BundlerOptions</li>
 </ul>
 <p>Options for <code>Bundler</code>.</p>
+<hr />
+<h5 id="check_licensesoptional"><code>check_licenses</code><sup>Optional</sup> <a name="check_licenses" id="@aws/type-safe-api.GeneratedTypeScriptHandlersOptions.property.checkLicenses"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.javascript.LicenseCheckerOptions</li>
+<li><em>Default:</em> no license checks are run during the build and all licenses will be accepted</li>
+</ul>
+<p>Configure which licenses should be deemed acceptable for use by dependencies.</p>
+<p>This setting will cause the build to fail, if any prohibited or not allowed licenses ares encountered.</p>
 <hr />
 <h5 id="clobberoptional_6"><code>clobber</code><sup>Optional</sup> <a name="clobber" id="@aws/type-safe-api.GeneratedTypeScriptHandlersOptions.property.clobber"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span>
@@ -18941,7 +18963,7 @@ with the new prefix.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> str</li>
-<li><em>Default:</em> "Release"</li>
+<li><em>Default:</em> "release"</li>
 </ul>
 <p>The name of the default release workflow.</p>
 <hr />
@@ -19099,6 +19121,14 @@ compile the code in-memory.</p>
 </ul>
 <p>The name of the development tsconfig.json file.</p>
 <hr />
+<h5 id="ts_jest_optionsoptional"><code>ts_jest_options</code><sup>Optional</sup> <a name="ts_jest_options" id="@aws/type-safe-api.GeneratedTypeScriptHandlersOptions.property.tsJestOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.typescript.TsJestOptions</li>
+</ul>
+<p>Options for ts-jest.</p>
+<hr />
 <h5 id="typescript_versionoptional"><code>typescript_version</code><sup>Optional</sup> <a name="typescript_version" id="@aws/type-safe-api.GeneratedTypeScriptHandlersOptions.property.typescriptVersion"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
@@ -19255,6 +19285,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">build_workflow_triggers</span><span class="p">:</span> <span class="n">Triggers</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">bundled_deps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">bundler_options</span><span class="p">:</span> <span class="n">BundlerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_artifact_options</span><span class="p">:</span> <span class="n">CodeArtifactOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_cov</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -19367,6 +19398,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">tsconfig</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">versionrc_options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">vscode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -19481,6 +19513,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptInfrastructureOptions.property.bundlerOptions">bundler_options</a></code></td>
 <td><code>projen.javascript.BundlerOptions</code></td>
 <td>Options for <code>Bundler</code>.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptInfrastructureOptions.property.checkLicenses">check_licenses</a></code></td>
+<td><code>projen.javascript.LicenseCheckerOptions</code></td>
+<td>Configure which licenses should be deemed acceptable for use by dependencies.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptInfrastructureOptions.property.clobber">clobber</a></code></td>
@@ -20043,6 +20080,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td>The name of the development tsconfig.json file.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptInfrastructureOptions.property.tsJestOptions">ts_jest_options</a></code></td>
+<td><code>projen.typescript.TsJestOptions</code></td>
+<td>Options for ts-jest.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptInfrastructureOptions.property.typescriptVersion">typescript_version</a></code></td>
 <td><code>str</code></td>
 <td>TypeScript version to use.</td>
@@ -20281,6 +20323,16 @@ this will be what you <code>package.json</code> will eventually include.</p>
 <li><em>Type:</em> projen.javascript.BundlerOptions</li>
 </ul>
 <p>Options for <code>Bundler</code>.</p>
+<hr />
+<h5 id="check_licensesoptional_1"><code>check_licenses</code><sup>Optional</sup> <a name="check_licenses" id="@aws/type-safe-api.GeneratedTypeScriptInfrastructureOptions.property.checkLicenses"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.javascript.LicenseCheckerOptions</li>
+<li><em>Default:</em> no license checks are run during the build and all licenses will be accepted</li>
+</ul>
+<p>Configure which licenses should be deemed acceptable for use by dependencies.</p>
+<p>This setting will cause the build to fail, if any prohibited or not allowed licenses ares encountered.</p>
 <hr />
 <h5 id="clobberoptional_7"><code>clobber</code><sup>Optional</sup> <a name="clobber" id="@aws/type-safe-api.GeneratedTypeScriptInfrastructureOptions.property.clobber"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span>
@@ -21224,7 +21276,7 @@ with the new prefix.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> str</li>
-<li><em>Default:</em> "Release"</li>
+<li><em>Default:</em> "release"</li>
 </ul>
 <p>The name of the default release workflow.</p>
 <hr />
@@ -21382,6 +21434,14 @@ compile the code in-memory.</p>
 </ul>
 <p>The name of the development tsconfig.json file.</p>
 <hr />
+<h5 id="ts_jest_optionsoptional_1"><code>ts_jest_options</code><sup>Optional</sup> <a name="ts_jest_options" id="@aws/type-safe-api.GeneratedTypeScriptInfrastructureOptions.property.tsJestOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.typescript.TsJestOptions</li>
+</ul>
+<p>Options for ts-jest.</p>
+<hr />
 <h5 id="typescript_versionoptional_1"><code>typescript_version</code><sup>Optional</sup> <a name="typescript_version" id="@aws/type-safe-api.GeneratedTypeScriptInfrastructureOptions.property.typescriptVersion"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
@@ -21528,6 +21588,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">build_workflow_triggers</span><span class="p">:</span> <span class="n">Triggers</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">bundled_deps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">bundler_options</span><span class="p">:</span> <span class="n">BundlerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_artifact_options</span><span class="p">:</span> <span class="n">CodeArtifactOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_cov</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -21640,6 +21701,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">tsconfig</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">versionrc_options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">vscode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -21753,6 +21815,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptReactQueryHooksOptions.property.bundlerOptions">bundler_options</a></code></td>
 <td><code>projen.javascript.BundlerOptions</code></td>
 <td>Options for <code>Bundler</code>.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptReactQueryHooksOptions.property.checkLicenses">check_licenses</a></code></td>
+<td><code>projen.javascript.LicenseCheckerOptions</code></td>
+<td>Configure which licenses should be deemed acceptable for use by dependencies.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptReactQueryHooksOptions.property.clobber">clobber</a></code></td>
@@ -22315,6 +22382,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td>The name of the development tsconfig.json file.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptReactQueryHooksOptions.property.tsJestOptions">ts_jest_options</a></code></td>
+<td><code>projen.typescript.TsJestOptions</code></td>
+<td>Options for ts-jest.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptReactQueryHooksOptions.property.typescriptVersion">typescript_version</a></code></td>
 <td><code>str</code></td>
 <td>TypeScript version to use.</td>
@@ -22548,6 +22620,16 @@ this will be what you <code>package.json</code> will eventually include.</p>
 <li><em>Type:</em> projen.javascript.BundlerOptions</li>
 </ul>
 <p>Options for <code>Bundler</code>.</p>
+<hr />
+<h5 id="check_licensesoptional_2"><code>check_licenses</code><sup>Optional</sup> <a name="check_licenses" id="@aws/type-safe-api.GeneratedTypeScriptReactQueryHooksOptions.property.checkLicenses"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.javascript.LicenseCheckerOptions</li>
+<li><em>Default:</em> no license checks are run during the build and all licenses will be accepted</li>
+</ul>
+<p>Configure which licenses should be deemed acceptable for use by dependencies.</p>
+<p>This setting will cause the build to fail, if any prohibited or not allowed licenses ares encountered.</p>
 <hr />
 <h5 id="clobberoptional_8"><code>clobber</code><sup>Optional</sup> <a name="clobber" id="@aws/type-safe-api.GeneratedTypeScriptReactQueryHooksOptions.property.clobber"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span>
@@ -23491,7 +23573,7 @@ with the new prefix.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> str</li>
-<li><em>Default:</em> "Release"</li>
+<li><em>Default:</em> "release"</li>
 </ul>
 <p>The name of the default release workflow.</p>
 <hr />
@@ -23649,6 +23731,14 @@ compile the code in-memory.</p>
 </ul>
 <p>The name of the development tsconfig.json file.</p>
 <hr />
+<h5 id="ts_jest_optionsoptional_2"><code>ts_jest_options</code><sup>Optional</sup> <a name="ts_jest_options" id="@aws/type-safe-api.GeneratedTypeScriptReactQueryHooksOptions.property.tsJestOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.typescript.TsJestOptions</li>
+</ul>
+<p>Options for ts-jest.</p>
+<hr />
 <h5 id="typescript_versionoptional_2"><code>typescript_version</code><sup>Optional</sup> <a name="typescript_version" id="@aws/type-safe-api.GeneratedTypeScriptReactQueryHooksOptions.property.typescriptVersion"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
@@ -23787,6 +23877,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">build_workflow_triggers</span><span class="p">:</span> <span class="n">Triggers</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">bundled_deps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">bundler_options</span><span class="p">:</span> <span class="n">BundlerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_artifact_options</span><span class="p">:</span> <span class="n">CodeArtifactOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_cov</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -23899,6 +23990,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">tsconfig</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">versionrc_options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">vscode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -24012,6 +24104,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptRuntimeOptions.property.bundlerOptions">bundler_options</a></code></td>
 <td><code>projen.javascript.BundlerOptions</code></td>
 <td>Options for <code>Bundler</code>.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptRuntimeOptions.property.checkLicenses">check_licenses</a></code></td>
+<td><code>projen.javascript.LicenseCheckerOptions</code></td>
+<td>Configure which licenses should be deemed acceptable for use by dependencies.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptRuntimeOptions.property.clobber">clobber</a></code></td>
@@ -24574,6 +24671,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td>The name of the development tsconfig.json file.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptRuntimeOptions.property.tsJestOptions">ts_jest_options</a></code></td>
+<td><code>projen.typescript.TsJestOptions</code></td>
+<td>Options for ts-jest.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/type-safe-api.GeneratedTypeScriptRuntimeOptions.property.typescriptVersion">typescript_version</a></code></td>
 <td><code>str</code></td>
 <td>TypeScript version to use.</td>
@@ -24807,6 +24909,16 @@ this will be what you <code>package.json</code> will eventually include.</p>
 <li><em>Type:</em> projen.javascript.BundlerOptions</li>
 </ul>
 <p>Options for <code>Bundler</code>.</p>
+<hr />
+<h5 id="check_licensesoptional_3"><code>check_licenses</code><sup>Optional</sup> <a name="check_licenses" id="@aws/type-safe-api.GeneratedTypeScriptRuntimeOptions.property.checkLicenses"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.javascript.LicenseCheckerOptions</li>
+<li><em>Default:</em> no license checks are run during the build and all licenses will be accepted</li>
+</ul>
+<p>Configure which licenses should be deemed acceptable for use by dependencies.</p>
+<p>This setting will cause the build to fail, if any prohibited or not allowed licenses ares encountered.</p>
 <hr />
 <h5 id="clobberoptional_9"><code>clobber</code><sup>Optional</sup> <a name="clobber" id="@aws/type-safe-api.GeneratedTypeScriptRuntimeOptions.property.clobber"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span>
@@ -25750,7 +25862,7 @@ with the new prefix.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> str</li>
-<li><em>Default:</em> "Release"</li>
+<li><em>Default:</em> "release"</li>
 </ul>
 <p>The name of the default release workflow.</p>
 <hr />
@@ -25907,6 +26019,14 @@ compile the code in-memory.</p>
 <li><em>Default:</em> "tsconfig.dev.json"</li>
 </ul>
 <p>The name of the development tsconfig.json file.</p>
+<hr />
+<h5 id="ts_jest_optionsoptional_3"><code>ts_jest_options</code><sup>Optional</sup> <a name="ts_jest_options" id="@aws/type-safe-api.GeneratedTypeScriptRuntimeOptions.property.tsJestOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.typescript.TsJestOptions</li>
+</ul>
+<p>Options for ts-jest.</p>
 <hr />
 <h5 id="typescript_versionoptional_3"><code>typescript_version</code><sup>Optional</sup> <a name="typescript_version" id="@aws/type-safe-api.GeneratedTypeScriptRuntimeOptions.property.typescriptVersion"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span>
@@ -31428,6 +31548,7 @@ rule set will be associated with the API. These options may disable or override 
   <span class="n">build_workflow_triggers</span><span class="p">:</span> <span class="n">Triggers</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">bundled_deps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">bundler_options</span><span class="p">:</span> <span class="n">BundlerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_artifact_options</span><span class="p">:</span> <span class="n">CodeArtifactOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">code_cov</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -31540,6 +31661,7 @@ rule set will be associated with the API. These options may disable or override 
   <span class="n">tsconfig</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev</span><span class="p">:</span> <span class="n">TypescriptConfigOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">tsconfig_dev_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">versionrc_options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">vscode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -31652,6 +31774,11 @@ rule set will be associated with the API. These options may disable or override 
 <td><code><a href="#@aws/type-safe-api.TypeScriptProjectOptions.property.bundlerOptions">bundler_options</a></code></td>
 <td><code>projen.javascript.BundlerOptions</code></td>
 <td>Options for <code>Bundler</code>.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/type-safe-api.TypeScriptProjectOptions.property.checkLicenses">check_licenses</a></code></td>
+<td><code>projen.javascript.LicenseCheckerOptions</code></td>
+<td>Configure which licenses should be deemed acceptable for use by dependencies.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/type-safe-api.TypeScriptProjectOptions.property.clobber">clobber</a></code></td>
@@ -32214,6 +32341,11 @@ rule set will be associated with the API. These options may disable or override 
 <td>The name of the development tsconfig.json file.</td>
 </tr>
 <tr>
+<td><code><a href="#@aws/type-safe-api.TypeScriptProjectOptions.property.tsJestOptions">ts_jest_options</a></code></td>
+<td><code>projen.typescript.TsJestOptions</code></td>
+<td>Options for ts-jest.</td>
+</tr>
+<tr>
 <td><code><a href="#@aws/type-safe-api.TypeScriptProjectOptions.property.typescriptVersion">typescript_version</a></code></td>
 <td><code>str</code></td>
 <td>TypeScript version to use.</td>
@@ -32442,6 +32574,16 @@ this will be what you <code>package.json</code> will eventually include.</p>
 <li><em>Type:</em> projen.javascript.BundlerOptions</li>
 </ul>
 <p>Options for <code>Bundler</code>.</p>
+<hr />
+<h5 id="check_licensesoptional_4"><code>check_licenses</code><sup>Optional</sup> <a name="check_licenses" id="@aws/type-safe-api.TypeScriptProjectOptions.property.checkLicenses"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">check_licenses</span><span class="p">:</span> <span class="n">LicenseCheckerOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.javascript.LicenseCheckerOptions</li>
+<li><em>Default:</em> no license checks are run during the build and all licenses will be accepted</li>
+</ul>
+<p>Configure which licenses should be deemed acceptable for use by dependencies.</p>
+<p>This setting will cause the build to fail, if any prohibited or not allowed licenses ares encountered.</p>
 <hr />
 <h5 id="clobberoptional_12"><code>clobber</code><sup>Optional</sup> <a name="clobber" id="@aws/type-safe-api.TypeScriptProjectOptions.property.clobber"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span>
@@ -33385,7 +33527,7 @@ with the new prefix.</p>
 </code></pre></div>
 <ul>
 <li><em>Type:</em> str</li>
-<li><em>Default:</em> "Release"</li>
+<li><em>Default:</em> "release"</li>
 </ul>
 <p>The name of the default release workflow.</p>
 <hr />
@@ -33542,6 +33684,14 @@ compile the code in-memory.</p>
 <li><em>Default:</em> "tsconfig.dev.json"</li>
 </ul>
 <p>The name of the development tsconfig.json file.</p>
+<hr />
+<h5 id="ts_jest_optionsoptional_4"><code>ts_jest_options</code><sup>Optional</sup> <a name="ts_jest_options" id="@aws/type-safe-api.TypeScriptProjectOptions.property.tsJestOptions"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">ts_jest_options</span><span class="p">:</span> <span class="n">TsJestOptions</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.typescript.TsJestOptions</li>
+</ul>
+<p>Options for ts-jest.</p>
 <hr />
 <h5 id="typescript_versionoptional_4"><code>typescript_version</code><sup>Optional</sup> <a name="typescript_version" id="@aws/type-safe-api.TypeScriptProjectOptions.property.typescriptVersion"></a></h5>
 <div class="highlight"><pre><span></span><code><span class="n">typescript_version</span><span class="p">:</span> <span class="nb">str</span>
@@ -36240,7 +36390,7 @@ overlapping response status patterns.</p>
   <small>
     
       Last update:
-      2024-01-29
+      2024-02-01
     
   </small>
 </div>
