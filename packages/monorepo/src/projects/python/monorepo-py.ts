@@ -11,6 +11,10 @@ import {
 } from "../../components/nx-configurator";
 import { NxProject } from "../../components/nx-project";
 import { NxWorkspace } from "../../components/nx-workspace";
+import {
+  DEFAULT_PROJEN_VERSION,
+  syncProjenVersions,
+} from "../../components/projen-dependency";
 import { Nx } from "../../nx-types";
 import { NodePackageUtils, ProjectUtils } from "../../utils";
 
@@ -34,6 +38,11 @@ export class MonorepoPythonProject
   public readonly nxConfigurator: NxConfigurator;
   private readonly installTask?: Task;
 
+  /**
+   * Version of projen used by the monorepo and its subprojects
+   */
+  private readonly projenVersion: string;
+
   constructor(options: MonorepoPythonProjectOptions) {
     super({
       ...options,
@@ -43,7 +52,15 @@ export class MonorepoPythonProject
       version: options.version ?? "0.0.0",
       authorName: options.authorName ?? "pdkuser",
       authorEmail: options.authorEmail ?? "user@pdk.com",
+      projenrcPythonOptions: {
+        ...options.projenrcPythonOptions,
+        projenVersion:
+          options.projenrcPythonOptions?.projenVersion ??
+          DEFAULT_PROJEN_VERSION,
+      },
     });
+    this.projenVersion =
+      options.projenrcPythonOptions?.projenVersion ?? DEFAULT_PROJEN_VERSION;
 
     // Remove dependency on typescript package which projen incorrectly adds to initial .projenrc.py
     // See: https://github.com/projen/projen/issues/2475
@@ -155,6 +172,8 @@ export class MonorepoPythonProject
     this.nxConfigurator.preSynthesize();
 
     super.preSynthesize();
+
+    syncProjenVersions(this.subprojects, this.projenVersion);
   }
 
   /**

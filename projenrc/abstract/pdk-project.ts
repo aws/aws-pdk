@@ -149,6 +149,10 @@ export abstract class PDKProject extends JsiiProject {
         });
       this.testTask.reset();
       jestTask && this.testTask.spawn(jestTask);
+
+      // Most PDK tests rely on projen's test behaviour of synthing to a temporary directory
+      // See: https://github.com/projen/projen/issues/2947
+      this.testTask.env("PROJEN_SELF_TEST", "true");
     }
 
     if (options.releaseToNpm !== true) {

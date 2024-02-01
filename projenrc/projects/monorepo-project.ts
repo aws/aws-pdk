@@ -48,6 +48,9 @@ export class MonorepoProject extends PDKProject {
         "./scripts/monorepo/pnpm/link-bundled-transitive-deps.js",
     });
 
+    // Don't check for a license header etc for projen-version.ts so this can be written via automation
+    this.eslint?.addIgnorePattern("src/components/projen-version.ts");
+
     this.generateInterfaces();
   }
 

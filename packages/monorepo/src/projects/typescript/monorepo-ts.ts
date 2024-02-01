@@ -21,6 +21,10 @@ import {
 } from "../../components/nx-configurator";
 import { NxProject } from "../../components/nx-project";
 import { NxWorkspace } from "../../components/nx-workspace";
+import {
+  DEFAULT_PROJEN_VERSION,
+  syncProjenVersions,
+} from "../../components/projen-dependency";
 import { Nx } from "../../nx-types";
 import { NodePackageUtils, ProjectUtils } from "../../utils";
 
@@ -135,6 +139,11 @@ export class MonorepoTsProject
   extends TypeScriptProject
   implements INxProjectCore
 {
+  /**
+   * Version of projen used by the monorepo and its subprojects
+   */
+  private readonly projenVersion: string;
+
   // immutable data structures
   private readonly workspaceConfig?: WorkspaceConfig;
   private readonly workspacePackages: string[];
@@ -179,7 +188,10 @@ export class MonorepoTsProject
         "@aws-cdk/aws-cognito-identitypool-alpha@latest",
         ...(options.deps || []),
       ],
+      projenVersion: options.projenVersion ?? DEFAULT_PROJEN_VERSION,
     });
+
+    this.projenVersion = options.projenVersion ?? DEFAULT_PROJEN_VERSION;
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch,
@@ -500,13 +512,15 @@ export class MonorepoTsProject
       });
     }
 
-    // Remove any subproject .npmrc files since only the root one matters
     this.subprojects.forEach((subProject) => {
       if (NodePackageUtils.isNodeProject(subProject)) {
+        // Remove any subproject .npmrc files since only the root one matters
         subProject.tryRemoveFile(".npmrc");
         NodePackageUtils.removeProjenScript(subProject);
       }
     });
+
+    syncProjenVersions(this.subprojects, this.projenVersion);
   }
 
   /**

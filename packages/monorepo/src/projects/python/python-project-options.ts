@@ -19,12 +19,6 @@ export interface PythonProjectOptions {
    */
   readonly sample?: boolean;
   /**
-   * Path to the python executable to use.
-   * @default "python"
-   * @stability experimental
-   */
-  readonly pythonExec?: string;
-  /**
    * pytest options.
    * @default - defaults
    * @stability experimental
@@ -67,6 +61,12 @@ export interface PythonProjectOptions {
    * @default $PYTHON_MODULE_NAME
    */
   readonly moduleName: string;
+  /**
+   * Path to the python executable to use.
+   * @default "python"
+   * @stability experimental
+   */
+  readonly pythonExec?: string;
   /**
    * Additional fields to pass in the setup() function if using setuptools.
    * @stability experimental
