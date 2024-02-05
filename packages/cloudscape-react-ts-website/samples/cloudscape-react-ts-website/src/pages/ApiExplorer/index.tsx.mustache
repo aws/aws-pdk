@@ -7,7 +7,6 @@ import { ButtonDropdown, Container, ContentLayout, Header } from "@cloudscape-de
 import { useCallback, useContext, useEffect, useState } from "react";
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
-import Config from "../../config.json";
 import { RuntimeConfigContext } from "../../components/RuntimeContext";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const aws4Fetch = require("aws4fetch");
@@ -29,12 +28,12 @@ const ApiExplorer: React.FC = () => {
         try {
             setApiSpec(
                 Object.fromEntries(
-                    (await Promise.all(Config.typeSafeApis
-                        .map(async ({apiName, apiSpecPath}) => [apiName, await fetch(apiSpecPath).then(res => res.json())])
+                    (await Promise.all(Object.keys(runtimeContext?.typeSafeApis ?? {})
+                        .map(async (apiName) => [apiName, await fetch(`/${apiName}/api.json`).then(res => res.json())])
                     )).map(([apiName, _apiSpec]) => [apiName, {..._apiSpec, servers: [{ url: runtimeContext?.typeSafeApis[apiName] }]}])
                 )
             );
-            setSelectedApi(Config.typeSafeApis[0].apiName); 
+            setSelectedApi(Object.keys(runtimeContext?.typeSafeApis)[0]); 
         } catch(e) {
             setError(
                 "No OpenAPI definition detected. Ensure TypeSafeAPI(s) are passed in to Cloudscape Website construct.",
@@ -88,7 +87,7 @@ const ApiExplorer: React.FC = () => {
         <ButtonDropdown variant="primary" onItemClick={(e) => setSelectedApi(e.detail.id!)} items={[
             {
               text: "REST",
-              items: Config.typeSafeApis.map(tsApi => ({ text: tsApi.apiName, id: tsApi.apiName, disabled: selectedApi === tsApi.apiName }))
+              items: Object.keys(runtimeContext?.typeSafeApis).map(apiName => ({ text: apiName, id: apiName, disabled: selectedApi === apiName }))
             }
           ]}>{selectedApi}</ButtonDropdown>}>API Explorer</Header>}>
         <Container>
