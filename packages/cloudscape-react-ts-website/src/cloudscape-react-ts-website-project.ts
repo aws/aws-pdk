@@ -47,6 +47,7 @@ export interface CloudscapeReactTsWebsiteProjectOptions
 export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
   public readonly applicationName: string;
   public readonly publicDir: string;
+  public readonly typeSafeApis?: TypeSafeApiProject[];
 
   constructor(options: CloudscapeReactTsWebsiteProjectOptions) {
     super({
@@ -76,6 +77,11 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       ],
     });
 
+    this.typeSafeApis = [
+      ...(options.typeSafeApis || []),
+      ...(options.typeSafeApi ? [options.typeSafeApi] : []),
+    ];
+
     this.addDeps(
       "@aws-northstar/ui",
       "@cloudscape-design/components",
@@ -99,12 +105,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       "../samples/cloudscape-react-ts-website/public"
     );
 
-    const typeSafeApis = [
-      ...(options.typeSafeApis || []),
-      ...(options.typeSafeApi ? [options.typeSafeApi] : []),
-    ];
-
-    typeSafeApis.forEach((typeSafeApi) => {
+    this.typeSafeApis.forEach((typeSafeApi) => {
       const hooks = typeSafeApi.library?.typescriptReactQueryHooks;
       const libraryHooksPackage = hooks?.package?.packageName;
       const libraryHooksPackageVersion = hooks?.package?.manifest.version;
@@ -118,9 +119,9 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       this.setupSwaggerUi(typeSafeApi);
     });
 
-    const apis = typeSafeApis.map((tsApi, idx) => ({
+    const apis = this.typeSafeApis.map((tsApi, idx) => ({
       apiName: tsApi.model.apiName,
-      isLast: idx === typeSafeApis.length - 1,
+      isLast: idx === this.typeSafeApis!.length - 1,
       apiNameSafe: tsApi.model.apiName
         ?.replace(/[^a-z0-9_]+/gi, "")
         .replace(/^[0-9]+/gi, ""),

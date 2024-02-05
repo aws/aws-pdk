@@ -2315,7 +2315,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       },
     },
   },
-  "infra/src/constructs/api.ts": "import { UserIdentity } from "@aws/pdk/identity";
+  "infra/src/constructs/apis/api.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { Authorizers } from "@aws/pdk/type-safe-api";
 import { Stack } from "aws-cdk-lib";
 import { Cors } from "aws-cdk-lib/aws-apigateway";
@@ -2332,7 +2332,7 @@ import { Api, MockIntegrations } from "Api-typescript-infra";
 /**
  * Api construct props.
  */
-export interface ApiConstructProps {
+export interface ApiProps {
   /**
    * Instance of the UserIdentity.
    */
@@ -2342,13 +2342,13 @@ export interface ApiConstructProps {
 /**
  * Infrastructure construct to deploy a Type Safe API.
  */
-export class ApiConstruct extends Construct {
+export class Api extends Construct {
   /**
    * API instance
    */
   public readonly api: Api;
 
-  constructor(scope: Construct, id: string, props?: ApiConstructProps) {
+  constructor(scope: Construct, id: string, props?: ApiProps) {
     super(scope, id);
 
     this.api = new Api(this, id, {
@@ -2434,14 +2434,14 @@ const devEnv = {
   "infra/src/stacks/application-stack.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { ApiConstruct } from "../constructs/api";
+import { Api } from "../constructs/apis/api";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const userIdentity = new UserIdentity(this, \`\${id}UserIdentity\`);
-    new ApiConstruct(this, "Api", {
+    new Api(this, "Api", {
       userIdentity,
     });
   }
@@ -3553,7 +3553,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       },
     },
   },
-  "infra/src/constructs/api.ts": "import { UserIdentity } from "@aws/pdk/identity";
+  "infra/src/constructs/apis/api.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { Authorizers } from "@aws/pdk/type-safe-api";
 import { Stack } from "aws-cdk-lib";
 import { Cors } from "aws-cdk-lib/aws-apigateway";
@@ -3570,7 +3570,7 @@ import { Api, MockIntegrations } from "Api-typescript-infra";
 /**
  * Api construct props.
  */
-export interface ApiConstructProps {
+export interface ApiProps {
   /**
    * Instance of the UserIdentity.
    */
@@ -3580,13 +3580,13 @@ export interface ApiConstructProps {
 /**
  * Infrastructure construct to deploy a Type Safe API.
  */
-export class ApiConstruct extends Construct {
+export class Api extends Construct {
   /**
    * API instance
    */
   public readonly api: Api;
 
-  constructor(scope: Construct, id: string, props?: ApiConstructProps) {
+  constructor(scope: Construct, id: string, props?: ApiProps) {
     super(scope, id);
 
     this.api = new Api(this, id, {
@@ -3631,21 +3631,16 @@ export class ApiConstruct extends Construct {
   }
 }
 ",
-  "infra/src/constructs/website.ts": "import { UserIdentity } from "@aws/pdk/identity";
+  "infra/src/constructs/websites/website.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { StaticWebsite } from "@aws/pdk/static-website";
 import { Stack } from "aws-cdk-lib";
 import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
 import { Construct } from "constructs";
-import { ApiConstruct } from "./api";
 
 /**
  * Website construct props
  */
-export interface WebsiteConstructProps {
-  /**
-   * Instance of an API to configure the website to integrate with
-   */
-  readonly apiConstruct: ApiConstruct;
+export interface WebsiteProps {
 
   /**
    * Instance of the UserIdentity.
@@ -3656,8 +3651,8 @@ export interface WebsiteConstructProps {
 /**
  * Construct to deploy a Static Website
  */
-export class WebsiteConstruct extends Construct {
-  constructor(scope: Construct, id: string, props?: WebsiteConstructProps) {
+export class Website extends Construct {
+  constructor(scope: Construct, id: string, props?: WebsiteProps) {
     super(scope, id);
 
     new StaticWebsite(this, id, {
@@ -3669,7 +3664,7 @@ export class WebsiteConstruct extends Construct {
           userPoolId: props?.userIdentity.userPool?.userPoolId,
           userPoolWebClientId:
             props?.userIdentity.userPoolClient?.userPoolClientId,
-          apiUrl: props?.apiConstruct.api.api.urlForPath(),
+          typeSafeApis: {  },
         },
       },
       distributionProps: {
@@ -3728,18 +3723,18 @@ const devEnv = {
   "infra/src/stacks/application-stack.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { ApiConstruct } from "../constructs/api";
-import { WebsiteConstruct } from "../constructs/website";
+import { Api } from "../constructs/apis/api";
+import { Website } from "../constructs/websites/website";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const userIdentity = new UserIdentity(this, \`\${id}UserIdentity\`);
-    const apiConstruct = new ApiConstruct(this, "Api", {
+    const api = new Api(this, "Api", {
       userIdentity,
     });
-    new WebsiteConstruct(this, "Website", { userIdentity, apiConstruct });
+    new Website(this, "Website", { userIdentity });
   }
 }
 ",
@@ -4843,21 +4838,16 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       },
     },
   },
-  "infra/src/constructs/website.ts": "import { UserIdentity } from "@aws/pdk/identity";
+  "infra/src/constructs/websites/website.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { StaticWebsite } from "@aws/pdk/static-website";
 import { Stack } from "aws-cdk-lib";
 import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
 import { Construct } from "constructs";
-// import { ApiConstruct } from "./api";
 
 /**
  * Website construct props
  */
-export interface WebsiteConstructProps {
-  /**
-   * Instance of an API to configure the website to integrate with
-   */
-  // readonly apiConstruct: ApiConstruct;
+export interface WebsiteProps {
 
   /**
    * Instance of the UserIdentity.
@@ -4868,8 +4858,8 @@ export interface WebsiteConstructProps {
 /**
  * Construct to deploy a Static Website
  */
-export class WebsiteConstruct extends Construct {
-  constructor(scope: Construct, id: string, props?: WebsiteConstructProps) {
+export class Website extends Construct {
+  constructor(scope: Construct, id: string, props?: WebsiteProps) {
     super(scope, id);
 
     new StaticWebsite(this, id, {
@@ -4881,7 +4871,7 @@ export class WebsiteConstruct extends Construct {
           userPoolId: props?.userIdentity.userPool?.userPoolId,
           userPoolWebClientId:
             props?.userIdentity.userPoolClient?.userPoolClientId,
-          // apiUrl: props?.apiConstruct.api.api.urlForPath(),
+          typeSafeApis: {  },
         },
       },
       distributionProps: {
@@ -4940,14 +4930,14 @@ const devEnv = {
   "infra/src/stacks/application-stack.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { WebsiteConstruct } from "../constructs/website";
+import { Website } from "../constructs/websites/website";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const userIdentity = new UserIdentity(this, \`\${id}UserIdentity\`);
-    new WebsiteConstruct(this, "Website", { userIdentity });
+    new Website(this, "Website", { userIdentity });
   }
 }
 ",

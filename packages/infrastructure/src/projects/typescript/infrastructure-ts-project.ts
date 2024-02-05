@@ -126,26 +126,22 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
 
     const mustacheConfig = {
       stackName: options.stackName || DEFAULT_STACK_NAME,
-      typeSafeApis: typeSafeApis.map((tsApi) => {
-        const apiName = tsApi.model.apiName
-          ?.replace(/[^a-z0-9_]+/gi, "")
-          .replace(/^[0-9]+/gi, "");
-        return {
-          apiName,
-          apiNameLowercase: apiName?.toLowerCase(),
-          infraPackage: tsApi.infrastructure.typescript?.package.packageName,
-        };
-      }),
+      typeSafeApis: this.generateTypeSafeMustacheConfig(typeSafeApis),
       cloudscapeReactTsWebsites: cloudscapeReactTsWebsites.map((csWebsite) => {
-        const websiteName = csWebsite.applicationName
-          .replace(/[^a-z0-9_]+/gi, "")
-          .replace(/^[0-9]+/gi, "");
+        const websiteName = this.capitalize(
+          csWebsite.package.packageName
+            .replace(/[^a-z0-9_]+/gi, "")
+            .replace(/^[0-9]+/gi, "")
+        );
         return {
           websiteName,
           websiteNameLowercase: websiteName.toLowerCase(),
           websiteDistRelativePath: path.relative(
             this.outdir,
             `${csWebsite.outdir}/build`
+          ),
+          typeSafeApis: this.generateTypeSafeMustacheConfig(
+            csWebsite.typeSafeApis
           ),
         };
       }),
@@ -160,6 +156,26 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
     this.testTask.reset();
     this.testTask.exec("jest --passWithNoTests ${CI:-'--updateSnapshot'}");
     eslintTask && this.testTask.spawn(eslintTask);
+  }
+
+  private generateTypeSafeMustacheConfig(typeSafeApis?: TypeSafeApiProject[]) {
+    return typeSafeApis?.map((tsApi, idx) => {
+      const apiName = this.capitalize(
+        tsApi.model
+          .apiName!.replace(/[^a-z0-9_]+/gi, "")
+          .replace(/^[0-9]+/gi, "")
+      );
+      return {
+        apiName,
+        apiNameLowercase: apiName?.toLowerCase(),
+        infraPackage: tsApi.infrastructure.typescript?.package.packageName,
+        isLast: idx === typeSafeApis.length - 1,
+      };
+    });
+  }
+
+  private capitalize(word: string) {
+    return word.charAt(0).toUpperCase() + word.slice(1);
   }
 
   private emitSampleFiles(
@@ -198,7 +214,7 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
             {
               contents: Mustache.render(
                 fs.readFileSync(`${dir}/${f.name}`).toString(),
-                { ...csWebsite, typeSafeApis: mustacheConfig.typeSafeApis }
+                csWebsite
               ),
             }
           );
