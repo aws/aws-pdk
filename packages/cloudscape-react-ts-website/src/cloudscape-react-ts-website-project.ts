@@ -29,8 +29,14 @@ export interface CloudscapeReactTsWebsiteProjectOptions
 
   /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
+   * @deprecated use typeSafeApis
    */
   readonly typeSafeApi?: TypeSafeApiProject;
+
+  /**
+   * TypeSafeApi instance to use when setting up the initial project sample code.
+   */
+  readonly typeSafeApis?: TypeSafeApiProject[];
 }
 
 /**
@@ -43,8 +49,6 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
   public readonly publicDir: string;
 
   constructor(options: CloudscapeReactTsWebsiteProjectOptions) {
-    const hasApi = !!options.typeSafeApi;
-
     super({
       ...options,
       defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
@@ -67,7 +71,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       },
       gitignore: [
         "public/runtime-config.json",
-        "public/api.json",
+        "public/*/api.json",
         ...(options.gitignore || []),
       ],
     });
@@ -95,8 +99,13 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       "../samples/cloudscape-react-ts-website/public"
     );
 
-    if (options.typeSafeApi) {
-      const hooks = options.typeSafeApi.library?.typescriptReactQueryHooks;
+    const typeSafeApis = [
+      ...(options.typeSafeApis || []),
+      ...(options.typeSafeApi ? [options.typeSafeApi] : []),
+    ];
+
+    typeSafeApis.forEach((typeSafeApi) => {
+      const hooks = typeSafeApi.library?.typescriptReactQueryHooks;
       const libraryHooksPackage = hooks?.package?.packageName;
       const libraryHooksPackageVersion = hooks?.package?.manifest.version;
       if (!libraryHooksPackage) {
@@ -106,15 +115,22 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       }
       this.addDeps(`${libraryHooksPackage}@${libraryHooksPackageVersion}`);
 
-      this.setupSwaggerUi(options.typeSafeApi);
-    }
+      this.setupSwaggerUi(typeSafeApi);
+    });
 
+    const apis = typeSafeApis.map((tsApi, idx) => ({
+      apiName: tsApi.model.apiName,
+      isLast: idx === typeSafeApis.length - 1,
+      apiNameSafe: tsApi.model.apiName
+        ?.replace(/[^a-z0-9_]+/gi, "")
+        .replace(/^[0-9]+/gi, ""),
+      hooksPackage:
+        tsApi.library?.typescriptReactQueryHooks?.package?.packageName,
+    }));
     const mustacheConfig = {
       applicationName: this.applicationName,
-      hasApi,
-      apiHooksPackage:
-        options.typeSafeApi?.library?.typescriptReactQueryHooks?.package
-          ?.packageName,
+      typeSafeApis: apis,
+      typeSafeApisReversed: [...apis].reverse(),
     };
 
     new SampleDir(this, this.srcdir, {
@@ -145,12 +161,15 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
     this.addDevDeps("@types/swagger-ui-react");
     this.addDeps("swagger-ui-react@5.5.0", "aws4fetch");
 
-    const targetApiSpecPath = `${path.relative(
-      tsApi.model.outdir,
-      this.outdir
-    )}/public/api.json`;
-    tsApi.model.postCompileTask.exec(`rm -f ${targetApiSpecPath}`);
-    tsApi.model.postCompileTask.exec(`cp .api.json ${targetApiSpecPath}`);
+    const targetApiSpecFolder = `public/${tsApi.model.apiName}`;
+    const targetApiSpecPath = `${targetApiSpecFolder}/api.json`;
+    this.postCompileTask.exec(`rm -rf ${targetApiSpecFolder}`);
+    this.postCompileTask.exec(
+      `mkdir -p ${targetApiSpecFolder} && cp ${path.relative(
+        this.outdir,
+        tsApi.model.outdir
+      )}/.api.json ${targetApiSpecPath}`
+    );
   }
 
   private buildSampleDirEntries(
@@ -162,8 +181,10 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       .readdirSync(dir, { withFileTypes: true })
       .filter(
         (f) =>
-          mustacheConfig.hasApi ||
-          (!`${pathPrefixes.join("/")}${f.name}`.includes("DefaultApi") &&
+          mustacheConfig.typeSafeApis.length > 0 ||
+          (!`${pathPrefixes.join("/")}${f.name}`.includes(
+            "TypeSafeApiClient"
+          ) &&
             !`${pathPrefixes.join("/")}${f.name}`.includes("ApiExplorer"))
       )
       .flatMap((f) =>

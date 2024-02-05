@@ -381,7 +381,7 @@ jspm_packages/
 .yarn-integrity
 .cache
 public/runtime-config.json
-public/api.json
+public/*/api.json
 !/.github/workflows/build.yml
 !/.mergify.yml
 !/.github/workflows/upgrade.yml
@@ -1113,7 +1113,7 @@ import Config from "../../config.json";
 import { RuntimeConfigContext } from "../RuntimeContext";
 
 /**
- * Sets up the runtimeContext and Cognito auth.
+ * Sets up the Cognito auth.
  *
  * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
  * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
@@ -1144,6 +1144,7 @@ export default Auth;
   "src/components/RuntimeContext/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import ErrorMessage from "@aws-northstar/ui/components/CognitoAuth/components/ErrorMessage";
+import { Spinner } from "@cloudscape-design/components";
 import React, { createContext, useEffect, useState } from "react";
 
 export interface RuntimeContext {
@@ -1151,7 +1152,7 @@ export interface RuntimeContext {
   readonly userPoolId: string;
   readonly userPoolWebClientId: string;
   readonly identityPoolId: string;
-  readonly [additionalProps: string]: string;
+  readonly [additionalProps: string]: any;
 }
 
 /**
@@ -1161,6 +1162,12 @@ export const RuntimeConfigContext = createContext<RuntimeContext | undefined>(
   undefined
 );
 
+/**
+ * Sets up the runtimeContext.
+ *
+ * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
+ * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
+ */
 const RuntimeContextProvider: React.FC<any> = ({ children }) => {
   const [runtimeContext, setRuntimeContext] = useState<
     RuntimeContext | undefined
@@ -1193,11 +1200,11 @@ const RuntimeContextProvider: React.FC<any> = ({ children }) => {
 
   return error ? (
     <ErrorMessage>{error}</ErrorMessage>
-  ) : (
+  ) : runtimeContext ? (
     <RuntimeConfigContext.Provider value={runtimeContext}>
       {children}
     </RuntimeConfigContext.Provider>
-  );
+  ) : <Spinner></Spinner>;
 };
 
 export default RuntimeContextProvider;
@@ -1205,6 +1212,7 @@ export default RuntimeContextProvider;
   "src/config.json": {
     "applicationName": "CustomOptions",
     "logo": "data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KDTwhLS0gVXBsb2FkZWQgdG86IFNWRyBSZXBvLCB3d3cuc3ZncmVwby5jb20sIFRyYW5zZm9ybWVkIGJ5OiBTVkcgUmVwbyBNaXhlciBUb29scyAtLT4KPHN2ZyBmaWxsPSIjMjQ4YmFlIiB3aWR0aD0iODAwcHgiIGhlaWdodD0iODAwcHgiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0cm9rZT0iIzI0OGJhZSI+Cg08ZyBpZD0iU1ZHUmVwb19iZ0NhcnJpZXIiIHN0cm9rZS13aWR0aD0iMCIvPgoNPGcgaWQ9IlNWR1JlcG9fdHJhY2VyQ2FycmllciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cg08ZyBpZD0iU1ZHUmVwb19pY29uQ2FycmllciI+Cg08dGl0bGU+aW9uaWNvbnMtdjVfbG9nb3M8L3RpdGxlPgoNPHBhdGggZD0iTTQxMC42NiwxODAuNzJoMHEtNy42Ny0yLjYyLTE1LjQ1LTQuODgsMS4yOS01LjI1LDIuMzgtMTAuNTZjMTEuNy01Ni45LDQuMDUtMTAyLjc0LTIyLjA2LTExNy44My0yNS0xNC40OC02NiwuNjEtMTA3LjM2LDM2LjY5cS02LjEsNS4zNC0xMS45NSwxMS0zLjktMy43Ni04LTcuMzZjLTQzLjM1LTM4LjU4LTg2LjgtNTQuODMtMTEyLjg4LTM5LjY5LTI1LDE0LjUxLTMyLjQzLDU3LjYtMjEuOSwxMTEuNTNxMS41OCw4LDMuNTUsMTUuOTNjLTYuMTUsMS43NS0xMi4wOSwzLjYyLTE3Ljc3LDUuNkM0OC40NiwxOTguOSwxNiwyMjYuNzMsMTYsMjU1LjU5YzAsMjkuODIsMzQuODQsNTkuNzIsODcuNzcsNzcuODVxNi40NCwyLjE5LDEzLDQuMDdRMTE0LjY0LDM0NiwxMTMsMzU0LjY4Yy0xMCw1My0yLjIsOTUuMDcsMjIuNzUsMTA5LjQ5LDI1Ljc3LDE0Ljg5LDY5LS40MSwxMTEuMTQtMzcuMzFxNS00LjM4LDEwLTkuMjUsNi4zMiw2LjExLDEzLDExLjg2YzQwLjgsMzUuMTgsODEuMDksNDkuMzksMTA2LDM0LjkzLDI1Ljc1LTE0Ljk0LDM0LjEyLTYwLjE0LDIzLjI1LTExNS4xM3EtMS4yNS02LjMtMi44OC0xMi44Niw0LjU2LTEuMzUsOC45My0yLjc5YzU1LTE4LjI3LDkwLjgzLTQ3LjgxLDkwLjgzLTc4QzQ5NiwyMjYuNjIsNDYyLjUsMTk4LjYxLDQxMC42NiwxODAuNzJabS0xMjktODEuMDhjMzUuNDMtMzAuOTEsNjguNTUtNDMuMTEsODMuNjUtMzQuMzloMGMxNi4wNyw5LjI5LDIyLjMyLDQ2Ljc1LDEyLjIyLDk1Ljg4cS0xLDQuOC0yLjE2LDkuNTdhNDg3LjgzLDQ4Ny44MywwLDAsMC02NC4xOC0xMC4xNiw0ODEuMjcsNDgxLjI3LDAsMCwwLTQwLjU3LTUwLjc1UTI3NiwxMDQuNTcsMjgxLjY0LDk5LjY0Wk0xNTcuNzMsMjgwLjI1cTYuNTEsMTIuNiwxMy42MSwyNC44OSw3LjIzLDEyLjU0LDE1LjA3LDI0LjcxYTQzNS4yOCw0MzUuMjgsMCwwLDEtNDQuMjQtNy4xM0MxNDYuNDEsMzA5LDE1MS42MywyOTQuNzUsMTU3LjczLDI4MC4yNVptMC00OC4zM2MtNi0xNC4xOS0xMS4wOC0yOC4xNS0xNS4yNS00MS42MywxMy43LTMuMDcsMjguMy01LjU4LDQzLjUyLTcuNDhxLTcuNjUsMTEuOTQtMTQuNzIsMjQuMjNUMTU3LjcsMjMxLjkyWm0xMC45LDI0LjE3cTkuNDgtMTkuNzcsMjAuNDItMzguNzhoMHExMC45My0xOSwyMy4yNy0zNy4xM2MxNC4yOC0xLjA4LDI4LjkyLTEuNjUsNDMuNzEtMS42NXMyOS41Mi41Nyw0My43OSwxLjY2cTEyLjIxLDE4LjA5LDIzLjEzLDM3dDIwLjY5LDM4LjZRMzM0LDI3NS42MywzMjMsMjk0LjczaDBxLTEwLjkxLDE5LTIzLDM3LjI0Yy0xNC4yNSwxLTI5LDEuNTUtNDQsMS41NXMtMjkuNDctLjQ3LTQzLjQ2LTEuMzhxLTEyLjQzLTE4LjE5LTIzLjQ2LTM3LjI5VDE2OC42LDI1Ni4wOVpNMzQwLjc1LDMwNXE3LjI1LTEyLjU4LDEzLjkyLTI1LjQ5aDBhNDQwLjQxLDQ0MC40MSwwLDAsMSwxNi4xMiw0Mi4zMkE0MzQuNDQsNDM0LjQ0LDAsMCwxLDMyNiwzMjkuNDhRMzMzLjYyLDMxNy4zOSwzNDAuNzUsMzA1Wm0xMy43Mi03My4wN3EtNi42NC0xMi42NS0xMy44MS0yNWgwcS03LTEyLjE4LTE0LjU5LTI0LjA2YzE1LjMxLDEuOTQsMzAsNC41Miw0My43Nyw3LjY3QTQzOS44OSw0MzkuODksMCwwLDEsMzU0LjQ3LDIzMS45M1pNMjU2LjIzLDEyNC40OGgwYTQzOS43NSw0MzkuNzUsMCwwLDEsMjguMjUsMzQuMThxLTI4LjM1LTEuMzUtNTYuNzQsMEMyMzcuMDcsMTQ2LjMyLDI0Ni42MiwxMzQuODcsMjU2LjIzLDEyNC40OFpNMTQ1LjY2LDY1Ljg2YzE2LjA2LTkuMzIsNTEuNTcsNCw4OSwzNy4yNywyLjM5LDIuMTMsNC44LDQuMzYsNy4yLDYuNjdBNDkxLjM3LDQ5MS4zNywwLDAsMCwyMDEsMTYwLjUxYTQ5OS4xMiw0OTkuMTIsMCwwLDAtNjQuMDYsMTBxLTEuODMtNy4zNi0zLjMtMTQuODJoMEMxMjQuNTksMTA5LjQ2LDEzMC41OCw3NC42MSwxNDUuNjYsNjUuODZaTTEyMi4yNSwzMTcuNzFxLTYtMS43MS0xMS44NS0zLjcxYy0yMy40LTgtNDIuNzMtMTguNDQtNTYtMjkuODFDNDIuNTIsMjc0LDM2LjUsMjYzLjgzLDM2LjUsMjU1LjU5YzAtMTcuNTEsMjYuMDYtMzkuODUsNjkuNTItNTVxOC4xOS0yLjg1LDE2LjUyLTUuMjFhNDkzLjU0LDQ5My41NCwwLDAsMCwyMy40LDYwLjc1QTUwMi40Niw1MDIuNDYsMCwwLDAsMTIyLjI1LDMxNy43MVptMTExLjEzLDkzLjY3Yy0xOC42MywxNi4zMi0zNy4yOSwyNy44OS01My43NCwzMy43MmgwYy0xNC43OCw1LjIzLTI2LjU1LDUuMzgtMzMuNjYsMS4yNy0xNS4xNC04Ljc1LTIxLjQ0LTQyLjU0LTEyLjg1LTg3Ljg2cTEuNTMtOCwzLjUtMTZhNDgwLjg1LDQ4MC44NSwwLDAsMCw2NC42OSw5LjM5LDUwMS4yLDUwMS4yLDAsMCwwLDQxLjIsNTFDMjM5LjU0LDQwNS44MywyMzYuNDksNDA4LjY1LDIzMy4zOCw0MTEuMzhabTIzLjQyLTIzLjIyYy05LjcyLTEwLjUxLTE5LjQyLTIyLjE0LTI4Ljg4LTM0LjY0cTEzLjc5LjU0LDI4LjA4LjU0YzkuNzgsMCwxOS40Ni0uMjEsMjktLjY0QTQzOS4zMyw0MzkuMzMsMCwwLDEsMjU2LjgsMzg4LjE2Wm0xMjQuNTIsMjguNTljLTIuODYsMTUuNDQtOC42MSwyNS43NC0xNS43MiwyOS44Ni0xNS4xMyw4Ljc4LTQ3LjQ4LTIuNjMtODIuMzYtMzIuNzItNC0zLjQ0LTgtNy4xMy0xMi4wNy0xMWE0ODQuNTQsNDg0LjU0LDAsMCwwLDQwLjIzLTUxLjIsNDc3Ljg0LDQ3Ny44NCwwLDAsMCw2NS0xMC4wNXExLjQ3LDUuOTQsMi42LDExLjY0aDBDMzgzLjgxLDM3Ny41OCwzODQuNSwzOTkuNTYsMzgxLjMyLDQxNi43NVptMTcuNC0xMDIuNjRoMGMtMi42Mi44Ny01LjMyLDEuNzEtOC4wNiwyLjUzYTQ4My4yNiw0ODMuMjYsMCwwLDAtMjQuMzEtNjAuOTQsNDgxLjUyLDQ4MS41MiwwLDAsMCwyMy4zNi02MC4wNmM0LjkxLDEuNDMsOS42OCwyLjkzLDE0LjI3LDQuNTIsNDQuNDIsMTUuMzIsNzEuNTIsMzgsNzEuNTIsNTUuNDNDNDc1LjUsMjc0LjE5LDQ0Ni4yMywyOTguMzMsMzk4LjcyLDMxNC4xMVoiLz4KDTxwYXRoIGQ9Ik0yNTYsMjk4LjU1YTQzLDQzLDAsMSwwLTQyLjg2LTQzQTQyLjkxLDQyLjkxLDAsMCwwLDI1NiwyOTguNTVaIi8+Cg08L2c+Cg08L3N2Zz4=",
+    "typeSafeApis": [],
   },
   "src/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
@@ -1902,7 +1910,7 @@ jspm_packages/
 .yarn-integrity
 .cache
 public/runtime-config.json
-public/api.json
+public/*/api.json
 !/.github/workflows/build.yml
 !/.mergify.yml
 !/.github/workflows/upgrade.yml
@@ -2629,7 +2637,7 @@ import Config from "../../config.json";
 import { RuntimeConfigContext } from "../RuntimeContext";
 
 /**
- * Sets up the runtimeContext and Cognito auth.
+ * Sets up the Cognito auth.
  *
  * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
  * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
@@ -2660,6 +2668,7 @@ export default Auth;
   "src/components/RuntimeContext/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import ErrorMessage from "@aws-northstar/ui/components/CognitoAuth/components/ErrorMessage";
+import { Spinner } from "@cloudscape-design/components";
 import React, { createContext, useEffect, useState } from "react";
 
 export interface RuntimeContext {
@@ -2667,7 +2676,7 @@ export interface RuntimeContext {
   readonly userPoolId: string;
   readonly userPoolWebClientId: string;
   readonly identityPoolId: string;
-  readonly [additionalProps: string]: string;
+  readonly [additionalProps: string]: any;
 }
 
 /**
@@ -2677,6 +2686,12 @@ export const RuntimeConfigContext = createContext<RuntimeContext | undefined>(
   undefined
 );
 
+/**
+ * Sets up the runtimeContext.
+ *
+ * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
+ * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
+ */
 const RuntimeContextProvider: React.FC<any> = ({ children }) => {
   const [runtimeContext, setRuntimeContext] = useState<
     RuntimeContext | undefined
@@ -2709,11 +2724,11 @@ const RuntimeContextProvider: React.FC<any> = ({ children }) => {
 
   return error ? (
     <ErrorMessage>{error}</ErrorMessage>
-  ) : (
+  ) : runtimeContext ? (
     <RuntimeConfigContext.Provider value={runtimeContext}>
       {children}
     </RuntimeConfigContext.Provider>
-  );
+  ) : <Spinner></Spinner>;
 };
 
 export default RuntimeContextProvider;
@@ -2721,6 +2736,7 @@ export default RuntimeContextProvider;
   "src/config.json": {
     "applicationName": "Defaults",
     "logo": "data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KDTwhLS0gVXBsb2FkZWQgdG86IFNWRyBSZXBvLCB3d3cuc3ZncmVwby5jb20sIFRyYW5zZm9ybWVkIGJ5OiBTVkcgUmVwbyBNaXhlciBUb29scyAtLT4KPHN2ZyBmaWxsPSIjMjQ4YmFlIiB3aWR0aD0iODAwcHgiIGhlaWdodD0iODAwcHgiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0cm9rZT0iIzI0OGJhZSI+Cg08ZyBpZD0iU1ZHUmVwb19iZ0NhcnJpZXIiIHN0cm9rZS13aWR0aD0iMCIvPgoNPGcgaWQ9IlNWR1JlcG9fdHJhY2VyQ2FycmllciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cg08ZyBpZD0iU1ZHUmVwb19pY29uQ2FycmllciI+Cg08dGl0bGU+aW9uaWNvbnMtdjVfbG9nb3M8L3RpdGxlPgoNPHBhdGggZD0iTTQxMC42NiwxODAuNzJoMHEtNy42Ny0yLjYyLTE1LjQ1LTQuODgsMS4yOS01LjI1LDIuMzgtMTAuNTZjMTEuNy01Ni45LDQuMDUtMTAyLjc0LTIyLjA2LTExNy44My0yNS0xNC40OC02NiwuNjEtMTA3LjM2LDM2LjY5cS02LjEsNS4zNC0xMS45NSwxMS0zLjktMy43Ni04LTcuMzZjLTQzLjM1LTM4LjU4LTg2LjgtNTQuODMtMTEyLjg4LTM5LjY5LTI1LDE0LjUxLTMyLjQzLDU3LjYtMjEuOSwxMTEuNTNxMS41OCw4LDMuNTUsMTUuOTNjLTYuMTUsMS43NS0xMi4wOSwzLjYyLTE3Ljc3LDUuNkM0OC40NiwxOTguOSwxNiwyMjYuNzMsMTYsMjU1LjU5YzAsMjkuODIsMzQuODQsNTkuNzIsODcuNzcsNzcuODVxNi40NCwyLjE5LDEzLDQuMDdRMTE0LjY0LDM0NiwxMTMsMzU0LjY4Yy0xMCw1My0yLjIsOTUuMDcsMjIuNzUsMTA5LjQ5LDI1Ljc3LDE0Ljg5LDY5LS40MSwxMTEuMTQtMzcuMzFxNS00LjM4LDEwLTkuMjUsNi4zMiw2LjExLDEzLDExLjg2YzQwLjgsMzUuMTgsODEuMDksNDkuMzksMTA2LDM0LjkzLDI1Ljc1LTE0Ljk0LDM0LjEyLTYwLjE0LDIzLjI1LTExNS4xM3EtMS4yNS02LjMtMi44OC0xMi44Niw0LjU2LTEuMzUsOC45My0yLjc5YzU1LTE4LjI3LDkwLjgzLTQ3LjgxLDkwLjgzLTc4QzQ5NiwyMjYuNjIsNDYyLjUsMTk4LjYxLDQxMC42NiwxODAuNzJabS0xMjktODEuMDhjMzUuNDMtMzAuOTEsNjguNTUtNDMuMTEsODMuNjUtMzQuMzloMGMxNi4wNyw5LjI5LDIyLjMyLDQ2Ljc1LDEyLjIyLDk1Ljg4cS0xLDQuOC0yLjE2LDkuNTdhNDg3LjgzLDQ4Ny44MywwLDAsMC02NC4xOC0xMC4xNiw0ODEuMjcsNDgxLjI3LDAsMCwwLTQwLjU3LTUwLjc1UTI3NiwxMDQuNTcsMjgxLjY0LDk5LjY0Wk0xNTcuNzMsMjgwLjI1cTYuNTEsMTIuNiwxMy42MSwyNC44OSw3LjIzLDEyLjU0LDE1LjA3LDI0LjcxYTQzNS4yOCw0MzUuMjgsMCwwLDEtNDQuMjQtNy4xM0MxNDYuNDEsMzA5LDE1MS42MywyOTQuNzUsMTU3LjczLDI4MC4yNVptMC00OC4zM2MtNi0xNC4xOS0xMS4wOC0yOC4xNS0xNS4yNS00MS42MywxMy43LTMuMDcsMjguMy01LjU4LDQzLjUyLTcuNDhxLTcuNjUsMTEuOTQtMTQuNzIsMjQuMjNUMTU3LjcsMjMxLjkyWm0xMC45LDI0LjE3cTkuNDgtMTkuNzcsMjAuNDItMzguNzhoMHExMC45My0xOSwyMy4yNy0zNy4xM2MxNC4yOC0xLjA4LDI4LjkyLTEuNjUsNDMuNzEtMS42NXMyOS41Mi41Nyw0My43OSwxLjY2cTEyLjIxLDE4LjA5LDIzLjEzLDM3dDIwLjY5LDM4LjZRMzM0LDI3NS42MywzMjMsMjk0LjczaDBxLTEwLjkxLDE5LTIzLDM3LjI0Yy0xNC4yNSwxLTI5LDEuNTUtNDQsMS41NXMtMjkuNDctLjQ3LTQzLjQ2LTEuMzhxLTEyLjQzLTE4LjE5LTIzLjQ2LTM3LjI5VDE2OC42LDI1Ni4wOVpNMzQwLjc1LDMwNXE3LjI1LTEyLjU4LDEzLjkyLTI1LjQ5aDBhNDQwLjQxLDQ0MC40MSwwLDAsMSwxNi4xMiw0Mi4zMkE0MzQuNDQsNDM0LjQ0LDAsMCwxLDMyNiwzMjkuNDhRMzMzLjYyLDMxNy4zOSwzNDAuNzUsMzA1Wm0xMy43Mi03My4wN3EtNi42NC0xMi42NS0xMy44MS0yNWgwcS03LTEyLjE4LTE0LjU5LTI0LjA2YzE1LjMxLDEuOTQsMzAsNC41Miw0My43Nyw3LjY3QTQzOS44OSw0MzkuODksMCwwLDEsMzU0LjQ3LDIzMS45M1pNMjU2LjIzLDEyNC40OGgwYTQzOS43NSw0MzkuNzUsMCwwLDEsMjguMjUsMzQuMThxLTI4LjM1LTEuMzUtNTYuNzQsMEMyMzcuMDcsMTQ2LjMyLDI0Ni42MiwxMzQuODcsMjU2LjIzLDEyNC40OFpNMTQ1LjY2LDY1Ljg2YzE2LjA2LTkuMzIsNTEuNTcsNCw4OSwzNy4yNywyLjM5LDIuMTMsNC44LDQuMzYsNy4yLDYuNjdBNDkxLjM3LDQ5MS4zNywwLDAsMCwyMDEsMTYwLjUxYTQ5OS4xMiw0OTkuMTIsMCwwLDAtNjQuMDYsMTBxLTEuODMtNy4zNi0zLjMtMTQuODJoMEMxMjQuNTksMTA5LjQ2LDEzMC41OCw3NC42MSwxNDUuNjYsNjUuODZaTTEyMi4yNSwzMTcuNzFxLTYtMS43MS0xMS44NS0zLjcxYy0yMy40LTgtNDIuNzMtMTguNDQtNTYtMjkuODFDNDIuNTIsMjc0LDM2LjUsMjYzLjgzLDM2LjUsMjU1LjU5YzAtMTcuNTEsMjYuMDYtMzkuODUsNjkuNTItNTVxOC4xOS0yLjg1LDE2LjUyLTUuMjFhNDkzLjU0LDQ5My41NCwwLDAsMCwyMy40LDYwLjc1QTUwMi40Niw1MDIuNDYsMCwwLDAsMTIyLjI1LDMxNy43MVptMTExLjEzLDkzLjY3Yy0xOC42MywxNi4zMi0zNy4yOSwyNy44OS01My43NCwzMy43MmgwYy0xNC43OCw1LjIzLTI2LjU1LDUuMzgtMzMuNjYsMS4yNy0xNS4xNC04Ljc1LTIxLjQ0LTQyLjU0LTEyLjg1LTg3Ljg2cTEuNTMtOCwzLjUtMTZhNDgwLjg1LDQ4MC44NSwwLDAsMCw2NC42OSw5LjM5LDUwMS4yLDUwMS4yLDAsMCwwLDQxLjIsNTFDMjM5LjU0LDQwNS44MywyMzYuNDksNDA4LjY1LDIzMy4zOCw0MTEuMzhabTIzLjQyLTIzLjIyYy05LjcyLTEwLjUxLTE5LjQyLTIyLjE0LTI4Ljg4LTM0LjY0cTEzLjc5LjU0LDI4LjA4LjU0YzkuNzgsMCwxOS40Ni0uMjEsMjktLjY0QTQzOS4zMyw0MzkuMzMsMCwwLDEsMjU2LjgsMzg4LjE2Wm0xMjQuNTIsMjguNTljLTIuODYsMTUuNDQtOC42MSwyNS43NC0xNS43MiwyOS44Ni0xNS4xMyw4Ljc4LTQ3LjQ4LTIuNjMtODIuMzYtMzIuNzItNC0zLjQ0LTgtNy4xMy0xMi4wNy0xMWE0ODQuNTQsNDg0LjU0LDAsMCwwLDQwLjIzLTUxLjIsNDc3Ljg0LDQ3Ny44NCwwLDAsMCw2NS0xMC4wNXExLjQ3LDUuOTQsMi42LDExLjY0aDBDMzgzLjgxLDM3Ny41OCwzODQuNSwzOTkuNTYsMzgxLjMyLDQxNi43NVptMTcuNC0xMDIuNjRoMGMtMi42Mi44Ny01LjMyLDEuNzEtOC4wNiwyLjUzYTQ4My4yNiw0ODMuMjYsMCwwLDAtMjQuMzEtNjAuOTQsNDgxLjUyLDQ4MS41MiwwLDAsMCwyMy4zNi02MC4wNmM0LjkxLDEuNDMsOS42OCwyLjkzLDE0LjI3LDQuNTIsNDQuNDIsMTUuMzIsNzEuNTIsMzgsNzEuNTIsNTUuNDNDNDc1LjUsMjc0LjE5LDQ0Ni4yMywyOTguMzMsMzk4LjcyLDMxNC4xMVoiLz4KDTxwYXRoIGQ9Ik0yNTYsMjk4LjU1YTQzLDQzLDAsMSwwLTQyLjg2LTQzQTQyLjkxLDQyLjkxLDAsMCwwLDI1NiwyOTguNTVaIi8+Cg08L2c+Cg08L3N2Zz4=",
+    "typeSafeApis": [],
   },
   "src/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
@@ -3215,7 +3231,7 @@ jspm_packages/
 .yarn-integrity
 .cache
 public/runtime-config.json
-public/api.json
+public/*/api.json
 !/.prettierignore
 !/.prettierrc.json
 !/test/
@@ -3509,6 +3525,14 @@ tsconfig.tsbuildinfo
       "post-compile": {
         "description": "Runs after successful compilation",
         "name": "post-compile",
+        "steps": [
+          {
+            "exec": "rm -rf public/MyService",
+          },
+          {
+            "exec": "mkdir -p public/MyService && cp ../api/model/.api.json public/MyService/api.json",
+          },
+        ],
       },
       "post-upgrade": {
         "description": "Runs after upgrading dependencies",
@@ -3879,7 +3903,7 @@ import Config from "../../config.json";
 import { RuntimeConfigContext } from "../RuntimeContext";
 
 /**
- * Sets up the runtimeContext and Cognito auth.
+ * Sets up the Cognito auth.
  *
  * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
  * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
@@ -3907,35 +3931,10 @@ const Auth: React.FC<any> = ({ children }) => {
 
 export default Auth;
 ",
-  "src/components/DefaultApi/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
-SPDX-License-Identifier: Apache-2.0 */
-import { DefaultApiClientProvider as DefaultApiClientProvider_ } from "testapi-typescript-react-query-hooks";
-import React from "react";
-import { useDefaultApiClient } from "../../hooks/useDefaultApiClient";
-
-/**
- * Sets up the runtimeContext and Cognito auth.
- *
- * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
- * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
- */
-const DefaultApiClientProvider: React.FC<any> = ({ children }) => {
-  const client = useDefaultApiClient();
-
-  return client ? (
-    <DefaultApiClientProvider_ apiClient={client}>
-      {children}
-    </DefaultApiClientProvider_>
-  ) : (
-    <></>
-  );
-};
-
-export default DefaultApiClientProvider;
-",
   "src/components/RuntimeContext/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import ErrorMessage from "@aws-northstar/ui/components/CognitoAuth/components/ErrorMessage";
+import { Spinner } from "@cloudscape-design/components";
 import React, { createContext, useEffect, useState } from "react";
 
 export interface RuntimeContext {
@@ -3943,7 +3942,7 @@ export interface RuntimeContext {
   readonly userPoolId: string;
   readonly userPoolWebClientId: string;
   readonly identityPoolId: string;
-  readonly [additionalProps: string]: string;
+  readonly [additionalProps: string]: any;
 }
 
 /**
@@ -3953,6 +3952,12 @@ export const RuntimeConfigContext = createContext<RuntimeContext | undefined>(
   undefined
 );
 
+/**
+ * Sets up the runtimeContext.
+ *
+ * This assumes a runtime-config.json file is present at '/'. In order for Auth to be set up automatically,
+ * the runtime-config.json must have the following properties configured: [region, userPoolId, userPoolWebClientId, identityPoolId].
+ */
 const RuntimeContextProvider: React.FC<any> = ({ children }) => {
   const [runtimeContext, setRuntimeContext] = useState<
     RuntimeContext | undefined
@@ -3985,38 +3990,65 @@ const RuntimeContextProvider: React.FC<any> = ({ children }) => {
 
   return error ? (
     <ErrorMessage>{error}</ErrorMessage>
-  ) : (
+  ) : runtimeContext ? (
     <RuntimeConfigContext.Provider value={runtimeContext}>
       {children}
     </RuntimeConfigContext.Provider>
-  );
+  ) : <Spinner></Spinner>;
 };
 
 export default RuntimeContextProvider;
 ",
+  "src/components/TypeSafeApiClientProvider/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
+import { DefaultApiClientProvider as MyServiceApiClientProvider } from "testapi-typescript-react-query-hooks";
+import React from "react";
+import { useMyServiceApiClient } from "../../hooks/useTypeSafeApiClient";
+
+/**
+ * Sets up the Type Safe Api clients.
+ */
+const TypeSafeApiClientProvider: React.FC<any> = ({ children }) => {
+  const MyServiceClient = useMyServiceApiClient();
+
+  return (
+    <MyServiceApiClientProvider apiClient={MyServiceClient!}>
+      {children}
+    </MyServiceApiClientProvider>
+  );
+};
+
+export default TypeSafeApiClientProvider;
+",
   "src/config.json": {
     "applicationName": "WithAPI",
     "logo": "data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KDTwhLS0gVXBsb2FkZWQgdG86IFNWRyBSZXBvLCB3d3cuc3ZncmVwby5jb20sIFRyYW5zZm9ybWVkIGJ5OiBTVkcgUmVwbyBNaXhlciBUb29scyAtLT4KPHN2ZyBmaWxsPSIjMjQ4YmFlIiB3aWR0aD0iODAwcHgiIGhlaWdodD0iODAwcHgiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0cm9rZT0iIzI0OGJhZSI+Cg08ZyBpZD0iU1ZHUmVwb19iZ0NhcnJpZXIiIHN0cm9rZS13aWR0aD0iMCIvPgoNPGcgaWQ9IlNWR1JlcG9fdHJhY2VyQ2FycmllciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cg08ZyBpZD0iU1ZHUmVwb19pY29uQ2FycmllciI+Cg08dGl0bGU+aW9uaWNvbnMtdjVfbG9nb3M8L3RpdGxlPgoNPHBhdGggZD0iTTQxMC42NiwxODAuNzJoMHEtNy42Ny0yLjYyLTE1LjQ1LTQuODgsMS4yOS01LjI1LDIuMzgtMTAuNTZjMTEuNy01Ni45LDQuMDUtMTAyLjc0LTIyLjA2LTExNy44My0yNS0xNC40OC02NiwuNjEtMTA3LjM2LDM2LjY5cS02LjEsNS4zNC0xMS45NSwxMS0zLjktMy43Ni04LTcuMzZjLTQzLjM1LTM4LjU4LTg2LjgtNTQuODMtMTEyLjg4LTM5LjY5LTI1LDE0LjUxLTMyLjQzLDU3LjYtMjEuOSwxMTEuNTNxMS41OCw4LDMuNTUsMTUuOTNjLTYuMTUsMS43NS0xMi4wOSwzLjYyLTE3Ljc3LDUuNkM0OC40NiwxOTguOSwxNiwyMjYuNzMsMTYsMjU1LjU5YzAsMjkuODIsMzQuODQsNTkuNzIsODcuNzcsNzcuODVxNi40NCwyLjE5LDEzLDQuMDdRMTE0LjY0LDM0NiwxMTMsMzU0LjY4Yy0xMCw1My0yLjIsOTUuMDcsMjIuNzUsMTA5LjQ5LDI1Ljc3LDE0Ljg5LDY5LS40MSwxMTEuMTQtMzcuMzFxNS00LjM4LDEwLTkuMjUsNi4zMiw2LjExLDEzLDExLjg2YzQwLjgsMzUuMTgsODEuMDksNDkuMzksMTA2LDM0LjkzLDI1Ljc1LTE0Ljk0LDM0LjEyLTYwLjE0LDIzLjI1LTExNS4xM3EtMS4yNS02LjMtMi44OC0xMi44Niw0LjU2LTEuMzUsOC45My0yLjc5YzU1LTE4LjI3LDkwLjgzLTQ3LjgxLDkwLjgzLTc4QzQ5NiwyMjYuNjIsNDYyLjUsMTk4LjYxLDQxMC42NiwxODAuNzJabS0xMjktODEuMDhjMzUuNDMtMzAuOTEsNjguNTUtNDMuMTEsODMuNjUtMzQuMzloMGMxNi4wNyw5LjI5LDIyLjMyLDQ2Ljc1LDEyLjIyLDk1Ljg4cS0xLDQuOC0yLjE2LDkuNTdhNDg3LjgzLDQ4Ny44MywwLDAsMC02NC4xOC0xMC4xNiw0ODEuMjcsNDgxLjI3LDAsMCwwLTQwLjU3LTUwLjc1UTI3NiwxMDQuNTcsMjgxLjY0LDk5LjY0Wk0xNTcuNzMsMjgwLjI1cTYuNTEsMTIuNiwxMy42MSwyNC44OSw3LjIzLDEyLjU0LDE1LjA3LDI0LjcxYTQzNS4yOCw0MzUuMjgsMCwwLDEtNDQuMjQtNy4xM0MxNDYuNDEsMzA5LDE1MS42MywyOTQuNzUsMTU3LjczLDI4MC4yNVptMC00OC4zM2MtNi0xNC4xOS0xMS4wOC0yOC4xNS0xNS4yNS00MS42MywxMy43LTMuMDcsMjguMy01LjU4LDQzLjUyLTcuNDhxLTcuNjUsMTEuOTQtMTQuNzIsMjQuMjNUMTU3LjcsMjMxLjkyWm0xMC45LDI0LjE3cTkuNDgtMTkuNzcsMjAuNDItMzguNzhoMHExMC45My0xOSwyMy4yNy0zNy4xM2MxNC4yOC0xLjA4LDI4LjkyLTEuNjUsNDMuNzEtMS42NXMyOS41Mi41Nyw0My43OSwxLjY2cTEyLjIxLDE4LjA5LDIzLjEzLDM3dDIwLjY5LDM4LjZRMzM0LDI3NS42MywzMjMsMjk0LjczaDBxLTEwLjkxLDE5LTIzLDM3LjI0Yy0xNC4yNSwxLTI5LDEuNTUtNDQsMS41NXMtMjkuNDctLjQ3LTQzLjQ2LTEuMzhxLTEyLjQzLTE4LjE5LTIzLjQ2LTM3LjI5VDE2OC42LDI1Ni4wOVpNMzQwLjc1LDMwNXE3LjI1LTEyLjU4LDEzLjkyLTI1LjQ5aDBhNDQwLjQxLDQ0MC40MSwwLDAsMSwxNi4xMiw0Mi4zMkE0MzQuNDQsNDM0LjQ0LDAsMCwxLDMyNiwzMjkuNDhRMzMzLjYyLDMxNy4zOSwzNDAuNzUsMzA1Wm0xMy43Mi03My4wN3EtNi42NC0xMi42NS0xMy44MS0yNWgwcS03LTEyLjE4LTE0LjU5LTI0LjA2YzE1LjMxLDEuOTQsMzAsNC41Miw0My43Nyw3LjY3QTQzOS44OSw0MzkuODksMCwwLDEsMzU0LjQ3LDIzMS45M1pNMjU2LjIzLDEyNC40OGgwYTQzOS43NSw0MzkuNzUsMCwwLDEsMjguMjUsMzQuMThxLTI4LjM1LTEuMzUtNTYuNzQsMEMyMzcuMDcsMTQ2LjMyLDI0Ni42MiwxMzQuODcsMjU2LjIzLDEyNC40OFpNMTQ1LjY2LDY1Ljg2YzE2LjA2LTkuMzIsNTEuNTcsNCw4OSwzNy4yNywyLjM5LDIuMTMsNC44LDQuMzYsNy4yLDYuNjdBNDkxLjM3LDQ5MS4zNywwLDAsMCwyMDEsMTYwLjUxYTQ5OS4xMiw0OTkuMTIsMCwwLDAtNjQuMDYsMTBxLTEuODMtNy4zNi0zLjMtMTQuODJoMEMxMjQuNTksMTA5LjQ2LDEzMC41OCw3NC42MSwxNDUuNjYsNjUuODZaTTEyMi4yNSwzMTcuNzFxLTYtMS43MS0xMS44NS0zLjcxYy0yMy40LTgtNDIuNzMtMTguNDQtNTYtMjkuODFDNDIuNTIsMjc0LDM2LjUsMjYzLjgzLDM2LjUsMjU1LjU5YzAtMTcuNTEsMjYuMDYtMzkuODUsNjkuNTItNTVxOC4xOS0yLjg1LDE2LjUyLTUuMjFhNDkzLjU0LDQ5My41NCwwLDAsMCwyMy40LDYwLjc1QTUwMi40Niw1MDIuNDYsMCwwLDAsMTIyLjI1LDMxNy43MVptMTExLjEzLDkzLjY3Yy0xOC42MywxNi4zMi0zNy4yOSwyNy44OS01My43NCwzMy43MmgwYy0xNC43OCw1LjIzLTI2LjU1LDUuMzgtMzMuNjYsMS4yNy0xNS4xNC04Ljc1LTIxLjQ0LTQyLjU0LTEyLjg1LTg3Ljg2cTEuNTMtOCwzLjUtMTZhNDgwLjg1LDQ4MC44NSwwLDAsMCw2NC42OSw5LjM5LDUwMS4yLDUwMS4yLDAsMCwwLDQxLjIsNTFDMjM5LjU0LDQwNS44MywyMzYuNDksNDA4LjY1LDIzMy4zOCw0MTEuMzhabTIzLjQyLTIzLjIyYy05LjcyLTEwLjUxLTE5LjQyLTIyLjE0LTI4Ljg4LTM0LjY0cTEzLjc5LjU0LDI4LjA4LjU0YzkuNzgsMCwxOS40Ni0uMjEsMjktLjY0QTQzOS4zMyw0MzkuMzMsMCwwLDEsMjU2LjgsMzg4LjE2Wm0xMjQuNTIsMjguNTljLTIuODYsMTUuNDQtOC42MSwyNS43NC0xNS43MiwyOS44Ni0xNS4xMyw4Ljc4LTQ3LjQ4LTIuNjMtODIuMzYtMzIuNzItNC0zLjQ0LTgtNy4xMy0xMi4wNy0xMWE0ODQuNTQsNDg0LjU0LDAsMCwwLDQwLjIzLTUxLjIsNDc3Ljg0LDQ3Ny44NCwwLDAsMCw2NS0xMC4wNXExLjQ3LDUuOTQsMi42LDExLjY0aDBDMzgzLjgxLDM3Ny41OCwzODQuNSwzOTkuNTYsMzgxLjMyLDQxNi43NVptMTcuNC0xMDIuNjRoMGMtMi42Mi44Ny01LjMyLDEuNzEtOC4wNiwyLjUzYTQ4My4yNiw0ODMuMjYsMCwwLDAtMjQuMzEtNjAuOTQsNDgxLjUyLDQ4MS41MiwwLDAsMCwyMy4zNi02MC4wNmM0LjkxLDEuNDMsOS42OCwyLjkzLDE0LjI3LDQuNTIsNDQuNDIsMTUuMzIsNzEuNTIsMzgsNzEuNTIsNTUuNDNDNDc1LjUsMjc0LjE5LDQ0Ni4yMywyOTguMzMsMzk4LjcyLDMxNC4xMVoiLz4KDTxwYXRoIGQ9Ik0yNTYsMjk4LjU1YTQzLDQzLDAsMSwwLTQyLjg2LTQzQTQyLjkxLDQyLjkxLDAsMCwwLDI1NiwyOTguNTVaIi8+Cg08L2c+Cg08L3N2Zz4=",
+    "typeSafeApis": [
+      {
+        "apiName": "MyService",
+        "apiSpecPath": "/MyService/api.json",
+      },
+    ],
   },
-  "src/hooks/useDefaultApiClient.ts": "import useSigV4Client from "@aws-northstar/ui/components/CognitoAuth/hooks/useSigv4Client";
-import { DefaultApi, Configuration } from "testapi-typescript-react-query-hooks";
+  "src/hooks/useTypeSafeApiClient.ts": "import useSigV4Client from "@aws-northstar/ui/components/CognitoAuth/hooks/useSigv4Client";
+import { DefaultApi as MyServiceApi, Configuration as MyServiceApiConfiguration } from "testapi-typescript-react-query-hooks";
 import { useContext, useMemo } from "react";
 import { RuntimeConfigContext } from "../components/RuntimeContext";
 
-export const useDefaultApiClient = () => {
+export const useMyServiceApiClient = () => {
   const client = useSigV4Client();
   const runtimeContext = useContext(RuntimeConfigContext);
 
   return useMemo(() => {
     return runtimeContext?.apiUrl
-      ? new DefaultApi(
-          new Configuration({
-            basePath: runtimeContext.apiUrl,
+      ? new MyServiceApi(
+          new MyServiceApiConfiguration({
+            basePath: runtimeContext.typeSafeApis["MyService"],
             fetchApi: client,
           })
         )
       : undefined;
-  }, [client, runtimeContext?.apiUrl]);
+  }, [client, runtimeContext?.typeSafeApis["MyService"]]);
 };
 ",
   "src/index.tsx": "/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
@@ -4026,7 +4058,6 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import Auth from "./components/Auth";
-import DefaultApiClientProvider from "./components/DefaultApi";
 import RuntimeContextProvider from "./components/RuntimeContext";
 import App from "./layouts/App";
 
@@ -4036,9 +4067,7 @@ createRoot(document.getElementById("root")!).render(
       <BrowserRouter>
         <RuntimeContextProvider>
           <Auth>
-            <DefaultApiClientProvider>
-              <App />
-            </DefaultApiClientProvider>
+            <App />
           </Auth>
         </RuntimeContextProvider>
       </BrowserRouter>
@@ -4218,9 +4247,11 @@ SPDX-License-Identifier: Apache-2.0 */
 import { useCognitoAuthContext } from "@aws-northstar/ui";
 import ErrorMessage from "@aws-northstar/ui/components/CognitoAuth/components/ErrorMessage";
 import getCredentials from "@aws-northstar/ui/components/CognitoAuth/hooks/useSigv4Client/utils/getCredentials";
+import { ButtonDropdown, Container, ContentLayout, Header } from "@cloudscape-design/components";
 import { useCallback, useContext, useEffect, useState } from "react";
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
+import Config from "../../config.json";
 import { RuntimeConfigContext } from "../../components/RuntimeContext";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const aws4Fetch = require("aws4fetch");
@@ -4230,26 +4261,30 @@ const aws4Fetch = require("aws4fetch");
  */
 const ApiExplorer: React.FC = () => {
   const runtimeContext = useContext(RuntimeConfigContext);
-  const [apiSpec, setApiSpec] = useState();
+  const [apiSpec, setApiSpec] = useState<{[apiName: string]: any}>({});
+  const [selectedApi, setSelectedApi] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
   const { getAuthenticatedUser, region, identityPoolId, userPoolId } =
     useCognitoAuthContext();
 
   // Load the OpenAPI spec
   useEffect(() => {
-    fetch("/api.json")
-      .then((response) => {
-        return response.json();
-      })
-      .then((_apiSpec) => {
-        // Inject the server API URL
-        setApiSpec({ ..._apiSpec, servers: [{ url: runtimeContext?.apiUrl }] });
-      })
-      .catch(() => {
-        setError(
-          "No OpenAPI definition detected. Ensure TypeSafeAPI is passed in to Cloudscape Website construct."
-        );
-      });
+    void (async () => {
+        try {
+            setApiSpec(
+                Object.fromEntries(
+                    (await Promise.all(Config.typeSafeApis
+                        .map(async ({apiName, apiSpecPath}) => [apiName, await fetch(apiSpecPath).then(res => res.json())])
+                    )).map(([apiName, _apiSpec]) => [apiName, {..._apiSpec, servers: [{ url: runtimeContext?.typeSafeApis[apiName] }]}])
+                )
+            );
+            setSelectedApi(Config.typeSafeApis[0].apiName); 
+        } catch(e) {
+            setError(
+                "No OpenAPI definition detected. Ensure TypeSafeAPI(s) are passed in to Cloudscape Website construct.",
+              );
+        }
+    })();
   }, []);
 
   /**
@@ -4260,7 +4295,7 @@ const ApiExplorer: React.FC = () => {
       getAuthenticatedUser()!,
       region,
       identityPoolId,
-      userPoolId
+      userPoolId,
     );
 
     // Sign the request
@@ -4292,8 +4327,18 @@ const ApiExplorer: React.FC = () => {
 
   return error ? (
     <ErrorMessage>{error}</ErrorMessage>
-  ) : apiSpec ? (
-    <SwaggerUI requestInterceptor={sigv4Interceptor} spec={apiSpec} />
+  ) : selectedApi ? (
+    <ContentLayout header={<Header variant="h1" actions={
+        <ButtonDropdown variant="primary" onItemClick={(e) => setSelectedApi(e.detail.id!)} items={[
+            {
+              text: "REST",
+              items: Config.typeSafeApis.map(tsApi => ({ text: tsApi.apiName, id: tsApi.apiName, disabled: selectedApi === tsApi.apiName }))
+            }
+          ]}>{selectedApi}</ButtonDropdown>}>API Explorer</Header>}>
+        <Container>
+            <SwaggerUI requestInterceptor={sigv4Interceptor} spec={apiSpec[selectedApi]} />
+        </Container> 
+    </ContentLayout>
   ) : (
     <></>
   );

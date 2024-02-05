@@ -1,0 +1,30 @@
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
+{{#typeSafeApis}}
+import { DefaultApiClientProvider as {{{apiNameSafe}}}ApiClientProvider } from "{{{hooksPackage}}}";
+{{/typeSafeApis}}
+import React from "react";
+import { {{#typeSafeApis}}use{{{apiNameSafe}}}ApiClient{{^isLast}}, {{/isLast}}{{/typeSafeApis}} } from "../../hooks/useTypeSafeApiClient";
+
+/**
+ * Sets up the Type Safe Api clients.
+ */
+const TypeSafeApiClientProvider: React.FC<any> = ({ children }) => {
+  {{#typeSafeApis}}
+  const {{{apiNameSafe}}}Client = use{{{apiNameSafe}}}ApiClient();
+  {{/typeSafeApis}}
+
+  return (
+    {{#typeSafeApis}}
+    {{=<% %>=}}
+    <<%apiNameSafe%>ApiClientProvider apiClient={<%apiNameSafe%>Client!}>
+    <%={{ }}=%>
+    {{/typeSafeApis}}
+      {children}
+    {{#typeSafeApisReversed}}
+    </{{{apiNameSafe}}}ApiClientProvider>
+    {{/typeSafeApisReversed}}
+  );
+};
+
+export default TypeSafeApiClientProvider;

@@ -1,0 +1,24 @@
+import useSigV4Client from "@aws-northstar/ui/components/CognitoAuth/hooks/useSigv4Client";
+{{#typeSafeApis}}
+import { DefaultApi as {{{apiNameSafe}}}Api, Configuration as {{{apiNameSafe}}}ApiConfiguration } from "{{{hooksPackage}}}";
+{{/typeSafeApis}}
+import { useContext, useMemo } from "react";
+import { RuntimeConfigContext } from "../components/RuntimeContext";
+
+{{#typeSafeApis}}
+export const use{{{apiNameSafe}}}ApiClient = () => {
+  const client = useSigV4Client();
+  const runtimeContext = useContext(RuntimeConfigContext);
+
+  return useMemo(() => {
+    return runtimeContext?.apiUrl
+      ? new {{{apiNameSafe}}}Api(
+          new {{{apiNameSafe}}}ApiConfiguration({
+            basePath: runtimeContext.typeSafeApis["{{{apiName}}}"],
+            fetchApi: client,
+          })
+        )
+      : undefined;
+  }, [client, runtimeContext?.typeSafeApis["{{{apiName}}}"]]);
+};
+{{/typeSafeApis}}

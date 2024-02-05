@@ -47,6 +47,11 @@ export class TypeSafeApiModelProject extends Project {
    */
   public readonly openapi?: OpenApiDefinition;
 
+  /**
+   * Name of the API. If Smithy, will resolve to serviceName otherwise it will use title.
+   */
+  public readonly apiName;
+
   constructor(options: TypeSafeApiModelProjectOptions) {
     super(options);
     TypeSafeApiCommandEnvironment.ensure(this);
@@ -57,6 +62,9 @@ export class TypeSafeApiModelProject extends Project {
     const { specPath, smithy, openapi } = this.addApiDefinition(options);
     this.smithy = smithy;
     this.openapi = openapi;
+    this.apiName =
+      options.modelOptions.smithy?.serviceName.serviceName ??
+      options.modelOptions.openapi?.title;
 
     // Parse and bundle the openapi specification
     this.addParseAndBundleTask(specPath);
