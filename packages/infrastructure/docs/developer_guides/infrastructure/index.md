@@ -34,8 +34,8 @@ To create the necessary boilerplate infrastructure, we need to instantiate an in
         parent: monorepo,
         outdir: "packages/infra",
         name: "infra",
-        cloudscapeReactTsWebsite: website,
-        typeSafeApi: api,
+        cloudscapeReactTsWebsites: [website],
+        typeSafeApis: [api],
     });
 
     monorepo.synth();
@@ -65,8 +65,8 @@ To create the necessary boilerplate infrastructure, we need to instantiate an in
         parent=monorepo,
         outdir="packages/infra",
         name="infra",
-        type_safe_api=api,
-        cloudscape_react_ts_website=website
+        type_safe_apis=[api],
+        cloudscape_react_ts_websites=[website]
     )
 
     monorepo.synth()
@@ -104,8 +104,8 @@ To create the necessary boilerplate infrastructure, we need to instantiate an in
                     .parent(monorepo)
                     .outdir("packages/infra")
                     .name("infra")
-                    .typeSafeApi(api)
-                    .cloudscapeReactTsWebsite(website)
+                    .typeSafeApis(Arrays.asList(api))
+                    .cloudscapeReactTsWebsites(Arrays.asList(website))
                     .build());
 
             monorepo.synth();

@@ -38,12 +38,12 @@ export interface InfrastructureTsProjectOptions
   readonly cloudscapeReactTsWebsite?: CloudscapeReactTsWebsiteProject;
 
   /**
-   * TypeSafeApi instance to use when setting up the initial project sample code.
+   * TypeSafeApi instances to use when setting up the initial project sample code.
    */
   readonly typeSafeApis?: TypeSafeApiProject[];
 
   /**
-   * CloudscapeReactTsWebsiteProject instance to use when setting up the initial project sample code.
+   * CloudscapeReactTsWebsiteProject instances to use when setting up the initial project sample code.
    */
   readonly cloudscapeReactTsWebsites?: CloudscapeReactTsWebsiteProject[];
 }

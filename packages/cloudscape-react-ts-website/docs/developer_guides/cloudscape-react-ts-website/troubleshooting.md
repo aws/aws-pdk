@@ -21,7 +21,7 @@ const adminWebsite = new StaticWebsite(this, "Website", {
       identityPoolId: identityPoolIdParam.stringValue,
       userPoolId: userPoolIdParam.stringValue,
       userPoolWebClientId: userPoolClientIdParam.stringValue,
-      apiUrl,
+      typeSafeApis,
     },
   },
   distributionProps: {

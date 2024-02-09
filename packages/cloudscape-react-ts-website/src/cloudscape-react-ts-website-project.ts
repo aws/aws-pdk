@@ -34,7 +34,7 @@ export interface CloudscapeReactTsWebsiteProjectOptions
   readonly typeSafeApi?: TypeSafeApiProject;
 
   /**
-   * TypeSafeApi instance to use when setting up the initial project sample code.
+   * TypeSafeApi instances to use when setting up the initial project sample code.
    */
   readonly typeSafeApis?: TypeSafeApiProject[];
 }
@@ -72,6 +72,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       },
       gitignore: [
         "public/runtime-config.json",
+        "public/api.json",
         "public/*/api.json",
         ...(options.gitignore || []),
       ],
