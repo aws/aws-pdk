@@ -4,6 +4,7 @@ import { CloudscapeReactTsWebsiteProject } from "@aws/cloudscape-react-ts-websit
 import { MonorepoTsProject } from "@aws/monorepo";
 import {
   Language,
+  Library,
   ModelLanguage,
   TypeSafeApiProject,
 } from "@aws/type-safe-api";
@@ -47,6 +48,9 @@ export const snapshotInfrastructureProject = <
     infrastructure: {
       language,
     },
+    library: {
+      libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+    },
   });
 
   const typeSafeApi2 = new TypeSafeApiProject({
@@ -67,6 +71,9 @@ export const snapshotInfrastructureProject = <
     infrastructure: {
       language,
     },
+    library: {
+      libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+    },
   });
 
   const cloudscapeReactTsWebsite = new CloudscapeReactTsWebsiteProject({
@@ -79,6 +86,7 @@ export const snapshotInfrastructureProject = <
     parent: monorepo,
     outdir: "website2",
     name: "Website2",
+    typeSafeApis: [typeSafeApi, typeSafeApi2],
   });
 
   new InfrastructureProject({

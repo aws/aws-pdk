@@ -6447,11 +6447,21 @@ import { StaticWebsite } from "@aws/pdk/static-website";
 import { Stack } from "aws-cdk-lib";
 import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
 import { Construct } from "constructs";
+import { Api } from "../apis/api";
+import { Api2 } from "../apis/api2";
 
 /**
  * Website construct props
  */
 export interface Website2Props {
+  /**
+   * Instance of an API to configure the website to integrate with
+   */
+  readonly api: Api;
+  /**
+   * Instance of an API to configure the website to integrate with
+   */
+  readonly api2: Api2;
 
   /**
    * Instance of the UserIdentity.
@@ -6475,7 +6485,7 @@ export class Website2 extends Construct {
           userPoolId: props?.userIdentity.userPool?.userPoolId,
           userPoolWebClientId:
             props?.userIdentity.userPoolClient?.userPoolClientId,
-          typeSafeApis: {  },
+          typeSafeApis: { Api: props?.api.api.api.urlForPath(),Api2: props?.api2.api.api.urlForPath() },
         },
       },
       distributionProps: {
@@ -6551,7 +6561,7 @@ export class ApplicationStack extends Stack {
       userIdentity,
     });
     new Website(this, "Website", { userIdentity });
-    new Website2(this, "Website2", { userIdentity });
+    new Website2(this, "Website2", { userIdentity, api, api2 });
   }
 }
 ",
@@ -7801,11 +7811,21 @@ import { StaticWebsite } from "@aws/pdk/static-website";
 import { Stack } from "aws-cdk-lib";
 import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
 import { Construct } from "constructs";
+import { Api } from "../apis/api";
+import { Api2 } from "../apis/api2";
 
 /**
  * Website construct props
  */
 export interface Website2Props {
+  /**
+   * Instance of an API to configure the website to integrate with
+   */
+  readonly api: Api;
+  /**
+   * Instance of an API to configure the website to integrate with
+   */
+  readonly api2: Api2;
 
   /**
    * Instance of the UserIdentity.
@@ -7829,7 +7849,7 @@ export class Website2 extends Construct {
           userPoolId: props?.userIdentity.userPool?.userPoolId,
           userPoolWebClientId:
             props?.userIdentity.userPoolClient?.userPoolClientId,
-          typeSafeApis: {  },
+          typeSafeApis: { Api: props?.api.api.api.urlForPath(),Api2: props?.api2.api.api.urlForPath() },
         },
       },
       distributionProps: {
@@ -7901,7 +7921,7 @@ export class ApplicationStack extends Stack {
       userIdentity,
     });
     new Website(this, "Website", { userIdentity });
-    new Website2(this, "Website2", { userIdentity });
+    new Website2(this, "Website2", { userIdentity, api, api2 });
   }
 }
 ",

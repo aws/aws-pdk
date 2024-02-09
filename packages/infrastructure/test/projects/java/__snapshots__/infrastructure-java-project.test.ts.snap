@@ -4168,13 +4168,15 @@ import software.aws.pdk.static_website.RuntimeOptions;
 import software.aws.pdk.static_website.StaticWebsite;
 import software.aws.pdk.static_website.StaticWebsiteProps;
 import software.constructs.Construct;
+import software.aws.infra.constructs.apis.Api;
+import software.aws.infra.constructs.apis.Api2;
 
 /**
  * Construct to deploy a Static Website
  */
 public class Website2 extends Construct {
 
-    public Website2(Construct scope, String id, UserIdentity userIdentity) {
+    public Website2(Construct scope, String id, UserIdentity userIdentity, Api api, Api2 api2) {
         super(scope, id);
 
         new StaticWebsite(this, id, StaticWebsiteProps.builder()
@@ -4186,6 +4188,8 @@ public class Website2 extends Construct {
                                 "userPoolId", userIdentity.getUserPool().getUserPoolId(),
                                 "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(),
                                 "typeSafeApis", Map.of(
+                                    "Api", api.api.getApi().urlForPath(),
+                                    "Api2", api2.api.getApi().urlForPath()
                                 )
                                 )))
                         .build())
@@ -4222,7 +4226,7 @@ public class ApplicationStack extends Stack {
         Api api = new Api(this, "Api", userIdentity);
         Api2 api2 = new Api2(this, "Api2", userIdentity);
         new Website(this, "Website", userIdentity);
-        new Website2(this, "Website2", userIdentity);
+        new Website2(this, "Website2", userIdentity, api, api2);
     }
 }
 ",
@@ -5066,13 +5070,15 @@ import software.aws.pdk.static_website.RuntimeOptions;
 import software.aws.pdk.static_website.StaticWebsite;
 import software.aws.pdk.static_website.StaticWebsiteProps;
 import software.constructs.Construct;
+import software.aws.infra.constructs.apis.Api;
+import software.aws.infra.constructs.apis.Api2;
 
 /**
  * Construct to deploy a Static Website
  */
 public class Website2 extends Construct {
 
-    public Website2(Construct scope, String id, UserIdentity userIdentity) {
+    public Website2(Construct scope, String id, UserIdentity userIdentity, Api api, Api2 api2) {
         super(scope, id);
 
         new StaticWebsite(this, id, StaticWebsiteProps.builder()
@@ -5084,6 +5090,8 @@ public class Website2 extends Construct {
                                 "userPoolId", userIdentity.getUserPool().getUserPoolId(),
                                 "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(),
                                 "typeSafeApis", Map.of(
+                                    "Api", api.api.getApi().urlForPath(),
+                                    "Api2", api2.api.getApi().urlForPath()
                                 )
                                 )))
                         .build())
@@ -5118,7 +5126,7 @@ public class ApplicationStack extends Stack {
         UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
         Api api = new Api(this, "Api", userIdentity);
         new Website(this, "Website", userIdentity);
-        new Website2(this, "Website2", userIdentity);
+        new Website2(this, "Website2", userIdentity, api, api2);
     }
 }
 ",

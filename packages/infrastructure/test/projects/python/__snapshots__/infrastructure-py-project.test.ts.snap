@@ -2984,12 +2984,14 @@ class Website(Construct):
   "infra/infra/constructs/websites/website2.py": "from aws_cdk import Stack
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
+from infra.constructs.apis.api import Api
+from infra.constructs.apis.api2 import Api2
 from aws_pdk.identity import UserIdentity
 from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionProps
 
 # Construct to deploy a Static Website
 class Website2(Construct):
-    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, api: Api, api2: Api2, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         StaticWebsite(self, id,
@@ -3000,7 +3002,7 @@ class Website2(Construct):
                             'identityPoolId': user_identity.identity_pool.identity_pool_id,
                             'userPoolId': user_identity.user_pool.user_pool_id,
                             'userPoolWebClientId': user_identity.user_pool_client.user_pool_client_id,
-                            'typeSafeApis': {  }
+                            'typeSafeApis': { 'Api': api.api.api.url_for_path(), 'Api2': api2.api.api.url_for_path() }
                         }
                       ),
                       distribution_props=DistributionProps(
@@ -3031,7 +3033,7 @@ class ApplicationStack(Stack):
         api = Api(self, 'Api', user_identity)
         api2 = Api2(self, 'Api2', user_identity)
         Website(self, 'Website', user_identity)
-        Website2(self, 'Website2', user_identity)
+        Website2(self, 'Website2', user_identity, api, api2)
 
 ",
   "infra/main.py": "import os
@@ -3681,12 +3683,14 @@ class Website(Construct):
   "infra/infra/constructs/websites/website2.py": "from aws_cdk import Stack
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
+from infra.constructs.apis.api import Api
+from infra.constructs.apis.api2 import Api2
 from aws_pdk.identity import UserIdentity
 from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionProps
 
 # Construct to deploy a Static Website
 class Website2(Construct):
-    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, api: Api, api2: Api2, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         StaticWebsite(self, id,
@@ -3697,7 +3701,7 @@ class Website2(Construct):
                             'identityPoolId': user_identity.identity_pool.identity_pool_id,
                             'userPoolId': user_identity.user_pool.user_pool_id,
                             'userPoolWebClientId': user_identity.user_pool_client.user_pool_client_id,
-                            'typeSafeApis': {  }
+                            'typeSafeApis': { 'Api': api.api.api.url_for_path(), 'Api2': api2.api.api.url_for_path() }
                         }
                       ),
                       distribution_props=DistributionProps(
@@ -3726,7 +3730,7 @@ class ApplicationStack(Stack):
         user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
         api = Api(self, 'Api', user_identity)
         Website(self, 'Website', user_identity)
-        Website2(self, 'Website2', user_identity)
+        Website2(self, 'Website2', user_identity, api, api2)
 
 ",
   "infra/main.py": "import os
