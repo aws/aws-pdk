@@ -1367,7 +1367,7 @@ public class Main {
     graph.report();
   }
 }",
-  "infra/src/main/java/software/aws/infra/constructs/ApiConstruct.java": "package software.aws.infra.constructs;
+  "infra/src/main/java/software/aws/infra/constructs/apis/Api.java": "package software.aws.infra.constructs.apis;
 
 import com.generated.api.Apijavainfra.infra.Api;
 import com.generated.api.Apijavainfra.infra.ApiProps;
@@ -1392,13 +1392,13 @@ import software.constructs.Construct;
 /**
  * Infrastructure construct to deploy a Type Safe API.
  */
-public class ApiConstruct extends Construct {
+public class Api extends Construct {
     /**
      * API instance
      */
     public final Api api;
 
-    public ApiConstruct(Construct scope, String id, UserIdentity userIdentity) {
+    public Api(Construct scope, String id, UserIdentity userIdentity) {
         super(scope, id);
 
         this.api = new Api(this, id, ApiProps.builder()
@@ -1445,7 +1445,7 @@ public class ApiConstruct extends Construct {
 
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
-import software.aws.infra.constructs.ApiConstruct;
+import software.aws.infra.constructs.apis.Api;
 import software.aws.pdk.identity.UserIdentity;
 import software.constructs.Construct;
 
@@ -1454,7 +1454,7 @@ public class ApplicationStack extends Stack {
         super(scope, id, props);
 
         UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
-        new ApiConstruct(this, "Api", userIdentity);
+        new Api(this, "Api", userIdentity);
     }
 }
 ",
@@ -2162,7 +2162,7 @@ public class Main {
     graph.report();
   }
 }",
-  "infra/src/main/java/software/aws/infra/constructs/ApiConstruct.java": "package software.aws.infra.constructs;
+  "infra/src/main/java/software/aws/infra/constructs/apis/Api.java": "package software.aws.infra.constructs.apis;
 
 import com.generated.api.Apijavainfra.infra.Api;
 import com.generated.api.Apijavainfra.infra.ApiProps;
@@ -2187,13 +2187,13 @@ import software.constructs.Construct;
 /**
  * Infrastructure construct to deploy a Type Safe API.
  */
-public class ApiConstruct extends Construct {
+public class Api extends Construct {
     /**
      * API instance
      */
     public final Api api;
 
-    public ApiConstruct(Construct scope, String id, UserIdentity userIdentity) {
+    public Api(Construct scope, String id, UserIdentity userIdentity) {
         super(scope, id);
 
         this.api = new Api(this, id, ApiProps.builder()
@@ -2236,7 +2236,7 @@ public class ApiConstruct extends Construct {
     }
 }
 ",
-  "infra/src/main/java/software/aws/infra/constructs/WebsiteConstruct.java": "package software.aws.infra.constructs;
+  "infra/src/main/java/software/aws/infra/constructs/websites/Website.java": "package software.aws.infra.constructs.websites;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -2253,9 +2253,9 @@ import software.constructs.Construct;
 /**
  * Construct to deploy a Static Website
  */
-public class WebsiteConstruct extends Construct {
+public class Website extends Construct {
 
-    public WebsiteConstruct(Construct scope, String id, UserIdentity userIdentity, ApiConstruct apiConstruct) {
+    public Website(Construct scope, String id, UserIdentity userIdentity) {
         super(scope, id);
 
         new StaticWebsite(this, id, StaticWebsiteProps.builder()
@@ -2266,7 +2266,8 @@ public class WebsiteConstruct extends Construct {
                                 "identityPoolId", userIdentity.getIdentityPool().getIdentityPoolId(),
                                 "userPoolId", userIdentity.getUserPool().getUserPoolId(),
                                 "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(),
-                                "apiUrl", apiConstruct.api.getApi().urlForPath()
+                                "typeSafeApis", Map.of(
+                                )
                                 )))
                         .build())
                 .distributionProps(DistributionProps.builder()
@@ -2287,8 +2288,8 @@ public class WebsiteConstruct extends Construct {
 
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
-import software.aws.infra.constructs.ApiConstruct;
-import software.aws.infra.constructs.WebsiteConstruct;
+import software.aws.infra.constructs.apis.Api;
+import software.aws.infra.constructs.websites.Website;
 import software.aws.pdk.identity.UserIdentity;
 import software.constructs.Construct;
 
@@ -2297,8 +2298,2827 @@ public class ApplicationStack extends Stack {
         super(scope, id, props);
 
         UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
-        ApiConstruct apiConstruct = new ApiConstruct(this, "Api", userIdentity);
-        new WebsiteConstruct(this, "Website", userIdentity, apiConstruct);
+        Api api = new Api(this, "Api", userIdentity);
+        new Website(this, "Website", userIdentity);
+    }
+}
+",
+  "infra/src/test/java/software/aws/infra/stacks/ApplicationStackTest.java": "package software.aws.infra.stacks;
+
+import au.com.origin.snapshots.junit5.SnapshotExtension;
+import software.amazon.awscdk.App;
+import software.amazon.awscdk.assertions.Template;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import au.com.origin.snapshots.Expect;
+
+// Ensure you extend your test class with the SnapshotExtension
+@ExtendWith(SnapshotExtension.class)
+public class ApplicationStackTest {
+  Expect expect;
+
+  @Test
+  public void myTest() {
+    App app = new App();
+    ApplicationStack stack = new ApplicationStack(app, "test", null);
+
+    Template template = Template.fromStack(stack);
+    expect.serializer("json").toMatchSnapshot(template.toJSON());
+  }
+}",
+  "infra/src/test/resources/snapshot.properties": "serializer=au.com.origin.snapshots.serializers.v1.ToStringSnapshotSerializer
+serializer.base64=au.com.origin.snapshots.serializers.v1.Base64SnapshotSerializer
+serializer.json=au.com.origin.snapshots.jackson.serializers.v1.JacksonSnapshotSerializer
+serializer.orderedJson=au.com.origin.snapshots.jackson.serializers.v1.DeterministicJacksonSnapshotSerializer
+comparator=au.com.origin.snapshots.comparators.v1.PlainTextEqualsComparator
+reporters=au.com.origin.snapshots.reporters.v1.PlainTextSnapshotReporter
+snapshot-dir=__snapshots__
+output-dir=src/test/java
+ci-env-var=CI
+update-snapshot=none",
+}
+`;
+
+exports[`InfrastructureJavaProject With Multiple Apis and Single Website 1`] = `
+{
+  "infra/.gitattributes": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+/.gitattributes linguist-generated
+/.gitignore linguist-generated
+/.projen/** linguist-generated
+/.projen/deps.json linguist-generated
+/.projen/files.json linguist-generated
+/.projen/tasks.json linguist-generated
+/cdk.json linguist-generated
+/pom.xml linguist-generated
+/project.json linguist-generated",
+  "infra/.gitignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+node_modules/
+!/.gitattributes
+!/.projen/tasks.json
+!/.projen/deps.json
+!/.projen/files.json
+!/pom.xml
+.classpath
+.project
+.settings
+target
+dist/java
+!/cdk.json
+/cdk.out/
+.cdk.staging/
+!/project.json
+",
+  "infra/.projen/deps.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": [
+      {
+        "metadata": {
+          "configuration": {
+            "release": "11",
+          },
+        },
+        "name": "org.apache.maven.plugins/maven-compiler-plugin",
+        "type": "build",
+        "version": "3.8.1",
+      },
+      {
+        "metadata": {
+          "configuration": {
+            "rules": [
+              {
+                "requireMavenVersion": [
+                  {
+                    "version": "3.6",
+                  },
+                ],
+              },
+            ],
+          },
+          "executions": [
+            {
+              "goals": [
+                "enforce",
+              ],
+              "id": "enforce-maven",
+            },
+          ],
+        },
+        "name": "org.apache.maven.plugins/maven-enforcer-plugin",
+        "type": "build",
+        "version": "3.0.0-M3",
+      },
+      {
+        "metadata": {
+          "configuration": {
+            "archive": {
+              "index": true,
+              "manifest": {
+                "addDefaultImplementationEntries": true,
+                "addDefaultSpecificationEntries": true,
+              },
+            },
+          },
+        },
+        "name": "org.apache.maven.plugins/maven-jar-plugin",
+        "type": "build",
+        "version": "3.2.0",
+      },
+      {
+        "metadata": {
+          "configuration": {
+            "additionalJOptions": {
+              "additionalJOption": [
+                "-J-XX:+TieredCompilation",
+                "-J-XX:TieredStopAtLevel=1",
+              ],
+            },
+            "detectJavaApiLink": false,
+            "failOnError": false,
+            "show": "protected",
+          },
+          "executions": [
+            {
+              "goals": [
+                "jar",
+              ],
+              "id": "attach-javadocs",
+            },
+          ],
+        },
+        "name": "org.apache.maven.plugins/maven-javadoc-plugin",
+        "type": "build",
+        "version": "3.2.0",
+      },
+      {
+        "metadata": {
+          "executions": [
+            {
+              "goals": [
+                "jar",
+              ],
+              "id": "attach-sources",
+            },
+          ],
+        },
+        "name": "org.apache.maven.plugins/maven-source-plugin",
+        "type": "build",
+        "version": "3.2.1",
+      },
+      {
+        "name": "org.apache.maven.plugins/maven-surefire-plugin",
+        "type": "build",
+        "version": "3.1.2",
+      },
+      {
+        "name": "com.generated.api/Api-java-infra",
+        "type": "runtime",
+        "version": "0.0.0",
+      },
+      {
+        "name": "com.generated.api/Api2-java-infra",
+        "type": "runtime",
+        "version": "0.0.0",
+      },
+      {
+        "name": "software.amazon.awscdk/aws-cdk-lib",
+        "type": "runtime",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "software.aws/pdk",
+        "type": "runtime",
+        "version": "^0",
+      },
+      {
+        "name": "software.constructs/constructs",
+        "type": "runtime",
+        "version": "^10.0.5",
+      },
+      {
+        "name": "io.github.origin-energy/java-snapshot-testing-junit5",
+        "type": "test",
+        "version": "^4.0.6",
+      },
+      {
+        "name": "io.github.origin-energy/java-snapshot-testing-plugin-jackson",
+        "type": "test",
+        "version": "^4.0.6",
+      },
+      {
+        "name": "org.junit.jupiter/junit-jupiter-api",
+        "type": "test",
+        "version": "^5",
+      },
+      {
+        "name": "org.junit.jupiter/junit-jupiter-engine",
+        "type": "test",
+        "version": "^5",
+      },
+      {
+        "name": "org.slf4j/slf4j-simple",
+        "type": "test",
+        "version": "2.0.0-alpha0",
+      },
+    ],
+  },
+  "infra/.projen/files.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "files": [
+      ".gitattributes",
+      ".gitignore",
+      ".projen/deps.json",
+      ".projen/files.json",
+      ".projen/tasks.json",
+      "cdk.json",
+      "pom.xml",
+      "project.json",
+    ],
+  },
+  "infra/.projen/tasks.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "tasks": {
+      "build": {
+        "description": "Full release build",
+        "name": "build",
+        "steps": [
+          {
+            "spawn": "pre-compile",
+          },
+          {
+            "spawn": "compile",
+          },
+          {
+            "spawn": "post-compile",
+          },
+          {
+            "spawn": "test",
+          },
+          {
+            "spawn": "package",
+          },
+        ],
+      },
+      "compile": {
+        "description": "Only compile",
+        "name": "compile",
+        "steps": [
+          {
+            "exec": "mvn compiler:compile",
+          },
+        ],
+      },
+      "default": {
+        "description": "Synthesize project files",
+        "name": "default",
+      },
+      "deploy": {
+        "description": "Deploys your CDK app to the AWS cloud",
+        "name": "deploy",
+        "steps": [
+          {
+            "exec": "cdk deploy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "deploy:dev": {
+        "description": "Performs a hotswap CDK deployment, useful for faster development cycles",
+        "name": "deploy:dev",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap-fallback --require-approval never",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "destroy": {
+        "description": "Destroys your cdk app in the AWS cloud",
+        "name": "destroy",
+        "steps": [
+          {
+            "exec": "cdk destroy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "diff": {
+        "description": "Diffs the currently deployed app against your code",
+        "name": "diff",
+        "steps": [
+          {
+            "exec": "cdk diff",
+          },
+        ],
+      },
+      "package": {
+        "description": "Creates the distribution package",
+        "env": {
+          "MAVEN_OPTS": "-XX:+TieredCompilation -XX:TieredStopAtLevel=1",
+        },
+        "name": "package",
+        "steps": [
+          {
+            "exec": "mkdir -p dist/java",
+          },
+          {
+            "exec": "mvn deploy -D=altDeploymentRepository=local::default::file:///$PWD/dist/java",
+          },
+        ],
+      },
+      "post-compile": {
+        "description": "Runs after successful compilation",
+        "name": "post-compile",
+        "steps": [
+          {
+            "spawn": "synth",
+          },
+        ],
+      },
+      "pre-compile": {
+        "description": "Prepare the project for compilation",
+        "name": "pre-compile",
+      },
+      "synth": {
+        "description": "Synthesizes your cdk app into cdk.out",
+        "name": "synth",
+        "steps": [
+          {
+            "exec": "cdk synth",
+          },
+        ],
+      },
+      "synth:silent": {
+        "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of "yarn build")",
+        "name": "synth:silent",
+        "steps": [
+          {
+            "exec": "cdk synth -q",
+          },
+        ],
+      },
+      "test": {
+        "description": "Run tests",
+        "name": "test",
+        "steps": [
+          {
+            "exec": "mvn test",
+          },
+        ],
+      },
+      "watch": {
+        "description": "Watches changes in your source code and rebuilds and deploys to the current account",
+        "name": "watch",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap",
+          },
+          {
+            "exec": "cdk watch",
+          },
+        ],
+      },
+    },
+  },
+  "infra/README.md": "## Getting started
+
+Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infrastructure/index.html)",
+  "infra/cdk.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "app": "mvn exec:java --quiet -Dexec.mainClass=software.aws.infra.Main",
+    "output": "cdk.out",
+  },
+  "infra/pom.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>software.aws.infra</groupId>
+    <artifactId>infra</artifactId>
+    <version>0.0.0</version>
+    <packaging>jar</packaging>
+    <name>WithMultipleApiAndSingleWebsite</name>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <repositories>
+        <repository>
+            <id>Apijavainfra</id>
+            <url>file://../api/generated/infrastructure/java/dist/java</url>
+        </repository>
+        <repository>
+            <id>Api2javainfra</id>
+            <url>file://../api2/generated/infrastructure/java/dist/java</url>
+        </repository>
+    </repositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <release>11</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <configuration>
+                    <rules>
+                        <requireMavenVersion>
+                            <version>3.6</version>
+                        </requireMavenVersion>
+                    </rules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <show>protected</show>
+                    <detectJavaApiLink>false</detectJavaApiLink>
+                    <additionalJOptions>
+                        <additionalJOption>-J-XX:+TieredCompilation</additionalJOption>
+                        <additionalJOption>-J-XX:TieredStopAtLevel=1</additionalJOption>
+                    </additionalJOptions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>com.generated.api</groupId>
+            <artifactId>Api-java-infra</artifactId>
+            <version>0.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.generated.api</groupId>
+            <artifactId>Api2-java-infra</artifactId>
+            <version>0.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awscdk</groupId>
+            <artifactId>aws-cdk-lib</artifactId>
+            <version>[2.1.0,3.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>software.aws</groupId>
+            <artifactId>pdk</artifactId>
+            <version>(,1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>software.constructs</groupId>
+            <artifactId>constructs</artifactId>
+            <version>[10.0.5,11.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.origin-energy</groupId>
+            <artifactId>java-snapshot-testing-junit5</artifactId>
+            <version>[4.0.6,5.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.origin-energy</groupId>
+            <artifactId>java-snapshot-testing-plugin-jackson</artifactId>
+            <version>[4.0.6,5.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>[5.0.0,6.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>[5.0.0,6.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.0-alpha0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
+<!-- ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen". -->",
+  "infra/project.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "implicitDependencies": [
+      "Apijavainfra",
+      "Api2javainfra",
+      "Website",
+    ],
+    "name": "WithMultipleApiAndSingleWebsite",
+    "root": "infra",
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen build",
+          "cwd": "infra",
+        },
+      },
+      "compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen compile",
+          "cwd": "infra",
+        },
+      },
+      "default": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen default",
+          "cwd": "infra",
+        },
+      },
+      "deploy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy",
+          "cwd": "infra",
+        },
+      },
+      "deploy:dev": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy:dev",
+          "cwd": "infra",
+        },
+      },
+      "destroy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen destroy",
+          "cwd": "infra",
+        },
+      },
+      "diff": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen diff",
+          "cwd": "infra",
+        },
+      },
+      "package": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen package",
+          "cwd": "infra",
+        },
+      },
+      "post-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen post-compile",
+          "cwd": "infra",
+        },
+      },
+      "pre-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen pre-compile",
+          "cwd": "infra",
+        },
+      },
+      "synth": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth",
+          "cwd": "infra",
+        },
+      },
+      "synth:silent": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth:silent",
+          "cwd": "infra",
+        },
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen test",
+          "cwd": "infra",
+        },
+      },
+      "watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen watch",
+          "cwd": "infra",
+        },
+      },
+    },
+  },
+  "infra/src/main/java/software/aws/infra/Main.java": "package software.aws.infra;
+
+import software.aws.pdk.cdk_graph.CdkGraph;
+import software.aws.pdk.cdk_graph.FilterPreset;
+import software.aws.pdk.cdk_graph.Filters;
+import software.aws.pdk.cdk_graph.ICdkGraphProps;
+import software.aws.pdk.cdk_graph.IFilter;
+import software.aws.pdk.cdk_graph.IGraphFilterPlan;
+import software.aws.pdk.cdk_graph_plugin_diagram.CdkGraphDiagramPlugin;
+import software.aws.pdk.cdk_graph_plugin_diagram.IDiagramConfigBase;
+import software.aws.pdk.cdk_graph_plugin_diagram.IPluginConfig;
+import software.aws.pdk.cdk_graph_plugin_threat_composer.CdkGraphThreatComposerPlugin;
+import software.aws.pdk.pdk_nag.AwsPrototypingChecks;
+import software.aws.pdk.pdk_nag.PDKNag;
+import software.aws.pdk.pdk_nag.PDKNagAppProps;
+
+import software.aws.infra.stacks.ApplicationStack;
+
+import java.util.Arrays;
+
+import software.amazon.awscdk.App;
+import software.amazon.awscdk.Environment;
+import software.amazon.awscdk.StackProps;
+
+public class Main {
+  public static void main(final String[] args) {
+    App app = PDKNag.app(PDKNagAppProps.builder()
+        .nagPacks(Arrays.asList(new AwsPrototypingChecks()))
+        .build());
+
+    new ApplicationStack(app, "infra-dev", StackProps.builder()
+        .env(Environment.builder()
+            .account(System.getenv("CDK_DEFAULT_ACCOUNT"))
+            .region(System.getenv("CDK_DEFAULT_REGION"))
+            .build())
+        .build());
+
+    CdkGraph graph = new CdkGraph(app, ICdkGraphProps.builder()
+        .plugins(Arrays.asList(
+            new CdkGraphDiagramPlugin(IPluginConfig.builder()
+                .defaults(IDiagramConfigBase.builder()
+                    .filterPlan(IGraphFilterPlan.builder()
+                        .preset(FilterPreset.COMPACT)
+                        .filters(Arrays.asList(IFilter.builder()
+                            .store(Filters.pruneCustomResources())
+                            .build()))
+                        .build())
+                    .build())
+                .build()),
+            new CdkGraphThreatComposerPlugin()
+        ))
+        .build());
+
+    app.synth();
+    graph.report();
+  }
+}",
+  "infra/src/main/java/software/aws/infra/constructs/apis/Api.java": "package software.aws.infra.constructs.apis;
+
+import com.generated.api.Apijavainfra.infra.Api;
+import com.generated.api.Apijavainfra.infra.ApiProps;
+import com.generated.api.Apijavainfra.infra.MockIntegrations;
+
+import java.util.Arrays;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.apigateway.Cors;
+import software.amazon.awscdk.services.apigateway.CorsOptions;
+import software.amazon.awscdk.services.iam.AccountPrincipal;
+import software.amazon.awscdk.services.iam.AnyPrincipal;
+import software.amazon.awscdk.services.iam.Effect;
+import software.amazon.awscdk.services.iam.PolicyDocument;
+import software.amazon.awscdk.services.iam.PolicyDocumentProps;
+import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.iam.PolicyStatementProps;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.type_safe_api.Authorizers;
+import software.constructs.Construct;
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+public class Api extends Construct {
+    /**
+     * API instance
+     */
+    public final Api api;
+
+    public Api(Construct scope, String id, UserIdentity userIdentity) {
+        super(scope, id);
+
+        this.api = new Api(this, id, ApiProps.builder()
+                .defaultAuthorizer(Authorizers.iam())
+                .corsOptions(CorsOptions.builder()
+                        .allowOrigins(Cors.ALL_ORIGINS)
+                        .allowMethods(Cors.ALL_METHODS)
+                        .build())
+                .integrations(MockIntegrations.mockAll().build())
+                .policy(new PolicyDocument(PolicyDocumentProps.builder()
+                    .statements(Arrays.asList(
+                        // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                        // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                        // users) and resources (ie which api paths may be invoked by which principal) if required.
+                        // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                        // still be granted access to the API.
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AccountPrincipal(Stack.of(this).getAccount())))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*"))
+                            .build()),
+                        // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AnyPrincipal()))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*/OPTIONS/*"))
+                            .build())
+                    ))
+                    .build()))
+                .build());
+        
+        userIdentity.getIdentityPool().getAuthenticatedRole()
+            .addToPrincipalPolicy(new PolicyStatement(PolicyStatementProps.builder()
+                .effect(Effect.ALLOW)
+                .actions(Arrays.asList("execute-api:Invoke"))
+                .resources(Arrays.asList(this.api.getApi().arnForExecuteApi("*", "/*", "*")))
+                .build()));
+    }
+}
+",
+  "infra/src/main/java/software/aws/infra/constructs/apis/Api2.java": "package software.aws.infra.constructs.apis;
+
+import com.generated.api.Api2javainfra.infra.Api;
+import com.generated.api.Api2javainfra.infra.ApiProps;
+import com.generated.api.Api2javainfra.infra.MockIntegrations;
+
+import java.util.Arrays;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.apigateway.Cors;
+import software.amazon.awscdk.services.apigateway.CorsOptions;
+import software.amazon.awscdk.services.iam.AccountPrincipal;
+import software.amazon.awscdk.services.iam.AnyPrincipal;
+import software.amazon.awscdk.services.iam.Effect;
+import software.amazon.awscdk.services.iam.PolicyDocument;
+import software.amazon.awscdk.services.iam.PolicyDocumentProps;
+import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.iam.PolicyStatementProps;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.type_safe_api.Authorizers;
+import software.constructs.Construct;
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+public class Api2 extends Construct {
+    /**
+     * API instance
+     */
+    public final Api api;
+
+    public Api2(Construct scope, String id, UserIdentity userIdentity) {
+        super(scope, id);
+
+        this.api = new Api(this, id, ApiProps.builder()
+                .defaultAuthorizer(Authorizers.iam())
+                .corsOptions(CorsOptions.builder()
+                        .allowOrigins(Cors.ALL_ORIGINS)
+                        .allowMethods(Cors.ALL_METHODS)
+                        .build())
+                .integrations(MockIntegrations.mockAll().build())
+                .policy(new PolicyDocument(PolicyDocumentProps.builder()
+                    .statements(Arrays.asList(
+                        // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                        // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                        // users) and resources (ie which api paths may be invoked by which principal) if required.
+                        // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                        // still be granted access to the API.
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AccountPrincipal(Stack.of(this).getAccount())))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*"))
+                            .build()),
+                        // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AnyPrincipal()))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*/OPTIONS/*"))
+                            .build())
+                    ))
+                    .build()))
+                .build());
+        
+        userIdentity.getIdentityPool().getAuthenticatedRole()
+            .addToPrincipalPolicy(new PolicyStatement(PolicyStatementProps.builder()
+                .effect(Effect.ALLOW)
+                .actions(Arrays.asList("execute-api:Invoke"))
+                .resources(Arrays.asList(this.api.getApi().arnForExecuteApi("*", "/*", "*")))
+                .build()));
+    }
+}
+",
+  "infra/src/main/java/software/aws/infra/constructs/websites/Website.java": "package software.aws.infra.constructs.websites;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.static_website.DistributionProps;
+import software.aws.pdk.static_website.RuntimeOptions;
+import software.aws.pdk.static_website.StaticWebsite;
+import software.aws.pdk.static_website.StaticWebsiteProps;
+import software.constructs.Construct;
+
+/**
+ * Construct to deploy a Static Website
+ */
+public class Website extends Construct {
+
+    public Website(Construct scope, String id, UserIdentity userIdentity) {
+        super(scope, id);
+
+        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+                .websiteContentPath("../website/build")
+                .runtimeOptions(RuntimeOptions.builder()
+                        .jsonPayload(new TreeMap<>(Map.of(
+                                "region", Stack.of(this).getRegion(),
+                                "identityPoolId", userIdentity.getIdentityPool().getIdentityPoolId(),
+                                "userPoolId", userIdentity.getUserPool().getUserPoolId(),
+                                "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(),
+                                "typeSafeApis", Map.of(
+                                )
+                                )))
+                        .build())
+                .distributionProps(DistributionProps.builder()
+                    .geoRestriction(GeoRestriction.allowlist(
+                        "AU",
+                        "ID",
+                        "IN",
+                        "JP",
+                        "KR",
+                        "SG",
+                        "US"))
+                    .build())
+                .build());
+    }
+}
+",
+  "infra/src/main/java/software/aws/infra/stacks/ApplicationStack.java": "package software.aws.infra.stacks;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.StackProps;
+import software.aws.infra.constructs.apis.Api;
+import software.aws.infra.constructs.apis.Api2;
+import software.aws.infra.constructs.websites.Website;
+import software.aws.pdk.identity.UserIdentity;
+import software.constructs.Construct;
+
+public class ApplicationStack extends Stack {
+    public ApplicationStack(Construct scope, String id, StackProps props) {
+        super(scope, id, props);
+
+        UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
+        Api api = new Api(this, "Api", userIdentity);
+        Api2 api2 = new Api2(this, "Api2", userIdentity);
+        new Website(this, "Website", userIdentity);
+    }
+}
+",
+  "infra/src/test/java/software/aws/infra/stacks/ApplicationStackTest.java": "package software.aws.infra.stacks;
+
+import au.com.origin.snapshots.junit5.SnapshotExtension;
+import software.amazon.awscdk.App;
+import software.amazon.awscdk.assertions.Template;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import au.com.origin.snapshots.Expect;
+
+// Ensure you extend your test class with the SnapshotExtension
+@ExtendWith(SnapshotExtension.class)
+public class ApplicationStackTest {
+  Expect expect;
+
+  @Test
+  public void myTest() {
+    App app = new App();
+    ApplicationStack stack = new ApplicationStack(app, "test", null);
+
+    Template template = Template.fromStack(stack);
+    expect.serializer("json").toMatchSnapshot(template.toJSON());
+  }
+}",
+  "infra/src/test/resources/snapshot.properties": "serializer=au.com.origin.snapshots.serializers.v1.ToStringSnapshotSerializer
+serializer.base64=au.com.origin.snapshots.serializers.v1.Base64SnapshotSerializer
+serializer.json=au.com.origin.snapshots.jackson.serializers.v1.JacksonSnapshotSerializer
+serializer.orderedJson=au.com.origin.snapshots.jackson.serializers.v1.DeterministicJacksonSnapshotSerializer
+comparator=au.com.origin.snapshots.comparators.v1.PlainTextEqualsComparator
+reporters=au.com.origin.snapshots.reporters.v1.PlainTextSnapshotReporter
+snapshot-dir=__snapshots__
+output-dir=src/test/java
+ci-env-var=CI
+update-snapshot=none",
+}
+`;
+
+exports[`InfrastructureJavaProject With Multiple Apis and Website 1`] = `
+{
+  "infra/.gitattributes": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+/.gitattributes linguist-generated
+/.gitignore linguist-generated
+/.projen/** linguist-generated
+/.projen/deps.json linguist-generated
+/.projen/files.json linguist-generated
+/.projen/tasks.json linguist-generated
+/cdk.json linguist-generated
+/pom.xml linguist-generated
+/project.json linguist-generated",
+  "infra/.gitignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+node_modules/
+!/.gitattributes
+!/.projen/tasks.json
+!/.projen/deps.json
+!/.projen/files.json
+!/pom.xml
+.classpath
+.project
+.settings
+target
+dist/java
+!/cdk.json
+/cdk.out/
+.cdk.staging/
+!/project.json
+",
+  "infra/.projen/deps.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": [
+      {
+        "metadata": {
+          "configuration": {
+            "release": "11",
+          },
+        },
+        "name": "org.apache.maven.plugins/maven-compiler-plugin",
+        "type": "build",
+        "version": "3.8.1",
+      },
+      {
+        "metadata": {
+          "configuration": {
+            "rules": [
+              {
+                "requireMavenVersion": [
+                  {
+                    "version": "3.6",
+                  },
+                ],
+              },
+            ],
+          },
+          "executions": [
+            {
+              "goals": [
+                "enforce",
+              ],
+              "id": "enforce-maven",
+            },
+          ],
+        },
+        "name": "org.apache.maven.plugins/maven-enforcer-plugin",
+        "type": "build",
+        "version": "3.0.0-M3",
+      },
+      {
+        "metadata": {
+          "configuration": {
+            "archive": {
+              "index": true,
+              "manifest": {
+                "addDefaultImplementationEntries": true,
+                "addDefaultSpecificationEntries": true,
+              },
+            },
+          },
+        },
+        "name": "org.apache.maven.plugins/maven-jar-plugin",
+        "type": "build",
+        "version": "3.2.0",
+      },
+      {
+        "metadata": {
+          "configuration": {
+            "additionalJOptions": {
+              "additionalJOption": [
+                "-J-XX:+TieredCompilation",
+                "-J-XX:TieredStopAtLevel=1",
+              ],
+            },
+            "detectJavaApiLink": false,
+            "failOnError": false,
+            "show": "protected",
+          },
+          "executions": [
+            {
+              "goals": [
+                "jar",
+              ],
+              "id": "attach-javadocs",
+            },
+          ],
+        },
+        "name": "org.apache.maven.plugins/maven-javadoc-plugin",
+        "type": "build",
+        "version": "3.2.0",
+      },
+      {
+        "metadata": {
+          "executions": [
+            {
+              "goals": [
+                "jar",
+              ],
+              "id": "attach-sources",
+            },
+          ],
+        },
+        "name": "org.apache.maven.plugins/maven-source-plugin",
+        "type": "build",
+        "version": "3.2.1",
+      },
+      {
+        "name": "org.apache.maven.plugins/maven-surefire-plugin",
+        "type": "build",
+        "version": "3.1.2",
+      },
+      {
+        "name": "com.generated.api/Api-java-infra",
+        "type": "runtime",
+        "version": "0.0.0",
+      },
+      {
+        "name": "com.generated.api/Api2-java-infra",
+        "type": "runtime",
+        "version": "0.0.0",
+      },
+      {
+        "name": "software.amazon.awscdk/aws-cdk-lib",
+        "type": "runtime",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "software.aws/pdk",
+        "type": "runtime",
+        "version": "^0",
+      },
+      {
+        "name": "software.constructs/constructs",
+        "type": "runtime",
+        "version": "^10.0.5",
+      },
+      {
+        "name": "io.github.origin-energy/java-snapshot-testing-junit5",
+        "type": "test",
+        "version": "^4.0.6",
+      },
+      {
+        "name": "io.github.origin-energy/java-snapshot-testing-plugin-jackson",
+        "type": "test",
+        "version": "^4.0.6",
+      },
+      {
+        "name": "org.junit.jupiter/junit-jupiter-api",
+        "type": "test",
+        "version": "^5",
+      },
+      {
+        "name": "org.junit.jupiter/junit-jupiter-engine",
+        "type": "test",
+        "version": "^5",
+      },
+      {
+        "name": "org.slf4j/slf4j-simple",
+        "type": "test",
+        "version": "2.0.0-alpha0",
+      },
+    ],
+  },
+  "infra/.projen/files.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "files": [
+      ".gitattributes",
+      ".gitignore",
+      ".projen/deps.json",
+      ".projen/files.json",
+      ".projen/tasks.json",
+      "cdk.json",
+      "pom.xml",
+      "project.json",
+    ],
+  },
+  "infra/.projen/tasks.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "tasks": {
+      "build": {
+        "description": "Full release build",
+        "name": "build",
+        "steps": [
+          {
+            "spawn": "pre-compile",
+          },
+          {
+            "spawn": "compile",
+          },
+          {
+            "spawn": "post-compile",
+          },
+          {
+            "spawn": "test",
+          },
+          {
+            "spawn": "package",
+          },
+        ],
+      },
+      "compile": {
+        "description": "Only compile",
+        "name": "compile",
+        "steps": [
+          {
+            "exec": "mvn compiler:compile",
+          },
+        ],
+      },
+      "default": {
+        "description": "Synthesize project files",
+        "name": "default",
+      },
+      "deploy": {
+        "description": "Deploys your CDK app to the AWS cloud",
+        "name": "deploy",
+        "steps": [
+          {
+            "exec": "cdk deploy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "deploy:dev": {
+        "description": "Performs a hotswap CDK deployment, useful for faster development cycles",
+        "name": "deploy:dev",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap-fallback --require-approval never",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "destroy": {
+        "description": "Destroys your cdk app in the AWS cloud",
+        "name": "destroy",
+        "steps": [
+          {
+            "exec": "cdk destroy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "diff": {
+        "description": "Diffs the currently deployed app against your code",
+        "name": "diff",
+        "steps": [
+          {
+            "exec": "cdk diff",
+          },
+        ],
+      },
+      "package": {
+        "description": "Creates the distribution package",
+        "env": {
+          "MAVEN_OPTS": "-XX:+TieredCompilation -XX:TieredStopAtLevel=1",
+        },
+        "name": "package",
+        "steps": [
+          {
+            "exec": "mkdir -p dist/java",
+          },
+          {
+            "exec": "mvn deploy -D=altDeploymentRepository=local::default::file:///$PWD/dist/java",
+          },
+        ],
+      },
+      "post-compile": {
+        "description": "Runs after successful compilation",
+        "name": "post-compile",
+        "steps": [
+          {
+            "spawn": "synth",
+          },
+        ],
+      },
+      "pre-compile": {
+        "description": "Prepare the project for compilation",
+        "name": "pre-compile",
+      },
+      "synth": {
+        "description": "Synthesizes your cdk app into cdk.out",
+        "name": "synth",
+        "steps": [
+          {
+            "exec": "cdk synth",
+          },
+        ],
+      },
+      "synth:silent": {
+        "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of "yarn build")",
+        "name": "synth:silent",
+        "steps": [
+          {
+            "exec": "cdk synth -q",
+          },
+        ],
+      },
+      "test": {
+        "description": "Run tests",
+        "name": "test",
+        "steps": [
+          {
+            "exec": "mvn test",
+          },
+        ],
+      },
+      "watch": {
+        "description": "Watches changes in your source code and rebuilds and deploys to the current account",
+        "name": "watch",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap",
+          },
+          {
+            "exec": "cdk watch",
+          },
+        ],
+      },
+    },
+  },
+  "infra/README.md": "## Getting started
+
+Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infrastructure/index.html)",
+  "infra/cdk.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "app": "mvn exec:java --quiet -Dexec.mainClass=software.aws.infra.Main",
+    "output": "cdk.out",
+  },
+  "infra/pom.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>software.aws.infra</groupId>
+    <artifactId>infra</artifactId>
+    <version>0.0.0</version>
+    <packaging>jar</packaging>
+    <name>WithMultipleApiAndWebsites</name>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <repositories>
+        <repository>
+            <id>Apijavainfra</id>
+            <url>file://../api/generated/infrastructure/java/dist/java</url>
+        </repository>
+        <repository>
+            <id>Api2javainfra</id>
+            <url>file://../api2/generated/infrastructure/java/dist/java</url>
+        </repository>
+    </repositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <release>11</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <configuration>
+                    <rules>
+                        <requireMavenVersion>
+                            <version>3.6</version>
+                        </requireMavenVersion>
+                    </rules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <show>protected</show>
+                    <detectJavaApiLink>false</detectJavaApiLink>
+                    <additionalJOptions>
+                        <additionalJOption>-J-XX:+TieredCompilation</additionalJOption>
+                        <additionalJOption>-J-XX:TieredStopAtLevel=1</additionalJOption>
+                    </additionalJOptions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>com.generated.api</groupId>
+            <artifactId>Api-java-infra</artifactId>
+            <version>0.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.generated.api</groupId>
+            <artifactId>Api2-java-infra</artifactId>
+            <version>0.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awscdk</groupId>
+            <artifactId>aws-cdk-lib</artifactId>
+            <version>[2.1.0,3.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>software.aws</groupId>
+            <artifactId>pdk</artifactId>
+            <version>(,1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>software.constructs</groupId>
+            <artifactId>constructs</artifactId>
+            <version>[10.0.5,11.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.origin-energy</groupId>
+            <artifactId>java-snapshot-testing-junit5</artifactId>
+            <version>[4.0.6,5.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.origin-energy</groupId>
+            <artifactId>java-snapshot-testing-plugin-jackson</artifactId>
+            <version>[4.0.6,5.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>[5.0.0,6.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>[5.0.0,6.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.0-alpha0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
+<!-- ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen". -->",
+  "infra/project.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "implicitDependencies": [
+      "Apijavainfra",
+      "Api2javainfra",
+      "Website",
+      "Website2",
+    ],
+    "name": "WithMultipleApiAndWebsites",
+    "root": "infra",
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen build",
+          "cwd": "infra",
+        },
+      },
+      "compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen compile",
+          "cwd": "infra",
+        },
+      },
+      "default": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen default",
+          "cwd": "infra",
+        },
+      },
+      "deploy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy",
+          "cwd": "infra",
+        },
+      },
+      "deploy:dev": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy:dev",
+          "cwd": "infra",
+        },
+      },
+      "destroy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen destroy",
+          "cwd": "infra",
+        },
+      },
+      "diff": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen diff",
+          "cwd": "infra",
+        },
+      },
+      "package": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen package",
+          "cwd": "infra",
+        },
+      },
+      "post-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen post-compile",
+          "cwd": "infra",
+        },
+      },
+      "pre-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen pre-compile",
+          "cwd": "infra",
+        },
+      },
+      "synth": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth",
+          "cwd": "infra",
+        },
+      },
+      "synth:silent": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth:silent",
+          "cwd": "infra",
+        },
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen test",
+          "cwd": "infra",
+        },
+      },
+      "watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen watch",
+          "cwd": "infra",
+        },
+      },
+    },
+  },
+  "infra/src/main/java/software/aws/infra/Main.java": "package software.aws.infra;
+
+import software.aws.pdk.cdk_graph.CdkGraph;
+import software.aws.pdk.cdk_graph.FilterPreset;
+import software.aws.pdk.cdk_graph.Filters;
+import software.aws.pdk.cdk_graph.ICdkGraphProps;
+import software.aws.pdk.cdk_graph.IFilter;
+import software.aws.pdk.cdk_graph.IGraphFilterPlan;
+import software.aws.pdk.cdk_graph_plugin_diagram.CdkGraphDiagramPlugin;
+import software.aws.pdk.cdk_graph_plugin_diagram.IDiagramConfigBase;
+import software.aws.pdk.cdk_graph_plugin_diagram.IPluginConfig;
+import software.aws.pdk.cdk_graph_plugin_threat_composer.CdkGraphThreatComposerPlugin;
+import software.aws.pdk.pdk_nag.AwsPrototypingChecks;
+import software.aws.pdk.pdk_nag.PDKNag;
+import software.aws.pdk.pdk_nag.PDKNagAppProps;
+
+import software.aws.infra.stacks.ApplicationStack;
+
+import java.util.Arrays;
+
+import software.amazon.awscdk.App;
+import software.amazon.awscdk.Environment;
+import software.amazon.awscdk.StackProps;
+
+public class Main {
+  public static void main(final String[] args) {
+    App app = PDKNag.app(PDKNagAppProps.builder()
+        .nagPacks(Arrays.asList(new AwsPrototypingChecks()))
+        .build());
+
+    new ApplicationStack(app, "infra-dev", StackProps.builder()
+        .env(Environment.builder()
+            .account(System.getenv("CDK_DEFAULT_ACCOUNT"))
+            .region(System.getenv("CDK_DEFAULT_REGION"))
+            .build())
+        .build());
+
+    CdkGraph graph = new CdkGraph(app, ICdkGraphProps.builder()
+        .plugins(Arrays.asList(
+            new CdkGraphDiagramPlugin(IPluginConfig.builder()
+                .defaults(IDiagramConfigBase.builder()
+                    .filterPlan(IGraphFilterPlan.builder()
+                        .preset(FilterPreset.COMPACT)
+                        .filters(Arrays.asList(IFilter.builder()
+                            .store(Filters.pruneCustomResources())
+                            .build()))
+                        .build())
+                    .build())
+                .build()),
+            new CdkGraphThreatComposerPlugin()
+        ))
+        .build());
+
+    app.synth();
+    graph.report();
+  }
+}",
+  "infra/src/main/java/software/aws/infra/constructs/apis/Api.java": "package software.aws.infra.constructs.apis;
+
+import com.generated.api.Apijavainfra.infra.Api;
+import com.generated.api.Apijavainfra.infra.ApiProps;
+import com.generated.api.Apijavainfra.infra.MockIntegrations;
+
+import java.util.Arrays;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.apigateway.Cors;
+import software.amazon.awscdk.services.apigateway.CorsOptions;
+import software.amazon.awscdk.services.iam.AccountPrincipal;
+import software.amazon.awscdk.services.iam.AnyPrincipal;
+import software.amazon.awscdk.services.iam.Effect;
+import software.amazon.awscdk.services.iam.PolicyDocument;
+import software.amazon.awscdk.services.iam.PolicyDocumentProps;
+import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.iam.PolicyStatementProps;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.type_safe_api.Authorizers;
+import software.constructs.Construct;
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+public class Api extends Construct {
+    /**
+     * API instance
+     */
+    public final Api api;
+
+    public Api(Construct scope, String id, UserIdentity userIdentity) {
+        super(scope, id);
+
+        this.api = new Api(this, id, ApiProps.builder()
+                .defaultAuthorizer(Authorizers.iam())
+                .corsOptions(CorsOptions.builder()
+                        .allowOrigins(Cors.ALL_ORIGINS)
+                        .allowMethods(Cors.ALL_METHODS)
+                        .build())
+                .integrations(MockIntegrations.mockAll().build())
+                .policy(new PolicyDocument(PolicyDocumentProps.builder()
+                    .statements(Arrays.asList(
+                        // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                        // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                        // users) and resources (ie which api paths may be invoked by which principal) if required.
+                        // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                        // still be granted access to the API.
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AccountPrincipal(Stack.of(this).getAccount())))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*"))
+                            .build()),
+                        // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AnyPrincipal()))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*/OPTIONS/*"))
+                            .build())
+                    ))
+                    .build()))
+                .build());
+        
+        userIdentity.getIdentityPool().getAuthenticatedRole()
+            .addToPrincipalPolicy(new PolicyStatement(PolicyStatementProps.builder()
+                .effect(Effect.ALLOW)
+                .actions(Arrays.asList("execute-api:Invoke"))
+                .resources(Arrays.asList(this.api.getApi().arnForExecuteApi("*", "/*", "*")))
+                .build()));
+    }
+}
+",
+  "infra/src/main/java/software/aws/infra/constructs/apis/Api2.java": "package software.aws.infra.constructs.apis;
+
+import com.generated.api.Api2javainfra.infra.Api;
+import com.generated.api.Api2javainfra.infra.ApiProps;
+import com.generated.api.Api2javainfra.infra.MockIntegrations;
+
+import java.util.Arrays;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.apigateway.Cors;
+import software.amazon.awscdk.services.apigateway.CorsOptions;
+import software.amazon.awscdk.services.iam.AccountPrincipal;
+import software.amazon.awscdk.services.iam.AnyPrincipal;
+import software.amazon.awscdk.services.iam.Effect;
+import software.amazon.awscdk.services.iam.PolicyDocument;
+import software.amazon.awscdk.services.iam.PolicyDocumentProps;
+import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.iam.PolicyStatementProps;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.type_safe_api.Authorizers;
+import software.constructs.Construct;
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+public class Api2 extends Construct {
+    /**
+     * API instance
+     */
+    public final Api api;
+
+    public Api2(Construct scope, String id, UserIdentity userIdentity) {
+        super(scope, id);
+
+        this.api = new Api(this, id, ApiProps.builder()
+                .defaultAuthorizer(Authorizers.iam())
+                .corsOptions(CorsOptions.builder()
+                        .allowOrigins(Cors.ALL_ORIGINS)
+                        .allowMethods(Cors.ALL_METHODS)
+                        .build())
+                .integrations(MockIntegrations.mockAll().build())
+                .policy(new PolicyDocument(PolicyDocumentProps.builder()
+                    .statements(Arrays.asList(
+                        // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                        // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                        // users) and resources (ie which api paths may be invoked by which principal) if required.
+                        // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                        // still be granted access to the API.
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AccountPrincipal(Stack.of(this).getAccount())))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*"))
+                            .build()),
+                        // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AnyPrincipal()))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*/OPTIONS/*"))
+                            .build())
+                    ))
+                    .build()))
+                .build());
+        
+        userIdentity.getIdentityPool().getAuthenticatedRole()
+            .addToPrincipalPolicy(new PolicyStatement(PolicyStatementProps.builder()
+                .effect(Effect.ALLOW)
+                .actions(Arrays.asList("execute-api:Invoke"))
+                .resources(Arrays.asList(this.api.getApi().arnForExecuteApi("*", "/*", "*")))
+                .build()));
+    }
+}
+",
+  "infra/src/main/java/software/aws/infra/constructs/websites/Website.java": "package software.aws.infra.constructs.websites;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.static_website.DistributionProps;
+import software.aws.pdk.static_website.RuntimeOptions;
+import software.aws.pdk.static_website.StaticWebsite;
+import software.aws.pdk.static_website.StaticWebsiteProps;
+import software.constructs.Construct;
+
+/**
+ * Construct to deploy a Static Website
+ */
+public class Website extends Construct {
+
+    public Website(Construct scope, String id, UserIdentity userIdentity) {
+        super(scope, id);
+
+        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+                .websiteContentPath("../website/build")
+                .runtimeOptions(RuntimeOptions.builder()
+                        .jsonPayload(new TreeMap<>(Map.of(
+                                "region", Stack.of(this).getRegion(),
+                                "identityPoolId", userIdentity.getIdentityPool().getIdentityPoolId(),
+                                "userPoolId", userIdentity.getUserPool().getUserPoolId(),
+                                "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(),
+                                "typeSafeApis", Map.of(
+                                )
+                                )))
+                        .build())
+                .distributionProps(DistributionProps.builder()
+                    .geoRestriction(GeoRestriction.allowlist(
+                        "AU",
+                        "ID",
+                        "IN",
+                        "JP",
+                        "KR",
+                        "SG",
+                        "US"))
+                    .build())
+                .build());
+    }
+}
+",
+  "infra/src/main/java/software/aws/infra/constructs/websites/Website2.java": "package software.aws.infra.constructs.websites;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.static_website.DistributionProps;
+import software.aws.pdk.static_website.RuntimeOptions;
+import software.aws.pdk.static_website.StaticWebsite;
+import software.aws.pdk.static_website.StaticWebsiteProps;
+import software.constructs.Construct;
+
+/**
+ * Construct to deploy a Static Website
+ */
+public class Website2 extends Construct {
+
+    public Website2(Construct scope, String id, UserIdentity userIdentity) {
+        super(scope, id);
+
+        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+                .websiteContentPath("../website2/build")
+                .runtimeOptions(RuntimeOptions.builder()
+                        .jsonPayload(new TreeMap<>(Map.of(
+                                "region", Stack.of(this).getRegion(),
+                                "identityPoolId", userIdentity.getIdentityPool().getIdentityPoolId(),
+                                "userPoolId", userIdentity.getUserPool().getUserPoolId(),
+                                "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(),
+                                "typeSafeApis", Map.of(
+                                )
+                                )))
+                        .build())
+                .distributionProps(DistributionProps.builder()
+                    .geoRestriction(GeoRestriction.allowlist(
+                        "AU",
+                        "ID",
+                        "IN",
+                        "JP",
+                        "KR",
+                        "SG",
+                        "US"))
+                    .build())
+                .build());
+    }
+}
+",
+  "infra/src/main/java/software/aws/infra/stacks/ApplicationStack.java": "package software.aws.infra.stacks;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.StackProps;
+import software.aws.infra.constructs.apis.Api;
+import software.aws.infra.constructs.apis.Api2;
+import software.aws.infra.constructs.websites.Website;
+import software.aws.infra.constructs.websites.Website2;
+import software.aws.pdk.identity.UserIdentity;
+import software.constructs.Construct;
+
+public class ApplicationStack extends Stack {
+    public ApplicationStack(Construct scope, String id, StackProps props) {
+        super(scope, id, props);
+
+        UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
+        Api api = new Api(this, "Api", userIdentity);
+        Api2 api2 = new Api2(this, "Api2", userIdentity);
+        new Website(this, "Website", userIdentity);
+        new Website2(this, "Website2", userIdentity);
+    }
+}
+",
+  "infra/src/test/java/software/aws/infra/stacks/ApplicationStackTest.java": "package software.aws.infra.stacks;
+
+import au.com.origin.snapshots.junit5.SnapshotExtension;
+import software.amazon.awscdk.App;
+import software.amazon.awscdk.assertions.Template;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import au.com.origin.snapshots.Expect;
+
+// Ensure you extend your test class with the SnapshotExtension
+@ExtendWith(SnapshotExtension.class)
+public class ApplicationStackTest {
+  Expect expect;
+
+  @Test
+  public void myTest() {
+    App app = new App();
+    ApplicationStack stack = new ApplicationStack(app, "test", null);
+
+    Template template = Template.fromStack(stack);
+    expect.serializer("json").toMatchSnapshot(template.toJSON());
+  }
+}",
+  "infra/src/test/resources/snapshot.properties": "serializer=au.com.origin.snapshots.serializers.v1.ToStringSnapshotSerializer
+serializer.base64=au.com.origin.snapshots.serializers.v1.Base64SnapshotSerializer
+serializer.json=au.com.origin.snapshots.jackson.serializers.v1.JacksonSnapshotSerializer
+serializer.orderedJson=au.com.origin.snapshots.jackson.serializers.v1.DeterministicJacksonSnapshotSerializer
+comparator=au.com.origin.snapshots.comparators.v1.PlainTextEqualsComparator
+reporters=au.com.origin.snapshots.reporters.v1.PlainTextSnapshotReporter
+snapshot-dir=__snapshots__
+output-dir=src/test/java
+ci-env-var=CI
+update-snapshot=none",
+}
+`;
+
+exports[`InfrastructureJavaProject With Multiple Websites and Single API 1`] = `
+{
+  "infra/.gitattributes": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+/.gitattributes linguist-generated
+/.gitignore linguist-generated
+/.projen/** linguist-generated
+/.projen/deps.json linguist-generated
+/.projen/files.json linguist-generated
+/.projen/tasks.json linguist-generated
+/cdk.json linguist-generated
+/pom.xml linguist-generated
+/project.json linguist-generated",
+  "infra/.gitignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+node_modules/
+!/.gitattributes
+!/.projen/tasks.json
+!/.projen/deps.json
+!/.projen/files.json
+!/pom.xml
+.classpath
+.project
+.settings
+target
+dist/java
+!/cdk.json
+/cdk.out/
+.cdk.staging/
+!/project.json
+",
+  "infra/.projen/deps.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": [
+      {
+        "metadata": {
+          "configuration": {
+            "release": "11",
+          },
+        },
+        "name": "org.apache.maven.plugins/maven-compiler-plugin",
+        "type": "build",
+        "version": "3.8.1",
+      },
+      {
+        "metadata": {
+          "configuration": {
+            "rules": [
+              {
+                "requireMavenVersion": [
+                  {
+                    "version": "3.6",
+                  },
+                ],
+              },
+            ],
+          },
+          "executions": [
+            {
+              "goals": [
+                "enforce",
+              ],
+              "id": "enforce-maven",
+            },
+          ],
+        },
+        "name": "org.apache.maven.plugins/maven-enforcer-plugin",
+        "type": "build",
+        "version": "3.0.0-M3",
+      },
+      {
+        "metadata": {
+          "configuration": {
+            "archive": {
+              "index": true,
+              "manifest": {
+                "addDefaultImplementationEntries": true,
+                "addDefaultSpecificationEntries": true,
+              },
+            },
+          },
+        },
+        "name": "org.apache.maven.plugins/maven-jar-plugin",
+        "type": "build",
+        "version": "3.2.0",
+      },
+      {
+        "metadata": {
+          "configuration": {
+            "additionalJOptions": {
+              "additionalJOption": [
+                "-J-XX:+TieredCompilation",
+                "-J-XX:TieredStopAtLevel=1",
+              ],
+            },
+            "detectJavaApiLink": false,
+            "failOnError": false,
+            "show": "protected",
+          },
+          "executions": [
+            {
+              "goals": [
+                "jar",
+              ],
+              "id": "attach-javadocs",
+            },
+          ],
+        },
+        "name": "org.apache.maven.plugins/maven-javadoc-plugin",
+        "type": "build",
+        "version": "3.2.0",
+      },
+      {
+        "metadata": {
+          "executions": [
+            {
+              "goals": [
+                "jar",
+              ],
+              "id": "attach-sources",
+            },
+          ],
+        },
+        "name": "org.apache.maven.plugins/maven-source-plugin",
+        "type": "build",
+        "version": "3.2.1",
+      },
+      {
+        "name": "org.apache.maven.plugins/maven-surefire-plugin",
+        "type": "build",
+        "version": "3.1.2",
+      },
+      {
+        "name": "com.generated.api/Api-java-infra",
+        "type": "runtime",
+        "version": "0.0.0",
+      },
+      {
+        "name": "software.amazon.awscdk/aws-cdk-lib",
+        "type": "runtime",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "software.aws/pdk",
+        "type": "runtime",
+        "version": "^0",
+      },
+      {
+        "name": "software.constructs/constructs",
+        "type": "runtime",
+        "version": "^10.0.5",
+      },
+      {
+        "name": "io.github.origin-energy/java-snapshot-testing-junit5",
+        "type": "test",
+        "version": "^4.0.6",
+      },
+      {
+        "name": "io.github.origin-energy/java-snapshot-testing-plugin-jackson",
+        "type": "test",
+        "version": "^4.0.6",
+      },
+      {
+        "name": "org.junit.jupiter/junit-jupiter-api",
+        "type": "test",
+        "version": "^5",
+      },
+      {
+        "name": "org.junit.jupiter/junit-jupiter-engine",
+        "type": "test",
+        "version": "^5",
+      },
+      {
+        "name": "org.slf4j/slf4j-simple",
+        "type": "test",
+        "version": "2.0.0-alpha0",
+      },
+    ],
+  },
+  "infra/.projen/files.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "files": [
+      ".gitattributes",
+      ".gitignore",
+      ".projen/deps.json",
+      ".projen/files.json",
+      ".projen/tasks.json",
+      "cdk.json",
+      "pom.xml",
+      "project.json",
+    ],
+  },
+  "infra/.projen/tasks.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "tasks": {
+      "build": {
+        "description": "Full release build",
+        "name": "build",
+        "steps": [
+          {
+            "spawn": "pre-compile",
+          },
+          {
+            "spawn": "compile",
+          },
+          {
+            "spawn": "post-compile",
+          },
+          {
+            "spawn": "test",
+          },
+          {
+            "spawn": "package",
+          },
+        ],
+      },
+      "compile": {
+        "description": "Only compile",
+        "name": "compile",
+        "steps": [
+          {
+            "exec": "mvn compiler:compile",
+          },
+        ],
+      },
+      "default": {
+        "description": "Synthesize project files",
+        "name": "default",
+      },
+      "deploy": {
+        "description": "Deploys your CDK app to the AWS cloud",
+        "name": "deploy",
+        "steps": [
+          {
+            "exec": "cdk deploy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "deploy:dev": {
+        "description": "Performs a hotswap CDK deployment, useful for faster development cycles",
+        "name": "deploy:dev",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap-fallback --require-approval never",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "destroy": {
+        "description": "Destroys your cdk app in the AWS cloud",
+        "name": "destroy",
+        "steps": [
+          {
+            "exec": "cdk destroy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "diff": {
+        "description": "Diffs the currently deployed app against your code",
+        "name": "diff",
+        "steps": [
+          {
+            "exec": "cdk diff",
+          },
+        ],
+      },
+      "package": {
+        "description": "Creates the distribution package",
+        "env": {
+          "MAVEN_OPTS": "-XX:+TieredCompilation -XX:TieredStopAtLevel=1",
+        },
+        "name": "package",
+        "steps": [
+          {
+            "exec": "mkdir -p dist/java",
+          },
+          {
+            "exec": "mvn deploy -D=altDeploymentRepository=local::default::file:///$PWD/dist/java",
+          },
+        ],
+      },
+      "post-compile": {
+        "description": "Runs after successful compilation",
+        "name": "post-compile",
+        "steps": [
+          {
+            "spawn": "synth",
+          },
+        ],
+      },
+      "pre-compile": {
+        "description": "Prepare the project for compilation",
+        "name": "pre-compile",
+      },
+      "synth": {
+        "description": "Synthesizes your cdk app into cdk.out",
+        "name": "synth",
+        "steps": [
+          {
+            "exec": "cdk synth",
+          },
+        ],
+      },
+      "synth:silent": {
+        "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of "yarn build")",
+        "name": "synth:silent",
+        "steps": [
+          {
+            "exec": "cdk synth -q",
+          },
+        ],
+      },
+      "test": {
+        "description": "Run tests",
+        "name": "test",
+        "steps": [
+          {
+            "exec": "mvn test",
+          },
+        ],
+      },
+      "watch": {
+        "description": "Watches changes in your source code and rebuilds and deploys to the current account",
+        "name": "watch",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap",
+          },
+          {
+            "exec": "cdk watch",
+          },
+        ],
+      },
+    },
+  },
+  "infra/README.md": "## Getting started
+
+Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infrastructure/index.html)",
+  "infra/cdk.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "app": "mvn exec:java --quiet -Dexec.mainClass=software.aws.infra.Main",
+    "output": "cdk.out",
+  },
+  "infra/pom.xml": "<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>software.aws.infra</groupId>
+    <artifactId>infra</artifactId>
+    <version>0.0.0</version>
+    <packaging>jar</packaging>
+    <name>WithMultipleWebsiteSingleApi</name>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <repositories>
+        <repository>
+            <id>Apijavainfra</id>
+            <url>file://../api/generated/infrastructure/java/dist/java</url>
+        </repository>
+    </repositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <release>11</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <configuration>
+                    <rules>
+                        <requireMavenVersion>
+                            <version>3.6</version>
+                        </requireMavenVersion>
+                    </rules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <show>protected</show>
+                    <detectJavaApiLink>false</detectJavaApiLink>
+                    <additionalJOptions>
+                        <additionalJOption>-J-XX:+TieredCompilation</additionalJOption>
+                        <additionalJOption>-J-XX:TieredStopAtLevel=1</additionalJOption>
+                    </additionalJOptions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>com.generated.api</groupId>
+            <artifactId>Api-java-infra</artifactId>
+            <version>0.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awscdk</groupId>
+            <artifactId>aws-cdk-lib</artifactId>
+            <version>[2.1.0,3.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>software.aws</groupId>
+            <artifactId>pdk</artifactId>
+            <version>(,1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>software.constructs</groupId>
+            <artifactId>constructs</artifactId>
+            <version>[10.0.5,11.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.origin-energy</groupId>
+            <artifactId>java-snapshot-testing-junit5</artifactId>
+            <version>[4.0.6,5.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.origin-energy</groupId>
+            <artifactId>java-snapshot-testing-plugin-jackson</artifactId>
+            <version>[4.0.6,5.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>[5.0.0,6.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>[5.0.0,6.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.0-alpha0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
+<!-- ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen". -->",
+  "infra/project.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "implicitDependencies": [
+      "Apijavainfra",
+      "Website",
+      "Website2",
+    ],
+    "name": "WithMultipleWebsiteSingleApi",
+    "root": "infra",
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen build",
+          "cwd": "infra",
+        },
+      },
+      "compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen compile",
+          "cwd": "infra",
+        },
+      },
+      "default": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen default",
+          "cwd": "infra",
+        },
+      },
+      "deploy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy",
+          "cwd": "infra",
+        },
+      },
+      "deploy:dev": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy:dev",
+          "cwd": "infra",
+        },
+      },
+      "destroy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen destroy",
+          "cwd": "infra",
+        },
+      },
+      "diff": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen diff",
+          "cwd": "infra",
+        },
+      },
+      "package": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen package",
+          "cwd": "infra",
+        },
+      },
+      "post-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen post-compile",
+          "cwd": "infra",
+        },
+      },
+      "pre-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen pre-compile",
+          "cwd": "infra",
+        },
+      },
+      "synth": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth",
+          "cwd": "infra",
+        },
+      },
+      "synth:silent": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth:silent",
+          "cwd": "infra",
+        },
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen test",
+          "cwd": "infra",
+        },
+      },
+      "watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen watch",
+          "cwd": "infra",
+        },
+      },
+    },
+  },
+  "infra/src/main/java/software/aws/infra/Main.java": "package software.aws.infra;
+
+import software.aws.pdk.cdk_graph.CdkGraph;
+import software.aws.pdk.cdk_graph.FilterPreset;
+import software.aws.pdk.cdk_graph.Filters;
+import software.aws.pdk.cdk_graph.ICdkGraphProps;
+import software.aws.pdk.cdk_graph.IFilter;
+import software.aws.pdk.cdk_graph.IGraphFilterPlan;
+import software.aws.pdk.cdk_graph_plugin_diagram.CdkGraphDiagramPlugin;
+import software.aws.pdk.cdk_graph_plugin_diagram.IDiagramConfigBase;
+import software.aws.pdk.cdk_graph_plugin_diagram.IPluginConfig;
+import software.aws.pdk.cdk_graph_plugin_threat_composer.CdkGraphThreatComposerPlugin;
+import software.aws.pdk.pdk_nag.AwsPrototypingChecks;
+import software.aws.pdk.pdk_nag.PDKNag;
+import software.aws.pdk.pdk_nag.PDKNagAppProps;
+
+import software.aws.infra.stacks.ApplicationStack;
+
+import java.util.Arrays;
+
+import software.amazon.awscdk.App;
+import software.amazon.awscdk.Environment;
+import software.amazon.awscdk.StackProps;
+
+public class Main {
+  public static void main(final String[] args) {
+    App app = PDKNag.app(PDKNagAppProps.builder()
+        .nagPacks(Arrays.asList(new AwsPrototypingChecks()))
+        .build());
+
+    new ApplicationStack(app, "infra-dev", StackProps.builder()
+        .env(Environment.builder()
+            .account(System.getenv("CDK_DEFAULT_ACCOUNT"))
+            .region(System.getenv("CDK_DEFAULT_REGION"))
+            .build())
+        .build());
+
+    CdkGraph graph = new CdkGraph(app, ICdkGraphProps.builder()
+        .plugins(Arrays.asList(
+            new CdkGraphDiagramPlugin(IPluginConfig.builder()
+                .defaults(IDiagramConfigBase.builder()
+                    .filterPlan(IGraphFilterPlan.builder()
+                        .preset(FilterPreset.COMPACT)
+                        .filters(Arrays.asList(IFilter.builder()
+                            .store(Filters.pruneCustomResources())
+                            .build()))
+                        .build())
+                    .build())
+                .build()),
+            new CdkGraphThreatComposerPlugin()
+        ))
+        .build());
+
+    app.synth();
+    graph.report();
+  }
+}",
+  "infra/src/main/java/software/aws/infra/constructs/apis/Api.java": "package software.aws.infra.constructs.apis;
+
+import com.generated.api.Apijavainfra.infra.Api;
+import com.generated.api.Apijavainfra.infra.ApiProps;
+import com.generated.api.Apijavainfra.infra.MockIntegrations;
+
+import java.util.Arrays;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.apigateway.Cors;
+import software.amazon.awscdk.services.apigateway.CorsOptions;
+import software.amazon.awscdk.services.iam.AccountPrincipal;
+import software.amazon.awscdk.services.iam.AnyPrincipal;
+import software.amazon.awscdk.services.iam.Effect;
+import software.amazon.awscdk.services.iam.PolicyDocument;
+import software.amazon.awscdk.services.iam.PolicyDocumentProps;
+import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.iam.PolicyStatementProps;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.type_safe_api.Authorizers;
+import software.constructs.Construct;
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+public class Api extends Construct {
+    /**
+     * API instance
+     */
+    public final Api api;
+
+    public Api(Construct scope, String id, UserIdentity userIdentity) {
+        super(scope, id);
+
+        this.api = new Api(this, id, ApiProps.builder()
+                .defaultAuthorizer(Authorizers.iam())
+                .corsOptions(CorsOptions.builder()
+                        .allowOrigins(Cors.ALL_ORIGINS)
+                        .allowMethods(Cors.ALL_METHODS)
+                        .build())
+                .integrations(MockIntegrations.mockAll().build())
+                .policy(new PolicyDocument(PolicyDocumentProps.builder()
+                    .statements(Arrays.asList(
+                        // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                        // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                        // users) and resources (ie which api paths may be invoked by which principal) if required.
+                        // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                        // still be granted access to the API.
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AccountPrincipal(Stack.of(this).getAccount())))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*"))
+                            .build()),
+                        // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                        new PolicyStatement(PolicyStatementProps.builder()
+                            .effect(Effect.ALLOW)
+                            .principals(Arrays.asList(new AnyPrincipal()))
+                            .actions(Arrays.asList("execute-api:Invoke"))
+                            .resources(Arrays.asList("execute-api:/*/OPTIONS/*"))
+                            .build())
+                    ))
+                    .build()))
+                .build());
+        
+        userIdentity.getIdentityPool().getAuthenticatedRole()
+            .addToPrincipalPolicy(new PolicyStatement(PolicyStatementProps.builder()
+                .effect(Effect.ALLOW)
+                .actions(Arrays.asList("execute-api:Invoke"))
+                .resources(Arrays.asList(this.api.getApi().arnForExecuteApi("*", "/*", "*")))
+                .build()));
+    }
+}
+",
+  "infra/src/main/java/software/aws/infra/constructs/websites/Website.java": "package software.aws.infra.constructs.websites;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.static_website.DistributionProps;
+import software.aws.pdk.static_website.RuntimeOptions;
+import software.aws.pdk.static_website.StaticWebsite;
+import software.aws.pdk.static_website.StaticWebsiteProps;
+import software.constructs.Construct;
+
+/**
+ * Construct to deploy a Static Website
+ */
+public class Website extends Construct {
+
+    public Website(Construct scope, String id, UserIdentity userIdentity) {
+        super(scope, id);
+
+        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+                .websiteContentPath("../website/build")
+                .runtimeOptions(RuntimeOptions.builder()
+                        .jsonPayload(new TreeMap<>(Map.of(
+                                "region", Stack.of(this).getRegion(),
+                                "identityPoolId", userIdentity.getIdentityPool().getIdentityPoolId(),
+                                "userPoolId", userIdentity.getUserPool().getUserPoolId(),
+                                "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(),
+                                "typeSafeApis", Map.of(
+                                )
+                                )))
+                        .build())
+                .distributionProps(DistributionProps.builder()
+                    .geoRestriction(GeoRestriction.allowlist(
+                        "AU",
+                        "ID",
+                        "IN",
+                        "JP",
+                        "KR",
+                        "SG",
+                        "US"))
+                    .build())
+                .build());
+    }
+}
+",
+  "infra/src/main/java/software/aws/infra/constructs/websites/Website2.java": "package software.aws.infra.constructs.websites;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import software.aws.pdk.identity.UserIdentity;
+import software.aws.pdk.static_website.DistributionProps;
+import software.aws.pdk.static_website.RuntimeOptions;
+import software.aws.pdk.static_website.StaticWebsite;
+import software.aws.pdk.static_website.StaticWebsiteProps;
+import software.constructs.Construct;
+
+/**
+ * Construct to deploy a Static Website
+ */
+public class Website2 extends Construct {
+
+    public Website2(Construct scope, String id, UserIdentity userIdentity) {
+        super(scope, id);
+
+        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+                .websiteContentPath("../website2/build")
+                .runtimeOptions(RuntimeOptions.builder()
+                        .jsonPayload(new TreeMap<>(Map.of(
+                                "region", Stack.of(this).getRegion(),
+                                "identityPoolId", userIdentity.getIdentityPool().getIdentityPoolId(),
+                                "userPoolId", userIdentity.getUserPool().getUserPoolId(),
+                                "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(),
+                                "typeSafeApis", Map.of(
+                                )
+                                )))
+                        .build())
+                .distributionProps(DistributionProps.builder()
+                    .geoRestriction(GeoRestriction.allowlist(
+                        "AU",
+                        "ID",
+                        "IN",
+                        "JP",
+                        "KR",
+                        "SG",
+                        "US"))
+                    .build())
+                .build());
+    }
+}
+",
+  "infra/src/main/java/software/aws/infra/stacks/ApplicationStack.java": "package software.aws.infra.stacks;
+
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.StackProps;
+import software.aws.infra.constructs.apis.Api;
+import software.aws.infra.constructs.websites.Website;
+import software.aws.infra.constructs.websites.Website2;
+import software.aws.pdk.identity.UserIdentity;
+import software.constructs.Construct;
+
+public class ApplicationStack extends Stack {
+    public ApplicationStack(Construct scope, String id, StackProps props) {
+        super(scope, id, props);
+
+        UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
+        Api api = new Api(this, "Api", userIdentity);
+        new Website(this, "Website", userIdentity);
+        new Website2(this, "Website2", userIdentity);
     }
 }
 ",
@@ -2989,7 +5809,7 @@ public class Main {
     graph.report();
   }
 }",
-  "infra/src/main/java/software/aws/infra/constructs/WebsiteConstruct.java": "package software.aws.infra.constructs;
+  "infra/src/main/java/software/aws/infra/constructs/websites/Website.java": "package software.aws.infra.constructs.websites;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -3006,9 +5826,9 @@ import software.constructs.Construct;
 /**
  * Construct to deploy a Static Website
  */
-public class WebsiteConstruct extends Construct {
+public class Website extends Construct {
 
-    public WebsiteConstruct(Construct scope, String id, UserIdentity userIdentity/* , ApiConstruct apiConstruct */) {
+    public Website(Construct scope, String id, UserIdentity userIdentity) {
         super(scope, id);
 
         new StaticWebsite(this, id, StaticWebsiteProps.builder()
@@ -3018,8 +5838,9 @@ public class WebsiteConstruct extends Construct {
                                 "region", Stack.of(this).getRegion(),
                                 "identityPoolId", userIdentity.getIdentityPool().getIdentityPoolId(),
                                 "userPoolId", userIdentity.getUserPool().getUserPoolId(),
-                                "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId()
-                                // "apiUrl", apiConstruct.api.getApi().urlForPath()
+                                "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(),
+                                "typeSafeApis", Map.of(
+                                )
                                 )))
                         .build())
                 .distributionProps(DistributionProps.builder()
@@ -3040,7 +5861,7 @@ public class WebsiteConstruct extends Construct {
 
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
-import software.aws.infra.constructs.WebsiteConstruct;
+import software.aws.infra.constructs.websites.Website;
 import software.aws.pdk.identity.UserIdentity;
 import software.constructs.Construct;
 
@@ -3049,7 +5870,7 @@ public class ApplicationStack extends Stack {
         super(scope, id, props);
 
         UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
-        new WebsiteConstruct(this, "Website", userIdentity);
+        new Website(this, "Website", userIdentity);
     }
 }
 ",

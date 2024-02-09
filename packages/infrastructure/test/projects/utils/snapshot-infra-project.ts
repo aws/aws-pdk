@@ -13,6 +13,8 @@ import { synthSnapshot } from "projen/lib/util/synth";
 export interface BuildOptionsProps {
   readonly typeSafeApi: TypeSafeApiProject;
   readonly cloudscapeReactTsWebsite: CloudscapeReactTsWebsiteProject;
+  readonly typeSafeApis: TypeSafeApiProject[];
+  readonly cloudscapeReactTsWebsites: CloudscapeReactTsWebsiteProject[];
 }
 
 export const snapshotInfrastructureProject = <
@@ -47,14 +49,48 @@ export const snapshotInfrastructureProject = <
     },
   });
 
+  const typeSafeApi2 = new TypeSafeApiProject({
+    parent: monorepo,
+    outdir: "api2",
+    name: "Api2",
+    model: {
+      language: ModelLanguage.SMITHY,
+      options: {
+        smithy: {
+          serviceName: {
+            namespace: "com.aws",
+            serviceName: "Api2",
+          },
+        },
+      },
+    },
+    infrastructure: {
+      language,
+    },
+  });
+
   const cloudscapeReactTsWebsite = new CloudscapeReactTsWebsiteProject({
     parent: monorepo,
     outdir: "website",
     name: "Website",
   });
 
+  const cloudscapeReactTsWebsite2 = new CloudscapeReactTsWebsiteProject({
+    parent: monorepo,
+    outdir: "website2",
+    name: "Website2",
+  });
+
   new InfrastructureProject({
-    ...buildOptions({ typeSafeApi, cloudscapeReactTsWebsite }),
+    ...buildOptions({
+      typeSafeApi,
+      cloudscapeReactTsWebsite,
+      typeSafeApis: [typeSafeApi, typeSafeApi2],
+      cloudscapeReactTsWebsites: [
+        cloudscapeReactTsWebsite,
+        cloudscapeReactTsWebsite2,
+      ],
+    }),
     parent: monorepo,
     outdir: "infra",
   });

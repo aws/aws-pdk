@@ -1,22 +1,22 @@
 from aws_cdk import Stack
 from aws_pdk.identity import UserIdentity
 from constructs import Construct
-{{#hasApi}}
-from {{{moduleName}}}.constructs.api import ApiConstruct
-{{/hasApi}}
-{{#hasWebsite}}
-from {{{moduleName}}}.constructs.website import WebsiteConstruct
-{{/hasWebsite}}
+{{#typeSafeApis}}
+from {{{moduleName}}}.constructs.apis.{{{apiNameLowercase}}} import {{{apiName}}}
+{{/typeSafeApis}}
+{{#cloudscapeReactTsWebsites}}
+from {{{moduleName}}}.constructs.websites.{{{websiteNameLowercase}}} import {{{websiteName}}}
+{{/cloudscapeReactTsWebsites}}
 
 class ApplicationStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
-        {{#hasApi}}
-        {{#hasWebsite}}api = {{/hasWebsite}}ApiConstruct(self, 'Api', user_identity)
-        {{/hasApi}}
-        {{#hasWebsite}}
-        WebsiteConstruct(self, 'Website', user_identity{{#hasApi}}, api{{/hasApi}})
-        {{/hasWebsite}}
+        {{#typeSafeApis}}
+        {{#cloudscapeReactTsWebsites.0}}{{{apiNameLowercase}}} = {{/cloudscapeReactTsWebsites.0}}{{{apiName}}}(self, '{{{apiName}}}', user_identity)
+        {{/typeSafeApis}}
+        {{#cloudscapeReactTsWebsites}}
+        {{{websiteName}}}(self, '{{{websiteName}}}', user_identity{{#typeSafeApis}}, {{{apiNameLowercase}}}{{/typeSafeApis}})
+        {{/cloudscapeReactTsWebsites}}
 

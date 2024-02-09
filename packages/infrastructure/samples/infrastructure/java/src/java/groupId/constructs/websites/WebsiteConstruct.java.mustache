@@ -1,4 +1,4 @@
-package {{{groupId}}}.constructs;
+package {{{groupId}}}.constructs.websites;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -11,13 +11,16 @@ import software.aws.pdk.static_website.RuntimeOptions;
 import software.aws.pdk.static_website.StaticWebsite;
 import software.aws.pdk.static_website.StaticWebsiteProps;
 import software.constructs.Construct;
+{{#typeSafeApis}}
+import {{{groupId}}}.constructs.apis.{{{apiName}}};
+{{/typeSafeApis}}
 
 /**
  * Construct to deploy a Static Website
  */
-public class WebsiteConstruct extends Construct {
+public class {{{websiteName}}} extends Construct {
 
-    public WebsiteConstruct(Construct scope, String id, UserIdentity userIdentity{{^hasApi}}/* {{/hasApi}}, ApiConstruct apiConstruct{{^hasApi}} */{{/hasApi}}) {
+    public {{{websiteName}}}(Construct scope, String id, UserIdentity userIdentity{{#typeSafeApis}}, {{{apiName}}} {{{apiNameLowercase}}}{{/typeSafeApis}}) {
         super(scope, id);
 
         new StaticWebsite(this, id, StaticWebsiteProps.builder()
@@ -27,8 +30,12 @@ public class WebsiteConstruct extends Construct {
                                 "region", Stack.of(this).getRegion(),
                                 "identityPoolId", userIdentity.getIdentityPool().getIdentityPoolId(),
                                 "userPoolId", userIdentity.getUserPool().getUserPoolId(),
-                                "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(){{#hasApi}},{{/hasApi}}
-                                {{^hasApi}}// {{/hasApi}}"apiUrl", apiConstruct.api.getApi().urlForPath()
+                                "userPoolWebClientId", userIdentity.getUserPoolClient().getUserPoolClientId(),
+                                "typeSafeApis", Map.of(
+                                    {{#typeSafeApis}}
+                                    "{{{apiName}}}", {{{apiNameLowercase}}}.api.getApi().urlForPath(){{^isLast}},{{/isLast}}
+                                    {{/typeSafeApis}}
+                                )
                                 )))
                         .build())
                 .distributionProps(DistributionProps.builder()
