@@ -2,12 +2,12 @@ package {{{groupId}}}.stacks;
 
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
-{{#hasApi}}
-import {{{groupId}}}.constructs.ApiConstruct;
-{{/hasApi}}
-{{#hasWebsite}}
-import {{{groupId}}}.constructs.WebsiteConstruct;
-{{/hasWebsite}}
+{{#typeSafeApis}}
+import {{{groupId}}}.constructs.apis.{{{apiName}}};
+{{/typeSafeApis}}
+{{#cloudscapeReactTsWebsites}}
+import {{{groupId}}}.constructs.websites.{{{websiteName}}};
+{{/cloudscapeReactTsWebsites}}
 import software.aws.pdk.identity.UserIdentity;
 import software.constructs.Construct;
 
@@ -16,11 +16,11 @@ public class ApplicationStack extends Stack {
         super(scope, id, props);
 
         UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
-        {{#hasApi}}
-        {{#hasWebsite}}ApiConstruct apiConstruct = {{/hasWebsite}}new ApiConstruct(this, "Api", userIdentity);
-        {{/hasApi}}
-        {{#hasWebsite}}
-        new WebsiteConstruct(this, "Website", userIdentity{{#hasApi}}, apiConstruct{{/hasApi}});
-        {{/hasWebsite}}
+        {{#typeSafeApis}}
+        {{#cloudscapeReactTsWebsites.0}}{{{apiName}}} {{{apiNameLowercase}}} = {{/cloudscapeReactTsWebsites.0}}new {{{apiName}}}(this, "{{{apiName}}}", userIdentity);
+        {{/typeSafeApis}}
+        {{#cloudscapeReactTsWebsites}}
+        new {{{websiteName}}}(this, "{{{websiteName}}}", userIdentity{{#typeSafeApis}}, {{{apiNameLowercase}}}{{/typeSafeApis}});
+        {{/cloudscapeReactTsWebsites}}
     }
 }

@@ -1,13 +1,15 @@
 from aws_cdk import Stack
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
-{{^hasApi}}# {{/hasApi}}from {{{moduleName}}}.constructs.api import ApiConstruct
+{{#typeSafeApis}}
+from {{{moduleName}}}.constructs.apis.{{{apiNameLowercase}}} import {{{apiName}}}
+{{/typeSafeApis}}
 from aws_pdk.identity import UserIdentity
 from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionProps
 
 # Construct to deploy a Static Website
-class WebsiteConstruct(Construct):
-    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity{{^hasApi}}'''{{/hasApi}}, api_construct: ApiConstruct{{^hasApi}}'''{{/hasApi}}, **kwargs) -> None:
+class {{{websiteName}}}(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity{{#typeSafeApis}}, {{{apiNameLowercase}}}: {{{apiName}}}{{/typeSafeApis}}, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         StaticWebsite(self, id,
@@ -18,7 +20,7 @@ class WebsiteConstruct(Construct):
                             'identityPoolId': user_identity.identity_pool.identity_pool_id,
                             'userPoolId': user_identity.user_pool.user_pool_id,
                             'userPoolWebClientId': user_identity.user_pool_client.user_pool_client_id,
-                            {{^hasApi}}'''{{/hasApi}}'apiUrl': api_construct.api.api.url_for_path(),{{^hasApi}}'''{{/hasApi}}
+                            'typeSafeApis': { {{#typeSafeApis}}'{{{apiName}}}': {{{apiNameLowercase}}}.api.api.url_for_path(){{^isLast}}, {{/isLast}}{{/typeSafeApis}} }
                         }
                       ),
                       distribution_props=DistributionProps(

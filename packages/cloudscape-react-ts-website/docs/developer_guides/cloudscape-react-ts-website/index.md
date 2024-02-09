@@ -16,7 +16,7 @@ new CloudscapeReactTsWebsiteProject({
   outdir: "<synth-dir>",
   name: "<name-of-package>",
   applicationName: "<name-of-app>",
-  typeSafeApi: api // pass in to generate API stubs
+  typeSafeApis: [api] // pass in to generate API stubs
 });
 ```
 
@@ -37,7 +37,7 @@ To enable Cognito auth and API integration, ensure you have a `runtime-config.js
   "identityPoolId": "<identity-pool-id>",
   "userPoolId": "<user-pool-id>",
   "userPoolWebClientId": "<user-pool-web-client-id>",
-  "apiUrl": "<url-of-your-api>" // optional if not passing in a type-safe-api
+  "typeSafeApis": {"<api-name>": "<url-of-your-api>"} // optional if not passing in type-safe-api(s)
 }
 ```
 

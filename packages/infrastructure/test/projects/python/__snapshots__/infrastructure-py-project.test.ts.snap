@@ -425,6 +425,10 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
     },
   },
+  "infra/__init__.py": "",
+  "infra/constructs/apis/__init__.py": "",
+  "infra/constructs/websites/__init__.py": "",
+  "infra/stacks/__init__.py": "",
   "infra/stacks/application_stack.py": "from aws_cdk import Stack
 from aws_pdk.identity import UserIdentity
 from constructs import Construct
@@ -852,7 +856,9 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
     },
   },
-  "infra/infra/constructs/api.py": "from constructs import Construct
+  "infra/infra/__init__.py": "",
+  "infra/infra/constructs/apis/__init__.py": "",
+  "infra/infra/constructs/apis/api.py": "from constructs import Construct
 from Api_python_infra.api import Api
 from Api_python_infra.mock_integrations import MockIntegrations
 from aws_cdk import Stack
@@ -862,7 +868,7 @@ from aws_cdk.aws_apigateway import CorsOptions, Cors
 from aws_cdk.aws_iam import AccountPrincipal, AnyPrincipal, Effect, PolicyDocument, PolicyStatement
 
 # Infrastructure construct to deploy a Type Safe API.
-class ApiConstruct(Construct):
+class Api(Construct):
     def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -904,17 +910,19 @@ class ApiConstruct(Construct):
             )
         )
 ",
+  "infra/infra/constructs/websites/__init__.py": "",
+  "infra/infra/stacks/__init__.py": "",
   "infra/infra/stacks/application_stack.py": "from aws_cdk import Stack
 from aws_pdk.identity import UserIdentity
 from constructs import Construct
-from infra.constructs.api import ApiConstruct
+from infra.constructs.apis.api import Api
 
 class ApplicationStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
-        ApiConstruct(self, 'Api', user_identity)
+        Api(self, 'Api', user_identity)
 
 ",
   "infra/main.py": "import os
@@ -1468,7 +1476,9 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
     },
   },
-  "infra/infra/constructs/api.py": "from constructs import Construct
+  "infra/infra/__init__.py": "",
+  "infra/infra/constructs/apis/__init__.py": "",
+  "infra/infra/constructs/apis/api.py": "from constructs import Construct
 from Api_python_infra.api import Api
 from Api_python_infra.mock_integrations import MockIntegrations
 from aws_cdk import Stack
@@ -1478,7 +1488,7 @@ from aws_cdk.aws_apigateway import CorsOptions, Cors
 from aws_cdk.aws_iam import AccountPrincipal, AnyPrincipal, Effect, PolicyDocument, PolicyStatement
 
 # Infrastructure construct to deploy a Type Safe API.
-class ApiConstruct(Construct):
+class Api(Construct):
     def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -1520,16 +1530,16 @@ class ApiConstruct(Construct):
             )
         )
 ",
-  "infra/infra/constructs/website.py": "from aws_cdk import Stack
+  "infra/infra/constructs/websites/__init__.py": "",
+  "infra/infra/constructs/websites/website.py": "from aws_cdk import Stack
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
-from infra.constructs.api import ApiConstruct
 from aws_pdk.identity import UserIdentity
 from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionProps
 
 # Construct to deploy a Static Website
-class WebsiteConstruct(Construct):
-    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, api_construct: ApiConstruct, **kwargs) -> None:
+class Website(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         StaticWebsite(self, id,
@@ -1540,7 +1550,7 @@ class WebsiteConstruct(Construct):
                             'identityPoolId': user_identity.identity_pool.identity_pool_id,
                             'userPoolId': user_identity.user_pool.user_pool_id,
                             'userPoolWebClientId': user_identity.user_pool_client.user_pool_client_id,
-                            'apiUrl': api_construct.api.api.url_for_path(),
+                            'typeSafeApis': {  }
                         }
                       ),
                       distribution_props=DistributionProps(
@@ -1555,19 +1565,20 @@ class WebsiteConstruct(Construct):
                         )
                       ))
 ",
+  "infra/infra/stacks/__init__.py": "",
   "infra/infra/stacks/application_stack.py": "from aws_cdk import Stack
 from aws_pdk.identity import UserIdentity
 from constructs import Construct
-from infra.constructs.api import ApiConstruct
-from infra.constructs.website import WebsiteConstruct
+from infra.constructs.apis.api import Api
+from infra.constructs.websites.website import Website
 
 class ApplicationStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
-        api = ApiConstruct(self, 'Api', user_identity)
-        WebsiteConstruct(self, 'Website', user_identity, api)
+        api = Api(self, 'Api', user_identity)
+        Website(self, 'Website', user_identity)
 
 ",
   "infra/main.py": "import os
@@ -1746,6 +1757,2183 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "WithApi"
+version = "0.0.0"
+description = ""
+authors = [ "pdkuser <user@pdk.com>" ]
+readme = "README.md"
+
+  [tool.poetry.dependencies]
+  aws_pdk = "^0"
+  aws-cdk-lib = "^2.1.0"
+  constructs = "^10.0.5"
+  python = "^3.9"
+
+    [tool.poetry.dependencies.Api-python-infra]
+    path = "../api/generated/infrastructure/python"
+    develop = true
+
+  [tool.poetry.dev-dependencies]
+  pytest = "^7"
+  syrupy = "^4"
+",
+  "infra/tests/__init__.py": "",
+  "infra/tests/test_application_stack.py": "import pytest
+from aws_cdk import App
+from aws_cdk.assertions import Template
+from infra.stacks.application_stack import ApplicationStack
+
+def test_template_with_snapshot(snapshot):
+    app = App()
+    stack = ApplicationStack(app, "my-stack-test")
+    template = Template.from_stack(stack)
+    assert template.to_json() == snapshot
+",
+}
+`;
+
+exports[`InfrastructurePyProject With Multiple Apis and Single Website 1`] = `
+{
+  "infra/.gitattributes": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+/.gitattributes linguist-generated
+/.gitignore linguist-generated
+/.projen/** linguist-generated
+/.projen/deps.json linguist-generated
+/.projen/files.json linguist-generated
+/.projen/tasks.json linguist-generated
+/cdk.json linguist-generated
+/project.json linguist-generated
+/pyproject.toml linguist-generated",
+  "infra/.gitignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+node_modules/
+!/.gitattributes
+!/.projen/tasks.json
+!/.projen/deps.json
+!/.projen/files.json
+!/pyproject.toml
+/poetry.toml
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+*.mo
+*.pot
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+.scrapy
+docs/_build/
+.pybuilder/
+target/
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+__pypackages__/
+celerybeat-schedule
+celerybeat.pid
+*.sage.py
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.spyderproject
+.spyproject
+.ropeproject
+/site
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+cython_debug/
+!/cdk.json
+/cdk.out/
+.cdk.staging/
+!/project.json
+",
+  "infra/.projen/deps.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": [
+      {
+        "name": "pytest",
+        "type": "devenv",
+        "version": "^7",
+      },
+      {
+        "name": "syrupy",
+        "type": "devenv",
+        "version": "^4",
+      },
+      {
+        "name": "Api-python-infra",
+        "type": "runtime",
+        "version": "{path="../api/generated/infrastructure/python", develop=true}",
+      },
+      {
+        "name": "Api2-python-infra",
+        "type": "runtime",
+        "version": "{path="../api2/generated/infrastructure/python", develop=true}",
+      },
+      {
+        "name": "aws_pdk",
+        "type": "runtime",
+        "version": "^0",
+      },
+      {
+        "name": "aws-cdk-lib",
+        "type": "runtime",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "constructs",
+        "type": "runtime",
+        "version": "^10.0.5",
+      },
+      {
+        "name": "python",
+        "type": "runtime",
+        "version": "^3.9",
+      },
+    ],
+  },
+  "infra/.projen/files.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "files": [
+      ".gitattributes",
+      ".gitignore",
+      ".projen/deps.json",
+      ".projen/files.json",
+      ".projen/tasks.json",
+      "cdk.json",
+      "poetry.toml",
+      "project.json",
+      "pyproject.toml",
+    ],
+  },
+  "infra/.projen/tasks.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "env": {
+      "PATH": "$(echo $(env -u VIRTUAL_ENV poetry env info -p || echo '')/bin:$PATH)",
+      "VIRTUAL_ENV": "$(env -u VIRTUAL_ENV poetry env info -p || echo '')",
+    },
+    "tasks": {
+      "build": {
+        "description": "Full release build",
+        "name": "build",
+        "steps": [
+          {
+            "spawn": "pre-compile",
+          },
+          {
+            "spawn": "compile",
+          },
+          {
+            "spawn": "post-compile",
+          },
+          {
+            "spawn": "test",
+          },
+          {
+            "spawn": "package",
+          },
+        ],
+      },
+      "compile": {
+        "description": "Only compile",
+        "name": "compile",
+      },
+      "default": {
+        "description": "Synthesize project files",
+        "name": "default",
+      },
+      "deploy": {
+        "description": "Deploys your CDK app to the AWS cloud",
+        "name": "deploy",
+        "steps": [
+          {
+            "exec": "cdk deploy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "deploy:dev": {
+        "description": "Performs a hotswap CDK deployment, useful for faster development cycles",
+        "name": "deploy:dev",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap-fallback --require-approval never",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "destroy": {
+        "description": "Destroys your cdk app in the AWS cloud",
+        "name": "destroy",
+        "steps": [
+          {
+            "exec": "cdk destroy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "diff": {
+        "description": "Diffs the currently deployed app against your code",
+        "name": "diff",
+        "steps": [
+          {
+            "exec": "cdk diff",
+          },
+        ],
+      },
+      "install": {
+        "description": "Install and upgrade dependencies",
+        "name": "install",
+        "steps": [
+          {
+            "exec": "poetry update",
+          },
+        ],
+      },
+      "package": {
+        "description": "Creates the distribution package",
+        "name": "package",
+        "steps": [
+          {
+            "exec": "poetry build",
+          },
+        ],
+      },
+      "post-compile": {
+        "description": "Runs after successful compilation",
+        "name": "post-compile",
+        "steps": [
+          {
+            "spawn": "synth:silent",
+          },
+        ],
+      },
+      "pre-compile": {
+        "description": "Prepare the project for compilation",
+        "name": "pre-compile",
+      },
+      "publish": {
+        "description": "Uploads the package to PyPI.",
+        "name": "publish",
+        "steps": [
+          {
+            "exec": "poetry publish",
+          },
+        ],
+      },
+      "publish:test": {
+        "description": "Uploads the package against a test PyPI endpoint.",
+        "name": "publish:test",
+        "steps": [
+          {
+            "exec": "poetry publish -r testpypi",
+          },
+        ],
+      },
+      "synth": {
+        "description": "Synthesizes your cdk app into cdk.out",
+        "name": "synth",
+        "steps": [
+          {
+            "exec": "cdk synth",
+          },
+        ],
+      },
+      "synth:silent": {
+        "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of "yarn build")",
+        "name": "synth:silent",
+        "steps": [
+          {
+            "exec": "cdk synth -q",
+          },
+        ],
+      },
+      "test": {
+        "description": "Run tests",
+        "name": "test",
+        "steps": [
+          {
+            "exec": "poetry run pytest tests/ \${CI:-'--snapshot-update'}",
+          },
+        ],
+      },
+      "watch": {
+        "description": "Watches changes in your source code and rebuilds and deploys to the current account",
+        "name": "watch",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap",
+          },
+          {
+            "exec": "cdk watch",
+          },
+        ],
+      },
+    },
+  },
+  "infra/README.md": "## Getting started
+
+Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infrastructure/index.html)",
+  "infra/cdk.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "app": "python main.py",
+    "output": "cdk.out",
+    "watch": {
+      "exclude": [
+        "README.md",
+        "cdk*.json",
+        "requirements*.txt",
+        "source.bat",
+        "**/__init__.py",
+        "python/__pycache__",
+        "tests",
+      ],
+      "include": [
+        "**",
+      ],
+    },
+  },
+  "infra/infra/__init__.py": "",
+  "infra/infra/constructs/apis/__init__.py": "",
+  "infra/infra/constructs/apis/api.py": "from constructs import Construct
+from Api_python_infra.api import Api
+from Api_python_infra.mock_integrations import MockIntegrations
+from aws_cdk import Stack
+from aws_pdk.identity import UserIdentity
+from aws_pdk.type_safe_api import Authorizers
+from aws_cdk.aws_apigateway import CorsOptions, Cors
+from aws_cdk.aws_iam import AccountPrincipal, AnyPrincipal, Effect, PolicyDocument, PolicyStatement
+
+# Infrastructure construct to deploy a Type Safe API.
+class Api(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        self.api = Api(self, id,
+            default_authorizer=Authorizers.iam(),
+            cors_options=CorsOptions(
+                allow_origins=Cors.ALL_ORIGINS,
+                allow_methods=Cors.ALL_METHODS
+            ),
+            integrations=MockIntegrations.mock_all(),
+            policy=PolicyDocument(
+                statements=[
+                    # Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                    # Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                    # users) and resources (ie which api paths may be invoked by which principal) if required.
+                    # If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                    # still be granted access to the API.
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AccountPrincipal(Stack.of(self).account)],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*']
+                    ),
+                    # Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AnyPrincipal()],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*/OPTIONS/*']
+                    )
+                ]
+            ))
+        
+        user_identity.identity_pool.authenticated_role.add_to_principal_policy(
+            PolicyStatement(
+                effect=Effect.ALLOW,
+                actions=['execute-api:Invoke'],
+                resources=[self.api.api.arn_for_execute_api('*', '/*', '*')]
+            )
+        )
+",
+  "infra/infra/constructs/apis/api2.py": "from constructs import Construct
+from Api2_python_infra.api import Api
+from Api2_python_infra.mock_integrations import MockIntegrations
+from aws_cdk import Stack
+from aws_pdk.identity import UserIdentity
+from aws_pdk.type_safe_api import Authorizers
+from aws_cdk.aws_apigateway import CorsOptions, Cors
+from aws_cdk.aws_iam import AccountPrincipal, AnyPrincipal, Effect, PolicyDocument, PolicyStatement
+
+# Infrastructure construct to deploy a Type Safe API.
+class Api2(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        self.api = Api(self, id,
+            default_authorizer=Authorizers.iam(),
+            cors_options=CorsOptions(
+                allow_origins=Cors.ALL_ORIGINS,
+                allow_methods=Cors.ALL_METHODS
+            ),
+            integrations=MockIntegrations.mock_all(),
+            policy=PolicyDocument(
+                statements=[
+                    # Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                    # Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                    # users) and resources (ie which api paths may be invoked by which principal) if required.
+                    # If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                    # still be granted access to the API.
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AccountPrincipal(Stack.of(self).account)],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*']
+                    ),
+                    # Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AnyPrincipal()],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*/OPTIONS/*']
+                    )
+                ]
+            ))
+        
+        user_identity.identity_pool.authenticated_role.add_to_principal_policy(
+            PolicyStatement(
+                effect=Effect.ALLOW,
+                actions=['execute-api:Invoke'],
+                resources=[self.api.api.arn_for_execute_api('*', '/*', '*')]
+            )
+        )
+",
+  "infra/infra/constructs/websites/__init__.py": "",
+  "infra/infra/constructs/websites/website.py": "from aws_cdk import Stack
+from constructs import Construct
+from aws_cdk.aws_cloudfront import GeoRestriction
+from aws_pdk.identity import UserIdentity
+from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionProps
+
+# Construct to deploy a Static Website
+class Website(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        StaticWebsite(self, id,
+                      website_content_path='../website/build',
+                      runtime_options=RuntimeOptions(
+                        json_payload={
+                            'region': Stack.of(self).region,
+                            'identityPoolId': user_identity.identity_pool.identity_pool_id,
+                            'userPoolId': user_identity.user_pool.user_pool_id,
+                            'userPoolWebClientId': user_identity.user_pool_client.user_pool_client_id,
+                            'typeSafeApis': {  }
+                        }
+                      ),
+                      distribution_props=DistributionProps(
+                        geo_restriction=GeoRestriction.allowlist(
+                          "AU",
+                          "ID",
+                          "IN",
+                          "JP",
+                          "KR",
+                          "SG",
+                          "US"
+                        )
+                      ))
+",
+  "infra/infra/stacks/__init__.py": "",
+  "infra/infra/stacks/application_stack.py": "from aws_cdk import Stack
+from aws_pdk.identity import UserIdentity
+from constructs import Construct
+from infra.constructs.apis.api import Api
+from infra.constructs.apis.api2 import Api2
+from infra.constructs.websites.website import Website
+
+class ApplicationStack(Stack):
+    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
+        api = Api(self, 'Api', user_identity)
+        api2 = Api2(self, 'Api2', user_identity)
+        Website(self, 'Website', user_identity)
+
+",
+  "infra/main.py": "import os
+from aws_cdk import Environment
+from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
+from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
+from aws_pdk.cdk_graph_plugin_threat_composer import CdkGraphThreatComposerPlugin
+from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
+from infra.stacks.application_stack import ApplicationStack
+
+# for development, use account/region from cdk cli
+dev_env = Environment(
+  account=os.getenv('CDK_DEFAULT_ACCOUNT'),
+  region=os.getenv('CDK_DEFAULT_REGION')
+)
+
+app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
+ApplicationStack(app, "infra-dev", env=dev_env)
+
+graph = CdkGraph(app, plugins=[
+    CdkGraphDiagramPlugin(
+        defaults=IDiagramConfigBase(
+            filter_plan=IGraphFilterPlan(
+                preset=FilterPreset.COMPACT,
+                filters=[IFilter(store=Filters.prune_custom_resources())]
+            )
+        )
+    ),
+    CdkGraphThreatComposerPlugin(),
+])
+app.synth()
+graph.report()",
+  "infra/poetry.toml": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+[repositories.testpypi]
+url = "https://test.pypi.org/legacy/"
+",
+  "infra/project.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "implicitDependencies": [
+      "Api-python-infra",
+      "Api2-python-infra",
+      "Website",
+    ],
+    "name": "WithMultipleApiAndSingleWebsite",
+    "root": "infra",
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen build",
+          "cwd": "infra",
+        },
+      },
+      "compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen compile",
+          "cwd": "infra",
+        },
+      },
+      "default": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen default",
+          "cwd": "infra",
+        },
+      },
+      "deploy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy",
+          "cwd": "infra",
+        },
+      },
+      "deploy:dev": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy:dev",
+          "cwd": "infra",
+        },
+      },
+      "destroy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen destroy",
+          "cwd": "infra",
+        },
+      },
+      "diff": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen diff",
+          "cwd": "infra",
+        },
+      },
+      "install": {
+        "dependsOn": [
+          "^install",
+        ],
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen install",
+          "cwd": "infra",
+        },
+      },
+      "package": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen package",
+          "cwd": "infra",
+        },
+      },
+      "post-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen post-compile",
+          "cwd": "infra",
+        },
+      },
+      "pre-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen pre-compile",
+          "cwd": "infra",
+        },
+      },
+      "publish": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen publish",
+          "cwd": "infra",
+        },
+      },
+      "publish:test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen publish:test",
+          "cwd": "infra",
+        },
+      },
+      "synth": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth",
+          "cwd": "infra",
+        },
+      },
+      "synth:silent": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth:silent",
+          "cwd": "infra",
+        },
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen test",
+          "cwd": "infra",
+        },
+      },
+      "watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen watch",
+          "cwd": "infra",
+        },
+      },
+    },
+  },
+  "infra/pyproject.toml": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+[build-system]
+requires = [ "poetry_core>=1.0.0" ]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "WithMultipleApiAndSingleWebsite"
+version = "0.0.0"
+description = ""
+authors = [ "pdkuser <user@pdk.com>" ]
+readme = "README.md"
+
+  [tool.poetry.dependencies]
+  aws_pdk = "^0"
+  aws-cdk-lib = "^2.1.0"
+  constructs = "^10.0.5"
+  python = "^3.9"
+
+    [tool.poetry.dependencies.Api-python-infra]
+    path = "../api/generated/infrastructure/python"
+    develop = true
+
+    [tool.poetry.dependencies.Api2-python-infra]
+    path = "../api2/generated/infrastructure/python"
+    develop = true
+
+  [tool.poetry.dev-dependencies]
+  pytest = "^7"
+  syrupy = "^4"
+",
+  "infra/tests/__init__.py": "",
+  "infra/tests/test_application_stack.py": "import pytest
+from aws_cdk import App
+from aws_cdk.assertions import Template
+from infra.stacks.application_stack import ApplicationStack
+
+def test_template_with_snapshot(snapshot):
+    app = App()
+    stack = ApplicationStack(app, "my-stack-test")
+    template = Template.from_stack(stack)
+    assert template.to_json() == snapshot
+",
+}
+`;
+
+exports[`InfrastructurePyProject With Multiple Apis and Website 1`] = `
+{
+  "infra/.gitattributes": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+/.gitattributes linguist-generated
+/.gitignore linguist-generated
+/.projen/** linguist-generated
+/.projen/deps.json linguist-generated
+/.projen/files.json linguist-generated
+/.projen/tasks.json linguist-generated
+/cdk.json linguist-generated
+/project.json linguist-generated
+/pyproject.toml linguist-generated",
+  "infra/.gitignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+node_modules/
+!/.gitattributes
+!/.projen/tasks.json
+!/.projen/deps.json
+!/.projen/files.json
+!/pyproject.toml
+/poetry.toml
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+*.mo
+*.pot
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+.scrapy
+docs/_build/
+.pybuilder/
+target/
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+__pypackages__/
+celerybeat-schedule
+celerybeat.pid
+*.sage.py
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.spyderproject
+.spyproject
+.ropeproject
+/site
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+cython_debug/
+!/cdk.json
+/cdk.out/
+.cdk.staging/
+!/project.json
+",
+  "infra/.projen/deps.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": [
+      {
+        "name": "pytest",
+        "type": "devenv",
+        "version": "^7",
+      },
+      {
+        "name": "syrupy",
+        "type": "devenv",
+        "version": "^4",
+      },
+      {
+        "name": "Api-python-infra",
+        "type": "runtime",
+        "version": "{path="../api/generated/infrastructure/python", develop=true}",
+      },
+      {
+        "name": "Api2-python-infra",
+        "type": "runtime",
+        "version": "{path="../api2/generated/infrastructure/python", develop=true}",
+      },
+      {
+        "name": "aws_pdk",
+        "type": "runtime",
+        "version": "^0",
+      },
+      {
+        "name": "aws-cdk-lib",
+        "type": "runtime",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "constructs",
+        "type": "runtime",
+        "version": "^10.0.5",
+      },
+      {
+        "name": "python",
+        "type": "runtime",
+        "version": "^3.9",
+      },
+    ],
+  },
+  "infra/.projen/files.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "files": [
+      ".gitattributes",
+      ".gitignore",
+      ".projen/deps.json",
+      ".projen/files.json",
+      ".projen/tasks.json",
+      "cdk.json",
+      "poetry.toml",
+      "project.json",
+      "pyproject.toml",
+    ],
+  },
+  "infra/.projen/tasks.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "env": {
+      "PATH": "$(echo $(env -u VIRTUAL_ENV poetry env info -p || echo '')/bin:$PATH)",
+      "VIRTUAL_ENV": "$(env -u VIRTUAL_ENV poetry env info -p || echo '')",
+    },
+    "tasks": {
+      "build": {
+        "description": "Full release build",
+        "name": "build",
+        "steps": [
+          {
+            "spawn": "pre-compile",
+          },
+          {
+            "spawn": "compile",
+          },
+          {
+            "spawn": "post-compile",
+          },
+          {
+            "spawn": "test",
+          },
+          {
+            "spawn": "package",
+          },
+        ],
+      },
+      "compile": {
+        "description": "Only compile",
+        "name": "compile",
+      },
+      "default": {
+        "description": "Synthesize project files",
+        "name": "default",
+      },
+      "deploy": {
+        "description": "Deploys your CDK app to the AWS cloud",
+        "name": "deploy",
+        "steps": [
+          {
+            "exec": "cdk deploy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "deploy:dev": {
+        "description": "Performs a hotswap CDK deployment, useful for faster development cycles",
+        "name": "deploy:dev",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap-fallback --require-approval never",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "destroy": {
+        "description": "Destroys your cdk app in the AWS cloud",
+        "name": "destroy",
+        "steps": [
+          {
+            "exec": "cdk destroy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "diff": {
+        "description": "Diffs the currently deployed app against your code",
+        "name": "diff",
+        "steps": [
+          {
+            "exec": "cdk diff",
+          },
+        ],
+      },
+      "install": {
+        "description": "Install and upgrade dependencies",
+        "name": "install",
+        "steps": [
+          {
+            "exec": "poetry update",
+          },
+        ],
+      },
+      "package": {
+        "description": "Creates the distribution package",
+        "name": "package",
+        "steps": [
+          {
+            "exec": "poetry build",
+          },
+        ],
+      },
+      "post-compile": {
+        "description": "Runs after successful compilation",
+        "name": "post-compile",
+        "steps": [
+          {
+            "spawn": "synth:silent",
+          },
+        ],
+      },
+      "pre-compile": {
+        "description": "Prepare the project for compilation",
+        "name": "pre-compile",
+      },
+      "publish": {
+        "description": "Uploads the package to PyPI.",
+        "name": "publish",
+        "steps": [
+          {
+            "exec": "poetry publish",
+          },
+        ],
+      },
+      "publish:test": {
+        "description": "Uploads the package against a test PyPI endpoint.",
+        "name": "publish:test",
+        "steps": [
+          {
+            "exec": "poetry publish -r testpypi",
+          },
+        ],
+      },
+      "synth": {
+        "description": "Synthesizes your cdk app into cdk.out",
+        "name": "synth",
+        "steps": [
+          {
+            "exec": "cdk synth",
+          },
+        ],
+      },
+      "synth:silent": {
+        "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of "yarn build")",
+        "name": "synth:silent",
+        "steps": [
+          {
+            "exec": "cdk synth -q",
+          },
+        ],
+      },
+      "test": {
+        "description": "Run tests",
+        "name": "test",
+        "steps": [
+          {
+            "exec": "poetry run pytest tests/ \${CI:-'--snapshot-update'}",
+          },
+        ],
+      },
+      "watch": {
+        "description": "Watches changes in your source code and rebuilds and deploys to the current account",
+        "name": "watch",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap",
+          },
+          {
+            "exec": "cdk watch",
+          },
+        ],
+      },
+    },
+  },
+  "infra/README.md": "## Getting started
+
+Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infrastructure/index.html)",
+  "infra/cdk.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "app": "python main.py",
+    "output": "cdk.out",
+    "watch": {
+      "exclude": [
+        "README.md",
+        "cdk*.json",
+        "requirements*.txt",
+        "source.bat",
+        "**/__init__.py",
+        "python/__pycache__",
+        "tests",
+      ],
+      "include": [
+        "**",
+      ],
+    },
+  },
+  "infra/infra/__init__.py": "",
+  "infra/infra/constructs/apis/__init__.py": "",
+  "infra/infra/constructs/apis/api.py": "from constructs import Construct
+from Api_python_infra.api import Api
+from Api_python_infra.mock_integrations import MockIntegrations
+from aws_cdk import Stack
+from aws_pdk.identity import UserIdentity
+from aws_pdk.type_safe_api import Authorizers
+from aws_cdk.aws_apigateway import CorsOptions, Cors
+from aws_cdk.aws_iam import AccountPrincipal, AnyPrincipal, Effect, PolicyDocument, PolicyStatement
+
+# Infrastructure construct to deploy a Type Safe API.
+class Api(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        self.api = Api(self, id,
+            default_authorizer=Authorizers.iam(),
+            cors_options=CorsOptions(
+                allow_origins=Cors.ALL_ORIGINS,
+                allow_methods=Cors.ALL_METHODS
+            ),
+            integrations=MockIntegrations.mock_all(),
+            policy=PolicyDocument(
+                statements=[
+                    # Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                    # Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                    # users) and resources (ie which api paths may be invoked by which principal) if required.
+                    # If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                    # still be granted access to the API.
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AccountPrincipal(Stack.of(self).account)],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*']
+                    ),
+                    # Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AnyPrincipal()],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*/OPTIONS/*']
+                    )
+                ]
+            ))
+        
+        user_identity.identity_pool.authenticated_role.add_to_principal_policy(
+            PolicyStatement(
+                effect=Effect.ALLOW,
+                actions=['execute-api:Invoke'],
+                resources=[self.api.api.arn_for_execute_api('*', '/*', '*')]
+            )
+        )
+",
+  "infra/infra/constructs/apis/api2.py": "from constructs import Construct
+from Api2_python_infra.api import Api
+from Api2_python_infra.mock_integrations import MockIntegrations
+from aws_cdk import Stack
+from aws_pdk.identity import UserIdentity
+from aws_pdk.type_safe_api import Authorizers
+from aws_cdk.aws_apigateway import CorsOptions, Cors
+from aws_cdk.aws_iam import AccountPrincipal, AnyPrincipal, Effect, PolicyDocument, PolicyStatement
+
+# Infrastructure construct to deploy a Type Safe API.
+class Api2(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        self.api = Api(self, id,
+            default_authorizer=Authorizers.iam(),
+            cors_options=CorsOptions(
+                allow_origins=Cors.ALL_ORIGINS,
+                allow_methods=Cors.ALL_METHODS
+            ),
+            integrations=MockIntegrations.mock_all(),
+            policy=PolicyDocument(
+                statements=[
+                    # Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                    # Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                    # users) and resources (ie which api paths may be invoked by which principal) if required.
+                    # If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                    # still be granted access to the API.
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AccountPrincipal(Stack.of(self).account)],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*']
+                    ),
+                    # Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AnyPrincipal()],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*/OPTIONS/*']
+                    )
+                ]
+            ))
+        
+        user_identity.identity_pool.authenticated_role.add_to_principal_policy(
+            PolicyStatement(
+                effect=Effect.ALLOW,
+                actions=['execute-api:Invoke'],
+                resources=[self.api.api.arn_for_execute_api('*', '/*', '*')]
+            )
+        )
+",
+  "infra/infra/constructs/websites/__init__.py": "",
+  "infra/infra/constructs/websites/website.py": "from aws_cdk import Stack
+from constructs import Construct
+from aws_cdk.aws_cloudfront import GeoRestriction
+from aws_pdk.identity import UserIdentity
+from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionProps
+
+# Construct to deploy a Static Website
+class Website(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        StaticWebsite(self, id,
+                      website_content_path='../website/build',
+                      runtime_options=RuntimeOptions(
+                        json_payload={
+                            'region': Stack.of(self).region,
+                            'identityPoolId': user_identity.identity_pool.identity_pool_id,
+                            'userPoolId': user_identity.user_pool.user_pool_id,
+                            'userPoolWebClientId': user_identity.user_pool_client.user_pool_client_id,
+                            'typeSafeApis': {  }
+                        }
+                      ),
+                      distribution_props=DistributionProps(
+                        geo_restriction=GeoRestriction.allowlist(
+                          "AU",
+                          "ID",
+                          "IN",
+                          "JP",
+                          "KR",
+                          "SG",
+                          "US"
+                        )
+                      ))
+",
+  "infra/infra/constructs/websites/website2.py": "from aws_cdk import Stack
+from constructs import Construct
+from aws_cdk.aws_cloudfront import GeoRestriction
+from infra.constructs.apis.api import Api
+from infra.constructs.apis.api2 import Api2
+from aws_pdk.identity import UserIdentity
+from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionProps
+
+# Construct to deploy a Static Website
+class Website2(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, api: Api, api2: Api2, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        StaticWebsite(self, id,
+                      website_content_path='../website2/build',
+                      runtime_options=RuntimeOptions(
+                        json_payload={
+                            'region': Stack.of(self).region,
+                            'identityPoolId': user_identity.identity_pool.identity_pool_id,
+                            'userPoolId': user_identity.user_pool.user_pool_id,
+                            'userPoolWebClientId': user_identity.user_pool_client.user_pool_client_id,
+                            'typeSafeApis': { 'Api': api.api.api.url_for_path(), 'Api2': api2.api.api.url_for_path() }
+                        }
+                      ),
+                      distribution_props=DistributionProps(
+                        geo_restriction=GeoRestriction.allowlist(
+                          "AU",
+                          "ID",
+                          "IN",
+                          "JP",
+                          "KR",
+                          "SG",
+                          "US"
+                        )
+                      ))
+",
+  "infra/infra/stacks/__init__.py": "",
+  "infra/infra/stacks/application_stack.py": "from aws_cdk import Stack
+from aws_pdk.identity import UserIdentity
+from constructs import Construct
+from infra.constructs.apis.api import Api
+from infra.constructs.apis.api2 import Api2
+from infra.constructs.websites.website import Website
+from infra.constructs.websites.website2 import Website2
+
+class ApplicationStack(Stack):
+    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
+        api = Api(self, 'Api', user_identity)
+        api2 = Api2(self, 'Api2', user_identity)
+        Website(self, 'Website', user_identity)
+        Website2(self, 'Website2', user_identity, api, api2)
+
+",
+  "infra/main.py": "import os
+from aws_cdk import Environment
+from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
+from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
+from aws_pdk.cdk_graph_plugin_threat_composer import CdkGraphThreatComposerPlugin
+from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
+from infra.stacks.application_stack import ApplicationStack
+
+# for development, use account/region from cdk cli
+dev_env = Environment(
+  account=os.getenv('CDK_DEFAULT_ACCOUNT'),
+  region=os.getenv('CDK_DEFAULT_REGION')
+)
+
+app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
+ApplicationStack(app, "infra-dev", env=dev_env)
+
+graph = CdkGraph(app, plugins=[
+    CdkGraphDiagramPlugin(
+        defaults=IDiagramConfigBase(
+            filter_plan=IGraphFilterPlan(
+                preset=FilterPreset.COMPACT,
+                filters=[IFilter(store=Filters.prune_custom_resources())]
+            )
+        )
+    ),
+    CdkGraphThreatComposerPlugin(),
+])
+app.synth()
+graph.report()",
+  "infra/poetry.toml": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+[repositories.testpypi]
+url = "https://test.pypi.org/legacy/"
+",
+  "infra/project.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "implicitDependencies": [
+      "Api-python-infra",
+      "Api2-python-infra",
+      "Website",
+      "Website2",
+    ],
+    "name": "WithMultipleApiAndWebsites",
+    "root": "infra",
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen build",
+          "cwd": "infra",
+        },
+      },
+      "compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen compile",
+          "cwd": "infra",
+        },
+      },
+      "default": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen default",
+          "cwd": "infra",
+        },
+      },
+      "deploy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy",
+          "cwd": "infra",
+        },
+      },
+      "deploy:dev": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy:dev",
+          "cwd": "infra",
+        },
+      },
+      "destroy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen destroy",
+          "cwd": "infra",
+        },
+      },
+      "diff": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen diff",
+          "cwd": "infra",
+        },
+      },
+      "install": {
+        "dependsOn": [
+          "^install",
+        ],
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen install",
+          "cwd": "infra",
+        },
+      },
+      "package": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen package",
+          "cwd": "infra",
+        },
+      },
+      "post-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen post-compile",
+          "cwd": "infra",
+        },
+      },
+      "pre-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen pre-compile",
+          "cwd": "infra",
+        },
+      },
+      "publish": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen publish",
+          "cwd": "infra",
+        },
+      },
+      "publish:test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen publish:test",
+          "cwd": "infra",
+        },
+      },
+      "synth": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth",
+          "cwd": "infra",
+        },
+      },
+      "synth:silent": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth:silent",
+          "cwd": "infra",
+        },
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen test",
+          "cwd": "infra",
+        },
+      },
+      "watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen watch",
+          "cwd": "infra",
+        },
+      },
+    },
+  },
+  "infra/pyproject.toml": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+[build-system]
+requires = [ "poetry_core>=1.0.0" ]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "WithMultipleApiAndWebsites"
+version = "0.0.0"
+description = ""
+authors = [ "pdkuser <user@pdk.com>" ]
+readme = "README.md"
+
+  [tool.poetry.dependencies]
+  aws_pdk = "^0"
+  aws-cdk-lib = "^2.1.0"
+  constructs = "^10.0.5"
+  python = "^3.9"
+
+    [tool.poetry.dependencies.Api-python-infra]
+    path = "../api/generated/infrastructure/python"
+    develop = true
+
+    [tool.poetry.dependencies.Api2-python-infra]
+    path = "../api2/generated/infrastructure/python"
+    develop = true
+
+  [tool.poetry.dev-dependencies]
+  pytest = "^7"
+  syrupy = "^4"
+",
+  "infra/tests/__init__.py": "",
+  "infra/tests/test_application_stack.py": "import pytest
+from aws_cdk import App
+from aws_cdk.assertions import Template
+from infra.stacks.application_stack import ApplicationStack
+
+def test_template_with_snapshot(snapshot):
+    app = App()
+    stack = ApplicationStack(app, "my-stack-test")
+    template = Template.from_stack(stack)
+    assert template.to_json() == snapshot
+",
+}
+`;
+
+exports[`InfrastructurePyProject With Multiple Websites and Single API 1`] = `
+{
+  "infra/.gitattributes": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+/.gitattributes linguist-generated
+/.gitignore linguist-generated
+/.projen/** linguist-generated
+/.projen/deps.json linguist-generated
+/.projen/files.json linguist-generated
+/.projen/tasks.json linguist-generated
+/cdk.json linguist-generated
+/project.json linguist-generated
+/pyproject.toml linguist-generated",
+  "infra/.gitignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+node_modules/
+!/.gitattributes
+!/.projen/tasks.json
+!/.projen/deps.json
+!/.projen/files.json
+!/pyproject.toml
+/poetry.toml
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+*.mo
+*.pot
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+.scrapy
+docs/_build/
+.pybuilder/
+target/
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+__pypackages__/
+celerybeat-schedule
+celerybeat.pid
+*.sage.py
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.spyderproject
+.spyproject
+.ropeproject
+/site
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+cython_debug/
+!/cdk.json
+/cdk.out/
+.cdk.staging/
+!/project.json
+",
+  "infra/.projen/deps.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": [
+      {
+        "name": "pytest",
+        "type": "devenv",
+        "version": "^7",
+      },
+      {
+        "name": "syrupy",
+        "type": "devenv",
+        "version": "^4",
+      },
+      {
+        "name": "Api-python-infra",
+        "type": "runtime",
+        "version": "{path="../api/generated/infrastructure/python", develop=true}",
+      },
+      {
+        "name": "aws_pdk",
+        "type": "runtime",
+        "version": "^0",
+      },
+      {
+        "name": "aws-cdk-lib",
+        "type": "runtime",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "constructs",
+        "type": "runtime",
+        "version": "^10.0.5",
+      },
+      {
+        "name": "python",
+        "type": "runtime",
+        "version": "^3.9",
+      },
+    ],
+  },
+  "infra/.projen/files.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "files": [
+      ".gitattributes",
+      ".gitignore",
+      ".projen/deps.json",
+      ".projen/files.json",
+      ".projen/tasks.json",
+      "cdk.json",
+      "poetry.toml",
+      "project.json",
+      "pyproject.toml",
+    ],
+  },
+  "infra/.projen/tasks.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "env": {
+      "PATH": "$(echo $(env -u VIRTUAL_ENV poetry env info -p || echo '')/bin:$PATH)",
+      "VIRTUAL_ENV": "$(env -u VIRTUAL_ENV poetry env info -p || echo '')",
+    },
+    "tasks": {
+      "build": {
+        "description": "Full release build",
+        "name": "build",
+        "steps": [
+          {
+            "spawn": "pre-compile",
+          },
+          {
+            "spawn": "compile",
+          },
+          {
+            "spawn": "post-compile",
+          },
+          {
+            "spawn": "test",
+          },
+          {
+            "spawn": "package",
+          },
+        ],
+      },
+      "compile": {
+        "description": "Only compile",
+        "name": "compile",
+      },
+      "default": {
+        "description": "Synthesize project files",
+        "name": "default",
+      },
+      "deploy": {
+        "description": "Deploys your CDK app to the AWS cloud",
+        "name": "deploy",
+        "steps": [
+          {
+            "exec": "cdk deploy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "deploy:dev": {
+        "description": "Performs a hotswap CDK deployment, useful for faster development cycles",
+        "name": "deploy:dev",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap-fallback --require-approval never",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "destroy": {
+        "description": "Destroys your cdk app in the AWS cloud",
+        "name": "destroy",
+        "steps": [
+          {
+            "exec": "cdk destroy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "diff": {
+        "description": "Diffs the currently deployed app against your code",
+        "name": "diff",
+        "steps": [
+          {
+            "exec": "cdk diff",
+          },
+        ],
+      },
+      "install": {
+        "description": "Install and upgrade dependencies",
+        "name": "install",
+        "steps": [
+          {
+            "exec": "poetry update",
+          },
+        ],
+      },
+      "package": {
+        "description": "Creates the distribution package",
+        "name": "package",
+        "steps": [
+          {
+            "exec": "poetry build",
+          },
+        ],
+      },
+      "post-compile": {
+        "description": "Runs after successful compilation",
+        "name": "post-compile",
+        "steps": [
+          {
+            "spawn": "synth:silent",
+          },
+        ],
+      },
+      "pre-compile": {
+        "description": "Prepare the project for compilation",
+        "name": "pre-compile",
+      },
+      "publish": {
+        "description": "Uploads the package to PyPI.",
+        "name": "publish",
+        "steps": [
+          {
+            "exec": "poetry publish",
+          },
+        ],
+      },
+      "publish:test": {
+        "description": "Uploads the package against a test PyPI endpoint.",
+        "name": "publish:test",
+        "steps": [
+          {
+            "exec": "poetry publish -r testpypi",
+          },
+        ],
+      },
+      "synth": {
+        "description": "Synthesizes your cdk app into cdk.out",
+        "name": "synth",
+        "steps": [
+          {
+            "exec": "cdk synth",
+          },
+        ],
+      },
+      "synth:silent": {
+        "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of "yarn build")",
+        "name": "synth:silent",
+        "steps": [
+          {
+            "exec": "cdk synth -q",
+          },
+        ],
+      },
+      "test": {
+        "description": "Run tests",
+        "name": "test",
+        "steps": [
+          {
+            "exec": "poetry run pytest tests/ \${CI:-'--snapshot-update'}",
+          },
+        ],
+      },
+      "watch": {
+        "description": "Watches changes in your source code and rebuilds and deploys to the current account",
+        "name": "watch",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap",
+          },
+          {
+            "exec": "cdk watch",
+          },
+        ],
+      },
+    },
+  },
+  "infra/README.md": "## Getting started
+
+Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infrastructure/index.html)",
+  "infra/cdk.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "app": "python main.py",
+    "output": "cdk.out",
+    "watch": {
+      "exclude": [
+        "README.md",
+        "cdk*.json",
+        "requirements*.txt",
+        "source.bat",
+        "**/__init__.py",
+        "python/__pycache__",
+        "tests",
+      ],
+      "include": [
+        "**",
+      ],
+    },
+  },
+  "infra/infra/__init__.py": "",
+  "infra/infra/constructs/apis/__init__.py": "",
+  "infra/infra/constructs/apis/api.py": "from constructs import Construct
+from Api_python_infra.api import Api
+from Api_python_infra.mock_integrations import MockIntegrations
+from aws_cdk import Stack
+from aws_pdk.identity import UserIdentity
+from aws_pdk.type_safe_api import Authorizers
+from aws_cdk.aws_apigateway import CorsOptions, Cors
+from aws_cdk.aws_iam import AccountPrincipal, AnyPrincipal, Effect, PolicyDocument, PolicyStatement
+
+# Infrastructure construct to deploy a Type Safe API.
+class Api(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        self.api = Api(self, id,
+            default_authorizer=Authorizers.iam(),
+            cors_options=CorsOptions(
+                allow_origins=Cors.ALL_ORIGINS,
+                allow_methods=Cors.ALL_METHODS
+            ),
+            integrations=MockIntegrations.mock_all(),
+            policy=PolicyDocument(
+                statements=[
+                    # Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+                    # Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+                    # users) and resources (ie which api paths may be invoked by which principal) if required.
+                    # If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+                    # still be granted access to the API.
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AccountPrincipal(Stack.of(self).account)],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*']
+                    ),
+                    # Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+                    PolicyStatement(
+                        effect=Effect.ALLOW,
+                        principals=[AnyPrincipal()],
+                        actions=['execute-api:Invoke'],
+                        resources=['execute-api:/*/OPTIONS/*']
+                    )
+                ]
+            ))
+        
+        user_identity.identity_pool.authenticated_role.add_to_principal_policy(
+            PolicyStatement(
+                effect=Effect.ALLOW,
+                actions=['execute-api:Invoke'],
+                resources=[self.api.api.arn_for_execute_api('*', '/*', '*')]
+            )
+        )
+",
+  "infra/infra/constructs/websites/__init__.py": "",
+  "infra/infra/constructs/websites/website.py": "from aws_cdk import Stack
+from constructs import Construct
+from aws_cdk.aws_cloudfront import GeoRestriction
+from aws_pdk.identity import UserIdentity
+from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionProps
+
+# Construct to deploy a Static Website
+class Website(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        StaticWebsite(self, id,
+                      website_content_path='../website/build',
+                      runtime_options=RuntimeOptions(
+                        json_payload={
+                            'region': Stack.of(self).region,
+                            'identityPoolId': user_identity.identity_pool.identity_pool_id,
+                            'userPoolId': user_identity.user_pool.user_pool_id,
+                            'userPoolWebClientId': user_identity.user_pool_client.user_pool_client_id,
+                            'typeSafeApis': {  }
+                        }
+                      ),
+                      distribution_props=DistributionProps(
+                        geo_restriction=GeoRestriction.allowlist(
+                          "AU",
+                          "ID",
+                          "IN",
+                          "JP",
+                          "KR",
+                          "SG",
+                          "US"
+                        )
+                      ))
+",
+  "infra/infra/constructs/websites/website2.py": "from aws_cdk import Stack
+from constructs import Construct
+from aws_cdk.aws_cloudfront import GeoRestriction
+from infra.constructs.apis.api import Api
+from infra.constructs.apis.api2 import Api2
+from aws_pdk.identity import UserIdentity
+from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionProps
+
+# Construct to deploy a Static Website
+class Website2(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, api: Api, api2: Api2, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        StaticWebsite(self, id,
+                      website_content_path='../website2/build',
+                      runtime_options=RuntimeOptions(
+                        json_payload={
+                            'region': Stack.of(self).region,
+                            'identityPoolId': user_identity.identity_pool.identity_pool_id,
+                            'userPoolId': user_identity.user_pool.user_pool_id,
+                            'userPoolWebClientId': user_identity.user_pool_client.user_pool_client_id,
+                            'typeSafeApis': { 'Api': api.api.api.url_for_path(), 'Api2': api2.api.api.url_for_path() }
+                        }
+                      ),
+                      distribution_props=DistributionProps(
+                        geo_restriction=GeoRestriction.allowlist(
+                          "AU",
+                          "ID",
+                          "IN",
+                          "JP",
+                          "KR",
+                          "SG",
+                          "US"
+                        )
+                      ))
+",
+  "infra/infra/stacks/__init__.py": "",
+  "infra/infra/stacks/application_stack.py": "from aws_cdk import Stack
+from aws_pdk.identity import UserIdentity
+from constructs import Construct
+from infra.constructs.apis.api import Api
+from infra.constructs.websites.website import Website
+from infra.constructs.websites.website2 import Website2
+
+class ApplicationStack(Stack):
+    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
+        api = Api(self, 'Api', user_identity)
+        Website(self, 'Website', user_identity)
+        Website2(self, 'Website2', user_identity, api, api2)
+
+",
+  "infra/main.py": "import os
+from aws_cdk import Environment
+from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
+from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
+from aws_pdk.cdk_graph_plugin_threat_composer import CdkGraphThreatComposerPlugin
+from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
+from infra.stacks.application_stack import ApplicationStack
+
+# for development, use account/region from cdk cli
+dev_env = Environment(
+  account=os.getenv('CDK_DEFAULT_ACCOUNT'),
+  region=os.getenv('CDK_DEFAULT_REGION')
+)
+
+app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
+ApplicationStack(app, "infra-dev", env=dev_env)
+
+graph = CdkGraph(app, plugins=[
+    CdkGraphDiagramPlugin(
+        defaults=IDiagramConfigBase(
+            filter_plan=IGraphFilterPlan(
+                preset=FilterPreset.COMPACT,
+                filters=[IFilter(store=Filters.prune_custom_resources())]
+            )
+        )
+    ),
+    CdkGraphThreatComposerPlugin(),
+])
+app.synth()
+graph.report()",
+  "infra/poetry.toml": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+[repositories.testpypi]
+url = "https://test.pypi.org/legacy/"
+",
+  "infra/project.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "implicitDependencies": [
+      "Api-python-infra",
+      "Website",
+      "Website2",
+    ],
+    "name": "WithMultipleWebsiteSingleApi",
+    "root": "infra",
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen build",
+          "cwd": "infra",
+        },
+      },
+      "compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen compile",
+          "cwd": "infra",
+        },
+      },
+      "default": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen default",
+          "cwd": "infra",
+        },
+      },
+      "deploy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy",
+          "cwd": "infra",
+        },
+      },
+      "deploy:dev": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen deploy:dev",
+          "cwd": "infra",
+        },
+      },
+      "destroy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen destroy",
+          "cwd": "infra",
+        },
+      },
+      "diff": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen diff",
+          "cwd": "infra",
+        },
+      },
+      "install": {
+        "dependsOn": [
+          "^install",
+        ],
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen install",
+          "cwd": "infra",
+        },
+      },
+      "package": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen package",
+          "cwd": "infra",
+        },
+      },
+      "post-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen post-compile",
+          "cwd": "infra",
+        },
+      },
+      "pre-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen pre-compile",
+          "cwd": "infra",
+        },
+      },
+      "publish": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen publish",
+          "cwd": "infra",
+        },
+      },
+      "publish:test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen publish:test",
+          "cwd": "infra",
+        },
+      },
+      "synth": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth",
+          "cwd": "infra",
+        },
+      },
+      "synth:silent": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen synth:silent",
+          "cwd": "infra",
+        },
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen test",
+          "cwd": "infra",
+        },
+      },
+      "watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx projen watch",
+          "cwd": "infra",
+        },
+      },
+    },
+  },
+  "infra/pyproject.toml": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+[build-system]
+requires = [ "poetry_core>=1.0.0" ]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "WithMultipleWebsiteSingleApi"
 version = "0.0.0"
 description = ""
 authors = [ "pdkuser <user@pdk.com>" ]
@@ -2117,16 +4305,18 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
     },
   },
-  "infra/infra/constructs/website.py": "from aws_cdk import Stack
+  "infra/infra/__init__.py": "",
+  "infra/infra/constructs/apis/__init__.py": "",
+  "infra/infra/constructs/websites/__init__.py": "",
+  "infra/infra/constructs/websites/website.py": "from aws_cdk import Stack
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
-# from infra.constructs.api import ApiConstruct
 from aws_pdk.identity import UserIdentity
 from aws_pdk.static_website import StaticWebsite, RuntimeOptions, DistributionProps
 
 # Construct to deploy a Static Website
-class WebsiteConstruct(Construct):
-    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity''', api_construct: ApiConstruct''', **kwargs) -> None:
+class Website(Construct):
+    def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         StaticWebsite(self, id,
@@ -2137,7 +4327,7 @@ class WebsiteConstruct(Construct):
                             'identityPoolId': user_identity.identity_pool.identity_pool_id,
                             'userPoolId': user_identity.user_pool.user_pool_id,
                             'userPoolWebClientId': user_identity.user_pool_client.user_pool_client_id,
-                            ''''apiUrl': api_construct.api.api.url_for_path(),'''
+                            'typeSafeApis': {  }
                         }
                       ),
                       distribution_props=DistributionProps(
@@ -2152,17 +4342,18 @@ class WebsiteConstruct(Construct):
                         )
                       ))
 ",
+  "infra/infra/stacks/__init__.py": "",
   "infra/infra/stacks/application_stack.py": "from aws_cdk import Stack
 from aws_pdk.identity import UserIdentity
 from constructs import Construct
-from infra.constructs.website import WebsiteConstruct
+from infra.constructs.websites.website import Website
 
 class ApplicationStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
-        WebsiteConstruct(self, 'Website', user_identity)
+        Website(self, 'Website', user_identity)
 
 ",
   "infra/main.py": "import os

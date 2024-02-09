@@ -4,6 +4,7 @@ import { CloudscapeReactTsWebsiteProject } from "@aws/cloudscape-react-ts-websit
 import { MonorepoTsProject } from "@aws/monorepo";
 import {
   Language,
+  Library,
   ModelLanguage,
   TypeSafeApiProject,
 } from "@aws/type-safe-api";
@@ -13,6 +14,8 @@ import { synthSnapshot } from "projen/lib/util/synth";
 export interface BuildOptionsProps {
   readonly typeSafeApi: TypeSafeApiProject;
   readonly cloudscapeReactTsWebsite: CloudscapeReactTsWebsiteProject;
+  readonly typeSafeApis: TypeSafeApiProject[];
+  readonly cloudscapeReactTsWebsites: CloudscapeReactTsWebsiteProject[];
 }
 
 export const snapshotInfrastructureProject = <
@@ -45,6 +48,32 @@ export const snapshotInfrastructureProject = <
     infrastructure: {
       language,
     },
+    library: {
+      libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+    },
+  });
+
+  const typeSafeApi2 = new TypeSafeApiProject({
+    parent: monorepo,
+    outdir: "api2",
+    name: "Api2",
+    model: {
+      language: ModelLanguage.SMITHY,
+      options: {
+        smithy: {
+          serviceName: {
+            namespace: "com.aws",
+            serviceName: "Api2",
+          },
+        },
+      },
+    },
+    infrastructure: {
+      language,
+    },
+    library: {
+      libraries: [Library.TYPESCRIPT_REACT_QUERY_HOOKS],
+    },
   });
 
   const cloudscapeReactTsWebsite = new CloudscapeReactTsWebsiteProject({
@@ -53,8 +82,23 @@ export const snapshotInfrastructureProject = <
     name: "Website",
   });
 
+  const cloudscapeReactTsWebsite2 = new CloudscapeReactTsWebsiteProject({
+    parent: monorepo,
+    outdir: "website2",
+    name: "Website2",
+    typeSafeApis: [typeSafeApi, typeSafeApi2],
+  });
+
   new InfrastructureProject({
-    ...buildOptions({ typeSafeApi, cloudscapeReactTsWebsite }),
+    ...buildOptions({
+      typeSafeApi,
+      cloudscapeReactTsWebsite,
+      typeSafeApis: [typeSafeApi, typeSafeApi2],
+      cloudscapeReactTsWebsites: [
+        cloudscapeReactTsWebsite,
+        cloudscapeReactTsWebsite2,
+      ],
+    }),
     parent: monorepo,
     outdir: "infra",
   });

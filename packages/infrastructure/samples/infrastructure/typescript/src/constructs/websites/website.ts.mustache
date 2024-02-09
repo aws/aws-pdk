@@ -3,16 +3,20 @@ import { StaticWebsite } from "@aws/pdk/static-website";
 import { Stack } from "aws-cdk-lib";
 import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
 import { Construct } from "constructs";
-{{^hasApi}}// {{/hasApi}}import { ApiConstruct } from "./api";
+{{#typeSafeApis}}
+import { {{{apiName}}} } from "../apis/{{{apiNameLowercase}}}";
+{{/typeSafeApis}}
 
 /**
  * Website construct props
  */
-export interface WebsiteConstructProps {
+export interface {{{websiteName}}}Props {
+  {{#typeSafeApis}}
   /**
    * Instance of an API to configure the website to integrate with
    */
-  {{^hasApi}}// {{/hasApi}}readonly apiConstruct: ApiConstruct;
+  readonly {{{apiNameLowercase}}}: {{{apiName}}};
+  {{/typeSafeApis}}
 
   /**
    * Instance of the UserIdentity.
@@ -23,8 +27,8 @@ export interface WebsiteConstructProps {
 /**
  * Construct to deploy a Static Website
  */
-export class WebsiteConstruct extends Construct {
-  constructor(scope: Construct, id: string, props?: WebsiteConstructProps) {
+export class {{{websiteName}}} extends Construct {
+  constructor(scope: Construct, id: string, props?: {{{websiteName}}}Props) {
     super(scope, id);
 
     new StaticWebsite(this, id, {
@@ -36,7 +40,7 @@ export class WebsiteConstruct extends Construct {
           userPoolId: props?.userIdentity.userPool?.userPoolId,
           userPoolWebClientId:
             props?.userIdentity.userPoolClient?.userPoolClientId,
-          {{^hasApi}}// {{/hasApi}}apiUrl: props?.apiConstruct.api.api.urlForPath(),
+          typeSafeApis: { {{#typeSafeApis}}{{{apiName}}}: props?.{{{apiNameLowercase}}}.api.api.urlForPath(){{^isLast}},{{/isLast}}{{/typeSafeApis}} },
         },
       },
       distributionProps: {

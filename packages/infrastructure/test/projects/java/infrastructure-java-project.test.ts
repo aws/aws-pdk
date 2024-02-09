@@ -55,4 +55,34 @@ describe("InfrastructureJavaProject", () => {
       }))
     ).toMatchSnapshot();
   });
+
+  it("With Multiple Apis and Website", () => {
+    expect(
+      snapshot(({ cloudscapeReactTsWebsites, typeSafeApis }) => ({
+        name: "WithMultipleApiAndWebsites",
+        typeSafeApis,
+        cloudscapeReactTsWebsites,
+      }))
+    ).toMatchSnapshot();
+  });
+
+  it("With Multiple Apis and Single Website", () => {
+    expect(
+      snapshot(({ cloudscapeReactTsWebsite, typeSafeApis }) => ({
+        name: "WithMultipleApiAndSingleWebsite",
+        typeSafeApis,
+        cloudscapeReactTsWebsite,
+      }))
+    ).toMatchSnapshot();
+  });
+
+  it("With Multiple Websites and Single API", () => {
+    expect(
+      snapshot(({ cloudscapeReactTsWebsites, typeSafeApi }) => ({
+        name: "WithMultipleWebsiteSingleApi",
+        typeSafeApi,
+        cloudscapeReactTsWebsites,
+      }))
+    ).toMatchSnapshot();
+  });
 });

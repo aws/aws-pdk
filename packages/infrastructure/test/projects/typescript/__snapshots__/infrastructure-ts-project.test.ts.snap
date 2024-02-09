@@ -2315,7 +2315,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       },
     },
   },
-  "infra/src/constructs/api.ts": "import { UserIdentity } from "@aws/pdk/identity";
+  "infra/src/constructs/apis/api.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { Authorizers } from "@aws/pdk/type-safe-api";
 import { Stack } from "aws-cdk-lib";
 import { Cors } from "aws-cdk-lib/aws-apigateway";
@@ -2332,7 +2332,7 @@ import { Api, MockIntegrations } from "Api-typescript-infra";
 /**
  * Api construct props.
  */
-export interface ApiConstructProps {
+export interface ApiProps {
   /**
    * Instance of the UserIdentity.
    */
@@ -2342,13 +2342,13 @@ export interface ApiConstructProps {
 /**
  * Infrastructure construct to deploy a Type Safe API.
  */
-export class ApiConstruct extends Construct {
+export class Api extends Construct {
   /**
    * API instance
    */
   public readonly api: Api;
 
-  constructor(scope: Construct, id: string, props?: ApiConstructProps) {
+  constructor(scope: Construct, id: string, props?: ApiProps) {
     super(scope, id);
 
     this.api = new Api(this, id, {
@@ -2434,14 +2434,14 @@ const devEnv = {
   "infra/src/stacks/application-stack.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { ApiConstruct } from "../constructs/api";
+import { Api } from "../constructs/apis/api";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const userIdentity = new UserIdentity(this, \`\${id}UserIdentity\`);
-    new ApiConstruct(this, "Api", {
+    new Api(this, "Api", {
       userIdentity,
     });
   }
@@ -3553,7 +3553,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       },
     },
   },
-  "infra/src/constructs/api.ts": "import { UserIdentity } from "@aws/pdk/identity";
+  "infra/src/constructs/apis/api.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { Authorizers } from "@aws/pdk/type-safe-api";
 import { Stack } from "aws-cdk-lib";
 import { Cors } from "aws-cdk-lib/aws-apigateway";
@@ -3570,7 +3570,7 @@ import { Api, MockIntegrations } from "Api-typescript-infra";
 /**
  * Api construct props.
  */
-export interface ApiConstructProps {
+export interface ApiProps {
   /**
    * Instance of the UserIdentity.
    */
@@ -3580,13 +3580,13 @@ export interface ApiConstructProps {
 /**
  * Infrastructure construct to deploy a Type Safe API.
  */
-export class ApiConstruct extends Construct {
+export class Api extends Construct {
   /**
    * API instance
    */
   public readonly api: Api;
 
-  constructor(scope: Construct, id: string, props?: ApiConstructProps) {
+  constructor(scope: Construct, id: string, props?: ApiProps) {
     super(scope, id);
 
     this.api = new Api(this, id, {
@@ -3631,21 +3631,16 @@ export class ApiConstruct extends Construct {
   }
 }
 ",
-  "infra/src/constructs/website.ts": "import { UserIdentity } from "@aws/pdk/identity";
+  "infra/src/constructs/websites/website.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { StaticWebsite } from "@aws/pdk/static-website";
 import { Stack } from "aws-cdk-lib";
 import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
 import { Construct } from "constructs";
-import { ApiConstruct } from "./api";
 
 /**
  * Website construct props
  */
-export interface WebsiteConstructProps {
-  /**
-   * Instance of an API to configure the website to integrate with
-   */
-  readonly apiConstruct: ApiConstruct;
+export interface WebsiteProps {
 
   /**
    * Instance of the UserIdentity.
@@ -3656,8 +3651,8 @@ export interface WebsiteConstructProps {
 /**
  * Construct to deploy a Static Website
  */
-export class WebsiteConstruct extends Construct {
-  constructor(scope: Construct, id: string, props?: WebsiteConstructProps) {
+export class Website extends Construct {
+  constructor(scope: Construct, id: string, props?: WebsiteProps) {
     super(scope, id);
 
     new StaticWebsite(this, id, {
@@ -3669,7 +3664,7 @@ export class WebsiteConstruct extends Construct {
           userPoolId: props?.userIdentity.userPool?.userPoolId,
           userPoolWebClientId:
             props?.userIdentity.userPoolClient?.userPoolClientId,
-          apiUrl: props?.apiConstruct.api.api.urlForPath(),
+          typeSafeApis: {  },
         },
       },
       distributionProps: {
@@ -3728,18 +3723,4205 @@ const devEnv = {
   "infra/src/stacks/application-stack.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { ApiConstruct } from "../constructs/api";
-import { WebsiteConstruct } from "../constructs/website";
+import { Api } from "../constructs/apis/api";
+import { Website } from "../constructs/websites/website";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const userIdentity = new UserIdentity(this, \`\${id}UserIdentity\`);
-    const apiConstruct = new ApiConstruct(this, "Api", {
+    const api = new Api(this, "Api", {
       userIdentity,
     });
-    new WebsiteConstruct(this, "Website", { userIdentity, apiConstruct });
+    new Website(this, "Website", { userIdentity });
+  }
+}
+",
+  "infra/test/main.test.ts": "import { App } from "aws-cdk-lib";
+import { Template } from "aws-cdk-lib/assertions";
+import { ApplicationStack } from "../src/stacks/application-stack";
+
+test("Snapshot", () => {
+  const app = new App();
+  const stack = new ApplicationStack(app, "test");
+
+  const template = Template.fromStack(stack);
+  expect(template.toJSON()).toMatchSnapshot();
+});
+",
+  "infra/tsconfig.dev.json": {
+    "compilerOptions": {
+      "alwaysStrict": true,
+      "declaration": true,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "inlineSourceMap": true,
+      "inlineSources": true,
+      "lib": [
+        "es2019",
+      ],
+      "module": "CommonJS",
+      "noEmitOnError": false,
+      "noFallthroughCasesInSwitch": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "resolveJsonModule": true,
+      "strict": true,
+      "strictNullChecks": true,
+      "strictPropertyInitialization": true,
+      "stripInternal": true,
+      "target": "ES2019",
+    },
+    "exclude": [
+      "node_modules",
+    ],
+    "include": [
+      "src/**/*.ts",
+      "test/**/*.ts",
+    ],
+  },
+  "infra/tsconfig.json": {
+    "compilerOptions": {
+      "alwaysStrict": true,
+      "declaration": true,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "inlineSourceMap": true,
+      "inlineSources": true,
+      "lib": [
+        "es2019",
+      ],
+      "module": "CommonJS",
+      "noEmitOnError": false,
+      "noFallthroughCasesInSwitch": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "outDir": "lib",
+      "resolveJsonModule": true,
+      "rootDir": "src",
+      "strict": true,
+      "strictNullChecks": true,
+      "strictPropertyInitialization": true,
+      "stripInternal": true,
+      "target": "ES2019",
+    },
+    "exclude": [
+      "cdk.out",
+    ],
+    "include": [
+      "src/**/*.ts",
+    ],
+  },
+}
+`;
+
+exports[`InfrastructureTsProject With Multiple Apis and Single Website 1`] = `
+{
+  "infra/.eslintrc.json": {
+    "env": {
+      "jest": true,
+      "node": true,
+    },
+    "extends": [
+      "plugin:import/typescript",
+      "plugin:prettier/recommended",
+    ],
+    "ignorePatterns": [
+      "*.js",
+      "*.d.ts",
+      "node_modules/",
+      "*.generated.ts",
+      "coverage",
+    ],
+    "overrides": [],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaVersion": 2018,
+      "project": "./tsconfig.dev.json",
+      "sourceType": "module",
+    },
+    "plugins": [
+      "@typescript-eslint",
+      "import",
+    ],
+    "root": true,
+    "rules": {
+      "@typescript-eslint/member-ordering": [
+        "error",
+        {
+          "default": [
+            "public-static-field",
+            "public-static-method",
+            "protected-static-field",
+            "protected-static-method",
+            "private-static-field",
+            "private-static-method",
+            "field",
+            "constructor",
+            "method",
+          ],
+        },
+      ],
+      "@typescript-eslint/no-floating-promises": [
+        "error",
+      ],
+      "@typescript-eslint/no-require-imports": [
+        "error",
+      ],
+      "@typescript-eslint/no-shadow": [
+        "error",
+      ],
+      "@typescript-eslint/return-await": [
+        "error",
+      ],
+      "dot-notation": [
+        "error",
+      ],
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          "devDependencies": [
+            "**/test/**",
+            "**/build-tools/**",
+          ],
+          "optionalDependencies": false,
+          "peerDependencies": true,
+        },
+      ],
+      "import/no-unresolved": [
+        "error",
+      ],
+      "import/order": [
+        "warn",
+        {
+          "alphabetize": {
+            "caseInsensitive": true,
+            "order": "asc",
+          },
+          "groups": [
+            "builtin",
+            "external",
+          ],
+        },
+      ],
+      "key-spacing": [
+        "error",
+      ],
+      "no-bitwise": [
+        "error",
+      ],
+      "no-duplicate-imports": [
+        "error",
+      ],
+      "no-multiple-empty-lines": [
+        "error",
+      ],
+      "no-return-await": [
+        "off",
+      ],
+      "no-shadow": [
+        "off",
+      ],
+      "no-trailing-spaces": [
+        "error",
+      ],
+    },
+    "settings": {
+      "import/parsers": {
+        "@typescript-eslint/parser": [
+          ".ts",
+          ".tsx",
+        ],
+      },
+      "import/resolver": {
+        "node": {},
+        "typescript": {
+          "alwaysTryTypes": true,
+          "project": "./tsconfig.dev.json",
+        },
+      },
+    },
+  },
+  "infra/.gitattributes": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+/.eslintrc.json linguist-generated
+/.gitattributes linguist-generated
+/.gitignore linguist-generated
+/.npmignore linguist-generated
+/.prettierignore linguist-generated
+/.prettierrc.json linguist-generated
+/.projen/** linguist-generated
+/.projen/deps.json linguist-generated
+/.projen/files.json linguist-generated
+/.projen/tasks.json linguist-generated
+/cdk.json linguist-generated
+/LICENSE linguist-generated
+/package.json linguist-generated
+/project.json linguist-generated
+/tsconfig.dev.json linguist-generated
+/tsconfig.json linguist-generated
+/yarn.lock linguist-generated",
+  "infra/.gitignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+!/.gitattributes
+!/.projen/tasks.json
+!/.projen/deps.json
+!/.projen/files.json
+!/package.json
+!/LICENSE
+!/.npmignore
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+pids
+*.pid
+*.seed
+*.pid.lock
+lib-cov
+coverage
+*.lcov
+.nyc_output
+build/Release
+node_modules/
+jspm_packages/
+*.tsbuildinfo
+.eslintcache
+*.tgz
+.yarn-integrity
+.cache
+/test-reports/
+junit.xml
+/coverage/
+!/.prettierignore
+!/.prettierrc.json
+!/test/
+!/tsconfig.json
+!/tsconfig.dev.json
+!/src/
+/lib
+/dist/
+!/.eslintrc.json
+/assets/
+!/cdk.json
+/cdk.out/
+.cdk.staging/
+.parcel-cache/
+!/project.json
+",
+  "infra/.npmignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+/.projen/
+/test-reports/
+junit.xml
+/coverage/
+/.prettierignore
+/.prettierrc.json
+/test/
+/tsconfig.dev.json
+/src/
+!/lib/
+!/lib/**/*.js
+!/lib/**/*.d.ts
+dist
+/tsconfig.json
+/.github/
+/.vscode/
+/.idea/
+/.projenrc.js
+tsconfig.tsbuildinfo
+/.eslintrc.json
+!/assets/
+cdk.out/
+.cdk.staging/
+/.gitattributes
+",
+  "infra/.prettierignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+",
+  "infra/.prettierrc.json": {
+    "overrides": [],
+  },
+  "infra/.projen/deps.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": [
+      {
+        "name": "@types/jest",
+        "type": "build",
+      },
+      {
+        "name": "@types/node",
+        "type": "build",
+        "version": "^18",
+      },
+      {
+        "name": "@typescript-eslint/eslint-plugin",
+        "type": "build",
+        "version": "^6",
+      },
+      {
+        "name": "@typescript-eslint/parser",
+        "type": "build",
+        "version": "^6",
+      },
+      {
+        "name": "aws-cdk",
+        "type": "build",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "esbuild",
+        "type": "build",
+      },
+      {
+        "name": "eslint-config-prettier",
+        "type": "build",
+      },
+      {
+        "name": "eslint-import-resolver-typescript",
+        "type": "build",
+      },
+      {
+        "name": "eslint-plugin-import",
+        "type": "build",
+      },
+      {
+        "name": "eslint-plugin-prettier",
+        "type": "build",
+      },
+      {
+        "name": "eslint",
+        "type": "build",
+        "version": "^8",
+      },
+      {
+        "name": "jest",
+        "type": "build",
+      },
+      {
+        "name": "jest-junit",
+        "type": "build",
+        "version": "^15",
+      },
+      {
+        "name": "prettier",
+        "type": "build",
+      },
+      {
+        "name": "projen",
+        "type": "build",
+        "version": "^0.79.6",
+      },
+      {
+        "name": "ts-jest",
+        "type": "build",
+      },
+      {
+        "name": "ts-node",
+        "type": "build",
+      },
+      {
+        "name": "typescript",
+        "type": "build",
+      },
+      {
+        "name": "Website",
+        "type": "build",
+        "version": "0.0.0",
+      },
+      {
+        "name": "@aws/pdk",
+        "type": "runtime",
+      },
+      {
+        "name": "Api-typescript-infra",
+        "type": "runtime",
+        "version": "0.0.0",
+      },
+      {
+        "name": "Api2-typescript-infra",
+        "type": "runtime",
+        "version": "0.0.0",
+      },
+      {
+        "name": "aws-cdk-lib",
+        "type": "runtime",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "constructs",
+        "type": "runtime",
+        "version": "^10.0.5",
+      },
+    ],
+  },
+  "infra/.projen/files.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "files": [
+      ".eslintrc.json",
+      ".gitattributes",
+      ".gitignore",
+      ".npmignore",
+      ".prettierignore",
+      ".prettierrc.json",
+      ".projen/deps.json",
+      ".projen/files.json",
+      ".projen/tasks.json",
+      "cdk.json",
+      "LICENSE",
+      "project.json",
+      "tsconfig.dev.json",
+      "tsconfig.json",
+    ],
+  },
+  "infra/.projen/tasks.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "env": {
+      "PATH": "$(npx -c "node --print process.env.PATH")",
+    },
+    "tasks": {
+      "build": {
+        "description": "Full release build",
+        "name": "build",
+        "steps": [
+          {
+            "spawn": "pre-compile",
+          },
+          {
+            "spawn": "compile",
+          },
+          {
+            "spawn": "post-compile",
+          },
+          {
+            "spawn": "test",
+          },
+          {
+            "spawn": "package",
+          },
+        ],
+      },
+      "bundle": {
+        "description": "Prepare assets",
+        "name": "bundle",
+      },
+      "compile": {
+        "description": "Only compile",
+        "name": "compile",
+      },
+      "default": {
+        "description": "Synthesize project files",
+        "name": "default",
+      },
+      "deploy": {
+        "description": "Deploys your CDK app to the AWS cloud",
+        "name": "deploy",
+        "steps": [
+          {
+            "exec": "cdk deploy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "deploy:dev": {
+        "description": "Performs a hotswap CDK deployment, useful for faster development cycles",
+        "name": "deploy:dev",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap-fallback --require-approval never",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "destroy": {
+        "description": "Destroys your cdk app in the AWS cloud",
+        "name": "destroy",
+        "steps": [
+          {
+            "exec": "cdk destroy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "diff": {
+        "description": "Diffs the currently deployed app against your code",
+        "name": "diff",
+        "steps": [
+          {
+            "exec": "cdk diff",
+          },
+        ],
+      },
+      "eslint": {
+        "description": "Runs eslint against the codebase",
+        "name": "eslint",
+        "steps": [
+          {
+            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern $@ src test build-tools",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "install": {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": [
+          {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": [
+          {
+            "exec": "yarn install --check-files --frozen-lockfile",
+          },
+        ],
+      },
+      "package": {
+        "description": "Creates the distribution package",
+        "name": "package",
+      },
+      "post-compile": {
+        "description": "Runs after successful compilation",
+        "name": "post-compile",
+        "steps": [
+          {
+            "spawn": "synth:silent",
+          },
+        ],
+      },
+      "post-upgrade": {
+        "description": "Runs after upgrading dependencies",
+        "name": "post-upgrade",
+      },
+      "pre-compile": {
+        "description": "Prepare the project for compilation",
+        "name": "pre-compile",
+      },
+      "synth": {
+        "description": "Synthesizes your cdk app into cdk.out",
+        "name": "synth",
+        "steps": [
+          {
+            "exec": "cdk synth",
+          },
+        ],
+      },
+      "synth:silent": {
+        "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of "yarn build")",
+        "name": "synth:silent",
+        "steps": [
+          {
+            "exec": "cdk synth -q",
+          },
+        ],
+      },
+      "test": {
+        "description": "Run tests",
+        "name": "test",
+        "steps": [
+          {
+            "exec": "jest --passWithNoTests \${CI:-'--updateSnapshot'}",
+          },
+          {
+            "spawn": "eslint",
+          },
+        ],
+      },
+      "test:watch": {
+        "description": "Run jest in watch mode",
+        "name": "test:watch",
+        "steps": [
+          {
+            "exec": "jest --watch",
+          },
+        ],
+      },
+      "upgrade": {
+        "description": "upgrade dependencies",
+        "env": {
+          "CI": "0",
+        },
+        "name": "upgrade",
+        "steps": [
+          {
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,@types/node,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,aws-cdk,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,eslint,jest,jest-junit,prettier,projen,ts-jest,ts-node,typescript,@aws/pdk,aws-cdk-lib,constructs",
+          },
+          {
+            "exec": "yarn install --check-files",
+          },
+          {
+            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen ts-jest ts-node typescript @aws/pdk aws-cdk-lib constructs",
+          },
+          {
+            "exec": "npx projen",
+          },
+          {
+            "spawn": "post-upgrade",
+          },
+        ],
+      },
+      "watch": {
+        "description": "Watches changes in your source code and rebuilds and deploys to the current account",
+        "name": "watch",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap",
+          },
+          {
+            "exec": "cdk watch",
+          },
+        ],
+      },
+    },
+  },
+  "infra/LICENSE": "
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+",
+  "infra/README.md": "## Getting started
+
+Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infrastructure/index.html)",
+  "infra/cdk.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "app": "npx ts-node -P tsconfig.json --prefer-ts-exts src/main.ts",
+    "build": "npx projen bundle",
+    "output": "cdk.out",
+    "watch": {
+      "exclude": [
+        "README.md",
+        "cdk*.json",
+        "**/*.d.ts",
+        "**/*.js",
+        "tsconfig.json",
+        "package*.json",
+        "yarn.lock",
+        "node_modules",
+      ],
+      "include": [
+        "src/**/*.ts",
+        "test/**/*.ts",
+      ],
+    },
+  },
+  "infra/package.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": {
+      "@aws/pdk": "*",
+      "Api-typescript-infra": "0.0.0",
+      "Api2-typescript-infra": "0.0.0",
+      "aws-cdk-lib": "^2.1.0",
+      "constructs": "^10.0.5",
+    },
+    "devDependencies": {
+      "@types/jest": "*",
+      "@types/node": "^18",
+      "@typescript-eslint/eslint-plugin": "^6",
+      "@typescript-eslint/parser": "^6",
+      "Website": "0.0.0",
+      "aws-cdk": "^2.1.0",
+      "esbuild": "*",
+      "eslint": "^8",
+      "eslint-config-prettier": "*",
+      "eslint-import-resolver-typescript": "*",
+      "eslint-plugin-import": "*",
+      "eslint-plugin-prettier": "*",
+      "jest": "*",
+      "jest-junit": "^15",
+      "prettier": "*",
+      "projen": "^0.79.6",
+      "ts-jest": "*",
+      "ts-node": "*",
+      "typescript": "*",
+    },
+    "jest": {
+      "clearMocks": true,
+      "collectCoverage": true,
+      "coverageDirectory": "coverage",
+      "coveragePathIgnorePatterns": [
+        "/node_modules/",
+      ],
+      "coverageReporters": [
+        "json",
+        "lcov",
+        "clover",
+        "cobertura",
+        "text",
+      ],
+      "reporters": [
+        "default",
+        [
+          "jest-junit",
+          {
+            "outputDirectory": "test-reports",
+          },
+        ],
+      ],
+      "testMatch": [
+        "<rootDir>/src/**/__tests__/**/*.ts?(x)",
+        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+      ],
+      "testPathIgnorePatterns": [
+        "/node_modules/",
+      ],
+      "transform": {
+        "^.+\\.[t]sx?$": [
+          "ts-jest",
+          {
+            "tsconfig": "tsconfig.dev.json",
+          },
+        ],
+      },
+      "watchPathIgnorePatterns": [
+        "/node_modules/",
+      ],
+    },
+    "license": "Apache-2.0",
+    "name": "WithMultipleApiAndSingleWebsite",
+    "scripts": {
+      "build": "npx projen build",
+      "bundle": "npx projen bundle",
+      "compile": "npx projen compile",
+      "default": "npx projen default",
+      "deploy": "npx projen deploy",
+      "deploy:dev": "npx projen deploy:dev",
+      "destroy": "npx projen destroy",
+      "diff": "npx projen diff",
+      "eslint": "npx projen eslint",
+      "package": "npx projen package",
+      "post-compile": "npx projen post-compile",
+      "post-upgrade": "npx projen post-upgrade",
+      "pre-compile": "npx projen pre-compile",
+      "synth": "npx projen synth",
+      "synth:silent": "npx projen synth:silent",
+      "test": "npx projen test",
+      "test:watch": "npx projen test:watch",
+      "upgrade": "npx projen upgrade",
+      "watch": "npx projen watch",
+    },
+    "version": "0.0.0",
+  },
+  "infra/project.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "name": "WithMultipleApiAndSingleWebsite",
+    "root": "infra",
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen build",
+          "cwd": "infra",
+        },
+      },
+      "bundle": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen bundle",
+          "cwd": "infra",
+        },
+      },
+      "compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen compile",
+          "cwd": "infra",
+        },
+      },
+      "default": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen default",
+          "cwd": "infra",
+        },
+      },
+      "deploy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen deploy",
+          "cwd": "infra",
+        },
+      },
+      "deploy:dev": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen deploy:dev",
+          "cwd": "infra",
+        },
+      },
+      "destroy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen destroy",
+          "cwd": "infra",
+        },
+      },
+      "diff": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen diff",
+          "cwd": "infra",
+        },
+      },
+      "eslint": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen eslint",
+          "cwd": "infra",
+        },
+      },
+      "package": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen package",
+          "cwd": "infra",
+        },
+      },
+      "post-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen post-compile",
+          "cwd": "infra",
+        },
+      },
+      "post-upgrade": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen post-upgrade",
+          "cwd": "infra",
+        },
+      },
+      "pre-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen pre-compile",
+          "cwd": "infra",
+        },
+      },
+      "synth": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen synth",
+          "cwd": "infra",
+        },
+      },
+      "synth:silent": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen synth:silent",
+          "cwd": "infra",
+        },
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen test",
+          "cwd": "infra",
+        },
+      },
+      "test:watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen test:watch",
+          "cwd": "infra",
+        },
+      },
+      "upgrade": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen upgrade",
+          "cwd": "infra",
+        },
+      },
+      "watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen watch",
+          "cwd": "infra",
+        },
+      },
+    },
+  },
+  "infra/src/constructs/apis/api.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { Authorizers } from "@aws/pdk/type-safe-api";
+import { Stack } from "aws-cdk-lib";
+import { Cors } from "aws-cdk-lib/aws-apigateway";
+import {
+  AccountPrincipal,
+  AnyPrincipal,
+  Effect,
+  PolicyDocument,
+  PolicyStatement,
+} from "aws-cdk-lib/aws-iam";
+import { Construct } from "constructs";
+import { Api, MockIntegrations } from "Api-typescript-infra";
+
+/**
+ * Api construct props.
+ */
+export interface ApiProps {
+  /**
+   * Instance of the UserIdentity.
+   */
+  readonly userIdentity: UserIdentity;
+}
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+export class Api extends Construct {
+  /**
+   * API instance
+   */
+  public readonly api: Api;
+
+  constructor(scope: Construct, id: string, props?: ApiProps) {
+    super(scope, id);
+
+    this.api = new Api(this, id, {
+      defaultAuthorizer: Authorizers.iam(),
+      corsOptions: {
+        allowOrigins: Cors.ALL_ORIGINS,
+        allowMethods: Cors.ALL_METHODS,
+      },
+      integrations: MockIntegrations.mockAll(),
+      policy: new PolicyDocument({
+        statements: [
+          // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+          // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+          // users) and resources (ie which api paths may be invoked by which principal) if required.
+          // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+          // still be granted access to the API.
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            principals: [new AccountPrincipal(Stack.of(this).account)],
+            actions: ["execute-api:Invoke"],
+            resources: ["execute-api:/*"],
+          }),
+          // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            principals: [new AnyPrincipal()],
+            actions: ["execute-api:Invoke"],
+            resources: ["execute-api:/*/OPTIONS/*"],
+          }),
+        ],
+      }),
+    });
+
+    // Grant authenticated users access to invoke the api
+    props?.userIdentity.identityPool.authenticatedRole.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ["execute-api:Invoke"],
+        resources: [this.api.api.arnForExecuteApi("*", "/*", "*")],
+      }),
+    );
+  }
+}
+",
+  "infra/src/constructs/apis/api2.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { Authorizers } from "@aws/pdk/type-safe-api";
+import { Stack } from "aws-cdk-lib";
+import { Cors } from "aws-cdk-lib/aws-apigateway";
+import {
+  AccountPrincipal,
+  AnyPrincipal,
+  Effect,
+  PolicyDocument,
+  PolicyStatement,
+} from "aws-cdk-lib/aws-iam";
+import { Construct } from "constructs";
+import { Api, MockIntegrations } from "Api2-typescript-infra";
+
+/**
+ * Api construct props.
+ */
+export interface Api2Props {
+  /**
+   * Instance of the UserIdentity.
+   */
+  readonly userIdentity: UserIdentity;
+}
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+export class Api2 extends Construct {
+  /**
+   * API instance
+   */
+  public readonly api: Api;
+
+  constructor(scope: Construct, id: string, props?: Api2Props) {
+    super(scope, id);
+
+    this.api = new Api(this, id, {
+      defaultAuthorizer: Authorizers.iam(),
+      corsOptions: {
+        allowOrigins: Cors.ALL_ORIGINS,
+        allowMethods: Cors.ALL_METHODS,
+      },
+      integrations: MockIntegrations.mockAll(),
+      policy: new PolicyDocument({
+        statements: [
+          // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+          // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+          // users) and resources (ie which api paths may be invoked by which principal) if required.
+          // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+          // still be granted access to the API.
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            principals: [new AccountPrincipal(Stack.of(this).account)],
+            actions: ["execute-api:Invoke"],
+            resources: ["execute-api:/*"],
+          }),
+          // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            principals: [new AnyPrincipal()],
+            actions: ["execute-api:Invoke"],
+            resources: ["execute-api:/*/OPTIONS/*"],
+          }),
+        ],
+      }),
+    });
+
+    // Grant authenticated users access to invoke the api
+    props?.userIdentity.identityPool.authenticatedRole.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ["execute-api:Invoke"],
+        resources: [this.api.api.arnForExecuteApi("*", "/*", "*")],
+      }),
+    );
+  }
+}
+",
+  "infra/src/constructs/websites/website.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { StaticWebsite } from "@aws/pdk/static-website";
+import { Stack } from "aws-cdk-lib";
+import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
+import { Construct } from "constructs";
+
+/**
+ * Website construct props
+ */
+export interface WebsiteProps {
+
+  /**
+   * Instance of the UserIdentity.
+   */
+  readonly userIdentity: UserIdentity;
+}
+
+/**
+ * Construct to deploy a Static Website
+ */
+export class Website extends Construct {
+  constructor(scope: Construct, id: string, props?: WebsiteProps) {
+    super(scope, id);
+
+    new StaticWebsite(this, id, {
+      websiteContentPath: "../website/build",
+      runtimeOptions: {
+        jsonPayload: {
+          region: Stack.of(this).region,
+          identityPoolId: props?.userIdentity.identityPool.identityPoolId,
+          userPoolId: props?.userIdentity.userPool?.userPoolId,
+          userPoolWebClientId:
+            props?.userIdentity.userPoolClient?.userPoolClientId,
+          typeSafeApis: {  },
+        },
+      },
+      distributionProps: {
+        geoRestriction: GeoRestriction.allowlist(
+          "AU",
+          "ID",
+          "IN",
+          "JP",
+          "KR",
+          "SG",
+          "US",
+        ),
+      },
+    });
+  }
+}
+",
+  "infra/src/main.ts": "import { CdkGraph, FilterPreset, Filters } from "@aws/pdk/cdk-graph";
+import { CdkGraphDiagramPlugin } from "@aws/pdk/cdk-graph-plugin-diagram";
+import { CdkGraphThreatComposerPlugin } from "@aws/pdk/cdk-graph-plugin-threat-composer";
+import { AwsPrototypingChecks, PDKNag } from "@aws/pdk/pdk-nag";
+import { ApplicationStack } from "./stacks/application-stack";
+
+// for development, use account/region from cdk cli
+const devEnv = {
+  account: process.env.CDK_DEFAULT_ACCOUNT,
+  region: process.env.CDK_DEFAULT_REGION,
+};
+
+/* eslint-disable @typescript-eslint/no-floating-promises */
+(async () => {
+  const app = PDKNag.app({
+    nagPacks: [new AwsPrototypingChecks()],
+  });
+
+  new ApplicationStack(app, "infra-dev", { env: devEnv });
+
+  const graph = new CdkGraph(app, {
+    plugins: [
+      new CdkGraphDiagramPlugin({
+        defaults: {
+          filterPlan: {
+            preset: FilterPreset.COMPACT,
+            filters: [{ store: Filters.pruneCustomResources() }],
+          },
+        },
+      }),
+      new CdkGraphThreatComposerPlugin(),
+    ],
+  });
+
+  app.synth();
+  await graph.report();
+})();
+",
+  "infra/src/stacks/application-stack.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { Stack, StackProps } from "aws-cdk-lib";
+import { Construct } from "constructs";
+import { Api } from "../constructs/apis/api";
+import { Api2 } from "../constructs/apis/api2";
+import { Website } from "../constructs/websites/website";
+
+export class ApplicationStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const userIdentity = new UserIdentity(this, \`\${id}UserIdentity\`);
+    const api = new Api(this, "Api", {
+      userIdentity,
+    });
+    const api2 = new Api2(this, "Api2", {
+      userIdentity,
+    });
+    new Website(this, "Website", { userIdentity });
+  }
+}
+",
+  "infra/test/main.test.ts": "import { App } from "aws-cdk-lib";
+import { Template } from "aws-cdk-lib/assertions";
+import { ApplicationStack } from "../src/stacks/application-stack";
+
+test("Snapshot", () => {
+  const app = new App();
+  const stack = new ApplicationStack(app, "test");
+
+  const template = Template.fromStack(stack);
+  expect(template.toJSON()).toMatchSnapshot();
+});
+",
+  "infra/tsconfig.dev.json": {
+    "compilerOptions": {
+      "alwaysStrict": true,
+      "declaration": true,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "inlineSourceMap": true,
+      "inlineSources": true,
+      "lib": [
+        "es2019",
+      ],
+      "module": "CommonJS",
+      "noEmitOnError": false,
+      "noFallthroughCasesInSwitch": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "resolveJsonModule": true,
+      "strict": true,
+      "strictNullChecks": true,
+      "strictPropertyInitialization": true,
+      "stripInternal": true,
+      "target": "ES2019",
+    },
+    "exclude": [
+      "node_modules",
+    ],
+    "include": [
+      "src/**/*.ts",
+      "test/**/*.ts",
+    ],
+  },
+  "infra/tsconfig.json": {
+    "compilerOptions": {
+      "alwaysStrict": true,
+      "declaration": true,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "inlineSourceMap": true,
+      "inlineSources": true,
+      "lib": [
+        "es2019",
+      ],
+      "module": "CommonJS",
+      "noEmitOnError": false,
+      "noFallthroughCasesInSwitch": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "outDir": "lib",
+      "resolveJsonModule": true,
+      "rootDir": "src",
+      "strict": true,
+      "strictNullChecks": true,
+      "strictPropertyInitialization": true,
+      "stripInternal": true,
+      "target": "ES2019",
+    },
+    "exclude": [
+      "cdk.out",
+    ],
+    "include": [
+      "src/**/*.ts",
+    ],
+  },
+}
+`;
+
+exports[`InfrastructureTsProject With Multiple Apis and Website 1`] = `
+{
+  "infra/.eslintrc.json": {
+    "env": {
+      "jest": true,
+      "node": true,
+    },
+    "extends": [
+      "plugin:import/typescript",
+      "plugin:prettier/recommended",
+    ],
+    "ignorePatterns": [
+      "*.js",
+      "*.d.ts",
+      "node_modules/",
+      "*.generated.ts",
+      "coverage",
+    ],
+    "overrides": [],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaVersion": 2018,
+      "project": "./tsconfig.dev.json",
+      "sourceType": "module",
+    },
+    "plugins": [
+      "@typescript-eslint",
+      "import",
+    ],
+    "root": true,
+    "rules": {
+      "@typescript-eslint/member-ordering": [
+        "error",
+        {
+          "default": [
+            "public-static-field",
+            "public-static-method",
+            "protected-static-field",
+            "protected-static-method",
+            "private-static-field",
+            "private-static-method",
+            "field",
+            "constructor",
+            "method",
+          ],
+        },
+      ],
+      "@typescript-eslint/no-floating-promises": [
+        "error",
+      ],
+      "@typescript-eslint/no-require-imports": [
+        "error",
+      ],
+      "@typescript-eslint/no-shadow": [
+        "error",
+      ],
+      "@typescript-eslint/return-await": [
+        "error",
+      ],
+      "dot-notation": [
+        "error",
+      ],
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          "devDependencies": [
+            "**/test/**",
+            "**/build-tools/**",
+          ],
+          "optionalDependencies": false,
+          "peerDependencies": true,
+        },
+      ],
+      "import/no-unresolved": [
+        "error",
+      ],
+      "import/order": [
+        "warn",
+        {
+          "alphabetize": {
+            "caseInsensitive": true,
+            "order": "asc",
+          },
+          "groups": [
+            "builtin",
+            "external",
+          ],
+        },
+      ],
+      "key-spacing": [
+        "error",
+      ],
+      "no-bitwise": [
+        "error",
+      ],
+      "no-duplicate-imports": [
+        "error",
+      ],
+      "no-multiple-empty-lines": [
+        "error",
+      ],
+      "no-return-await": [
+        "off",
+      ],
+      "no-shadow": [
+        "off",
+      ],
+      "no-trailing-spaces": [
+        "error",
+      ],
+    },
+    "settings": {
+      "import/parsers": {
+        "@typescript-eslint/parser": [
+          ".ts",
+          ".tsx",
+        ],
+      },
+      "import/resolver": {
+        "node": {},
+        "typescript": {
+          "alwaysTryTypes": true,
+          "project": "./tsconfig.dev.json",
+        },
+      },
+    },
+  },
+  "infra/.gitattributes": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+/.eslintrc.json linguist-generated
+/.gitattributes linguist-generated
+/.gitignore linguist-generated
+/.npmignore linguist-generated
+/.prettierignore linguist-generated
+/.prettierrc.json linguist-generated
+/.projen/** linguist-generated
+/.projen/deps.json linguist-generated
+/.projen/files.json linguist-generated
+/.projen/tasks.json linguist-generated
+/cdk.json linguist-generated
+/LICENSE linguist-generated
+/package.json linguist-generated
+/project.json linguist-generated
+/tsconfig.dev.json linguist-generated
+/tsconfig.json linguist-generated
+/yarn.lock linguist-generated",
+  "infra/.gitignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+!/.gitattributes
+!/.projen/tasks.json
+!/.projen/deps.json
+!/.projen/files.json
+!/package.json
+!/LICENSE
+!/.npmignore
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+pids
+*.pid
+*.seed
+*.pid.lock
+lib-cov
+coverage
+*.lcov
+.nyc_output
+build/Release
+node_modules/
+jspm_packages/
+*.tsbuildinfo
+.eslintcache
+*.tgz
+.yarn-integrity
+.cache
+/test-reports/
+junit.xml
+/coverage/
+!/.prettierignore
+!/.prettierrc.json
+!/test/
+!/tsconfig.json
+!/tsconfig.dev.json
+!/src/
+/lib
+/dist/
+!/.eslintrc.json
+/assets/
+!/cdk.json
+/cdk.out/
+.cdk.staging/
+.parcel-cache/
+!/project.json
+",
+  "infra/.npmignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+/.projen/
+/test-reports/
+junit.xml
+/coverage/
+/.prettierignore
+/.prettierrc.json
+/test/
+/tsconfig.dev.json
+/src/
+!/lib/
+!/lib/**/*.js
+!/lib/**/*.d.ts
+dist
+/tsconfig.json
+/.github/
+/.vscode/
+/.idea/
+/.projenrc.js
+tsconfig.tsbuildinfo
+/.eslintrc.json
+!/assets/
+cdk.out/
+.cdk.staging/
+/.gitattributes
+",
+  "infra/.prettierignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+",
+  "infra/.prettierrc.json": {
+    "overrides": [],
+  },
+  "infra/.projen/deps.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": [
+      {
+        "name": "@types/jest",
+        "type": "build",
+      },
+      {
+        "name": "@types/node",
+        "type": "build",
+        "version": "^18",
+      },
+      {
+        "name": "@typescript-eslint/eslint-plugin",
+        "type": "build",
+        "version": "^6",
+      },
+      {
+        "name": "@typescript-eslint/parser",
+        "type": "build",
+        "version": "^6",
+      },
+      {
+        "name": "aws-cdk",
+        "type": "build",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "esbuild",
+        "type": "build",
+      },
+      {
+        "name": "eslint-config-prettier",
+        "type": "build",
+      },
+      {
+        "name": "eslint-import-resolver-typescript",
+        "type": "build",
+      },
+      {
+        "name": "eslint-plugin-import",
+        "type": "build",
+      },
+      {
+        "name": "eslint-plugin-prettier",
+        "type": "build",
+      },
+      {
+        "name": "eslint",
+        "type": "build",
+        "version": "^8",
+      },
+      {
+        "name": "jest",
+        "type": "build",
+      },
+      {
+        "name": "jest-junit",
+        "type": "build",
+        "version": "^15",
+      },
+      {
+        "name": "prettier",
+        "type": "build",
+      },
+      {
+        "name": "projen",
+        "type": "build",
+        "version": "^0.79.6",
+      },
+      {
+        "name": "ts-jest",
+        "type": "build",
+      },
+      {
+        "name": "ts-node",
+        "type": "build",
+      },
+      {
+        "name": "typescript",
+        "type": "build",
+      },
+      {
+        "name": "Website",
+        "type": "build",
+        "version": "0.0.0",
+      },
+      {
+        "name": "Website2",
+        "type": "build",
+        "version": "0.0.0",
+      },
+      {
+        "name": "@aws/pdk",
+        "type": "runtime",
+      },
+      {
+        "name": "Api-typescript-infra",
+        "type": "runtime",
+        "version": "0.0.0",
+      },
+      {
+        "name": "Api2-typescript-infra",
+        "type": "runtime",
+        "version": "0.0.0",
+      },
+      {
+        "name": "aws-cdk-lib",
+        "type": "runtime",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "constructs",
+        "type": "runtime",
+        "version": "^10.0.5",
+      },
+    ],
+  },
+  "infra/.projen/files.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "files": [
+      ".eslintrc.json",
+      ".gitattributes",
+      ".gitignore",
+      ".npmignore",
+      ".prettierignore",
+      ".prettierrc.json",
+      ".projen/deps.json",
+      ".projen/files.json",
+      ".projen/tasks.json",
+      "cdk.json",
+      "LICENSE",
+      "project.json",
+      "tsconfig.dev.json",
+      "tsconfig.json",
+    ],
+  },
+  "infra/.projen/tasks.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "env": {
+      "PATH": "$(npx -c "node --print process.env.PATH")",
+    },
+    "tasks": {
+      "build": {
+        "description": "Full release build",
+        "name": "build",
+        "steps": [
+          {
+            "spawn": "pre-compile",
+          },
+          {
+            "spawn": "compile",
+          },
+          {
+            "spawn": "post-compile",
+          },
+          {
+            "spawn": "test",
+          },
+          {
+            "spawn": "package",
+          },
+        ],
+      },
+      "bundle": {
+        "description": "Prepare assets",
+        "name": "bundle",
+      },
+      "compile": {
+        "description": "Only compile",
+        "name": "compile",
+      },
+      "default": {
+        "description": "Synthesize project files",
+        "name": "default",
+      },
+      "deploy": {
+        "description": "Deploys your CDK app to the AWS cloud",
+        "name": "deploy",
+        "steps": [
+          {
+            "exec": "cdk deploy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "deploy:dev": {
+        "description": "Performs a hotswap CDK deployment, useful for faster development cycles",
+        "name": "deploy:dev",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap-fallback --require-approval never",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "destroy": {
+        "description": "Destroys your cdk app in the AWS cloud",
+        "name": "destroy",
+        "steps": [
+          {
+            "exec": "cdk destroy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "diff": {
+        "description": "Diffs the currently deployed app against your code",
+        "name": "diff",
+        "steps": [
+          {
+            "exec": "cdk diff",
+          },
+        ],
+      },
+      "eslint": {
+        "description": "Runs eslint against the codebase",
+        "name": "eslint",
+        "steps": [
+          {
+            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern $@ src test build-tools",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "install": {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": [
+          {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": [
+          {
+            "exec": "yarn install --check-files --frozen-lockfile",
+          },
+        ],
+      },
+      "package": {
+        "description": "Creates the distribution package",
+        "name": "package",
+      },
+      "post-compile": {
+        "description": "Runs after successful compilation",
+        "name": "post-compile",
+        "steps": [
+          {
+            "spawn": "synth:silent",
+          },
+        ],
+      },
+      "post-upgrade": {
+        "description": "Runs after upgrading dependencies",
+        "name": "post-upgrade",
+      },
+      "pre-compile": {
+        "description": "Prepare the project for compilation",
+        "name": "pre-compile",
+      },
+      "synth": {
+        "description": "Synthesizes your cdk app into cdk.out",
+        "name": "synth",
+        "steps": [
+          {
+            "exec": "cdk synth",
+          },
+        ],
+      },
+      "synth:silent": {
+        "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of "yarn build")",
+        "name": "synth:silent",
+        "steps": [
+          {
+            "exec": "cdk synth -q",
+          },
+        ],
+      },
+      "test": {
+        "description": "Run tests",
+        "name": "test",
+        "steps": [
+          {
+            "exec": "jest --passWithNoTests \${CI:-'--updateSnapshot'}",
+          },
+          {
+            "spawn": "eslint",
+          },
+        ],
+      },
+      "test:watch": {
+        "description": "Run jest in watch mode",
+        "name": "test:watch",
+        "steps": [
+          {
+            "exec": "jest --watch",
+          },
+        ],
+      },
+      "upgrade": {
+        "description": "upgrade dependencies",
+        "env": {
+          "CI": "0",
+        },
+        "name": "upgrade",
+        "steps": [
+          {
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,@types/node,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,aws-cdk,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,eslint,jest,jest-junit,prettier,projen,ts-jest,ts-node,typescript,@aws/pdk,aws-cdk-lib,constructs",
+          },
+          {
+            "exec": "yarn install --check-files",
+          },
+          {
+            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen ts-jest ts-node typescript @aws/pdk aws-cdk-lib constructs",
+          },
+          {
+            "exec": "npx projen",
+          },
+          {
+            "spawn": "post-upgrade",
+          },
+        ],
+      },
+      "watch": {
+        "description": "Watches changes in your source code and rebuilds and deploys to the current account",
+        "name": "watch",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap",
+          },
+          {
+            "exec": "cdk watch",
+          },
+        ],
+      },
+    },
+  },
+  "infra/LICENSE": "
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+",
+  "infra/README.md": "## Getting started
+
+Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infrastructure/index.html)",
+  "infra/cdk.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "app": "npx ts-node -P tsconfig.json --prefer-ts-exts src/main.ts",
+    "build": "npx projen bundle",
+    "output": "cdk.out",
+    "watch": {
+      "exclude": [
+        "README.md",
+        "cdk*.json",
+        "**/*.d.ts",
+        "**/*.js",
+        "tsconfig.json",
+        "package*.json",
+        "yarn.lock",
+        "node_modules",
+      ],
+      "include": [
+        "src/**/*.ts",
+        "test/**/*.ts",
+      ],
+    },
+  },
+  "infra/package.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": {
+      "@aws/pdk": "*",
+      "Api-typescript-infra": "0.0.0",
+      "Api2-typescript-infra": "0.0.0",
+      "aws-cdk-lib": "^2.1.0",
+      "constructs": "^10.0.5",
+    },
+    "devDependencies": {
+      "@types/jest": "*",
+      "@types/node": "^18",
+      "@typescript-eslint/eslint-plugin": "^6",
+      "@typescript-eslint/parser": "^6",
+      "Website": "0.0.0",
+      "Website2": "0.0.0",
+      "aws-cdk": "^2.1.0",
+      "esbuild": "*",
+      "eslint": "^8",
+      "eslint-config-prettier": "*",
+      "eslint-import-resolver-typescript": "*",
+      "eslint-plugin-import": "*",
+      "eslint-plugin-prettier": "*",
+      "jest": "*",
+      "jest-junit": "^15",
+      "prettier": "*",
+      "projen": "^0.79.6",
+      "ts-jest": "*",
+      "ts-node": "*",
+      "typescript": "*",
+    },
+    "jest": {
+      "clearMocks": true,
+      "collectCoverage": true,
+      "coverageDirectory": "coverage",
+      "coveragePathIgnorePatterns": [
+        "/node_modules/",
+      ],
+      "coverageReporters": [
+        "json",
+        "lcov",
+        "clover",
+        "cobertura",
+        "text",
+      ],
+      "reporters": [
+        "default",
+        [
+          "jest-junit",
+          {
+            "outputDirectory": "test-reports",
+          },
+        ],
+      ],
+      "testMatch": [
+        "<rootDir>/src/**/__tests__/**/*.ts?(x)",
+        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+      ],
+      "testPathIgnorePatterns": [
+        "/node_modules/",
+      ],
+      "transform": {
+        "^.+\\.[t]sx?$": [
+          "ts-jest",
+          {
+            "tsconfig": "tsconfig.dev.json",
+          },
+        ],
+      },
+      "watchPathIgnorePatterns": [
+        "/node_modules/",
+      ],
+    },
+    "license": "Apache-2.0",
+    "name": "WithMultipleApiAndWebsites",
+    "scripts": {
+      "build": "npx projen build",
+      "bundle": "npx projen bundle",
+      "compile": "npx projen compile",
+      "default": "npx projen default",
+      "deploy": "npx projen deploy",
+      "deploy:dev": "npx projen deploy:dev",
+      "destroy": "npx projen destroy",
+      "diff": "npx projen diff",
+      "eslint": "npx projen eslint",
+      "package": "npx projen package",
+      "post-compile": "npx projen post-compile",
+      "post-upgrade": "npx projen post-upgrade",
+      "pre-compile": "npx projen pre-compile",
+      "synth": "npx projen synth",
+      "synth:silent": "npx projen synth:silent",
+      "test": "npx projen test",
+      "test:watch": "npx projen test:watch",
+      "upgrade": "npx projen upgrade",
+      "watch": "npx projen watch",
+    },
+    "version": "0.0.0",
+  },
+  "infra/project.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "name": "WithMultipleApiAndWebsites",
+    "root": "infra",
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen build",
+          "cwd": "infra",
+        },
+      },
+      "bundle": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen bundle",
+          "cwd": "infra",
+        },
+      },
+      "compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen compile",
+          "cwd": "infra",
+        },
+      },
+      "default": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen default",
+          "cwd": "infra",
+        },
+      },
+      "deploy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen deploy",
+          "cwd": "infra",
+        },
+      },
+      "deploy:dev": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen deploy:dev",
+          "cwd": "infra",
+        },
+      },
+      "destroy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen destroy",
+          "cwd": "infra",
+        },
+      },
+      "diff": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen diff",
+          "cwd": "infra",
+        },
+      },
+      "eslint": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen eslint",
+          "cwd": "infra",
+        },
+      },
+      "package": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen package",
+          "cwd": "infra",
+        },
+      },
+      "post-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen post-compile",
+          "cwd": "infra",
+        },
+      },
+      "post-upgrade": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen post-upgrade",
+          "cwd": "infra",
+        },
+      },
+      "pre-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen pre-compile",
+          "cwd": "infra",
+        },
+      },
+      "synth": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen synth",
+          "cwd": "infra",
+        },
+      },
+      "synth:silent": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen synth:silent",
+          "cwd": "infra",
+        },
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen test",
+          "cwd": "infra",
+        },
+      },
+      "test:watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen test:watch",
+          "cwd": "infra",
+        },
+      },
+      "upgrade": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen upgrade",
+          "cwd": "infra",
+        },
+      },
+      "watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen watch",
+          "cwd": "infra",
+        },
+      },
+    },
+  },
+  "infra/src/constructs/apis/api.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { Authorizers } from "@aws/pdk/type-safe-api";
+import { Stack } from "aws-cdk-lib";
+import { Cors } from "aws-cdk-lib/aws-apigateway";
+import {
+  AccountPrincipal,
+  AnyPrincipal,
+  Effect,
+  PolicyDocument,
+  PolicyStatement,
+} from "aws-cdk-lib/aws-iam";
+import { Construct } from "constructs";
+import { Api, MockIntegrations } from "Api-typescript-infra";
+
+/**
+ * Api construct props.
+ */
+export interface ApiProps {
+  /**
+   * Instance of the UserIdentity.
+   */
+  readonly userIdentity: UserIdentity;
+}
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+export class Api extends Construct {
+  /**
+   * API instance
+   */
+  public readonly api: Api;
+
+  constructor(scope: Construct, id: string, props?: ApiProps) {
+    super(scope, id);
+
+    this.api = new Api(this, id, {
+      defaultAuthorizer: Authorizers.iam(),
+      corsOptions: {
+        allowOrigins: Cors.ALL_ORIGINS,
+        allowMethods: Cors.ALL_METHODS,
+      },
+      integrations: MockIntegrations.mockAll(),
+      policy: new PolicyDocument({
+        statements: [
+          // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+          // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+          // users) and resources (ie which api paths may be invoked by which principal) if required.
+          // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+          // still be granted access to the API.
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            principals: [new AccountPrincipal(Stack.of(this).account)],
+            actions: ["execute-api:Invoke"],
+            resources: ["execute-api:/*"],
+          }),
+          // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            principals: [new AnyPrincipal()],
+            actions: ["execute-api:Invoke"],
+            resources: ["execute-api:/*/OPTIONS/*"],
+          }),
+        ],
+      }),
+    });
+
+    // Grant authenticated users access to invoke the api
+    props?.userIdentity.identityPool.authenticatedRole.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ["execute-api:Invoke"],
+        resources: [this.api.api.arnForExecuteApi("*", "/*", "*")],
+      }),
+    );
+  }
+}
+",
+  "infra/src/constructs/apis/api2.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { Authorizers } from "@aws/pdk/type-safe-api";
+import { Stack } from "aws-cdk-lib";
+import { Cors } from "aws-cdk-lib/aws-apigateway";
+import {
+  AccountPrincipal,
+  AnyPrincipal,
+  Effect,
+  PolicyDocument,
+  PolicyStatement,
+} from "aws-cdk-lib/aws-iam";
+import { Construct } from "constructs";
+import { Api, MockIntegrations } from "Api2-typescript-infra";
+
+/**
+ * Api construct props.
+ */
+export interface Api2Props {
+  /**
+   * Instance of the UserIdentity.
+   */
+  readonly userIdentity: UserIdentity;
+}
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+export class Api2 extends Construct {
+  /**
+   * API instance
+   */
+  public readonly api: Api;
+
+  constructor(scope: Construct, id: string, props?: Api2Props) {
+    super(scope, id);
+
+    this.api = new Api(this, id, {
+      defaultAuthorizer: Authorizers.iam(),
+      corsOptions: {
+        allowOrigins: Cors.ALL_ORIGINS,
+        allowMethods: Cors.ALL_METHODS,
+      },
+      integrations: MockIntegrations.mockAll(),
+      policy: new PolicyDocument({
+        statements: [
+          // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+          // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+          // users) and resources (ie which api paths may be invoked by which principal) if required.
+          // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+          // still be granted access to the API.
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            principals: [new AccountPrincipal(Stack.of(this).account)],
+            actions: ["execute-api:Invoke"],
+            resources: ["execute-api:/*"],
+          }),
+          // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            principals: [new AnyPrincipal()],
+            actions: ["execute-api:Invoke"],
+            resources: ["execute-api:/*/OPTIONS/*"],
+          }),
+        ],
+      }),
+    });
+
+    // Grant authenticated users access to invoke the api
+    props?.userIdentity.identityPool.authenticatedRole.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ["execute-api:Invoke"],
+        resources: [this.api.api.arnForExecuteApi("*", "/*", "*")],
+      }),
+    );
+  }
+}
+",
+  "infra/src/constructs/websites/website.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { StaticWebsite } from "@aws/pdk/static-website";
+import { Stack } from "aws-cdk-lib";
+import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
+import { Construct } from "constructs";
+
+/**
+ * Website construct props
+ */
+export interface WebsiteProps {
+
+  /**
+   * Instance of the UserIdentity.
+   */
+  readonly userIdentity: UserIdentity;
+}
+
+/**
+ * Construct to deploy a Static Website
+ */
+export class Website extends Construct {
+  constructor(scope: Construct, id: string, props?: WebsiteProps) {
+    super(scope, id);
+
+    new StaticWebsite(this, id, {
+      websiteContentPath: "../website/build",
+      runtimeOptions: {
+        jsonPayload: {
+          region: Stack.of(this).region,
+          identityPoolId: props?.userIdentity.identityPool.identityPoolId,
+          userPoolId: props?.userIdentity.userPool?.userPoolId,
+          userPoolWebClientId:
+            props?.userIdentity.userPoolClient?.userPoolClientId,
+          typeSafeApis: {  },
+        },
+      },
+      distributionProps: {
+        geoRestriction: GeoRestriction.allowlist(
+          "AU",
+          "ID",
+          "IN",
+          "JP",
+          "KR",
+          "SG",
+          "US",
+        ),
+      },
+    });
+  }
+}
+",
+  "infra/src/constructs/websites/website2.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { StaticWebsite } from "@aws/pdk/static-website";
+import { Stack } from "aws-cdk-lib";
+import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
+import { Construct } from "constructs";
+import { Api } from "../apis/api";
+import { Api2 } from "../apis/api2";
+
+/**
+ * Website construct props
+ */
+export interface Website2Props {
+  /**
+   * Instance of an API to configure the website to integrate with
+   */
+  readonly api: Api;
+  /**
+   * Instance of an API to configure the website to integrate with
+   */
+  readonly api2: Api2;
+
+  /**
+   * Instance of the UserIdentity.
+   */
+  readonly userIdentity: UserIdentity;
+}
+
+/**
+ * Construct to deploy a Static Website
+ */
+export class Website2 extends Construct {
+  constructor(scope: Construct, id: string, props?: Website2Props) {
+    super(scope, id);
+
+    new StaticWebsite(this, id, {
+      websiteContentPath: "../website2/build",
+      runtimeOptions: {
+        jsonPayload: {
+          region: Stack.of(this).region,
+          identityPoolId: props?.userIdentity.identityPool.identityPoolId,
+          userPoolId: props?.userIdentity.userPool?.userPoolId,
+          userPoolWebClientId:
+            props?.userIdentity.userPoolClient?.userPoolClientId,
+          typeSafeApis: { Api: props?.api.api.api.urlForPath(),Api2: props?.api2.api.api.urlForPath() },
+        },
+      },
+      distributionProps: {
+        geoRestriction: GeoRestriction.allowlist(
+          "AU",
+          "ID",
+          "IN",
+          "JP",
+          "KR",
+          "SG",
+          "US",
+        ),
+      },
+    });
+  }
+}
+",
+  "infra/src/main.ts": "import { CdkGraph, FilterPreset, Filters } from "@aws/pdk/cdk-graph";
+import { CdkGraphDiagramPlugin } from "@aws/pdk/cdk-graph-plugin-diagram";
+import { CdkGraphThreatComposerPlugin } from "@aws/pdk/cdk-graph-plugin-threat-composer";
+import { AwsPrototypingChecks, PDKNag } from "@aws/pdk/pdk-nag";
+import { ApplicationStack } from "./stacks/application-stack";
+
+// for development, use account/region from cdk cli
+const devEnv = {
+  account: process.env.CDK_DEFAULT_ACCOUNT,
+  region: process.env.CDK_DEFAULT_REGION,
+};
+
+/* eslint-disable @typescript-eslint/no-floating-promises */
+(async () => {
+  const app = PDKNag.app({
+    nagPacks: [new AwsPrototypingChecks()],
+  });
+
+  new ApplicationStack(app, "infra-dev", { env: devEnv });
+
+  const graph = new CdkGraph(app, {
+    plugins: [
+      new CdkGraphDiagramPlugin({
+        defaults: {
+          filterPlan: {
+            preset: FilterPreset.COMPACT,
+            filters: [{ store: Filters.pruneCustomResources() }],
+          },
+        },
+      }),
+      new CdkGraphThreatComposerPlugin(),
+    ],
+  });
+
+  app.synth();
+  await graph.report();
+})();
+",
+  "infra/src/stacks/application-stack.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { Stack, StackProps } from "aws-cdk-lib";
+import { Construct } from "constructs";
+import { Api } from "../constructs/apis/api";
+import { Api2 } from "../constructs/apis/api2";
+import { Website } from "../constructs/websites/website";
+import { Website2 } from "../constructs/websites/website2";
+
+export class ApplicationStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const userIdentity = new UserIdentity(this, \`\${id}UserIdentity\`);
+    const api = new Api(this, "Api", {
+      userIdentity,
+    });
+    const api2 = new Api2(this, "Api2", {
+      userIdentity,
+    });
+    new Website(this, "Website", { userIdentity });
+    new Website2(this, "Website2", { userIdentity, api, api2 });
+  }
+}
+",
+  "infra/test/main.test.ts": "import { App } from "aws-cdk-lib";
+import { Template } from "aws-cdk-lib/assertions";
+import { ApplicationStack } from "../src/stacks/application-stack";
+
+test("Snapshot", () => {
+  const app = new App();
+  const stack = new ApplicationStack(app, "test");
+
+  const template = Template.fromStack(stack);
+  expect(template.toJSON()).toMatchSnapshot();
+});
+",
+  "infra/tsconfig.dev.json": {
+    "compilerOptions": {
+      "alwaysStrict": true,
+      "declaration": true,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "inlineSourceMap": true,
+      "inlineSources": true,
+      "lib": [
+        "es2019",
+      ],
+      "module": "CommonJS",
+      "noEmitOnError": false,
+      "noFallthroughCasesInSwitch": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "resolveJsonModule": true,
+      "strict": true,
+      "strictNullChecks": true,
+      "strictPropertyInitialization": true,
+      "stripInternal": true,
+      "target": "ES2019",
+    },
+    "exclude": [
+      "node_modules",
+    ],
+    "include": [
+      "src/**/*.ts",
+      "test/**/*.ts",
+    ],
+  },
+  "infra/tsconfig.json": {
+    "compilerOptions": {
+      "alwaysStrict": true,
+      "declaration": true,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "inlineSourceMap": true,
+      "inlineSources": true,
+      "lib": [
+        "es2019",
+      ],
+      "module": "CommonJS",
+      "noEmitOnError": false,
+      "noFallthroughCasesInSwitch": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "outDir": "lib",
+      "resolveJsonModule": true,
+      "rootDir": "src",
+      "strict": true,
+      "strictNullChecks": true,
+      "strictPropertyInitialization": true,
+      "stripInternal": true,
+      "target": "ES2019",
+    },
+    "exclude": [
+      "cdk.out",
+    ],
+    "include": [
+      "src/**/*.ts",
+    ],
+  },
+}
+`;
+
+exports[`InfrastructureTsProject With Multiple Websites and Single API 1`] = `
+{
+  "infra/.eslintrc.json": {
+    "env": {
+      "jest": true,
+      "node": true,
+    },
+    "extends": [
+      "plugin:import/typescript",
+      "plugin:prettier/recommended",
+    ],
+    "ignorePatterns": [
+      "*.js",
+      "*.d.ts",
+      "node_modules/",
+      "*.generated.ts",
+      "coverage",
+    ],
+    "overrides": [],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaVersion": 2018,
+      "project": "./tsconfig.dev.json",
+      "sourceType": "module",
+    },
+    "plugins": [
+      "@typescript-eslint",
+      "import",
+    ],
+    "root": true,
+    "rules": {
+      "@typescript-eslint/member-ordering": [
+        "error",
+        {
+          "default": [
+            "public-static-field",
+            "public-static-method",
+            "protected-static-field",
+            "protected-static-method",
+            "private-static-field",
+            "private-static-method",
+            "field",
+            "constructor",
+            "method",
+          ],
+        },
+      ],
+      "@typescript-eslint/no-floating-promises": [
+        "error",
+      ],
+      "@typescript-eslint/no-require-imports": [
+        "error",
+      ],
+      "@typescript-eslint/no-shadow": [
+        "error",
+      ],
+      "@typescript-eslint/return-await": [
+        "error",
+      ],
+      "dot-notation": [
+        "error",
+      ],
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          "devDependencies": [
+            "**/test/**",
+            "**/build-tools/**",
+          ],
+          "optionalDependencies": false,
+          "peerDependencies": true,
+        },
+      ],
+      "import/no-unresolved": [
+        "error",
+      ],
+      "import/order": [
+        "warn",
+        {
+          "alphabetize": {
+            "caseInsensitive": true,
+            "order": "asc",
+          },
+          "groups": [
+            "builtin",
+            "external",
+          ],
+        },
+      ],
+      "key-spacing": [
+        "error",
+      ],
+      "no-bitwise": [
+        "error",
+      ],
+      "no-duplicate-imports": [
+        "error",
+      ],
+      "no-multiple-empty-lines": [
+        "error",
+      ],
+      "no-return-await": [
+        "off",
+      ],
+      "no-shadow": [
+        "off",
+      ],
+      "no-trailing-spaces": [
+        "error",
+      ],
+    },
+    "settings": {
+      "import/parsers": {
+        "@typescript-eslint/parser": [
+          ".ts",
+          ".tsx",
+        ],
+      },
+      "import/resolver": {
+        "node": {},
+        "typescript": {
+          "alwaysTryTypes": true,
+          "project": "./tsconfig.dev.json",
+        },
+      },
+    },
+  },
+  "infra/.gitattributes": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+
+/.eslintrc.json linguist-generated
+/.gitattributes linguist-generated
+/.gitignore linguist-generated
+/.npmignore linguist-generated
+/.prettierignore linguist-generated
+/.prettierrc.json linguist-generated
+/.projen/** linguist-generated
+/.projen/deps.json linguist-generated
+/.projen/files.json linguist-generated
+/.projen/tasks.json linguist-generated
+/cdk.json linguist-generated
+/LICENSE linguist-generated
+/package.json linguist-generated
+/project.json linguist-generated
+/tsconfig.dev.json linguist-generated
+/tsconfig.json linguist-generated
+/yarn.lock linguist-generated",
+  "infra/.gitignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+!/.gitattributes
+!/.projen/tasks.json
+!/.projen/deps.json
+!/.projen/files.json
+!/package.json
+!/LICENSE
+!/.npmignore
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+pids
+*.pid
+*.seed
+*.pid.lock
+lib-cov
+coverage
+*.lcov
+.nyc_output
+build/Release
+node_modules/
+jspm_packages/
+*.tsbuildinfo
+.eslintcache
+*.tgz
+.yarn-integrity
+.cache
+/test-reports/
+junit.xml
+/coverage/
+!/.prettierignore
+!/.prettierrc.json
+!/test/
+!/tsconfig.json
+!/tsconfig.dev.json
+!/src/
+/lib
+/dist/
+!/.eslintrc.json
+/assets/
+!/cdk.json
+/cdk.out/
+.cdk.staging/
+.parcel-cache/
+!/project.json
+",
+  "infra/.npmignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+/.projen/
+/test-reports/
+junit.xml
+/coverage/
+/.prettierignore
+/.prettierrc.json
+/test/
+/tsconfig.dev.json
+/src/
+!/lib/
+!/lib/**/*.js
+!/lib/**/*.d.ts
+dist
+/tsconfig.json
+/.github/
+/.vscode/
+/.idea/
+/.projenrc.js
+tsconfig.tsbuildinfo
+/.eslintrc.json
+!/assets/
+cdk.out/
+.cdk.staging/
+/.gitattributes
+",
+  "infra/.prettierignore": "# ~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".
+",
+  "infra/.prettierrc.json": {
+    "overrides": [],
+  },
+  "infra/.projen/deps.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": [
+      {
+        "name": "@types/jest",
+        "type": "build",
+      },
+      {
+        "name": "@types/node",
+        "type": "build",
+        "version": "^18",
+      },
+      {
+        "name": "@typescript-eslint/eslint-plugin",
+        "type": "build",
+        "version": "^6",
+      },
+      {
+        "name": "@typescript-eslint/parser",
+        "type": "build",
+        "version": "^6",
+      },
+      {
+        "name": "aws-cdk",
+        "type": "build",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "esbuild",
+        "type": "build",
+      },
+      {
+        "name": "eslint-config-prettier",
+        "type": "build",
+      },
+      {
+        "name": "eslint-import-resolver-typescript",
+        "type": "build",
+      },
+      {
+        "name": "eslint-plugin-import",
+        "type": "build",
+      },
+      {
+        "name": "eslint-plugin-prettier",
+        "type": "build",
+      },
+      {
+        "name": "eslint",
+        "type": "build",
+        "version": "^8",
+      },
+      {
+        "name": "jest",
+        "type": "build",
+      },
+      {
+        "name": "jest-junit",
+        "type": "build",
+        "version": "^15",
+      },
+      {
+        "name": "prettier",
+        "type": "build",
+      },
+      {
+        "name": "projen",
+        "type": "build",
+        "version": "^0.79.6",
+      },
+      {
+        "name": "ts-jest",
+        "type": "build",
+      },
+      {
+        "name": "ts-node",
+        "type": "build",
+      },
+      {
+        "name": "typescript",
+        "type": "build",
+      },
+      {
+        "name": "Website",
+        "type": "build",
+        "version": "0.0.0",
+      },
+      {
+        "name": "Website2",
+        "type": "build",
+        "version": "0.0.0",
+      },
+      {
+        "name": "@aws/pdk",
+        "type": "runtime",
+      },
+      {
+        "name": "Api-typescript-infra",
+        "type": "runtime",
+        "version": "0.0.0",
+      },
+      {
+        "name": "aws-cdk-lib",
+        "type": "runtime",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "constructs",
+        "type": "runtime",
+        "version": "^10.0.5",
+      },
+    ],
+  },
+  "infra/.projen/files.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "files": [
+      ".eslintrc.json",
+      ".gitattributes",
+      ".gitignore",
+      ".npmignore",
+      ".prettierignore",
+      ".prettierrc.json",
+      ".projen/deps.json",
+      ".projen/files.json",
+      ".projen/tasks.json",
+      "cdk.json",
+      "LICENSE",
+      "project.json",
+      "tsconfig.dev.json",
+      "tsconfig.json",
+    ],
+  },
+  "infra/.projen/tasks.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "env": {
+      "PATH": "$(npx -c "node --print process.env.PATH")",
+    },
+    "tasks": {
+      "build": {
+        "description": "Full release build",
+        "name": "build",
+        "steps": [
+          {
+            "spawn": "pre-compile",
+          },
+          {
+            "spawn": "compile",
+          },
+          {
+            "spawn": "post-compile",
+          },
+          {
+            "spawn": "test",
+          },
+          {
+            "spawn": "package",
+          },
+        ],
+      },
+      "bundle": {
+        "description": "Prepare assets",
+        "name": "bundle",
+      },
+      "compile": {
+        "description": "Only compile",
+        "name": "compile",
+      },
+      "default": {
+        "description": "Synthesize project files",
+        "name": "default",
+      },
+      "deploy": {
+        "description": "Deploys your CDK app to the AWS cloud",
+        "name": "deploy",
+        "steps": [
+          {
+            "exec": "cdk deploy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "deploy:dev": {
+        "description": "Performs a hotswap CDK deployment, useful for faster development cycles",
+        "name": "deploy:dev",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap-fallback --require-approval never",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "destroy": {
+        "description": "Destroys your cdk app in the AWS cloud",
+        "name": "destroy",
+        "steps": [
+          {
+            "exec": "cdk destroy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "diff": {
+        "description": "Diffs the currently deployed app against your code",
+        "name": "diff",
+        "steps": [
+          {
+            "exec": "cdk diff",
+          },
+        ],
+      },
+      "eslint": {
+        "description": "Runs eslint against the codebase",
+        "name": "eslint",
+        "steps": [
+          {
+            "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern $@ src test build-tools",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "install": {
+        "description": "Install project dependencies and update lockfile (non-frozen)",
+        "name": "install",
+        "steps": [
+          {
+            "exec": "yarn install --check-files",
+          },
+        ],
+      },
+      "install:ci": {
+        "description": "Install project dependencies using frozen lockfile",
+        "name": "install:ci",
+        "steps": [
+          {
+            "exec": "yarn install --check-files --frozen-lockfile",
+          },
+        ],
+      },
+      "package": {
+        "description": "Creates the distribution package",
+        "name": "package",
+      },
+      "post-compile": {
+        "description": "Runs after successful compilation",
+        "name": "post-compile",
+        "steps": [
+          {
+            "spawn": "synth:silent",
+          },
+        ],
+      },
+      "post-upgrade": {
+        "description": "Runs after upgrading dependencies",
+        "name": "post-upgrade",
+      },
+      "pre-compile": {
+        "description": "Prepare the project for compilation",
+        "name": "pre-compile",
+      },
+      "synth": {
+        "description": "Synthesizes your cdk app into cdk.out",
+        "name": "synth",
+        "steps": [
+          {
+            "exec": "cdk synth",
+          },
+        ],
+      },
+      "synth:silent": {
+        "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of "yarn build")",
+        "name": "synth:silent",
+        "steps": [
+          {
+            "exec": "cdk synth -q",
+          },
+        ],
+      },
+      "test": {
+        "description": "Run tests",
+        "name": "test",
+        "steps": [
+          {
+            "exec": "jest --passWithNoTests \${CI:-'--updateSnapshot'}",
+          },
+          {
+            "spawn": "eslint",
+          },
+        ],
+      },
+      "test:watch": {
+        "description": "Run jest in watch mode",
+        "name": "test:watch",
+        "steps": [
+          {
+            "exec": "jest --watch",
+          },
+        ],
+      },
+      "upgrade": {
+        "description": "upgrade dependencies",
+        "env": {
+          "CI": "0",
+        },
+        "name": "upgrade",
+        "steps": [
+          {
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,@types/node,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,aws-cdk,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,eslint,jest,jest-junit,prettier,projen,ts-jest,ts-node,typescript,@aws/pdk,aws-cdk-lib,constructs",
+          },
+          {
+            "exec": "yarn install --check-files",
+          },
+          {
+            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen ts-jest ts-node typescript @aws/pdk aws-cdk-lib constructs",
+          },
+          {
+            "exec": "npx projen",
+          },
+          {
+            "spawn": "post-upgrade",
+          },
+        ],
+      },
+      "watch": {
+        "description": "Watches changes in your source code and rebuilds and deploys to the current account",
+        "name": "watch",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap",
+          },
+          {
+            "exec": "cdk watch",
+          },
+        ],
+      },
+    },
+  },
+  "infra/LICENSE": "
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+",
+  "infra/README.md": "## Getting started
+
+Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infrastructure/index.html)",
+  "infra/cdk.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "app": "npx ts-node -P tsconfig.json --prefer-ts-exts src/main.ts",
+    "build": "npx projen bundle",
+    "output": "cdk.out",
+    "watch": {
+      "exclude": [
+        "README.md",
+        "cdk*.json",
+        "**/*.d.ts",
+        "**/*.js",
+        "tsconfig.json",
+        "package*.json",
+        "yarn.lock",
+        "node_modules",
+      ],
+      "include": [
+        "src/**/*.ts",
+        "test/**/*.ts",
+      ],
+    },
+  },
+  "infra/package.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "dependencies": {
+      "@aws/pdk": "*",
+      "Api-typescript-infra": "0.0.0",
+      "aws-cdk-lib": "^2.1.0",
+      "constructs": "^10.0.5",
+    },
+    "devDependencies": {
+      "@types/jest": "*",
+      "@types/node": "^18",
+      "@typescript-eslint/eslint-plugin": "^6",
+      "@typescript-eslint/parser": "^6",
+      "Website": "0.0.0",
+      "Website2": "0.0.0",
+      "aws-cdk": "^2.1.0",
+      "esbuild": "*",
+      "eslint": "^8",
+      "eslint-config-prettier": "*",
+      "eslint-import-resolver-typescript": "*",
+      "eslint-plugin-import": "*",
+      "eslint-plugin-prettier": "*",
+      "jest": "*",
+      "jest-junit": "^15",
+      "prettier": "*",
+      "projen": "^0.79.6",
+      "ts-jest": "*",
+      "ts-node": "*",
+      "typescript": "*",
+    },
+    "jest": {
+      "clearMocks": true,
+      "collectCoverage": true,
+      "coverageDirectory": "coverage",
+      "coveragePathIgnorePatterns": [
+        "/node_modules/",
+      ],
+      "coverageReporters": [
+        "json",
+        "lcov",
+        "clover",
+        "cobertura",
+        "text",
+      ],
+      "reporters": [
+        "default",
+        [
+          "jest-junit",
+          {
+            "outputDirectory": "test-reports",
+          },
+        ],
+      ],
+      "testMatch": [
+        "<rootDir>/src/**/__tests__/**/*.ts?(x)",
+        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+      ],
+      "testPathIgnorePatterns": [
+        "/node_modules/",
+      ],
+      "transform": {
+        "^.+\\.[t]sx?$": [
+          "ts-jest",
+          {
+            "tsconfig": "tsconfig.dev.json",
+          },
+        ],
+      },
+      "watchPathIgnorePatterns": [
+        "/node_modules/",
+      ],
+    },
+    "license": "Apache-2.0",
+    "name": "WithMultipleWebsiteSingleApi",
+    "scripts": {
+      "build": "npx projen build",
+      "bundle": "npx projen bundle",
+      "compile": "npx projen compile",
+      "default": "npx projen default",
+      "deploy": "npx projen deploy",
+      "deploy:dev": "npx projen deploy:dev",
+      "destroy": "npx projen destroy",
+      "diff": "npx projen diff",
+      "eslint": "npx projen eslint",
+      "package": "npx projen package",
+      "post-compile": "npx projen post-compile",
+      "post-upgrade": "npx projen post-upgrade",
+      "pre-compile": "npx projen pre-compile",
+      "synth": "npx projen synth",
+      "synth:silent": "npx projen synth:silent",
+      "test": "npx projen test",
+      "test:watch": "npx projen test:watch",
+      "upgrade": "npx projen upgrade",
+      "watch": "npx projen watch",
+    },
+    "version": "0.0.0",
+  },
+  "infra/project.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.js and run "npx projen".",
+    "name": "WithMultipleWebsiteSingleApi",
+    "root": "infra",
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen build",
+          "cwd": "infra",
+        },
+      },
+      "bundle": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen bundle",
+          "cwd": "infra",
+        },
+      },
+      "compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen compile",
+          "cwd": "infra",
+        },
+      },
+      "default": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen default",
+          "cwd": "infra",
+        },
+      },
+      "deploy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen deploy",
+          "cwd": "infra",
+        },
+      },
+      "deploy:dev": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen deploy:dev",
+          "cwd": "infra",
+        },
+      },
+      "destroy": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen destroy",
+          "cwd": "infra",
+        },
+      },
+      "diff": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen diff",
+          "cwd": "infra",
+        },
+      },
+      "eslint": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen eslint",
+          "cwd": "infra",
+        },
+      },
+      "package": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen package",
+          "cwd": "infra",
+        },
+      },
+      "post-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen post-compile",
+          "cwd": "infra",
+        },
+      },
+      "post-upgrade": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen post-upgrade",
+          "cwd": "infra",
+        },
+      },
+      "pre-compile": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen pre-compile",
+          "cwd": "infra",
+        },
+      },
+      "synth": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen synth",
+          "cwd": "infra",
+        },
+      },
+      "synth:silent": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen synth:silent",
+          "cwd": "infra",
+        },
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen test",
+          "cwd": "infra",
+        },
+      },
+      "test:watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen test:watch",
+          "cwd": "infra",
+        },
+      },
+      "upgrade": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen upgrade",
+          "cwd": "infra",
+        },
+      },
+      "watch": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "yarn projen watch",
+          "cwd": "infra",
+        },
+      },
+    },
+  },
+  "infra/src/constructs/apis/api.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { Authorizers } from "@aws/pdk/type-safe-api";
+import { Stack } from "aws-cdk-lib";
+import { Cors } from "aws-cdk-lib/aws-apigateway";
+import {
+  AccountPrincipal,
+  AnyPrincipal,
+  Effect,
+  PolicyDocument,
+  PolicyStatement,
+} from "aws-cdk-lib/aws-iam";
+import { Construct } from "constructs";
+import { Api, MockIntegrations } from "Api-typescript-infra";
+
+/**
+ * Api construct props.
+ */
+export interface ApiProps {
+  /**
+   * Instance of the UserIdentity.
+   */
+  readonly userIdentity: UserIdentity;
+}
+
+/**
+ * Infrastructure construct to deploy a Type Safe API.
+ */
+export class Api extends Construct {
+  /**
+   * API instance
+   */
+  public readonly api: Api;
+
+  constructor(scope: Construct, id: string, props?: ApiProps) {
+    super(scope, id);
+
+    this.api = new Api(this, id, {
+      defaultAuthorizer: Authorizers.iam(),
+      corsOptions: {
+        allowOrigins: Cors.ALL_ORIGINS,
+        allowMethods: Cors.ALL_METHODS,
+      },
+      integrations: MockIntegrations.mockAll(),
+      policy: new PolicyDocument({
+        statements: [
+          // Here we grant any AWS credentials from the account that the prototype is deployed in to call the api.
+          // Machine to machine fine-grained access can be defined here using more specific principals (eg roles or
+          // users) and resources (ie which api paths may be invoked by which principal) if required.
+          // If doing so, the cognito identity pool authenticated role must still be granted access for cognito users to
+          // still be granted access to the API.
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            principals: [new AccountPrincipal(Stack.of(this).account)],
+            actions: ["execute-api:Invoke"],
+            resources: ["execute-api:/*"],
+          }),
+          // Open up OPTIONS to allow browsers to make unauthenticated preflight requests
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            principals: [new AnyPrincipal()],
+            actions: ["execute-api:Invoke"],
+            resources: ["execute-api:/*/OPTIONS/*"],
+          }),
+        ],
+      }),
+    });
+
+    // Grant authenticated users access to invoke the api
+    props?.userIdentity.identityPool.authenticatedRole.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ["execute-api:Invoke"],
+        resources: [this.api.api.arnForExecuteApi("*", "/*", "*")],
+      }),
+    );
+  }
+}
+",
+  "infra/src/constructs/websites/website.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { StaticWebsite } from "@aws/pdk/static-website";
+import { Stack } from "aws-cdk-lib";
+import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
+import { Construct } from "constructs";
+
+/**
+ * Website construct props
+ */
+export interface WebsiteProps {
+
+  /**
+   * Instance of the UserIdentity.
+   */
+  readonly userIdentity: UserIdentity;
+}
+
+/**
+ * Construct to deploy a Static Website
+ */
+export class Website extends Construct {
+  constructor(scope: Construct, id: string, props?: WebsiteProps) {
+    super(scope, id);
+
+    new StaticWebsite(this, id, {
+      websiteContentPath: "../website/build",
+      runtimeOptions: {
+        jsonPayload: {
+          region: Stack.of(this).region,
+          identityPoolId: props?.userIdentity.identityPool.identityPoolId,
+          userPoolId: props?.userIdentity.userPool?.userPoolId,
+          userPoolWebClientId:
+            props?.userIdentity.userPoolClient?.userPoolClientId,
+          typeSafeApis: {  },
+        },
+      },
+      distributionProps: {
+        geoRestriction: GeoRestriction.allowlist(
+          "AU",
+          "ID",
+          "IN",
+          "JP",
+          "KR",
+          "SG",
+          "US",
+        ),
+      },
+    });
+  }
+}
+",
+  "infra/src/constructs/websites/website2.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { StaticWebsite } from "@aws/pdk/static-website";
+import { Stack } from "aws-cdk-lib";
+import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
+import { Construct } from "constructs";
+import { Api } from "../apis/api";
+import { Api2 } from "../apis/api2";
+
+/**
+ * Website construct props
+ */
+export interface Website2Props {
+  /**
+   * Instance of an API to configure the website to integrate with
+   */
+  readonly api: Api;
+  /**
+   * Instance of an API to configure the website to integrate with
+   */
+  readonly api2: Api2;
+
+  /**
+   * Instance of the UserIdentity.
+   */
+  readonly userIdentity: UserIdentity;
+}
+
+/**
+ * Construct to deploy a Static Website
+ */
+export class Website2 extends Construct {
+  constructor(scope: Construct, id: string, props?: Website2Props) {
+    super(scope, id);
+
+    new StaticWebsite(this, id, {
+      websiteContentPath: "../website2/build",
+      runtimeOptions: {
+        jsonPayload: {
+          region: Stack.of(this).region,
+          identityPoolId: props?.userIdentity.identityPool.identityPoolId,
+          userPoolId: props?.userIdentity.userPool?.userPoolId,
+          userPoolWebClientId:
+            props?.userIdentity.userPoolClient?.userPoolClientId,
+          typeSafeApis: { Api: props?.api.api.api.urlForPath(),Api2: props?.api2.api.api.urlForPath() },
+        },
+      },
+      distributionProps: {
+        geoRestriction: GeoRestriction.allowlist(
+          "AU",
+          "ID",
+          "IN",
+          "JP",
+          "KR",
+          "SG",
+          "US",
+        ),
+      },
+    });
+  }
+}
+",
+  "infra/src/main.ts": "import { CdkGraph, FilterPreset, Filters } from "@aws/pdk/cdk-graph";
+import { CdkGraphDiagramPlugin } from "@aws/pdk/cdk-graph-plugin-diagram";
+import { CdkGraphThreatComposerPlugin } from "@aws/pdk/cdk-graph-plugin-threat-composer";
+import { AwsPrototypingChecks, PDKNag } from "@aws/pdk/pdk-nag";
+import { ApplicationStack } from "./stacks/application-stack";
+
+// for development, use account/region from cdk cli
+const devEnv = {
+  account: process.env.CDK_DEFAULT_ACCOUNT,
+  region: process.env.CDK_DEFAULT_REGION,
+};
+
+/* eslint-disable @typescript-eslint/no-floating-promises */
+(async () => {
+  const app = PDKNag.app({
+    nagPacks: [new AwsPrototypingChecks()],
+  });
+
+  new ApplicationStack(app, "infra-dev", { env: devEnv });
+
+  const graph = new CdkGraph(app, {
+    plugins: [
+      new CdkGraphDiagramPlugin({
+        defaults: {
+          filterPlan: {
+            preset: FilterPreset.COMPACT,
+            filters: [{ store: Filters.pruneCustomResources() }],
+          },
+        },
+      }),
+      new CdkGraphThreatComposerPlugin(),
+    ],
+  });
+
+  app.synth();
+  await graph.report();
+})();
+",
+  "infra/src/stacks/application-stack.ts": "import { UserIdentity } from "@aws/pdk/identity";
+import { Stack, StackProps } from "aws-cdk-lib";
+import { Construct } from "constructs";
+import { Api } from "../constructs/apis/api";
+import { Website } from "../constructs/websites/website";
+import { Website2 } from "../constructs/websites/website2";
+
+export class ApplicationStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const userIdentity = new UserIdentity(this, \`\${id}UserIdentity\`);
+    const api = new Api(this, "Api", {
+      userIdentity,
+    });
+    new Website(this, "Website", { userIdentity });
+    new Website2(this, "Website2", { userIdentity, api, api2 });
   }
 }
 ",
@@ -4843,21 +9025,16 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       },
     },
   },
-  "infra/src/constructs/website.ts": "import { UserIdentity } from "@aws/pdk/identity";
+  "infra/src/constructs/websites/website.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { StaticWebsite } from "@aws/pdk/static-website";
 import { Stack } from "aws-cdk-lib";
 import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
 import { Construct } from "constructs";
-// import { ApiConstruct } from "./api";
 
 /**
  * Website construct props
  */
-export interface WebsiteConstructProps {
-  /**
-   * Instance of an API to configure the website to integrate with
-   */
-  // readonly apiConstruct: ApiConstruct;
+export interface WebsiteProps {
 
   /**
    * Instance of the UserIdentity.
@@ -4868,8 +9045,8 @@ export interface WebsiteConstructProps {
 /**
  * Construct to deploy a Static Website
  */
-export class WebsiteConstruct extends Construct {
-  constructor(scope: Construct, id: string, props?: WebsiteConstructProps) {
+export class Website extends Construct {
+  constructor(scope: Construct, id: string, props?: WebsiteProps) {
     super(scope, id);
 
     new StaticWebsite(this, id, {
@@ -4881,7 +9058,7 @@ export class WebsiteConstruct extends Construct {
           userPoolId: props?.userIdentity.userPool?.userPoolId,
           userPoolWebClientId:
             props?.userIdentity.userPoolClient?.userPoolClientId,
-          // apiUrl: props?.apiConstruct.api.api.urlForPath(),
+          typeSafeApis: {  },
         },
       },
       distributionProps: {
@@ -4940,14 +9117,14 @@ const devEnv = {
   "infra/src/stacks/application-stack.ts": "import { UserIdentity } from "@aws/pdk/identity";
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { WebsiteConstruct } from "../constructs/website";
+import { Website } from "../constructs/websites/website";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const userIdentity = new UserIdentity(this, \`\${id}UserIdentity\`);
-    new WebsiteConstruct(this, "Website", { userIdentity });
+    new Website(this, "Website", { userIdentity });
   }
 }
 ",

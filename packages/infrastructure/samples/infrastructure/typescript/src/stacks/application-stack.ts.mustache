@@ -1,25 +1,25 @@
 import { UserIdentity } from "@aws/pdk/identity";
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-{{#hasApi}}
-import { ApiConstruct } from "../constructs/api";
-{{/hasApi}}
-{{#hasWebsite}}
-import { WebsiteConstruct } from "../constructs/website";
-{{/hasWebsite}}
+{{#typeSafeApis}}
+import { {{{apiName}}} } from "../constructs/apis/{{{apiNameLowercase}}}";
+{{/typeSafeApis}}
+{{#cloudscapeReactTsWebsites}}
+import { {{{websiteName}}} } from "../constructs/websites/{{{websiteNameLowercase}}}";
+{{/cloudscapeReactTsWebsites}}
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const userIdentity = new UserIdentity(this, `${id}UserIdentity`);
-    {{#hasApi}}
-    {{#hasWebsite}}const apiConstruct = {{/hasWebsite}}new ApiConstruct(this, "Api", {
+    {{#typeSafeApis}}
+    {{#cloudscapeReactTsWebsites.0}}const {{{apiNameLowercase}}} = {{/cloudscapeReactTsWebsites.0}}new {{{apiName}}}(this, "{{{apiName}}}", {
       userIdentity,
     });
-    {{/hasApi}}
-    {{#hasWebsite}}
-    new WebsiteConstruct(this, "Website", { userIdentity{{#hasApi}}, apiConstruct{{/hasApi}} });
-    {{/hasWebsite}}
+    {{/typeSafeApis}}
+    {{#cloudscapeReactTsWebsites}}
+    new {{{websiteName}}}(this, "{{{websiteName}}}", { userIdentity{{#typeSafeApis}}, {{{apiNameLowercase}}}{{/typeSafeApis}} });
+    {{/cloudscapeReactTsWebsites}}
   }
 }

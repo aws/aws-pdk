@@ -74,15 +74,15 @@ It's much easier to show than explain! Here is some PDK code (within projenrc fi
         parent: monorepo,
         outdir: "packages/website",
         name: "website",
-        typeSafeApi: api,
+        typeSafeApis: [api],
     });
 
     new InfrastructureTsProject({
         parent: monorepo,
         outdir: "packages/infra",
         name: "infra",
-        cloudscapeReactTsWebsite: website,
-        typeSafeApi: api,
+        cloudscapeReactTsWebsites: [website],
+        typeSafeApis: [api],
     });
 
     monorepo.synth();
@@ -136,7 +136,7 @@ It's much easier to show than explain! Here is some PDK code (within projenrc fi
     website = CloudscapeReactTsWebsiteProject(
         parent=monorepo,
         outdir="packages/website",
-        type_safe_api=api,
+        type_safe_apis=[api],
         name="website",
     )
 
@@ -144,8 +144,8 @@ It's much easier to show than explain! Here is some PDK code (within projenrc fi
         parent=monorepo,
         outdir="packages/infra",
         name="infra",
-        type_safe_api=api,
-        cloudscape_react_ts_website=website
+        type_safe_apis=[api],
+        cloudscape_react_ts_websites=[website]
     )
 
     monorepo.synth()
@@ -205,7 +205,7 @@ It's much easier to show than explain! Here is some PDK code (within projenrc fi
                 CloudscapeReactTsWebsiteProjectOptions.builder()
                     .parent(monorepo)
                     .outdir("packages/website")
-                    .typeSafeApi(api)
+                    .typeSafeApis(Arrays.asList(api))
                     .name("website")
                     .build());
 
@@ -214,8 +214,8 @@ It's much easier to show than explain! Here is some PDK code (within projenrc fi
                     .parent(monorepo)
                     .outdir("packages/infra")
                     .name("infra")
-                    .typeSafeApi(api)
-                    .cloudscapeReactTsWebsite(website)
+                    .typeSafeApis(Arrays.asList(api))
+                    .cloudscapeReactTsWebsites(Arrays.asList(website))
                     .build());
 
             monorepo.synth();

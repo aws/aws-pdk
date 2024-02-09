@@ -375,7 +375,7 @@ Let's now add a React website to our monorepo so that we can make authenticated 
         parent: monorepo,
         outdir: "packages/website",
         name: "website",
-        typeSafeApi: api,
+        typeSafeApis: [api],
     });
 
     monorepo.synth();
@@ -428,7 +428,7 @@ Let's now add a React website to our monorepo so that we can make authenticated 
     CloudscapeReactTsWebsiteProject(
         parent=monorepo,
         outdir="packages/website",
-        type_safe_api=api,
+        type_safe_apis=[api],
         name="website",
     )
 
@@ -487,7 +487,7 @@ Let's now add a React website to our monorepo so that we can make authenticated 
                 CloudscapeReactTsWebsiteProjectOptions.builder()
                     .parent(monorepo)
                     .outdir("packages/website")
-                    .typeSafeApi(api)
+                    .typeSafeApis(Arrays.asList(api))
                     .name("website")
                     .build());
 
@@ -568,15 +568,15 @@ Let's add this infrastructure to the monorepo by modifying our `projenrc` file t
         parent: monorepo,
         outdir: "packages/website",
         name: "website",
-        typeSafeApi: api,
+        typeSafeApis: [api],
     });
 
     new InfrastructureTsProject({
         parent: monorepo,
         outdir: "packages/infra",
         name: "infra",
-        cloudscapeReactTsWebsite: website,
-        typeSafeApi: api,
+        cloudscapeReactTsWebsites: [website],
+        typeSafeApis: [api],
     });
 
     monorepo.synth();
@@ -630,7 +630,7 @@ Let's add this infrastructure to the monorepo by modifying our `projenrc` file t
     website = CloudscapeReactTsWebsiteProject(
         parent=monorepo,
         outdir="packages/website",
-        type_safe_api=api,
+        type_safe_apis=[api],
         name="website",
     )
 
@@ -638,8 +638,8 @@ Let's add this infrastructure to the monorepo by modifying our `projenrc` file t
         parent=monorepo,
         outdir="packages/infra",
         name="infra",
-        type_safe_api=api,
-        cloudscape_react_ts_website=website
+        type_safe_apis=[api],
+        cloudscape_react_ts_websites=[website]
     )
 
     monorepo.synth()
@@ -699,7 +699,7 @@ Let's add this infrastructure to the monorepo by modifying our `projenrc` file t
                 CloudscapeReactTsWebsiteProjectOptions.builder()
                     .parent(monorepo)
                     .outdir("packages/website")
-                    .typeSafeApi(api)
+                    .typeSafeApis(Arrays.asList(api))
                     .name("website")
                     .build());
 
@@ -708,8 +708,8 @@ Let's add this infrastructure to the monorepo by modifying our `projenrc` file t
                     .parent(monorepo)
                     .outdir("packages/infra")
                     .name("infra")
-                    .typeSafeApi(api)
-                    .cloudscapeReactTsWebsite(website)
+                    .typeSafeApis(Arrays.asList(api))
+                    .cloudscapeReactTsWebsites(Arrays.asList(website))
                     .build());
 
             monorepo.synth();

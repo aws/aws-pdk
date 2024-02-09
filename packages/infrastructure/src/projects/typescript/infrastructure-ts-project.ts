@@ -27,13 +27,25 @@ export interface InfrastructureTsProjectOptions
 
   /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
+   * @deprecated use typeSafeApis
    */
   readonly typeSafeApi?: TypeSafeApiProject;
 
   /**
    * CloudscapeReactTsWebsiteProject instance to use when setting up the initial project sample code.
+   * @deprecated use cloudscapeReactTsWebsites
    */
   readonly cloudscapeReactTsWebsite?: CloudscapeReactTsWebsiteProject;
+
+  /**
+   * TypeSafeApi instances to use when setting up the initial project sample code.
+   */
+  readonly typeSafeApis?: TypeSafeApiProject[];
+
+  /**
+   * CloudscapeReactTsWebsiteProject instances to use when setting up the initial project sample code.
+   */
+  readonly cloudscapeReactTsWebsites?: CloudscapeReactTsWebsiteProject[];
 }
 
 /**
@@ -41,9 +53,6 @@ export interface InfrastructureTsProjectOptions
  */
 export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
   constructor(options: InfrastructureTsProjectOptions) {
-    const hasApi = !!options.typeSafeApi;
-    const hasWebsite = !!options.cloudscapeReactTsWebsite;
-
     super({
       ...options,
       defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
@@ -80,43 +89,62 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
       "../../../samples/infrastructure/typescript/test"
     );
 
-    if (hasApi) {
-      if (!options.typeSafeApi.infrastructure.typescript) {
+    const typeSafeApis = [
+      ...(options.typeSafeApis || []),
+      ...(options.typeSafeApi ? [options.typeSafeApi] : []),
+    ];
+    const cloudscapeReactTsWebsites = [
+      ...(options.cloudscapeReactTsWebsites || []),
+      ...(options.cloudscapeReactTsWebsite
+        ? [options.cloudscapeReactTsWebsite]
+        : []),
+    ];
+
+    typeSafeApis.forEach((tsApi) => {
+      if (!tsApi.infrastructure.typescript) {
         throw new Error(
           "Cannot pass in a Type Safe Api without Typescript Infrastructure configured!"
         );
       }
       this.addDeps(
-        `${options.typeSafeApi.infrastructure.typescript?.package
-          .packageName!}@${
-          options.typeSafeApi.infrastructure.typescript?.package.manifest
-            .version
+        `${tsApi.infrastructure.typescript?.package.packageName!}@${
+          tsApi.infrastructure.typescript?.package.manifest.version
         }`
       );
       // Ensure handlers are built before infra
-      options.typeSafeApi.all.handlers?.forEach((handler) => {
+      tsApi.all.handlers?.forEach((handler) => {
         NxProject.ensure(this).addImplicitDependency(handler);
       });
-    }
-    if (hasWebsite) {
+    });
+
+    cloudscapeReactTsWebsites.forEach((csWebsite) => {
       // Ensure website is built before infra
       this.addDevDeps(
-        `${options.cloudscapeReactTsWebsite.package.packageName}@${options.cloudscapeReactTsWebsite.package.manifest.version}`
+        `${csWebsite.package.packageName}@${csWebsite.package.manifest.version}`
       );
-    }
+    });
 
     const mustacheConfig = {
-      hasApi,
-      hasWebsite,
       stackName: options.stackName || DEFAULT_STACK_NAME,
-      infraPackage:
-        options.typeSafeApi?.infrastructure.typescript?.package.packageName,
-      websiteDistRelativePath:
-        hasWebsite &&
-        path.relative(
-          this.outdir,
-          `${options.cloudscapeReactTsWebsite?.outdir}/build`
-        ),
+      typeSafeApis: this.generateTypeSafeMustacheConfig(typeSafeApis),
+      cloudscapeReactTsWebsites: cloudscapeReactTsWebsites.map((csWebsite) => {
+        const websiteName = this.capitalize(
+          csWebsite.package.packageName
+            .replace(/[^a-z0-9_]+/gi, "")
+            .replace(/^[0-9]+/gi, "")
+        );
+        return {
+          websiteName,
+          websiteNameLowercase: websiteName.toLowerCase(),
+          websiteDistRelativePath: path.relative(
+            this.outdir,
+            `${csWebsite.outdir}/build`
+          ),
+          typeSafeApis: this.generateTypeSafeMustacheConfig(
+            csWebsite.typeSafeApis
+          ),
+        };
+      }),
     };
 
     options.sampleCode !== false &&
@@ -130,39 +158,79 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
     eslintTask && this.testTask.spawn(eslintTask);
   }
 
+  private generateTypeSafeMustacheConfig(typeSafeApis?: TypeSafeApiProject[]) {
+    return typeSafeApis?.map((tsApi, idx) => {
+      const apiName = this.capitalize(
+        tsApi.model
+          .apiName!.replace(/[^a-z0-9_]+/gi, "")
+          .replace(/^[0-9]+/gi, "")
+      );
+      return {
+        apiName,
+        apiNameLowercase: apiName?.toLowerCase(),
+        infraPackage: tsApi.infrastructure.typescript?.package.packageName,
+        isLast: idx === typeSafeApis.length - 1,
+      };
+    });
+  }
+
+  private capitalize(word: string) {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }
+
   private emitSampleFiles(
     dir: string,
     pathPrefixes: string[] = [],
     mustacheConfig: any
   ) {
-    fs.readdirSync(dir, { withFileTypes: true })
-      .filter((f) => {
-        let shouldIncludeFile = true;
-        if (!mustacheConfig.hasApi) {
-          shouldIncludeFile &&= !f.name.endsWith("api.ts.mustache");
-        }
-        if (!mustacheConfig.hasWebsite) {
-          shouldIncludeFile &&= !f.name.endsWith("website.ts.mustache");
-        }
-        return shouldIncludeFile;
-      })
-      .forEach((f) =>
-        f.isDirectory()
-          ? this.emitSampleFiles(
-              `${dir}/${f.name}`,
-              [...pathPrefixes, f.name],
+    fs.readdirSync(dir, { withFileTypes: true }).forEach((f) => {
+      if (f.isDirectory()) {
+        this.emitSampleFiles(
+          `${dir}/${f.name}`,
+          [...pathPrefixes, f.name],
+          mustacheConfig
+        );
+      } else if (f.name.endsWith("api.ts.mustache")) {
+        mustacheConfig.typeSafeApis.forEach((tsApi: any) => {
+          new SampleFile(
+            this,
+            `${path.join(...pathPrefixes, `${tsApi.apiNameLowercase}.ts`)}`,
+            {
+              contents: Mustache.render(
+                fs.readFileSync(`${dir}/${f.name}`).toString(),
+                tsApi
+              ),
+            }
+          );
+        });
+      } else if (f.name.endsWith("website.ts.mustache")) {
+        mustacheConfig.cloudscapeReactTsWebsites.forEach((csWebsite: any) => {
+          new SampleFile(
+            this,
+            `${path.join(
+              ...pathPrefixes,
+              `${csWebsite.websiteNameLowercase}.ts`
+            )}`,
+            {
+              contents: Mustache.render(
+                fs.readFileSync(`${dir}/${f.name}`).toString(),
+                csWebsite
+              ),
+            }
+          );
+        });
+      } else {
+        new SampleFile(
+          this,
+          `${path.join(...pathPrefixes, f.name.replace(".mustache", ""))}`,
+          {
+            contents: Mustache.render(
+              fs.readFileSync(`${dir}/${f.name}`).toString(),
               mustacheConfig
-            )
-          : new SampleFile(
-              this,
-              `${path.join(...pathPrefixes, f.name.replace(".mustache", ""))}`,
-              {
-                contents: Mustache.render(
-                  fs.readFileSync(`${dir}/${f.name}`).toString(),
-                  mustacheConfig
-                ),
-              }
-            )
-      );
+            ),
+          }
+        );
+      }
+    });
   }
 }
