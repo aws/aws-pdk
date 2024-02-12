@@ -79,7 +79,9 @@ interface OnEventResponse {
   };
 }
 
-const s3 = new S3Client({});
+const s3 = new S3Client({
+  customUserAgent: `aws-pdk/type-safe-api/prepare-spec`,
+});
 
 /**
  * Prepare the api spec for API Gateway
