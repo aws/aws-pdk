@@ -36,7 +36,7 @@ export class MonorepoPythonProject
   implements INxProjectCore
 {
   public readonly nxConfigurator: NxConfigurator;
-  private readonly installTask?: Task;
+  private readonly installTask: Task;
 
   /**
    * Version of projen used by the monorepo and its subprojects
@@ -164,12 +164,31 @@ export class MonorepoPythonProject
     this.nxConfigurator.addPythonPoetryDependency(dependent, dependee);
   }
 
+  private addUpgradeDepsTask() {
+    const upgradeDepsTask = new Task("upgrade-deps", {
+      description: "Upgrade dependencies in the monorepo",
+    });
+    this.nxConfigurator._overrideNxBuildTask(upgradeDepsTask, {
+      target: "upgrade",
+    });
+    // Spawn the install task for python projects since this will update the lockfile to the latest versions satisfying
+    // the pyproject.toml file
+    // TODO: remove in favour of the "upgrade" task if ever implemented for python
+    upgradeDepsTask.spawn((this.depsManager as Poetry).installTask);
+    this.nxConfigurator._configurePythonSubprojectUpgradeDeps(
+      this,
+      upgradeDepsTask
+    );
+  }
+
   /**
    * @inheritdoc
    */
   preSynthesize(): void {
     // Calling before super() to ensure proper pre-synth of NxProject component and its nested components
     this.nxConfigurator.preSynthesize();
+
+    this.addUpgradeDepsTask();
 
     super.preSynthesize();
 
@@ -203,11 +222,11 @@ export class MonorepoPythonProject
    * Ensures all python subprojects have their install target called after the monorepo install task.
    */
   private installPythonSubprojects() {
-    const installProjects = this.subprojects.filter(
-      (project) => isPythonProject(project) && this.installTask
+    const installProjects = this.subprojects.filter((project) =>
+      isPythonProject(project)
     );
 
-    if (this.installTask && installProjects.length > 0) {
+    if (installProjects.length > 0) {
       const nxRunManyInstall = this.composeNxRunManyCommand({
         target: "install",
         projects: installProjects.map((project) => project.name),

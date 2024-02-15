@@ -30,8 +30,9 @@ const engines = JSON.parse(
 if (engines) {
   let pkgMgrCmd = engines.pnpm ? "pnpm" : engines.yarn ? "yarn" : engines.bun ? `bun${isInstall ? '' : ' run'}` : "npm run";
 
-  // Deploy is a pnpm command, but it's more likely users want to run the deploy task
-  if (engines.pnpm && process.argv[0] === "deploy") {
+  // deploy and upgrade are pnpm commands, but it's more likely users want to run the projen tasks
+  // upgrade is also a yarn command, and there's no difference between running yarn deploy vs yarn run deploy
+  if ((engines.pnpm || engines.yarn) && ["deploy", "upgrade"].includes(process.argv[0])) {
     pkgMgrCmd += " run";
   }
   execa.commandSync(`${pkgMgrCmd}${isSynth ? " default" : ""} ${process.argv.join(" ")}`, { stdio: "inherit" });
