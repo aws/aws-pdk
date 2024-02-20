@@ -3,7 +3,6 @@ SPDX-License-Identifier: Apache-2.0 */
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
 import { JestReporter } from "projen/lib/javascript";
-import { NodePackageUtils } from "../../packages/monorepo/src";
 import { CdkGraphPluginProject } from "../abstract/cdk-graph-plugin-project";
 
 /**
@@ -34,8 +33,6 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
         "@types/sharp",
         "@types/to-px",
         "@types/traverse",
-        "prebuild",
-        "prebuild-install",
         "lodash",
         "ts-node",
         "downlevel-dts",
@@ -43,7 +40,6 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
       ],
       peerDeps: ["projen", "aws-cdk-lib", "constructs"],
       bundledDeps: [
-        "@hpcc-js/wasm",
         "execa@5.1.1",
         "fs-extra",
         "he",
@@ -51,7 +47,6 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
         "lodash.startcase",
         "lodash.uniqby",
         "lodash.words",
-        "sharp",
         "svgson",
         "to-px",
         "traverse",
@@ -70,43 +65,6 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
         },
       },
     });
-
-    this.eslint?.addIgnorePattern("scripts/**");
-
-    // Ensure sharp has cross-platform prebuilds included in bundled dependency
-    // https://sharp.pixelplumbing.com/install#cross-platform
-    const sharpPrebuildTask = this.addTask("sharp:prebuild", {
-      exec: "ts-node ./scripts/cdk-graph-plugin-diagram/sharp-prebuild.ts",
-    });
-    this.packageTask.prependSpawn(sharpPrebuildTask);
-    // Ensure build input + output includes `sharp:prebuild` artifacts
-    this.nx.setTarget(
-      "build",
-      {
-        inputs: [
-          {
-            // To ensure sharp:prebuild artifacts are included in build cache hash
-            runtime: NodePackageUtils.command.exec(
-              this.package.packageManager,
-              "monorepo.nx-dir-hasher",
-              "{workspaceRoot}/packages/cdk-graph-plugin-diagram/node_modules/sharp"
-            ),
-          },
-        ],
-        outputs: [
-          "{projectRoot}/node_modules/sharp/package.json",
-          "{projectRoot}/node_modules/sharp/build",
-          "{projectRoot}/node_modules/sharp/vendor",
-        ],
-      },
-      true
-    );
-
-    const copyFilesTask = this.addTask("copy-files", {
-      exec: "cp src/internal/graphviz/dot-wasm/dot-wasm-invoker.mjs lib/internal/graphviz/dot-wasm/dot-wasm-invoker.mjs",
-    });
-
-    this.postCompileTask.prependSpawn(copyFilesTask);
 
     if (this.jest) {
       this.jest.addIgnorePattern("/\\.tmp/");

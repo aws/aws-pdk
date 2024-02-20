@@ -3,121 +3,21 @@ SPDX-License-Identifier: Apache-2.0 */
 import { AwsArchitecture } from "@aws/aws-arch";
 import * as fs from "fs-extra";
 import he = require("he"); // eslint-disable-line @typescript-eslint/no-require-imports
-import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as svgson from "svgson";
 import traverse = require("traverse"); // eslint-disable-line @typescript-eslint/no-require-imports
-import { FONT_CSS_CLASSES } from "../fonts";
 
 const XLINK_HREF = "xlink:href";
 
 const DATAURL_SVG_BASE64 = "data:image/svg+xml;base64,";
-const DATAURL_PNG_BASE64 = "data:image/png;base64,";
-
-/**
- * Convert svg image definition from svg to png.
- *
- * This is necessary before able to convert full svg to png, as without this
- * step the nested svg images are not rendered in final png.
- * @param svgString - SVG string to convert
- * @returns Returns the converted SVG string
- * @internal
- */
-export async function convertSvgImageDefsFromSvgToPng(
-  svgString: string
-): Promise<string> {
-  // https://github.com/lovell/sharp/issues/2844
-  const svg = await svgson.parse(svgString);
-
-  const defs = (
-    svg.children.find((child) => child.name === "defs")?.children || []
-  ).filter((def) => {
-    return (
-      def.name === "image" &&
-      def.attributes[XLINK_HREF]?.startsWith(DATAURL_SVG_BASE64)
-    );
-  });
-
-  for (const def of defs) {
-    const assetKey = def.attributes.id as string;
-    const png = sharp(
-      await fs.readFile(
-        AwsArchitecture.resolveAssetPath(
-          AwsArchitecture.formatAssetPath(assetKey, "png")
-        )
-      ),
-      { limitInputPixels: false }
-    );
-    const pngBuffer = await png
-      .resize({
-        width: 128,
-      })
-      .toBuffer();
-    def.attributes[XLINK_HREF] = encodeDataUrl(pngBuffer, DATAURL_PNG_BASE64);
-  }
-
-  return svgson.stringify(svg);
-}
-
-/**
- * Convert svg value to a given output file
- * @param svgString - SVG to convert
- * @param outputFile - The output file to generate from svg, the format is inferred from file extension
- * @internal
- */
-export async function convertSvg(
-  svgString: string,
-  outputFile: string
-): Promise<void> {
-  const resolvedSvg = await convertSvgImageDefsFromSvgToPng(svgString);
-  await sharp(Buffer.from(resolvedSvg), { limitInputPixels: false })
-    .trim({ background: "transparent" })
-    .toFile(outputFile);
-}
-
-/**
- * Extract SVG dimensions (width / height)
- * @internal
- */
-export async function extractSvgDimensions(
-  svgString: string
-): Promise<{ width: string; height: string }> {
-  const svg = await svgson.parse(svgString);
-
-  return {
-    width: svg.attributes.width,
-    height: svg.attributes.height,
-  };
-}
-
-/**
- * Add graph font css styles to svg
- * @internal
- */
-export function addGraphFontCssStyles(svg: svgson.INode): void {
-  svg.children.unshift({
-    name: "style",
-    type: "element",
-    value: "",
-    attributes: {},
-    children: [
-      {
-        name: "",
-        type: "text",
-        attributes: {},
-        children: [],
-        value: FONT_CSS_CLASSES,
-      },
-    ],
-  });
-}
 
 /**
  * Resolve SVG image paths to inline base64 **Data URLs**.
  * @internal
  */
 export async function resolveSvgAwsArchAssetImagesInline(
-  svg: svgson.INode
-): Promise<void> {
+  svgString: string
+): Promise<string> {
+  let svg: svgson.INode = await svgson.parse(svgString);
   const imageDefs = new Map<string, svgson.INode>();
 
   svg = traverse(svg).forEach(function (this: traverse.TraverseContext, x) {
@@ -191,6 +91,10 @@ export async function resolveSvgAwsArchAssetImagesInline(
     attributes: {},
     children: Array.from(imageDefs.values()),
   });
+
+  reconcileViewBox(svg);
+
+  return svgson.stringify(svg);
 }
 
 /**
@@ -222,15 +126,8 @@ export async function encodeSvgFileDataUrl(svgFile: string): Promise<string> {
 }
 
 /**
- * Decode SVG base64 encoded **Data URL** to string
- * @internal
+ * ==== VIEWBOX ====
  */
-export function decodeSvgDataUrl(svgDataUrl: string): string {
-  svgDataUrl = svgDataUrl.replace(DATAURL_SVG_BASE64, "");
-  return decodeURIComponent(
-    escape(Buffer.from(svgDataUrl, "base64").toString("utf-8"))
-  );
-}
 
 const CSS_TRANSFORM_SCALE = /scale\((?<scale>[^)]+)\)/i;
 

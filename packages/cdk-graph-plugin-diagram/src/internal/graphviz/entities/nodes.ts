@@ -12,8 +12,6 @@ import {
 } from "../../utils/resource-images";
 import { GraphTheme } from "../theme";
 
-/** Diagram label line height */
-const LABEL_LINE_HEIGHT = 0.23;
 /** Diagram label line max chars */
 const LABEL_LINE_MAX_CHARS = 15;
 /** Diagram label max number of lines */
@@ -109,25 +107,15 @@ export class ImageNode extends Node {
   }
 
   /** Resizes the node based on image and label dimensions */
-  resize(baseHeight?: number): void {
-    if (baseHeight == null) {
-      baseHeight = (this.attributes.get("height") || 1) as number;
-    }
-
+  resize(): void {
     const image = this.image;
 
     if (image) {
-      const labelLines = this.label.split("\n").length;
-
+      this.attributes.set("width", 0.5);
       this.attributes.set("labelloc", "b");
-
-      this.attributes.set(
-        "height",
-        baseHeight + labelLines * LABEL_LINE_HEIGHT
-      );
     } else {
       this.attributes.set("labelloc", "c");
-      this.attributes.set("height", baseHeight);
+      this.attributes.set("penwidth", 0.25);
     }
   }
 }
@@ -143,11 +131,7 @@ export class CfnResourceNode extends ImageNode {
 
     this.attributes.apply(GraphTheme.instance.cfnResourceNode);
 
-    this.resize(
-      GraphTheme.instance.cfnResourceNode.height === ""
-        ? undefined
-        : GraphTheme.instance.cfnResourceNode.height
-    );
+    this.resize();
 
     if (node.isImport) {
       this.attributes.apply({
@@ -176,11 +160,7 @@ export class ResourceNode extends ImageNode {
 
     this.attributes.apply(GraphTheme.instance.resourceNode);
 
-    this.resize(
-      GraphTheme.instance.resourceNode.height === ""
-        ? undefined
-        : GraphTheme.instance.resourceNode.height
-    );
+    this.resize();
   }
 }
 

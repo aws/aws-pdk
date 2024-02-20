@@ -5,7 +5,6 @@ import { AwsArchitecture } from "@aws/aws-arch";
 import * as fs from "fs-extra";
 import { toMatchImageSnapshot } from "jest-image-snapshot";
 import { kebabCase } from "lodash";
-import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { IS_DEBUG } from "../../src/internal/debug";
 
 expect.extend({ toMatchImageSnapshot });
@@ -32,10 +31,7 @@ export async function expectToMatchImageSnapshot(
   pixelThreshold?: number,
   failureThreshold?: number
 ): Promise<void> {
-  const image = sharp(imagePath, { limitInputPixels: false });
-  const imageBuffer = await image
-    .resize({ width: 5120, withoutEnlargement: true })
-    .toBuffer();
+  const imageBuffer = fs.readFileSync(imagePath);
   // https://github.com/americanexpress/jest-image-snapshot#%EF%B8%8F-api
   expect(imageBuffer).toMatchImageSnapshot({
     customSnapshotIdentifier({ currentTestName, counter, testPath }) {

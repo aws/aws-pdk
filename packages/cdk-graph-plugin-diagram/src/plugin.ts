@@ -11,6 +11,7 @@ import {
   performGraphFilterPlan,
 } from "@aws/cdk-graph";
 import * as fs from "fs-extra";
+import { toStream } from "ts-graphviz/adapter";
 import {
   CONFIG_DEFAULTS,
   DEFAULT_DIAGRAM,
@@ -21,8 +22,7 @@ import {
 } from "./config";
 import { IS_DEBUG } from "./internal/debug";
 import { buildDiagram } from "./internal/graphviz/diagram";
-import { invokeDotWasm } from "./internal/graphviz/dot-wasm";
-import { convertSvg } from "./internal/utils/svg";
+import { resolveSvgAwsArchAssetImagesInline } from "./internal/utils/svg";
 
 /**
  * CdkGraphDiagramPlugin is a {@link ICdkGraphPlugin CdkGraph Plugin} implementation for generating
@@ -133,6 +133,15 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
     };
   };
 
+  private streamToBuffer = (stream: NodeJS.ReadableStream): Promise<Buffer> => {
+    const chunks: Buffer[] = [];
+    return new Promise((resolve, reject) => {
+      stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+      stream.on("error", (err) => reject(err));
+      stream.on("end", () => resolve(Buffer.concat(chunks)));
+    });
+  };
+
   /** @inheritdoc */
   report?: IGraphReportCallback = async (
     context: CdkGraphContext
@@ -174,18 +183,17 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
           "DEBUG"
         );
 
+      const diagram = buildDiagram(store, {
+        title: config.title,
+        preset: config.filterPlan?.preset,
+        theme: config.theme,
+      });
+
+      const dot = diagram.toDot();
+
       if (generateDot) {
         // Graphviz provider
-
-        const diagram = buildDiagram(store, {
-          title: config.title,
-          preset: config.filterPlan?.preset,
-          theme: config.theme,
-        });
-
-        const dot = diagram.toDot();
-
-        const dotArtifact: CdkGraphArtifact = context.writeArtifact(
+        context.writeArtifact(
           this,
           CdkGraphDiagramPlugin.artifactId(config.name, DiagramFormat.DOT),
           CdkGraphDiagramPlugin.artifactFilename(
@@ -197,20 +205,28 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
         );
 
         if (generateSvg) {
-          // const svg = await convertDotToSvg(dotArtifact.filepath);
-          const svg = await invokeDotWasm(
-            dotArtifact.filepath,
-            diagram.getTrackedImages()
-          );
-
-          context.writeArtifact(
-            this,
-            CdkGraphDiagramPlugin.artifactId(config.name, DiagramFormat.SVG),
+          const svgFile = path.join(
+            context.outdir,
             CdkGraphDiagramPlugin.artifactFilename(
               config.name,
               DiagramFormat.SVG
-            ),
-            svg,
+            )
+          );
+
+          const svg = await this.streamToBuffer(
+            await toStream(dot, { format: "svg" })
+          );
+          const resolvedSvg = await resolveSvgAwsArchAssetImagesInline(
+            svg.toString()
+          );
+
+          fs.ensureDirSync(path.dirname(svgFile));
+          fs.writeFileSync(svgFile, resolvedSvg);
+
+          context.logArtifact(
+            this,
+            CdkGraphDiagramPlugin.artifactId(config.name, DiagramFormat.SVG),
+            svgFile,
             `Diagram generated "svg" file for ${config.name} - "${config.title}"`
           );
 
@@ -224,9 +240,14 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
             );
 
             try {
-              await fs.ensureDir(path.dirname(pngFile));
+              const png = await this.streamToBuffer(
+                await toStream(dot, {
+                  format: "png",
+                })
+              );
 
-              await convertSvg(svg, pngFile);
+              fs.ensureDirSync(path.dirname(pngFile));
+              fs.writeFileSync(pngFile, png);
 
               context.logArtifact(
                 this,
