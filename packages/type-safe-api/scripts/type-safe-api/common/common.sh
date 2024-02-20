@@ -45,15 +45,23 @@ install_packages() {
 _install_packages() {
   log "installing packages :: $@"
   _install_packages_working_dir=`pwd`
-  _install_packages_pdk_dir="$HOME/.pdk/$AWS_PDK_VERSION/type-safe-api/$pkg_manager"
+  _install_packages_pdk_base_dir="$HOME/.pdk/$AWS_PDK_VERSION/type-safe-api/$pkg_manager"
 
-  _install_packages_committed_file="$_install_packages_pdk_dir/.committed"
+  # Use the process id as an identifier for where to install dependencies to avoid race conditions
+  _install_dir_identifier=$$
+
+  _install_packages_committed_file="$_install_packages_pdk_base_dir/.committed"
 
   # Check if we should install the dependencies again
   _install_packages_should_install="true"
   if [ -f $_install_packages_committed_file ]; then
     _install_packages_should_install="false"
+
+    # The .committed file contains the identifier of the directory already installed to
+    _install_dir_identifier=$(cat $_install_packages_committed_file)
   fi
+
+  _install_packages_pdk_dir="$_install_packages_pdk_base_dir/$_install_dir_identifier"
 
   mkdir -p $_install_packages_pdk_dir
   cd $_install_packages_pdk_dir
@@ -68,8 +76,9 @@ _install_packages() {
     fi
   fi
 
-  # Mark that we have installed the dependencies
-  touch $_install_packages_committed_file
+  # Mark that we have installed the dependencies (if there's a race and we installed multiple times,
+  # the last wins, but whenever there's a .committed file it'll always point to a valid installation)
+  echo $_install_dir_identifier > $_install_packages_committed_file
 
   # Link all the files/dirs into our target install directory
   ln -s $_install_packages_pdk_dir/* $_install_packages_working_dir/

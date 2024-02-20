@@ -7,6 +7,7 @@ const DELIMITER = ":";
 const SCOPE = "CLOUDFRONT";
 const client = new WAFV2({
   region: "us-east-1",
+  customUserAgent: "aws-pdk/static-website/waf",
 });
 
 /**
