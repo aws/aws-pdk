@@ -12,6 +12,8 @@ import {
 } from "../../utils/resource-images";
 import { GraphTheme } from "../theme";
 
+/** Diagram label line height */
+const LABEL_LINE_HEIGHT = 0.23;
 /** Diagram label line max chars */
 const LABEL_LINE_MAX_CHARS = 15;
 /** Diagram label max number of lines */
@@ -107,15 +109,23 @@ export class ImageNode extends Node {
   }
 
   /** Resizes the node based on image and label dimensions */
-  resize(): void {
+  resize(baseHeight?: number): void {
+    if (baseHeight == null) {
+      baseHeight = (this.attributes.get("height") || 1) as number;
+    }
     const image = this.image;
 
     if (image) {
-      this.attributes.set("width", 0.5);
+      const labelLines = this.label.split("\n").length;
       this.attributes.set("labelloc", "b");
+      this.attributes.set(
+        "height",
+        baseHeight + labelLines * LABEL_LINE_HEIGHT
+      );
     } else {
       this.attributes.set("labelloc", "c");
       this.attributes.set("penwidth", 0.25);
+      this.attributes.set("height", baseHeight);
     }
   }
 }

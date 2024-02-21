@@ -256,8 +256,9 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
             );
 
             try {
+              const pngifiedDot = dot.replace(/\.svg/g, ".png");
               const png = await this.streamToBuffer(
-                await toStream(dot, {
+                await toStream(pngifiedDot, {
                   format: "png",
                 })
               );

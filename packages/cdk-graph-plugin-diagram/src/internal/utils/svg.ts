@@ -5,10 +5,33 @@ import * as fs from "fs-extra";
 import he = require("he"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as svgson from "svgson";
 import traverse = require("traverse"); // eslint-disable-line @typescript-eslint/no-require-imports
+import { FONT_CSS_CLASSES } from "../fonts";
 
 const XLINK_HREF = "xlink:href";
 
 const DATAURL_SVG_BASE64 = "data:image/svg+xml;base64,";
+
+/**
+ * Add graph font css styles to svg
+ * @internal
+ */
+export function addGraphFontCssStyles(svg: svgson.INode): void {
+  svg.children.unshift({
+    name: "style",
+    type: "element",
+    value: "",
+    attributes: {},
+    children: [
+      {
+        name: "",
+        type: "text",
+        attributes: {},
+        children: [],
+        value: FONT_CSS_CLASSES,
+      },
+    ],
+  });
+}
 
 /**
  * Resolve SVG image paths to inline base64 **Data URLs**.
@@ -92,6 +115,7 @@ export async function resolveSvgAwsArchAssetImagesInline(
     children: Array.from(imageDefs.values()),
   });
 
+  addGraphFontCssStyles(svg);
   reconcileViewBox(svg);
 
   return svgson.stringify(svg);

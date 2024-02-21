@@ -30,7 +30,6 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
         "@types/lodash.startcase",
         "@types/lodash.uniqby",
         "@types/lodash.words",
-        "@types/sharp",
         "@types/to-px",
         "@types/traverse",
         "lodash",
