@@ -171,9 +171,11 @@ describe("dot", () => {
             }
             case DiagramFormat.SVG: {
               expect(
-                await fs.readFile(artifact!.filepath, {
-                  encoding: "utf-8",
-                })
+                testUtils.cleanseSVGSnapshot(
+                  await fs.readFile(artifact!.filepath, {
+                    encoding: "utf-8",
+                  })
+                )
               ).toMatchSnapshot();
               break;
             }

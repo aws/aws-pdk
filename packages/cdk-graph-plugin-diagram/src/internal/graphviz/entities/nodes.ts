@@ -141,7 +141,11 @@ export class CfnResourceNode extends ImageNode {
 
     this.attributes.apply(GraphTheme.instance.cfnResourceNode);
 
-    this.resize();
+    this.resize(
+      GraphTheme.instance.cfnResourceNode.height === ""
+        ? undefined
+        : GraphTheme.instance.cfnResourceNode.height
+    );
 
     if (node.isImport) {
       this.attributes.apply({
@@ -170,7 +174,11 @@ export class ResourceNode extends ImageNode {
 
     this.attributes.apply(GraphTheme.instance.resourceNode);
 
-    this.resize();
+    this.resize(
+      GraphTheme.instance.resourceNode.height === ""
+        ? undefined
+        : GraphTheme.instance.resourceNode.height
+    );
   }
 }
 

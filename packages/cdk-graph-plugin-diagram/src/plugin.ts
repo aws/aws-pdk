@@ -256,6 +256,7 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
             );
 
             try {
+              // SVG's don't render correctly in non-svg formats. Replace with png equivalent.
               const pngifiedDot = dot.replace(/\.svg/g, ".png");
               const png = await this.streamToBuffer(
                 await toStream(pngifiedDot, {

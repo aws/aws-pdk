@@ -5,6 +5,7 @@ import { AwsArchitecture } from "@aws/aws-arch";
 import * as fs from "fs-extra";
 import { toMatchImageSnapshot } from "jest-image-snapshot";
 import { kebabCase } from "lodash";
+import * as svgson from "svgson";
 import { IS_DEBUG } from "../../src/internal/debug";
 
 expect.extend({ toMatchImageSnapshot });
@@ -25,6 +26,15 @@ export function cleanseDotSnapshot(dot: string): string {
   );
 }
 
+export function cleanseSVGSnapshot(svg: string): string {
+  const svgObject = svgson.parseSync(svg);
+
+  // drop viewbox for comparison
+  delete svgObject.attributes.viewBox;
+
+  return svgson.stringify(svgObject);
+}
+
 export async function expectToMatchImageSnapshot(
   imagePath: string,
   name?: string,
@@ -33,6 +43,7 @@ export async function expectToMatchImageSnapshot(
 ): Promise<void> {
   const imageBuffer = fs.readFileSync(imagePath);
   // https://github.com/americanexpress/jest-image-snapshot#%EF%B8%8F-api
+
   expect(imageBuffer).toMatchImageSnapshot({
     customSnapshotIdentifier({ currentTestName, counter, testPath }) {
       const dir = testPath.replace(__dirname, "").split(".")[0];
