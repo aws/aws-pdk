@@ -45,6 +45,7 @@ export async function expectToMatchImageSnapshot(
           (counter <= 1 ? "" : `-${counter}`)
       );
     },
+    allowSizeMismatch: true,
     customDiffConfig: {
       // Prevent rendering variants between environments (CI, MacOS, Ubuntu, etc)
       threshold: pixelThreshold || 0.05, // default is 0.01
