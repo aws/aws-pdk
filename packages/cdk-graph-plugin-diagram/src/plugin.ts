@@ -1,5 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { execSync } from "child_process";
 import * as path from "path";
 import {
   CdkGraph,
@@ -10,6 +11,7 @@ import {
   IGraphReportCallback,
   performGraphFilterPlan,
 } from "@aws/cdk-graph";
+import chalk = require("chalk"); // eslint-disable-line @typescript-eslint/no-require-imports
 import * as fs from "fs-extra";
 import { toStream } from "ts-graphviz/adapter";
 import {
@@ -142,6 +144,20 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
     });
   };
 
+  private isGraphvizInstalledGlobally = () => {
+    try {
+      execSync("dot -V", { stdio: "ignore" });
+      return true;
+    } catch (e) {
+      console.warn(
+        chalk.yellowBright(
+          "SVG and PNG are not supported as graphviz is not installed. Please install graphviz (https://graphviz.org/download/) globally and re-try."
+        )
+      );
+      return false;
+    }
+  };
+
   /** @inheritdoc */
   report?: IGraphReportCallback = async (
     context: CdkGraphContext
@@ -204,7 +220,7 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
           `Diagram generated "dot" file for ${config.name} - "${config.title}"`
         );
 
-        if (generateSvg) {
+        if (generateSvg && this.isGraphvizInstalledGlobally()) {
           const svgFile = path.join(
             context.outdir,
             CdkGraphDiagramPlugin.artifactFilename(
@@ -230,7 +246,7 @@ export class CdkGraphDiagramPlugin implements ICdkGraphPlugin {
             `Diagram generated "svg" file for ${config.name} - "${config.title}"`
           );
 
-          if (generatePng) {
+          if (generatePng && this.isGraphvizInstalledGlobally()) {
             const pngFile = path.join(
               context.outdir,
               CdkGraphDiagramPlugin.artifactFilename(

@@ -40,6 +40,7 @@ export class CdkGraphPluginDiagramProject extends CdkGraphPluginProject {
       ],
       peerDeps: ["projen", "aws-cdk-lib", "constructs"],
       bundledDeps: [
+        "chalk@^4.x",
         "execa@5.1.1",
         "fs-extra",
         "he",
