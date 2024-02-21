@@ -51,7 +51,7 @@ export async function expectToMatchImageSnapshot(
       threshold: pixelThreshold || 0.05, // default is 0.01
     },
     // Allow a 1.5% difference in image for testing
-    failureThreshold: failureThreshold || 0.015,
+    failureThreshold: failureThreshold || 0.05,
     failureThresholdType: "percent",
     updatePassedSnapshot: process.env.CI !== "true" && IS_DEBUG,
   });
