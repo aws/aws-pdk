@@ -5,7 +5,6 @@ import { AwsArchitecture } from "@aws/aws-arch";
 import * as fs from "fs-extra";
 import { toMatchImageSnapshot } from "jest-image-snapshot";
 import { kebabCase } from "lodash";
-import * as svgson from "svgson";
 import { IS_DEBUG } from "../../src/internal/debug";
 
 expect.extend({ toMatchImageSnapshot });
@@ -24,15 +23,6 @@ export function cleanseDotSnapshot(dot: string): string {
     AwsArchitecture.assetDirectory,
     "<aws_arch_asset_directory"
   );
-}
-
-export function cleanseSVGSnapshot(svg: string): string {
-  const svgObject = svgson.parseSync(svg);
-
-  // drop viewbox for comparison
-  delete svgObject.attributes.viewBox;
-
-  return svgson.stringify(svgObject);
 }
 
 export async function expectToMatchImageSnapshot(
