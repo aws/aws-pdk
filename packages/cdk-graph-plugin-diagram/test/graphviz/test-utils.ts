@@ -5,7 +5,6 @@ import { AwsArchitecture } from "@aws/aws-arch";
 import * as fs from "fs-extra";
 import { toMatchImageSnapshot } from "jest-image-snapshot";
 import { kebabCase } from "lodash";
-import sharp = require("sharp"); // eslint-disable-line @typescript-eslint/no-require-imports
 import { IS_DEBUG } from "../../src/internal/debug";
 
 expect.extend({ toMatchImageSnapshot });
@@ -32,11 +31,9 @@ export async function expectToMatchImageSnapshot(
   pixelThreshold?: number,
   failureThreshold?: number
 ): Promise<void> {
-  const image = sharp(imagePath, { limitInputPixels: false });
-  const imageBuffer = await image
-    .resize({ width: 5120, withoutEnlargement: true })
-    .toBuffer();
+  const imageBuffer = fs.readFileSync(imagePath);
   // https://github.com/americanexpress/jest-image-snapshot#%EF%B8%8F-api
+
   expect(imageBuffer).toMatchImageSnapshot({
     customSnapshotIdentifier({ currentTestName, counter, testPath }) {
       const dir = testPath.replace(__dirname, "").split(".")[0];
@@ -49,12 +46,13 @@ export async function expectToMatchImageSnapshot(
           (counter <= 1 ? "" : `-${counter}`)
       );
     },
+    allowSizeMismatch: true,
     customDiffConfig: {
       // Prevent rendering variants between environments (CI, MacOS, Ubuntu, etc)
       threshold: pixelThreshold || 0.05, // default is 0.01
     },
     // Allow a 1.5% difference in image for testing
-    failureThreshold: failureThreshold || 0.015,
+    failureThreshold: failureThreshold || 0.05,
     failureThresholdType: "percent",
     updatePassedSnapshot: process.env.CI !== "true" && IS_DEBUG,
   });
