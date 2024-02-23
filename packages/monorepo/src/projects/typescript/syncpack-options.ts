@@ -89,24 +89,26 @@ export namespace Syncpack {
   // https://github.com/JamieMason/syncpack/blob/db2b31ccdb1a28fdbe0c42d27ce956ea5c6c543a/src/specifier/index.ts#L16-L27
   export type SpecifierType = string;
 
-  export interface GroupConfig {
-    readonly dependencies?: string[];
-    readonly dependencyTypes?: DependencyType[];
-    readonly label?: string;
-    readonly packages?: string[];
-    readonly specifierTypes?: SpecifierType[];
+  export namespace BaseGroupConfig {
+    export interface GroupConfig {
+      readonly dependencies?: string[];
+      readonly dependencyTypes?: DependencyType[];
+      readonly label?: string;
+      readonly packages?: string[];
+      readonly specifierTypes?: SpecifierType[];
+    }
   }
 
   export namespace SemverGroupConfig {
-    export interface Disabled extends GroupConfig {
+    export interface Disabled extends BaseGroupConfig.GroupConfig {
       readonly isDisabled: true;
     }
 
-    export interface Ignored extends GroupConfig {
+    export interface Ignored extends BaseGroupConfig.GroupConfig {
       readonly isIgnored: true;
     }
 
-    export interface WithRange extends GroupConfig {
+    export interface WithRange extends BaseGroupConfig.GroupConfig {
       readonly range: SemverRange;
     }
 
@@ -114,31 +116,31 @@ export namespace Syncpack {
   }
 
   export namespace VersionGroupConfig {
-    export interface Banned extends GroupConfig {
+    export interface Banned extends BaseGroupConfig.GroupConfig {
       readonly isBanned: true;
     }
 
-    export interface Ignored extends GroupConfig {
+    export interface Ignored extends BaseGroupConfig.GroupConfig {
       readonly isIgnored: true;
     }
 
-    export interface Pinned extends GroupConfig {
+    export interface Pinned extends BaseGroupConfig.GroupConfig {
       readonly pinVersion: string;
     }
 
-    export interface SnappedTo extends GroupConfig {
+    export interface SnappedTo extends BaseGroupConfig.GroupConfig {
       readonly snapTo: string[];
     }
 
-    export interface SameRange extends GroupConfig {
+    export interface SameRange extends BaseGroupConfig.GroupConfig {
       readonly policy: "sameRange";
     }
 
-    export interface SnappedTo extends GroupConfig {
+    export interface SnappedTo extends BaseGroupConfig.GroupConfig {
       readonly snapTo: string[];
     }
 
-    export interface Standard extends GroupConfig {
+    export interface Standard extends BaseGroupConfig.GroupConfig {
       readonly preferVersion?: "highestSemver" | "lowestSemver";
     }
 
