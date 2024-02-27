@@ -1090,6 +1090,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#upgrading-dependencies" class="md-nav__link">
+    Upgrading Dependencies
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3508,6 +3515,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#upgrading-dependencies" class="md-nav__link">
+    Upgrading Dependencies
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3546,13 +3560,28 @@
 <li><em><em>DependencyType.DEVENV:</em></em> The dependency is required for development (e.g. IDE plugins).</li>
 </ul>
 <p><em>Sourced from: <a href="https://projen.io/deps.html">https://projen.io/deps.html</a></em></p>
+<h2 id="upgrading-dependencies">Upgrading Dependencies</h2>
+<p>The monorepo projects expose a task for updating dependencies across subprojects within your monorepo. You can invoke this by running the following command in the root of your monorepo:</p>
+<div class="highlight"><pre><span></span><code>pdk upgrade-deps
+</code></pre></div>
+<p>This will have slightly different behaviour depending on the language of a subproject:</p>
+<ul>
+<li><strong>TypeScript</strong>: Minor version updates will be applied to dependencies and reflected in the <code>package.json</code> file, and lockfile.</li>
+<li><strong>Python</strong>: The <code>pyproject.toml</code> file remains unchanged, but the lockfile is updated to the latest version of each dependency within the constraints of the <code>pyproject.toml</code> file.</li>
+<li><strong>Java</strong>: No updates are performed. To upgrade dependencies you must update their versions referenced in your <code>.projenrc</code> and synthesize them so that the changes are reflected in the <code>pom.xml</code></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you're using the <code>MonorepoTsProject</code>, dependency versions in TypeScript subprojects will also be synchronised across the monorepo using <a href="https://github.com/JamieMason/syncpack">syncpack</a>.</p>
+</div>
+<p>To upgrade dependencies for an individual TypeScript or Python project, you can run <code>pdk upgrade</code> within that package.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      2024-02-23
+      2024-02-27
     
   </small>
 </div>

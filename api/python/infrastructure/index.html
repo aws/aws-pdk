@@ -3602,6 +3602,7 @@
   <span class="n">packaging</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">packaging_options</span><span class="p">:</span> <span class="n">MavenPackagingOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">parent_pom</span><span class="p">:</span> <span class="n">ParentPom</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">project_type</span><span class="p">:</span> <span class="n">ProjectType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">projen_command</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">projen_credentials</span><span class="p">:</span> <span class="n">GithubCredentials</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3834,6 +3835,11 @@
 <td><code><a href="#@aws/infrastructure.InfrastructureJavaProject.Initializer.parameter.parent">parent</a></code></td>
 <td><code>projen.Project</code></td>
 <td>The parent project, if this project is part of a bigger project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/infrastructure.InfrastructureJavaProject.Initializer.parameter.parentPom">parent_pom</a></code></td>
+<td><code>projen.java.ParentPom</code></td>
+<td>A Parent Pom can be used to have a child project inherit properties/plugins/ect in order to reduce duplication and keep standards across a large amount of repos.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/infrastructure.InfrastructureJavaProject.Initializer.parameter.projectType">project_type</a></code></td>
@@ -4313,6 +4319,13 @@ subprojects.</p>
 <li><em>Type:</em> projen.Project</li>
 </ul>
 <p>The parent project, if this project is part of a bigger project.</p>
+<hr />
+<h5 id="parent_pomoptional"><code>parent_pom</code><sup>Optional</sup> <a name="parent_pom" id="@aws/infrastructure.InfrastructureJavaProject.Initializer.parameter.parentPom"></a></h5>
+<ul>
+<li><em>Type:</em> projen.java.ParentPom</li>
+<li><em>Default:</em> undefined</li>
+</ul>
+<p>A Parent Pom can be used to have a child project inherit properties/plugins/ect in order to reduce duplication and keep standards across a large amount of repos.</p>
 <hr />
 <h5 id="project_typeoptional">~~<code>project_type</code>~~<sup>Optional</sup> <a name="project_type" id="@aws/infrastructure.InfrastructureJavaProject.Initializer.parameter.projectType"></a></h5>
 <ul>
@@ -7779,6 +7792,7 @@ this task should synthesize the project files.</p>
   <span class="n">npmignore</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npmignore_enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_ignore_options</span><span class="p">:</span> <span class="n">IgnoreFileOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">npm_provenance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_registry</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_registry_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_token_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -8319,6 +8333,11 @@ this task should synthesize the project files.</p>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.npmIgnoreOptions">npm_ignore_options</a></code></td>
 <td><code>projen.IgnoreFileOptions</code></td>
 <td>Configuration options for .npmignore file.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.npmProvenance">npm_provenance</a></code></td>
+<td><code>bool</code></td>
+<td>Should provenance statements be generated when the package is published.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.npmRegistry">npm_registry</a></code></td>
@@ -9433,6 +9452,17 @@ for each branch.</p>
 <li><em>Type:</em> projen.IgnoreFileOptions</li>
 </ul>
 <p>Configuration options for .npmignore file.</p>
+<hr />
+<h5 id="npm_provenanceoptional"><code>npm_provenance</code><sup>Optional</sup> <a name="npm_provenance" id="@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.npmProvenance"></a></h5>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true for public packages, false otherwise</li>
+</ul>
+<p>Should provenance statements be generated when the package is published.</p>
+<p>A supported package manager is required to publish a package with npm provenance statements and
+you will need to use a supported CI/CD provider.</p>
+<p>Note that the projen <code>Release</code> and <code>Publisher</code> components are using <code>publib</code> to publish packages,
+which is using npm internally and supports provenance statements independently of the package manager used.</p>
 <hr />
 <h5 id="npm_registryoptional">~~<code>npm_registry</code>~~<sup>Optional</sup> <a name="npm_registry" id="@aws/infrastructure.InfrastructureTsProject.Initializer.parameter.npmRegistry"></a></h5>
 <ul>
@@ -11754,6 +11784,7 @@ this task should synthesize the project files.</p>
   <span class="n">packaging</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">packaging_options</span><span class="p">:</span> <span class="n">MavenPackagingOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">parent_pom</span><span class="p">:</span> <span class="n">ParentPom</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">project_type</span><span class="p">:</span> <span class="n">ProjectType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">projen_command</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">projen_credentials</span><span class="p">:</span> <span class="n">GithubCredentials</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -11982,6 +12013,11 @@ this task should synthesize the project files.</p>
 <td><code><a href="#@aws/infrastructure.AwsCdkJavaAppOptions.property.parent">parent</a></code></td>
 <td><code>projen.Project</code></td>
 <td>The parent project, if this project is part of a bigger project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/infrastructure.AwsCdkJavaAppOptions.property.parentPom">parent_pom</a></code></td>
+<td><code>projen.java.ParentPom</code></td>
+<td>A Parent Pom can be used to have a child project inherit properties/plugins/ect in order to reduce duplication and keep standards across a large amount of repos.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/infrastructure.AwsCdkJavaAppOptions.property.projectType">project_type</a></code></td>
@@ -12502,6 +12538,15 @@ subprojects.</p>
 <li><em>Type:</em> projen.Project</li>
 </ul>
 <p>The parent project, if this project is part of a bigger project.</p>
+<hr />
+<h5 id="parent_pomoptional_1"><code>parent_pom</code><sup>Optional</sup> <a name="parent_pom" id="@aws/infrastructure.AwsCdkJavaAppOptions.property.parentPom"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">parent_pom</span><span class="p">:</span> <span class="n">ParentPom</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.java.ParentPom</li>
+<li><em>Default:</em> undefined</li>
+</ul>
+<p>A Parent Pom can be used to have a child project inherit properties/plugins/ect in order to reduce duplication and keep standards across a large amount of repos.</p>
 <hr />
 <h5 id="project_typeoptional_3">~~<code>project_type</code>~~<sup>Optional</sup> <a name="project_type" id="@aws/infrastructure.AwsCdkJavaAppOptions.property.projectType"></a></h5>
 <ul>
@@ -13843,6 +13888,7 @@ and <code>packages</code> scope.</p>
   <span class="n">npmignore</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npmignore_enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_ignore_options</span><span class="p">:</span> <span class="n">IgnoreFileOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">npm_provenance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_registry</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_registry_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_token_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -14379,6 +14425,11 @@ and <code>packages</code> scope.</p>
 <td><code><a href="#@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.npmIgnoreOptions">npm_ignore_options</a></code></td>
 <td><code>projen.IgnoreFileOptions</code></td>
 <td>Configuration options for .npmignore file.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.npmProvenance">npm_provenance</a></code></td>
+<td><code>bool</code></td>
+<td>Should provenance statements be generated when the package is published.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.npmRegistry">npm_registry</a></code></td>
@@ -15635,6 +15686,19 @@ for each branch.</p>
 </ul>
 <p>Configuration options for .npmignore file.</p>
 <hr />
+<h5 id="npm_provenanceoptional_1"><code>npm_provenance</code><sup>Optional</sup> <a name="npm_provenance" id="@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.npmProvenance"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">npm_provenance</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true for public packages, false otherwise</li>
+</ul>
+<p>Should provenance statements be generated when the package is published.</p>
+<p>A supported package manager is required to publish a package with npm provenance statements and
+you will need to use a supported CI/CD provider.</p>
+<p>Note that the projen <code>Release</code> and <code>Publisher</code> components are using <code>publib</code> to publish packages,
+which is using npm internally and supports provenance statements independently of the package manager used.</p>
+<hr />
 <h5 id="npm_registryoptional_1">~~<code>npm_registry</code>~~<sup>Optional</sup> <a name="npm_registry" id="@aws/infrastructure.AwsCdkTypeScriptAppOptions.property.npmRegistry"></a></h5>
 <ul>
 <li><em>Deprecated:</em> use <code>npmRegistryUrl</code> instead</li>
@@ -16414,6 +16478,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <span class="n">packaging</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">packaging_options</span><span class="p">:</span> <span class="n">MavenPackagingOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">parent</span><span class="p">:</span> <span class="n">Project</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">parent_pom</span><span class="p">:</span> <span class="n">ParentPom</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">project_type</span><span class="p">:</span> <span class="n">ProjectType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">projen_command</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">projen_credentials</span><span class="p">:</span> <span class="n">GithubCredentials</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -16647,6 +16712,11 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
 <td><code><a href="#@aws/infrastructure.InfrastructureJavaProjectOptions.property.parent">parent</a></code></td>
 <td><code>projen.Project</code></td>
 <td>The parent project, if this project is part of a bigger project.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/infrastructure.InfrastructureJavaProjectOptions.property.parentPom">parent_pom</a></code></td>
+<td><code>projen.java.ParentPom</code></td>
+<td>A Parent Pom can be used to have a child project inherit properties/plugins/ect in order to reduce duplication and keep standards across a large amount of repos.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/infrastructure.InfrastructureJavaProjectOptions.property.projectType">project_type</a></code></td>
@@ -17192,6 +17262,15 @@ subprojects.</p>
 <li><em>Type:</em> projen.Project</li>
 </ul>
 <p>The parent project, if this project is part of a bigger project.</p>
+<hr />
+<h5 id="parent_pomoptional_2"><code>parent_pom</code><sup>Optional</sup> <a name="parent_pom" id="@aws/infrastructure.InfrastructureJavaProjectOptions.property.parentPom"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">parent_pom</span><span class="p">:</span> <span class="n">ParentPom</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> projen.java.ParentPom</li>
+<li><em>Default:</em> undefined</li>
+</ul>
+<p>A Parent Pom can be used to have a child project inherit properties/plugins/ect in order to reduce duplication and keep standards across a large amount of repos.</p>
 <hr />
 <h5 id="project_typeoptional_6">~~<code>project_type</code>~~<sup>Optional</sup> <a name="project_type" id="@aws/infrastructure.InfrastructureJavaProjectOptions.property.projectType"></a></h5>
 <ul>
@@ -18657,6 +18736,7 @@ and <code>packages</code> scope.</p>
   <span class="n">npmignore</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npmignore_enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_ignore_options</span><span class="p">:</span> <span class="n">IgnoreFileOptions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">npm_provenance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_registry</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_registry_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
   <span class="n">npm_token_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -19198,6 +19278,11 @@ and <code>packages</code> scope.</p>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProjectOptions.property.npmIgnoreOptions">npm_ignore_options</a></code></td>
 <td><code>projen.IgnoreFileOptions</code></td>
 <td>Configuration options for .npmignore file.</td>
+</tr>
+<tr>
+<td><code><a href="#@aws/infrastructure.InfrastructureTsProjectOptions.property.npmProvenance">npm_provenance</a></code></td>
+<td><code>bool</code></td>
+<td>Should provenance statements be generated when the package is published.</td>
 </tr>
 <tr>
 <td><code><a href="#@aws/infrastructure.InfrastructureTsProjectOptions.property.npmRegistry">npm_registry</a></code></td>
@@ -20479,6 +20564,19 @@ for each branch.</p>
 </ul>
 <p>Configuration options for .npmignore file.</p>
 <hr />
+<h5 id="npm_provenanceoptional_2"><code>npm_provenance</code><sup>Optional</sup> <a name="npm_provenance" id="@aws/infrastructure.InfrastructureTsProjectOptions.property.npmProvenance"></a></h5>
+<div class="highlight"><pre><span></span><code><span class="n">npm_provenance</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+<ul>
+<li><em>Type:</em> bool</li>
+<li><em>Default:</em> true for public packages, false otherwise</li>
+</ul>
+<p>Should provenance statements be generated when the package is published.</p>
+<p>A supported package manager is required to publish a package with npm provenance statements and
+you will need to use a supported CI/CD provider.</p>
+<p>Note that the projen <code>Release</code> and <code>Publisher</code> components are using <code>publib</code> to publish packages,
+which is using npm internally and supports provenance statements independently of the package manager used.</p>
+<hr />
 <h5 id="npm_registryoptional_2">~~<code>npm_registry</code>~~<sup>Optional</sup> <a name="npm_registry" id="@aws/infrastructure.InfrastructureTsProjectOptions.property.npmRegistry"></a></h5>
 <ul>
 <li><em>Deprecated:</em> use <code>npmRegistryUrl</code> instead</li>
@@ -21266,7 +21364,7 @@ same minor, so we recommend using a <code>~</code> dependency (e.g. <code>~1.2.3
   <small>
     
       Last update:
-      2024-02-23
+      2024-02-27
     
   </small>
 </div>
