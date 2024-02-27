@@ -91,6 +91,13 @@ export interface JavaProjectOptions {
    */
   readonly url?: string;
   /**
+   * A Parent Pom can be used to have a child project inherit properties/plugins/ect in order to reduce duplication and keep standards across a large amount of repos.
+   * @default undefined
+   * @stability experimental
+   * @featured true
+   */
+  readonly parentPom?: java.ParentPom;
+  /**
    * Project packaging format.
    * @default "jar"
    * @stability experimental

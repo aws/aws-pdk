@@ -163,12 +163,27 @@ export class MonorepoJavaProject extends JavaProject implements INxProjectCore {
     this.nxConfigurator.addPythonPoetryDependency(dependent, dependee);
   }
 
+  private addUpgradeDepsTask() {
+    const upgradeDepsTask = new Task("upgrade-deps", {
+      description: "Upgrade dependencies in the monorepo",
+    });
+    this.nxConfigurator._overrideNxBuildTask(upgradeDepsTask, {
+      target: "upgrade",
+    });
+    this.nxConfigurator._configurePythonSubprojectUpgradeDeps(
+      this,
+      upgradeDepsTask
+    );
+  }
+
   /**
    * @inheritdoc
    */
   preSynthesize(): void {
     // Calling before super() to ensure proper pre-synth of NxProject component and its nested components
     this.nxConfigurator.preSynthesize();
+
+    this.addUpgradeDepsTask();
 
     super.preSynthesize();
 

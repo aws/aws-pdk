@@ -614,6 +614,17 @@ export interface TypeScriptProjectOptions {
    */
   readonly npmRegistry?: string;
   /**
+   * Should provenance statements be generated when the package is published.
+   * A supported package manager is required to publish a package with npm provenance statements and
+   * you will need to use a supported CI/CD provider.
+   *
+   * Note that the projen `Release` and `Publisher` components are using `publib` to publish packages,
+   * which is using npm internally and supports provenance statements independently of the package manager used.
+   * @default - true for public packages, false otherwise
+   * @stability experimental
+   */
+  readonly npmProvenance?: boolean;
+  /**
    * Access level of the npm package.
    * @default - for scoped packages (e.g. `foo@bar`), the default is
 `NpmAccess.RESTRICTED`, for non-scoped packages, the default is

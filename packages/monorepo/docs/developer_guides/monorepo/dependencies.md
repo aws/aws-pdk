@@ -28,3 +28,22 @@ The second argument (type) defines the dependency type and is one of:
 - *_DependencyType.DEVENV:_* The dependency is required for development (e.g. IDE plugins).
 
 _Sourced from: https://projen.io/deps.html_
+
+## Upgrading Dependencies
+
+The monorepo projects expose a task for updating dependencies across subprojects within your monorepo. You can invoke this by running the following command in the root of your monorepo:
+
+```
+pdk upgrade-deps
+```
+
+This will have slightly different behaviour depending on the language of a subproject:
+
+* __TypeScript__: Minor version updates will be applied to dependencies and reflected in the `package.json` file, and lockfile.
+* __Python__: The `pyproject.toml` file remains unchanged, but the lockfile is updated to the latest version of each dependency within the constraints of the `pyproject.toml` file.
+* __Java__: No updates are performed. To upgrade dependencies you must update their versions referenced in your `.projenrc` and synthesize them so that the changes are reflected in the `pom.xml`
+
+!!!note
+    If you're using the `MonorepoTsProject`, dependency versions in TypeScript subprojects will also be synchronised across the monorepo using [syncpack](https://github.com/JamieMason/syncpack).
+
+To upgrade dependencies for an individual TypeScript or Python project, you can run `pdk upgrade` within that package.
