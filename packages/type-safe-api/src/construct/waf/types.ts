@@ -1,6 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { CfnWebACL } from "aws-cdk-lib/aws-wafv2";
+import { PartialManagedRuleGroupStatementProperty } from "./generated-types";
 
 /* TODO: to be refactored in the next releases. It's suggested to reuse directly
  * the type CfnWebACL.ManagedRuleGroupStatementProperty.
@@ -10,8 +10,7 @@ import { CfnWebACL } from "aws-cdk-lib/aws-wafv2";
  *
  * in future releases vendorName should be required while vendor will be removed
  */
-export interface ManagedRule
-  extends Omit<CfnWebACL.ManagedRuleGroupStatementProperty, "vendorName"> {
+export interface ManagedRule extends PartialManagedRuleGroupStatementProperty {
   /**
    * The name of the managed rule group vendor. You use this, along with the rule group name, to identify the rule group.
    *
