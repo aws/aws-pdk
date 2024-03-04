@@ -46,8 +46,20 @@ export class OpenApiGatewayWebAcl extends Construct {
         })
       : undefined;
 
+    // TODO: vendor property is deprecated, to be removed in the future iterations
+    // and vendorName will be required
+    const anyMissingVendor = props.managedRules?.some(
+      (q) => !q.vendorName && !q.vendor
+    );
+
+    if (anyMissingVendor) {
+      throw new Error(
+        "The provided managed rules need to define either the vendor or vendorName (preferred) property"
+      );
+    }
+
     const managedRules = props.managedRules ?? [
-      { vendor: "AWS", name: "AWSManagedRulesCommonRuleSet" },
+      { vendorName: "AWS", name: "AWSManagedRulesCommonRuleSet" },
     ];
 
     const rules: CfnWebACL.RuleProperty[] = [
@@ -78,17 +90,34 @@ export class OpenApiGatewayWebAcl extends Construct {
           ]
         : []),
       // Add the managed rules
-      ...managedRules.map(({ vendor, name }, i) => ({
-        name: `${vendor}-${name}`,
-        priority: i + 2,
-        statement: { managedRuleGroupStatement: { vendorName: vendor, name } },
-        overrideAction: { none: {} },
-        visibilityConfig: {
-          metricName: `${aclName}-${vendor}-${name}`,
-          cloudWatchMetricsEnabled: true,
-          sampledRequestsEnabled: true,
-        },
-      })),
+      ...managedRules.map(
+        (
+          { vendor, vendorName, name, ...others },
+          i
+        ): CfnWebACL.RuleProperty => {
+          // TODO: the usage of `vendor` it's for backward compatibility
+          // it will be removed in the next PDK versions
+          const vendorNameToUser = (vendor || vendorName)!;
+
+          return {
+            name: `${vendorNameToUser}-${name}`,
+            priority: i + 2,
+            statement: {
+              managedRuleGroupStatement: {
+                ...others,
+                vendorName: vendorNameToUser,
+                name,
+              },
+            },
+            overrideAction: { none: {} },
+            visibilityConfig: {
+              metricName: `${aclName}-${vendorNameToUser}-${name}`,
+              cloudWatchMetricsEnabled: true,
+              sampledRequestsEnabled: true,
+            },
+          };
+        }
+      ),
     ];
 
     this.webAcl = new CfnWebACL(this, "WebACL", {

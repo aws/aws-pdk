@@ -99,6 +99,23 @@ export class TypeSafeApiProject extends PDKProject {
 
   private generateInterfaces() {
     new ProjenStruct(this, {
+      name: "PartialManagedRuleGroupStatementProperty",
+      filePath: `${this.srcdir}/construct/waf/generated-types.ts`,
+      outputFileOptions: {
+        readonly: false, // Needed as EsLint will complain otherwise
+      },
+    })
+      .mixin(
+        Struct.fromFqn(
+          "aws-cdk-lib.aws_wafv2.CfnWebACL.ManagedRuleGroupStatementProperty"
+        )
+      )
+      .withoutDeprecated()
+      .allOptional()
+      .update("name", { optional: false })
+      .omit("vendorName");
+
+    new ProjenStruct(this, {
       name: "TypeScriptProjectOptions",
       filePath: `${this.srcdir}/project/typescript-project-options.ts`,
       outputFileOptions: {
@@ -139,6 +156,9 @@ export class TypeSafeApiProject extends PDKProject {
         "projenrcTsOptions"
       );
 
+    this.eslint?.addIgnorePattern(
+      `${this.srcdir}/construct/waf/generated-types.ts`
+    );
     this.eslint?.addIgnorePattern(
       `${this.srcdir}/project/typescript-project-options.ts`
     );
