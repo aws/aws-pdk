@@ -14,7 +14,7 @@ export interface ManagedRule extends PartialManagedRuleGroupStatementProperty {
   /**
    * The name of the managed rule group vendor. You use this, along with the rule group name, to identify the rule group.
    *
-   * @deprecated use the `vendorName` property instead. This property will be removed in the next releases.
+   * @deprecated use the `vendorName` property instead. This property will be removed in the next major release.
    */
   readonly vendor?: string;
 

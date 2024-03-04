@@ -52,7 +52,7 @@ export class OpenApiGatewayWebAcl extends Construct {
       (q) => !q.vendorName && !q.vendor
     );
 
-    if (anyMissingVendor === true) {
+    if (anyMissingVendor) {
       throw new Error(
         "The provided managed rules need to define either the vendor or vendorName (preferred) property"
       );
