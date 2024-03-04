@@ -1,15 +1,33 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-export interface ManagedRule {
+import { CfnWebACL } from "aws-cdk-lib/aws-wafv2";
+
+/* TODO: to be refactored in the next releases. It's suggested to reuse directly
+ * the type CfnWebACL.ManagedRuleGroupStatementProperty.
+ *
+ * The type ManagedRule has been used to guarantee backward compatibility
+ * with forward compatibility provided by the vendorName property
+ *
+ * in future releases vendorName should be required while vendor will be removed
+ */
+export interface ManagedRule
+  extends Omit<CfnWebACL.ManagedRuleGroupStatementProperty, "vendorName"> {
   /**
    * The name of the managed rule group vendor. You use this, along with the rule group name, to identify the rule group.
+   *
+   * @deprecated use the `vendorName` property instead. This property will be removed in the next releases.
    */
-  readonly vendor: string;
+  readonly vendor?: string;
 
   /**
-   * The name of the managed rule group. You use this, along with the vendor name, to identify the rule group.
+   * The name of the managed rule group vendor.
+   * You use this, along with the rule group name, to identify a rule group.
+   *
+   * Preferred to the property `vendor`
+   *
+   * @see http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-wafv2-webacl-managedrulegroupstatement.html#cfn-wafv2-webacl-managedrulegroupstatement-vendorname
    */
-  readonly name: string;
+  readonly vendorName?: string;
 }
 
 /**

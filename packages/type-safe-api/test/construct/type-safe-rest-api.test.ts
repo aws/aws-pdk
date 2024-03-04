@@ -747,12 +747,82 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
         },
         webAclOptions: {
           managedRules: [
-            { vendor: "AWS", name: "AWSManagedRulesAmazonIpReputationList" },
-            { vendor: "AWS", name: "AWSManagedRulesAnonymousIpList" },
+            {
+              vendorName: "AWS",
+              name: "AWSManagedRulesAmazonIpReputationList",
+            },
+            { vendorName: "AWS", name: "AWSManagedRulesAnonymousIpList" },
           ],
         },
       });
       expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
+  it("With Custom Managed Rules action overrides", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    withTempSpec(sampleSpec, (specPath) => {
+      new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func),
+          },
+        },
+        webAclOptions: {
+          managedRules: [
+            {
+              vendorName: "AWS",
+              name: "AWSManagedRulesCommonRuleSet",
+              ruleActionOverrides: [
+                {
+                  name: "SizeRestrictions_BODY",
+                  actionToUse: { allow: {} },
+                },
+              ],
+            },
+          ],
+        },
+      });
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+    });
+  });
+
+  it("Should throw if use a managed rule without the vendor", () => {
+    const stack = new Stack();
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+
+    withTempSpec(sampleSpec, (specPath) => {
+      expect(
+        () =>
+          new TypeSafeRestApi(stack, "ApiTest", {
+            specPath,
+            operationLookup,
+            integrations: {
+              testOperation: {
+                integration: Integrations.lambda(func),
+              },
+            },
+            webAclOptions: {
+              managedRules: [
+                {
+                  name: "AWSManagedRulesAmazonIpReputationList",
+                },
+                { name: "AWSManagedRulesAnonymousIpList" },
+              ],
+            },
+          })
+      ).toThrow();
     });
   });
 
