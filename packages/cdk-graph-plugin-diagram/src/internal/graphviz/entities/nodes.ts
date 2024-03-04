@@ -113,20 +113,18 @@ export class ImageNode extends Node {
     if (baseHeight == null) {
       baseHeight = (this.attributes.get("height") || 1) as number;
     }
-
     const image = this.image;
 
     if (image) {
       const labelLines = this.label.split("\n").length;
-
       this.attributes.set("labelloc", "b");
-
       this.attributes.set(
         "height",
         baseHeight + labelLines * LABEL_LINE_HEIGHT
       );
     } else {
       this.attributes.set("labelloc", "c");
+      this.attributes.set("penwidth", 0.25);
       this.attributes.set("height", baseHeight);
     }
   }

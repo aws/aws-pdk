@@ -202,6 +202,28 @@ export class NxConfigurator extends Component implements INxProjectCore {
   }
 
   /**
+   * Adds a command to upgrade all python subprojects to the given task
+   * @param monorepo the monorepo project
+   * @param task the task to add the command to
+   * @internal
+   */
+  public _configurePythonSubprojectUpgradeDeps(monorepo: Project, task: Task) {
+    // Upgrade deps for
+    const pythonSubprojects = monorepo.subprojects.filter((p) =>
+      ProjectUtils.isNamedInstanceOf(p, PythonProject)
+    );
+    if (pythonSubprojects.length > 0) {
+      task.exec(
+        this.execNxRunManyCommand({
+          target: "install", // TODO: remove in favour of the upgrade task if ever implemented for python
+          projects: pythonSubprojects.map((p) => p.name),
+        }),
+        { receiveArgs: true }
+      );
+    }
+  }
+
+  /**
    * Returns the install task or creates one with nx installation command added.
    *
    * Note: this should only be called from non-node projects

@@ -1,7 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-
-import { Rule, WAFV2 } from "@aws-sdk/client-wafv2"; // eslint-disable-line
+import { CreateIPSetCommandOutput, Rule, WAFUnavailableEntityException, WAFV2 } from "@aws-sdk/client-wafv2"; // eslint-disable-line
 
 const DELIMITER = ":";
 const SCOPE = "CLOUDFRONT";
@@ -9,6 +8,9 @@ const client = new WAFV2({
   region: "us-east-1",
   customUserAgent: "aws-pdk/static-website/waf",
 });
+
+const MAX_CREATE_RETRY = 10;
+const RETRY_INTERVAL = 200;
 
 /**
  * Handler for creating a WAF V2 ACL in US-EAST-1.
@@ -127,22 +129,13 @@ const createWaf = async (
     IPAddressVersion: cidrAllowList?.cidrType ?? "IPV4",
   });
 
-  const createWebAclResponse = await client.createWebACL({
-    Name: id,
-    DefaultAction: { Allow: {} },
-    Scope: SCOPE,
-    VisibilityConfig: {
-      CloudWatchMetricsEnabled: true,
-      MetricName: id,
-      SampledRequestsEnabled: true,
-    },
-    Rules: getWafRules(
-      createIpSetResponse.Summary!.ARN!,
-      ipSetName,
-      managedRules,
-      cidrAllowList
-    ),
-  });
+  const createWebAclResponse = await createWafAcl(
+    id,
+    ipSetName,
+    createIpSetResponse,
+    managedRules,
+    cidrAllowList
+  );
 
   return {
     PhysicalResourceId: `${createWebAclResponse.Summary?.Id}${DELIMITER}${createIpSetResponse.Summary?.Id}`,
@@ -153,6 +146,53 @@ const createWaf = async (
       IPSetId: createIpSetResponse.Summary?.Id,
     },
   };
+};
+
+const createWafAcl = async (
+  id: string,
+  ipSetName: string,
+  createIpSetResponse: CreateIPSetCommandOutput,
+  managedRules?: any,
+  cidrAllowList?: any
+) => {
+  let counter = 0;
+
+  while (true) {
+    try {
+      const createWebAclResponse = await client.createWebACL({
+        Name: id,
+        DefaultAction: { Allow: {} },
+        Scope: SCOPE,
+        VisibilityConfig: {
+          CloudWatchMetricsEnabled: true,
+          MetricName: id,
+          SampledRequestsEnabled: true,
+        },
+        Rules: getWafRules(
+          createIpSetResponse.Summary!.ARN!,
+          ipSetName,
+          managedRules,
+          cidrAllowList
+        ),
+      });
+
+      return createWebAclResponse;
+    } catch (e) {
+      if (
+        e instanceof WAFUnavailableEntityException &&
+        counter < MAX_CREATE_RETRY
+      ) {
+        counter++;
+        console.log(
+          `Received error: ${e.message}; Waiting for retrying ${counter}`
+        );
+        await sleep(RETRY_INTERVAL);
+        continue;
+      }
+
+      throw e;
+    }
+  }
 };
 
 const updateWaf = async (
@@ -252,4 +292,8 @@ const deleteWaf = async (
       IPSetId: getIpSetResponse.IPSet?.Id,
     },
   };
+};
+
+const sleep = async (duration: number) => {
+  return new Promise((resolve) => setTimeout(resolve, duration));
 };

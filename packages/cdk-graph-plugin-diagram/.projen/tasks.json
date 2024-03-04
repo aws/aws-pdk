@@ -39,14 +39,6 @@
         }
       ]
     },
-    "copy-files": {
-      "name": "copy-files",
-      "steps": [
-        {
-          "exec": "cp src/internal/graphviz/dot-wasm/dot-wasm-invoker.mjs lib/internal/graphviz/dot-wasm/dot-wasm-invoker.mjs"
-        }
-      ]
-    },
     "default": {
       "name": "default",
       "description": "Synthesize project files"
@@ -120,9 +112,6 @@
           "exec": "monorepo.pnpm-link-bundled-transitive-deps packages/cdk-graph-plugin-diagram"
         },
         {
-          "spawn": "sharp:prebuild"
-        },
-        {
           "spawn": "eslint"
         }
       ]
@@ -154,9 +143,6 @@
       "description": "Runs after successful compilation",
       "steps": [
         {
-          "spawn": "copy-files"
-        },
-        {
           "exec": "rm -f tsconfig.json"
         },
         {
@@ -170,14 +156,6 @@
       "steps": [
         {
           "exec": "rm -f tsconfig.json"
-        }
-      ]
-    },
-    "sharp:prebuild": {
-      "name": "sharp:prebuild",
-      "steps": [
-        {
-          "exec": "ts-node ./scripts/cdk-graph-plugin-diagram/sharp-prebuild.ts"
         }
       ]
     },

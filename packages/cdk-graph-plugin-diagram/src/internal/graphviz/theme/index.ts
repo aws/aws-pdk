@@ -280,7 +280,7 @@ const GRAPH_ATTRIBUTES: Dot.GraphAttributesObject = {
   fontsize: 14,
   forcelabels: true,
   labelloc: "tc",
-  nodesep: 0.6,
+  nodesep: 0.8,
   pad: "%2,%1" as Dot.Point,
   // @ts-ignore
   rankdir: "TB",
@@ -348,8 +348,8 @@ const NODE_ATTRIBUTES: Dot.NodeAttributesObject = {
   height: 0.25,
   labelloc: "c",
   imagescale: true,
-  fontsize: 11,
-  penwidth: 0.25,
+  fontsize: 10,
+  penwidth: 0,
 };
 
 /** Base image based node attributes */
@@ -362,7 +362,6 @@ const IMAGE_NODE_ATTRIBUTES: Dot.NodeAttributesObject = {
   labelloc: "b",
   imagescale: true,
   imagepos: "tc",
-  penwidth: 0,
   fillcolor: "transparent",
 };
 
@@ -371,6 +370,7 @@ const CFN_RESOURCE_NODE_ATTRIBUTES: Dot.NodeAttributesObject = {
   width: 1,
   height: 1,
   fixedsize: true,
+  imagescale: true,
   style: "solid,rounded",
   color: "#999999",
   fontcolor: "#999999",
@@ -381,6 +381,7 @@ const RESOURCE_NODE_ATTRIBUTES: Dot.NodeAttributesObject = {
   width: 1,
   height: 1,
   fixedsize: true,
+  imagescale: true,
   color: "#666666",
   fontcolor: "#666666",
 };

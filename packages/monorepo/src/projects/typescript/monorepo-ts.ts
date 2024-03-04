@@ -316,48 +316,6 @@ export class MonorepoTsProject
       "wrap-ansi@^7.0.0",
       "@zkochan/js-yaml@npm:js-yaml@4.1.0"
     );
-
-    if (options.monorepoUpgradeDeps !== false) {
-      this.addDevDeps("npm-check-updates", "syncpack@^12");
-
-      const upgradeDepsTask = this.addTask(
-        options.monorepoUpgradeDepsOptions?.taskName || "upgrade-deps"
-      );
-      upgradeDepsTask.exec(
-        NodePackageUtils.command.exec(
-          this.package.packageManager,
-          "npm-check-updates",
-          "--deep",
-          "--rejectVersion",
-          "0.0.0",
-          "-u",
-          "--dep",
-          "prod,dev,peer,optional,bundle",
-          "--target=minor"
-        )
-      );
-      upgradeDepsTask.exec(
-        NodePackageUtils.command.exec(
-          this.package.packageManager,
-          "syncpack",
-          "fix-mismatches"
-        )
-      );
-      upgradeDepsTask.exec(`rm ${this.package.lockFile}`);
-      upgradeDepsTask.exec(
-        NodePackageUtils.command.install(this.package.packageManager)
-      );
-      upgradeDepsTask.exec(
-        NodePackageUtils.command.exec(this.package.packageManager, "projen")
-      );
-
-      new JsonFile(this, ".syncpackrc.json", {
-        obj:
-          options.monorepoUpgradeDepsOptions?.syncpackConfig ||
-          Syncpack.DEFAULT_CONFIG,
-        readonly: true,
-      });
-    }
   }
 
   /**
@@ -485,7 +443,74 @@ export class MonorepoTsProject
     (this.tasks.tryFind("prepare") || this.addTask("prepare")).spawn(linkTask);
   }
 
+  private addUpgradeDepsTask() {
+    if (this._options.monorepoUpgradeDeps !== false) {
+      this.addDevDeps("npm-check-updates", "syncpack@^12");
+
+      const upgradeDepsTask = this.addTask(
+        this._options.monorepoUpgradeDepsOptions?.taskName || "upgrade-deps",
+        {
+          description: "Upgrade dependencies in the monorepo",
+        }
+      );
+      // Run the upgrade task for any non-node subprojects
+      const nonNodeSubprojects = this.subprojects.filter(
+        (p) => !NodePackageUtils.isNodeProject(p)
+      );
+      if (nonNodeSubprojects.length > 0) {
+        this.nxConfigurator._overrideNxBuildTask(upgradeDepsTask, {
+          target: "upgrade",
+          projects: nonNodeSubprojects.map((p) => p.name),
+        });
+      }
+
+      this.nxConfigurator._configurePythonSubprojectUpgradeDeps(
+        this,
+        upgradeDepsTask
+      );
+
+      // Upgrade node subprojects together
+      upgradeDepsTask.exec(
+        NodePackageUtils.command.exec(
+          this.package.packageManager,
+          "npm-check-updates",
+          "--deep",
+          "--rejectVersion",
+          "0.0.0",
+          "-u",
+          "--dep",
+          "prod,dev,peer,optional,bundle",
+          "--target=minor"
+        )
+      );
+      // Sync dependency versions across node subprojects
+      upgradeDepsTask.exec(
+        NodePackageUtils.command.exec(
+          this.package.packageManager,
+          "syncpack",
+          "fix-mismatches"
+        )
+      );
+      upgradeDepsTask.exec(`rm ${this.package.lockFile}`);
+      upgradeDepsTask.exec(
+        NodePackageUtils.command.install(this.package.packageManager)
+      );
+      upgradeDepsTask.exec(
+        NodePackageUtils.command.exec(this.package.packageManager, "projen")
+      );
+
+      new JsonFile(this, ".syncpackrc.json", {
+        obj:
+          this._options.monorepoUpgradeDepsOptions?.syncpackConfig ||
+          Syncpack.DEFAULT_CONFIG,
+        readonly: true,
+      });
+    }
+  }
+
   preSynthesize(): void {
+    this.addUpgradeDepsTask();
+
     NodePackageUtils.removeProjenScript(this);
     this.nxConfigurator.preSynthesize();
     super.preSynthesize();
