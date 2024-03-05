@@ -173,9 +173,11 @@ export class StaticWebsite extends Construct {
     // Web ACL
     const { distributionProps } = props;
     const webAclArn =
-      distributionProps?.webAclId ?? props.webAclProps?.disable
+      distributionProps?.webAclId ??
+      (props.webAclProps?.disable
         ? undefined
-        : new CloudfrontWebAcl(this, "WebsiteAcl", props.webAclProps).webAclArn;
+        : new CloudfrontWebAcl(this, "WebsiteAcl", props.webAclProps)
+            .webAclArn);
 
     // Cloudfront Distribution
     const logBucket =

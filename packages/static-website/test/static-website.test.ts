@@ -4,7 +4,7 @@ import path from "path";
 //import { SynthUtils } from "@aws-cdk/assert";
 import { PDKNag, AwsPrototypingChecks } from "@aws/pdk-nag";
 import { NestedStack, Stack } from "aws-cdk-lib";
-import { Template } from "aws-cdk-lib/assertions";
+import { Capture, Template } from "aws-cdk-lib/assertions";
 import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { NagSuppressions } from "cdk-nag";
@@ -118,6 +118,30 @@ describe("Static Website Unit Tests", () => {
     });
 
     expect(Template.fromStack(stack)).toMatchSnapshot();
+  });
+
+  it("With Provided WebAclId, should configure the WebAclId in the CloudFront Distribution", () => {
+    const webAclId = "testWebAclId123";
+    const stack = new Stack(PDKNag.app());
+    new StaticWebsite(stack, "WebAclIdProvided", {
+      websiteContentPath: path.join(__dirname, "sample-website"),
+      distributionProps: {
+        webAclId,
+      },
+    });
+
+    const template = Template.fromStack(stack);
+
+    const capturedWebAclId = new Capture();
+
+    template.allResourcesProperties("AWS::CloudFront::Distribution", {
+      DistributionConfig: {
+        WebACLId: capturedWebAclId,
+      },
+    });
+
+    expect(capturedWebAclId.asString()).toEqual(webAclId);
+    expect(template).toMatchSnapshot();
   });
 
   it("With custom bucket deployment props", () => {
