@@ -165,8 +165,8 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
 
     const targetApiSpecFolder = `public/${tsApi.model.apiName}`;
     const targetApiSpecPath = `${targetApiSpecFolder}/api.json`;
-    this.postCompileTask.exec(`rm -rf ${targetApiSpecFolder}`);
-    this.postCompileTask.exec(
+    this.preCompileTask.exec(`rm -rf ${targetApiSpecFolder}`);
+    this.preCompileTask.exec(
       `mkdir -p ${targetApiSpecFolder} && cp ${path.relative(
         this.outdir,
         tsApi.model.outdir

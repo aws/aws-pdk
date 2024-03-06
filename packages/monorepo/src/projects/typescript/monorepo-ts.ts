@@ -200,6 +200,14 @@ export class MonorepoTsProject
 
     // engines
     this.package.addEngine("node", ">=16");
+    this.package.setScript(
+      "install:ci",
+      NodePackageUtils.command.exec(
+        this.package.packageManager,
+        "projen install:ci"
+      )
+    );
+
     switch (this.package.packageManager) {
       case NodePackageManager.BUN: {
         this.package.addEngine("bun", ">=1");
@@ -219,6 +227,21 @@ export class MonorepoTsProject
       case NodePackageManager.YARN_BERRY:
       case NodePackageManager.YARN2: {
         this.package.addEngine("yarn", ">=2");
+        // Yarn Berry cannot call yarn exec without an install first! Use NPX instead.
+        this.package.setScript(
+          "install:ci",
+          NodePackageUtils.command.exec(
+            NodePackageManager.NPM,
+            "projen install:ci"
+          )
+        );
+        this.package.setScript(
+          "install",
+          NodePackageUtils.command.exec(
+            NodePackageManager.NPM,
+            "projen install"
+          )
+        );
         this.gitignore.addPatterns(
           ".yarn/*",
           ".pnp.cjs",
@@ -234,13 +257,6 @@ export class MonorepoTsProject
         break;
       }
     }
-    this.package.setScript(
-      "install:ci",
-      NodePackageUtils.command.exec(
-        this.package.packageManager,
-        "projen install:ci"
-      )
-    );
 
     this.workspaceConfig = options.workspaceConfig;
     this.workspacePackages = options.workspaceConfig?.additionalPackages ?? [];
@@ -313,9 +329,12 @@ export class MonorepoTsProject
 
     this.package.addPackageResolutions(
       "@types/babel__traverse@7.18.2",
-      "wrap-ansi@^7.0.0",
-      "@zkochan/js-yaml@npm:js-yaml@4.1.0"
+      "wrap-ansi@^7.0.0"
     );
+
+    if (this.package.packageManager !== NodePackageManager.BUN) {
+      this.package.addPackageResolutions("@zkochan/js-yaml@npm:js-yaml@4.1.0");
+    }
   }
 
   /**
