@@ -158,7 +158,7 @@ All AWS PDK developers, even those working in Python or Java, need Node.js 16 or
 
 ### PDK CLI
 
-Once your NodeJs ruuntime is set up, run the following command to install the pdk CLI:
+Once your NodeJs runtime is set up, run the following command to install the pdk CLI:
 
 ```bash
 npm install -g @aws/pdk
