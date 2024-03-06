@@ -4,6 +4,13 @@ Thank you for your interest in contributing to the AWS PDK. Whether it's a bug r
 
 Please read through this document before submitting any issues or pull requests to ensure we have all the necessary information to effectively respond to your bug report or contribution.
 
+## Getting Started
+
+Fork the repository and clone it to your local machine.
+```console
+$ pnpm i && pnpm build
+```
+
 ## Project Structure
 
 The structure of this project is as follows:
