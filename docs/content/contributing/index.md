@@ -7,7 +7,7 @@ Please read through this document before submitting any issues or pull requests 
 ## Getting Started
 
 Fork the repository and clone it to your local machine.
-```console
+```
 $ pnpm i && pnpm build
 ```
 
@@ -137,6 +137,34 @@ describe("<MyPackage> Unit Tests", () => {
   });
 });
 ```
+
+#### Consuming local PDK in a test project
+
+Firstly, go to directory `packages/pdk` and run a build `pnpm build`, and then go to directory `packages/pdk/dist/js` and extract package in artifact (something like `pdk@0.0.0.jsii.tgz`) there, so `package` folder and the `.tgz` file are in the same directory.
+
+Secondly, in the test project's `.projenrc.ts`, add to the `devDeps` and package resolution like below and run `pdk` to install the local PDK package:
+
+```ts
+const monorepo = new MonorepoTsProject({
+  packageManager: NodePackageManager.PNPM,
+  devDeps: [
+    "@aws/pdk@file:/path/to/pdk/packages/pdk/dist/js/package",
+  ],
+  name: "test",
+  projenrcTs: true,
+});
+
+monorepo.package.addPackageResolutions("@aws/pdk@file:/path/to/pdk/packages/pdk/dist/js/package");
+```
+
+Lastly, you could import the local PDK in your test project.
+
+```ts
+import { monorepo, my_package } from "@aws/pdk";
+
+const myProject = new my_package.MyPackageProject(...);
+```
+
 
 ## Reporting Bugs/Feature Requests
 
