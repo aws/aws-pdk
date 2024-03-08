@@ -47,7 +47,7 @@ export interface InfrastructureJavaProjectOptions extends AwsCdkJavaAppOptions {
 }
 
 /**
- * Synthesizes a Infrastructure Typescript Project.
+ * Synthesizes a Infrastructure Java Project.
  */
 export class InfrastructureJavaProject extends AwsCdkJavaApp {
   constructor(options: InfrastructureJavaProjectOptions) {
