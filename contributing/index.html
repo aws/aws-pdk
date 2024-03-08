@@ -3443,6 +3443,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    Getting Started
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#project-structure" class="md-nav__link">
     Project Structure
   </a>
@@ -3614,6 +3621,10 @@
 <h1 id="contributing-guidelines">Contributing Guidelines</h1>
 <p>Thank you for your interest in contributing to the AWS PDK. Whether it's a bug report, new feature, correction, or additional documentation, we greatly value feedback and contributions from our community.</p>
 <p>Please read through this document before submitting any issues or pull requests to ensure we have all the necessary information to effectively respond to your bug report or contribution.</p>
+<h2 id="getting-started">Getting Started</h2>
+<p>Fork the repository and clone it to your local machine.
+<div class="highlight"><pre><span></span><code>$ pnpm i &amp;&amp; pnpm build
+</code></pre></div></p>
 <h2 id="project-structure">Project Structure</h2>
 <p>The structure of this project is as follows:</p>
 <h3 id="docs"><strong>docs</strong></h3>
@@ -3708,6 +3719,25 @@
 <span class="w">  </span><span class="p">});</span>
 <span class="p">});</span>
 </code></pre></div>
+<h4 id="consuming-local-pdk-in-a-test-project">Consuming local PDK in a test project</h4>
+<p>Firstly, go to directory <code>packages/pdk</code> and run a build <code>pnpm build</code>, and then go to directory <code>packages/pdk/dist/js</code> and extract package in artifact (something like <code>pdk@0.0.0.jsii.tgz</code>) there, so <code>package</code> folder and the <code>.tgz</code> file are in the same directory.</p>
+<p>Secondly, in the test project's <code>.projenrc.ts</code>, add to the <code>devDeps</code> and package resolution like below and run <code>pdk</code> to install the local PDK package:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">monorepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">MonorepoTsProject</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">packageManager</span><span class="o">:</span><span class="w"> </span><span class="kt">NodePackageManager.PNPM</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">devDeps</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;@aws/pdk@file:/path/to/pdk/packages/pdk/dist/js/package&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">projenrcTs</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="nx">monorepo</span><span class="p">.</span><span class="kr">package</span><span class="p">.</span><span class="nx">addPackageResolutions</span><span class="p">(</span><span class="s2">&quot;@aws/pdk@file:/path/to/pdk/packages/pdk/dist/js/package&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p>Lastly, you could import the local PDK in your test project.</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">monorepo</span><span class="p">,</span><span class="w"> </span><span class="nx">my_package</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws/pdk&quot;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">myProject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">my_package</span><span class="p">.</span><span class="nx">MyPackageProject</span><span class="p">(...);</span>
+</code></pre></div>
 <h2 id="reporting-bugsfeature-requests">Reporting Bugs/Feature Requests</h2>
 <p>We welcome you to use the GitHub issue tracker to report bugs or suggest features.</p>
 <p>When filing an issue, please check existing open, or recently closed, issues to make sure somebody else hasn't already
@@ -3777,7 +3807,7 @@ Types<span class="w"> </span>have<span class="w"> </span>separate<span class="w"
   <small>
     
       Last update:
-      2024-03-06
+      2024-03-08
     
   </small>
 </div>
