@@ -11,7 +11,7 @@ export const use{{{apiNameSafe}}}ApiClient = () => {
   const runtimeContext = useContext(RuntimeConfigContext);
 
   return useMemo(() => {
-    return runtimeContext?.apiUrl
+    return runtimeContext?.typeSafeApis?.["{{{apiName}}}"]
       ? new {{{apiNameSafe}}}Api(
           new {{{apiNameSafe}}}ApiConfiguration({
             basePath: runtimeContext.typeSafeApis["{{{apiName}}}"],
@@ -19,6 +19,6 @@ export const use{{{apiNameSafe}}}ApiClient = () => {
           })
         )
       : undefined;
-  }, [client, runtimeContext?.typeSafeApis["{{{apiName}}}"]]);
+  }, [client, runtimeContext?.typeSafeApis?.["{{{apiName}}}"]]);
 };
 {{/typeSafeApis}}
