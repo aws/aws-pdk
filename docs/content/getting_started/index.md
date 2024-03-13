@@ -200,12 +200,12 @@ Other prerequisites depend on the language in which you develop AWS PDK projects
     - `YARN` [if `--package-manager` flag is unset]: https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable
 
 === "PYTHON"
-    - `Python >= 3.9`: https://github.com/pyenv/pyenv
+    - `Python >= 3.11`: We highly recommend using [PyEnv](https://github.com/pyenv/pyenv) to manage your Python environments.
     - `Poetry >= 1.5.1`: https://python-poetry.org/docs/
-    - `YARN`: https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable
+    - `PNPM >= 8.6.3`: https://pnpm.io/installation
 
 === "JAVA"
-    - `YARN`: https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable
+    - `PNPM >= 8.6.3`: https://pnpm.io/installation
 
 ### Install the AWS CDK
 

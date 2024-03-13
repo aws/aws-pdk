@@ -5,7 +5,7 @@ import * as path from "path";
 import { TypeSafeApiProject } from "@aws/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleDir } from "projen";
-import { NodeProject } from "projen/lib/javascript";
+import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { ReactTypeScriptProject } from "projen/lib/web";
 import { ReactTypeScriptProjectOptions } from "./react-ts-project-options";
 
@@ -59,7 +59,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       packageManager:
         options.parent && options.parent instanceof NodeProject
           ? options.parent.package.packageManager
-          : options.packageManager,
+          : options.packageManager ?? NodePackageManager.PNPM,
       readme: {
         contents: fs
           .readFileSync(

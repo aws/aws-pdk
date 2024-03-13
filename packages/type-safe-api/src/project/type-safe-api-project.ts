@@ -264,7 +264,7 @@ export class TypeSafeApiProject extends Project {
           this.parent &&
           ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
             ? this.parent.package.packageManager
-            : NodePackageManager.YARN_CLASSIC,
+            : NodePackageManager.PNPM,
         ...options.runtime?.options?.typescript,
       },
       pythonOptions: {
@@ -326,7 +326,7 @@ export class TypeSafeApiProject extends Project {
           this.parent &&
           ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
             ? this.parent.package.packageManager
-            : NodePackageManager.YARN_CLASSIC,
+            : NodePackageManager.PNPM,
         ...options.library?.options?.typescriptReactQueryHooks,
       },
     });
@@ -395,7 +395,7 @@ export class TypeSafeApiProject extends Project {
             this.parent &&
             ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
               ? this.parent.package.packageManager
-              : NodePackageManager.YARN_CLASSIC,
+              : NodePackageManager.PNPM,
           ...options.handlers?.options?.typescript,
         },
         pythonOptions: {
@@ -469,7 +469,7 @@ export class TypeSafeApiProject extends Project {
           this.parent &&
           ProjectUtils.isNamedInstanceOf(this.parent, NodeProject)
             ? this.parent.package.packageManager
-            : NodePackageManager.YARN_CLASSIC,
+            : NodePackageManager.PNPM,
         ...options.infrastructure.options?.typescript,
       },
       pythonOptions: {
