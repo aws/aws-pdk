@@ -114,11 +114,13 @@ export class GeneratedPythonRuntimeProject extends PythonProject {
     // the first time or checking out a fresh copy (since generated code is not checked in to version control). We
     // therefore add a blank __init__.py as our first install step to keep poetry happy until the generator overwrites
     // it.
-    this.tasks
-      .tryFind("install")
-      ?.prependExec(
-        `mkdir -p ${this.moduleName} && touch ${this.moduleName}/__init__.py`
-      );
+    ["install", "install:ci"].forEach((t) =>
+      this.tasks
+        .tryFind(t)
+        ?.prependExec(
+          `mkdir -p ${this.moduleName} && touch ${this.moduleName}/__init__.py`
+        )
+    );
   }
 
   public buildGenerateCommandArgs = () => {

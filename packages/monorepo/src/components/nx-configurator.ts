@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { Component, JsonFile, Project, Task } from "projen";
+import { Component, JsonFile, Project, Task, YamlFile } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { Poetry, PythonProject } from "projen/lib/python";
@@ -9,6 +9,8 @@ import { NxProject } from "./nx-project";
 import { NxWorkspace } from "./nx-workspace";
 import { Nx } from "../nx-types";
 import { NodePackageUtils, ProjectUtils } from "../utils";
+
+const DEFAULT_PYTHON_VERSION = "3";
 
 /**
  * Options for overriding nx build tasks
@@ -141,6 +143,25 @@ export class NxConfigurator extends Component implements INxProjectCore {
     // the virtual env set in the VIRTUAL_ENV variable if set, we need to unset it to ensure the local project's
     // env is used.
     if (ProjectUtils.isNamedInstanceOf(project.depsManager as any, Poetry)) {
+      ["install", "install:ci"].forEach((t) => {
+        const task = project.tasks.tryFind(t);
+
+        // Setup env
+        const cmd = "poetry env use python$PYTHON_VERSION";
+        task?.steps[0]?.exec !== cmd && task?.prependExec(cmd);
+
+        const pythonVersion = project.deps.tryGetDependency("python")?.version;
+        task!.env(
+          "PYTHON_VERSION",
+          pythonVersion && !pythonVersion?.startsWith("^")
+            ? pythonVersion
+            : `$(pyenv latest ${
+                pythonVersion?.substring(1).split(".")[0] ||
+                DEFAULT_PYTHON_VERSION
+              } | cut -d '.' -f 1,2 || echo '')`
+        );
+      });
+
       project.tasks.addEnvironment(
         "VIRTUAL_ENV",
         "$(env -u VIRTUAL_ENV poetry env info -p || echo '')"
@@ -236,12 +257,12 @@ export class NxConfigurator extends Component implements INxProjectCore {
 
     const installTask =
       this.project.tasks.tryFind("install") ?? this.project.addTask("install");
-    installTask.exec("yarn install --check-files");
+    installTask.exec("pnpm i --no-frozen-lockfile");
 
     (
       this.project.tasks.tryFind("install:ci") ??
       this.project.addTask("install:ci")
-    ).exec("yarn install --check-files --frozen-lockfile");
+    ).exec("pnpm i --frozen-lockfile");
 
     return installTask;
   }
@@ -383,7 +404,32 @@ export class NxConfigurator extends Component implements INxProjectCore {
             "@nx/devkit": "^16",
           },
           private: true,
-          workspaces: this.project.subprojects
+          engines: {
+            node: ">=16",
+            pnpm: ">=8",
+          },
+          scripts: Object.fromEntries(
+            this.project.tasks.all
+              .filter((t) => t.name !== "install")
+              .map((c) => [
+                c.name,
+                NodePackageUtils.command.projen(
+                  NodePackageManager.PNPM,
+                  c.name
+                ),
+              ])
+          ),
+        },
+      }).synthesize();
+    }
+
+    if (
+      !ProjectUtils.isNamedInstanceOf(this.project, NodeProject) &&
+      !this.project.tryFindFile("pnpm-workspace.yaml")
+    ) {
+      new YamlFile(this.project, "pnpm-workspace.yaml", {
+        obj: {
+          packages: this.project.subprojects
             .filter((p) => ProjectUtils.isNamedInstanceOf(p, NodeProject))
             .map((p) => path.relative(this.project.outdir, p.outdir)),
         },
@@ -391,10 +437,27 @@ export class NxConfigurator extends Component implements INxProjectCore {
     }
   }
 
+  private _invokeInstallCITasks() {
+    const cmd = NodePackageUtils.command.exec(
+      ProjectUtils.isNamedInstanceOf(this.project, NodeProject)
+        ? this.project.package.packageManager
+        : NodePackageManager.NPM,
+      ...this.composeNxRunManyCommand({
+        target: "install:ci",
+      })
+    );
+    const task = this.project.tasks.tryFind("install:ci");
+    task?.steps?.length &&
+      task.steps.length > 0 &&
+      task?.steps[task.steps.length - 1]?.exec !== cmd &&
+      task?.exec(cmd, { receiveArgs: true });
+  }
+
   preSynthesize(): void {
     // Calling before super() to ensure proper pre-synth of NxProject component and its nested components
     this._ensureNxProjectGraph();
     this._emitPackageJson();
+    this._invokeInstallCITasks();
     this.patchPythonProjects([this.project]);
   }
 

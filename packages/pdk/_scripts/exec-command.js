@@ -27,15 +27,19 @@ const engines = JSON.parse(
   fs.readFileSync(path.join(rootDir, "package.json"))
 ).engines;
 
-if (engines) {
-  let pkgMgrCmd = engines.pnpm ? "pnpm" : engines.yarn ? "yarn" : engines.bun ? `bun${isInstall ? '' : ' run'}` : "npm run";
 
-  // deploy and upgrade are pnpm commands, but it's more likely users want to run the projen tasks
-  // upgrade is also a yarn command, and there's no difference between running yarn deploy vs yarn run deploy
-  if ((engines.pnpm || engines.yarn) && ["deploy", "upgrade"].includes(process.argv[0])) {
-    pkgMgrCmd += " run";
-  }
-  execa.commandSync(`${pkgMgrCmd}${isSynth ? " default" : ""} ${process.argv.join(" ")}`, { stdio: "inherit" });
+if (!fs.existsSync("package.json")) {
+    execa.commandSync(`npx projen ${process.argv.join(" ")}`, { stdio: "inherit" });
+} else if (engines) {
+    let pkgMgrCmd = engines.pnpm ? "pnpm" : engines.yarn ? "yarn" : engines.bun ? `bun${isInstall ? '' : ' run'}` : "npm run";
+
+    // deploy and upgrade are pnpm commands, but it's more likely users want to run the projen tasks
+    // upgrade is also a yarn command, and there's no difference between running yarn deploy vs yarn run deploy
+    if ((engines.pnpm || engines.yarn) && ["deploy", "upgrade"].includes(process.argv[0])) {
+        pkgMgrCmd += " run";
+    }
+    execa.commandSync(`${pkgMgrCmd}${isSynth ? " default" : ""} ${process.argv.join(" ")}`, { stdio: "inherit" });
 } else {
-  execa.commandSync(`npx projen ${process.argv.join(" ")}`, { stdio: "inherit"});
+    console.error("Cannot run pdk command without engines being set in root package.json.");
+    process.exit(1);
 }

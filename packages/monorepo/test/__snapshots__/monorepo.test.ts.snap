@@ -496,6 +496,10 @@ resolution-mode=highest
           {
             "exec": "pnpm i --frozen-lockfile",
           },
+          {
+            "exec": "pnpm exec nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
         ],
       },
       "package": {
@@ -2523,6 +2527,10 @@ tsconfig.tsbuildinfo
         "steps": [
           {
             "exec": "yarn install --check-files --frozen-lockfile",
+          },
+          {
+            "exec": "yarn nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -4554,6 +4562,10 @@ tsconfig.tsbuildinfo
         "steps": [
           {
             "exec": "yarn install --immutable",
+          },
+          {
+            "exec": "yarn exec nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -6595,6 +6607,10 @@ tsconfig.tsbuildinfo
           {
             "exec": "yarn install --check-files --frozen-lockfile",
           },
+          {
+            "exec": "yarn nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
         ],
       },
       "package": {
@@ -8446,6 +8462,10 @@ tsconfig.tsbuildinfo
           {
             "exec": "yarn install --check-files --frozen-lockfile",
           },
+          {
+            "exec": "yarn nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
         ],
       },
       "package": {
@@ -9092,8 +9112,14 @@ cython_debug/
       },
       "install": {
         "description": "Install dependencies and update lockfile",
+        "env": {
+          "PYTHON_VERSION": "$(pyenv latest 3 | cut -d '.' -f 1,2 || echo '')",
+        },
         "name": "install",
         "steps": [
+          {
+            "exec": "poetry env use python$PYTHON_VERSION",
+          },
           {
             "exec": "poetry update",
           },
@@ -9101,8 +9127,14 @@ cython_debug/
       },
       "install:ci": {
         "description": "Install dependencies with frozen lockfile",
+        "env": {
+          "PYTHON_VERSION": "$(pyenv latest 3 | cut -d '.' -f 1,2 || echo '')",
+        },
         "name": "install:ci",
         "steps": [
+          {
+            "exec": "poetry env use python$PYTHON_VERSION",
+          },
           {
             "exec": "poetry check --lock && poetry install",
           },
@@ -9463,8 +9495,14 @@ cython_debug/
       },
       "install": {
         "description": "Install dependencies and update lockfile",
+        "env": {
+          "PYTHON_VERSION": "$(pyenv latest 3 | cut -d '.' -f 1,2 || echo '')",
+        },
         "name": "install",
         "steps": [
+          {
+            "exec": "poetry env use python$PYTHON_VERSION",
+          },
           {
             "exec": "poetry update",
           },
@@ -9472,8 +9510,14 @@ cython_debug/
       },
       "install:ci": {
         "description": "Install dependencies with frozen lockfile",
+        "env": {
+          "PYTHON_VERSION": "$(pyenv latest 3 | cut -d '.' -f 1,2 || echo '')",
+        },
         "name": "install:ci",
         "steps": [
+          {
+            "exec": "poetry env use python$PYTHON_VERSION",
+          },
           {
             "exec": "poetry check --lock && poetry install",
           },
@@ -10232,6 +10276,10 @@ tsconfig.tsbuildinfo
         "steps": [
           {
             "exec": "yarn install --check-files --frozen-lockfile",
+          },
+          {
+            "exec": "yarn nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -11258,6 +11306,10 @@ tsconfig.tsbuildinfo
         "steps": [
           {
             "exec": "bun install --frozen-lockfile",
+          },
+          {
+            "exec": "bun x nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -13270,6 +13322,10 @@ tsconfig.tsbuildinfo
         "steps": [
           {
             "exec": "yarn install --check-files --frozen-lockfile",
+          },
+          {
+            "exec": "yarn nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -16590,6 +16646,10 @@ tsconfig.tsbuildinfo
           {
             "exec": "yarn install --check-files --frozen-lockfile",
           },
+          {
+            "exec": "yarn nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
         ],
       },
       "package": {
@@ -17620,6 +17680,10 @@ tsconfig.tsbuildinfo
           {
             "exec": "yarn install --check-files --frozen-lockfile",
           },
+          {
+            "exec": "yarn nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
         ],
       },
       "package": {
@@ -18179,6 +18243,7 @@ exports[`NX Monorepo Unit Tests Empty Python Monorepo 1`] = `
 /.projen/tasks.json linguist-generated
 /nx.json linguist-generated
 /package.json linguist-generated
+/pnpm-workspace.yaml linguist-generated
 /pyproject.toml linguist-generated",
   ".github/workflows/pull-request-lint.yml": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
 
@@ -18297,6 +18362,7 @@ cython_debug/
 !/nx.json
 !/.nxignore
 !/package.json
+!/pnpm-workspace.yaml
 !/.projenrc.py
 ",
   ".nxignore": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
@@ -18331,6 +18397,7 @@ cython_debug/
       ".projen/tasks.json",
       "nx.json",
       "package.json",
+      "pnpm-workspace.yaml",
       "poetry.toml",
       "pyproject.toml",
     ],
@@ -18427,25 +18494,41 @@ cython_debug/
       },
       "install": {
         "description": "Install dependencies and update lockfile",
+        "env": {
+          "PYTHON_VERSION": "$(pyenv latest 3 | cut -d '.' -f 1,2 || echo '')",
+        },
         "name": "install",
         "steps": [
+          {
+            "exec": "poetry env use python$PYTHON_VERSION",
+          },
           {
             "exec": "poetry update",
           },
           {
-            "exec": "yarn install --check-files",
+            "exec": "pnpm i --no-frozen-lockfile",
           },
         ],
       },
       "install:ci": {
         "description": "Install dependencies with frozen lockfile",
+        "env": {
+          "PYTHON_VERSION": "$(pyenv latest 3 | cut -d '.' -f 1,2 || echo '')",
+        },
         "name": "install:ci",
         "steps": [
+          {
+            "exec": "poetry env use python$PYTHON_VERSION",
+          },
           {
             "exec": "poetry check --lock && poetry install",
           },
           {
-            "exec": "yarn install --check-files --frozen-lockfile",
+            "exec": "pnpm i --frozen-lockfile",
+          },
+          {
+            "exec": "npx nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -18577,9 +18660,32 @@ cython_debug/
       "@nxlv/python": "^16",
       "nx": "^16",
     },
+    "engines": {
+      "node": ">=16",
+      "pnpm": ">=8",
+    },
     "private": true,
-    "workspaces": [],
+    "scripts": {
+      "build": "pnpm exec projen build",
+      "clobber": "pnpm exec projen clobber",
+      "compile": "pnpm exec projen compile",
+      "default": "pnpm exec projen default",
+      "eject": "pnpm exec projen eject",
+      "graph": "pnpm exec projen graph",
+      "install:ci": "pnpm exec projen install:ci",
+      "package": "pnpm exec projen package",
+      "post-compile": "pnpm exec projen post-compile",
+      "pre-compile": "pnpm exec projen pre-compile",
+      "publish": "pnpm exec projen publish",
+      "publish:test": "pnpm exec projen publish:test",
+      "run-many": "pnpm exec projen run-many",
+      "test": "pnpm exec projen test",
+    },
   },
+  "pnpm-workspace.yaml": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
+
+packages: []
+",
   "poetry.toml": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
 
 [repositories.testpypi]
@@ -19095,6 +19201,10 @@ pattern1.txt
         "steps": [
           {
             "exec": "yarn install --check-files --frozen-lockfile",
+          },
+          {
+            "exec": "yarn nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -20136,6 +20246,10 @@ resolution-mode=highest
         "steps": [
           {
             "exec": "pnpm i --frozen-lockfile",
+          },
+          {
+            "exec": "pnpm exec nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
@@ -22181,6 +22295,10 @@ tsconfig.tsbuildinfo
           {
             "exec": "yarn install --check-files --frozen-lockfile",
           },
+          {
+            "exec": "yarn nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
+          },
         ],
       },
       "package": {
@@ -23224,6 +23342,10 @@ tsconfig.tsbuildinfo
         "steps": [
           {
             "exec": "yarn install --check-files --frozen-lockfile",
+          },
+          {
+            "exec": "yarn nx run-many --target=install:ci --output-style=stream --nx-bail",
+            "receiveArgs": true,
           },
         ],
       },
