@@ -10,7 +10,7 @@ const client = new WAFV2({
 });
 
 const MAX_CREATE_RETRY = 10;
-const RETRY_INTERVAL = 200;
+const RETRY_INTERVAL = 2000;
 
 /**
  * Handler for creating a WAF V2 ACL in US-EAST-1.
