@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
+import { ProjectUtils } from "@aws/monorepo";
 import { DependencyType } from "projen";
 import { JavaProject } from "projen/lib/java";
 import {
@@ -73,7 +74,7 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
     );
 
     [
-      "software.aws/pdk@^0",
+      `software.aws/pdk@${ProjectUtils.getPdkVersion()}`,
       "software.constructs/constructs@10.3.0",
       "software.amazon.awscdk/aws-cdk-lib@2.133.0",
       "io.github.cdklabs/cdknag@2.28.60",
