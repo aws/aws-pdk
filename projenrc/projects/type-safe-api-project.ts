@@ -45,13 +45,7 @@ export class TypeSafeApiProject extends PDKProject {
         `${PDK_NAMESPACE}monorepo@^0.x`,
         "fs-extra",
       ],
-      bundledDeps: [
-        "fs-extra",
-        "lodash",
-        "log4js",
-        "openapi-types",
-        "read-pkg-up",
-      ],
+      bundledDeps: ["fs-extra", "lodash", "log4js", "openapi-types"],
       peerDeps: ["aws-cdk-lib", "cdk-nag", "constructs", "projen"],
       stability: Stability.STABLE,
       eslintOptions: {

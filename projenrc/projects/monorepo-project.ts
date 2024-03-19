@@ -31,6 +31,7 @@ export class MonorepoProject extends PDKProject {
         "fs-extra",
         "semver",
         "@pnpm/reviewing.dependencies-hierarchy",
+        "read-pkg-up",
       ],
       stability: Stability.STABLE,
     });
@@ -52,7 +53,7 @@ export class MonorepoProject extends PDKProject {
     this.eslint?.addIgnorePattern("src/components/projen-version.ts");
 
     // Add a task to upgrade the projen version. Ideally run before upgrade-deps in the root.
-    this.addTask("upgrade-projen").exec("ts-node ./scripts/upgrade-projen.ts")
+    this.addTask("upgrade-projen").exec("ts-node ./scripts/upgrade-projen.ts");
 
     this.generateInterfaces();
   }

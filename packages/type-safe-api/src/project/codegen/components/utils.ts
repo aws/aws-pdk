@@ -1,8 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
+import { ProjectUtils } from "@aws/monorepo";
 import { Project } from "projen";
-import * as readPkg from "read-pkg-up";
 import { Language, Library } from "../../languages";
 import { MockResponseDataGenerationOptions } from "../../types";
 import { GeneratedHandlersProjects } from "../generate";
@@ -95,20 +95,10 @@ export interface GenerationOptions {
 }
 
 /**
- * Get the current package version
- */
-const getPackageVersion = (): string => {
-  const { packageJson } = readPkg.sync({
-    cwd: path.resolve(__dirname),
-  })!;
-  return packageJson.version;
-};
-
-/**
  * Return the environment that should be used for executing type safe api commands
  */
 export const getTypeSafeApiTaskEnvironment = (): { [key: string]: string } => ({
-  AWS_PDK_VERSION: getPackageVersion(),
+  AWS_PDK_VERSION: ProjectUtils.getPdkVersion(),
 });
 
 /**

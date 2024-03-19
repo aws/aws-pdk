@@ -3,10 +3,10 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
 import { CloudscapeReactTsWebsiteProject } from "@aws/cloudscape-react-ts-website";
-import { NxProject } from "@aws/monorepo";
+import { NxProject, ProjectUtils } from "@aws/monorepo";
 import { TypeSafeApiProject } from "@aws/type-safe-api";
 import * as Mustache from "mustache";
-import { SampleFile } from "projen";
+import { DependencyType, SampleFile } from "projen";
 import { AwsCdkJavaApp } from "projen/lib/awscdk";
 import { AwsCdkJavaAppOptions } from "./aws-cdk-java-app-options";
 import { InfrastructureCommands } from "../../components/infrastructure-commands";
@@ -56,7 +56,8 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
 
     super({
       ...options,
-      cdkVersion: options.cdkVersion ?? "2.1.0",
+      cdkVersion: options.cdkVersion ?? "2.133.0",
+      cdkVersionPinning: true,
       sample: false,
       junit: false,
       groupId,
@@ -76,6 +77,13 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
       },
     });
 
+    // Pin constructs version
+    this.deps.removeDependency(
+      "software.constructs/constructs",
+      DependencyType.RUNTIME
+    );
+    this.addDependency("software.constructs/constructs@10.3.0");
+
     InfrastructureCommands.ensure(this);
 
     this.pom.addPlugin("org.apache.maven.plugins/maven-surefire-plugin@3.1.2");
@@ -87,16 +95,16 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
 
     if (options.junit !== false) {
       [
-        "org.junit.jupiter/junit-jupiter-api@^5",
-        "org.junit.jupiter/junit-jupiter-engine@^5",
-        "io.github.origin-energy/java-snapshot-testing-junit5@^4.0.6",
-        "io.github.origin-energy/java-snapshot-testing-plugin-jackson@^4.0.6",
+        "org.junit.jupiter/junit-jupiter-api@5.10.2",
+        "org.junit.jupiter/junit-jupiter-engine@5.10.2",
+        "io.github.origin-energy/java-snapshot-testing-junit5@4.0.7",
+        "io.github.origin-energy/java-snapshot-testing-plugin-jackson@4.0.7",
         "org.slf4j/slf4j-simple@2.0.0-alpha0",
       ].forEach((d) => this.addTestDependency(d));
       this.testTask.exec("mvn test");
     }
 
-    this.addDependency("software.aws/pdk@^0");
+    this.addDependency(`software.aws/pdk@${ProjectUtils.getPdkVersion()}`);
 
     const srcDir = path.resolve(
       __dirname,

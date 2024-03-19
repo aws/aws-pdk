@@ -95,9 +95,16 @@ export class GeneratedJavaHandlersProject extends JavaProject {
       )
       .forEach((dep) => this.addDependency(dep));
 
+    // Pin constructs version
+    this.deps.removeDependency(
+      "software.constructs/constructs",
+      DependencyType.BUILD
+    );
+    this.addDependency("software.constructs/constructs@10.3.0");
+
     // Dependency on junit for tests
     this.deps.addDependency(
-      "org.junit.jupiter/junit-jupiter-engine@^5.10.0",
+      "org.junit.jupiter/junit-jupiter-engine@5.10.2",
       DependencyType.TEST
     );
 
