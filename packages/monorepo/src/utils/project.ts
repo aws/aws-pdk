@@ -1,6 +1,8 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import * as path from "path";
 import { Component, Project } from "projen";
+import * as readPkg from "read-pkg-up";
 
 /**
  * Utility for projen projects
@@ -35,5 +37,15 @@ export namespace ProjectUtils {
     return new Set(listParentClassNames(instance.constructor as any)).has(
       clazz.name
     );
+  }
+
+  /**
+   * Get the current PDK version
+   */
+  export function getPdkVersion() {
+    const { packageJson } = readPkg.sync({
+      cwd: path.resolve(__dirname),
+    })!;
+    return packageJson.version;
   }
 }
