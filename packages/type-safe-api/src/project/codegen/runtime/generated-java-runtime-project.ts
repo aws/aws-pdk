@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
+import { DependencyType } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { Language } from "../../languages";
 import {
@@ -43,11 +44,11 @@ const DEPENDENCIES: string[] = [
   // Lombok is used to add the builder pattern to models for neater construction
   "org.projectlombok/lombok@1.18.24",
   // Interceptors
-  "software.amazon.lambda/powertools-logging@^1.16.1",
-  "software.amazon.lambda/powertools-tracing@^1.16.1",
-  "software.amazon.lambda/powertools-metrics@^1.16.1",
+  "software.amazon.lambda/powertools-logging@1.18.0",
+  "software.amazon.lambda/powertools-tracing@1.18.0",
+  "software.amazon.lambda/powertools-metrics@1.18.0",
   // SnapStart
-  "io.github.crac/org-crac@^0.1.3",
+  "io.github.crac/org-crac@0.1.3",
 ];
 
 const TEST_DEPENDENCIES: string[] = [
@@ -113,6 +114,13 @@ export class GeneratedJavaRuntimeProject extends JavaProject {
     // Add dependencies
     DEPENDENCIES.forEach((dep) => this.addDependency(dep));
     TEST_DEPENDENCIES.forEach((dep) => this.addTestDependency(dep));
+
+    // Pin constructs version
+    this.deps.removeDependency(
+      "software.constructs/constructs",
+      DependencyType.BUILD
+    );
+    this.addDependency("software.constructs/constructs@10.3.0");
 
     this.packageName = `${this.pom.groupId}.${this.name}.runtime`;
 

@@ -74,12 +74,12 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
 
     [
       "software.aws/pdk@^0",
-      "software.constructs/constructs@^10",
-      "software.amazon.awscdk/aws-cdk-lib@^2",
-      "io.github.cdklabs/cdknag@^2",
-      "org.projectlombok/lombok@^1",
-      "com.fasterxml.jackson.core/jackson-databind@^2",
-      "io.github.cdklabs/projen@^0",
+      "software.constructs/constructs@10.3.0",
+      "software.amazon.awscdk/aws-cdk-lib@2.133.0",
+      "io.github.cdklabs/cdknag@2.28.60",
+      "org.projectlombok/lombok@1.18.30",
+      "com.fasterxml.jackson.core/jackson-databind@2.17.0",
+      `io.github.cdklabs/projen@0.80.10`,
       `${options.generatedJavaTypes.pom.groupId}/${options.generatedJavaTypes.pom.artifactId}@${options.generatedJavaTypes.pom.version}`,
     ]
       .filter(
@@ -87,6 +87,13 @@ export class GeneratedJavaCdkInfrastructureProject extends JavaProject {
           !this.deps.tryGetDependency(dep.split("@")[0], DependencyType.RUNTIME)
       )
       .forEach((dep) => this.addDependency(dep));
+
+    // Pin constructs version
+    this.deps.removeDependency(
+      "software.constructs/constructs",
+      DependencyType.BUILD
+    );
+    this.addDependency("software.constructs/constructs@10.3.0");
 
     // Remove the projen test dependency since otherwise it takes precedence, causing projen to be unavailable at synth time
     this.deps.removeDependency("io.github.cdklabs/projen", DependencyType.TEST);

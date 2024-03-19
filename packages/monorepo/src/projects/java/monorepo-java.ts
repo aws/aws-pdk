@@ -2,7 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { Project, Task, TaskRuntime, TextFile } from "projen";
+import { DependencyType, Project, Task, TaskRuntime, TextFile } from "projen";
 import { JavaProject } from "projen/lib/java";
 import { PythonProject } from "projen/lib/python";
 import { JavaProjectOptions } from "./java-project-options";
@@ -16,6 +16,7 @@ import {
   syncProjenVersions,
 } from "../../components/projen-dependency";
 import { Nx } from "../../nx-types";
+import { ProjectUtils } from "../../utils";
 
 const MVN_PLUGIN_PATH = "./.nx/plugins/nx_plugin.js";
 
@@ -42,6 +43,10 @@ export class MonorepoJavaProject extends JavaProject implements INxProjectCore {
   private readonly projenVersion: string;
 
   constructor(options: MonorepoJavaOptions) {
+    // Pin default projen version for java
+    const projenVersion =
+      options.projenrcJavaOptions?.projenVersion ??
+      DEFAULT_PROJEN_VERSION.replace(/^\^/, "");
     super({
       ...options,
       sample: false,
@@ -51,14 +56,19 @@ export class MonorepoJavaProject extends JavaProject implements INxProjectCore {
       artifactId: options.artifactId ?? "monorepo",
       projenrcJavaOptions: {
         ...options.projenrcJavaOptions,
-        projenVersion:
-          options.projenrcJavaOptions?.projenVersion ?? DEFAULT_PROJEN_VERSION,
+        projenVersion,
       },
     });
-    this.projenVersion =
-      options.projenrcJavaOptions?.projenVersion ?? DEFAULT_PROJEN_VERSION;
+    this.projenVersion = projenVersion;
 
-    this.addTestDependency("software.aws/pdk@^0");
+    // Pin constructs version
+    this.deps.removeDependency(
+      "software.constructs/constructs",
+      DependencyType.BUILD
+    );
+    this.addDependency("software.constructs/constructs@10.3.0");
+
+    this.addTestDependency(`software.aws/pdk@${ProjectUtils.getPdkVersion()}`);
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
