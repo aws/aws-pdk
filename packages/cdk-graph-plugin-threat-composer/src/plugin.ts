@@ -95,12 +95,12 @@ export class CdkGraphThreatComposerPlugin implements ICdkGraphPlugin {
     let architectureImageDataUri: string | undefined = undefined;
 
     const architectureDiagramArtifact: CdkGraphArtifact | undefined =
-      context.artifacts.DIAGRAM_PNG;
+      context.artifacts.DIAGRAM_SVG;
     if (architectureDiagramArtifact) {
       const diagramBinaryContent = fs.readFileSync(
         architectureDiagramArtifact.filepath
       );
-      architectureImageDataUri = `data:image/png;base64,${diagramBinaryContent.toString(
+      architectureImageDataUri = `data:image/svg+xml;base64,${diagramBinaryContent.toString(
         "base64"
       )}`;
     }
