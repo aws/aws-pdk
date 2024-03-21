@@ -7,6 +7,7 @@ import { Poetry, PythonProject } from "projen/lib/python";
 import { PythonProjectOptions } from "./python-project-options";
 import {
   INxProjectCore,
+  LicenseOptions,
   NxConfigurator,
 } from "../../components/nx-configurator";
 import { NxProject } from "../../components/nx-project";
@@ -23,6 +24,13 @@ import { NodePackageUtils, ProjectUtils } from "../../utils";
  */
 export interface MonorepoPythonProjectOptions extends PythonProjectOptions {
   readonly defaultReleaseBranch?: string;
+
+  /**
+   * Default license to apply to all PDK managed packages.
+   *
+   * @default Apache-2.0
+   */
+  readonly licenseOptions?: LicenseOptions;
 }
 
 /**
@@ -70,6 +78,7 @@ export class MonorepoPythonProject
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
+      licenseOptions: options.licenseOptions,
     });
 
     // Setup python NX plugin

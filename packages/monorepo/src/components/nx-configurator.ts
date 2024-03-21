@@ -1,7 +1,15 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { Component, JsonFile, Project, Task, YamlFile } from "projen";
+import {
+  Component,
+  JsonFile,
+  License,
+  Project,
+  Task,
+  TextFile,
+  YamlFile,
+} from "projen";
 import { JavaProject } from "projen/lib/java";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { Poetry, PythonProject } from "projen/lib/python";
@@ -11,6 +19,7 @@ import { Nx } from "../nx-types";
 import { NodePackageUtils, ProjectUtils } from "../utils";
 
 const DEFAULT_PYTHON_VERSION = "3";
+const DEFAULT_LICENSE = "Apache-2.0";
 
 /**
  * Options for overriding nx build tasks
@@ -88,6 +97,31 @@ export interface INxProjectCore {
 }
 
 /**
+ * License options.
+ *
+ */
+export interface LicenseOptions {
+  /**
+   * License type (SPDX).
+   *
+   * @see https://github.com/projen/projen/tree/main/license-text for list of supported licenses
+   */
+  readonly spdx?: string;
+
+  /**
+   * Copyright owner.
+   *
+   * If the license text for the given spdx has $copyright_owner, this option must be specified.
+   */
+  readonly copyrightOwner?: string;
+
+  /**
+   * Arbitrary license text.
+   */
+  readonly licenseText?: string;
+}
+
+/**
  * NXConfigurator options.
  */
 export interface NxConfiguratorOptions {
@@ -95,6 +129,13 @@ export interface NxConfiguratorOptions {
    * Branch that NX affected should run against.
    */
   readonly defaultReleaseBranch?: string;
+
+  /**
+   * Default package license config.
+   *
+   * If nothing is specified, all packages will default to Apache-2.0 (unless they have their own License component).
+   */
+  readonly licenseOptions?: LicenseOptions;
 }
 
 /**
@@ -102,6 +143,7 @@ export interface NxConfiguratorOptions {
  */
 export class NxConfigurator extends Component implements INxProjectCore {
   public readonly nx: NxWorkspace;
+  private readonly licenseOptions?: LicenseOptions;
   private nxPlugins: { [dep: string]: string } = {};
 
   constructor(project: Project, options?: NxConfiguratorOptions) {
@@ -134,6 +176,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
       description: "Generate dependency graph for monorepo",
     });
 
+    this.licenseOptions = options?.licenseOptions;
     this.nx = NxWorkspace.of(project) || new NxWorkspace(project);
     this.nx.affected.defaultBase = options?.defaultReleaseBranch ?? "mainline";
   }
@@ -453,12 +496,38 @@ export class NxConfigurator extends Component implements INxProjectCore {
       task?.exec(cmd, { receiveArgs: true });
   }
 
+  /**
+   * Add licenses to any subprojects which don't already have a license.
+   */
+  private _addLicenses() {
+    this.project.subprojects
+      .filter(
+        (p) => p.components.find((c) => c instanceof License) === undefined
+      )
+      .forEach((p) => {
+        if (!this.licenseOptions || this.licenseOptions.spdx) {
+          new License(p, {
+            spdx: this.licenseOptions?.spdx ?? DEFAULT_LICENSE,
+            copyrightOwner: this.licenseOptions?.copyrightOwner,
+          });
+        } else if (!!this.licenseOptions?.licenseText) {
+          new TextFile(p, "LICENSE", {
+            marker: false,
+            committed: true,
+            lines: this.licenseOptions.licenseText.split("\n"),
+          });
+        } else {
+          throw new Error("Either spdx or licenseText must be specified.");
+        }
+      });
+  }
+
   preSynthesize(): void {
-    // Calling before super() to ensure proper pre-synth of NxProject component and its nested components
     this._ensureNxProjectGraph();
     this._emitPackageJson();
     this._invokeInstallCITasks();
     this.patchPythonProjects([this.project]);
+    this._addLicenses();
   }
 
   /**

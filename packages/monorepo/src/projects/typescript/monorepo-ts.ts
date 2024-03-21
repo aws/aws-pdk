@@ -18,6 +18,7 @@ import { TypeScriptProjectOptions } from "./typescript-project-options";
 import {
   NxConfigurator,
   INxProjectCore,
+  LicenseOptions,
 } from "../../components/nx-configurator";
 import { NxProject } from "../../components/nx-project";
 import { NxWorkspace } from "../../components/nx-workspace";
@@ -127,6 +128,13 @@ export interface MonorepoTsProjectOptions extends TypeScriptProjectOptions {
    * @default false
    */
   readonly disableNodeWarnings?: boolean;
+
+  /**
+   * Default license to apply to all PDK managed packages.
+   *
+   * @default Apache-2.0
+   */
+  readonly licenseOptions?: LicenseOptions;
 }
 
 /**
@@ -195,6 +203,7 @@ export class MonorepoTsProject
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch,
+      licenseOptions: options.licenseOptions,
     });
     this._options = options;
 
