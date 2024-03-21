@@ -83,11 +83,6 @@ export interface PythonProjectOptions {
    */
   readonly packageName?: string;
   /**
-   * License of this package as an SPDX identifier.
-   * @stability experimental
-   */
-  readonly license?: string;
-  /**
    * A URL to the website of the project.
    * @stability experimental
    */
