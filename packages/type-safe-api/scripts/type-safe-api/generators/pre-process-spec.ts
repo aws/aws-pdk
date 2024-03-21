@@ -29,6 +29,18 @@ void (async () => {
 
   const spec = (await SwaggerParser.bundle(args.specPath)) as any;
 
+  Object.entries(spec?.paths ?? {}).forEach(([_path, methods]) => Object.entries(methods ?? {}).forEach(([_method, operation]) => {
+    // Add helper vendor extensions to make code generation easier for async operations
+    if (operation?.["x-async"]) {
+      if (["client_to_server", "bidirectional"].includes(operation?.['x-async']?.direction)) {
+        operation["x-async-to-server"] = true;
+      }
+      if (["server_to_client", "bidirectional"].includes(operation?.['x-async']?.direction)) {
+        operation["x-async-to-client"] = true;
+      }
+    }
+  }));
+
   const processedSpec = {
     ...spec,
     ...JSON.parse(args.extraVendorExtensions || "{}"),

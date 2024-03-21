@@ -32,6 +32,12 @@ export interface DistributionProps {
    */
   readonly sslSupportMethod?: aws_cloudfront.SSLMethod;
   /**
+   * Whether to enable additional CloudWatch metrics.
+   * @default false
+   * @stability stable
+   */
+  readonly publishAdditionalMetrics?: boolean;
+  /**
    * The price class that corresponds with the maximum price that you want to pay for CloudFront service.
    * If you specify PriceClass_All, CloudFront responds to requests for your objects from all CloudFront edge locations.
    * If you specify a price class other than PriceClass_All, CloudFront serves your objects from the CloudFront edge location

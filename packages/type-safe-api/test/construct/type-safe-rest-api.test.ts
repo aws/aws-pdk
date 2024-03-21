@@ -1,7 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import * as fs from "fs";
-import * as path from "path";
 import { PDKNag } from "@aws/pdk-nag";
 import { App, CfnOutput, Size, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
@@ -12,6 +10,7 @@ import { Bucket } from "aws-cdk-lib/aws-s3";
 import { NagSuppressions } from "cdk-nag";
 import * as _ from "lodash";
 import { OpenAPIV3 } from "openapi-types";
+import { withTempSpec } from "./utils";
 import { IntegrationResponseSets, Integrations } from "../../src";
 import {
   MethodAndPath,
@@ -109,20 +108,6 @@ const multiOperationLookup = Object.fromEntries(
     },
   ])
 );
-
-const withTempSpec = <T>(
-  spec: OpenAPIV3.Document,
-  fn: (specPath: string) => T
-): T => {
-  const dir = fs.mkdtempSync("spec");
-  try {
-    const specPath = path.join(dir, "spec.json");
-    fs.writeFileSync(specPath, JSON.stringify(spec));
-    return fn(specPath);
-  } finally {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
-};
 
 const snapshotExtendedSpec = (api: TypeSafeRestApi) => {
   const specWithoutTokens = _.cloneDeepWith(

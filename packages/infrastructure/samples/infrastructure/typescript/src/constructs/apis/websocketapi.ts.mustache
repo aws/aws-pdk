@@ -1,0 +1,53 @@
+import { UserIdentity } from "@aws/pdk/identity";
+import { Stack } from "aws-cdk-lib";
+import {
+  Effect,
+  PolicyStatement,
+} from "aws-cdk-lib/aws-iam";
+import { WebSocketIamAuthorizer } from "aws-cdk-lib/aws-apigatewayv2-authorizers";
+import { Construct } from "constructs";
+import { WebSocketApi, MockIntegrations } from "{{{infraPackage}}}";
+
+/**
+ * Api construct props.
+ */
+export interface {{{apiName}}}Props {
+  /**
+   * Instance of the UserIdentity.
+   */
+  readonly userIdentity: UserIdentity;
+}
+
+/**
+ * Infrastructure construct to deploy a Type Safe WebSocket API.
+ */
+export class {{{apiName}}} extends Construct {
+  /**
+   * API instance
+   */
+  public readonly api: WebSocketApi;
+
+  constructor(scope: Construct, id: string, props?: {{{apiName}}}Props) {
+    super(scope, id);
+
+    this.api = new WebSocketApi(this, id, {
+      authorizer: new WebSocketIamAuthorizer(),
+      integrations: MockIntegrations.mockAll(),
+    });
+
+    // Grant authenticated users access to interact with the WebSocket API
+    props?.userIdentity.identityPool.authenticatedRole.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ["execute-api:Invoke"],
+        resources: [
+          Stack.of(this).formatArn({
+            service: "execute-api",
+            resource: this.api.api.apiId,
+            resourceName: "*",
+          }),
+        ],
+      }),
+    );
+  }
+}

@@ -8,6 +8,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
 import { RuntimeConfigContext } from "../../components/RuntimeContext";
+import { WebSocketExplorer } from "../../components/WebSocketApiExplorer";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const aws4Fetch = require("aws4fetch");
 
@@ -27,13 +28,16 @@ const ApiExplorer: React.FC = () => {
     void (async () => {
         try {
             setApiSpec(
-                Object.fromEntries(
-                    (await Promise.all(Object.keys(runtimeContext?.typeSafeApis ?? {})
-                        .map(async (apiName) => [apiName, await fetch(`/${apiName}/api.json`).then(res => res.json())])
-                    )).map(([apiName, _apiSpec]) => [apiName, {..._apiSpec, servers: [{ url: runtimeContext?.typeSafeApis[apiName] }]}])
-                )
+                Object.fromEntries([
+                  ...(await Promise.all(Object.keys(runtimeContext?.typeSafeApis ?? {})
+                    .map(async (apiName) => [apiName, await fetch(`/${apiName}/api.json`).then(res => res.json())])
+                  )).map(([apiName, _apiSpec]) => [apiName, {..._apiSpec, servers: [{ url: runtimeContext?.typeSafeApis[apiName] }]}]),
+                  ...(await Promise.all(Object.keys(runtimeContext?.typeSafeWebSocketApis ?? {})
+                      .map(async (apiName) => [apiName, await fetch(`/${apiName}/api.json`).then(res => res.json())])
+                  )).map(([apiName, _apiSpec]) => [apiName, {..._apiSpec, url: runtimeContext?.typeSafeWebSocketApis[apiName], __websocket: true }])
+                ])
             );
-            setSelectedApi(Object.keys(runtimeContext?.typeSafeApis)[0]); 
+            setSelectedApi(Object.keys({ ...runtimeContext?.typeSafeApis, ...runtimeContext?.typeSafeWebSocketApis})[0]);
         } catch(e) {
             setError(
                 "No OpenAPI definition detected. Ensure TypeSafeAPI(s) are passed in to Cloudscape Website construct.",
@@ -85,14 +89,24 @@ const ApiExplorer: React.FC = () => {
   ) : selectedApi ? (
     <ContentLayout header={<Header variant="h1" actions={
         <ButtonDropdown variant="primary" onItemClick={(e) => setSelectedApi(e.detail.id!)} items={[
-            {
+            ...(Object.keys(runtimeContext?.typeSafeApis).length > 0 ? [{
               text: "REST",
               items: Object.keys(runtimeContext?.typeSafeApis).map(apiName => ({ text: apiName, id: apiName, disabled: selectedApi === apiName }))
-            }
+            }] : []),
+            ...(Object.keys(runtimeContext?.typeSafeWebSocketApis).length > 0 ? [{
+              text: "WEBSOCKET",
+              items: Object.keys(runtimeContext?.typeSafeWebSocketApis).map(apiName => ({ text: apiName, id: apiName, disabled: selectedApi === apiName }))
+            }] : []),
           ]}>{selectedApi}</ButtonDropdown>}>API Explorer</Header>}>
-        <Container>
-            <SwaggerUI requestInterceptor={sigv4Interceptor} spec={apiSpec[selectedApi]} />
-        </Container> 
+        {
+          apiSpec[selectedApi]?.__websocket ? (
+            <WebSocketExplorer selectedApi={selectedApi} spec={apiSpec[selectedApi]} />
+          ) : (
+            <Container>
+              <SwaggerUI requestInterceptor={sigv4Interceptor} spec={apiSpec[selectedApi]} />
+            </Container>
+          )
+        }
     </ContentLayout>
   ) : (
     <></>

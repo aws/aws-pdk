@@ -7,6 +7,7 @@ import { NodePackageManager } from "projen/lib/javascript";
 import { NodePackageUtils } from "../../packages/monorepo/src";
 import { NxProject } from "../../packages/monorepo/src/components/nx-project";
 import type { Nx } from "../../packages/monorepo/src/nx-types";
+import { PDKInternalProjectUtils } from "../projects/internal/internal-project";
 
 export const PDK_NAMESPACE = "@aws/";
 const AWS_PDK = "pdk";
@@ -192,6 +193,7 @@ export abstract class PDKProject extends JsiiProject {
         "All documentation is located at: https://aws.github.io/aws-pdk",
       ].concat(
         this.parent?.subprojects
+          .filter((s) => !PDKInternalProjectUtils.isInternal(s))
           .filter((s) => s.name !== `${PDK_NAMESPACE}${name}`)
           .sort((s1, s2) => s1.name.localeCompare(s2.name))
           .map((s) => [""].concat((s.tryFindFile(README) as Readme)._lines!))

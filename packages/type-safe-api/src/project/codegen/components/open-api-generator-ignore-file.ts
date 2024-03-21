@@ -7,6 +7,8 @@ import { IgnoreFile, Project } from "projen";
  * @see https://github.com/OpenAPITools/openapi-generator/blob/master/docs/customization.md#ignore-file-format
  */
 export class OpenApiGeneratorIgnoreFile extends IgnoreFile {
+  public static ALL_FILES_PATTERNS: string[] = ["/*", "**/*", "*"];
+
   constructor(project: Project) {
     super(project, ".openapi-generator-ignore");
 

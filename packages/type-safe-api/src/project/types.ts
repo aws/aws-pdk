@@ -289,6 +289,20 @@ export interface GeneratedTypeScriptReactQueryHooksOptions
     GeneratedWithOpenApiGeneratorOptions {}
 
 /**
+ * Options for configuring a generated typescript websocket client library project
+ */
+export interface GeneratedTypeScriptWebSocketClientOptions
+  extends TypeScriptProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions {}
+
+/**
+ * Options for configuring a generated typescript websocket client library project
+ */
+export interface GeneratedTypeScriptWebSocketHooksOptions
+  extends TypeScriptProjectOptions,
+    GeneratedWithOpenApiGeneratorOptions {}
+
+/**
  * Options for generated runtimes
  */
 export interface GeneratedRuntimeCodeOptions {
@@ -404,6 +418,17 @@ export interface GeneratedLibraryOptions {
   readonly typescriptReactQueryHooks?: GeneratedTypeScriptReactQueryHooksOptions;
 }
 
+export interface GeneratedWebSocketLibraryOptions {
+  /**
+   * Options for the generated typescript websocket client library. These override the default inferred options.
+   */
+  readonly typescriptWebSocketClient?: GeneratedTypeScriptWebSocketClientOptions;
+  /**
+   * Options for the generated typescript websocket hooks library. These override the default inferred options.
+   */
+  readonly typescriptWebSocketHooks?: GeneratedTypeScriptWebSocketHooksOptions;
+}
+
 /**
  * Generated library projects
  */
@@ -412,6 +437,21 @@ export interface GeneratedLibraryProjects {
    * Generated typescript react-query hooks project
    */
   readonly typescriptReactQueryHooks?: TypeScriptProject;
+}
+
+/**
+ * Generated websocket library projects
+ */
+export interface GeneratedWebSocketLibraryProjects {
+  /**
+   * Generated typescript websocket client project
+   */
+  readonly typescriptWebSocketClient?: TypeScriptProject;
+
+  /**
+   * Generated typescript websocket hooks project
+   */
+  readonly typescriptWebSocketHooks?: TypeScriptProject;
 }
 
 /**

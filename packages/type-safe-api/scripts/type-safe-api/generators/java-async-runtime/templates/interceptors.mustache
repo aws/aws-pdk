@@ -1,0 +1,379 @@
+###TSAPI_SPLIT_FILE###
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/interceptors",
+  "name": "TryCatchInterceptor",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}{{#apis.0}}package {{package}}.interceptors;{{/apis.0}}{{/apiInfo}}
+
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ApiResponse;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.InterceptorWithWarmup;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * Interceptor for handling uncaught exceptions and responding with a default error response
+ */
+public class TryCatchInterceptor<Input> extends InterceptorWithWarmup<Input> {
+    private final int statusCode;
+    private final String errorResponseBody;
+
+    public TryCatchInterceptor() {
+        this(500, "{\"message\": \"Internal Error\"}");
+    }
+
+    public TryCatchInterceptor(final int statusCode, final String errorResponseBody) {
+        this.statusCode = statusCode;
+        this.errorResponseBody = errorResponseBody;
+    }
+
+    @Override
+    public Response handle(final ChainedRequestInput<Input> input) {
+        try {
+            return input.getChain().next(input);
+        } catch (Throwable e) {
+            if (e instanceof Response) {
+                return (Response) e;
+            }
+
+            Object logger = input.getInterceptorContext().get("logger");
+            if (logger instanceof Logger) {
+                ((Logger) logger).error("Interceptor caught exception", e);
+            } else {
+                System.err.println("Interceptor caught exception");
+                e.printStackTrace();
+            }
+
+            return ApiResponse.builder()
+                    .statusCode(this.statusCode)
+                    .body(this.errorResponseBody)
+                    .build();
+        }
+    }
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/interceptors",
+  "name": "ResponseHeadersInterceptor",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}{{#apis.0}}package {{package}}.interceptors;{{/apis.0}}{{/apiInfo}}
+
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.InterceptorWithWarmup;
+import java.util.Map;
+import java.util.HashMap;
+
+/**
+ * An interceptor for adding cross-origin resource sharing (CORS) headers to the response.
+ * Allows all origins and headers.
+ */
+public class ResponseHeadersInterceptor<Input> extends InterceptorWithWarmup<Input> {
+    private final Map<String, String> additionalHeaders;
+
+    public ResponseHeadersInterceptor() {
+        this.additionalHeaders = new HashMap<>();
+        this.additionalHeaders.put("Access-Control-Allow-Origin", "*");
+        this.additionalHeaders.put("Access-Control-Allow-Headers", "*");
+    }
+
+    public ResponseHeadersInterceptor(final Map<String, String> headers) {
+        this.additionalHeaders = headers;
+    }
+
+    @Override
+    public Response handle(ChainedRequestInput<Input> input) {
+        Response res = input.getChain().next(input);
+        res.getHeaders().putAll(this.additionalHeaders);
+        return res;
+    }
+
+    public Map<String, String> getAdditionalHeaders() {
+        return this.additionalHeaders;
+    }
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/interceptors/powertools",
+  "name": "LoggingInterceptor",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}{{#apis.0}}package {{package}}.interceptors.powertools;{{/apis.0}}{{/apiInfo}}
+
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.RequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.InterceptorWithWarmup;
+import com.amazonaws.services.lambda.runtime.Context;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
+import software.amazon.lambda.powertools.core.internal.LambdaHandlerProcessor;
+import software.amazon.lambda.powertools.logging.LoggingUtils;
+
+/**
+ * An interceptor which adds an aws lambda powertools logger to the interceptor context,
+ * and adds the lambda context.
+ * See https://docs.powertools.aws.dev/lambda/java/latest/core/logging/
+ */
+public class LoggingInterceptor<Input> extends InterceptorWithWarmup<Input> {
+    private Logger logger = LogManager.getLogger(LoggingInterceptor.class);
+
+    @Override
+    public void warmUp() {
+        super.warmUp();
+        logger.info("LoggingInterceptor: init");
+    }
+
+    /**
+     * Return the instance of the logger from the interceptor context
+     */
+    public static <T> Logger getLogger(final RequestInput<T> request) {
+        Object logger = request.getInterceptorContext().get("logger");
+        if (logger == null) {
+            throw new RuntimeException("No logger found. Did you configure the LoggingInterceptor?");
+        }
+        return (Logger) logger;
+    }
+
+    private void addContext(final Context context) {
+        LoggingUtils.appendKey("functionName", context.getFunctionName());
+        LoggingUtils.appendKey("functionVersion", context.getFunctionVersion());
+        LoggingUtils.appendKey("functionArn", context.getInvokedFunctionArn());
+        LoggingUtils.appendKey("functionMemorySize", String.valueOf(context.getMemoryLimitInMB()));
+        // Same casing as powertools aspect implementation
+        LoggingUtils.appendKey("function_request_id", String.valueOf(context.getAwsRequestId()));
+    }
+
+    @Override
+    public Response handle(final ChainedRequestInput<Input> input) {
+        // Add lambda context fields
+        this.addContext(input.getContext());
+
+        // Add service, cold start and tracing
+        LoggingUtils.appendKey("service", LambdaHandlerProcessor.serviceName());
+        LoggingUtils.appendKey("coldStart", LambdaHandlerProcessor.isColdStart() ? "true" : "false");
+        LambdaHandlerProcessor.getXrayTraceId().ifPresent((xRayTraceId) -> {
+            LoggingUtils.appendKey("xray_trace_id", xRayTraceId);
+        });
+
+        // Add the operation id
+        String operationId = (String) input.getInterceptorContext().get("operationId");
+        LoggingUtils.appendKey("operationId", operationId);
+
+        // Add the logger to the interceptor context
+        input.getInterceptorContext().put("logger", logger);
+
+        Response response = input.getChain().next(input);
+
+        // Mark cold start done
+        LambdaHandlerProcessor.coldStartDone();
+
+        // Clear the logger keys
+        ThreadContext.clearMap();
+
+        return response;
+    }
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/interceptors/powertools",
+  "name": "TracingInterceptor",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}{{#apis.0}}package {{package}}.interceptors.powertools;{{/apis.0}}{{/apiInfo}}
+
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.InterceptorWithWarmup;
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorderBuilder;
+import com.amazonaws.xray.entities.Subsegment;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.logging.log4j.Logger;
+import software.amazon.lambda.powertools.core.internal.LambdaHandlerProcessor;
+import software.amazon.lambda.powertools.tracing.TracingUtils;
+
+/**
+ * Interceptor which adds an aws lambda powertools tracer to the interceptor context,
+ * creating the appropriate segment for the handler execution and annotating with recommended
+ * details.
+ * See: https://docs.powertools.aws.dev/lambda/java/latest/core/tracing/
+ */
+public class TracingInterceptor<Input> extends InterceptorWithWarmup<Input> {
+
+    static {
+        AWSXRayRecorderBuilder builder = AWSXRayRecorderBuilder.standard();
+        AWSXRay.setGlobalRecorder(builder.build());
+    }
+
+    private final boolean captureResponse;
+
+    public TracingInterceptor(final boolean captureResponse) {
+        this.captureResponse = captureResponse;
+    }
+
+    public TracingInterceptor() {
+        this(false);
+    }
+
+    @Override
+    public void warmUp() {
+        try {
+            // Set a dummy trace header to ensure the regular subsegment code path is followed and warmed.
+            // The segment is not actually recorded by xray.
+            System.setProperty("com.amazonaws.xray.traceHeader", "Root=1-xxx;Parent=yyy;Sampled=1");
+            super.warmUp();
+        } finally {
+            System.clearProperty("com.amazonaws.xray.traceHeader");
+        }
+    }
+
+    private void logError(final String message, final ChainedRequestInput<Input> input, final Throwable e) {
+        Object logger = input.getInterceptorContext().get("logger");
+        if (logger instanceof Logger) {
+            ((Logger) logger).error(message, e);
+        } else {
+            System.err.println(message);
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public Response handle(final ChainedRequestInput<Input> input) {
+        String operationId = (String) input.getInterceptorContext().get("operationId");
+        Subsegment segment = AWSXRay.beginSubsegment("## " + operationId);
+
+        segment.setNamespace(operationId);
+        segment.putAnnotation("ColdStart", LambdaHandlerProcessor.isColdStart());
+        segment.putAnnotation("Service", LambdaHandlerProcessor.serviceName());
+
+        try {
+            Response response = input.getChain().next(input);
+
+            try {
+                if (this.captureResponse) {
+                    segment.putMetadata(operationId + " response", TracingUtils.objectMapper() != null ? TracingUtils.objectMapper().writeValueAsString(response) : response);
+                }
+            } catch (JsonProcessingException e) {
+                this.logError("Failed to add response to trace", input, e);
+            }
+
+            // Mark cold start done
+            LambdaHandlerProcessor.coldStartDone();
+
+            return response;
+        } catch (Throwable e) {
+            try {
+                segment.putMetadata(operationId + " error", TracingUtils.objectMapper() != null ? TracingUtils.objectMapper().writeValueAsString(e) : e);
+            } catch (JsonProcessingException ex) {
+                this.logError("Failed to add error to trace", input, e);
+            }
+            throw e;
+        } finally {
+            if (!LambdaHandlerProcessor.isSamLocal()) {
+                AWSXRay.endSubsegment();
+            }
+        }
+    }
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/interceptors/powertools",
+  "name": "MetricsInterceptor",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}{{#apis.0}}package {{package}}.interceptors.powertools;{{/apis.0}}{{/apiInfo}}
+
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.ChainedRequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.RequestInput;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Response;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.InterceptorWithWarmup;
+import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
+import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
+import software.amazon.lambda.powertools.core.internal.LambdaHandlerProcessor;
+import software.amazon.lambda.powertools.metrics.MetricsUtils;
+
+/**
+ * Interceptor which adds an instance of aws lambda powertools metrics to the interceptor context (under the key "metrics"),
+ * and ensures metrics are flushed prior to finishing the lambda execution
+ * See: https://docs.powertools.aws.dev/lambda/typescript/latest/core/metrics
+ */
+public class MetricsInterceptor<Input> extends InterceptorWithWarmup<Input> {
+    private MetricsLogger metrics = MetricsUtils.metricsLogger();
+
+    /**
+     * Return the instance of the metrics logger from the interceptor context
+     */
+    public static <T> MetricsLogger getMetrics(final RequestInput<T> request) {
+        Object metrics = request.getInterceptorContext().get("metrics");
+        if (metrics == null) {
+            throw new RuntimeException("No metrics logger found. Did you configure the MetricsInterceptor?");
+        }
+        return (MetricsLogger) metrics;
+    }
+
+    @Override
+    public Response handle(final ChainedRequestInput<Input> input) {
+        metrics.putDimensions(DimensionSet.of("operationId", (String) input.getInterceptorContext().get("operationId")));
+
+        input.getInterceptorContext().put("metrics", metrics);
+
+        metrics.putProperty("function_request_id", input.getContext().getAwsRequestId());
+        LambdaHandlerProcessor.getXrayTraceId().ifPresent((traceId) -> {
+            metrics.putProperty("xray_trace_id", traceId);
+        });
+
+        try {
+            Response response = input.getChain().next(input);
+
+            // Mark cold start done
+            LambdaHandlerProcessor.coldStartDone();
+
+            return response;
+        } finally {
+            metrics.flush();
+        }
+    }
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/interceptors",
+  "name": "DefaultInterceptors",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}{{#apis.0}}package {{package}}.interceptors;{{/apis.0}}{{/apiInfo}}
+
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.interceptors.powertools.LoggingInterceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.interceptors.powertools.MetricsInterceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.interceptors.powertools.TracingInterceptor;
+import {{#apiInfo}}{{#apis.0}}{{package}}{{/apis.0}}{{/apiInfo}}.handlers.Interceptor;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class DefaultInterceptors {
+    public static <T> List<Interceptor<T>> all() {
+        return Arrays.asList(
+            new ResponseHeadersInterceptor<>(),
+            new LoggingInterceptor<>(),
+            new TryCatchInterceptor<>(),
+            new TracingInterceptor<>(),
+            new MetricsInterceptor<>()
+        );
+    }
+}

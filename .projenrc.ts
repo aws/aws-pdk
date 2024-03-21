@@ -8,6 +8,7 @@ import { CloudscapeReactTsWebsiteProject } from "./projenrc/projects/cloudscape-
 import { DocsProject } from "./projenrc/projects/docs-project";
 import { IdentityProject } from "./projenrc/projects/identity-project";
 import { InfrastructureProject } from "./projenrc/projects/infrastructure-project";
+import { SmithyAsyncTransformerProject } from "./projenrc/projects/internal/smithy-async-transformer";
 import { MonorepoProject } from "./projenrc/projects/monorepo-project";
 import { PDKMonorepoProject } from "./projenrc/projects/pdk-monorepo-project";
 import { PDKNagProject } from "./projenrc/projects/pdk-nag-project";
@@ -20,6 +21,9 @@ import { TypeSafeApiProject } from "./projenrc/projects/type-safe-api-project";
 const monorepoProject = new PDKMonorepoProject();
 
 new PDKNagProject(monorepoProject);
+
+// internal packages
+new SmithyAsyncTransformerProject(monorepoProject);
 
 // public packages
 new MonorepoProject(monorepoProject);

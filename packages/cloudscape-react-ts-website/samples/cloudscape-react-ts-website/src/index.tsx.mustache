@@ -4,30 +4,42 @@ import { NorthStarThemeProvider } from "@aws-northstar/ui";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import { I18nProvider } from '@cloudscape-design/components/i18n';
+import messages from '@cloudscape-design/components/i18n/messages/all.en';
 import Auth from "./components/Auth";
-{{#hasApi}}
-import DefaultApiClientProvider from "./components/DefaultApi";
-{{/hasApi}}
+{{#typeSafeApis.0}}
+import TypeSafeApiClientProvider from "./components/TypeSafeApiClientProvider";
+{{/typeSafeApis.0}}
+{{#typeSafeWebSocketApis.0}}
+import TypeSafeWebSocketApiClientProvider from "./components/TypeSafeWebSocketApiClientProvider";
+{{/typeSafeWebSocketApis.0}}
 import RuntimeContextProvider from "./components/RuntimeContext";
 import App from "./layouts/App";
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <NorthStarThemeProvider>
+      <I18nProvider locale="en" messages={[messages]}>
       <BrowserRouter>
         <RuntimeContextProvider>
           <Auth>
-            {{#hasApi}}
-            <DefaultApiClientProvider>
+            {{#typeSafeWebSocketApis.0}}
+            <TypeSafeWebSocketApiClientProvider>
+            {{/typeSafeWebSocketApis.0}}
+            {{#typeSafeApis.0}}
+            <TypeSafeApiClientProvider>
+            {{/typeSafeApis.0}}
               <App />
-            </DefaultApiClientProvider>
-            {{/hasApi}}
-            {{^hasApi}}
-            <App />
-            {{/hasApi}}
+            {{#typeSafeApis.0}}
+            </TypeSafeApiClientProvider>
+            {{/typeSafeApis.0}}
+            {{#typeSafeWebSocketApis.0}}
+            </TypeSafeWebSocketApiClientProvider>
+            {{/typeSafeWebSocketApis.0}}
           </Auth>
         </RuntimeContextProvider>
       </BrowserRouter>
+      </I18nProvider>
     </NorthStarThemeProvider>
   </React.StrictMode>
 );

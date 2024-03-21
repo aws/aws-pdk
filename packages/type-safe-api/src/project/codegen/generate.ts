@@ -7,26 +7,57 @@ import { GeneratedHtmlRedocDocumentationProject } from "./documentation/generate
 import { GeneratedHtml2DocumentationProject } from "./documentation/generated-html2-documentation-project";
 import { GeneratedMarkdownDocumentationProject } from "./documentation/generated-markdown-documentation-project";
 import { GeneratedPlantumlDocumentationProject } from "./documentation/generated-plantuml-documentation-project";
+import { GeneratedJavaAsyncHandlersProject } from "./handlers/generated-java-async-handlers-project";
+import { GeneratedJavaHandlersBaseProject } from "./handlers/generated-java-handlers-base-project";
 import { GeneratedJavaHandlersProject } from "./handlers/generated-java-handlers-project";
+import { GeneratedPythonAsyncHandlersProject } from "./handlers/generated-python-async-handlers-project";
+import { GeneratedPythonHandlersBaseProject } from "./handlers/generated-python-handlers-base-project";
 import { GeneratedPythonHandlersProject } from "./handlers/generated-python-handlers-project";
+import { GeneratedTypescriptAsyncHandlersProject } from "./handlers/generated-typescript-async-handlers-project";
+import { GeneratedTypescriptHandlersBaseProject } from "./handlers/generated-typescript-handlers-base-project";
 import { GeneratedTypescriptHandlersProject } from "./handlers/generated-typescript-handlers-project";
+import { GeneratedJavaAsyncCdkInfrastructureProject } from "./infrastructure/cdk/generated-java-async-cdk-infrastructure-project";
 import { GeneratedJavaCdkInfrastructureProject } from "./infrastructure/cdk/generated-java-cdk-infrastructure-project";
+import { GeneratedPythonAsyncCdkInfrastructureProject } from "./infrastructure/cdk/generated-python-async-cdk-infrastructure-project";
 import { GeneratedPythonCdkInfrastructureProject } from "./infrastructure/cdk/generated-python-cdk-infrastructure-project";
+import { GeneratedTypescriptAsyncCdkInfrastructureProject } from "./infrastructure/cdk/generated-typescript-async-cdk-infrastructure-project";
 import { GeneratedTypescriptCdkInfrastructureProject } from "./infrastructure/cdk/generated-typescript-cdk-infrastructure-project";
-import { TypescriptReactQueryHooksLibrary } from "./library/typescript-react-query-hooks-library";
+import {
+  GeneratedTypescriptReactQueryHooksProjectOptions,
+  TypescriptReactQueryHooksLibrary,
+} from "./library/typescript-react-query-hooks-library";
+import {
+  TypescriptWebsocketClientLibrary,
+  TypescriptWebsocketClientLibraryOptions,
+} from "./library/typescript-websocket-client-library";
+import {
+  TypescriptWebsocketHooksLibrary,
+  TypescriptWebsocketHooksLibraryOptions,
+} from "./library/typescript-websocket-hooks-library";
+import { GeneratedJavaAsyncRuntimeProject } from "./runtime/generated-java-async-runtime-project";
+import { GeneratedJavaRuntimeBaseProject } from "./runtime/generated-java-runtime-base-project";
 import {
   GeneratedJavaRuntimeProject,
   GeneratedJavaTypesProjectOptions,
 } from "./runtime/generated-java-runtime-project";
+import { GeneratedPythonAsyncRuntimeProject } from "./runtime/generated-python-async-runtime-project";
+import { GeneratedPythonRuntimeBaseProject } from "./runtime/generated-python-runtime-base-project";
 import {
   GeneratedPythonRuntimeProject,
   GeneratedPythonTypesProjectOptions,
 } from "./runtime/generated-python-runtime-project";
+import { GeneratedTypescriptAsyncRuntimeProject } from "./runtime/generated-typescript-async-runtime-project";
+import { GeneratedTypescriptRuntimeBaseProject } from "./runtime/generated-typescript-runtime-base-project";
 import {
   GeneratedTypescriptRuntimeProject,
   GeneratedTypescriptTypesProjectOptions,
 } from "./runtime/generated-typescript-runtime-project";
-import { DocumentationFormat, Language, Library } from "../languages";
+import {
+  DocumentationFormat,
+  Language,
+  Library,
+  WebSocketLibrary,
+} from "../languages";
 import { GeneratedDocumentationOptions } from "../types";
 
 const logger = getLogger();
@@ -96,6 +127,37 @@ export interface GenerateRuntimeProjectsOptions
   >;
 }
 
+export interface GenerateLanguageProjectOptions
+  extends GenerateProjectsOptions {
+  /**
+   * Options for the typescript project.
+   * These will override any inferred properties (such as the package name).
+   */
+  readonly typescriptOptions: Omit<
+    GeneratedTypescriptTypesProjectOptions,
+    CommonProjectOptions
+  > &
+    Record<string, any>;
+  /**
+   * Options for the python project
+   * These will override any inferred properties (such as the package name).
+   */
+  readonly pythonOptions: Omit<
+    GeneratedPythonTypesProjectOptions,
+    CommonProjectOptions
+  > &
+    Record<string, any>;
+  /**
+   * Options for the java project
+   * These will override any inferred properties (such as the package name).
+   */
+  readonly javaOptions: Omit<
+    GeneratedJavaTypesProjectOptions,
+    CommonProjectOptions
+  > &
+    Record<string, any>;
+}
+
 /**
  * Options for generating libraries
  */
@@ -106,9 +168,34 @@ export interface GenerateLibraryProjectsOptions
    * These will override any inferred properties (such as the package name)
    */
   readonly typescriptReactQueryHooksOptions: Omit<
-    GeneratedTypescriptTypesProjectOptions,
+    GeneratedTypescriptReactQueryHooksProjectOptions,
     CommonProjectOptions
   >;
+}
+
+/**
+ * Options for generating websocket libraries
+ */
+export interface GenerateAsyncLibraryProjectsOptions
+  extends GenerateProjectsOptions {
+  /**
+   * Options for the typescript websocket client project
+   * These will override any inferred properties (such as the package name)
+   */
+  readonly typescriptWebSocketClientOptions: Omit<
+    TypescriptWebsocketClientLibraryOptions,
+    CommonProjectOptions
+  >;
+
+  /**
+   * Options for the typescript websocket hooks project
+   * These will override any inferred properties (such as the package name)
+   */
+  readonly typescriptWebSocketHooksOptions: Omit<
+    TypescriptWebsocketHooksLibraryOptions,
+    CommonProjectOptions | "clientPackageName"
+  > &
+    Partial<Pick<TypescriptWebsocketHooksLibraryOptions, "clientPackageName">>;
 }
 
 // No dashes or underscores since this is used in the package name in imports
@@ -131,14 +218,18 @@ const sanitisePythonModuleName = (name: string) =>
 const sanitisePythonPackageName = (name: string) =>
   name.replace(/@/g, "").replace(/[_/]/g, "-");
 
-/**
- * Returns a generated client project for the given language
- */
-const generateRuntimeProject = (
+type LanguageProjectConstructors = Record<
+  Language,
+  new (...args: any[]) => Project
+>;
+
+const generateLanguageProject = (
+  suffix: string,
   language: Language,
-  options: GenerateRuntimeProjectsOptions
+  projectConstructors: LanguageProjectConstructors,
+  options: GenerateLanguageProjectOptions
 ): Project => {
-  const packageName = `${options.parentPackageName}-${language}-runtime`;
+  const packageName = `${options.parentPackageName}-${language}-${suffix}`;
   const commonOptions = {
     outdir: path.join(options.generatedCodeDir, language),
     specPath: options.parsedSpecPath,
@@ -147,8 +238,9 @@ const generateRuntimeProject = (
 
   switch (language) {
     case Language.TYPESCRIPT: {
-      logger.trace("Attempting to generate TYPESCRIPT runtime project.");
-      return new GeneratedTypescriptRuntimeProject({
+      logger.trace(`Attempting to generate TYPESCRIPT ${suffix} project.`);
+      return new projectConstructors[language]({
+        ...options,
         ...commonOptions,
         name: sanitiseTypescriptPackageName(packageName),
         ...options.typescriptOptions,
@@ -156,8 +248,9 @@ const generateRuntimeProject = (
       });
     }
     case Language.PYTHON: {
-      logger.trace("Attempting to generate PYTHON runtime project.");
-      return new GeneratedPythonRuntimeProject({
+      logger.trace(`Attempting to generate PYTHON ${suffix} project.`);
+      return new projectConstructors[language]({
+        ...options,
         ...commonOptions,
         name: sanitisePythonPackageName(packageName),
         moduleName: sanitisePythonModuleName(packageName),
@@ -165,8 +258,9 @@ const generateRuntimeProject = (
       });
     }
     case Language.JAVA: {
-      logger.trace("Attempting to generate JAVA runtime project.");
-      return new GeneratedJavaRuntimeProject({
+      logger.trace(`Attempting to generate JAVA ${suffix} project.`);
+      return new projectConstructors[language]({
+        ...options,
         ...commonOptions,
         name: sanitiseJavaProjectName(packageName),
         artifactId: sanitiseJavaArtifactId(packageName),
@@ -175,8 +269,30 @@ const generateRuntimeProject = (
       });
     }
     default:
-      throw new Error(`Unknown runtime language ${language}`);
+      throw new Error(`Unknown ${suffix} language ${language}`);
   }
+};
+
+const generateLanguageProjects = (
+  suffix: string,
+  languages: Language[],
+  projectConstructors: Record<Language, new (...args: any[]) => Project>,
+  options: GenerateLanguageProjectOptions
+) => {
+  const projects: { [language: string]: Project } = {};
+  languages.forEach((language) => {
+    const project = generateLanguageProject(
+      suffix,
+      language,
+      projectConstructors,
+      options
+    );
+    if (project != null) {
+      projects[language] = project;
+    }
+  });
+
+  return projects;
 };
 
 /**
@@ -186,15 +302,15 @@ export interface GeneratedHandlersProjects {
   /**
    * Java handlers project
    */
-  readonly java?: GeneratedJavaHandlersProject;
+  readonly java?: GeneratedJavaHandlersBaseProject;
   /**
    * Python handlers project
    */
-  readonly python?: GeneratedPythonHandlersProject;
+  readonly python?: GeneratedPythonHandlersBaseProject;
   /**
    * TypeScript handlers project
    */
-  readonly typescript?: GeneratedTypescriptHandlersProject;
+  readonly typescript?: GeneratedTypescriptHandlersBaseProject;
 }
 
 export interface GenerateInfraProjectOptions
@@ -203,9 +319,9 @@ export interface GenerateInfraProjectOptions
    * Generated runtime projects
    */
   readonly generatedRuntimes: {
-    readonly java?: GeneratedJavaRuntimeProject;
-    readonly python?: GeneratedPythonRuntimeProject;
-    readonly typescript?: GeneratedTypescriptRuntimeProject;
+    readonly java?: GeneratedJavaRuntimeBaseProject;
+    readonly python?: GeneratedPythonRuntimeBaseProject;
+    readonly typescript?: GeneratedTypescriptRuntimeBaseProject;
   };
   readonly generatedHandlers: GeneratedHandlersProjects;
 }
@@ -217,6 +333,40 @@ export const generateInfraProject = (
   language: Language,
   options: GenerateInfraProjectOptions
 ): Project => {
+  return _generateInfraProject(
+    language,
+    {
+      [Language.JAVA]: GeneratedJavaCdkInfrastructureProject,
+      [Language.PYTHON]: GeneratedPythonCdkInfrastructureProject,
+      [Language.TYPESCRIPT]: GeneratedTypescriptCdkInfrastructureProject,
+    },
+    options
+  );
+};
+
+/**
+ * Returns a generated async infrastructure project for the given language
+ */
+export const generateAsyncInfraProject = (
+  language: Language,
+  options: GenerateInfraProjectOptions
+): Project => {
+  return _generateInfraProject(
+    language,
+    {
+      [Language.JAVA]: GeneratedJavaAsyncCdkInfrastructureProject,
+      [Language.PYTHON]: GeneratedPythonAsyncCdkInfrastructureProject,
+      [Language.TYPESCRIPT]: GeneratedTypescriptAsyncCdkInfrastructureProject,
+    },
+    options
+  );
+};
+
+export const _generateInfraProject = (
+  language: Language,
+  projectConstructors: LanguageProjectConstructors,
+  options: GenerateInfraProjectOptions
+): Project => {
   new TextFile(
     options.parent,
     path.join(options.generatedCodeDir, "README.md"),
@@ -224,74 +374,43 @@ export const generateInfraProject = (
       lines: [
         "## Generated Infrastructure",
         "",
-        "This directory contains a generated type-safe CDK construct which will can the API gateway infrastructure for an API based on your model.",
+        "This directory contains a generated type-safe CDK construct which can provision the API gateway infrastructure for an API based on your model.",
       ],
       readonly: true,
     }
   );
 
-  const infraName = `${options.parentPackageName}-${language}-infra`;
-  const commonOptions = {
-    outdir: path.join(options.generatedCodeDir, language),
-    specPath: options.parsedSpecPath,
-    parent: options.parent,
-    generatedHandlers: options.generatedHandlers,
-  };
-
-  switch (language) {
-    case Language.TYPESCRIPT: {
-      logger.trace("Attempting to generate TYPESCRIPT infra project.");
-      if (!options.generatedRuntimes.typescript) {
-        throw new Error(
-          "A typescript types project must be created for typescript infrastructure"
-        );
-      }
-      return new GeneratedTypescriptCdkInfrastructureProject({
-        ...commonOptions,
-        name: sanitiseTypescriptPackageName(infraName),
-        generatedTypescriptTypes: options.generatedRuntimes.typescript,
-        ...options.typescriptOptions,
-        isWithinMonorepo: options.isWithinMonorepo,
-      });
-    }
-    case Language.PYTHON: {
-      logger.trace("Attempting to generate PYTHON infra project.");
-      if (!options.generatedRuntimes.python) {
-        throw new Error(
-          "A python types project must be created for python infrastructure"
-        );
-      }
-      return new GeneratedPythonCdkInfrastructureProject({
-        ...commonOptions,
-        name: sanitisePythonPackageName(infraName),
-        moduleName: sanitisePythonModuleName(infraName),
-        generatedPythonTypes: options.generatedRuntimes.python,
-        ...options.pythonOptions,
-      });
-    }
-    case Language.JAVA: {
-      logger.trace("Attempting to generate JAVA infra project.");
-      if (!options.generatedRuntimes.java) {
-        throw new Error(
-          "A java types project must be created for java infrastructure"
-        );
-      }
-      return new GeneratedJavaCdkInfrastructureProject({
-        ...commonOptions,
-        name: sanitiseJavaProjectName(infraName),
-        artifactId: sanitiseJavaArtifactId(infraName),
-        groupId: "com.generated.api",
-        generatedJavaTypes: options.generatedRuntimes.java,
-        ...options.javaOptions,
-      });
-    }
-    default:
-      throw new Error(`Unknown infrastructure language ${language}`);
-  }
+  return generateLanguageProject("infra", language, projectConstructors, {
+    ...options,
+    typescriptOptions: {
+      ...options.typescriptOptions,
+      generatedTypescriptTypes: options.generatedRuntimes.typescript,
+    },
+    pythonOptions: {
+      ...options.pythonOptions,
+      generatedPythonTypes: options.generatedRuntimes.python,
+    },
+    javaOptions: {
+      ...options.javaOptions,
+      generatedJavaTypes: options.generatedRuntimes.java,
+    },
+  });
 };
 
-export interface GenerateHandlersProjectOptions
+export interface GenerateHandlersBaseProjectOptions
   extends GenerateRuntimeProjectsOptions {
+  /**
+   * Generated runtime projects
+   */
+  readonly generatedRuntimes: {
+    readonly java?: GeneratedJavaRuntimeBaseProject;
+    readonly python?: GeneratedPythonRuntimeBaseProject;
+    readonly typescript?: GeneratedTypescriptRuntimeBaseProject;
+  };
+}
+
+export interface GenerateHandlersProjectOptions
+  extends GenerateHandlersBaseProjectOptions {
   /**
    * Generated runtime projects
    */
@@ -302,71 +421,17 @@ export interface GenerateHandlersProjectOptions
   };
 }
 
-/**
- * Returns a generated handlers project for the given language
- */
-const generateHandlersProject = (
-  language: Language,
-  options: GenerateHandlersProjectOptions
-): Project => {
-  const handlersName = `${options.parentPackageName}-${language}-handlers`;
-  const commonOptions = {
-    outdir: path.join(options.generatedCodeDir, language),
-    specPath: options.parsedSpecPath,
-    parent: options.parent,
+export interface GenerateAsyncHandlersProjectOptions
+  extends GenerateHandlersBaseProjectOptions {
+  /**
+   * Generated runtime projects
+   */
+  readonly generatedRuntimes: {
+    readonly java?: GeneratedJavaAsyncRuntimeProject;
+    readonly python?: GeneratedPythonAsyncRuntimeProject;
+    readonly typescript?: GeneratedTypescriptAsyncRuntimeProject;
   };
-
-  switch (language) {
-    case Language.TYPESCRIPT: {
-      logger.trace("Attempting to generate TYPESCRIPT handlers project.");
-      if (!options.generatedRuntimes.typescript) {
-        throw new Error(
-          "A typescript runtime project must be created for typescript handlers"
-        );
-      }
-      return new GeneratedTypescriptHandlersProject({
-        ...commonOptions,
-        name: sanitiseTypescriptPackageName(handlersName),
-        generatedTypescriptTypes: options.generatedRuntimes.typescript,
-        ...options.typescriptOptions,
-        isWithinMonorepo: options.isWithinMonorepo,
-      });
-    }
-    case Language.PYTHON: {
-      logger.trace("Attempting to generate PYTHON handlers project.");
-      if (!options.generatedRuntimes.python) {
-        throw new Error(
-          "A python runtime project must be created for python handlers"
-        );
-      }
-      return new GeneratedPythonHandlersProject({
-        ...commonOptions,
-        name: sanitisePythonPackageName(handlersName),
-        moduleName: sanitisePythonModuleName(handlersName),
-        generatedPythonTypes: options.generatedRuntimes.python,
-        ...options.pythonOptions,
-      });
-    }
-    case Language.JAVA: {
-      logger.trace("Attempting to generate JAVA handlers project.");
-      if (!options.generatedRuntimes.java) {
-        throw new Error(
-          "A java runtime project must be created for java handlers"
-        );
-      }
-      return new GeneratedJavaHandlersProject({
-        ...commonOptions,
-        name: sanitiseJavaProjectName(handlersName),
-        artifactId: sanitiseJavaArtifactId(handlersName),
-        groupId: "com.generated.api",
-        generatedJavaTypes: options.generatedRuntimes.java,
-        ...options.javaOptions,
-      });
-    }
-    default:
-      throw new Error(`Unknown infrastructure language ${language}`);
-  }
-};
+}
 
 /**
  * Create handlers projects in the given languages
@@ -376,6 +441,42 @@ const generateHandlersProject = (
 export const generateHandlersProjects = (
   languages: Language[],
   options: GenerateHandlersProjectOptions
+): { [language: string]: Project } => {
+  return _generateHandlersProjects(
+    languages,
+    {
+      [Language.JAVA]: GeneratedJavaHandlersProject,
+      [Language.PYTHON]: GeneratedPythonHandlersProject,
+      [Language.TYPESCRIPT]: GeneratedTypescriptHandlersProject,
+    },
+    options
+  );
+};
+
+/**
+ * Create async handlers projects in the given languages
+ * @param languages the languages to generate for
+ * @param options options for the projects to be created
+ */
+export const generateAsyncHandlersProjects = (
+  languages: Language[],
+  options: GenerateAsyncHandlersProjectOptions
+): { [language: string]: Project } => {
+  return _generateHandlersProjects(
+    languages,
+    {
+      [Language.JAVA]: GeneratedJavaAsyncHandlersProject,
+      [Language.PYTHON]: GeneratedPythonAsyncHandlersProject,
+      [Language.TYPESCRIPT]: GeneratedTypescriptAsyncHandlersProject,
+    },
+    options
+  );
+};
+
+const _generateHandlersProjects = (
+  languages: Language[],
+  projectConstructors: LanguageProjectConstructors,
+  options: GenerateHandlersBaseProjectOptions
 ): { [language: string]: Project } => {
   if (languages.length > 0) {
     new TextFile(
@@ -394,15 +495,21 @@ export const generateHandlersProjects = (
     );
   }
 
-  const generatedHandlers: { [language: string]: Project } = {};
-  languages.forEach((language) => {
-    const project = generateHandlersProject(language, options);
-    if (project != null) {
-      generatedHandlers[language] = project;
-    }
+  return generateLanguageProjects("handlers", languages, projectConstructors, {
+    ...options,
+    typescriptOptions: {
+      ...options.typescriptOptions,
+      generatedTypescriptTypes: options.generatedRuntimes.typescript,
+    },
+    pythonOptions: {
+      ...options.pythonOptions,
+      generatedPythonTypes: options.generatedRuntimes.python,
+    },
+    javaOptions: {
+      ...options.javaOptions,
+      generatedJavaTypes: options.generatedRuntimes.java,
+    },
   });
-
-  return generatedHandlers;
 };
 
 /**
@@ -412,6 +519,42 @@ export const generateHandlersProjects = (
  */
 export const generateRuntimeProjects = (
   languages: Language[],
+  options: GenerateRuntimeProjectsOptions
+): { [language: string]: Project } => {
+  return _generateRuntimeProjects(
+    languages,
+    {
+      [Language.JAVA]: GeneratedJavaRuntimeProject,
+      [Language.PYTHON]: GeneratedPythonRuntimeProject,
+      [Language.TYPESCRIPT]: GeneratedTypescriptRuntimeProject,
+    },
+    options
+  );
+};
+
+/**
+ * Create async runtime projects in the given languages
+ * @param languages the languages to generate for
+ * @param options options for the projects to be created
+ */
+export const generateAsyncRuntimeProjects = (
+  languages: Language[],
+  options: GenerateRuntimeProjectsOptions
+): { [language: string]: Project } => {
+  return _generateRuntimeProjects(
+    languages,
+    {
+      [Language.JAVA]: GeneratedJavaAsyncRuntimeProject,
+      [Language.PYTHON]: GeneratedPythonAsyncRuntimeProject,
+      [Language.TYPESCRIPT]: GeneratedTypescriptAsyncRuntimeProject,
+    },
+    options
+  );
+};
+
+const _generateRuntimeProjects = (
+  languages: Language[],
+  projectConstructors: LanguageProjectConstructors,
   options: GenerateRuntimeProjectsOptions
 ): { [language: string]: Project } => {
   new TextFile(
@@ -429,15 +572,12 @@ export const generateRuntimeProjects = (
     }
   );
 
-  const generatedRuntimes: { [language: string]: Project } = {};
-  languages.forEach((language) => {
-    const project = generateRuntimeProject(language, options);
-    if (project != null) {
-      generatedRuntimes[language] = project;
-    }
-  });
-
-  return generatedRuntimes;
+  return generateLanguageProjects(
+    "runtime",
+    languages,
+    projectConstructors,
+    options
+  );
 };
 
 /**
@@ -495,6 +635,82 @@ export const generateLibraryProjects = (
   const generatedLibraries: { [language: string]: Project } = {};
   libraries.forEach((library) => {
     const project = generateLibraryProject(library, options);
+    if (project != null) {
+      generatedLibraries[library] = project;
+    }
+  });
+
+  return generatedLibraries;
+};
+
+/**
+ * Returns a generated client project for the given language
+ */
+const generateAsyncLibraryProject = (
+  library: WebSocketLibrary,
+  options: GenerateAsyncLibraryProjectsOptions
+): Project => {
+  const packageName = `${options.parentPackageName}-${library}`;
+  const commonOptions = {
+    outdir: path.join(options.generatedCodeDir, library),
+    specPath: options.parsedSpecPath,
+    parent: options.parent,
+  };
+
+  switch (library) {
+    case WebSocketLibrary.TYPESCRIPT_WEBSOCKET_CLIENT: {
+      return new TypescriptWebsocketClientLibrary({
+        ...commonOptions,
+        name: sanitiseTypescriptPackageName(packageName),
+        ...options.typescriptWebSocketClientOptions,
+        isWithinMonorepo: options.isWithinMonorepo,
+      });
+    }
+    case WebSocketLibrary.TYPESCRIPT_WEBSOCKET_HOOKS: {
+      return new TypescriptWebsocketHooksLibrary({
+        ...commonOptions,
+        clientPackageName:
+          options.typescriptWebSocketHooksOptions.clientPackageName ??
+          sanitiseTypescriptPackageName(
+            `${options.parentPackageName}-${WebSocketLibrary.TYPESCRIPT_WEBSOCKET_CLIENT}`
+          ),
+        name: sanitiseTypescriptPackageName(packageName),
+        ...options.typescriptWebSocketClientOptions,
+        isWithinMonorepo: options.isWithinMonorepo,
+      });
+    }
+    default:
+      throw new Error(`Unknown library ${library}`);
+  }
+};
+
+/**
+ * Create library projects
+ * @param libraries the libraries to generate for
+ * @param options options for the projects to be created
+ */
+export const generateAsyncLibraryProjects = (
+  libraries: WebSocketLibrary[],
+  options: GenerateAsyncLibraryProjectsOptions
+): { [library: string]: Project } => {
+  if (libraries.length > 0) {
+    new TextFile(
+      options.parent,
+      path.join(options.generatedCodeDir, "README.md"),
+      {
+        lines: [
+          "## Generated Libraries",
+          "",
+          "This directory contains generated libraries based on your API model.",
+        ],
+        readonly: true,
+      }
+    );
+  }
+
+  const generatedLibraries: { [language: string]: Project } = {};
+  libraries.forEach((library) => {
+    const project = generateAsyncLibraryProject(library, options);
     if (project != null) {
       generatedLibraries[library] = project;
     }

@@ -1,0 +1,131 @@
+###TSAPI_SPLIT_FILE###
+{{#apiInfo ~}}
+{{#apis ~}}
+{{#if vendorExtensions.x-connect-handler}}
+{{#startsWith vendorExtensions.x-connect-handler.language 'typescript'}}
+###TSAPI_WRITE_FILE###
+{
+  "id": "$connect",
+  "dir": ".",
+  "name": "$connect",
+  "ext": ".ts",
+  "overwrite": false
+}
+###/TSAPI_WRITE_FILE###import {
+  $connectHandler,
+  $ConnectChainedLambdaHandlerFunction,
+  INTERCEPTORS,
+  LoggingInterceptor,
+  $PendingConnection,
+} from "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package-name}}{{/apis.0}}{{/apiInfo}}";
+
+/**
+ * Type-safe handler for the $connect event, invoked when a new client connects to the websocket
+ */
+export const $connect: $ConnectChainedLambdaHandlerFunction = async (request) => {
+  LoggingInterceptor.getLogger(request).info("Start $connect");
+
+  // `connectionId` is the ID of the new connection
+  // `sdk` is used to send messages to connected clients
+  // Note that you cannot send messages to the new connection until after this function returns
+  const { connectionId, sdk } = request;
+
+  // TODO: Implement
+
+  // Use the below to allow or deny the incoming connection (when the lambda returns).
+  // The connection is allowed by default.
+  $PendingConnection.of(request).allow();
+};
+
+/**
+ * Entry point for the AWS Lambda handler for the $connect event.
+ * The $connectHandler method wraps the type-safe handler and manages marshalling inputs
+ */
+export const handler = $connectHandler(...INTERCEPTORS, $connect);
+
+{{~/startsWith}}
+{{~/if}}
+{{#if vendorExtensions.x-disconnect-handler}}
+{{#startsWith vendorExtensions.x-disconnect-handler.language 'typescript'}}
+###TSAPI_WRITE_FILE###
+{
+  "id": "$disconnect",
+  "dir": ".",
+  "name": "$disconnect",
+  "ext": ".ts",
+  "overwrite": false
+}
+###/TSAPI_WRITE_FILE###import {
+  $disconnectHandler,
+  $DisconnectChainedLambdaHandlerFunction,
+  INTERCEPTORS,
+  LoggingInterceptor,
+} from "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package-name}}{{/apis.0}}{{/apiInfo}}";
+
+/**
+ * Type-safe handler for the $disconnect event, invoked when a client disconnects from the websocket
+ */
+export const $disconnect: $DisconnectChainedLambdaHandlerFunction = async (request) => {
+  LoggingInterceptor.getLogger(request).info("Start $disconnect");
+
+  // `connectionId` is the ID of the connection which has ended
+  // `sdk` is used to send messages to connected clients
+  const { connectionId, sdk } = request;
+
+  // TODO: Implement
+};
+
+/**
+ * Entry point for the AWS Lambda handler for the $disconnect event.
+ * The $disconnectHandler method wraps the type-safe handler and manages marshalling inputs
+ */
+export const handler = $disconnectHandler(...INTERCEPTORS, $disconnect);
+
+{{~/startsWith}}
+{{~/if}}
+{{#operations ~}}
+{{#operation ~}}
+{{#if vendorExtensions.x-handler}}
+{{#startsWith vendorExtensions.x-handler.language 'typescript'}}
+###TSAPI_WRITE_FILE###
+{
+  "id": "{{nickname}}",
+  "dir": ".",
+  "name": "{{nickname}}",
+  "ext": ".ts",
+  "overwrite": false,
+  "kebabCaseFileName": true
+}
+###/TSAPI_WRITE_FILE###import {
+  {{nickname}}Handler,
+  {{operationIdCamelCase}}ChainedHandlerFunction,
+  INTERCEPTORS,
+  LoggingInterceptor,
+} from "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package-name}}{{/apis.0}}{{/apiInfo}}";
+
+/**
+ * Type-safe handler for the {{operationIdCamelCase}} operation
+ */
+export const {{nickname}}: {{operationIdCamelCase}}ChainedHandlerFunction = async (request) => {
+  LoggingInterceptor.getLogger(request).info("Start {{operationIdCamelCase}} Operation");
+
+  // `input` contains the request input
+  // `connectionId` is the ID of the connection which sent this request to the server.
+  // `sdk` is used to send messages to connected clients
+  const { input, connectionId, sdk } = request;
+
+  // TODO: Implement {{operationIdCamelCase}} Operation.
+};
+
+/**
+ * Entry point for the AWS Lambda handler for the {{operationIdCamelCase}} operation.
+ * The {{nickname}}Handler method wraps the type-safe handler and manages marshalling inputs
+ */
+export const handler = {{nickname}}Handler(...INTERCEPTORS, {{nickname}});
+
+{{~/startsWith}}
+{{~/if}}
+{{~/operation}}
+{{~/operations}}
+{{~/apis}}
+{{~/apiInfo}}

@@ -3,7 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { ProjectUtils } from "@aws/monorepo";
 import { Project } from "projen";
-import { Language, Library } from "../../languages";
+import { Language, Library, WebSocketLibrary } from "../../languages";
 import { MockResponseDataGenerationOptions } from "../../types";
 import { GeneratedHandlersProjects } from "../generate";
 import { RuntimeVersionUtils } from "../runtime-version-utils";
@@ -17,12 +17,26 @@ export enum OtherGenerators {
   TYPESCRIPT_CDK_INFRASTRUCTURE = "typescript-cdk-infrastructure",
   PYTHON_CDK_INFRASTRUCTURE = "python-cdk-infrastructure",
   JAVA_CDK_INFRASTRUCTURE = "java-cdk-infrastructure",
+  TYPESCRIPT_ASYNC_CDK_INFRASTRUCTURE = "typescript-async-cdk-infrastructure",
+  PYTHON_ASYNC_CDK_INFRASTRUCTURE = "python-async-cdk-infrastructure",
+  JAVA_ASYNC_CDK_INFRASTRUCTURE = "java-async-cdk-infrastructure",
   // Handlers
   TYPESCRIPT_LAMBDA_HANDLERS = "typescript-lambda-handlers",
   PYTHON_LAMBDA_HANDLERS = "python-lambda-handlers",
   JAVA_LAMBDA_HANDLERS = "java-lambda-handlers",
+  TYPESCRIPT_ASYNC_LAMBDA_HANDLERS = "typescript-async-lambda-handlers",
+  PYTHON_ASYNC_LAMBDA_HANDLERS = "python-async-lambda-handlers",
+  JAVA_ASYNC_LAMBDA_HANDLERS = "java-async-lambda-handlers",
+  // Async runtime
+  TYPESCRIPT_ASYNC_RUNTIME = "typescript-async-runtime",
+  PYTHON_ASYNC_RUNTIME = "python-async-runtime",
+  JAVA_ASYNC_RUNTIME = "java-async-runtime",
 }
 
+/**
+ * Built in scripts.
+ * If adding a script here, ensure you map it in TypeSafeApiProject (in /projenrc/projects)
+ */
 export enum TypeSafeApiScript {
   PARSE_OPENAPI_SPEC = "type-safe-api.parse-openapi-spec",
   GENERATE = "type-safe-api.generate",
@@ -30,12 +44,17 @@ export enum TypeSafeApiScript {
   GENERATE_HTML_REDOC_DOCS = "type-safe-api.generate-html-redoc-docs",
   CLEAN_OPENAPI_GENERATED_CODE = "type-safe-api.clean-openapi-generated-code",
   COPY_GRADLE_WRAPPER = "type-safe-api.copy-gradle-wrapper",
+  COPY_ASYNC_SMITHY_TRANSFORMER = "type-safe-api.copy-async-smithy-transformer",
 }
 
 /**
  * Generator directory for openapi generation containing templates, config etc.
  */
-export type GeneratorDirectory = Language | Library | OtherGenerators;
+export type GeneratorDirectory =
+  | Language
+  | Library
+  | WebSocketLibrary
+  | OtherGenerators;
 
 /**
  * Types of normalizers supported by openapi-generator

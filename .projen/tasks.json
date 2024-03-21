@@ -198,8 +198,12 @@
     },
     "upgrade-deps": {
       "name": "upgrade-deps",
-      "description": "Upgrade dependencies in the monorepo",
+      "description": "Upgrade dependencies in the monorepo for all affected projects",
       "steps": [
+        {
+          "exec": "pnpm exec nx run-many --target=upgrade --output-style=stream --nx-bail --projects=smithy-async-transformer",
+          "receiveArgs": true
+        },
         {
           "exec": "pnpm exec npm-check-updates --deep --rejectVersion 0.0.0 -u --dep prod,dev,peer,optional,bundle --target=minor"
         },
@@ -238,6 +242,9 @@
         },
         {
           "exec": "ln -s $PWD/packages/type-safe-api/scripts/type-safe-api/custom/clean-openapi-generated-code/clean-openapi-generated-code $(pnpm bin)/type-safe-api.clean-openapi-generated-code &>/dev/null; exit 0;"
+        },
+        {
+          "exec": "ln -s $PWD/packages/type-safe-api/scripts/type-safe-api/custom/smithy-async-transformer/copy-transformer $(pnpm bin)/type-safe-api.copy-async-smithy-transformer &>/dev/null; exit 0;"
         },
         {
           "exec": "ln -s $PWD/packages/type-safe-api/scripts/type-safe-api/custom/gradle-wrapper/copy-gradle-wrapper $(pnpm bin)/type-safe-api.copy-gradle-wrapper &>/dev/null; exit 0;"

@@ -1,0 +1,88 @@
+###TSAPI_SPLIT_FILE###
+{{#apiInfo ~}}
+{{#apis ~}}
+{{#operations ~}}
+{{#operation ~}}
+{{#if vendorExtensions.x-handler}}
+{{#startsWith vendorExtensions.x-handler.language 'java'}}
+###TSAPI_WRITE_FILE###
+{
+  "id": "{{operationIdCamelCase}}Handler",
+  "dir": ".",
+  "name": "{{operationIdCamelCase}}Handler",
+  "ext": ".java",
+  "overwrite": false
+}
+###/TSAPI_WRITE_FILE###package {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-handlers-package}}{{/apis.0}}{{/apiInfo}};
+
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.interceptors.DefaultInterceptors;
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.handlers.Interceptor;
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.handlers.{{operationIdSnakeCase}}.{{operationIdCamelCase}};
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.handlers.{{operationIdSnakeCase}}.{{operationIdCamelCase}}Input;
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.handlers.{{operationIdSnakeCase}}.{{operationIdCamelCase}}500Response;
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.handlers.{{operationIdSnakeCase}}.{{operationIdCamelCase}}RequestInput;
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.handlers.{{operationIdSnakeCase}}.{{operationIdCamelCase}}Response;
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.model.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+
+/**
+ * Entry point for the AWS Lambda handler for the {{operationIdCamelCase}} operation.
+ * The {{operationIdCamelCase}} class manages marshalling inputs and outputs.
+ */
+public class {{operationIdCamelCase}}Handler extends {{operationIdCamelCase}} {
+    /**
+     * Interceptors are initialised once during the lambda "init" phase
+     */
+    private final List<Interceptor<{{operationIdCamelCase}}Input>> interceptors = DefaultInterceptors.all();
+
+    /**
+     * Use the logger to log requests. The LoggingInterceptor sets up all loggers to include lambda context values in your logs.
+     */
+    private final Logger log = LogManager.getLogger({{operationIdCamelCase}}Handler.class);
+
+    /**
+     * Return the interceptors for this handler.
+     * You can also use the @Interceptors annotation on the class to add interceptors
+     */
+    @Override
+    public List<Interceptor<{{operationIdCamelCase}}Input>> getInterceptors() {
+        return this.interceptors;
+    }
+
+    /**
+     * This method is executed prior to the Java SnapStart snapshot being taken.
+     * Perform any warmup activities to "prime" your function here. Code in this function will be just-in-time compiled,
+     * before the snapshot is taken, and thus optimised ready for the first invocation.
+     * For example if your function interacts with DynamoDB, perform a simple read operation here.
+     * @see https://aws.amazon.com/blogs/compute/reducing-java-cold-starts-on-aws-lambda-functions-with-snapstart/
+     */
+    @Override
+    public void warmUp() {
+
+    }
+
+    /**
+     * Type-safe handler for the {{operationIdCamelCase}} operation
+     */
+    @Override
+    public {{operationIdCamelCase}}Response handle(final {{operationIdCamelCase}}RequestInput request) {
+        log.info("Start {{operationIdCamelCase}} Operation");
+
+        // TODO: Implement {{operationIdCamelCase}} Operation. `input` contains the request input.
+        {{operationIdCamelCase}}Input input = request.getInput();
+
+        return {{operationIdCamelCase}}500Response.of(InternalFailureErrorResponseContent.builder()
+                .message("Not Implemented!")
+                .build());
+    }
+}
+
+{{~/startsWith}}
+{{~/if}}
+{{~/operation}}
+{{~/operations}}
+{{~/apis}}
+{{~/apiInfo}}

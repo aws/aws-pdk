@@ -18,9 +18,17 @@ const SMITHY_RENAME_TRAITS = [
   "smithy.api#httpHeader",
 ];
 
-// Maps traits to specific vendor extensions which we also support specifying in OpenAPI
-const TRAIT_TO_SUPPORTED_OPENAPI_VENDOR_EXTENSION: { [key: string]: string } = {
+// Maps fully qualified traits to specific vendor extensions which we also support specifying in OpenAPI
+const FULLY_QUALIFIED_TRAIT_TO_SUPPORTED_OPENAPI_VENDOR_EXTENSION: { [key: string]: string } = {
   "smithy.api#paginated": PAGINATED_VENDOR_EXTENSION,
+};
+
+// Maps trait names to vendor extensions which we also support specifying in OpenAPI
+const TRAIT_NAME_TO_SUPPORTED_OPENAPI_VENDOR_EXTENSION: { [key: string]: string } = {
+  "handler": "x-handler",
+  "async": "x-async",
+  "connectHandler": "x-connect-handler",
+  "disconnectHandler": "x-disconnect-handler",
 };
 
 interface SmithyMember {
@@ -39,6 +47,11 @@ interface SmithyOperationDetails {
   readonly path: string;
   readonly traits: { [key: string]: any };
   readonly input?: SmithyOperationInput;
+}
+
+interface SmithyServiceDetails {
+  readonly id: string;
+  readonly traits: { [key: string]: any };
 }
 
 interface InvalidRequestParameter {
@@ -69,6 +82,15 @@ interface Arguments {
   readonly outputPath: string;
 }
 
+const getVendorExtensionFromTrait = (traitId: string): string => {
+  const [, name] = traitId.split('#');
+
+  // By default, we use x-<fully_qualified_trait_id> for the vendor extension, but for extensions we support
+  // directly from OpenAPI we apply a mapping (rather than repeat ourselves in the mustache templates).
+  return FULLY_QUALIFIED_TRAIT_TO_SUPPORTED_OPENAPI_VENDOR_EXTENSION[traitId]
+    ?? TRAIT_NAME_TO_SUPPORTED_OPENAPI_VENDOR_EXTENSION[name]
+    ?? `x-${traitId}`;
+};
 
 void (async () => {
   const args = parse<Arguments>({
@@ -84,6 +106,23 @@ void (async () => {
     const smithyModel = JSON.parse(
       fs.readFileSync(args.smithyJsonPath, "utf-8")
     );
+
+    // Retrieve all services from the smithy model
+    const services: SmithyServiceDetails[] = Object.entries(smithyModel.shapes).filter(([, shape]: [string, any]) =>
+      shape.type === "service" && shape.traits).map(([id, shape]: [string, any]) => ({
+        id,
+        traits: shape.traits,
+      }));
+
+    // Apply all service-level traits as vendor extensions at the top level of the spec
+    services.forEach((service) => {
+      Object.entries(service.traits).forEach(([traitId, value]) => {
+        const vendorExtension = getVendorExtensionFromTrait(traitId);
+        spec[vendorExtension] = value;
+      });
+    });
+
+    // Retrieve all operations from the smithy model
     const operations: SmithyOperationDetails[] = Object.entries(
       smithyModel.shapes
     )
@@ -105,16 +144,7 @@ void (async () => {
     operations.forEach((operation) => {
       if (spec.paths?.[operation.path]?.[operation.method]) {
         Object.entries(operation.traits).forEach(([traitId, value]) => {
-          // By default, we use x-<fully_qualified_trait_id> for the vendor extension, but for extensions we support
-          // directly from OpenAPI we apply a mapping (rather than repeat ourselves in the mustache templates).
-          let vendorExtension =
-            TRAIT_TO_SUPPORTED_OPENAPI_VENDOR_EXTENSION[traitId] ??
-            `x-${traitId}`;
-          // Special case for the handler trait where it's defined as part of the user's smithy model, so the namespace
-          // can be any namespace the user defines
-          if (traitId.endsWith("#handler")) {
-            vendorExtension = "x-handler";
-          }
+          const vendorExtension = getVendorExtensionFromTrait(traitId);
 
           let extensionValue = value;
 

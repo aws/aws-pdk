@@ -1,0 +1,359 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Typescript Async Infrastructure Code Generation Script Unit Tests Generates Functions for handlers.yaml 1`] = `
+"import { Construct } from "constructs";
+import { Duration } from "aws-cdk-lib";
+import { SnapStartFunction, SnapStartFunctionProps } from "@aws/pdk/type-safe-api";
+import { Code, Function, Runtime, Tracing, FunctionProps } from "aws-cdk-lib/aws-lambda";
+import * as path from "path";
+
+/**
+ * Options for the $ConnectFunction construct
+ */
+export interface $ConnectFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the typescript implementation for the websocket connect event
+ */
+export class $ConnectFunction extends Function {
+  constructor(scope: Construct, id: string, props?: $ConnectFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.NODEJS_18_X,
+      handler: "index.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../typescript-handlers/dist/lambda",
+        "$connect",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the $DisconnectFunction construct
+ */
+export interface $DisconnectFunctionProps extends Omit<SnapStartFunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the java implementation for the websocket disconnect event
+ */
+export class $DisconnectFunction extends SnapStartFunction {
+  constructor(scope: Construct, id: string, props?: $DisconnectFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.JAVA_17,
+      handler: "test.test-java-handlers.handlers.$DisconnectHandler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../java-handlers/dist/java/test/com.aws.pdk.test.handlers/1.0.0/com.aws.pdk.test.handlers-1.0.0.jar",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+
+/**
+ * Options for the JavaOneFunction construct
+ */
+export interface JavaOneFunctionProps extends Omit<SnapStartFunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the java implementation of JavaOne
+ */
+export class JavaOneFunction extends SnapStartFunction {
+  constructor(scope: Construct, id: string, props?: JavaOneFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.JAVA_17,
+      handler: "test.test-java-handlers.handlers.JavaOneHandler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../java-handlers/dist/java/test/com.aws.pdk.test.handlers/1.0.0/com.aws.pdk.test.handlers-1.0.0.jar",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the JavaTwoFunction construct
+ */
+export interface JavaTwoFunctionProps extends Omit<SnapStartFunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the java implementation of JavaTwo
+ */
+export class JavaTwoFunction extends SnapStartFunction {
+  constructor(scope: Construct, id: string, props?: JavaTwoFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.JAVA_17,
+      handler: "test.test-java-handlers.handlers.JavaTwoHandler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../java-handlers/dist/java/test/com.aws.pdk.test.handlers/1.0.0/com.aws.pdk.test.handlers-1.0.0.jar",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the PythonOneFunction construct
+ */
+export interface PythonOneFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the python implementation of PythonOne
+ */
+export class PythonOneFunction extends Function {
+  constructor(scope: Construct, id: string, props?: PythonOneFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.PYTHON_3_11,
+      handler: "test_python_handlers.python_one.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../python-handlers/dist/lambda",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the PythonTwoFunction construct
+ */
+export interface PythonTwoFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the python implementation of PythonTwo
+ */
+export class PythonTwoFunction extends Function {
+  constructor(scope: Construct, id: string, props?: PythonTwoFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.PYTHON_3_11,
+      handler: "test_python_handlers.python_two.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../python-handlers/dist/lambda",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the TypescriptOneFunction construct
+ */
+export interface TypescriptOneFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the typescript implementation of TypescriptOne
+ */
+export class TypescriptOneFunction extends Function {
+  constructor(scope: Construct, id: string, props?: TypescriptOneFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.NODEJS_18_X,
+      handler: "index.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../typescript-handlers/dist/lambda",
+        "typescript-one",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the TypescriptTwoFunction construct
+ */
+export interface TypescriptTwoFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the typescript implementation of TypescriptTwo
+ */
+export class TypescriptTwoFunction extends Function {
+  constructor(scope: Construct, id: string, props?: TypescriptTwoFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.NODEJS_18_X,
+      handler: "index.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../typescript-handlers/dist/lambda",
+        "typescript-two",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}"
+`;
+
+exports[`Typescript Async Infrastructure Code Generation Script Unit Tests Generates Functions for inline-body.yaml 1`] = `
+"import { Construct } from "constructs";
+import { Duration } from "aws-cdk-lib";
+import { SnapStartFunction, SnapStartFunctionProps } from "@aws/pdk/type-safe-api";
+import { Code, Function, Runtime, Tracing, FunctionProps } from "aws-cdk-lib/aws-lambda";
+import * as path from "path";
+
+
+
+
+/**
+ * Options for the JavaFunction construct
+ */
+export interface JavaFunctionProps extends Omit<SnapStartFunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the java implementation of Java
+ */
+export class JavaFunction extends SnapStartFunction {
+  constructor(scope: Construct, id: string, props?: JavaFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.JAVA_17,
+      handler: "test.test-java-handlers.handlers.JavaHandler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../java-handlers/dist/java/test/com.aws.pdk.test.handlers/1.0.0/com.aws.pdk.test.handlers-1.0.0.jar",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the PythonFunction construct
+ */
+export interface PythonFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the python implementation of Python
+ */
+export class PythonFunction extends Function {
+  constructor(scope: Construct, id: string, props?: PythonFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.PYTHON_3_11,
+      handler: "test_python_handlers.python.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../python-handlers/dist/lambda",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+/**
+ * Options for the TypeScriptOperationFunction construct
+ */
+export interface TypeScriptOperationFunctionProps extends Omit<FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the typescript implementation of TypeScriptOperation
+ */
+export class TypeScriptOperationFunction extends Function {
+  constructor(scope: Construct, id: string, props?: TypeScriptOperationFunctionProps) {
+    super(scope, id, {
+      runtime: Runtime.NODEJS_18_X,
+      handler: "index.handler",
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        "../typescript-handlers/dist/lambda",
+        "type-script",
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}"
+`;
+
+exports[`Typescript Async Infrastructure Code Generation Script Unit Tests Generates With single.yaml 1`] = `
+"import { TypeSafeWebsocketApi, TypeSafeWebsocketApiProps, TypeSafeWebsocketApiIntegration } from "@aws/pdk/type-safe-api";
+import { Construct } from "constructs";
+import { OperationConfig, OperationLookup } from "test-client";
+import * as path from "path";
+
+export type WebSocketApiIntegrations = OperationConfig<TypeSafeWebsocketApiIntegration>;
+
+export interface WebSocketApiProps extends Omit<TypeSafeWebsocketApiProps, "specPath" | "integrations" | "operationLookup"> {
+  readonly integrations: WebSocketApiIntegrations;
+}
+
+/**
+ * Type-safe construct for the API Gateway resources defined by your model.
+ * This construct is generated and should not be modified.
+ */
+export class WebSocketApi extends TypeSafeWebsocketApi {
+  constructor(scope: Construct, id: string, props: WebSocketApiProps) {
+    super(scope, id, {
+      ...props,
+      integrations: props.integrations as any,
+      operationLookup: OperationLookup,
+      specPath: path.resolve(__dirname, "../assets/api.json"),
+    });
+  }
+}
+"
+`;
+
+exports[`Typescript Async Infrastructure Code Generation Script Unit Tests Generates With single.yaml 2`] = `
+"import {
+  WebSocketMockIntegration,
+} from "aws-cdk-lib/aws-apigatewayv2-integrations";
+
+
+/**
+ * Type-safe mock integrations for WebSocket API operations
+ */
+export class MockIntegrations {
+
+  /**
+   * Mock all operations
+   */
+  public static mockAll() {
+    return {
+      anyRequest: {
+        integration: new WebSocketMockIntegration("MockAnyRequestIntegration"),
+      },
+      bidirectional: {
+        integration: new WebSocketMockIntegration("MockBidirectionalIntegration"),
+      },
+      clientToServer: {
+        integration: new WebSocketMockIntegration("MockClientToServerIntegration"),
+      },
+      empty: {
+        integration: new WebSocketMockIntegration("MockEmptyIntegration"),
+      },
+      mapRequest: {
+        integration: new WebSocketMockIntegration("MockMapRequestIntegration"),
+      },
+      mediaTypes: {
+        integration: new WebSocketMockIntegration("MockMediaTypesIntegration"),
+      },
+      multipleContentTypes: {
+        integration: new WebSocketMockIntegration("MockMultipleContentTypesIntegration"),
+      },
+      withoutOperationIdPost: {
+        integration: new WebSocketMockIntegration("MockWithoutOperationIdPostIntegration"),
+      },
+    };
+  }
+}
+"
+`;
+
+exports[`Typescript Async Infrastructure Code Generation Script Unit Tests Generates With single.yaml 3`] = `
+"export * from "./api";
+export * from "./functions";
+export * from "./mock-integrations";"
+`;

@@ -26,6 +26,69 @@ export interface SmithyAwsPdkPreludeOptions {
  * Synthesize the aws-pdk/prelude.smithy file
  */
 export class SmithyAwsPdkPrelude extends FileBase {
+  public static buildHandlerTraitValidators = (
+    namespace: string,
+    trait: string,
+    handlerLanguages?: Language[]
+  ): string => {
+    const hasAnyHandlerProjects = (handlerLanguages ?? []).length > 0;
+
+    const traitFqn = `${namespace}#${trait}`;
+    const configuredLanguagesValidator = hasAnyHandlerProjects
+      ? `
+    {
+      id: "ConfiguredHandlerProject_${trait}"
+      name: "EmitEachSelector"
+      configuration: {
+          bindToTrait: ${traitFqn}
+          selector: """
+              [@trait|${traitFqn}: @{language} = typescript, java, python]
+              :not([@trait|${traitFqn}: @{language} = ${handlerLanguages?.join(
+          ", "
+        )}])
+          """
+          messageTemplate: """
+              @@handler language @{trait|${traitFqn}|language} cannot be referenced unless a handler project is configured for this language.
+              Configured handler project languages are: ${handlerLanguages?.join(
+                ", "
+              )}.
+              You can add this language by configuring TypeSafeApiProject in your .projenrc
+          """
+      }
+    }`
+      : `{
+      id: "TraitNotPermitted_${trait}"
+      name: "EmitEachSelector"
+      configuration: {
+          bindToTrait: ${traitFqn}
+          selector: """
+              *
+          """
+          messageTemplate: """
+              @@${trait} trait cannot be used unless handler project languages have been configured.
+              You can add handler projects by configuring TypeSafeApiProject in your .projenrc
+          """
+      }
+  }`;
+
+    return `
+    {
+      id: "SupportedLanguage_${trait}"
+      name: "EmitEachSelector"
+      configuration: {
+          bindToTrait: ${traitFqn}
+          selector: """
+              :not([@trait|${traitFqn}: @{language} = typescript, java, python])
+          """
+          messageTemplate: """
+              @{trait|${traitFqn}|language} is not supported by type-safe-api.
+              Supported languages are "typescript", "java" and "python".
+          """
+      }
+    }
+    ${configuredLanguagesValidator}`;
+  };
+
   private readonly options: SmithyAwsPdkPreludeOptions;
 
   constructor(project: Project, options: SmithyAwsPdkPreludeOptions) {
@@ -44,72 +107,16 @@ export class SmithyAwsPdkPrelude extends FileBase {
     const hasAnyHandlerProjects =
       (this.options.handlerLanguages ?? []).length > 0;
 
-    const traitValidator = hasAnyHandlerProjects
-      ? `{
-        id: "ConfiguredHandlerProject"
-        name: "EmitEachSelector"
-        configuration: {
-            bindToTrait: ${this.options.serviceNamespace}#handler
-            selector: """
-                [@trait|${
-                  this.options.serviceNamespace
-                }#handler: @{language} = typescript, java, python]
-                :not([@trait|${
-                  this.options.serviceNamespace
-                }#handler: @{language} = ${this.options.handlerLanguages?.join(
-          ", "
-        )}])
-            """
-            messageTemplate: """
-                @@handler language @{trait|${
-                  this.options.serviceNamespace
-                }#handler|language} cannot be referenced unless a handler project is configured for this language.
-                Configured handler project languages are: ${this.options.handlerLanguages?.join(
-                  ", "
-                )}.
-                You can add this language by configuring TypeSafeApiProject in your .projenrc
-            """
-        }
-    }`
-      : `{
-        id: "TraitNotPermitted"
-        name: "EmitEachSelector"
-        configuration: {
-            bindToTrait: ${this.options.serviceNamespace}#handler
-            selector: """
-                *
-            """
-            messageTemplate: """
-                @@handler trait cannot be used unless handler project languages have been configured.
-                You can add handler projects by configuring TypeSafeApiProject in your .projenrc
-            """
-        }
-    }`;
-
     return `// ${this.marker}
 
 $version: "2"
 
 metadata validators = [
-    {
-        id: "SupportedLanguage"
-        name: "EmitEachSelector"
-        configuration: {
-            bindToTrait: ${this.options.serviceNamespace}#handler
-            selector: """
-                :not([@trait|${
-                  this.options.serviceNamespace
-                }#handler: @{language} = typescript, java, python])
-            """
-            messageTemplate: """
-                @{trait|${
-                  this.options.serviceNamespace
-                }#handler|language} is not supported by type-safe-api.
-                Supported languages are "typescript", "java" and "python".
-            """
-        }
-    }
-    ${traitValidator}
+    ${SmithyAwsPdkPrelude.buildHandlerTraitValidators(
+      this.options.serviceNamespace,
+      "handler",
+      this.options.handlerLanguages
+    )}
 ]
 
 namespace ${this.options.serviceNamespace}

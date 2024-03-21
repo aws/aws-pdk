@@ -1,0 +1,50 @@
+import {
+  {{#apiInfo}}
+  {{#models}}
+  {{#model}}
+  {{classname}},
+  {{/model}}
+  {{/models}}
+  {{/apiInfo}}
+  {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClient,
+} from "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-websocket-client-package-name}}{{/apis.0}}{{/apiInfo}}";
+import {
+  {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClientContext,
+} from "./provider";
+import { useContext, useEffect, useCallback, DependencyList } from "react";
+
+const NO_CLIENT_ERROR = new Error(`{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClient is missing. Please ensure you have instantiated the {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClientProvider with a client instance.`);
+
+/**
+ * Hook to retrieve the websocket client from the context
+ */
+export const use{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClient = () => {
+  const client = useContext({{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClientContext);
+  if (!client) {
+    throw NO_CLIENT_ERROR;
+  }
+  return client;
+};
+
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+{{#vendorExtensions.x-async-to-client}}
+/**
+ * Listen to {{operationIdCamelCase}} messages from the server
+ * Provided callback should use the useCallback hook to memoise the function
+ */
+export const useOn{{operationIdCamelCase}} = (callback: ({{#bodyParam}}{{#isPrimitiveType}}input: string{{/isPrimitiveType}}{{^isPrimitiveType}}input: {{dataType}}{{/isPrimitiveType}}{{/bodyParam}}) => void, deps: DependencyList) => {
+  const client = use{{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}WebSocketClient();
+  const cb = useCallback(callback, deps);
+  useEffect(() => {
+    return client.on{{operationIdCamelCase}}(cb);
+  }, [client, cb]);
+};
+
+{{/vendorExtensions.x-async-to-client}}
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}

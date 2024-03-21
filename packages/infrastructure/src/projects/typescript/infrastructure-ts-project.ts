@@ -4,7 +4,10 @@ import * as fs from "fs";
 import * as path from "path";
 import { CloudscapeReactTsWebsiteProject } from "@aws/cloudscape-react-ts-website";
 import { NxProject } from "@aws/monorepo";
-import { TypeSafeApiProject } from "@aws/type-safe-api";
+import {
+  TypeSafeApiProject,
+  TypeSafeWebSocketApiProject,
+} from "@aws/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
@@ -41,6 +44,11 @@ export interface InfrastructureTsProjectOptions
    * TypeSafeApi instances to use when setting up the initial project sample code.
    */
   readonly typeSafeApis?: TypeSafeApiProject[];
+
+  /**
+   * TypeSafeWebSocketApi instances to use when setting up the initial project sample code.
+   */
+  readonly typeSafeWebSocketApis?: TypeSafeWebSocketApiProject[];
 
   /**
    * CloudscapeReactTsWebsiteProject instances to use when setting up the initial project sample code.
@@ -93,6 +101,7 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
       ...(options.typeSafeApis || []),
       ...(options.typeSafeApi ? [options.typeSafeApi] : []),
     ];
+    const typeSafeWebSocketApis = options.typeSafeWebSocketApis ?? [];
     const cloudscapeReactTsWebsites = [
       ...(options.cloudscapeReactTsWebsites || []),
       ...(options.cloudscapeReactTsWebsite
@@ -100,7 +109,7 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
         : []),
     ];
 
-    typeSafeApis.forEach((tsApi) => {
+    [...typeSafeApis, ...typeSafeWebSocketApis].forEach((tsApi) => {
       if (!tsApi.infrastructure.typescript) {
         throw new Error(
           "Cannot pass in a Type Safe Api without Typescript Infrastructure configured!"
@@ -127,6 +136,9 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
     const mustacheConfig = {
       stackName: options.stackName || DEFAULT_STACK_NAME,
       typeSafeApis: this.generateTypeSafeMustacheConfig(typeSafeApis),
+      typeSafeWebSocketApis: this.generateTypeSafeMustacheConfig(
+        typeSafeWebSocketApis
+      ),
       cloudscapeReactTsWebsites: cloudscapeReactTsWebsites.map((csWebsite) => {
         const websiteName = this.capitalize(
           csWebsite.package.packageName
@@ -143,6 +155,9 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
           typeSafeApis: this.generateTypeSafeMustacheConfig(
             csWebsite.typeSafeApis
           ),
+          typeSafeWebSocketApis: this.generateTypeSafeMustacheConfig(
+            csWebsite.typeSafeWebSocketApis
+          ),
         };
       }),
     };
@@ -158,8 +173,10 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
     eslintTask && this.testTask.spawn(eslintTask);
   }
 
-  private generateTypeSafeMustacheConfig(typeSafeApis?: TypeSafeApiProject[]) {
-    return typeSafeApis?.map((tsApi, idx) => {
+  private generateTypeSafeMustacheConfig(
+    typeSafeApis?: (TypeSafeApiProject | TypeSafeWebSocketApiProject)[]
+  ) {
+    return (typeSafeApis ?? []).map((tsApi, idx) => {
       const apiName = this.capitalize(
         tsApi.model
           .apiName!.replace(/[^a-z0-9_]+/gi, "")
@@ -169,7 +186,7 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
         apiName,
         apiNameLowercase: apiName?.toLowerCase(),
         infraPackage: tsApi.infrastructure.typescript?.package.packageName,
-        isLast: idx === typeSafeApis.length - 1,
+        isLast: idx === typeSafeApis!.length - 1,
       };
     });
   }
@@ -190,6 +207,19 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
           [...pathPrefixes, f.name],
           mustacheConfig
         );
+      } else if (f.name.endsWith("websocketapi.ts.mustache")) {
+        mustacheConfig.typeSafeWebSocketApis.forEach((tsApi: any) => {
+          new SampleFile(
+            this,
+            `${path.join(...pathPrefixes, `${tsApi.apiNameLowercase}.ts`)}`,
+            {
+              contents: Mustache.render(
+                fs.readFileSync(`${dir}/${f.name}`).toString(),
+                tsApi
+              ),
+            }
+          );
+        });
       } else if (f.name.endsWith("api.ts.mustache")) {
         mustacheConfig.typeSafeApis.forEach((tsApi: any) => {
           new SampleFile(

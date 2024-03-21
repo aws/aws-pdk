@@ -1238,6 +1238,8 @@ import { NorthStarThemeProvider } from "@aws-northstar/ui";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import { I18nProvider } from '@cloudscape-design/components/i18n';
+import messages from '@cloudscape-design/components/i18n/messages/all.en';
 import Auth from "./components/Auth";
 import RuntimeContextProvider from "./components/RuntimeContext";
 import App from "./layouts/App";
@@ -1245,13 +1247,15 @@ import App from "./layouts/App";
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <NorthStarThemeProvider>
+      <I18nProvider locale="en" messages={[messages]}>
       <BrowserRouter>
         <RuntimeContextProvider>
           <Auth>
-            <App />
+              <App />
           </Auth>
         </RuntimeContextProvider>
       </BrowserRouter>
+      </I18nProvider>
     </NorthStarThemeProvider>
   </React.StrictMode>
 );
@@ -1377,6 +1381,8 @@ const App: React.FC = () => {
           />
         }
         content={<Routes />}
+        splitPanelOpen={false}
+        splitPanelPreferences={{ position: 'bottom' }}
         {...appLayoutProps}
       />
     </AppLayoutContext.Provider>
@@ -1420,22 +1426,20 @@ import {
   ContentLayout,
   Header,
   SpaceBetween,
-  // Spinner,
 } from "@cloudscape-design/components";
-// import { useSayHello } from "myapi-typescript-react-query-hooks";
 
 /**
  * Component to render the home "/" route.
  */
 const Home: React.FC = () => {
-  // const sayHello = useSayHello({ name: "World" });
+
+
 
   return (
     <ContentLayout header={<Header>Home</Header>}>
       <SpaceBetween size="l">
         <Container>
           Hello World!
-          {/* {sayHello.isLoading ? <Spinner /> : <>{sayHello.data?.message}</>} */}
         </Container>
       </SpaceBetween>
     </ContentLayout>
@@ -2780,6 +2784,8 @@ import { NorthStarThemeProvider } from "@aws-northstar/ui";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import { I18nProvider } from '@cloudscape-design/components/i18n';
+import messages from '@cloudscape-design/components/i18n/messages/all.en';
 import Auth from "./components/Auth";
 import RuntimeContextProvider from "./components/RuntimeContext";
 import App from "./layouts/App";
@@ -2787,13 +2793,15 @@ import App from "./layouts/App";
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <NorthStarThemeProvider>
+      <I18nProvider locale="en" messages={[messages]}>
       <BrowserRouter>
         <RuntimeContextProvider>
           <Auth>
-            <App />
+              <App />
           </Auth>
         </RuntimeContextProvider>
       </BrowserRouter>
+      </I18nProvider>
     </NorthStarThemeProvider>
   </React.StrictMode>
 );
@@ -2919,6 +2927,8 @@ const App: React.FC = () => {
           />
         }
         content={<Routes />}
+        splitPanelOpen={false}
+        splitPanelPreferences={{ position: 'bottom' }}
         {...appLayoutProps}
       />
     </AppLayoutContext.Provider>
@@ -2962,22 +2972,20 @@ import {
   ContentLayout,
   Header,
   SpaceBetween,
-  // Spinner,
 } from "@cloudscape-design/components";
-// import { useSayHello } from "myapi-typescript-react-query-hooks";
 
 /**
  * Component to render the home "/" route.
  */
 const Home: React.FC = () => {
-  // const sayHello = useSayHello({ name: "World" });
+
+
 
   return (
     <ContentLayout header={<Header>Home</Header>}>
       <SpaceBetween size="l">
         <Container>
           Hello World!
-          {/* {sayHello.isLoading ? <Spinner /> : <>{sayHello.data?.message}</>} */}
         </Container>
       </SpaceBetween>
     </ContentLayout>
@@ -3343,6 +3351,10 @@ tsconfig.tsbuildinfo
         "type": "build",
       },
       {
+        "name": "@types/uuid",
+        "type": "build",
+      },
+      {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
         "version": "^6",
@@ -3402,7 +3414,19 @@ tsconfig.tsbuildinfo
         "version": "4.17.13",
       },
       {
+        "name": "@aws-crypto/sha256-js",
+        "type": "runtime",
+      },
+      {
         "name": "@aws-northstar/ui",
+        "type": "runtime",
+      },
+      {
+        "name": "@aws-sdk/protocol-http",
+        "type": "runtime",
+      },
+      {
+        "name": "@aws-sdk/signature-v4",
         "type": "runtime",
       },
       {
@@ -3443,6 +3467,10 @@ tsconfig.tsbuildinfo
         "name": "testapi-typescript-react-query-hooks",
         "type": "runtime",
         "version": "0.0.0",
+      },
+      {
+        "name": "uuid",
+        "type": "runtime",
       },
       {
         "name": "web-vitals",
@@ -3599,13 +3627,13 @@ tsconfig.tsbuildinfo
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@testing-library/jest-dom,@testing-library/react,@testing-library/user-event,@types/jest,@types/react,@types/react-dom,@types/swagger-ui-react,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,prettier,projen,@aws-northstar/ui,@cloudscape-design/board-components,@cloudscape-design/components,aws4fetch,react,react-dom,react-router-dom,swagger-ui-react,testapi-typescript-react-query-hooks,web-vitals",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@testing-library/jest-dom,@testing-library/react,@testing-library/user-event,@types/jest,@types/react,@types/react-dom,@types/swagger-ui-react,@types/uuid,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,prettier,projen,@aws-crypto/sha256-js,@aws-northstar/ui,@aws-sdk/protocol-http,@aws-sdk/signature-v4,@cloudscape-design/board-components,@cloudscape-design/components,aws4fetch,react,react-dom,react-router-dom,swagger-ui-react,testapi-typescript-react-query-hooks,uuid,web-vitals",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @testing-library/jest-dom @testing-library/react @testing-library/user-event @types/jest @types/node @types/react @types/react-dom @types/swagger-ui-react @typescript-eslint/eslint-plugin @typescript-eslint/parser constructs eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint prettier projen typescript @aws-northstar/ui @cloudscape-design/board-components @cloudscape-design/components aws4fetch react react-dom react-router-dom react-scripts swagger-ui-react testapi-typescript-react-query-hooks web-vitals",
+            "exec": "yarn upgrade @testing-library/jest-dom @testing-library/react @testing-library/user-event @types/jest @types/node @types/react @types/react-dom @types/swagger-ui-react @types/uuid @typescript-eslint/eslint-plugin @typescript-eslint/parser constructs eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint prettier projen typescript @aws-crypto/sha256-js @aws-northstar/ui @aws-sdk/protocol-http @aws-sdk/signature-v4 @cloudscape-design/board-components @cloudscape-design/components aws4fetch react react-dom react-router-dom react-scripts swagger-ui-react testapi-typescript-react-query-hooks uuid web-vitals",
           },
           {
             "exec": "npx projen",
@@ -3847,7 +3875,10 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/clouds
       ],
     },
     "dependencies": {
+      "@aws-crypto/sha256-js": "*",
       "@aws-northstar/ui": "*",
+      "@aws-sdk/protocol-http": "*",
+      "@aws-sdk/signature-v4": "*",
       "@cloudscape-design/board-components": "*",
       "@cloudscape-design/components": "*",
       "aws4fetch": "*",
@@ -3857,6 +3888,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/clouds
       "react-scripts": "^5",
       "swagger-ui-react": "5.5.0",
       "testapi-typescript-react-query-hooks": "0.0.0",
+      "uuid": "*",
       "web-vitals": "*",
     },
     "devDependencies": {
@@ -3868,6 +3900,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/clouds
       "@types/react": "*",
       "@types/react-dom": "*",
       "@types/swagger-ui-react": "*",
+      "@types/uuid": "*",
       "@typescript-eslint/eslint-plugin": "^6",
       "@typescript-eslint/parser": "^6",
       "constructs": "^10.0.0",
@@ -4057,6 +4090,750 @@ const TypeSafeApiClientProvider: React.FC<any> = ({ children }) => {
 
 export default TypeSafeApiClientProvider;
 ",
+  "src/components/WebSocketApiExplorer/index.tsx": "import { Sha256 } from "@aws-crypto/sha256-js";
+import { useCognitoAuthContext } from "@aws-northstar/ui";
+import getCredentials from "@aws-northstar/ui/components/CognitoAuth/hooks/useSigv4Client/utils/getCredentials";
+import { HttpRequest } from "@aws-sdk/protocol-http";
+import { SignatureV4 } from "@aws-sdk/signature-v4";
+import {
+  AppLayoutProps,
+  Badge,
+  Button,
+  ExpandableSection,
+  Form,
+  FormField,
+  Header,
+  SpaceBetween,
+  Spinner,
+  SplitPanel,
+  Table,
+  TextContent,
+  TextFilter,
+  Textarea,
+} from "@cloudscape-design/components";
+import {
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import SwaggerUI from "swagger-ui-react";
+import { v4 as uuid } from "uuid";
+import { AppLayoutContext } from "../../layouts/App";
+import "./style.css";
+
+export interface WebSocketExplorerProps {
+  readonly selectedApi: string;
+  readonly spec: any;
+}
+
+export const WebSocketExplorer: FC<WebSocketExplorerProps> = ({
+  spec,
+  selectedApi,
+}) => {
+  const inlinedRefSpec = useMemo(() => {
+    return resolveAllRefs(spec);
+  }, [spec]);
+
+  const client = useGenericWebSocketClient(spec.url);
+  return client ? (
+    <ConnectedWebSocketExplorer
+      client={client}
+      spec={inlinedRefSpec}
+      selectedApi={selectedApi}
+    />
+  ) : (
+    <Spinner size="large" />
+  );
+};
+
+export interface ConnectedWebSocketExplorerProps
+  extends WebSocketExplorerProps {
+  readonly client: GenericWebSocketClient;
+}
+
+enum MessageDirection {
+  CLIENT_TO_SERVER = "CLIENT_TO_SERVER",
+  SERVER_TO_CLIENT = "SERVER_TO_CLIENT",
+}
+
+interface EventLogItem {
+  readonly direction: MessageDirection;
+  readonly isError?: boolean;
+  readonly route: string;
+  readonly timestamp: Date;
+  readonly payload: string;
+}
+
+const ConnectedWebSocketExplorer: FC<ConnectedWebSocketExplorerProps> = ({
+  client,
+  spec,
+}) => {
+  const clientToServerOps = useMemo(() => {
+    const ops: { [routeKey: string]: any } = {};
+    Object.entries(spec.paths).forEach(([path, methods]) => {
+      const routeKey = path.replace(/\\//g, "");
+      const method = Object.values(methods as any)[0] as any;
+      if (
+        ["client_to_server", "bidirectional"].includes(
+          method?.["x-async"]?.direction,
+        )
+      ) {
+        ops[routeKey] = method;
+      }
+    });
+    return ops;
+  }, [spec]);
+
+  const [eventLog, setEventLog] = useState<EventLogItem[]>([]);
+
+  const onMessage = useCallback(
+    (route: string, payload?: any) => {
+      let payloadJson = typeof payload === "string" ? payload : "";
+      try {
+        payloadJson = JSON.stringify(payload, null, 2);
+      } catch {}
+      setEventLog((prev) => [
+        ...prev,
+        {
+          route,
+          timestamp: new Date(),
+          payload: payloadJson,
+          direction: MessageDirection.SERVER_TO_CLIENT,
+        },
+      ]);
+    },
+    [setEventLog],
+  );
+
+  const onError = useCallback(
+    (error: WebSocketError) => {
+      setEventLog((prev) => [
+        ...prev,
+        {
+          isError: true,
+          route: "Error",
+          timestamp: new Date(),
+          payload: error.message,
+          direction: MessageDirection.SERVER_TO_CLIENT,
+        },
+      ]);
+    },
+    [setEventLog],
+  );
+
+  useEffect(() => {
+    return client.$onAnyMessage(onMessage);
+  }, [onMessage, client]);
+
+  useEffect(() => {
+    return client.$onError(onError);
+  }, [onError, client]);
+
+  const send = useCallback(
+    (routeKey: string, payload?: any) => {
+      void client.$send(routeKey, payload);
+      let payloadJson = typeof payload === "string" ? payload : "";
+      try {
+        payloadJson = JSON.stringify(payload, null, 2);
+      } catch {}
+      setEventLog((prev) => [
+        ...prev,
+        {
+          route: routeKey,
+          timestamp: new Date(),
+          payload: payloadJson,
+          direction: MessageDirection.CLIENT_TO_SERVER,
+        },
+      ]);
+    },
+    [client, setEventLog],
+  );
+
+  const [panelOpen, setPanelOpen] = useState(true);
+  const [preferences, setPreferences] =
+    useState<AppLayoutProps.SplitPanelPreferences>({
+      position: "bottom",
+    });
+
+  const [filterText, setFilterText] = useState("");
+
+  const { setAppLayoutProps, appLayoutProps } = useContext(AppLayoutContext);
+  useEffect(() => {
+    setAppLayoutProps({
+      splitPanelOpen: panelOpen,
+      onSplitPanelToggle: (e) => setPanelOpen(e.detail.open),
+      splitPanelPreferences: preferences,
+      onSplitPanelPreferencesChange: (e) => setPreferences(e.detail),
+      splitPanel: (
+        <SplitPanel header="Message Log">
+          <Table
+            filter={
+              <TextFilter
+                filteringText={filterText}
+                onChange={(e) => setFilterText(e.detail.filteringText)}
+              />
+            }
+            header={
+              <Header
+                actions={
+                  <Button
+                    variant="icon"
+                    iconName="remove"
+                    onClick={() => setEventLog([])}
+                  ></Button>
+                }
+              >
+                Messages
+              </Header>
+            }
+            variant="embedded"
+            columnDefinitions={[
+              {
+                header: "Timestamp",
+                cell: (item) => item.timestamp.toISOString(),
+              },
+              {
+                header: "Operation",
+                cell: (item) => (
+                  <Badge
+                    color={
+                      item.isError
+                        ? "red"
+                        : item.direction === MessageDirection.SERVER_TO_CLIENT
+                          ? "blue"
+                          : "grey"
+                    }
+                  >
+                    {item.route}
+                  </Badge>
+                ),
+              },
+              {
+                header: "Payload",
+                cell: (item) => (
+                  <TextContent>
+                    <code>{item.payload}</code>
+                  </TextContent>
+                ),
+              },
+            ]}
+            items={[...eventLog]
+              .filter(
+                (item) =>
+                  item.timestamp.toISOString().includes(filterText) ||
+                  item.payload.includes(filterText) ||
+                  item.route.includes(filterText),
+              )
+              .reverse()}
+          />
+        </SplitPanel>
+      ),
+    });
+  }, [
+    appLayoutProps,
+    setAppLayoutProps,
+    eventLog,
+    panelOpen,
+    setPanelOpen,
+    preferences,
+    setPreferences,
+    filterText,
+    setFilterText,
+  ]);
+
+  useEffect(() => {
+    return () => setAppLayoutProps({});
+  }, []);
+
+  return (
+    <SpaceBetween size="l">
+      {Object.entries(clientToServerOps).map(([routeKey, op]) => (
+        <ClientToServerOperation
+          key={routeKey}
+          routeKey={routeKey}
+          op={op}
+          send={send}
+        />
+      ))}
+    </SpaceBetween>
+  );
+};
+
+export interface ClientToServerOperationProps {
+  readonly routeKey: string;
+  readonly send: (routeKey: string, payload?: any) => void;
+  readonly op: any;
+}
+
+export const ClientToServerOperation: FC<ClientToServerOperationProps> = ({
+  routeKey,
+  send,
+  op,
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  const [value, setValue] = useState<string>(getSample(op)); // TODO: start with sample data matching op request body
+
+  const jsonValue = useMemo(() => {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return undefined;
+    }
+  }, [value]);
+
+  return (
+    <ExpandableSection
+      variant="container"
+      expanded={expanded}
+      onChange={(e) => setExpanded(e.detail.expanded)}
+      headerActions={
+        expanded ? (
+          <Button
+            variant="primary"
+            disabled={!jsonValue}
+            onClick={() => send(routeKey, jsonValue)}
+          >
+            Send
+          </Button>
+        ) : null
+      }
+      headerText={routeKey}
+    >
+      {op.description ? <TextContent>{op.description}</TextContent> : null}
+      <Form>
+        <FormField
+          errorText={!jsonValue ? "Payload is not valid json" : undefined}
+        >
+          <div className="websocket-api-explorer-input">
+            <Textarea
+              value={value}
+              onChange={(e) => setValue(e.detail.value)}
+              rows={Math.min(
+                Math.max((value?.split("\\n") ?? []).length, 3),
+                25,
+              )}
+            />
+          </div>
+        </FormField>
+      </Form>
+    </ExpandableSection>
+  );
+};
+
+const getSample = (op: any): string => {
+  const schema = op.requestBody?.content?.["application/json"]?.schema;
+  if (!schema) {
+    return "{}";
+  }
+  const sample = (
+    SwaggerUI as any
+  ).plugins?.CorePluginsSamplesFnIndex?.memoizedSampleFromSchema?.(schema);
+  return JSON.stringify(sample ?? {}, null, 2);
+};
+
+const _get = (object: any | undefined, paths: string[]): any => {
+  if (typeof object === "undefined") {
+    return undefined;
+  }
+  if (paths.length === 0) {
+    return object;
+  }
+  return _get(object[paths[0]], paths.slice(1));
+};
+
+/**
+ * Split a reference into its component parts
+ * eg: #/components/schemas/Foo -> ["components", "schemas", "Foo"]
+ */
+const splitRef = (ref: string): string[] =>
+  ref
+    .slice(2)
+    .split("/")
+    .map((p) => p.replace(/~0/g, "~").replace(/~1/g, "/"));
+
+/**
+ * Resolve the given reference in the spec
+ */
+const resolveRef = (spec: any, ref: string): any => {
+  const refParts = splitRef(ref);
+  const resolved = _get(spec, refParts);
+  if (!resolved) {
+    throw new Error(\`Unable to resolve ref \${ref} in spec\`);
+  }
+  return resolved;
+};
+
+const MAX_DEPTH = 20;
+
+const resolveAllRefs = (spec: any) => {
+  const resolutions: { [key: string]: number } = {};
+  return JSON.parse(
+    JSON.stringify(spec, (k, v: any) => {
+      if (typeof v === "object" && v?.$ref) {
+        const resolutionKey = \`\${k}:\${v.$ref}\`;
+        if (resolutions[resolutionKey] === undefined) {
+          resolutions[resolutionKey] = 0;
+        }
+        if (++resolutions[resolutionKey] >= MAX_DEPTH) {
+          return v;
+        }
+        return structuredClone(resolveRef(spec, v.$ref));
+      }
+      return v;
+    }),
+  );
+};
+
+const useGenericWebSocketClient = (url: string) => {
+  const { getAuthenticatedUser, region, identityPoolId, userPoolId } =
+    useCognitoAuthContext();
+
+  const [client, setClient] = useState<GenericWebSocketClient>();
+
+  useEffect(() => {
+    if (
+      !region ||
+      !getAuthenticatedUser ||
+      !getAuthenticatedUser() ||
+      client ||
+      !url
+    ) {
+      return;
+    }
+    void (async () => {
+      setClient(
+        await GenericWebSocketClient.connect({
+          url,
+          authentication: {
+            iam: {
+              region,
+              credentials: () =>
+                getCredentials(
+                  getAuthenticatedUser()!,
+                  region,
+                  identityPoolId,
+                  userPoolId,
+                ),
+            },
+          },
+        }),
+      );
+    })();
+  }, [region, getAuthenticatedUser, setClient, client, url]);
+
+  return client;
+};
+
+/**
+ * Options for the client
+ */
+export interface GenericWebSocketClientOptions {
+  /**
+   * Websocket url to connect to (wss://xxxx)
+   */
+  readonly url: string;
+
+  readonly authentication: { iam: IamAuthenticationStrategy };
+}
+
+interface IamAuthenticationStrategy {
+  credentials: any;
+  region: string;
+}
+
+enum SocketStatus {
+  CONNECTED = "CONNECTED",
+  DISCONNECTED = "DISCONNECTED",
+  CONNECTING = "CONNECTING",
+}
+
+interface QueuedMessage {
+  readonly message: string;
+  readonly resolve: () => void;
+  readonly reject: () => void;
+}
+
+interface AllMessagesListener {
+  readonly id: string;
+  readonly listener: (route: string, payload?: any) => void;
+}
+
+export interface WebSocketError {
+  readonly message: string;
+}
+
+interface ErrorListener {
+  readonly id: string;
+  readonly listener: (error: WebSocketError) => void;
+}
+
+/**
+ * Generic websocket client for interacting with any api
+ * Please use the type-safe one from your generated client library!
+ */
+class GenericWebSocketClient {
+  /**
+   * Create a new WebSocket connection to the server
+   */
+  public static connect = async (options: GenericWebSocketClientOptions) => {
+    const client = new GenericWebSocketClient(options);
+    await client.$connect();
+    return client;
+  };
+
+  private readonly options: GenericWebSocketClientOptions;
+
+  private socket: WebSocket | undefined;
+  private status: SocketStatus = SocketStatus.CONNECTING;
+  private readonly messageQueue: QueuedMessage[] = [];
+  private allMessageListeners: AllMessagesListener[] = [];
+  private errorListeners: ErrorListener[] = [];
+  private connectionAttempt: number = 0;
+  private lastConnected: number = Date.now();
+
+  private constructor(options: GenericWebSocketClientOptions) {
+    this.options = options;
+  }
+
+  private _signConnectionUrl = async (iam: IamAuthenticationStrategy) => {
+    const url = new URL(this.options.url);
+
+    const request = new HttpRequest({
+      hostname: url.hostname,
+      method: "GET",
+      path: url.pathname,
+      protocol: url.protocol,
+      headers: {
+        host: url.hostname,
+      },
+      query: Object.fromEntries((url.searchParams ?? {}) as any),
+    });
+
+    const sigv4 = new SignatureV4({
+      credentials: iam.credentials,
+      service: "execute-api",
+      region: iam.region,
+      sha256: Sha256,
+    });
+
+    const signedRequest = await sigv4.presign(request);
+
+    Object.keys(signedRequest.query ?? {}).forEach((param) => {
+      const value = (signedRequest.query ?? {})[param];
+      if (value) {
+        url.searchParams.set(param, value as any);
+      }
+    });
+
+    return url.toString();
+  };
+
+  private _sleep = async (ms: number) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  };
+
+  private _onClose = async () => {
+    this.socket!.onclose = null;
+    this.socket!.onmessage = null;
+    this.socket!.onerror = null;
+
+    // After 10 seconds, reset the number of retries so stale connections are always refreshed
+    if (Date.now() - this.lastConnected > 10000) {
+      this.connectionAttempt = 0;
+    }
+
+    if (this.connectionAttempt >= 3) {
+      this._onDisconnect();
+      const message = "Connection failed after maximum number of retries";
+      this.errorListeners.forEach(({ listener }) => listener({ message }));
+      throw new Error(message);
+    }
+
+    this.connectionAttempt++;
+
+    await this._sleep(2 ** this.connectionAttempt * 10);
+
+    await this._connect();
+  };
+
+  private _onMessage = async (event: any) => {
+    if (typeof event.data !== "string" || !event.data) {
+      return;
+    }
+
+    try {
+      const data = JSON.parse(event.data);
+
+      if ("message" in data && typeof data.message === "string") {
+        this.errorListeners.forEach(({ listener }) =>
+          listener({ message: data.message }),
+        );
+      } else if ("route" in data) {
+        this.allMessageListeners.forEach(({ listener }) =>
+          listener(data.route, data.payload),
+        );
+      } else {
+        this.errorListeners.forEach(({ listener }) =>
+          listener({ message: \`Unexpected data received \${event.data}\` }),
+        );
+      }
+    } catch (e: any) {
+      this.errorListeners.forEach(({ listener }) =>
+        listener({ message: \`Failed to parse received data \${event.data}\` }),
+      );
+    }
+  };
+
+  private _onError = async (error: any) => {
+    this.errorListeners.forEach(({ listener }) =>
+      listener({ message: error.message }),
+    );
+  };
+
+  private _sendOrQueueMessage = (
+    route: string,
+    payload?: any,
+  ): Promise<void> => {
+    const message = JSON.stringify({ route, payload });
+    if (this.status === SocketStatus.CONNECTED) {
+      this._send(message);
+      return Promise.resolve();
+    } else if (this.status === SocketStatus.DISCONNECTED) {
+      return Promise.reject(
+        new Error(
+          "The socket is not connected. Please call $connect before sending messages",
+        ),
+      );
+    }
+    // Status is CONNECTING, queue the message
+    return new Promise((resolve, reject) => {
+      this.messageQueue.push({ message, resolve, reject });
+    });
+  };
+
+  private _flushMessageQueue = () => {
+    while (this.messageQueue.length > 0) {
+      const { message, resolve } = this.messageQueue.shift()!;
+      this._send(message);
+      resolve();
+    }
+  };
+
+  private _rejectMessageQueue = () => {
+    while (this.messageQueue.length > 0) {
+      const { reject } = this.messageQueue.shift()!;
+      reject();
+    }
+  };
+
+  private _send = (message: string) => {
+    this.socket!.send(message);
+  };
+
+  private _connect = async (): Promise<void> => {
+    this.status = SocketStatus.CONNECTING;
+    const url = await this._signConnectionUrl(this.options.authentication.iam);
+
+    // Create the socket and wait for it to open (or immediately close)
+    this.socket = new WebSocket(url);
+    await (() => {
+      return new Promise<void>((resolve, reject) => {
+        this.socket!.onopen = () => {
+          resolve();
+        };
+        this.socket!.onclose = (event: any) => {
+          // WebSocket closed immediately
+          reject(event);
+        };
+      });
+    })();
+    this.socket.onmessage = this._onMessage;
+    this.socket.onerror = this._onError;
+    this.socket.onclose = this._onClose;
+    this._flushMessageQueue();
+    this.status = SocketStatus.CONNECTED;
+    this.lastConnected = Date.now();
+  };
+
+  /**
+   * Establish a connection to the server
+   */
+  public $connect = async (): Promise<void> => {
+    this.connectionAttempt = 0;
+    await this._connect();
+  };
+
+  private _onDisconnect = () => {
+    this.status = SocketStatus.DISCONNECTED;
+    this._rejectMessageQueue();
+  };
+
+  /**
+   * Disconnect from the server. You must explicitly call $connect to re-establish the connection
+   */
+  public $disconnect = async () => {
+    if (this.socket) {
+      this._onDisconnect();
+      await (() =>
+        new Promise((resolve) => {
+          this.socket!.onclose = resolve;
+          this.socket!.close();
+        }))();
+      this.socket.onclose = null;
+      this.socket.onmessage = null;
+      this.socket.onerror = null;
+    }
+  };
+
+  /**
+   * Register a callback to be called whenever an error occurs.
+   * @returns a function which will remove the listener when called.
+   */
+  public $onError = (listener: (err: WebSocketError) => void) => {
+    const listenerId = uuid();
+    this.errorListeners.push({
+      id: listenerId,
+      listener,
+    });
+    return () => {
+      this.errorListeners = this.errorListeners.filter(
+        ({ id }) => id !== listenerId,
+      );
+    };
+  };
+
+  /**
+   * Register a callback to be called whenever any message is received.
+   */
+  public $onAnyMessage = (listener: (route: string, payload?: any) => void) => {
+    const listenerId = uuid();
+    this.allMessageListeners.push({
+      id: listenerId,
+      listener,
+    });
+    return () => {
+      this.allMessageListeners = this.allMessageListeners.filter(
+        ({ id }) => id !== listenerId,
+      );
+    };
+  };
+
+  /**
+   * Send a message to the server
+   */
+  public $send = async (route: string, payload: any): Promise<void> => {
+    await this._sendOrQueueMessage(route, payload);
+  };
+}
+",
+  "src/components/WebSocketApiExplorer/style.css": ".websocket-api-explorer-input > span > textarea {
+  font-size: 12px !important;
+  font-family: Monaco, Menlo, Consolas, "Courier Prime", Courier, "Courier New", monospace !important;
+}
+",
   "src/config.json": {
     "applicationName": "WithAPI",
     "logo": "data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KDTwhLS0gVXBsb2FkZWQgdG86IFNWRyBSZXBvLCB3d3cuc3ZncmVwby5jb20sIFRyYW5zZm9ybWVkIGJ5OiBTVkcgUmVwbyBNaXhlciBUb29scyAtLT4KPHN2ZyBmaWxsPSIjMjQ4YmFlIiB3aWR0aD0iODAwcHgiIGhlaWdodD0iODAwcHgiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0cm9rZT0iIzI0OGJhZSI+Cg08ZyBpZD0iU1ZHUmVwb19iZ0NhcnJpZXIiIHN0cm9rZS13aWR0aD0iMCIvPgoNPGcgaWQ9IlNWR1JlcG9fdHJhY2VyQ2FycmllciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cg08ZyBpZD0iU1ZHUmVwb19pY29uQ2FycmllciI+Cg08dGl0bGU+aW9uaWNvbnMtdjVfbG9nb3M8L3RpdGxlPgoNPHBhdGggZD0iTTQxMC42NiwxODAuNzJoMHEtNy42Ny0yLjYyLTE1LjQ1LTQuODgsMS4yOS01LjI1LDIuMzgtMTAuNTZjMTEuNy01Ni45LDQuMDUtMTAyLjc0LTIyLjA2LTExNy44My0yNS0xNC40OC02NiwuNjEtMTA3LjM2LDM2LjY5cS02LjEsNS4zNC0xMS45NSwxMS0zLjktMy43Ni04LTcuMzZjLTQzLjM1LTM4LjU4LTg2LjgtNTQuODMtMTEyLjg4LTM5LjY5LTI1LDE0LjUxLTMyLjQzLDU3LjYtMjEuOSwxMTEuNTNxMS41OCw4LDMuNTUsMTUuOTNjLTYuMTUsMS43NS0xMi4wOSwzLjYyLTE3Ljc3LDUuNkM0OC40NiwxOTguOSwxNiwyMjYuNzMsMTYsMjU1LjU5YzAsMjkuODIsMzQuODQsNTkuNzIsODcuNzcsNzcuODVxNi40NCwyLjE5LDEzLDQuMDdRMTE0LjY0LDM0NiwxMTMsMzU0LjY4Yy0xMCw1My0yLjIsOTUuMDcsMjIuNzUsMTA5LjQ5LDI1Ljc3LDE0Ljg5LDY5LS40MSwxMTEuMTQtMzcuMzFxNS00LjM4LDEwLTkuMjUsNi4zMiw2LjExLDEzLDExLjg2YzQwLjgsMzUuMTgsODEuMDksNDkuMzksMTA2LDM0LjkzLDI1Ljc1LTE0Ljk0LDM0LjEyLTYwLjE0LDIzLjI1LTExNS4xM3EtMS4yNS02LjMtMi44OC0xMi44Niw0LjU2LTEuMzUsOC45My0yLjc5YzU1LTE4LjI3LDkwLjgzLTQ3LjgxLDkwLjgzLTc4QzQ5NiwyMjYuNjIsNDYyLjUsMTk4LjYxLDQxMC42NiwxODAuNzJabS0xMjktODEuMDhjMzUuNDMtMzAuOTEsNjguNTUtNDMuMTEsODMuNjUtMzQuMzloMGMxNi4wNyw5LjI5LDIyLjMyLDQ2Ljc1LDEyLjIyLDk1Ljg4cS0xLDQuOC0yLjE2LDkuNTdhNDg3LjgzLDQ4Ny44MywwLDAsMC02NC4xOC0xMC4xNiw0ODEuMjcsNDgxLjI3LDAsMCwwLTQwLjU3LTUwLjc1UTI3NiwxMDQuNTcsMjgxLjY0LDk5LjY0Wk0xNTcuNzMsMjgwLjI1cTYuNTEsMTIuNiwxMy42MSwyNC44OSw3LjIzLDEyLjU0LDE1LjA3LDI0LjcxYTQzNS4yOCw0MzUuMjgsMCwwLDEtNDQuMjQtNy4xM0MxNDYuNDEsMzA5LDE1MS42MywyOTQuNzUsMTU3LjczLDI4MC4yNVptMC00OC4zM2MtNi0xNC4xOS0xMS4wOC0yOC4xNS0xNS4yNS00MS42MywxMy43LTMuMDcsMjguMy01LjU4LDQzLjUyLTcuNDhxLTcuNjUsMTEuOTQtMTQuNzIsMjQuMjNUMTU3LjcsMjMxLjkyWm0xMC45LDI0LjE3cTkuNDgtMTkuNzcsMjAuNDItMzguNzhoMHExMC45My0xOSwyMy4yNy0zNy4xM2MxNC4yOC0xLjA4LDI4LjkyLTEuNjUsNDMuNzEtMS42NXMyOS41Mi41Nyw0My43OSwxLjY2cTEyLjIxLDE4LjA5LDIzLjEzLDM3dDIwLjY5LDM4LjZRMzM0LDI3NS42MywzMjMsMjk0LjczaDBxLTEwLjkxLDE5LTIzLDM3LjI0Yy0xNC4yNSwxLTI5LDEuNTUtNDQsMS41NXMtMjkuNDctLjQ3LTQzLjQ2LTEuMzhxLTEyLjQzLTE4LjE5LTIzLjQ2LTM3LjI5VDE2OC42LDI1Ni4wOVpNMzQwLjc1LDMwNXE3LjI1LTEyLjU4LDEzLjkyLTI1LjQ5aDBhNDQwLjQxLDQ0MC40MSwwLDAsMSwxNi4xMiw0Mi4zMkE0MzQuNDQsNDM0LjQ0LDAsMCwxLDMyNiwzMjkuNDhRMzMzLjYyLDMxNy4zOSwzNDAuNzUsMzA1Wm0xMy43Mi03My4wN3EtNi42NC0xMi42NS0xMy44MS0yNWgwcS03LTEyLjE4LTE0LjU5LTI0LjA2YzE1LjMxLDEuOTQsMzAsNC41Miw0My43Nyw3LjY3QTQzOS44OSw0MzkuODksMCwwLDEsMzU0LjQ3LDIzMS45M1pNMjU2LjIzLDEyNC40OGgwYTQzOS43NSw0MzkuNzUsMCwwLDEsMjguMjUsMzQuMThxLTI4LjM1LTEuMzUtNTYuNzQsMEMyMzcuMDcsMTQ2LjMyLDI0Ni42MiwxMzQuODcsMjU2LjIzLDEyNC40OFpNMTQ1LjY2LDY1Ljg2YzE2LjA2LTkuMzIsNTEuNTcsNCw4OSwzNy4yNywyLjM5LDIuMTMsNC44LDQuMzYsNy4yLDYuNjdBNDkxLjM3LDQ5MS4zNywwLDAsMCwyMDEsMTYwLjUxYTQ5OS4xMiw0OTkuMTIsMCwwLDAtNjQuMDYsMTBxLTEuODMtNy4zNi0zLjMtMTQuODJoMEMxMjQuNTksMTA5LjQ2LDEzMC41OCw3NC42MSwxNDUuNjYsNjUuODZaTTEyMi4yNSwzMTcuNzFxLTYtMS43MS0xMS44NS0zLjcxYy0yMy40LTgtNDIuNzMtMTguNDQtNTYtMjkuODFDNDIuNTIsMjc0LDM2LjUsMjYzLjgzLDM2LjUsMjU1LjU5YzAtMTcuNTEsMjYuMDYtMzkuODUsNjkuNTItNTVxOC4xOS0yLjg1LDE2LjUyLTUuMjFhNDkzLjU0LDQ5My41NCwwLDAsMCwyMy40LDYwLjc1QTUwMi40Niw1MDIuNDYsMCwwLDAsMTIyLjI1LDMxNy43MVptMTExLjEzLDkzLjY3Yy0xOC42MywxNi4zMi0zNy4yOSwyNy44OS01My43NCwzMy43MmgwYy0xNC43OCw1LjIzLTI2LjU1LDUuMzgtMzMuNjYsMS4yNy0xNS4xNC04Ljc1LTIxLjQ0LTQyLjU0LTEyLjg1LTg3Ljg2cTEuNTMtOCwzLjUtMTZhNDgwLjg1LDQ4MC44NSwwLDAsMCw2NC42OSw5LjM5LDUwMS4yLDUwMS4yLDAsMCwwLDQxLjIsNTFDMjM5LjU0LDQwNS44MywyMzYuNDksNDA4LjY1LDIzMy4zOCw0MTEuMzhabTIzLjQyLTIzLjIyYy05LjcyLTEwLjUxLTE5LjQyLTIyLjE0LTI4Ljg4LTM0LjY0cTEzLjc5LjU0LDI4LjA4LjU0YzkuNzgsMCwxOS40Ni0uMjEsMjktLjY0QTQzOS4zMyw0MzkuMzMsMCwwLDEsMjU2LjgsMzg4LjE2Wm0xMjQuNTIsMjguNTljLTIuODYsMTUuNDQtOC42MSwyNS43NC0xNS43MiwyOS44Ni0xNS4xMyw4Ljc4LTQ3LjQ4LTIuNjMtODIuMzYtMzIuNzItNC0zLjQ0LTgtNy4xMy0xMi4wNy0xMWE0ODQuNTQsNDg0LjU0LDAsMCwwLDQwLjIzLTUxLjIsNDc3Ljg0LDQ3Ny44NCwwLDAsMCw2NS0xMC4wNXExLjQ3LDUuOTQsMi42LDExLjY0aDBDMzgzLjgxLDM3Ny41OCwzODQuNSwzOTkuNTYsMzgxLjMyLDQxNi43NVptMTcuNC0xMDIuNjRoMGMtMi42Mi44Ny01LjMyLDEuNzEtOC4wNiwyLjUzYTQ4My4yNiw0ODMuMjYsMCwwLDAtMjQuMzEtNjAuOTQsNDgxLjUyLDQ4MS41MiwwLDAsMCwyMy4zNi02MC4wNmM0LjkxLDEuNDMsOS42OCwyLjkzLDE0LjI3LDQuNTIsNDQuNDIsMTUuMzIsNzEuNTIsMzgsNzEuNTIsNTUuNDNDNDc1LjUsMjc0LjE5LDQ0Ni4yMywyOTguMzMsMzk4LjcyLDMxNC4xMVoiLz4KDTxwYXRoIGQ9Ik0yNTYsMjk4LjU1YTQzLDQzLDAsMSwwLTQyLjg2LTQzQTQyLjkxLDQyLjkxLDAsMCwwLDI1NiwyOTguNTVaIi8+Cg08L2c+Cg08L3N2Zz4=",
@@ -4088,20 +4865,27 @@ import { NorthStarThemeProvider } from "@aws-northstar/ui";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import { I18nProvider } from '@cloudscape-design/components/i18n';
+import messages from '@cloudscape-design/components/i18n/messages/all.en';
 import Auth from "./components/Auth";
+import TypeSafeApiClientProvider from "./components/TypeSafeApiClientProvider";
 import RuntimeContextProvider from "./components/RuntimeContext";
 import App from "./layouts/App";
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <NorthStarThemeProvider>
+      <I18nProvider locale="en" messages={[messages]}>
       <BrowserRouter>
         <RuntimeContextProvider>
           <Auth>
-            <App />
+            <TypeSafeApiClientProvider>
+              <App />
+            </TypeSafeApiClientProvider>
           </Auth>
         </RuntimeContextProvider>
       </BrowserRouter>
+      </I18nProvider>
     </NorthStarThemeProvider>
   </React.StrictMode>
 );
@@ -4227,6 +5011,8 @@ const App: React.FC = () => {
           />
         }
         content={<Routes />}
+        splitPanelOpen={false}
+        splitPanelPreferences={{ position: 'bottom' }}
         {...appLayoutProps}
       />
     </AppLayoutContext.Provider>
@@ -4283,6 +5069,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
 import { RuntimeConfigContext } from "../../components/RuntimeContext";
+import { WebSocketExplorer } from "../../components/WebSocketApiExplorer";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const aws4Fetch = require("aws4fetch");
 
@@ -4302,13 +5089,16 @@ const ApiExplorer: React.FC = () => {
     void (async () => {
         try {
             setApiSpec(
-                Object.fromEntries(
-                    (await Promise.all(Object.keys(runtimeContext?.typeSafeApis ?? {})
-                        .map(async (apiName) => [apiName, await fetch(\`/\${apiName}/api.json\`).then(res => res.json())])
-                    )).map(([apiName, _apiSpec]) => [apiName, {..._apiSpec, servers: [{ url: runtimeContext?.typeSafeApis[apiName] }]}])
-                )
+                Object.fromEntries([
+                  ...(await Promise.all(Object.keys(runtimeContext?.typeSafeApis ?? {})
+                    .map(async (apiName) => [apiName, await fetch(\`/\${apiName}/api.json\`).then(res => res.json())])
+                  )).map(([apiName, _apiSpec]) => [apiName, {..._apiSpec, servers: [{ url: runtimeContext?.typeSafeApis[apiName] }]}]),
+                  ...(await Promise.all(Object.keys(runtimeContext?.typeSafeWebSocketApis ?? {})
+                      .map(async (apiName) => [apiName, await fetch(\`/\${apiName}/api.json\`).then(res => res.json())])
+                  )).map(([apiName, _apiSpec]) => [apiName, {..._apiSpec, url: runtimeContext?.typeSafeWebSocketApis[apiName], __websocket: true }])
+                ])
             );
-            setSelectedApi(Object.keys(runtimeContext?.typeSafeApis)[0]); 
+            setSelectedApi(Object.keys({ ...runtimeContext?.typeSafeApis, ...runtimeContext?.typeSafeWebSocketApis})[0]);
         } catch(e) {
             setError(
                 "No OpenAPI definition detected. Ensure TypeSafeAPI(s) are passed in to Cloudscape Website construct.",
@@ -4360,14 +5150,24 @@ const ApiExplorer: React.FC = () => {
   ) : selectedApi ? (
     <ContentLayout header={<Header variant="h1" actions={
         <ButtonDropdown variant="primary" onItemClick={(e) => setSelectedApi(e.detail.id!)} items={[
-            {
+            ...(Object.keys(runtimeContext?.typeSafeApis).length > 0 ? [{
               text: "REST",
               items: Object.keys(runtimeContext?.typeSafeApis).map(apiName => ({ text: apiName, id: apiName, disabled: selectedApi === apiName }))
-            }
+            }] : []),
+            ...(Object.keys(runtimeContext?.typeSafeWebSocketApis).length > 0 ? [{
+              text: "WEBSOCKET",
+              items: Object.keys(runtimeContext?.typeSafeWebSocketApis).map(apiName => ({ text: apiName, id: apiName, disabled: selectedApi === apiName }))
+            }] : []),
           ]}>{selectedApi}</ButtonDropdown>}>API Explorer</Header>}>
-        <Container>
-            <SwaggerUI requestInterceptor={sigv4Interceptor} spec={apiSpec[selectedApi]} />
-        </Container> 
+        {
+          apiSpec[selectedApi]?.__websocket ? (
+            <WebSocketExplorer selectedApi={selectedApi} spec={apiSpec[selectedApi]} />
+          ) : (
+            <Container>
+              <SwaggerUI requestInterceptor={sigv4Interceptor} spec={apiSpec[selectedApi]} />
+            </Container>
+          )
+        }
     </ContentLayout>
   ) : (
     <></>
@@ -4387,7 +5187,7 @@ import {
 } from "@cloudscape-design/components";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// import { useSayHello } from "myapi-typescript-react-query-hooks";
+// import { useSayHello } from "testapi-typescript-react-query-hooks";
 
 /**
  * Component to render the home "/" route.
@@ -4395,7 +5195,9 @@ import { useNavigate } from "react-router-dom";
 const Home: React.FC = () => {
   const navigate = useNavigate();
   useEffect(() => navigate("/apiExplorer"), []);
+
   // const sayHello = useSayHello({ name: "World" });
+
 
   return (
     <ContentLayout header={<Header>Home</Header>}>
