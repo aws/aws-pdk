@@ -1,7 +1,9 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import { ok as assert } from "node:assert";
+import { posix as path } from "path";
 import { ProjectUtils } from "@aws/monorepo";
-import { JsonFile, Project } from "projen";
+import { JsonFile, Project, Task } from "projen";
 import { OpenApiGeneratorCliConfig } from "../../types";
 
 /**
@@ -41,6 +43,8 @@ export class OpenApiToolsJsonFile extends JsonFile {
     storageDir: "~/.open-api-generator-cli",
   };
 
+  public readonly createTask: Task;
+
   constructor(project: Project) {
     if (OpenApiToolsJsonFile.of(project)) {
       throw new Error(
@@ -48,7 +52,9 @@ export class OpenApiToolsJsonFile extends JsonFile {
       );
     }
 
-    super(project, "openapitools.json", {
+    const localFilePath = "openapitools.json";
+    const dynamicFilePath = path.join(".pdk/dynamic-files", localFilePath);
+    super(project, dynamicFilePath, {
       obj: {
         // Schema is located in node_modules when generator cli is installed in tmp dir
         $schema:
@@ -57,6 +63,21 @@ export class OpenApiToolsJsonFile extends JsonFile {
         "generator-cli": () => this.config,
       },
     });
+
+    // Ignore the location that gets copied to
+    project.addGitIgnore(`/${localFilePath}`);
+
+    // Create the task, but don't attach it anywhere yet. This is because of wanting
+    // to do the generation as part of the "generate" tasks, which may not yet exist.
+    this.createTask = project.addTask(`create-openapitools.json`, {
+      steps: [{ exec: `cp -f ${dynamicFilePath} ${localFilePath}` }],
+    });
+  }
+
+  preSynthesize(): void {
+    const generateTask = this.project.tasks.tryFind("generate");
+    assert(generateTask);
+    generateTask.prependSpawn(this.createTask);
   }
 
   /**

@@ -30,6 +30,10 @@ describe("Python Client Code Generation Script Unit Tests", () => {
             });
             project.synth();
             exec(
+              project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
+              { cwd: outdir }
+            );
+            exec(
               `${path.resolve(
                 __dirname,
                 "../../../scripts/type-safe-api/generators/generate"

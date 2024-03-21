@@ -30,9 +30,11 @@ describe("Docs Generation Script Unit Tests", () => {
           exec(`cp ${specPath} ${outdir}/spec.yaml`, {
             cwd: path.resolve(__dirname),
           });
-          OpenApiToolsJsonFile.ensure(
+          const openApiToolsJsonFile = OpenApiToolsJsonFile.ensure(
             new Project({ name: "test-project", outdir })
-          ).synthesize();
+          );
+          openApiToolsJsonFile.synthesize();
+          exec(openApiToolsJsonFile.createTask.steps[0].exec!, { cwd: outdir });
           exec(
             `${path.resolve(
               __dirname,

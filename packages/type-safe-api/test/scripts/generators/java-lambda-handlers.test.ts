@@ -38,6 +38,10 @@ describe("Java Handlers Code Generation Script Unit Tests", () => {
         });
         project.synth();
         exec(
+          project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
+          { cwd: handlersOutdir }
+        );
+        exec(
           `${path.resolve(
             __dirname,
             "../../../scripts/type-safe-api/generators/generate"

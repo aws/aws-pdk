@@ -31,6 +31,10 @@ describe("Java Client Code Generation Script Unit Tests", () => {
             // Synth the openapitools.json since it's used by the generate command
             OpenApiToolsJsonFile.of(project)!.synthesize();
             exec(
+              project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
+              { cwd: outdir }
+            );
+            exec(
               `${path.resolve(
                 __dirname,
                 "../../../scripts/type-safe-api/generators/generate"
