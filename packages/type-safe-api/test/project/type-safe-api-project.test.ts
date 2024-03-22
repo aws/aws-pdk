@@ -441,7 +441,7 @@ describe("Type Safe Api Project Unit Tests", () => {
         `${path.relative(
           project.outdir,
           project.infrastructure.typescript!.outdir
-        )}/openapitools.json`
+        )}/.pdk/dynamic-files/openapitools.json`
       ]
     ).toMatchSnapshot();
     expect(
@@ -449,7 +449,7 @@ describe("Type Safe Api Project Unit Tests", () => {
         `${path.relative(
           project.outdir,
           project.runtime.typescript!.outdir
-        )}/openapitools.json`
+        )}/.pdk/dynamic-files/openapitools.json`
       ]
     ).toMatchSnapshot();
     expect(
@@ -457,7 +457,7 @@ describe("Type Safe Api Project Unit Tests", () => {
         `${path.relative(
           project.outdir,
           project.library.typescriptReactQueryHooks!.outdir
-        )}/openapitools.json`
+        )}/.pdk/dynamic-files/openapitools.json`
       ]
     ).toMatchSnapshot();
     expect(
@@ -465,7 +465,7 @@ describe("Type Safe Api Project Unit Tests", () => {
         `${path.relative(
           project.outdir,
           project.documentation.html2!.outdir
-        )}/openapitools.json`
+        )}/.pdk/dynamic-files/openapitools.json`
       ]
     ).toMatchSnapshot();
   });

@@ -37,6 +37,9 @@ describe("Python Handlers Code Generation Script Unit Tests", () => {
         generatedPythonTypes: client,
       });
       project.synth();
+      exec(project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!, {
+        cwd: handlersOutdir,
+      });
       exec(
         `${path.resolve(
           __dirname,

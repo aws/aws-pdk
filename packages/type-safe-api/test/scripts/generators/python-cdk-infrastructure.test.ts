@@ -39,6 +39,9 @@ describe("Python Infrastructure Code Generation Script Unit Tests", () => {
         generatedHandlers: {},
       });
       project.synth();
+      exec(project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!, {
+        cwd: infraOutdir,
+      });
       exec(
         `${path.resolve(
           __dirname,
@@ -91,6 +94,9 @@ describe("Python Infrastructure Code Generation Script Unit Tests", () => {
         generatedHandlers: {},
       });
       project.synth();
+      exec(project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!, {
+        cwd: infraOutdir,
+      });
       exec(
         `${path.resolve(
           __dirname,
@@ -132,6 +138,10 @@ describe("Python Infrastructure Code Generation Script Unit Tests", () => {
           generatedHandlers: handlers,
         });
         project.synth();
+        exec(
+          project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
+          { cwd: infraOutdir }
+        );
         exec(
           `${path.resolve(
             __dirname,

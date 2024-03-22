@@ -35,6 +35,10 @@ describe("Typescript Infrastructure Code Generation Script Unit Tests", () => {
       });
       // Synth the openapitools.json since it's used by the generate command
       OpenApiToolsJsonFile.of(project)!.synthesize();
+      exec(`mkdir -p ${infraOutdir}`, { cwd: outdir });
+      exec(project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!, {
+        cwd: infraOutdir,
+      });
       exec(
         `${path.resolve(
           __dirname,
@@ -82,6 +86,10 @@ describe("Typescript Infrastructure Code Generation Script Unit Tests", () => {
       });
       // Synth the openapitools.json since it's used by the generate command
       OpenApiToolsJsonFile.of(project)!.synthesize();
+      exec(`mkdir -p ${infraOutdir}`, { cwd: outdir });
+      exec(project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!, {
+        cwd: infraOutdir,
+      });
       exec(
         `${path.resolve(
           __dirname,
@@ -119,6 +127,10 @@ describe("Typescript Infrastructure Code Generation Script Unit Tests", () => {
           generatedHandlers: handlers,
         });
         project.synth();
+        exec(
+          project.tasks.tryFind("create-openapitools.json")!.steps[0].exec!,
+          { cwd: infraOutdir }
+        );
         exec(
           `${path.resolve(
             __dirname,
