@@ -500,21 +500,38 @@ export class NxConfigurator extends Component implements INxProjectCore {
    * Add licenses to any subprojects which don't already have a license.
    */
   private _addLicenses() {
-    this.project.subprojects
+    [this.project, ...this.project.subprojects]
       .filter(
         (p) => p.components.find((c) => c instanceof License) === undefined
       )
       .forEach((p) => {
-        if (!this.licenseOptions || this.licenseOptions.spdx) {
+        if (!this.licenseOptions) {
           new License(p, {
-            spdx: this.licenseOptions?.spdx ?? DEFAULT_LICENSE,
-            copyrightOwner: this.licenseOptions?.copyrightOwner,
+            spdx: DEFAULT_LICENSE,
           });
+          if (ProjectUtils.isNamedInstanceOf(p, JavaProject)) {
+            // Force all Java projects to use Apache 2.0
+            p.tryFindObjectFile("pom.xml")?.addOverride("project.licenses", [
+              {
+                license: {
+                  name: "Apache License 2.0",
+                  url: "https://www.apache.org/licenses/LICENSE-2.0",
+                  distribution: "repo",
+                  comments: "An OSI-approved license",
+                },
+              },
+            ]);
+          }
         } else if (!!this.licenseOptions?.licenseText) {
           new TextFile(p, "LICENSE", {
             marker: false,
             committed: true,
             lines: this.licenseOptions.licenseText.split("\n"),
+          });
+        } else if (this.licenseOptions.spdx) {
+          new License(p, {
+            spdx: this.licenseOptions.spdx,
+            copyrightOwner: this.licenseOptions?.copyrightOwner,
           });
         } else {
           throw new Error("Either spdx or licenseText must be specified.");
