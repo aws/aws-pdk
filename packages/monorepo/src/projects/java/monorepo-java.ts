@@ -9,7 +9,6 @@ import { JavaProjectOptions } from "./java-project-options";
 import {
   NxConfigurator,
   INxProjectCore,
-  LicenseOptions,
 } from "../../components/nx-configurator";
 import { NxWorkspace } from "../../components/nx-workspace";
 import {
@@ -26,13 +25,6 @@ const MVN_PLUGIN_PATH = "./.nx/plugins/nx_plugin.js";
  */
 export interface MonorepoJavaOptions extends JavaProjectOptions {
   readonly defaultReleaseBranch?: string;
-
-  /**
-   * Default license to apply to all PDK managed packages.
-   *
-   * @default Apache-2.0
-   */
-  readonly licenseOptions?: LicenseOptions;
 }
 
 /**
@@ -80,7 +72,6 @@ export class MonorepoJavaProject extends JavaProject implements INxProjectCore {
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
-      licenseOptions: options.licenseOptions,
     });
 
     // Setup maven nx plugin
