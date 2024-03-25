@@ -4,19 +4,13 @@ import { CdkGraphThreatComposerPlugin } from "@aws/pdk/cdk-graph-plugin-threat-c
 import { AwsPrototypingChecks, PDKNag } from "@aws/pdk/pdk-nag";
 import { ApplicationStack } from "./stacks/application-stack";
 
-// for development, use account/region from cdk cli
-const devEnv = {
-  account: process.env.CDK_DEFAULT_ACCOUNT,
-  region: process.env.CDK_DEFAULT_REGION,
-};
-
 /* eslint-disable @typescript-eslint/no-floating-promises */
 (async () => {
   const app = PDKNag.app({
     nagPacks: [new AwsPrototypingChecks()],
   });
 
-  new ApplicationStack(app, "{{{stackName}}}", { env: devEnv });
+  new ApplicationStack(app, "{{{stackName}}}");
 
   const graph = new CdkGraph(app, {
     plugins: [
