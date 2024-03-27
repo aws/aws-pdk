@@ -1,0 +1,48 @@
+{{#typeSafeWebSocketApis}}
+import { DefaultApiWebSocketClient as {{{apiNameSafe}}}WebSocketClient } from "{{{clientPackage}}}";
+{{/typeSafeWebSocketApis}}
+import { useContext, useState, useEffect, useRef } from "react";
+import { useCognitoAuthContext } from "@aws-northstar/ui";
+import getCredentials from "@aws-northstar/ui/components/CognitoAuth/hooks/useSigv4Client/utils/getCredentials";
+import { RuntimeConfigContext } from "../components/RuntimeContext";
+
+{{#typeSafeWebSocketApis}}
+export const use{{{apiNameSafe}}}WebSocketApiClient = () => {
+  const runtimeContext = useContext(RuntimeConfigContext);
+
+  const { getAuthenticatedUser, region, identityPoolId, userPoolId } =
+    useCognitoAuthContext();
+
+  const clientPromiseRef = useRef<Promise<{{{apiNameSafe}}}WebSocketClient> | null>(null);
+  const [client, setClient] = useState<{{{apiNameSafe}}}WebSocketClient>();
+
+  useEffect(() => {
+    if (!region || !getAuthenticatedUser || !getAuthenticatedUser() || clientPromiseRef.current || !runtimeContext?.typeSafeWebSocketApis?.["{{{apiName}}}"]) {
+      return;
+    }
+    clientPromiseRef.current = {{{apiNameSafe}}}WebSocketClient.connect({
+      url: runtimeContext?.typeSafeWebSocketApis?.["{{{apiName}}}"],
+      authentication: {
+        iam: {
+          region,
+          credentials: () =>
+            getCredentials(
+              getAuthenticatedUser()!,
+              region,
+              identityPoolId,
+              userPoolId,
+            ),
+        },
+      },
+    });
+    void (async () => {
+      setClient(
+        await clientPromiseRef.current!,
+      );
+    })();
+  }, [region, getAuthenticatedUser, setClient, clientPromiseRef, runtimeContext?.typeSafeWebSocketApis?.["{{{apiName}}}"]]);
+
+  return client;
+};
+
+{{/typeSafeWebSocketApis}}

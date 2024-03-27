@@ -1,0 +1,227 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Java Async Handlers Code Generation Script Unit Tests Generates With handlers.yaml 1`] = `
+"package test.test-handlers.handlers;
+
+import test.test-runtime.runtime.api.interceptors.DefaultInterceptors;
+import test.test-runtime.runtime.api.handlers.Interceptor;
+import test.test-runtime.runtime.api.handlers.java_one.JavaOne;
+import test.test-runtime.runtime.api.handlers.java_one.JavaOneInput;
+import test.test-runtime.runtime.api.handlers.java_one.JavaOne500Response;
+import test.test-runtime.runtime.api.handlers.java_one.JavaOneRequestInput;
+import test.test-runtime.runtime.api.handlers.java_one.JavaOneResponse;
+import test.test-runtime.runtime.model.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+
+/**
+ * Entry point for the AWS Lambda handler for the JavaOne operation.
+ * The JavaOne class manages marshalling inputs and outputs.
+ */
+public class JavaOneHandler extends JavaOne {
+    /**
+     * Interceptors are initialised once during the lambda "init" phase
+     */
+    private final List<Interceptor<JavaOneInput>> interceptors = DefaultInterceptors.all();
+
+    /**
+     * Use the logger to log requests. The LoggingInterceptor sets up all loggers to include lambda context values in your logs.
+     */
+    private final Logger log = LogManager.getLogger(JavaOneHandler.class);
+
+    /**
+     * Return the interceptors for this handler.
+     * You can also use the @Interceptors annotation on the class to add interceptors
+     */
+    @Override
+    public List<Interceptor<JavaOneInput>> getInterceptors() {
+        return this.interceptors;
+    }
+
+    /**
+     * This method is executed prior to the Java SnapStart snapshot being taken.
+     * Perform any warmup activities to "prime" your function here. Code in this function will be just-in-time compiled,
+     * before the snapshot is taken, and thus optimised ready for the first invocation.
+     * For example if your function interacts with DynamoDB, perform a simple read operation here.
+     * @see https://aws.amazon.com/blogs/compute/reducing-java-cold-starts-on-aws-lambda-functions-with-snapstart/
+     */
+    @Override
+    public void warmUp() {
+
+    }
+
+    /**
+     * Type-safe handler for the JavaOne operation
+     */
+    @Override
+    public JavaOneResponse handle(final JavaOneRequestInput request) {
+        log.info("Start JavaOne Operation");
+
+        // TODO: Implement JavaOne Operation. \`input\` contains the request input.
+        JavaOneInput input = request.getInput();
+
+        return JavaOne500Response.of(InternalFailureErrorResponseContent.builder()
+                .message("Not Implemented!")
+                .build());
+    }
+}
+
+"
+`;
+
+exports[`Java Async Handlers Code Generation Script Unit Tests Generates With handlers.yaml 2`] = `
+"package test.test-handlers.handlers;
+
+import test.test-runtime.runtime.api.interceptors.DefaultInterceptors;
+import test.test-runtime.runtime.api.handlers.Interceptor;
+import test.test-runtime.runtime.api.handlers.java_two.JavaTwo;
+import test.test-runtime.runtime.api.handlers.java_two.JavaTwoInput;
+import test.test-runtime.runtime.api.handlers.java_two.JavaTwo500Response;
+import test.test-runtime.runtime.api.handlers.java_two.JavaTwoRequestInput;
+import test.test-runtime.runtime.api.handlers.java_two.JavaTwoResponse;
+import test.test-runtime.runtime.model.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+
+/**
+ * Entry point for the AWS Lambda handler for the JavaTwo operation.
+ * The JavaTwo class manages marshalling inputs and outputs.
+ */
+public class JavaTwoHandler extends JavaTwo {
+    /**
+     * Interceptors are initialised once during the lambda "init" phase
+     */
+    private final List<Interceptor<JavaTwoInput>> interceptors = DefaultInterceptors.all();
+
+    /**
+     * Use the logger to log requests. The LoggingInterceptor sets up all loggers to include lambda context values in your logs.
+     */
+    private final Logger log = LogManager.getLogger(JavaTwoHandler.class);
+
+    /**
+     * Return the interceptors for this handler.
+     * You can also use the @Interceptors annotation on the class to add interceptors
+     */
+    @Override
+    public List<Interceptor<JavaTwoInput>> getInterceptors() {
+        return this.interceptors;
+    }
+
+    /**
+     * This method is executed prior to the Java SnapStart snapshot being taken.
+     * Perform any warmup activities to "prime" your function here. Code in this function will be just-in-time compiled,
+     * before the snapshot is taken, and thus optimised ready for the first invocation.
+     * For example if your function interacts with DynamoDB, perform a simple read operation here.
+     * @see https://aws.amazon.com/blogs/compute/reducing-java-cold-starts-on-aws-lambda-functions-with-snapstart/
+     */
+    @Override
+    public void warmUp() {
+
+    }
+
+    /**
+     * Type-safe handler for the JavaTwo operation
+     */
+    @Override
+    public JavaTwoResponse handle(final JavaTwoRequestInput request) {
+        log.info("Start JavaTwo Operation");
+
+        // TODO: Implement JavaTwo Operation. \`input\` contains the request input.
+        JavaTwoInput input = request.getInput();
+
+        return JavaTwo500Response.of(InternalFailureErrorResponseContent.builder()
+                .message("Not Implemented!")
+                .build());
+    }
+}
+
+
+
+"
+`;
+
+exports[`Java Async Handlers Code Generation Script Unit Tests Generates With handlers.yaml 3`] = `
+"package test.test-handlers.handlers;
+
+import test.test-runtime.runtime.api.handlers.java_one.JavaOneInput;
+import test.test-runtime.runtime.api.handlers.java_one.JavaOne500Response;
+import test.test-runtime.runtime.api.handlers.java_one.JavaOneRequestInput;
+import test.test-runtime.runtime.api.handlers.java_one.JavaOneRequestParameters;
+import test.test-runtime.runtime.api.handlers.java_one.JavaOneResponse;
+import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * Tests for JavaOneHandler
+ */
+public class JavaOneHandlerTest {
+    @Test
+    public void shouldReturnNotImplementedError() {
+        // TODO: Update the test as appropriate when you implement your handler
+        JavaOneResponse response = new JavaOneHandler().handle(JavaOneRequestInput.builder()
+                .interceptorContext(new HashMap<>())
+                .input(JavaOneInput.builder()
+                        .requestParameters(JavaOneRequestParameters.builder()
+                                // Add request parameters here...
+                                .build())
+                        // If the request has a body you can add it here...
+                        .build())
+                .build());
+        assertEquals(500, response.getStatusCode());
+
+        // Cast to the particular type of response returned to access the typed response body
+        assertEquals("Not Implemented!", ((JavaOne500Response) response).getTypedBody().getMessage());
+    }
+}
+
+"
+`;
+
+exports[`Java Async Handlers Code Generation Script Unit Tests Generates With handlers.yaml 4`] = `
+"package test.test-handlers.handlers;
+
+import test.test-runtime.runtime.api.handlers.java_two.JavaTwoInput;
+import test.test-runtime.runtime.api.handlers.java_two.JavaTwo500Response;
+import test.test-runtime.runtime.api.handlers.java_two.JavaTwoRequestInput;
+import test.test-runtime.runtime.api.handlers.java_two.JavaTwoRequestParameters;
+import test.test-runtime.runtime.api.handlers.java_two.JavaTwoResponse;
+import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * Tests for JavaTwoHandler
+ */
+public class JavaTwoHandlerTest {
+    @Test
+    public void shouldReturnNotImplementedError() {
+        // TODO: Update the test as appropriate when you implement your handler
+        JavaTwoResponse response = new JavaTwoHandler().handle(JavaTwoRequestInput.builder()
+                .interceptorContext(new HashMap<>())
+                .input(JavaTwoInput.builder()
+                        .requestParameters(JavaTwoRequestParameters.builder()
+                                // Add request parameters here...
+                                .build())
+                        // If the request has a body you can add it here...
+                        .build())
+                .build());
+        assertEquals(500, response.getStatusCode());
+
+        // Cast to the particular type of response returned to access the typed response body
+        assertEquals("Not Implemented!", ((JavaTwo500Response) response).getTypedBody().getMessage());
+    }
+}
+
+
+
+"
+`;

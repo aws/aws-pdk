@@ -5,30 +5,50 @@ import {
   ContentLayout,
   Header,
   SpaceBetween,
+  {{#typeSafeApis.0}}
   // Spinner,
+  {{/typeSafeApis.0}}
 } from "@cloudscape-design/components";
-{{#typeSafeApis.0}}
+{{#hasApis}}
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+{{/hasApis}}
+{{#typeSafeWebSocketApis.0}}
+// import { useOnSendNotification, useDefaultApiWebSocketClient as use{{{apiNameSafe}}}WebSocketClient } from "{{hooksPackage}}";
+{{/typeSafeWebSocketApis.0}}
+{{#typeSafeApis.0}}
+// import { useSayHello } from "{{hooksPackage}}";
 {{/typeSafeApis.0}}
-// import { useSayHello } from "myapi-typescript-react-query-hooks";
 
 /**
  * Component to render the home "/" route.
  */
 const Home: React.FC = () => {
-  {{#typeSafeApis.0}}
+  {{#hasApis}}
   const navigate = useNavigate();
   useEffect(() => navigate("/apiExplorer"), []);
-  {{/typeSafeApis.0}}
+  {{/hasApis}}
+
+  {{#typeSafeApis.0}}
   // const sayHello = useSayHello({ name: "World" });
+  {{/typeSafeApis.0}}
+
+  {{#typeSafeWebSocketApis.0}}
+  // const webSocketClient = use{{{apiNameSafe}}}WebSocketClient();
+
+  // useOnSendNotification((notification) => {
+  //   console.log(`Received notification: ${notification.message}`);
+  // }, []);
+  {{/typeSafeWebSocketApis.0}}
 
   return (
     <ContentLayout header={<Header>Home</Header>}>
       <SpaceBetween size="l">
         <Container>
           Hello World!
+          {{#typeSafeApis.0}}
           {/* {sayHello.isLoading ? <Spinner /> : <>{sayHello.data?.message}</>} */}
+          {{/typeSafeApis.0}}
         </Container>
       </SpaceBetween>
     </ContentLayout>

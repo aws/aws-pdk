@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { IgnoreFile, Project } from "projen";
+import { OpenApiGeneratorIgnoreFile } from "./open-api-generator-ignore-file";
 
 /**
  * Represents an .openapi-generator-ignore-handlebars file.
@@ -12,6 +13,6 @@ export class OpenApiGeneratorHandlebarsIgnoreFile extends IgnoreFile {
     super(project, ".openapi-generator-ignore-handlebars");
 
     // Ignore all files by default to allow opting in to generate with specific handlebars templates
-    this.addPatterns("/*", "**/*", "*");
+    this.addPatterns(...OpenApiGeneratorIgnoreFile.ALL_FILES_PATTERNS);
   }
 }

@@ -122,6 +122,16 @@ export interface CodePipelineProps {
    */
   readonly dockerCredentials?: Array<pipelines.DockerCredential>;
   /**
+   * A map of region to S3 bucket name used for cross-region CodePipeline.
+   * For every Action that you specify targeting a different region than the Pipeline itself,
+   * if you don't provide an explicit Bucket for that region using this property,
+   * the construct will automatically create a Stack containing an S3 Bucket in that region.
+   * Passed directly through to the {@link cp.Pipeline}.
+   * @default - no cross region replication buckets.
+   * @stability stable
+   */
+  readonly crossRegionReplicationBuckets?: Record<string, aws_s3.IBucket>;
+  /**
    * Create KMS keys for the artifact buckets, allowing cross-account deployments.
    * The artifact buckets have to be encrypted to support deploying CDK apps to
    * another account, so if you want to do that or want to have your artifact

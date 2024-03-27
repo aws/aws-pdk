@@ -292,15 +292,10 @@ const generateCorsOptionsMethod = (
   };
 };
 
-/**
- * Prepares a given api path by adding integrations, configuring auth
- */
-const preparePathSpec = (
+export const validatePathItem = (
   path: string,
-  pathItem: OpenAPIV3.PathItemObject,
-  options: PrepareApiSpecOptions,
-  getOperationName: (methodAndPath: MethodAndPath) => string
-): OpenAPIV3.PathItemObject => {
+  pathItem: OpenAPIV3.PathItemObject
+) => {
   const supportedPathItemKeys = new Set<string>([
     // https://spec.openapis.org/oas/v3.0.3#path-item-object
     ...Object.values(HttpMethods),
@@ -322,6 +317,18 @@ const preparePathSpec = (
       )}. Supported methods are ${Object.values(HttpMethods).join(", ")}.`
     );
   }
+};
+
+/**
+ * Prepares a given api path by adding integrations, configuring auth
+ */
+const preparePathSpec = (
+  path: string,
+  pathItem: OpenAPIV3.PathItemObject,
+  options: PrepareApiSpecOptions,
+  getOperationName: (methodAndPath: MethodAndPath) => string
+): OpenAPIV3.PathItemObject => {
+  validatePathItem(path, pathItem);
 
   return {
     ...pathItem,

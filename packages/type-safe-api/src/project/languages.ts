@@ -42,6 +42,11 @@ export enum Library {
   TYPESCRIPT_REACT_QUERY_HOOKS = "typescript-react-query-hooks",
 }
 
+export enum WebSocketLibrary {
+  TYPESCRIPT_WEBSOCKET_CLIENT = "typescript-websocket-client",
+  TYPESCRIPT_WEBSOCKET_HOOKS = "typescript-websocket-hooks",
+}
+
 /**
  * Formats for documentation generation
  */

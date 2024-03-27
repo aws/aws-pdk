@@ -6,6 +6,9 @@ import { Construct } from "constructs";
 {{#typeSafeApis}}
 import { {{{apiName}}} } from "../apis/{{{apiNameLowercase}}}";
 {{/typeSafeApis}}
+{{#typeSafeWebSocketApis}}
+import { {{{apiName}}} } from "../apis/{{{apiNameLowercase}}}";
+{{/typeSafeWebSocketApis}}
 
 /**
  * Website construct props
@@ -17,6 +20,12 @@ export interface {{{websiteName}}}Props {
    */
   readonly {{{apiNameLowercase}}}: {{{apiName}}};
   {{/typeSafeApis}}
+  {{#typeSafeWebSocketApis}}
+  /**
+   * Instance of an API to configure the website to integrate with
+   */
+  readonly {{{apiNameLowercase}}}: {{{apiName}}};
+  {{/typeSafeWebSocketApis}}
 
   /**
    * Instance of the UserIdentity.
@@ -41,6 +50,7 @@ export class {{{websiteName}}} extends Construct {
           userPoolWebClientId:
             props?.userIdentity.userPoolClient?.userPoolClientId,
           typeSafeApis: { {{#typeSafeApis}}{{{apiName}}}: props?.{{{apiNameLowercase}}}.api.api.urlForPath(){{^isLast}},{{/isLast}}{{/typeSafeApis}} },
+          typeSafeWebSocketApis: { {{#typeSafeWebSocketApis}}{{{apiName}}}: props?.{{{apiNameLowercase}}}.api.defaultStage.url{{^isLast}},{{/isLast}}{{/typeSafeWebSocketApis}} },
         },
       },
       distributionProps: {

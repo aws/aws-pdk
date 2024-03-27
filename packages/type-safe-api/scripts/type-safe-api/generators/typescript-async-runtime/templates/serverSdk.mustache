@@ -1,0 +1,67 @@
+// Import models
+import {
+    {{#apiInfo}}
+    {{#models}}
+    {{#model}}
+    {{classname}},
+    {{classname}}FromJSON,
+    {{classname}}ToJSON,
+    {{/model}}
+    {{/models}}
+    {{/apiInfo}}
+} from "../models";
+import {
+  ApiGatewayManagementApiClient,
+  PostToConnectionCommand,
+  DeleteConnectionCommand,
+} from "@aws-sdk/client-apigatewaymanagementapi";
+
+/**
+ * Options for the server SDK
+ */
+export interface {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ServerSdkProps {
+  /**
+   * API Gateway management API callback url
+   */
+  readonly callbackUrl: string;
+}
+
+/**
+ * SDK for sending messages from the server to connected clients
+ */
+export class {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ServerSdk {
+  private readonly client: ApiGatewayManagementApiClient;
+
+  constructor(props: {{#apiInfo}}{{#apis.0}}{{classname}}{{/apis.0}}{{/apiInfo}}ServerSdkProps) {
+    this.client = new ApiGatewayManagementApiClient({ endpoint: props.callbackUrl });
+  }
+
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+{{#vendorExtensions.x-async-to-client}}
+  public async {{nickname}}(connectionId: string{{#bodyParam}}{{#isPrimitiveType}}, input: string{{/isPrimitiveType}}{{^isPrimitiveType}}, input: {{dataType}}{{/isPrimitiveType}}{{/bodyParam}}): Promise<void> {
+    await this.client.send(new PostToConnectionCommand({
+      ConnectionId: connectionId,
+      Data: JSON.stringify({
+        route: "{{operationIdCamelCase}}",
+        payload: input,
+      }),
+    }));
+  }
+{{/vendorExtensions.x-async-to-client}}
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+
+  /**
+   * Disconnect a connected client
+   */
+  public async $disconnect(connectionId: string): Promise<void> {
+    await this.client.send(new DeleteConnectionCommand({
+      ConnectionId: connectionId,
+    }));
+  }
+}

@@ -1,0 +1,157 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Example API
+paths:
+  /server-to-client:
+    post:
+      operationId: serverToClient
+      x-async:
+        direction: server_to_client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRequest'
+      responses: {}
+  /client-to-server:
+    post:
+      operationId: clientToServer
+      x-async:
+        direction: client_to_server
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRequest'
+      responses: {}
+  /bidirectional:
+    post:
+      operationId: bidirectional
+      x-async:
+        direction: bidirectional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRequest'
+      responses: {}
+  /without-operation-id:
+    post:
+      x-async:
+        direction: bidirectional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRequest'
+      responses: {}
+  /empty-request:
+    put:
+      operationId: empty
+      x-async:
+        direction: bidirectional
+      responses: {}
+  /map-request:
+    post:
+      operationId: mapRequest
+      x-async:
+        direction: bidirectional
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MapRequest"
+      responses: {}
+  /any-request:
+    put:
+      operationId: anyRequest
+      x-async:
+        direction: bidirectional
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      responses: {}
+  /different-media-type:
+    post:
+      operationId: mediaTypes
+      x-async:
+        direction: bidirectional
+      requestBody:
+        required: true
+        content:
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      responses: {}
+  /multiple-content-types:
+    post:
+      operationId: multipleContentTypes
+      x-async:
+        direction: bidirectional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRequest'
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      responses: {}
+components:
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+      required:
+        - errorMessage
+    TestRequest:
+      description: This is a test request
+      type: object
+      properties:
+        myInput:
+          type: number
+    TestResponse:
+      description: This is a test response
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                description: This is a message
+                type: string
+              id:
+                type: integer
+            required:
+              - id
+      required:
+        - messages
+    MapRequest:
+      type: object
+      properties:
+        mapProperty:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              a:
+                type: string
+              b:
+                type: string
+            required:
+              - a
+      required:
+        - mapProperty

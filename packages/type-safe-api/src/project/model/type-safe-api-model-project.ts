@@ -1,42 +1,22 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
-import { Project, ProjectOptions, SampleFile, Task } from "projen";
+import { SampleFile } from "projen";
 import { OpenApiDefinition } from "./openapi/open-api-definition";
+import { OpenApiProjectDefinition } from "./openapi/open-api-project-definition";
 import { SmithyDefinition } from "./smithy/smithy-definition";
-import { TypeSafeApiCommandEnvironment } from "../codegen/components/type-safe-api-command-environment";
+import { SmithyProjectDefinition } from "./smithy/smithy-project-definition";
 import {
-  buildTypeSafeApiExecCommand,
-  TypeSafeApiScript,
-} from "../codegen/components/utils";
+  TypeSafeApiModelProjectBase,
+  TypeSafeApiModelProjectBaseOptions,
+} from "./type-safe-api-model-project-base";
 import { Language } from "../languages";
-import { ModelLanguage, ModelOptions } from "../types";
+import { OpenApiModelOptions, SmithyModelOptions } from "../types";
 
-export interface TypeSafeApiModelProjectOptions extends ProjectOptions {
-  /**
-   * Language the model is defined in
-   */
-  readonly modelLanguage: ModelLanguage;
-  /**
-   * Options for the model
-   */
-  readonly modelOptions: ModelOptions;
-  /**
-   * The languages users have specified for handler projects (if any)
-   */
-  readonly handlerLanguages?: Language[];
-}
+export interface TypeSafeApiModelProjectOptions
+  extends TypeSafeApiModelProjectBaseOptions {}
 
-export class TypeSafeApiModelProject extends Project {
-  /**
-   * Name of the final bundled OpenAPI specification
-   */
-  public readonly parsedSpecFile: string = ".api.json";
-  /**
-   * Reference to the task used for generating the final bundled OpenAPI specification
-   */
-  public readonly generateTask: Task;
-
+export class TypeSafeApiModelProject extends TypeSafeApiModelProjectBase {
   /**
    * Reference to the Smithy definition component. Will be defined if the model language is Smithy
    */
@@ -47,30 +27,8 @@ export class TypeSafeApiModelProject extends Project {
    */
   public readonly openapi?: OpenApiDefinition;
 
-  /**
-   * Name of the API. If Smithy, will resolve to serviceName otherwise it will use title.
-   */
-  public readonly apiName;
-
   constructor(options: TypeSafeApiModelProjectOptions) {
     super(options);
-    TypeSafeApiCommandEnvironment.ensure(this);
-
-    this.generateTask = this.addTask("generate");
-
-    // Add the API definition
-    const { specPath, smithy, openapi } = this.addApiDefinition(options);
-    this.smithy = smithy;
-    this.openapi = openapi;
-    this.apiName =
-      options.modelOptions.smithy?.serviceName.serviceName ??
-      options.modelOptions.openapi?.title;
-
-    // Parse and bundle the openapi specification
-    this.addParseAndBundleTask(specPath);
-
-    // Run the generate task as part of build
-    this.compileTask.spawn(this.generateTask);
 
     // Add the README as a sample file which the user may edit
     new SampleFile(this, "README.md", {
@@ -82,63 +40,35 @@ export class TypeSafeApiModelProject extends Project {
         "samples",
         "type-safe-api",
         "readme",
-        "model",
+        "model-rest",
         `${options.modelLanguage}.md`
       ),
     });
   }
 
-  private addApiDefinition = ({
-    modelLanguage,
-    modelOptions,
-    handlerLanguages,
-  }: TypeSafeApiModelProjectOptions) => {
-    if (modelLanguage === ModelLanguage.SMITHY) {
-      if (!modelOptions.smithy) {
-        throw new Error(
-          `modelOptions.smithy is required when selected model language is ${ModelLanguage.SMITHY}`
-        );
-      }
+  protected addSmithyApiDefinition(
+    options: SmithyModelOptions,
+    handlerLanguages?: Language[] | undefined
+  ): SmithyProjectDefinition {
+    const smithy = new SmithyDefinition(this, {
+      smithyOptions: options,
+      handlerLanguages,
+    });
+    // @ts-ignore called from constructor
+    this.smithy = smithy;
+    return smithy;
+  }
 
-      const smithyOptions = modelOptions.smithy;
-      const smithy = new SmithyDefinition(this, {
-        smithyOptions,
-        handlerLanguages,
-      });
-
-      return { smithy, specPath: smithy.openApiSpecificationPath };
-    } else if (modelLanguage === ModelLanguage.OPENAPI) {
-      if (!modelOptions.openapi) {
-        throw new Error(
-          `modelOptions.openapi is required when selected model language is ${ModelLanguage.OPENAPI}`
-        );
-      }
-
-      const openApiOptions = modelOptions.openapi;
-      const openapi = new OpenApiDefinition(this, {
-        openApiOptions,
-        handlerLanguages,
-      });
-      return { openapi, specPath: openapi.openApiSpecificationPath };
-    } else {
-      throw new Error(`Unknown model language ${modelLanguage}`);
-    }
-  };
-
-  private addParseAndBundleTask = (openApiSpecificationPath: string) => {
-    this.generateTask.exec(
-      buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.PARSE_OPENAPI_SPEC,
-        `--spec-path ${openApiSpecificationPath} --output-path ${
-          this.parsedSpecFile
-        }${
-          this.smithy
-            ? ` --smithy-json-path ${this.smithy.smithyJsonModelPath}`
-            : ""
-        }`
-      )
-    );
-
-    this.addGitIgnore(this.parsedSpecFile);
-  };
+  protected addOpenApiDefinition(
+    options: OpenApiModelOptions,
+    handlerLanguages?: Language[] | undefined
+  ): OpenApiProjectDefinition {
+    const openapi = new OpenApiDefinition(this, {
+      openApiOptions: options,
+      handlerLanguages,
+    });
+    // @ts-ignore called from constructor
+    this.openapi = openapi;
+    return openapi;
+  }
 }

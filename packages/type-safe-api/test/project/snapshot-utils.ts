@@ -41,13 +41,13 @@ export const synthProject = (project: Project, excludeGlobs?: string[]) => {
  */
 export const withTmpDirSnapshot = (
   basePath: string,
-  fn: (tmpDir: string) => void,
+  fn: (tmpDir: string) => void | DirectorySnapshotOptions,
   options?: DirectorySnapshotOptions
 ) => {
   const tmpDir = fs.mkdtempSync(path.join(basePath, "tmp."));
   try {
-    fn(tmpDir);
-    return directorySnapshot(tmpDir, options);
+    const opts = fn(tmpDir);
+    return directorySnapshot(tmpDir, opts ?? options);
   } finally {
     fs.removeSync(tmpDir);
   }

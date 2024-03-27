@@ -10,7 +10,7 @@ import {
   Tags,
 } from "aws-cdk-lib";
 import { IRepository, Repository } from "aws-cdk-lib/aws-codecommit";
-import { Pipeline } from "aws-cdk-lib/aws-codepipeline";
+import { Pipeline, PipelineType } from "aws-cdk-lib/aws-codepipeline";
 import { Key } from "aws-cdk-lib/aws-kms";
 import {
   BlockPublicAccess,
@@ -294,6 +294,7 @@ export class PDKPipeline extends Construct {
       restartExecutionOnUpdate: true,
       crossAccountKeys: props.crossAccountKeys,
       artifactBucket,
+      pipelineType: PipelineType.V1,
     });
 
     // ignore input and primaryOutputDirectory

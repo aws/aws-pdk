@@ -1,0 +1,1547 @@
+###TSAPI_SPLIT_FILE###
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "Handlers",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{modelPackage}}.*;
+import {{package}}.interceptors.ResponseHeadersInterceptor;
+{{/apis.0}}
+{{/apiInfo}}
+
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.stream.Collectors;
+import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
+import java.time.DateTimeException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+
+{{#apiInfo}}
+{{#apis}}
+{{#imports}}import {{import}};
+{{/imports}}
+{{/apis}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{invokerPackage}}.JSON;
+{{/apis.0}}
+{{/apiInfo}}
+
+{{>generatedAnnotation}}
+public class Handlers {
+
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private static String decodeParameter(final String parameter) {
+        try {
+            return URLDecoder.decode(parameter, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Map<String, String> decodeRequestParameters(Map<String, String> parameters) {
+        Map<String, String> decodedParameters = new HashMap<>();
+        for(Map.Entry<String, String> parameter : parameters.entrySet()) {
+            decodedParameters.put(parameter.getKey(), decodeParameter(parameter.getValue()));
+        }
+        return decodedParameters;
+    }
+
+    public static Map<String, List<String>> decodeRequestArrayParameters(Map<String, List<String>> parameters) {
+        Map<String, List<String>> decodedParameters = new HashMap<>();
+        for(Map.Entry<String, List<String>> parameter : parameters.entrySet()) {
+            decodedParameters.put(parameter.getKey(), parameter.getValue().stream().map(Handlers::decodeParameter).collect(Collectors.toList()));
+        }
+        return decodedParameters;
+    }
+
+    public static <T> void assertRequired(final Boolean required, final String baseName, final Map<String, T> parameters) {
+        if (required && parameters.get(baseName) == null) {
+            throw new RuntimeException("Missing required request parameter '" + baseName + "'");
+        }
+    }
+
+    public static String coerceStringParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        return parameters.get(baseName);
+    }
+
+    public static List<String> coerceStringArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        return parameters.get(baseName);
+    }
+
+    public static Double coerceDouble(final String baseName, final String s) {
+        try {
+            return Double.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a number for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Double coerceDoubleParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceDouble(baseName, s);
+    }
+
+    public static List<Double> coerceDoubleArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Double> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceDouble(baseName, s));
+        }
+        return res;
+    }
+
+    public static BigDecimal coerceBigDecimal(final String baseName, final String s) {
+        try {
+            return new BigDecimal(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a number for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static BigDecimal coerceBigDecimalParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceBigDecimal(baseName, s);
+    }
+
+    public static List<BigDecimal> coerceBigDecimalArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<BigDecimal> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceBigDecimal(baseName, s));
+        }
+        return res;
+    }
+
+    public static BigInteger coerceBigInteger(final String baseName, final String s) {
+        try {
+            return new BigInteger(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a number for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static BigInteger coerceBigIntegerParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceBigInteger(baseName, s);
+    }
+
+    public static List<BigInteger> coerceBigIntegerArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<BigInteger> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceBigInteger(baseName, s));
+        }
+        return res;
+    }
+
+    public static Float coerceFloat(final String baseName, final String s) {
+        try {
+            return Float.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a float for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Float coerceFloatParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceFloat(baseName, s);
+    }
+
+    public static List<Float> coerceFloatArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Float> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceFloat(baseName, s));
+        }
+        return res;
+    }
+
+    public static Integer coerceInteger(final String baseName, final String s) {
+        try {
+            return Integer.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected an integer for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Integer coerceIntegerParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceInteger(baseName, s);
+    }
+
+    public static List<Integer> coerceIntegerArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Integer> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceInteger(baseName, s));
+        }
+        return res;
+    }
+
+    public static Long coerceLong(final String baseName, final String s) {
+        try {
+            return Long.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a long for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Long coerceLongParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceLong(baseName, s);
+    }
+
+    public static List<Long> coerceLongArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Long> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceLong(baseName, s));
+        }
+        return res;
+    }
+
+    public static Short coerceShort(final String baseName, final String s) {
+        try {
+            return Short.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Expected a short for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static Short coerceShortParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceShort(baseName, s);
+    }
+
+    public static List<Short> coerceShortArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Short> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceShort(baseName, s));
+        }
+        return res;
+    }
+
+    public static Boolean coerceBoolean(final String baseName, final String s) {
+        if ("true".equals(s)) {
+            return true;
+        } else if ("false".equals(s)) {
+            return false;
+        }
+        throw new RuntimeException("Expected a boolean (true or false) for request parameter '" + baseName + "'");
+    }
+
+    public static Boolean coerceBooleanParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceBoolean(baseName, s);
+    }
+
+    public static List<Boolean> coerceBooleanArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<Boolean> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceBoolean(baseName, s));
+        }
+        return res;
+    }
+
+    public static OffsetDateTime coerceOffsetDateTime(final String baseName, final String s) {
+        try {
+            return OffsetDateTime.parse(s);
+        } catch (DateTimeException e) {
+            throw new RuntimeException("Expected a valid date (iso format) for request parameter '" + baseName + "'");
+        }
+    }
+
+    public static OffsetDateTime coerceOffsetDateTimeParameter(final String baseName, final boolean required, final Map<String, String> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        String s = parameters.get(baseName);
+        return s == null ? null : coerceOffsetDateTime(baseName, s);
+    }
+
+    public static List<OffsetDateTime> coerceOffsetDateTimeArrayParameter(final String baseName, final boolean required, final Map<String, List<String>> parameters) {
+        Handlers.assertRequired(required, baseName, parameters);
+        List<String> ss = parameters.get(baseName);
+        if (ss == null) {
+            return null;
+        }
+        List<OffsetDateTime> res = new ArrayList<>();
+        for (String s : ss) {
+            res.add(coerceOffsetDateTime(baseName, s));
+        }
+        return res;
+    }
+
+    public static <K, V> void putAllFromNullableMap(Map<K, V> source, Map<K, V> destination) {
+        if (source != null) {
+            destination.putAll(source);
+        }
+    }
+
+    public static String concatMethodAndPath(final String method, final String path) {
+        return String.format("%s||%s", method.toLowerCase(), path);
+    }
+
+    public static <T> Map<String, String> extractResponseHeadersFromInterceptors(final List<Interceptor<T>> interceptors) {
+        Map<String, String> headers = new HashMap<>();
+        for (Interceptor<T> interceptor : interceptors) {
+            if (interceptor instanceof ResponseHeadersInterceptor) {
+                headers.putAll(((ResponseHeadersInterceptor) interceptor).getAdditionalHeaders());
+            }
+        }
+        return headers;
+    }
+
+    public static <T, I> List<Interceptor<I>> getAnnotationInterceptors(Class<T> clazz) {
+        // Support specifying simple interceptors via the @Interceptors({ MyInterceptor.class, MyOtherInterceptor.class }) format
+        return clazz.isAnnotationPresent(Interceptors.class)
+                ? Arrays.stream(clazz.getAnnotation(Interceptors.class).value()).map(c -> {
+            try {
+                return (Interceptor<I>) c.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(String.format(
+                        "Cannot create instance of interceptor %s. Please ensure it has a public constructor " +
+                                "with no arguments, or override the getInterceptors method instead of using the annotation", c.getSimpleName()), e);
+            }
+        }).collect(Collectors.toList())
+                : new ArrayList<>();
+    }
+
+    public static <TInput> HandlerChain<TInput> buildHandlerChain(final List<Interceptor<TInput>> interceptors, final HandlerChain<TInput> baseChain) {
+        if (interceptors.isEmpty()) {
+            return baseChain;
+        } else {
+            Interceptor<TInput> interceptor = interceptors.get(0);
+            HandlerChain<TInput> remainingChain = buildHandlerChain(interceptors.subList(1, interceptors.size()), baseChain);
+            return new HandlerChain<TInput>() {
+                @Override
+                public Response next(ChainedRequestInput<TInput> input) {
+                    return interceptor.handle(new ChainedRequestInput<TInput>() {
+                        @Override
+                        public APIGatewayProxyRequestEvent getEvent() {
+                            return input.getEvent();
+                        }
+
+                        @Override
+                        public Context getContext() {
+                            return input.getContext();
+                        }
+
+                        @Override
+                        public TInput getInput() {
+                            return input.getInput();
+                        }
+
+                        @Override
+                        public HandlerChain<TInput> getChain() {
+                            return remainingChain;
+                        }
+
+                        @Override
+                        public Map<String, Object> getInterceptorContext() {
+                            return input.getInterceptorContext();
+                        }
+                    });
+                }
+            };
+        }
+    }
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "Response",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+import java.util.Map;
+import java.util.List;
+
+/**
+ * Represents an HTTP response from an api operation
+ */
+public interface Response {
+    /**
+     * Returns the response body
+     */
+    String getBody();
+    /**
+     * Returns the response status code
+     */
+    int getStatusCode();
+    /**
+     * Returns the response headers
+     */
+    Map<String, String> getHeaders();
+    /**
+     * Returns the multi-value response headers
+     */
+    Map<String, List<String>> getMultiValueHeaders();
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "ApiResponse",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+import java.util.Map;
+import java.util.List;
+
+@lombok.experimental.SuperBuilder
+@lombok.AllArgsConstructor
+@lombok.Getter
+public class ApiResponse implements Response {
+    private String body;
+    private int statusCode;
+    private Map<String, String> headers;
+    private Map<String, List<String>> multiValueHeaders;
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "Interceptor",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+/**
+ * Interceptors can perform generic operations on requests and/or responses, optionally delegating to the remainder
+ * of the request chain.
+ */
+public interface Interceptor<TInput> {
+    /**
+     * Handle a request. Usually the response from `input.getChain().next(input)` is returned to delegate to the
+     * remainder of the chain, however you may wish to return an alternative Response.
+     */
+    Response handle(ChainedRequestInput<TInput> input);
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "Interceptors",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Use this annotation to add interceptors to the request handler. Interceptors used in the annotation must have a
+ * constructor with no arguments.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Interceptors {
+    public Class<? extends Interceptor>[] value() default {};
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "HandlerChain",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+/**
+ * A handler chain represents a series of interceptors, which may or may not delegate to following interceptors.
+ * The lambda handler is always the last method in the chain.
+ */
+public interface HandlerChain<TInput> {
+    /**
+     * Delegate to the remainder of the handler chain
+     */
+    Response next(ChainedRequestInput<TInput> input);
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "RequestInput",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.Context;
+import java.util.Map;
+
+/**
+ * Defines the input for a request.
+ */
+public interface RequestInput<TInput> {
+    /**
+     * The raw event from API Gateway
+     */
+    APIGatewayProxyRequestEvent getEvent();
+    /**
+     * Lambda execution context
+     */
+    Context getContext();
+    /**
+     * Demarshalled request input
+     */
+    TInput getInput();
+    /**
+     * Storage for arbitrary interceptor context for the lifetime of the request. Set and get values to pass state
+     * between interceptors or to the final handler.
+     */
+    Map<String, Object> getInterceptorContext();
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "ChainedRequestInput",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+/**
+ * Reqeust input with a handler chain
+ */
+public interface ChainedRequestInput<TInput> extends RequestInput<TInput> {
+    /**
+     * The chain for handling requests
+     */
+    HandlerChain<TInput> getChain();
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "InterceptorWarmupChainedRequestInput",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+import com.amazonaws.services.lambda.runtime.ClientContext;
+import com.amazonaws.services.lambda.runtime.CognitoIdentity;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+
+/**
+ * An "empty" chained request input used to warm up interceptors which extend the InterceptorWithWarmup
+ */
+public class InterceptorWarmupChainedRequestInput<T> implements ChainedRequestInput<T> {
+
+  @Override
+  public HandlerChain<T> getChain() {
+    return new HandlerChain<T>() {
+      @Override
+      public Response next(ChainedRequestInput<T> input) {
+        return new Response() {
+          @Override
+          public String getBody() {
+            return "";
+          }
+
+          @Override
+          public int getStatusCode() {
+            return 0;
+          }
+
+          @Override
+          public Map<String, String> getHeaders() {
+            return new HashMap<>();
+          }
+
+          @Override
+          public Map<String, List<String>> getMultiValueHeaders() {
+            return new HashMap<>();
+          }
+        };
+      }
+    };
+  }
+
+  @Override
+  public Context getContext() {
+    return new Context() {
+      @Override
+      public String getAwsRequestId() {
+        return "";
+      }
+
+      @Override
+      public String getLogGroupName() {
+        return "";
+      }
+
+      @Override
+      public String getLogStreamName() {
+        return "";
+      }
+
+      @Override
+      public String getFunctionName() {
+        return "";
+      }
+
+      @Override
+      public String getFunctionVersion() {
+        return "";
+      }
+
+      @Override
+      public String getInvokedFunctionArn() {
+        return "";
+      }
+
+      @Override
+      public CognitoIdentity getIdentity() {
+        return null;
+      }
+
+      @Override
+      public ClientContext getClientContext() {
+        return null;
+      }
+
+      @Override
+      public int getRemainingTimeInMillis() {
+        return 0;
+      }
+
+      @Override
+      public int getMemoryLimitInMB() {
+        return 0;
+      }
+
+      @Override
+      public LambdaLogger getLogger() {
+        return null;
+      }
+    };
+  }
+
+  @Override
+  public APIGatewayProxyRequestEvent getEvent() {
+    return new APIGatewayProxyRequestEvent();
+  }
+
+  @Override
+  public T getInput() {
+    return null;
+  }
+
+  @Override
+  public Map<String, Object> getInterceptorContext() {
+    Map<String, Object> context = new HashMap<>();
+    context.put("operationId", "__tsapi_interceptor_warmup");
+    return context;
+  }
+}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "InterceptorWithWarmup",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+import org.crac.Resource;
+import org.crac.Core;
+import org.crac.Context;
+
+/**
+ * An interceptor with a "warmUp" method with default snap-start warmup behaviour, which can be overridden if desired.
+ */
+public abstract class InterceptorWithWarmup<TInput> implements Interceptor<TInput>, Resource {
+    {
+        Core.getGlobalContext().register(this);
+    }
+
+    @Override
+    public void beforeCheckpoint(Context<? extends Resource> context) {
+        this.warmUp();
+    }
+
+    @Override
+    public void afterRestore(Context<? extends Resource> context) {
+
+    }
+
+    /**
+     * Called prior to the lambda snap-start snapshot.
+     * Override this to change the default behaviour, which is to call the interceptor's handle method with an empty
+     * chained request.
+     */
+    public void warmUp() {
+        this.handle(new InterceptorWarmupChainedRequestInput<>());
+    }
+}
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers/{{operationIdSnakeCase}}",
+  "name": "{{operationIdCamelCase}}Response",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers.{{operationIdSnakeCase}};
+{{/apis.0}}
+{{/apiInfo}}
+
+import {{package}}.handlers.Response;
+
+/**
+ * Response for the {{nickname}} operation
+ */
+public interface {{operationIdCamelCase}}Response extends Response {}
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+{{#responses}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers/{{operationIdSnakeCase}}",
+  "name": "{{operationIdCamelCase}}{{code}}Response",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers.{{operationIdSnakeCase}};
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{modelPackage}}.*;
+{{/apis.0}}
+{{/apiInfo}}
+{{#apiInfo}}
+{{#apis.0}}
+import {{invokerPackage}}.JSON;
+{{/apis.0}}
+{{/apiInfo}}
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Response with status code {{code}} for the {{nickname}} operation
+ */
+public class {{operationIdCamelCase}}{{code}}Response extends RuntimeException implements {{operationIdCamelCase}}Response {
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private final String body;
+    {{#dataType}}private final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} typedBody;{{/dataType}}
+    private final Map<String, String> headers;
+    private final Map<String, List<String>> multiValueHeaders;
+
+    private {{operationIdCamelCase}}{{code}}Response({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        {{#dataType}}this.typedBody = body;{{/dataType}}
+        this.body = {{#dataType}}{{#isPrimitiveType}}body{{/isPrimitiveType}}{{^isPrimitiveType}}body.toJson(){{/isPrimitiveType}}{{/dataType}}{{^dataType}}""{{/dataType}};
+        this.headers = headers;
+        this.multiValueHeaders = multiValueHeaders;
+    }
+
+    @Override
+    public int getStatusCode() {
+        return {{code}};
+    }
+
+    @Override
+    public String getBody() {
+        return this.body;
+    }
+
+    {{#dataType}}
+    public {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} getTypedBody() {
+        return this.typedBody;
+    }
+    {{/dataType}}
+
+    @Override
+    public Map<String, String> getHeaders() {
+        return this.headers;
+    }
+
+    @Override
+    public Map<String, List<String>> getMultiValueHeaders() {
+        return this.multiValueHeaders;
+    }
+
+    /**
+     * Create a {{operationIdCamelCase}}{{code}}Response with{{^dataType}}out{{/dataType}} a body
+     */
+    public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body{{/dataType}}) {
+        return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}new HashMap<>(), new HashMap<>());
+    }
+
+    /**
+     * Create a {{operationIdCamelCase}}{{code}}Response with{{^dataType}}out{{/dataType}} a body and headers
+     */
+    public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers) {
+        return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}headers, new HashMap<>());
+    }
+
+    /**
+     * Create a {{operationIdCamelCase}}{{code}}Response with{{^dataType}}out{{/dataType}} a body, headers and multi-value headers
+     */
+    public static {{operationIdCamelCase}}{{code}}Response of({{#dataType}}final {{#isPrimitiveType}}String{{/isPrimitiveType}}{{^isPrimitiveType}}{{.}}{{/isPrimitiveType}} body, {{/dataType}}final Map<String, String> headers, final Map<String, List<String>> multiValueHeaders) {
+        return new {{operationIdCamelCase}}{{code}}Response({{#dataType}}body, {{/dataType}}headers, multiValueHeaders);
+    }
+}
+{{/responses}}
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers/{{operationIdSnakeCase}}",
+  "name": "{{operationIdCamelCase}}RequestParameters",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers.{{operationIdSnakeCase}};
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{package}}.handlers.Handlers;
+{{/apis.0}}
+{{/apiInfo}}
+import java.util.Optional;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.time.OffsetDateTime;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+
+/**
+ * Query, path and header parameters for the {{operationIdCamelCase}} operation
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class {{operationIdCamelCase}}RequestParameters {
+    {{#allParams}}
+    {{^isBodyParam}}
+    private final {{^required}}Optional<{{/required}}{{{dataType}}}{{^required}}>{{/required}} {{paramName}};
+    {{/isBodyParam}}
+    {{/allParams}}
+
+    public {{operationIdCamelCase}}RequestParameters(final APIGatewayProxyRequestEvent event) {
+        Map<String, String> rawStringParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getPathParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getQueryStringParameters(), rawStringParameters);
+        Handlers.putAllFromNullableMap(event.getHeaders(), rawStringParameters);
+        Map<String, String> decodedStringParameters = Handlers.decodeRequestParameters(rawStringParameters);
+
+        Map<String, List<String>> rawStringArrayParameters = new HashMap<>();
+        Handlers.putAllFromNullableMap(event.getMultiValueQueryStringParameters(), rawStringArrayParameters);
+        Handlers.putAllFromNullableMap(event.getMultiValueHeaders(), rawStringArrayParameters);
+        Map<String, List<String>> decodedStringArrayParameters = Handlers.decodeRequestArrayParameters(rawStringArrayParameters);
+
+        {{#allParams}}
+        {{^isBodyParam}}
+        this.{{paramName}} = {{^required}}Optional.ofNullable({{/required}}Handlers.coerce{{#isArray}}{{#items}}{{{dataType}}}Array{{/items}}{{/isArray}}{{^isArray}}{{{dataType}}}{{/isArray}}Parameter("{{baseName}}", {{required}}, decodedString{{#isArray}}Array{{/isArray}}Parameters){{^required}}){{/required}};
+        {{/isBodyParam}}
+        {{/allParams}}
+    }
+
+    {{#allParams}}
+    {{^isBodyParam}}
+    public {{^required}}Optional<{{/required}}{{{dataType}}}{{^required}}>{{/required}} {{#schema}}{{getter}}{{/schema}}() {
+        return this.{{paramName}};
+    }
+    {{/isBodyParam}}
+    {{/allParams}}
+}
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers/{{operationIdSnakeCase}}",
+  "name": "{{operationIdCamelCase}}Input",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers.{{operationIdSnakeCase}};
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{modelPackage}}.*;
+{{/apis.0}}
+{{/apiInfo}}
+{{#apiInfo}}
+{{#apis.0}}
+import {{invokerPackage}}.JSON;
+{{/apis.0}}
+{{/apiInfo}}
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import java.io.IOException;
+
+/**
+ * Input for the {{nickname}} operation
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class {{operationIdCamelCase}}Input {
+    static {
+        // JSON has a static instance of Gson which is instantiated lazily the first time it is initialised.
+        // Create an instance here if required to ensure that the static Gson instance is always available.
+        if (JSON.getGson() == null) {
+            new JSON();
+        }
+    }
+
+    private final {{operationIdCamelCase}}RequestParameters requestParameters;
+    {{#bodyParam}}
+    private final {{#isModel}}{{dataType}}{{/isModel}}{{^isModel}}String{{/isModel}} body;
+    {{/bodyParam}}
+
+    public {{operationIdCamelCase}}Input(final APIGatewayProxyRequestEvent event) {
+        this.requestParameters = new {{operationIdCamelCase}}RequestParameters(event);
+        {{#bodyParam}}
+        {{#isModel}}
+        try {
+            this.body = {{dataType}}.fromJson(event.getBody());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        };
+        {{/isModel}}
+        {{^isModel}}
+        this.body = event.getBody();
+        {{/isModel}}
+        {{/bodyParam}}
+    }
+
+    public {{operationIdCamelCase}}RequestParameters getRequestParameters() {
+        return this.requestParameters;
+    }
+
+    {{#bodyParam}}
+    public {{#isModel}}{{dataType}}{{/isModel}}{{^isModel}}String{{/isModel}} getBody() {
+        return this.body;
+    }
+    {{/bodyParam}}
+}
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers/{{operationIdSnakeCase}}",
+  "name": "{{operationIdCamelCase}}RequestInput",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers.{{operationIdSnakeCase}};
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{modelPackage}}.*;
+{{/apis.0}}
+{{/apiInfo}}
+{{#apiInfo}}
+{{#apis.0}}
+import {{package}}.handlers.RequestInput;
+{{/apis.0}}
+{{/apiInfo}}
+import java.util.List;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import java.io.IOException;
+import com.amazonaws.services.lambda.runtime.Context;
+
+/**
+ * Full request input for the {{nickname}} operation, including the raw API Gateway event
+ */
+@lombok.Builder
+@lombok.AllArgsConstructor
+public class {{operationIdCamelCase}}RequestInput implements RequestInput<{{operationIdCamelCase}}Input> {
+    private final APIGatewayProxyRequestEvent event;
+    private final Context context;
+    private final Map<String, Object> interceptorContext;
+    private final {{operationIdCamelCase}}Input input;
+
+    /**
+     * Returns the typed request input, with path, query and body parameters
+     */
+    public {{operationIdCamelCase}}Input getInput() {
+        return this.input;
+    }
+
+    /**
+     * Returns the raw API Gateway event
+     */
+    public APIGatewayProxyRequestEvent getEvent() {
+        return this.event;
+    }
+
+    /**
+     * Returns the lambda context
+     */
+    public Context getContext() {
+        return this.context;
+    }
+
+    /**
+     * Returns the interceptor context, which may contain values set by request interceptors
+     */
+    public Map<String, Object> getInterceptorContext() {
+        return this.interceptorContext;
+    }
+}
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers/{{operationIdSnakeCase}}",
+  "name": "{{operationIdCamelCase}}",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers.{{operationIdSnakeCase}};
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{modelPackage}}.*;
+{{/apis.0}}
+{{/apiInfo}}
+{{#apiInfo}}
+{{#apis.0}}
+import {{invokerPackage}}.JSON;
+import {{package}}.handlers.Interceptor;
+import {{package}}.handlers.Handlers;
+import {{package}}.handlers.*;
+{{/apis.0}}
+{{/apiInfo}}
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import java.io.IOException;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import org.crac.Core;
+import org.crac.Resource;
+
+
+/**
+ * Lambda handler wrapper for the {{nickname}} operation
+ */
+public abstract class {{operationIdCamelCase}} implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>, Resource {
+    {
+        Core.getGlobalContext().register(this);
+    }
+
+    /**
+     * Handle the request for the {{nickname}} operation
+     */
+    public abstract {{operationIdCamelCase}}Response handle(final {{operationIdCamelCase}}RequestInput request);
+
+    /**
+     * Interceptors that the handler class has been decorated with
+     */
+    private List<Interceptor<{{operationIdCamelCase}}Input>> annotationInterceptors = Handlers.getAnnotationInterceptors({{operationIdCamelCase}}.class);
+
+    /**
+     * For more complex interceptors that require instantiation with parameters, you may override this method to
+     * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+     * prefer the @Interceptors annotation.
+     */
+    public List<Interceptor<{{operationIdCamelCase}}Input>> getInterceptors() {
+        return Collections.emptyList();
+    }
+
+    private List<Interceptor<{{operationIdCamelCase}}Input>> getHandlerInterceptors() {
+        List<Interceptor<{{operationIdCamelCase}}Input>> interceptors = new ArrayList<>();
+        interceptors.addAll(annotationInterceptors);
+        interceptors.addAll(this.getInterceptors());
+        return interceptors;
+    }
+
+    private HandlerChain<{{operationIdCamelCase}}Input> buildChain(List<Interceptor<{{operationIdCamelCase}}Input>> interceptors) {
+        return Handlers.buildHandlerChain(interceptors, new HandlerChain<{{operationIdCamelCase}}Input>() {
+            @Override
+            public Response next(ChainedRequestInput<{{operationIdCamelCase}}Input> input) {
+                return handle(new {{operationIdCamelCase}}RequestInput(input.getEvent(), input.getContext(), input.getInterceptorContext(), input.getInput()));
+            }
+        });
+    }
+
+    private ChainedRequestInput<{{operationIdCamelCase}}Input> buildChainedRequestInput(final APIGatewayProxyRequestEvent event, final Context context, final {{operationIdCamelCase}}Input input, final Map<String, Object> interceptorContext) {
+        return new ChainedRequestInput<{{operationIdCamelCase}}Input>() {
+            @Override
+            public HandlerChain getChain() {
+                // The chain's next method ignores the chain given as input, and is pre-built to follow the remaining
+                // chain.
+                return null;
+            }
+
+            @Override
+            public APIGatewayProxyRequestEvent getEvent() {
+                return event;
+            }
+
+            @Override
+            public Context getContext() {
+                return context;
+            }
+
+            @Override
+            public {{operationIdCamelCase}}Input getInput() {
+                return input;
+            }
+
+            @Override
+            public Map<String, Object> getInterceptorContext() {
+                return interceptorContext;
+            }
+        };
+    }
+
+    @Override
+    public void beforeCheckpoint(org.crac.Context<? extends Resource> context) {
+        // Prime building the handler chain which can take a few 100ms to JIT.
+        this.buildChain(this.getHandlerInterceptors());
+        this.buildChainedRequestInput(null, null, null, null);
+
+        // Initialise instance of Gson and prime serialisation and deserialisation
+        new JSON();
+        JSON.getGson().fromJson(JSON.getGson().toJson(new ApiResponse("", 0, new HashMap<>(), new HashMap<>())), ApiResponse.class);
+
+        try {
+            // Prime input validation - this will likely fail for the fake event but ensures the code path is optimised
+            // ready for a real invocation
+            new {{operationIdCamelCase}}Input(new APIGatewayProxyRequestEvent()
+                    .withBody("{}")
+                    .withPathParameters(new HashMap<>())
+                    .withQueryStringParameters(new HashMap<>())
+                    .withMultiValueQueryStringParameters(new HashMap<>())
+                    .withHeaders(new HashMap<>())
+                    .withMultiValueHeaders(new HashMap<>())
+            );
+        } catch (Exception e) {
+
+        }
+
+        this.warmUp();
+    }
+
+    @Override
+    public void afterRestore(org.crac.Context<? extends Resource> context) {
+
+    }
+
+    /**
+     * Override this method to perform any warmup activities which will be executed prior to the snap-start snapshot.
+     */
+    public void warmUp() {
+
+    }
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+        return this.handleRequestWithAdditionalInterceptors(event, context, new ArrayList<>());
+    }
+
+    private Map<String, String> getErrorResponseHeaders(final int statusCode) {
+        Map<String, String> headers = new HashMap<>();
+        {{#responses}}
+        {{^is2xx}}
+        if (statusCode == {{code}} && "{{dataType}}".endsWith("ResponseContent")) {
+            headers.put("x-amzn-errortype", "{{dataType}}".substring(0, "{{dataType}}".length() - "ResponseContent".length()));
+        }
+        {{/is2xx}}
+        {{/responses}}
+        return headers;
+    }
+
+    public APIGatewayProxyResponseEvent handleRequestWithAdditionalInterceptors(final APIGatewayProxyRequestEvent event, final Context context, final List<Interceptor<{{operationIdCamelCase}}Input>> additionalInterceptors) {
+        final Map<String, Object> interceptorContext = new HashMap<>();
+        interceptorContext.put("operationId", "{{nickname}}");
+
+        List<Interceptor<{{operationIdCamelCase}}Input>> interceptors = new ArrayList<>();
+        interceptors.addAll(additionalInterceptors);
+        interceptors.addAll(this.getHandlerInterceptors());
+
+        final HandlerChain chain = this.buildChain(interceptors);
+
+        {{operationIdCamelCase}}Input input;
+
+        try {
+            input = new {{operationIdCamelCase}}Input(event);
+        } catch (RuntimeException e) {
+            Map<String, String> headers = new HashMap<>();
+            headers.putAll(Handlers.extractResponseHeadersFromInterceptors(interceptors));
+            headers.putAll(this.getErrorResponseHeaders(400));
+            return new APIGatewayProxyResponseEvent()
+                .withStatusCode(400)
+                .withHeaders(headers)
+                .withBody("{\"message\": \"" + e.getMessage() + "\"}");
+        }
+
+        final Response response = chain.next(this.buildChainedRequestInput(event, context, input, interceptorContext));
+
+        Map<String, String> responseHeaders = new HashMap<>();
+        responseHeaders.putAll(this.getErrorResponseHeaders(response.getStatusCode()));
+        responseHeaders.putAll(response.getHeaders());
+
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(response.getStatusCode())
+                .withHeaders(responseHeaders)
+                .withMultiValueHeaders(response.getMultiValueHeaders())
+                .withBody(response.getBody());
+    }
+}
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+###TSAPI_WRITE_FILE###
+{
+  "dir": "api/handlers",
+  "name": "HandlerRouter",
+  "ext": ".java",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###{{#apiInfo}}
+{{#apis.0}}
+package {{package}}.handlers;
+{{/apis.0}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+import {{package}}.handlers.{{operationIdSnakeCase}}.*;
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+
+{{#apiInfo}}
+{{#apis.0}}
+import {{package}}.handlers.Handlers;
+import {{package}}.handlers.*;
+{{/apis.0}}
+{{/apiInfo}}
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+
+
+public abstract class HandlerRouter implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    private static final String {{nickname}}MethodAndPath = Handlers.concatMethodAndPath("{{httpMethod}}", "{{path}}");
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    private final {{operationIdCamelCase}} constructed{{operationIdCamelCase}};
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+
+    {{#apiInfo}}
+    {{#apis}}
+    {{#operations}}
+    {{#operation}}
+    /**
+     * This method must return your implementation of the {{operationIdCamelCase}} operation
+     */
+    public abstract {{operationIdCamelCase}} {{nickname}}();
+    {{/operation}}
+    {{/operations}}
+    {{/apis}}
+    {{/apiInfo}}
+
+    private static enum Route {
+        {{#apiInfo}}
+        {{#apis}}
+        {{#operations}}
+        {{#operation}}
+        {{nickname}}Route,
+        {{/operation}}
+        {{/operations}}
+        {{/apis}}
+        {{/apiInfo}}
+    }
+
+    /**
+     * Map of method and path to the route to map to
+     */
+    private final Map<String, Route> routes = new HashMap<>();
+
+    public HandlerRouter() {
+        {{#apiInfo}}
+        {{#apis}}
+        {{#operations}}
+        {{#operation}}
+        this.routes.put({{nickname}}MethodAndPath, Route.{{nickname}}Route);
+        {{/operation}}
+        {{/operations}}
+        {{/apis}}
+        {{/apiInfo}}
+        // Handlers are all constructed in the router's constructor such that lambda behaviour remains consistent;
+        // ie resources created in the constructor remain in memory between invocations.
+        // https://docs.aws.amazon.com/lambda/latest/dg/java-handler.html
+        {{#apiInfo}}
+        {{#apis}}
+        {{#operations}}
+        {{#operation}}
+        this.constructed{{operationIdCamelCase}} = this.{{nickname}}();
+        {{/operation}}
+        {{/operations}}
+        {{/apis}}
+        {{/apiInfo}}
+    }
+
+    /**
+     * For more complex interceptors that require instantiation with parameters, you may override this method to
+     * return a list of instantiated interceptors. For simple interceptors with no need for constructor arguments,
+     * prefer the @Interceptors annotation.
+     */
+    public <T> List<Interceptor<T>> getInterceptors() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
+        String method = event.getRequestContext().getHttpMethod();
+        String path = event.getRequestContext().getResourcePath();
+        String methodAndPath = Handlers.concatMethodAndPath(method, path);
+        Route route = this.routes.get(methodAndPath);
+
+        switch (route) {
+            {{#apiInfo}}
+            {{#apis}}
+            {{#operations}}
+            {{#operation}}
+            case {{nickname}}Route:
+                List<Interceptor<{{operationIdCamelCase}}Input>> {{nickname}}Interceptors = Handlers.getAnnotationInterceptors(this.getClass());
+                {{nickname}}Interceptors.addAll(this.getInterceptors());
+                return this.constructed{{operationIdCamelCase}}.handleRequestWithAdditionalInterceptors(event, context, {{nickname}}Interceptors);
+            {{/operation}}
+            {{/operations}}
+            {{/apis}}
+            {{/apiInfo}}
+            default:
+                throw new RuntimeException(String.format("No registered handler for method {} and path {}", method, path));
+        }
+    }
+}

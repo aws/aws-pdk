@@ -1,0 +1,2813 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Type Safe WebSocket Api Construct Unit Tests Synthesizes 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "ApiTestAccessLogs92CFE051": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestEE73F324": {
+      "Properties": {
+        "Name": "ApiTest",
+        "ProtocolType": "WEBSOCKET",
+        "RouteSelectionExpression": "$request.body.route",
+      },
+      "Type": "AWS::ApiGatewayV2::Api",
+    },
+    "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ApiTestSchemaHandlerB89B7431",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ApiTestSchemaHandlerB89B7431",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "Roles": [
+          {
+            "Ref": "ApiTestPrepareSpecProviderRoleF47822B8",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ApiTestPrepareSpecProviderRoleF47822B8": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:logs:",
+                        {
+                          "Ref": "AWS::Region",
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":log-group:/aws/lambda/*",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestSchemaCustomResource98AF5661": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestSchemaProviderframeworkonEventA54214B8",
+            "Arn",
+          ],
+        },
+        "apiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "1b4c2f072255dc1154b3380ad1beeb1965457871ae37e9440c3fc96212e3d68c.json",
+        },
+        "serverOperationPaths": {
+          "TestOperation": "/TestOperation",
+        },
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "ApiTestSchemaHandlerB89B7431": {
+      "DependsOn": [
+        "ApiTestSchemaHandlerServiceRoleDefaultPolicyB4308F6A",
+        "ApiTestSchemaHandlerServiceRole42979CD9",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsSolutions-IAM4",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8adf3c609b6d73fa935d9c361e37b816f2da1d59567bf9c753fc8319e6a58e7f.zip",
+        },
+        "Handler": "websocket-schema-handler.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestSchemaHandlerServiceRole42979CD9",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs20.x",
+        "Timeout": 60,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestSchemaHandlerServiceRole42979CD9": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsSolutions-IAM4",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestSchemaHandlerServiceRoleDefaultPolicyB4308F6A": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":s3:::",
+                    {
+                      "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                    },
+                    "/1b4c2f072255dc1154b3380ad1beeb1965457871ae37e9440c3fc96212e3d68c.json",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "apigateway:DELETE",
+                "apigateway:PATCH",
+                "apigateway:POST",
+                "apigateway:GET",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/models",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/models/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "apigateway:PATCH",
+                "apigateway:GET",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/routes",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/routes/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestSchemaHandlerServiceRoleDefaultPolicyB4308F6A",
+        "Roles": [
+          {
+            "Ref": "ApiTestSchemaHandlerServiceRole42979CD9",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ApiTestSchemaProviderframeworkonEventA54214B8": {
+      "DependsOn": [
+        "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "ApiTestPrepareSpecProviderRoleF47822B8",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Provider framework lambda is managed by CDK",
+            },
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Provider framework lambda is managed by CDK",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "7382a0addb9f34974a1ea6c6c9b063882af874828f366f5c93b2b7b64db15c94.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/ApiTest/SchemaProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "ApiTestSchemaHandlerB89B7431",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecProviderRoleF47822B8",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestTestOperationRoute85832F8E": {
+      "DependsOn": [
+        "ApiTestSchemaCustomResource98AF5661",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AuthorizationType": "NONE",
+        "ModelSelectionExpression": "model",
+        "RequestModels": {
+          "model": "TestOperation",
+        },
+        "RouteKey": "TestOperation",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "ApiTestTestOperationRouteIntegration8EB87255",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "ApiTestTestOperationRouteIntegration8EB87255": {
+      "DependsOn": [
+        "ApiTestSchemaCustomResource98AF5661",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":apigateway:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":lambda:path/2015-03-31/functions/",
+              {
+                "Fn::GetAtt": [
+                  "LambdaD247545B",
+                  "Arn",
+                ],
+              },
+              "/invocations",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Integration",
+    },
+    "ApiTestTestOperationRouteIntegrationPermissionB8255658": {
+      "DependsOn": [
+        "ApiTestSchemaCustomResource98AF5661",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaD247545B",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "ApiTestEE73F324",
+              },
+              "/*TestOperation",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "ApiTestconnectIntegRes94517D27": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationId": {
+          "Ref": "ApiTestconnectRouteConnectIntegration8E0BC8E8",
+        },
+        "IntegrationResponseKey": "/2\\d\\d/",
+        "ResponseTemplates": {
+          "200": "{"statusCode":200}",
+        },
+        "TemplateSelectionExpression": "/2\\d\\d/",
+      },
+      "Type": "AWS::ApiGatewayV2::IntegrationResponse",
+    },
+    "ApiTestconnectRouteC24E96E0": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AuthorizationType": "AWS_IAM",
+        "RouteKey": "$connect",
+        "RouteResponseSelectionExpression": "$default",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "ApiTestconnectRouteConnectIntegration8E0BC8E8",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "ApiTestconnectRouteConnectIntegration8E0BC8E8": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationType": "MOCK",
+        "IntegrationUri": "",
+        "RequestTemplates": {
+          "application/json": "{"statusCode":200}",
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Integration",
+    },
+    "ApiTestconnectRouteResponseBCC69A30": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "RouteId": {
+          "Ref": "ApiTestconnectRouteC24E96E0",
+        },
+        "RouteResponseKey": "$default",
+      },
+      "Type": "AWS::ApiGatewayV2::RouteResponse",
+    },
+    "ApiTestdefault66772C11": {
+      "Properties": {
+        "AccessLogSettings": {
+          "DestinationArn": {
+            "Fn::GetAtt": [
+              "ApiTestAccessLogs92CFE051",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp - - [$context.requestTime] "$context.httpMethod $context.routeKey $context.protocol" $context.status $context.responseLength $context.requestId",
+        },
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AutoDeploy": true,
+        "DefaultRouteSettings": {
+          "DataTraceEnabled": false,
+          "LoggingLevel": "INFO",
+        },
+        "StageName": "default",
+      },
+      "Type": "AWS::ApiGatewayV2::Stage",
+    },
+    "ApiTestdisconnectIntegResAF67D3BC": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationId": {
+          "Ref": "ApiTestdisconnectRouteDisconnectIntegrationDC709560",
+        },
+        "IntegrationResponseKey": "/2\\d\\d/",
+        "ResponseTemplates": {
+          "200": "{"statusCode":200}",
+        },
+        "TemplateSelectionExpression": "/2\\d\\d/",
+      },
+      "Type": "AWS::ApiGatewayV2::IntegrationResponse",
+    },
+    "ApiTestdisconnectRoute5C8E8EE6": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AuthorizationType": "NONE",
+        "RouteKey": "$disconnect",
+        "RouteResponseSelectionExpression": "$default",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "ApiTestdisconnectRouteDisconnectIntegrationDC709560",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "ApiTestdisconnectRouteDisconnectIntegrationDC709560": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationType": "MOCK",
+        "IntegrationUri": "",
+        "RequestTemplates": {
+          "application/json": "{"statusCode":200}",
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Integration",
+    },
+    "ApiTestdisconnectRouteResponse79FE872F": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "RouteId": {
+          "Ref": "ApiTestdisconnectRoute5C8E8EE6",
+        },
+        "RouteResponseKey": "$default",
+      },
+      "Type": "AWS::ApiGatewayV2::RouteResponse",
+    },
+    "LambdaD247545B": {
+      "DependsOn": [
+        "LambdaServiceRoleDefaultPolicyDAE46E21",
+        "LambdaServiceRoleA8ED4D3B",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "ZipFile": "code",
+        },
+        "Handler": "handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaServiceRoleA8ED4D3B",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "LambdaServiceRoleA8ED4D3B": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "LambdaServiceRoleDefaultPolicyDAE46E21": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "execute-api:ManageConnections",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiTestEE73F324",
+                    },
+                    "/default/*/@connections/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "LambdaServiceRoleDefaultPolicyDAE46E21",
+        "Roles": [
+          {
+            "Ref": "LambdaServiceRoleA8ED4D3B",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`Type Safe WebSocket Api Construct Unit Tests Synthesizes With Connect and Disconnect 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "ApiTestAccessLogs92CFE051": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestEE73F324": {
+      "Properties": {
+        "Name": "ApiTest",
+        "ProtocolType": "WEBSOCKET",
+        "RouteSelectionExpression": "$request.body.route",
+      },
+      "Type": "AWS::ApiGatewayV2::Api",
+    },
+    "ApiTestGrantRouteInvoke07047C38E": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaD247545B",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "ApiTestEE73F324",
+              },
+              "/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ApiTestSchemaHandlerB89B7431",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ApiTestSchemaHandlerB89B7431",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "Roles": [
+          {
+            "Ref": "ApiTestPrepareSpecProviderRoleF47822B8",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ApiTestPrepareSpecProviderRoleF47822B8": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:logs:",
+                        {
+                          "Ref": "AWS::Region",
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":log-group:/aws/lambda/*",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestSchemaCustomResource98AF5661": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestSchemaProviderframeworkonEventA54214B8",
+            "Arn",
+          ],
+        },
+        "apiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "1b4c2f072255dc1154b3380ad1beeb1965457871ae37e9440c3fc96212e3d68c.json",
+        },
+        "serverOperationPaths": {
+          "TestOperation": "/TestOperation",
+        },
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "ApiTestSchemaHandlerB89B7431": {
+      "DependsOn": [
+        "ApiTestSchemaHandlerServiceRoleDefaultPolicyB4308F6A",
+        "ApiTestSchemaHandlerServiceRole42979CD9",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsSolutions-IAM4",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8adf3c609b6d73fa935d9c361e37b816f2da1d59567bf9c753fc8319e6a58e7f.zip",
+        },
+        "Handler": "websocket-schema-handler.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestSchemaHandlerServiceRole42979CD9",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs20.x",
+        "Timeout": 60,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestSchemaHandlerServiceRole42979CD9": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsSolutions-IAM4",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestSchemaHandlerServiceRoleDefaultPolicyB4308F6A": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":s3:::",
+                    {
+                      "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                    },
+                    "/1b4c2f072255dc1154b3380ad1beeb1965457871ae37e9440c3fc96212e3d68c.json",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "apigateway:DELETE",
+                "apigateway:PATCH",
+                "apigateway:POST",
+                "apigateway:GET",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/models",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/models/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "apigateway:PATCH",
+                "apigateway:GET",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/routes",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/routes/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestSchemaHandlerServiceRoleDefaultPolicyB4308F6A",
+        "Roles": [
+          {
+            "Ref": "ApiTestSchemaHandlerServiceRole42979CD9",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ApiTestSchemaProviderframeworkonEventA54214B8": {
+      "DependsOn": [
+        "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "ApiTestPrepareSpecProviderRoleF47822B8",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Provider framework lambda is managed by CDK",
+            },
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Provider framework lambda is managed by CDK",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "7382a0addb9f34974a1ea6c6c9b063882af874828f366f5c93b2b7b64db15c94.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/ApiTest/SchemaProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "ApiTestSchemaHandlerB89B7431",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecProviderRoleF47822B8",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestTestOperationRoute85832F8E": {
+      "DependsOn": [
+        "ApiTestSchemaCustomResource98AF5661",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AuthorizationType": "NONE",
+        "ModelSelectionExpression": "model",
+        "RequestModels": {
+          "model": "TestOperation",
+        },
+        "RouteKey": "TestOperation",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "ApiTestTestOperationRouteIntegration8EB87255",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "ApiTestTestOperationRouteIntegration8EB87255": {
+      "DependsOn": [
+        "ApiTestSchemaCustomResource98AF5661",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":apigateway:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":lambda:path/2015-03-31/functions/",
+              {
+                "Fn::GetAtt": [
+                  "LambdaD247545B",
+                  "Arn",
+                ],
+              },
+              "/invocations",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Integration",
+    },
+    "ApiTestTestOperationRouteIntegrationPermissionB8255658": {
+      "DependsOn": [
+        "ApiTestSchemaCustomResource98AF5661",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaD247545B",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "ApiTestEE73F324",
+              },
+              "/*TestOperation",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "ApiTestconnectRouteC24E96E0": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AuthorizationType": "AWS_IAM",
+        "RouteKey": "$connect",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "ApiTestconnectRouteConnectAFBDA02D",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "ApiTestconnectRouteConnectAFBDA02D": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":apigateway:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":lambda:path/2015-03-31/functions/",
+              {
+                "Fn::GetAtt": [
+                  "LambdaD247545B",
+                  "Arn",
+                ],
+              },
+              "/invocations",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Integration",
+    },
+    "ApiTestconnectRouteConnectPermission60A0D4BA": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaD247545B",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "ApiTestEE73F324",
+              },
+              "/*$connect",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "ApiTestdefault66772C11": {
+      "Properties": {
+        "AccessLogSettings": {
+          "DestinationArn": {
+            "Fn::GetAtt": [
+              "ApiTestAccessLogs92CFE051",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp - - [$context.requestTime] "$context.httpMethod $context.routeKey $context.protocol" $context.status $context.responseLength $context.requestId",
+        },
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AutoDeploy": true,
+        "DefaultRouteSettings": {
+          "DataTraceEnabled": false,
+          "LoggingLevel": "INFO",
+        },
+        "StageName": "default",
+      },
+      "Type": "AWS::ApiGatewayV2::Stage",
+    },
+    "ApiTestdisconnectRoute5C8E8EE6": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AuthorizationType": "NONE",
+        "RouteKey": "$disconnect",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "ApiTestconnectRouteConnectAFBDA02D",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "LambdaD247545B": {
+      "DependsOn": [
+        "LambdaServiceRoleDefaultPolicyDAE46E21",
+        "LambdaServiceRoleA8ED4D3B",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "ZipFile": "code",
+        },
+        "Handler": "handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaServiceRoleA8ED4D3B",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "LambdaServiceRoleA8ED4D3B": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "LambdaServiceRoleDefaultPolicyDAE46E21": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+            {
+              "applies_to": [
+                {
+                  "regex": "/^Resource::arn:<AWS::Partition>:execute-api:<AWS::Region>:<AWS::AccountId>:.*\\/default\\/\\*\\/@connections\\/\\*$/g",
+                },
+              ],
+              "id": "AwsSolutions-IAM5",
+              "reason": "WebSocket handlers are granted permissions to manage arbitrary connections",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "execute-api:ManageConnections",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiTestEE73F324",
+                    },
+                    "/default/*/@connections/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "LambdaServiceRoleDefaultPolicyDAE46E21",
+        "Roles": [
+          {
+            "Ref": "LambdaServiceRoleA8ED4D3B",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`Type Safe WebSocket Api Construct Unit Tests Synthesizes With Mock Integrations 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "ApiTestAccessLogs92CFE051": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "RetentionInDays": 731,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "ApiTestEE73F324": {
+      "Properties": {
+        "Name": "ApiTest",
+        "ProtocolType": "WEBSOCKET",
+        "RouteSelectionExpression": "$request.body.route",
+      },
+      "Type": "AWS::ApiGatewayV2::Api",
+    },
+    "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ApiTestSchemaHandlerB89B7431",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ApiTestSchemaHandlerB89B7431",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "Roles": [
+          {
+            "Ref": "ApiTestPrepareSpecProviderRoleF47822B8",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ApiTestPrepareSpecProviderRoleF47822B8": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Custom resource provider may invoke arbitrary lambda versions",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:logs:",
+                        {
+                          "Ref": "AWS::Region",
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":log-group:/aws/lambda/*",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "logs",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestSchemaCustomResource98AF5661": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "ApiTestSchemaProviderframeworkonEventA54214B8",
+            "Arn",
+          ],
+        },
+        "apiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "inputSpecLocation": {
+          "bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "key": "1b4c2f072255dc1154b3380ad1beeb1965457871ae37e9440c3fc96212e3d68c.json",
+        },
+        "serverOperationPaths": {
+          "TestOperation": "/TestOperation",
+        },
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "ApiTestSchemaHandlerB89B7431": {
+      "DependsOn": [
+        "ApiTestSchemaHandlerServiceRoleDefaultPolicyB4308F6A",
+        "ApiTestSchemaHandlerServiceRole42979CD9",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsSolutions-IAM4",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8adf3c609b6d73fa935d9c361e37b816f2da1d59567bf9c753fc8319e6a58e7f.zip",
+        },
+        "Handler": "websocket-schema-handler.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestSchemaHandlerServiceRole42979CD9",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs20.x",
+        "Timeout": 60,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestSchemaHandlerServiceRole42979CD9": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoManagedPolicies",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsSolutions-IAM4",
+              "reason": "AWSLambdaBasicExecutionRole grants minimal permissions required for lambda execution",
+            },
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ApiTestSchemaHandlerServiceRoleDefaultPolicyB4308F6A": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-IAMNoWildcardPermissions",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+            {
+              "id": "AwsSolutions-IAM5",
+              "reason": "Schema custom resource manages all routes and models",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":s3:::",
+                    {
+                      "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                    },
+                    "/1b4c2f072255dc1154b3380ad1beeb1965457871ae37e9440c3fc96212e3d68c.json",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "apigateway:DELETE",
+                "apigateway:PATCH",
+                "apigateway:POST",
+                "apigateway:GET",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/models",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/models/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "apigateway:PATCH",
+                "apigateway:GET",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/routes",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region",
+                      },
+                      "::/apis/",
+                      {
+                        "Ref": "ApiTestEE73F324",
+                      },
+                      "/routes/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ApiTestSchemaHandlerServiceRoleDefaultPolicyB4308F6A",
+        "Roles": [
+          {
+            "Ref": "ApiTestSchemaHandlerServiceRole42979CD9",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ApiTestSchemaProviderframeworkonEventA54214B8": {
+      "DependsOn": [
+        "ApiTestPrepareSpecProviderRoleDefaultPolicy99662E78",
+        "ApiTestPrepareSpecProviderRoleF47822B8",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-LambdaLatestVersion",
+              "reason": "Provider framework lambda is managed by CDK",
+            },
+            {
+              "id": "AwsSolutions-L1",
+              "reason": "Provider framework lambda is managed by CDK",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "7382a0addb9f34974a1ea6c6c9b063882af874828f366f5c93b2b7b64db15c94.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (Default/ApiTest/SchemaProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "ApiTestSchemaHandlerB89B7431",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "Handler": "framework.onEvent",
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiTestPrepareSpecProviderRoleF47822B8",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ApiTestTestOperationIntegRes944BB9F8": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationId": {
+          "Ref": "ApiTestTestOperationRouteMockCFAD1B79",
+        },
+        "IntegrationResponseKey": "/2\\d\\d/",
+        "ResponseTemplates": {
+          "200": "{"statusCode":200}",
+        },
+        "TemplateSelectionExpression": "/2\\d\\d/",
+      },
+      "Type": "AWS::ApiGatewayV2::IntegrationResponse",
+    },
+    "ApiTestTestOperationRoute85832F8E": {
+      "DependsOn": [
+        "ApiTestSchemaCustomResource98AF5661",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AuthorizationType": "NONE",
+        "ModelSelectionExpression": "model",
+        "RequestModels": {
+          "model": "TestOperation",
+        },
+        "RouteKey": "TestOperation",
+        "RouteResponseSelectionExpression": "$default",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "ApiTestTestOperationRouteMockCFAD1B79",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "ApiTestTestOperationRouteMockCFAD1B79": {
+      "DependsOn": [
+        "ApiTestSchemaCustomResource98AF5661",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationType": "MOCK",
+        "IntegrationUri": "",
+        "RequestTemplates": {
+          "application/json": "{"statusCode":200}",
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Integration",
+    },
+    "ApiTestTestOperationRouteResponseA8BB1BB7": {
+      "DependsOn": [
+        "ApiTestSchemaCustomResource98AF5661",
+      ],
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "RouteId": {
+          "Ref": "ApiTestTestOperationRoute85832F8E",
+        },
+        "RouteResponseKey": "$default",
+      },
+      "Type": "AWS::ApiGatewayV2::RouteResponse",
+    },
+    "ApiTestconnectIntegRes94517D27": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationId": {
+          "Ref": "ApiTestconnectRouteConnectIntegration8E0BC8E8",
+        },
+        "IntegrationResponseKey": "/2\\d\\d/",
+        "ResponseTemplates": {
+          "200": "{"statusCode":200}",
+        },
+        "TemplateSelectionExpression": "/2\\d\\d/",
+      },
+      "Type": "AWS::ApiGatewayV2::IntegrationResponse",
+    },
+    "ApiTestconnectRouteC24E96E0": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AuthorizationType": "AWS_IAM",
+        "RouteKey": "$connect",
+        "RouteResponseSelectionExpression": "$default",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "ApiTestconnectRouteConnectIntegration8E0BC8E8",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "ApiTestconnectRouteConnectIntegration8E0BC8E8": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationType": "MOCK",
+        "IntegrationUri": "",
+        "RequestTemplates": {
+          "application/json": "{"statusCode":200}",
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Integration",
+    },
+    "ApiTestconnectRouteResponseBCC69A30": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "RouteId": {
+          "Ref": "ApiTestconnectRouteC24E96E0",
+        },
+        "RouteResponseKey": "$default",
+      },
+      "Type": "AWS::ApiGatewayV2::RouteResponse",
+    },
+    "ApiTestdefault66772C11": {
+      "Properties": {
+        "AccessLogSettings": {
+          "DestinationArn": {
+            "Fn::GetAtt": [
+              "ApiTestAccessLogs92CFE051",
+              "Arn",
+            ],
+          },
+          "Format": "$context.identity.sourceIp - - [$context.requestTime] "$context.httpMethod $context.routeKey $context.protocol" $context.status $context.responseLength $context.requestId",
+        },
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AutoDeploy": true,
+        "DefaultRouteSettings": {
+          "DataTraceEnabled": false,
+          "LoggingLevel": "INFO",
+        },
+        "StageName": "default",
+      },
+      "Type": "AWS::ApiGatewayV2::Stage",
+    },
+    "ApiTestdisconnectIntegResAF67D3BC": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationId": {
+          "Ref": "ApiTestdisconnectRouteDisconnectIntegrationDC709560",
+        },
+        "IntegrationResponseKey": "/2\\d\\d/",
+        "ResponseTemplates": {
+          "200": "{"statusCode":200}",
+        },
+        "TemplateSelectionExpression": "/2\\d\\d/",
+      },
+      "Type": "AWS::ApiGatewayV2::IntegrationResponse",
+    },
+    "ApiTestdisconnectRoute5C8E8EE6": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "AuthorizationType": "NONE",
+        "RouteKey": "$disconnect",
+        "RouteResponseSelectionExpression": "$default",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "ApiTestdisconnectRouteDisconnectIntegrationDC709560",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "ApiTestdisconnectRouteDisconnectIntegrationDC709560": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "IntegrationType": "MOCK",
+        "IntegrationUri": "",
+        "RequestTemplates": {
+          "application/json": "{"statusCode":200}",
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Integration",
+    },
+    "ApiTestdisconnectRouteResponse79FE872F": {
+      "Metadata": {
+        "cdk_nag": {
+          "rules_to_suppress": [
+            {
+              "id": "AwsPrototyping-APIGWAuthorization",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+            {
+              "id": "AwsSolutions-APIG4",
+              "reason": "Authorizers only apply to the $connect route",
+            },
+          ],
+        },
+      },
+      "Properties": {
+        "ApiId": {
+          "Ref": "ApiTestEE73F324",
+        },
+        "RouteId": {
+          "Ref": "ApiTestdisconnectRoute5C8E8EE6",
+        },
+        "RouteResponseKey": "$default",
+      },
+      "Type": "AWS::ApiGatewayV2::RouteResponse",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

@@ -1,8 +1,12 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
+import * as path from "path";
 import { ProjenStruct, Struct } from "@mrgrain/jsii-struct-builder";
 import { Project } from "projen";
 import { Stability } from "projen/lib/cdk";
+import { JavaProject } from "projen/lib/java";
+import { SmithyAsyncTransformerProject } from "./internal/smithy-async-transformer";
+import { NxProject } from "../../packages/monorepo/src/components/nx-project";
 import { PDKProject, PDK_NAMESPACE } from "../abstract/pdk-project";
 
 /**
@@ -34,6 +38,7 @@ export class TypeSafeApiProject extends PDKProject {
         "constructs",
         "projen",
         "@aws-sdk/client-s3",
+        "@aws-sdk/client-apigatewayv2",
         `${PDK_NAMESPACE}monorepo@^0.x`,
         "@apidevtools/swagger-parser@10.1.0", // Used by scripts
         "ts-command-line-args@2.4.2", // Used by scripts
@@ -67,6 +72,7 @@ export class TypeSafeApiProject extends PDKProject {
           "scripts/type-safe-api/custom/gradle-wrapper/copy-gradle-wrapper",
           "scripts/type-safe-api/custom/gradle-wrapper/gradlew",
           "scripts/type-safe-api/custom/gradle-wrapper/gradlew.bat",
+          "scripts/type-safe-api/custom/smithy-async-transformer/copy-transformer",
         ],
       },
       bin: {
@@ -81,12 +87,37 @@ export class TypeSafeApiProject extends PDKProject {
           "scripts/type-safe-api/custom/clean-openapi-generated-code/clean-openapi-generated-code",
         "type-safe-api.copy-gradle-wrapper":
           "scripts/type-safe-api/custom/gradle-wrapper/copy-gradle-wrapper",
+        "type-safe-api.copy-async-smithy-transformer":
+          "scripts/type-safe-api/custom/smithy-async-transformer/copy-transformer",
       },
     });
 
     this.gitignore.exclude("tmp\\.*");
     this.eslint?.addRules({ "import/no-unresolved": ["off"] });
     this.tsconfigEslint!.addInclude("scripts");
+
+    // Depend on the smithy transformer project
+    const smithyAsyncTransformer = parent.subprojects.find(
+      (p) => p.name === SmithyAsyncTransformerProject.NAME
+    )! as JavaProject;
+    NxProject.of(this)?.addImplicitDependency(smithyAsyncTransformer);
+
+    // Copy the transformer jar into the script dir
+    const smithyAsyncTransformerJar =
+      "scripts/type-safe-api/custom/smithy-async-transformer/aws-pdk-smithy-async-transformer.jar";
+    this.preCompileTask.exec(
+      `cp ${path.join(
+        path.relative(this.outdir, smithyAsyncTransformer.outdir),
+        ...[
+          smithyAsyncTransformer.distdir,
+          ...smithyAsyncTransformer.pom.groupId.split("."),
+          smithyAsyncTransformer.pom.artifactId,
+          smithyAsyncTransformer.pom.version,
+          `${smithyAsyncTransformer.pom.artifactId}-${smithyAsyncTransformer.pom.version}.jar`,
+        ]
+      )} ${smithyAsyncTransformerJar}`
+    );
+    this.gitignore.addPatterns(smithyAsyncTransformerJar);
 
     this.generateInterfaces();
   }
@@ -108,6 +139,35 @@ export class TypeSafeApiProject extends PDKProject {
       .allOptional()
       .update("name", { optional: false })
       .omit("vendorName");
+
+    new ProjenStruct(this, {
+      name: "WebSocketApiProps",
+      filePath: `${this.srcdir}/construct/websocket/websocket-api-props.ts`,
+      outputFileOptions: {
+        readonly: false, // Needed as EsLint will complain otherwise
+      },
+    })
+      .mixin(Struct.fromFqn("aws-cdk-lib.aws_apigatewayv2.WebSocketApiProps"))
+      .withoutDeprecated()
+      .allOptional()
+      .omit(
+        "routeSelectionExpression",
+        "connectRouteOptions",
+        "disconnectRouteOptions",
+        "defaultRouteOptions"
+      );
+
+    new ProjenStruct(this, {
+      name: "WebSocketStageProps",
+      filePath: `${this.srcdir}/construct/websocket/websocket-stage-props.ts`,
+      outputFileOptions: {
+        readonly: false, // Needed as EsLint will complain otherwise
+      },
+    })
+      .mixin(Struct.fromFqn("aws-cdk-lib.aws_apigatewayv2.WebSocketStageProps"))
+      .withoutDeprecated()
+      .allOptional()
+      .omit("webSocketApi");
 
     new ProjenStruct(this, {
       name: "TypeScriptProjectOptions",
@@ -152,6 +212,12 @@ export class TypeSafeApiProject extends PDKProject {
 
     this.eslint?.addIgnorePattern(
       `${this.srcdir}/construct/waf/generated-types.ts`
+    );
+    this.eslint?.addIgnorePattern(
+      `${this.srcdir}/construct/websocket/websocket-api-props.ts`
+    );
+    this.eslint?.addIgnorePattern(
+      `${this.srcdir}/construct/websocket/websocket-stage-props.ts`
     );
     this.eslint?.addIgnorePattern(
       `${this.srcdir}/project/typescript-project-options.ts`

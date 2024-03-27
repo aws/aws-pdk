@@ -72,7 +72,7 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
         exec(command, {
           cwd: path.resolve(__dirname),
         });
-      }).toThrowError(
+      }).toThrow(
         /Request parameters must be of type number, integer, boolean, string or arrays of these. Found invalid parameters:\nget \/invalid\/parameters: objectQueryParam\nget \/invalid\/parameters: arrayOfObjects\nget \/invalid\/parameters: mixedTypes/
       );
     });
@@ -87,6 +87,24 @@ describe("Parse OpenAPI Spec Script Unit Tests", () => {
           ".api.json"
         );
         const command = `../../../scripts/type-safe-api/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath}`;
+        exec(command, {
+          cwd: path.resolve(__dirname),
+        });
+      })
+    ).toMatchSnapshot();
+  });
+
+  it("Injects @async, @connectHandler and @disconnectHandler traits", () => {
+    expect(
+      withTmpDirSnapshot(os.tmpdir(), (tmpDir) => {
+        const specPath = "../../resources/smithy/async-recursive/openapi.json";
+        const smithyJsonModelPath =
+          "../../resources/smithy/async-recursive/model.json";
+        const outputPath = path.join(
+          path.relative(path.resolve(__dirname), tmpDir),
+          ".api.json"
+        );
+        const command = `../../../scripts/type-safe-api/parser/parse-openapi-spec --spec-path ${specPath} --output-path ${outputPath} --smithy-json-path ${smithyJsonModelPath}`;
         exec(command, {
           cwd: path.resolve(__dirname),
         });

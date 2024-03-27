@@ -1,0 +1,44 @@
+package {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-infrastructure-package}}{{/apis.0}}{{/apiInfo}};
+
+import software.amazon.awscdk.services.apigateway.CorsOptions;
+import software.amazon.awscdk.services.apigateway.StageOptions;
+import software.amazon.awscdk.services.apigateway.RestApiBaseProps;
+import software.amazon.awscdk.services.apigateway.DomainNameOptions;
+import software.amazon.awscdk.services.apigateway.EndpointType;
+import software.amazon.awscdk.services.iam.PolicyDocument;
+import software.aws.pdk.type_safe_api.ApiKeyOptions;
+import software.aws.pdk.type_safe_api.Authorizer;
+import software.aws.pdk.type_safe_api.TypeSafeApiIntegration;
+import software.aws.pdk.type_safe_api.TypeSafeApiWebAclOptions;
+
+import {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package}}{{/apis.0}}{{/apiInfo}}.api.operation_config.OperationConfig;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Properties for the Api construct
+ */
+@lombok.Builder @lombok.Getter
+public class ApiProps implements RestApiBaseProps {
+    public OperationConfig<TypeSafeApiIntegration> integrations;
+    public Authorizer defaultAuthorizer;
+    public CorsOptions corsOptions;
+    public ApiKeyOptions apiKeyOptions;
+    public TypeSafeApiWebAclOptions webAclOptions;
+
+    // Rest API Props
+    public Boolean cloudWatchRole;
+    public Boolean deploy;
+    public StageOptions deployOptions;
+    public String description;
+    public Boolean disableExecuteApiEndpoint;
+    public DomainNameOptions domainName;
+    public String endpointExportName;
+    public List<EndpointType> endpointTypes;
+    public Boolean failOnWarnings;
+    public Map<String, String> parameters;
+    public PolicyDocument policy;
+    public String restApiName;
+    public Boolean retainDeployments;
+}

@@ -1,0 +1,100 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Extract WebSocketSchema extracts schemas from a recursive spec 1`] = `
+{
+  "Recursive": {
+    "definitions": {
+      "components_schemas_Node": {
+        "properties": {
+          "left": {
+            "$ref": "#/definitions/components_schemas_Node",
+          },
+          "right": {
+            "$ref": "#/definitions/components_schemas_Node",
+          },
+          "value": {
+            "type": "string",
+          },
+        },
+        "required": [
+          "value",
+        ],
+        "type": "object",
+      },
+    },
+    "schema": {
+      "properties": {
+        "root": {
+          "$ref": "#/definitions/components_schemas_Node",
+        },
+      },
+      "type": "object",
+    },
+  },
+}
+`;
+
+exports[`Extract WebSocketSchema extracts schemas from a simple spec 1`] = `
+{
+  "SendNotification": {
+    "definitions": {},
+    "schema": {
+      "properties": {
+        "message": {
+          "type": "string",
+        },
+        "title": {
+          "type": "string",
+        },
+        "topic": {
+          "type": "string",
+        },
+      },
+      "required": [
+        "message",
+        "title",
+        "topic",
+      ],
+      "type": "object",
+    },
+  },
+  "SubscribeToNotifications": {
+    "definitions": {
+      "components_schemas_Bar": {
+        "properties": {
+          "blip": {
+            "type": "string",
+          },
+        },
+        "type": "object",
+      },
+      "components_schemas_Foo": {
+        "properties": {
+          "bart": {
+            "$ref": "#/definitions/components_schemas_Bar",
+          },
+          "baz": {
+            "format": "int32",
+            "type": "integer",
+          },
+        },
+        "type": "object",
+      },
+    },
+    "schema": {
+      "properties": {
+        "foo": {
+          "$ref": "#/definitions/components_schemas_Foo",
+        },
+        "topic": {
+          "type": "string",
+        },
+      },
+      "required": [
+        "topic",
+      ],
+      "type": "object",
+    },
+  },
+}
+`;

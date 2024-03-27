@@ -109,6 +109,195 @@ exports[`Parse OpenAPI Spec Script Unit Tests Bundles Spec Into Single File 1`] 
 }
 `;
 
+exports[`Parse OpenAPI Spec Script Unit Tests Injects @async, @connectHandler and @disconnectHandler traits 1`] = `
+{
+  ".api.json": {
+    "components": {
+      "schemas": {
+        "Bar": {
+          "properties": {
+            "blip": {
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+        "Foo": {
+          "properties": {
+            "bar": {
+              "$ref": "#/components/schemas/Bar",
+            },
+            "baz": {
+              "format": "int32",
+              "type": "integer",
+            },
+          },
+          "type": "object",
+        },
+        "Node": {
+          "properties": {
+            "left": {
+              "$ref": "#/components/schemas/Node",
+            },
+            "right": {
+              "$ref": "#/components/schemas/Node",
+            },
+            "value": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "value",
+          ],
+          "type": "object",
+        },
+        "RecursiveRequestContent": {
+          "properties": {
+            "root": {
+              "$ref": "#/components/schemas/Node",
+            },
+          },
+          "type": "object",
+        },
+        "SendNotificationRequestContent": {
+          "properties": {
+            "message": {
+              "type": "string",
+            },
+            "title": {
+              "type": "string",
+            },
+            "topic": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "message",
+            "title",
+            "topic",
+          ],
+          "type": "object",
+        },
+        "SubscribeToNotificationsRequestContent": {
+          "properties": {
+            "foo": {
+              "$ref": "#/components/schemas/Foo",
+            },
+            "topic": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "topic",
+          ],
+          "type": "object",
+        },
+      },
+    },
+    "info": {
+      "description": "A sample smithy websocket api",
+      "title": "MyService",
+      "version": "1.0",
+    },
+    "openapi": "3.0.2",
+    "paths": {
+      "/Recursive": {
+        "post": {
+          "operationId": "Recursive",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecursiveRequestContent",
+                },
+              },
+            },
+          },
+          "responses": {
+            "200": {
+              "description": "Recursive 200 response",
+            },
+          },
+          "x-async": {
+            "direction": "bidirectional",
+          },
+          "x-smithy.api#http": {
+            "code": 200,
+            "method": "POST",
+            "uri": "/Recursive",
+          },
+        },
+      },
+      "/SendNotification": {
+        "post": {
+          "operationId": "SendNotification",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendNotificationRequestContent",
+                },
+              },
+            },
+            "required": true,
+          },
+          "responses": {
+            "200": {
+              "description": "SendNotification 200 response",
+            },
+          },
+          "x-async": {
+            "direction": "server_to_client",
+          },
+          "x-smithy.api#http": {
+            "code": 200,
+            "method": "POST",
+            "uri": "/SendNotification",
+          },
+        },
+      },
+      "/SubscribeToNotifications": {
+        "post": {
+          "operationId": "SubscribeToNotifications",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribeToNotificationsRequestContent",
+                },
+              },
+            },
+            "required": true,
+          },
+          "responses": {
+            "200": {
+              "description": "SubscribeToNotifications 200 response",
+            },
+          },
+          "x-async": {
+            "direction": "client_to_server",
+          },
+          "x-smithy.api#http": {
+            "code": 200,
+            "method": "POST",
+            "uri": "/SubscribeToNotifications",
+          },
+        },
+      },
+    },
+    "x-aws.protocols#restJson1": {},
+    "x-com.aws#websocketJson": {},
+    "x-connect-handler": {
+      "language": "typescript",
+    },
+    "x-disconnect-handler": {
+      "language": "typescript",
+    },
+    "x-smithy.api#documentation": "A sample smithy websocket api",
+  },
+}
+`;
+
 exports[`Parse OpenAPI Spec Script Unit Tests Injects @handler and @paginated traits 1`] = `
 {
   ".api.json": {
@@ -363,6 +552,8 @@ exports[`Parse OpenAPI Spec Script Unit Tests Injects @handler and @paginated tr
         },
       },
     },
+    "x-aws.protocols#restJson1": {},
+    "x-smithy.api#documentation": "A sample smithy api",
   },
 }
 `;
@@ -547,6 +738,8 @@ exports[`Parse OpenAPI Spec Script Unit Tests Maps renamed @paginated traits for
         },
       },
     },
+    "x-aws.protocols#restJson1": {},
+    "x-smithy.api#documentation": "A sample smithy api",
   },
 }
 `;

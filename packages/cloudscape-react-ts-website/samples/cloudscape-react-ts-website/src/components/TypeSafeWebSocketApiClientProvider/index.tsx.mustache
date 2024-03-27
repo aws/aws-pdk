@@ -1,0 +1,31 @@
+/*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0 */
+{{#typeSafeWebSocketApis}}
+import { DefaultApiWebSocketClientProvider as {{{apiNameSafe}}}WebSocketApiClientProvider } from "{{{hooksPackage}}}";
+{{/typeSafeWebSocketApis}}
+import { {{#typeSafeWebSocketApis}}use{{{apiNameSafe}}}WebSocketApiClient{{^isLast}}, {{/isLast}}{{/typeSafeWebSocketApis}} } from "../../hooks/useTypeSafeWebSocketApiClient";
+import React from "react";
+import { Spinner } from "@cloudscape-design/components";
+
+/**
+ * Sets up the Type Safe WebSocket Api clients.
+ */
+const TypeSafeWebSocketApiClientProvider: React.FC<any> = ({ children }) => {
+  {{#typeSafeWebSocketApis}}
+  const {{{apiNameSafe}}}Client = use{{{apiNameSafe}}}WebSocketApiClient();
+  {{/typeSafeWebSocketApis}}
+
+  return {{#typeSafeWebSocketApis}}{{{apiNameSafe}}}Client{{^isLast}} && {{/isLast}}{{/typeSafeWebSocketApis}} ? (
+    {{#typeSafeWebSocketApis}}
+    {{=<% %>=}}
+    <<%apiNameSafe%>WebSocketApiClientProvider client={<%apiNameSafe%>Client}>
+    <%={{ }}=%>
+    {{/typeSafeWebSocketApis}}
+      {children}
+    {{#typeSafeWebSocketApisReversed}}
+    </{{{apiNameSafe}}}WebSocketApiClientProvider>
+    {{/typeSafeWebSocketApisReversed}}
+  ) : <Spinner size="large" />;
+};
+
+export default TypeSafeWebSocketApiClientProvider;

@@ -152,7 +152,7 @@ describe("Type Safe Api Model Project Unit Tests", () => {
         modelLanguage: ModelLanguage.SMITHY,
         modelOptions: {},
       });
-    }).toThrowError(/modelOptions.smithy is required.*/);
+    }).toThrow(/modelOptions.smithy is required.*/);
   });
 
   it("Throws For Missing OpenAPI Options", () => {
@@ -163,6 +163,6 @@ describe("Type Safe Api Model Project Unit Tests", () => {
         modelLanguage: ModelLanguage.OPENAPI,
         modelOptions: {},
       });
-    }).toThrowError(/modelOptions.openapi is required.*/);
+    }).toThrow(/modelOptions.openapi is required.*/);
   });
 });

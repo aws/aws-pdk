@@ -1,0 +1,149 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Python Async Handlers Code Generation Script Unit Tests Generates With handlers.yaml 1`] = `
+"from test_client.models import *
+from test_client.response import Response
+from test_client.interceptors import INTERCEPTORS
+from test_client.interceptors.powertools.logger import LoggingInterceptor
+from test_client.api.operation_config import (
+    python_one_handler, PythonOneRequest, PythonOneOperationResponses
+)
+
+
+def python_one(input: PythonOneRequest, **kwargs) -> PythonOneOperationResponses:
+    """
+    Type-safe handler for the PythonOne operation
+    """
+    LoggingInterceptor.get_logger(input).info("Start PythonOne Operation")
+
+    # TODO: Implement PythonOne Operation. \`input\` contains the request input
+
+    return Response.internal_failure(InternalFailureErrorResponseContent(
+        message="Not Implemented!"
+    ))
+
+
+# Entry point for the AWS Lambda handler for the PythonOne operation.
+# The python_one_handler method wraps the type-safe handler and manages marshalling inputs and outputs
+handler = python_one_handler(interceptors=INTERCEPTORS)(python_one)
+
+"
+`;
+
+exports[`Python Async Handlers Code Generation Script Unit Tests Generates With handlers.yaml 2`] = `
+"from test_client.models import *
+from test_client.response import Response
+from test_client.interceptors import INTERCEPTORS
+from test_client.interceptors.powertools.logger import LoggingInterceptor
+from test_client.api.operation_config import (
+    python_two_handler, PythonTwoRequest, PythonTwoOperationResponses
+)
+
+
+def python_two(input: PythonTwoRequest, **kwargs) -> PythonTwoOperationResponses:
+    """
+    Type-safe handler for the PythonTwo operation
+    """
+    LoggingInterceptor.get_logger(input).info("Start PythonTwo Operation")
+
+    # TODO: Implement PythonTwo Operation. \`input\` contains the request input
+
+    return Response.internal_failure(InternalFailureErrorResponseContent(
+        message="Not Implemented!"
+    ))
+
+
+# Entry point for the AWS Lambda handler for the PythonTwo operation.
+# The python_two_handler method wraps the type-safe handler and manages marshalling inputs and outputs
+handler = python_two_handler(interceptors=INTERCEPTORS)(python_two)
+
+"
+`;
+
+exports[`Python Async Handlers Code Generation Script Unit Tests Generates With handlers.yaml 3`] = `
+"import pytest
+from aws_lambda_powertools import Logger
+
+from test_handlers.python_one import python_one
+from test_client.api.operation_config import (
+    PythonOneRequest, PythonOneRequestParameters, PythonOneRequestBody
+)
+
+
+@pytest.fixture
+def request_arguments():
+    """
+    Fixture for constructing common request arguments
+    """
+    return {
+        "event": {},
+        "context": None,
+        "interceptor_context": {
+            "logger": Logger(),
+        },
+    }
+
+
+def test_python_one_should_return_not_implemented_error(request_arguments):
+    # TODO: Update the test as appropriate when you implement your handler
+    response = python_one(PythonOneRequest(
+        **request_arguments,
+        # request_parameters=PythonOneRequestParameters(
+        #     # Add request parameters here...
+        # ),
+        request_parameters=None,
+        # body=PythonOneRequestBody(
+        #     # Add body fields here...
+        # )
+        body=None,
+    ))
+
+    assert response.status_code == 500
+    assert response.body.message == "Not Implemented!"
+
+"
+`;
+
+exports[`Python Async Handlers Code Generation Script Unit Tests Generates With handlers.yaml 4`] = `
+"import pytest
+from aws_lambda_powertools import Logger
+
+from test_handlers.python_two import python_two
+from test_client.api.operation_config import (
+    PythonTwoRequest, PythonTwoRequestParameters, PythonTwoRequestBody
+)
+
+
+@pytest.fixture
+def request_arguments():
+    """
+    Fixture for constructing common request arguments
+    """
+    return {
+        "event": {},
+        "context": None,
+        "interceptor_context": {
+            "logger": Logger(),
+        },
+    }
+
+
+def test_python_two_should_return_not_implemented_error(request_arguments):
+    # TODO: Update the test as appropriate when you implement your handler
+    response = python_two(PythonTwoRequest(
+        **request_arguments,
+        # request_parameters=PythonTwoRequestParameters(
+        #     # Add request parameters here...
+        # ),
+        request_parameters=None,
+        # body=PythonTwoRequestBody(
+        #     # Add body fields here...
+        # )
+        body=None,
+    ))
+
+    assert response.status_code == 500
+    assert response.body.message == "Not Implemented!"
+
+"
+`;

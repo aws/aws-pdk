@@ -1,0 +1,215 @@
+{
+    "smithy": "2.0",
+    "metadata": {
+        "validators": [
+            {
+                "configuration": {
+                    "selector": "    operation :not([trait|com.aws#async])\n"
+                },
+                "id": "MissingAsyncTrait",
+                "message": "Operation is missing @async trait",
+                "name": "EmitEachSelector"
+            },
+            {
+                "configuration": {
+                    "selector": "    service :not([trait|com.aws#websocketJson])\n"
+                },
+                "id": "MissingWebSocketProtocolTrait",
+                "message": "Service is missing @websocketJson trait",
+                "name": "EmitEachSelector"
+            },
+            {
+                "configuration": {
+                    "selector": "    operation -[output]->\n"
+                },
+                "id": "OperationMayNotHaveOutput",
+                "message": "Async operations must have no output",
+                "name": "EmitEachSelector"
+            },
+            {
+                "configuration": {
+                    "selector": "    operation :not(-[input]->)\n"
+                },
+                "id": "OperationMustHaveInput",
+                "message": "Async operations must define an input",
+                "name": "EmitEachSelector"
+            },
+            {
+                "configuration": {
+                    "selector": "  operation\n  [@trait|com.aws#async: @{direction} = server_to_client]\n  [trait|com.aws#handler]\n"
+                },
+                "id": "HandlerTraitNotPermittedForServerToClient",
+                "message": "The @handler trait cannot be applied to an @async operation with direction server_to_client",
+                "name": "EmitEachSelector"
+            },
+            {
+                "configuration": {
+                    "bindToTrait": "com.aws#connectHandler",
+                    "messageTemplate": "    @{trait|com.aws#connectHandler|language} is not supported by type-safe-api.\n    Supported languages are \"typescript\", \"java\" and \"python\".\n",
+                    "selector": "    :not([@trait|com.aws#connectHandler: @{language} = typescript, java, python])\n"
+                },
+                "id": "SupportedLanguage_connectHandler",
+                "name": "EmitEachSelector"
+            },
+            {
+                "configuration": {
+                    "bindToTrait": "com.aws#connectHandler",
+                    "messageTemplate": "    @@handler language @{trait|com.aws#connectHandler|language} cannot be referenced unless a handler project is configured for this language.\n    Configured handler project languages are: typescript.\n    You can add this language by configuring TypeSafeApiProject in your .projenrc\n",
+                    "selector": "    [@trait|com.aws#connectHandler: @{language} = typescript, java, python]\n    :not([@trait|com.aws#connectHandler: @{language} = typescript])\n"
+                },
+                "id": "ConfiguredHandlerProject_connectHandler",
+                "name": "EmitEachSelector"
+            },
+            {
+                "configuration": {
+                    "bindToTrait": "com.aws#disconnectHandler",
+                    "messageTemplate": "    @{trait|com.aws#disconnectHandler|language} is not supported by type-safe-api.\n    Supported languages are \"typescript\", \"java\" and \"python\".\n",
+                    "selector": "    :not([@trait|com.aws#disconnectHandler: @{language} = typescript, java, python])\n"
+                },
+                "id": "SupportedLanguage_disconnectHandler",
+                "name": "EmitEachSelector"
+            },
+            {
+                "configuration": {
+                    "bindToTrait": "com.aws#disconnectHandler",
+                    "messageTemplate": "    @@handler language @{trait|com.aws#disconnectHandler|language} cannot be referenced unless a handler project is configured for this language.\n    Configured handler project languages are: typescript.\n    You can add this language by configuring TypeSafeApiProject in your .projenrc\n",
+                    "selector": "    [@trait|com.aws#disconnectHandler: @{language} = typescript, java, python]\n    :not([@trait|com.aws#disconnectHandler: @{language} = typescript])\n"
+                },
+                "id": "ConfiguredHandlerProject_disconnectHandler",
+                "name": "EmitEachSelector"
+            },
+            {
+                "configuration": {
+                    "bindToTrait": "com.aws#handler",
+                    "messageTemplate": "    @{trait|com.aws#handler|language} is not supported by type-safe-api.\n    Supported languages are \"typescript\", \"java\" and \"python\".\n",
+                    "selector": "    :not([@trait|com.aws#handler: @{language} = typescript, java, python])\n"
+                },
+                "id": "SupportedLanguage_handler",
+                "name": "EmitEachSelector"
+            },
+            {
+                "configuration": {
+                    "bindToTrait": "com.aws#handler",
+                    "messageTemplate": "    @@handler language @{trait|com.aws#handler|language} cannot be referenced unless a handler project is configured for this language.\n    Configured handler project languages are: typescript.\n    You can add this language by configuring TypeSafeApiProject in your .projenrc\n",
+                    "selector": "    [@trait|com.aws#handler: @{language} = typescript, java, python]\n    :not([@trait|com.aws#handler: @{language} = typescript])\n"
+                },
+                "id": "ConfiguredHandlerProject_handler",
+                "name": "EmitEachSelector"
+            }
+        ]
+    },
+    "shapes": {
+        "com.aws#AsyncDirection": {
+            "type": "enum",
+            "members": {
+                "CLIENT_TO_SERVER": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "client_to_server"
+                    }
+                },
+                "SERVER_TO_CLIENT": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "server_to_client"
+                    }
+                },
+                "BIDIRECTIONAL": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "bidirectional"
+                    }
+                }
+            }
+        },
+        "com.aws#MyService": {
+            "type": "service",
+            "version": "1.0",
+            "operations": [
+                {
+                    "target": "com.aws#SayHello"
+                }
+            ],
+            "traits": {
+                "smithy.api#documentation": "A sample smithy api",
+                "com.aws#websocketJson": {}
+            }
+        },
+        "com.aws#SayHello": {
+            "type": "operation",
+            "input": {
+                "target": "com.aws#SayHelloInput"
+            },
+            "output": {
+                "target": "smithy.api#Unit"
+            },
+            "traits": {
+                "com.aws#async": {
+                    "direction": "client_to_server"
+                },
+                "com.aws#handler": {
+                    "language": "typescript"
+                }
+            }
+        },
+        "com.aws#SayHelloInput": {
+            "type": "structure",
+            "members": {
+                "name": {
+                    "target": "smithy.api#String",
+                    "traits": {
+                        "smithy.api#required": {}
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#input": {}
+            }
+        },
+        "com.aws#async": {
+            "type": "structure",
+            "members": {
+                "direction": {
+                    "target": "com.aws#AsyncDirection",
+                    "traits": {
+                        "smithy.api#documentation": "The direction this operation will be used in, used to inform the generated client and server sdks.",
+                        "smithy.api#required": {}
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "Add this trait to all asynchronous operations",
+                "smithy.api#trait": {
+                    "selector": "operation"
+                }
+            }
+        },
+        "com.aws#handler": {
+            "type": "structure",
+            "members": {
+                "language": {
+                    "target": "smithy.api#String",
+                    "traits": {
+                        "smithy.api#documentation": "The language you will implement the lambda in.\nValid values: typescript, java, python",
+                        "smithy.api#required": {}
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "Add this trait to an operation to generate a lambda handler stub for the operation.\nYou have configured handler projects for typescript",
+                "smithy.api#trait": {
+                    "selector": "operation"
+                }
+            }
+        },
+        "com.aws#websocketJson": {
+            "type": "structure",
+            "members": {},
+            "traits": {
+                "smithy.api#trait": {
+                    "selector": "service"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,399 @@
+from __future__ import annotations
+import urllib.parse
+import json
+from typing import Callable, Any, Dict, List, NamedTuple, TypeVar, Generic, Union, TypedDict, Protocol, Optional, Literal, Annotated
+from functools import wraps
+from dataclasses import dataclass, fields
+from datetime import datetime
+import dateutil.parser
+from pydantic import BaseModel, Field, StrictStr, conlist, StrictBool, StrictInt, StrictFloat
+
+from {{packageName}}.models import *
+
+T = TypeVar('T')
+
+# Generic type for object keyed by operation names
+@dataclass
+class OperationConfig(Generic[T]):
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+    {{operationId}}: T
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+    ...
+
+# Look up path and http method for a given operation name
+OperationLookup = {
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+    "{{operationId}}": {
+        "path": "{{path}}",
+        "method": "{{httpMethod}}",
+        "contentTypes": [{{^hasConsumes}}"application/json"{{/hasConsumes}}{{#consumes}}{{#mediaType}}"{{{.}}}",{{/mediaType}}{{/consumes}}]
+    },
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+}
+
+class Operations:
+    @staticmethod
+    def all(value: T) -> OperationConfig[T]:
+        """
+        Returns an OperationConfig with the same value for every operation
+        """
+        return OperationConfig(**{ operation_id: value for operation_id, _ in OperationLookup.items() })
+
+def uri_decode(value):
+    """
+    URI decode a value or list of values
+    """
+    if isinstance(value, list):
+        return [urllib.parse.unquote(v) for v in value]
+    return urllib.parse.unquote(value)
+
+def decode_request_parameters(parameters):
+    """
+    URI decode api request parameters (path, query or multi-value query)
+    """
+    return { key: uri_decode(parameters[key]) if parameters[key] is not None else parameters[key] for key in parameters.keys() }
+
+def parse_body(body, content_types, model):
+    """
+    Parse the body of an api request into the given model if present
+    """
+    if len([c for c in content_types if c != 'application/json']) == 0:
+        if model != Any:
+            body = model.model_validate(json.loads(body))
+        else:
+            body = json.loads(body or '{}')
+    return body
+
+def assert_required(required, base_name, parameters):
+    if required and parameters.get(base_name) is None:
+        raise Exception(f"Missing required request parameter '{base_name}'")
+
+def coerce_float(base_name, s):
+    try:
+        return float(s)
+    except Exception as e:
+        raise Exception(f"Expected a number for request parameter '{base_name}'")
+
+def coerce_int(base_name, s):
+    try:
+        return int(s)
+    except Exception as e:
+        raise Exception(f"Expected an integer for request parameter '{base_name}'")
+
+def coerce_datetime(base_name, s):
+    try:
+        return dateutil.parser.parse(s)
+    except Exception as e:
+        raise Exception(f"Expected a valid date (iso format) for request parameter '{base_name}'")
+
+def coerce_bool(base_name, s):
+    if s == "true":
+        return True
+    elif s == "false":
+        return False
+    raise Exception(f"Expected a boolean (true or false) for request parameter '{base_name}'")
+
+def coerce_parameter(base_name, data_type, raw_string_parameters, raw_string_array_parameters, required):
+    if data_type == "float":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_float(base_name, param)
+    elif data_type == "int":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_int(base_name, param)
+    elif data_type == "bool":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_bool(base_name, param)
+    elif data_type == "datetime":
+        assert_required(required, base_name, raw_string_parameters)
+        param = raw_string_parameters.get(base_name)
+        return None if param is None else coerce_datetime(base_name, param)
+    elif data_type == "List[float]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_float(base_name, p) for p in param]
+    elif data_type == "List[int]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_int(base_name, p) for p in param]
+    elif data_type == "List[bool]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_bool(base_name, p) for p in param]
+    elif data_type == "List[datetime]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        param = raw_string_array_parameters.get(base_name)
+        return None if param is None else [coerce_datetime(base_name, p) for p in param]
+    elif data_type == "List[str]":
+        assert_required(required, base_name, raw_string_array_parameters)
+        return raw_string_array_parameters.get(base_name)
+    else: # data_type == "str"
+        assert_required(required, base_name, raw_string_parameters)
+        return raw_string_parameters.get(base_name)
+
+
+def extract_response_headers_from_interceptors(interceptors):
+    headers = {}
+    for interceptor in interceptors:
+        additional_headers = getattr(interceptor, "__type_safe_api_response_headers", None)
+        headers = {**headers, **(additional_headers or {})}
+    return headers
+
+
+RequestParameters = TypeVar('RequestParameters')
+RequestBody = TypeVar('RequestBody')
+ResponseBody = TypeVar('ResponseBody')
+StatusCode = TypeVar('StatusCode')
+
+@dataclass
+class ApiRequest(Generic[RequestParameters, RequestBody]):
+    request_parameters: RequestParameters
+    body: RequestBody
+    event: Any
+    context: Any
+    interceptor_context: Dict[str, Any]
+
+@dataclass
+class ChainedApiRequest(ApiRequest[RequestParameters, RequestBody],
+    Generic[RequestParameters, RequestBody]):
+
+    chain: 'HandlerChain'
+
+@dataclass
+class ApiResponse(Exception, Generic[StatusCode, ResponseBody]):
+    status_code: StatusCode
+    headers: Dict[str, str]
+    body: ResponseBody
+    multi_value_headers: Optional[Dict[str, List[str]]] = None
+
+class HandlerChain(Generic[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+    def next(self, request: ChainedApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+        raise Exception("Not implemented!")
+
+def _build_handler_chain(_interceptors, handler) -> HandlerChain:
+    if len(_interceptors) == 0:
+        class BaseHandlerChain(HandlerChain[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+                return handler(request)
+        return BaseHandlerChain()
+    else:
+        interceptor = _interceptors[0]
+
+        class RemainingHandlerChain(HandlerChain[RequestParameters, RequestBody, StatusCode, ResponseBody]):
+            def next(self, request: ChainedApiRequest[RequestParameters, RequestBody]) -> ApiResponse[StatusCode, ResponseBody]:
+                return interceptor(ChainedApiRequest(
+                    request_parameters = request.request_parameters,
+                    body = request.body,
+                    event = request.event,
+                    context = request.context,
+                    interceptor_context = request.interceptor_context,
+                    chain = _build_handler_chain(_interceptors[1:len(_interceptors)], handler),
+                ))
+        return RemainingHandlerChain()
+
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+
+class {{operationIdCamelCase}}RequestParameters(BaseModel):
+    """
+    Query, path and header parameters for the {{operationIdCamelCase}} operation
+    """
+    {{#allParams}}
+    {{^isBodyParam}}
+    {{paramName}}: {{{vendorExtensions.x-py-typing}}}
+    {{/isBodyParam}}
+    {{/allParams}}
+
+    class Config:
+        """Pydantic configuration"""
+        populate_by_name = True
+        validate_assignment = True
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> {{operationIdCamelCase}}RequestParameters:
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self):
+        return self.model_dump(exclude={}, exclude_none=True)
+
+    @classmethod
+    def from_dict(cls, obj: dict) -> {{operationIdCamelCase}}RequestParameters:
+        if obj is None:
+            return None
+        return {{operationIdCamelCase}}RequestParameters.model_validate(obj)
+
+
+# Request body type (default to Any when no body parameters exist, or leave unchanged as str if it's a primitive type)
+{{operationIdCamelCase}}RequestBody = {{^bodyParams.isEmpty}}{{#bodyParams.0}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/bodyParams.0}}{{/bodyParams.isEmpty}}{{#bodyParams.isEmpty}}Any{{/bodyParams.isEmpty}}
+
+{{#responses}}
+{{operationIdCamelCase}}{{code}}OperationResponse = ApiResponse[Literal[{{code}}], {{^simpleType}}{{^isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{#isPrimitiveType}}str{{/isPrimitiveType}}{{/simpleType}}{{#simpleType}}None{{/simpleType}}]
+{{/responses}}
+{{operationIdCamelCase}}OperationResponses = Union[{{#responses}}{{operationIdCamelCase}}{{code}}OperationResponse, {{/responses}}]
+
+# Request type for {{operationId}}
+{{operationIdCamelCase}}Request = ApiRequest[{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestBody]
+{{operationIdCamelCase}}ChainedRequest = ChainedApiRequest[{{operationIdCamelCase}}RequestParameters, {{operationIdCamelCase}}RequestBody]
+
+class {{operationIdCamelCase}}HandlerFunction(Protocol):
+    def __call__(self, input: {{operationIdCamelCase}}Request, **kwargs) -> {{operationIdCamelCase}}OperationResponses:
+        ...
+
+{{operationIdCamelCase}}Interceptor = Callable[[{{operationIdCamelCase}}ChainedRequest], {{operationIdCamelCase}}OperationResponses]
+
+def {{operationId}}_handler(_handler: {{operationIdCamelCase}}HandlerFunction = None, interceptors: List[{{operationIdCamelCase}}Interceptor] = []):
+    """
+    Decorator for an api handler for the {{operationId}} operation, providing a typed interface for inputs and outputs
+    """
+    def _handler_wrapper(handler: {{operationIdCamelCase}}HandlerFunction):
+        @wraps(handler)
+        def wrapper(event, context, additional_interceptors = [], **kwargs):
+            all_interceptors = additional_interceptors + interceptors
+
+            raw_string_parameters = decode_request_parameters({
+                **(event.get('pathParameters', {}) or {}),
+                **(event.get('queryStringParameters', {}) or {}),
+                **(event.get('headers', {}) or {}),
+            })
+            raw_string_array_parameters = decode_request_parameters({
+                **(event.get('multiValueQueryStringParameters', {}) or {}),
+                **(event.get('multiValueHeaders', {}) or {}),
+            })
+
+            def response_headers_for_status_code(status_code):
+                headers_for_status = {}
+                {{#responses}}
+                {{^is2xx}}
+                if status_code == {{code}} and "{{dataType}}".endswith("ResponseContent"):
+                    headers_for_status["x-amzn-errortype"] = "{{dataType}}"[:-len("ResponseContent")]
+                {{/is2xx}}
+                {{/responses}}
+                return headers_for_status
+
+            request_parameters = None
+            try:
+                request_parameters = {{operationIdCamelCase}}RequestParameters.from_dict({
+                    {{#allParams}}
+                    {{^isBodyParam}}
+                    "{{paramName}}": coerce_parameter("{{baseName}}", "{{{dataType}}}", raw_string_parameters, raw_string_array_parameters, {{#required}}True{{/required}}{{^required}}False{{/required}}),
+                    {{/isBodyParam}}
+                    {{/allParams}}
+                })
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {**response_headers_for_status_code(400), **extract_response_headers_from_interceptors(all_interceptors)},
+                    'body': '{"message": "' + str(e) + '"}',
+                }
+
+            {{^bodyParams.isEmpty}}
+            {{#bodyParams.0}}
+            {{^isPrimitiveType}}
+            # Non-primitive type so parse the body into the appropriate model
+            body = parse_body(event['body'], [{{^consumes}}'application/json'{{/consumes}}{{#consumes}}{{#mediaType}}'{{{.}}}',{{/mediaType}}{{/consumes}}], {{operationIdCamelCase}}RequestBody)
+            {{/isPrimitiveType}}
+            {{#isPrimitiveType}}
+            # Primitive type so body is passed as the original string
+            body = event['body']
+            {{/isPrimitiveType}}
+            {{/bodyParams.0}}
+            {{/bodyParams.isEmpty}}
+            {{#bodyParams.isEmpty}}
+            body = {}
+            {{/bodyParams.isEmpty}}
+            interceptor_context = {
+                "operationId": "{{operationId}}",
+            }
+
+            chain = _build_handler_chain(all_interceptors, handler)
+            response = chain.next(ApiRequest(
+                request_parameters,
+                body,
+                event,
+                context,
+                interceptor_context,
+            ), **kwargs)
+
+            response_headers = {** (response.headers or {}), **response_headers_for_status_code(response.status_code)}
+            response_body = ''
+            if response.body is None:
+                pass
+            {{#responses}}
+            elif response.status_code == {{code}}:
+                {{^isPrimitiveType}}
+                response_body = response.body.to_json()
+                {{/isPrimitiveType}}
+                {{#isPrimitiveType}}
+                response_body = response.body
+                {{/isPrimitiveType}}
+            {{/responses}}
+
+            return {
+                'statusCode': response.status_code,
+                'headers': response_headers,
+                'multiValueHeaders': response.multi_value_headers or {},
+                'body': response_body,
+            }
+        return wrapper
+
+    # Support use as a decorator with no arguments, or with interceptor arguments
+    if callable(_handler):
+        return _handler_wrapper(_handler)
+    elif _handler is None:
+        return _handler_wrapper
+    else:
+        raise Exception("Positional arguments are not supported by {{operationId}}_handler.")
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+
+Interceptor = Callable[[ChainedApiRequest[RequestParameters, RequestBody]], ApiResponse[StatusCode, ResponseBody]]
+
+def concat_method_and_path(method: str, path: str):
+    return "{}||{}".format(method.lower(), path)
+
+OperationIdByMethodAndPath = { concat_method_and_path(method_and_path["method"], method_and_path["path"]): operation for operation, method_and_path in OperationLookup.items() }
+
+@dataclass
+class HandlerRouterHandlers:
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+{{#operation}}
+  {{operationId}}: Callable[[Dict, Any], Dict]
+{{/operation}}
+{{/operations}}
+{{/apis}}
+{{/apiInfo}}
+
+def handler_router(handlers: HandlerRouterHandlers, interceptors: List[Interceptor] = []):
+    """
+    Returns a lambda handler which can be used to route requests to the appropriate typed lambda handler function.
+    """
+    _handlers = { field.name: getattr(handlers, field.name) for field in fields(handlers) }
+
+    def handler_wrapper(event, context):
+        operation_id = OperationIdByMethodAndPath[concat_method_and_path(event['requestContext']['httpMethod'], event['requestContext']['resourcePath'])]
+        handler = _handlers[operation_id]
+        return handler(event, context, additional_interceptors=interceptors)
+    return handler_wrapper

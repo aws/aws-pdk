@@ -1,0 +1,47 @@
+###TSAPI_SPLIT_FILE###
+{{#apiInfo ~}}
+{{#apis ~}}
+{{#operations ~}}
+{{#operation ~}}
+{{#if vendorExtensions.x-handler}}
+{{#startsWith vendorExtensions.x-handler.language 'python'}}
+###TSAPI_WRITE_FILE###
+{
+  "id": "{{operationId}}",
+  "dir": ".",
+  "name": "{{operationId}}",
+  "ext": ".py",
+  "overwrite": false
+}
+###/TSAPI_WRITE_FILE###from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.models import *
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.response import Response
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.interceptors import INTERCEPTORS
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.interceptors.powertools.logger import LoggingInterceptor
+from {{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-module-name}}{{/apis.0}}{{/apiInfo}}.api.operation_config import (
+    {{operationId}}_handler, {{operationIdCamelCase}}Request, {{operationIdCamelCase}}OperationResponses
+)
+
+
+def {{operationId}}(input: {{operationIdCamelCase}}Request, **kwargs) -> {{operationIdCamelCase}}OperationResponses:
+    """
+    Type-safe handler for the {{operationIdCamelCase}} operation
+    """
+    LoggingInterceptor.get_logger(input).info("Start {{operationIdCamelCase}} Operation")
+
+    # TODO: Implement {{operationIdCamelCase}} Operation. `input` contains the request input
+
+    return Response.internal_failure(InternalFailureErrorResponseContent(
+        message="Not Implemented!"
+    ))
+
+
+# Entry point for the AWS Lambda handler for the {{operationIdCamelCase}} operation.
+# The {{operationId}}_handler method wraps the type-safe handler and manages marshalling inputs and outputs
+handler = {{operationId}}_handler(interceptors=INTERCEPTORS)({{operationId}})
+
+{{~/startsWith}}
+{{~/if}}
+{{~/operation}}
+{{~/operations}}
+{{~/apis}}
+{{~/apiInfo}}

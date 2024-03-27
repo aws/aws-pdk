@@ -1,0 +1,31 @@
+import {
+  WebSocketMockIntegration,
+} from "aws-cdk-lib/aws-apigatewayv2-integrations";
+
+
+/**
+ * Type-safe mock integrations for WebSocket API operations
+ */
+export class MockIntegrations {
+
+  /**
+   * Mock all operations
+   */
+  public static mockAll() {
+    return {
+      {{#apiInfo}}
+      {{#apis}}
+      {{#operations}}
+      {{#operation}}
+      {{#vendorExtensions.x-async-to-server}}
+      {{nickname}}: {
+        integration: new WebSocketMockIntegration("Mock{{operationIdCamelCase}}Integration"),
+      },
+      {{/vendorExtensions.x-async-to-server}}
+      {{/operation}}
+      {{/operations}}
+      {{/apis}}
+      {{/apiInfo}}
+    };
+  }
+}

@@ -4,6 +4,9 @@ import { Construct } from "constructs";
 {{#typeSafeApis}}
 import { {{{apiName}}} } from "../constructs/apis/{{{apiNameLowercase}}}";
 {{/typeSafeApis}}
+{{#typeSafeWebSocketApis}}
+import { {{{apiName}}} } from "../constructs/apis/{{{apiNameLowercase}}}";
+{{/typeSafeWebSocketApis}}
 {{#cloudscapeReactTsWebsites}}
 import { {{{websiteName}}} } from "../constructs/websites/{{{websiteNameLowercase}}}";
 {{/cloudscapeReactTsWebsites}}
@@ -18,8 +21,21 @@ export class ApplicationStack extends Stack {
       userIdentity,
     });
     {{/typeSafeApis}}
+    {{#typeSafeWebSocketApis}}
+    {{#cloudscapeReactTsWebsites.0}}const {{{apiNameLowercase}}} = {{/cloudscapeReactTsWebsites.0}}new {{{apiName}}}(this, "{{{apiName}}}", {
+      userIdentity,
+    });
+    {{/typeSafeWebSocketApis}}
     {{#cloudscapeReactTsWebsites}}
-    new {{{websiteName}}}(this, "{{{websiteName}}}", { userIdentity{{#typeSafeApis}}, {{{apiNameLowercase}}}{{/typeSafeApis}} });
+    new {{{websiteName}}}(this, "{{{websiteName}}}", {
+      userIdentity,
+      {{#typeSafeApis}}
+      {{{apiNameLowercase}}},
+      {{/typeSafeApis}}
+      {{#typeSafeWebSocketApis}}
+      {{{apiNameLowercase}}},
+      {{/typeSafeWebSocketApis}}
+    });
     {{/cloudscapeReactTsWebsites}}
   }
 }

@@ -2,7 +2,10 @@
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
 import * as path from "path";
-import { TypeSafeApiProject } from "@aws/type-safe-api";
+import {
+  TypeSafeApiProject,
+  TypeSafeWebSocketApiProject,
+} from "@aws/type-safe-api";
 import * as Mustache from "mustache";
 import { SampleDir } from "projen";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
@@ -37,6 +40,11 @@ export interface CloudscapeReactTsWebsiteProjectOptions
    * TypeSafeApi instances to use when setting up the initial project sample code.
    */
   readonly typeSafeApis?: TypeSafeApiProject[];
+
+  /**
+   * TypeSafeWebSocketApi instances to use when setting up the initial project sample code
+   */
+  readonly typeSafeWebSocketApis?: TypeSafeWebSocketApiProject[];
 }
 
 /**
@@ -48,6 +56,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
   public readonly applicationName: string;
   public readonly publicDir: string;
   public readonly typeSafeApis?: TypeSafeApiProject[];
+  public readonly typeSafeWebSocketApis?: TypeSafeWebSocketApiProject[];
 
   constructor(options: CloudscapeReactTsWebsiteProjectOptions) {
     super({
@@ -82,6 +91,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       ...(options.typeSafeApis || []),
       ...(options.typeSafeApi ? [options.typeSafeApi] : []),
     ];
+    this.typeSafeWebSocketApis = options.typeSafeWebSocketApis ?? [];
 
     this.addDeps(
       "@aws-northstar/ui",
@@ -117,7 +127,23 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       }
       this.addDeps(`${libraryHooksPackage}@${libraryHooksPackageVersion}`);
 
-      this.setupSwaggerUi(typeSafeApi);
+      this.setupApiExplorer(typeSafeApi);
+    });
+
+    this.typeSafeWebSocketApis.forEach((typeSafeWebSocketApi) => {
+      const hooks = typeSafeWebSocketApi.library?.typescriptWebSocketHooks;
+      const client = typeSafeWebSocketApi.library?.typescriptWebSocketClient;
+      if (!hooks || !client) {
+        throw new Error(
+          "Cannot pass in a Type Safe WebSocket Api without React Hooks Library configured"
+        );
+      }
+      this.addDeps(
+        `${hooks.package.packageName}@${hooks.package.manifest.version}`,
+        `${client.package.packageName}@${client.package.manifest.version}`
+      );
+
+      this.setupApiExplorer(typeSafeWebSocketApi);
     });
 
     const apis = this.typeSafeApis.map((tsApi, idx) => ({
@@ -129,10 +155,24 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       hooksPackage:
         tsApi.library?.typescriptReactQueryHooks?.package?.packageName,
     }));
+    const webSocketApis = this.typeSafeWebSocketApis.map((tsApi, idx) => ({
+      apiName: tsApi.model.apiName,
+      isLast: idx === this.typeSafeWebSocketApis!.length - 1,
+      apiNameSafe: tsApi.model.apiName
+        ?.replace(/[^a-z0-9_]+/gi, "")
+        .replace(/^[0-9]+/gi, ""),
+      hooksPackage:
+        tsApi.library?.typescriptWebSocketHooks?.package?.packageName,
+      clientPackage:
+        tsApi.library?.typescriptWebSocketClient?.package?.packageName,
+    }));
     const mustacheConfig = {
       applicationName: this.applicationName,
+      hasApis: apis.length + webSocketApis.length > 0,
       typeSafeApis: apis,
       typeSafeApisReversed: [...apis].reverse(),
+      typeSafeWebSocketApis: webSocketApis,
+      typeSafeWebSocketApisReversed: [...webSocketApis].reverse(),
     };
 
     new SampleDir(this, this.srcdir, {
@@ -159,9 +199,18 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
     this.tasks.tryFind("dev")?.env("TSC_COMPILE_ON_ERROR", "true");
   }
 
-  private setupSwaggerUi(tsApi: TypeSafeApiProject) {
-    this.addDevDeps("@types/swagger-ui-react");
-    this.addDeps("swagger-ui-react@5.5.0", "aws4fetch");
+  private setupApiExplorer(
+    tsApi: TypeSafeApiProject | TypeSafeWebSocketApiProject
+  ) {
+    this.addDevDeps("@types/swagger-ui-react", "@types/uuid");
+    this.addDeps(
+      "swagger-ui-react@5.5.0",
+      "aws4fetch",
+      "uuid",
+      "@aws-crypto/sha256-js",
+      "@aws-sdk/signature-v4",
+      "@aws-sdk/protocol-http"
+    );
 
     const targetApiSpecFolder = `public/${tsApi.model.apiName}`;
     const targetApiSpecPath = `${targetApiSpecFolder}/api.json`;
@@ -183,11 +232,21 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       .readdirSync(dir, { withFileTypes: true })
       .filter(
         (f) =>
+          mustacheConfig.typeSafeApis.length +
+            mustacheConfig.typeSafeWebSocketApis.length >
+            0 || !`${pathPrefixes.join("/")}${f.name}`.includes("ApiExplorer")
+      )
+      .filter(
+        (f) =>
           mustacheConfig.typeSafeApis.length > 0 ||
-          (!`${pathPrefixes.join("/")}${f.name}`.includes(
-            "TypeSafeApiClient"
-          ) &&
-            !`${pathPrefixes.join("/")}${f.name}`.includes("ApiExplorer"))
+          !`${pathPrefixes.join("/")}${f.name}`.includes("TypeSafeApiClient")
+      )
+      .filter(
+        (f) =>
+          mustacheConfig.typeSafeWebSocketApis.length > 0 ||
+          !`${pathPrefixes.join("/")}${f.name}`.includes(
+            "TypeSafeWebSocketApiClient"
+          )
       )
       .flatMap((f) =>
         f.isDirectory()

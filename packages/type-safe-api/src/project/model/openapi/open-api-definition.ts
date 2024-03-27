@@ -1,39 +1,27 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { SampleFile, Component } from "projen";
-import { Language } from "../../languages";
-import { OpenApiModelOptions } from "../../types";
+import { SampleFile } from "projen";
+import {
+  OpenApiProjectDefinition,
+  OpenApiProjectDefinitionOptions,
+} from "./open-api-project-definition";
 import { TypeSafeApiModelProject } from "../type-safe-api-model-project";
 
 /**
  * Options for the OpenAPI Spec
  */
-export interface OpenApiDefinitionOptions {
-  /**
-   * Options for the openapi model
-   */
-  readonly openApiOptions: OpenApiModelOptions;
-  /**
-   * The languages users have specified for handler projects (if any)
-   */
-  readonly handlerLanguages?: Language[];
-}
+export interface OpenApiDefinitionOptions
+  extends OpenApiProjectDefinitionOptions {}
 
 /**
  * The OpenAPI Spec
  */
-export class OpenApiDefinition extends Component {
-  /**
-   * Path to the root OpenAPI specification file
-   */
-  public readonly openApiSpecificationPath: string =
-    "src/main/openapi/main.yaml";
-
+export class OpenApiDefinition extends OpenApiProjectDefinition {
   constructor(
     project: TypeSafeApiModelProject,
     options: OpenApiDefinitionOptions
   ) {
-    super(project);
+    super(project, options);
 
     const firstHandlerLanguage = options.handlerLanguages?.[0];
 

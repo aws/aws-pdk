@@ -5,6 +5,7 @@ import { Dependency, DependencyType, Project } from "projen";
 import { JsiiProject, Stability } from "projen/lib/cdk";
 import { NodePackageManager } from "projen/lib/javascript";
 import { Release } from "projen/lib/release";
+import { PDKInternalProjectUtils } from "./internal/internal-project";
 import { NodePackageUtils, NxProject } from "../../packages/monorepo/src";
 import {
   PDKProject,
@@ -18,6 +19,7 @@ import {
 export class PdkProject extends PDKProject {
   static getJsiiProjects(parent?: Project): JsiiProject[] | undefined {
     return parent?.subprojects
+      .filter((subProject) => !PDKInternalProjectUtils.isInternal(subProject))
       .filter((subProject) => subProject instanceof JsiiProject)
       .filter((subProject) => subProject.name.startsWith(PDK_NAMESPACE))
       .map((subProject) => subProject as JsiiProject);
