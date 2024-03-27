@@ -129,6 +129,8 @@ export interface MonorepoTsProjectOptions extends TypeScriptProjectOptions {
    */
   readonly disableNodeWarnings?: boolean;
 
+  readonly licensed?: boolean;
+
   /**
    * Default license to apply to all PDK managed packages.
    *
@@ -203,6 +205,7 @@ export class MonorepoTsProject
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch,
+      licensed: options.licensed,
       licenseOptions: options.licenseOptions,
     });
     this._options = options;

@@ -406,4 +406,18 @@ describe("NX Monorepo Unit Tests", () => {
     });
     expect(synthSnapshot(py)["pyproject.toml"]).toMatchSnapshot();
   });
+
+  it("Skips license generation when told to", () => {
+    const tsWithLic = new MonorepoTsProject({
+      name: "withlic",
+    });
+    const dirSnapshotWithLic = synthSnapshot(tsWithLic);
+    expect(dirSnapshotWithLic.LICENSE).toBeDefined();
+    const tsNoLic = new MonorepoTsProject({
+      name: "nolic",
+      licensed: false,
+    });
+    const dirSnapshotNoLIc = synthSnapshot(tsNoLic);
+    expect(dirSnapshotNoLIc.LICENSE).not.toBeDefined();
+  });
 });

@@ -130,6 +130,8 @@ export interface NxConfiguratorOptions {
    */
   readonly defaultReleaseBranch?: string;
 
+  readonly licensed?: boolean;
+
   /**
    * Default package license config.
    *
@@ -143,6 +145,7 @@ export interface NxConfiguratorOptions {
  */
 export class NxConfigurator extends Component implements INxProjectCore {
   public readonly nx: NxWorkspace;
+  private readonly licensed?: boolean;
   private readonly licenseOptions?: LicenseOptions;
   private nxPlugins: { [dep: string]: string } = {};
 
@@ -176,6 +179,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
       description: "Generate dependency graph for monorepo",
     });
 
+    this.licensed = options?.licensed;
     this.licenseOptions = options?.licenseOptions;
     this.nx = NxWorkspace.of(project) || new NxWorkspace(project);
     this.nx.affected.defaultBase = options?.defaultReleaseBranch ?? "mainline";
@@ -500,6 +504,9 @@ export class NxConfigurator extends Component implements INxProjectCore {
    * Add licenses to any subprojects which don't already have a license.
    */
   private _addLicenses() {
+    if (false === this.licensed) {
+      return;
+    }
     [this.project, ...this.project.subprojects]
       .filter(
         (p) => p.components.find((c) => c instanceof License) === undefined
