@@ -26,7 +26,7 @@ The `TypeSafeApiProject` projen project sets up the project structure for you. C
 1.) To start an empty `monorepo` project, use this command:
 
 ```bash
-pdk new monorepo-ts
+pdk new monorepo-ts --package-manager=pnpm
 ```
 
 2.) Edit your `.projenrc` and configure `TypeSafeApiProject`.
@@ -47,6 +47,7 @@ pdk new monorepo-ts
       TypeSafeApiProject,
     } from "@aws/pdk/type-safe-api";
     import { InfrastructureTsProject } from "@aws/pdk/infrastructure";
+    import { NodePackageManager } from "projen/lib/javascript";
 
     // Create the monorepo
     const monorepo = new MonorepoTsProject({
@@ -54,6 +55,7 @@ pdk new monorepo-ts
       devDeps: [
         "@aws/pdk",
       ],
+      packageManager: NodePackageManager.PNPM,
     });
 
     // Create the API project
