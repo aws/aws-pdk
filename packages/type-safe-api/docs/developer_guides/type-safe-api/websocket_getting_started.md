@@ -25,7 +25,7 @@ The `TypeSafeWebSocketApiProject` projen project sets up the project structure f
 1.) To start an empty `monorepo` project, use this command:
 
 ```bash
-pdk new monorepo-ts
+pdk new monorepo-ts --package-manager=pnpm
 ```
 
 2.) Edit your `.projenrc` and configure `TypeSafeWebSocketApiProject`.
@@ -35,13 +35,13 @@ pdk new monorepo-ts
     ```ts
     import { MonorepoTsProject } from "@aws/pdk/monorepo";
     import {
-      DocumentationFormat,
       Language,
-      Library,
       ModelLanguage,
       TypeSafeWebSocketApiProject,
+      WebSocketLibrary,
     } from "@aws/pdk/type-safe-api";
     import { InfrastructureTsProject } from "@aws/pdk/infrastructure";
+    import { CloudscapeReactTsWebsiteProject } from "@aws/pdk/cloudscape-react-ts-website";
 
     // Create the monorepo
     const monorepo = new MonorepoTsProject({
@@ -75,10 +75,10 @@ pdk new monorepo-ts
       // Lambda handlers in TypeScript
       handlers: {
         languages: [Language.TYPESCRIPT],
-      }
+      },
       // Generate react hooks to interact with the API from a React website
       library: {
-        libraries: [Library.TYPESCRIPT_WEBSOCKET_HOOKS],
+        libraries: [WebSocketLibrary.TYPESCRIPT_WEBSOCKET_HOOKS],
       },
     });
 
@@ -124,9 +124,11 @@ The generated runtime projects include lambda handler wrappers which provide typ
 
 === "SMITHY"
 
+    Use the `@async` trait to select the operation direction. Choose between `client_to_server`, `server_to_client` or `bidirectional`
+
     Use the `@handler` trait, and specify the language you wish to implement this operation in.
 
-    ```smithy hl_lines="2"
+    ```smithy hl_lines="1-2"
     @async(direction: "client_to_server")
     @handler(language: "typescript")
     operation SubscribeToNotifications {
@@ -143,9 +145,11 @@ The generated runtime projects include lambda handler wrappers which provide typ
 
 === "OPENAPI"
 
+    Use the `x-async` vendor extension to select the operation direction. Choose between `client_to_server`, `server_to_client` or `bidirectional`
+
     Use the `x-handler` vendor extension, specifying the language you wish to implement this operation in.
 
-    ```yaml hl_lines="4-5"
+    ```yaml hl_lines="4-7"
     /SubscribeToNotifications:
       post:
         operationId: SubscribeToNotifications

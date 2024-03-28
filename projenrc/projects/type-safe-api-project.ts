@@ -117,6 +117,10 @@ export class TypeSafeApiProject extends PDKProject {
         ]
       )} ${smithyAsyncTransformerJar}`
     );
+    NxProject.of(this)?.addBuildTargetFiles(
+      [],
+      [`{projectRoot}/${smithyAsyncTransformerJar}`]
+    );
     this.gitignore.addPatterns(smithyAsyncTransformerJar);
 
     this.generateInterfaces();

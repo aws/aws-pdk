@@ -54,7 +54,7 @@ metadata validators = [
         message: "Operation is missing @async trait"
         configuration: {
             selector: """
-                operation :not([trait|com.aws#async])
+                operation :not([trait|${this.options.serviceNamespace}#async])
             """
         }
     }
@@ -65,7 +65,9 @@ metadata validators = [
         message: "Service is missing @websocketJson trait"
         configuration: {
             selector: """
-                service :not([trait|com.aws#websocketJson])
+                service :not([trait|${
+                  this.options.serviceNamespace
+                }#websocketJson])
             """
         }
     }
@@ -99,8 +101,10 @@ metadata validators = [
         configuration: {
             selector: """
               operation
-              [@trait|com.aws#async: @{direction} = server_to_client]
-              [trait|com.aws#handler]
+              [@trait|${
+                this.options.serviceNamespace
+              }#async: @{direction} = server_to_client]
+              [trait|${this.options.serviceNamespace}#handler]
             """
         }
     }
