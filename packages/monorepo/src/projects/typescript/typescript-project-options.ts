@@ -287,6 +287,18 @@ export interface TypeScriptProjectOptions {
    */
   readonly dependabot?: boolean;
   /**
+   * The copyright years to put in the LICENSE file.
+   * @default - current year
+   * @stability experimental
+   */
+  readonly copyrightPeriod?: string;
+  /**
+   * License copyright owner.
+   * @default - defaults to the value of authorName or "" if `authorName` is undefined.
+   * @stability experimental
+   */
+  readonly copyrightOwner?: string;
+  /**
    * Define the secret name for a specified https://codecov.io/ token A secret is required to send coverage for private repositories.
    * @default - if this option is not specified, only public repositories are supported
    * @stability experimental
@@ -632,6 +644,20 @@ export interface TypeScriptProjectOptions {
    * @stability experimental
    */
   readonly maxNodeVersion?: string;
+  /**
+   * Indicates if a license should be added.
+   * @default true
+   * @stability experimental
+   */
+  readonly licensed?: boolean;
+  /**
+   * License's SPDX identifier.
+   * See https://github.com/projen/projen/tree/main/license-text for a list of supported licenses.
+   * Use the `licensed` option if you want to no license to be specified.
+   * @default "Apache-2.0"
+   * @stability experimental
+   */
+  readonly license?: string;
   /**
    * Keywords to include in `package.json`.
    * @stability experimental
