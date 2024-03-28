@@ -42,6 +42,7 @@ pdk new monorepo-ts --package-manager=pnpm
     } from "@aws/pdk/type-safe-api";
     import { InfrastructureTsProject } from "@aws/pdk/infrastructure";
     import { CloudscapeReactTsWebsiteProject } from "@aws/pdk/cloudscape-react-ts-website";
+    import { NodePackageManager } from "projen/lib/javascript";
 
     // Create the monorepo
     const monorepo = new MonorepoTsProject({
@@ -49,6 +50,7 @@ pdk new monorepo-ts --package-manager=pnpm
       devDeps: [
         "@aws/pdk",
       ],
+      packageManager: NodePackageManager.PNPM,
     });
 
     // Create the API project
