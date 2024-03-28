@@ -25,6 +25,13 @@ const MVN_PLUGIN_PATH = "./.nx/plugins/nx_plugin.js";
  */
 export interface MonorepoJavaOptions extends JavaProjectOptions {
   readonly defaultReleaseBranch?: string;
+
+  /**
+   * Whether to disable the generation of default licenses.
+   *
+   * @default false
+   */
+  readonly disableDefaultLicenses?: boolean;
 }
 
 /**
@@ -72,6 +79,9 @@ export class MonorepoJavaProject extends JavaProject implements INxProjectCore {
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
+      licenseOptions: {
+        disableDefaultLicenses: options.disableDefaultLicenses,
+      },
     });
 
     // Setup maven nx plugin
