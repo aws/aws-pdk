@@ -119,6 +119,13 @@ export interface LicenseOptions {
    * Arbitrary license text.
    */
   readonly licenseText?: string;
+
+  /**
+   * Whether to disable the generation of default licenses.
+   *
+   * @default false
+   */
+  readonly disableDefaultLicenses?: boolean;
 }
 
 /**
@@ -502,7 +509,9 @@ export class NxConfigurator extends Component implements INxProjectCore {
   private _addLicenses() {
     [this.project, ...this.project.subprojects]
       .filter(
-        (p) => p.components.find((c) => c instanceof License) === undefined
+        (p) =>
+          !this.licenseOptions?.disableDefaultLicenses &&
+          p.components.find((c) => c instanceof License) === undefined
       )
       .forEach((p) => {
         if (!this.licenseOptions) {

@@ -406,4 +406,47 @@ describe("NX Monorepo Unit Tests", () => {
     });
     expect(synthSnapshot(py)["pyproject.toml"]).toMatchSnapshot();
   });
+
+  it("Disable default license generation - Typescript", () => {
+    const project = new MonorepoTsProject({
+      defaultReleaseBranch: "mainline",
+      name: "DisableLicenseGen",
+      licenseOptions: {
+        disableDefaultLicenses: true,
+      },
+      licensed: false,
+    });
+
+    new TypeScriptProject({
+      name: "ts-subproject",
+      outdir: "packages/ts-subproject",
+      licensed: false,
+      parent: project,
+      defaultReleaseBranch: "mainline",
+    });
+
+    const synthOutput = synthSnapshot(project);
+    expect(synthOutput.LICENSE).toBeUndefined();
+    expect(synthOutput["packages/ts-subproject/LICENSE"]).toBeUndefined();
+  });
+
+  it("Enable default license generation - Typescript", () => {
+    const project = new MonorepoTsProject({
+      defaultReleaseBranch: "mainline",
+      name: "DisableLicenseGen",
+      licensed: false,
+    });
+
+    new TypeScriptProject({
+      name: "ts-subproject",
+      outdir: "packages/ts-subproject",
+      licensed: false,
+      parent: project,
+      defaultReleaseBranch: "mainline",
+    });
+
+    const synthOutput = synthSnapshot(project);
+    expect(synthOutput.LICENSE).toMatchSnapshot();
+    expect(synthOutput["packages/ts-subproject/LICENSE"]).toMatchSnapshot();
+  });
 });

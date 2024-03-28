@@ -68,7 +68,6 @@ export class MonorepoProject extends PDKProject {
     })
       .mixin(Struct.fromFqn("projen.typescript.TypeScriptProjectOptions"))
       .allOptional()
-      .omit("licensed", "license", "copyrightOwner", "copyrightPeriod")
       .add({
         name: "name",
         type: { primitive: PrimitiveType.String },
@@ -126,7 +125,6 @@ export class MonorepoProject extends PDKProject {
     })
       .mixin(Struct.fromFqn("projen.python.PythonProjectOptions"))
       .allOptional()
-      .omit("license")
       .add({
         name: "name",
         type: { primitive: PrimitiveType.String },
