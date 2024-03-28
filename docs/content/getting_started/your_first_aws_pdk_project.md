@@ -802,7 +802,7 @@ Now that you're done creating your first PDK project, you can choose to destroy 
 
 ```bash
 cd packages/infra
-pdk run destroy
+pdk destroy
 ```
 
 Enter **y** to approve the changes and delete the `infra-dev` stack.

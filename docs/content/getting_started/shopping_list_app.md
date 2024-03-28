@@ -335,7 +335,17 @@ Once you have saved your `.projenrc.ts` file, run `pdk` from the root to synthes
 
 ### Implement the handlers
 
-We now have everything we need to start implementing our handlers. Modify the respective handler files with the contents of the following:
+We now have everything we need to start implementing our handlers. 
+
+Let's first by creating a shared file called `dynamo-client.ts` within the handlers `src` directory as follows:
+
+```typescript
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+
+export const ddbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
+```
+
+Now modify the respective handler files with the contents of the following:
 
 === "put-shopping-list.ts"
 
@@ -351,8 +361,7 @@ We now have everything we need to start implementing our handlers. Modify the re
         Response,
         LoggingInterceptor,
     } from 'myapi-typescript-runtime';
-
-    const dbclient = new DynamoDBClient({ region: process.env.AWS_REGION });
+    import { ddbClient } from './dynamo-client';
 
     /**
      * Type-safe handler for the PutShoppingList operation
@@ -361,7 +370,7 @@ We now have everything we need to start implementing our handlers. Modify the re
         LoggingInterceptor.getLogger(request).info('Start PutShoppingList Operation');
 
         const shoppingListId = request.input.body.shoppingListId ?? randomUUID();
-        await dbclient.send(new PutItemCommand({
+        await ddbClient.send(new PutItemCommand({
             TableName: 'shopping_list',
             Item: {
                 shoppingListId: {
@@ -401,8 +410,7 @@ We now have everything we need to start implementing our handlers. Modify the re
         Response,
         LoggingInterceptor,
     } from 'myapi-typescript-runtime';
-
-    const dbclient = new DynamoDBClient({ region: process.env.AWS_REGION });
+    import { ddbClient } from './dynamo-client';
 
     /**
      * Type-safe handler for the DeleteShoppingList operation
@@ -413,7 +421,7 @@ We now have everything we need to start implementing our handlers. Modify the re
         );
 
         const shoppingListId = request.input.requestParameters.shoppingListId;
-        await dbclient.send(
+        await ddbClient.send(
         new DeleteItemCommand({
             TableName: 'shopping_list',
             Key: {
@@ -444,7 +452,7 @@ We now have everything we need to start implementing our handlers. Modify the re
     *This logic either calls the Scan or Query command depending on the presense of a shoppingListId request parameter. It also handles pagination based on the presense of a pageSize and/or nextToken. The shoppingItems are stored as a serialized JSON string in the table/*
 
     ```typescript
-    import { DynamoDBClient, QueryCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
+    import { DynamoDBClient, QueryCommand, QueryCommandInput, ScanCommand, ScanCommandInput } from '@aws-sdk/client-dynamodb';
     import {
         getShoppingListsHandler,
         GetShoppingListsChainedHandlerFunction,
@@ -453,8 +461,7 @@ We now have everything we need to start implementing our handlers. Modify the re
         LoggingInterceptor,
         ShoppingList,
     } from 'myapi-typescript-runtime';
-
-    const dbclient = new DynamoDBClient({ region: process.env.AWS_REGION });
+    import { ddbClient } from './dynamo-client';
 
     /**
      * Type-safe handler for the GetShoppingLists operation
@@ -465,32 +472,31 @@ We now have everything we need to start implementing our handlers. Modify the re
         const nextToken = request.input.requestParameters.nextToken;
         const pageSize = request.input.requestParameters.pageSize;
         const shoppingListId = request.input.requestParameters.shoppingListId;
-        const Command = shoppingListId ? QueryCommand : ScanCommand;
-
-        const response = await dbclient.send(new Command({
+        const commandInput: ScanCommandInput | QueryCommandInput = {
             TableName: 'shopping_list',
             ConsistentRead: true,
             Limit: pageSize,
             ExclusiveStartKey: nextToken ? fromToken(nextToken) : undefined,
             ...(shoppingListId ? {
-            KeyConditionExpression: 'shoppingListId = :shoppingListId',
-            ExpressionAttributeValues: {
-                ':shoppingListId': {
-                    S: request.input.requestParameters.shoppingListId!,
+                KeyConditionExpression: 'shoppingListId = :shoppingListId',
+                ExpressionAttributeValues: {
+                    ':shoppingListId': {
+                        S: request.input.requestParameters.shoppingListId!,
+                    },
                 },
-            },
             } : {}),
-        }));
+        };
+        const response = await ddbClient.send(shoppingListId ? new QueryCommand(commandInput) : new ScanCommand(commandInput));
 
         return Response.success({
             shoppingLists: (response.Items || [])
                 .map<ShoppingList>(item => ({
-                    shoppingListId: item.shoppingListId.S!,
-                    name: item.name.S!,
-                    shoppingItems: JSON.parse(item.shoppingItems.S || '[]'),
+                shoppingListId: item.shoppingListId.S!,
+                name: item.name.S!,
+                shoppingItems: JSON.parse(item.shoppingItems.S || '[]'),
                 })),
-            nextToken: response.LastEvaluatedKey ? toToken(response.LastEvaluatedKey) : undefined,
-        });
+                nextToken: response.LastEvaluatedKey ? toToken(response.LastEvaluatedKey) : undefined,
+            });
     };
 
     /**
@@ -514,7 +520,156 @@ We now have everything we need to start implementing our handlers. Modify the re
     export const handler = getShoppingListsHandler(...INTERCEPTORS, getShoppingLists);
     ```
 
-Fantastic! We now have all of our API business logic implemented. Let's move on to configuring the API infrastructure and deploying what we have so far.
+Fantastic! We now have all of our API business logic implemented. Let's also update our unit tests:
+
+
+=== "put-shopping-list.test.ts"
+
+    ```typescript
+    import {
+        PutShoppingListChainedRequestInput,
+        PutShoppingListRequestParameters,
+        PutShoppingListResponseContent,
+    } from 'myapi-typescript-runtime';
+    import { ddbClient } from '../src/dynamo-client';
+    import {
+        putShoppingList,
+    } from '../src/put-shopping-list';
+
+    // Common request arguments
+    const requestArguments = {
+        chain: undefined as never,
+        event: {} as any,
+        context: {} as any,
+        interceptorContext: {
+            logger: {
+                info: jest.fn(),
+            },
+        },
+    } satisfies Omit<PutShoppingListChainedRequestInput, 'input'>;
+
+    jest.mock('../src/dynamo-client');
+
+    describe('PutShoppingList', () => {
+        it('should put an item', async () => {
+            (ddbClient.send as jest.Mock).mockResolvedValue({ });
+            const response = await putShoppingList({
+                ...requestArguments,
+                input: {
+                    requestParameters: {} as PutShoppingListRequestParameters,
+                    body: {} as any,
+                },
+            });
+
+            expect(response.statusCode).toBe(200);
+            expect((response.body as PutShoppingListResponseContent).shoppingListId).toBeDefined();
+        });
+    });  
+    ```
+
+=== "delete-shopping-list.test.ts"
+
+    ```typescript
+    import {
+        DeleteShoppingListChainedRequestInput,
+        DeleteShoppingListResponseContent,
+        DeleteShoppingListRequestParameters,
+    } from 'myapi-typescript-runtime';
+    import {
+        deleteShoppingList,
+    } from '../src/delete-shopping-list';
+    import { ddbClient } from '../src/dynamo-client';
+
+    // Common request arguments
+    const requestArguments = {
+        chain: undefined as never,
+        event: {} as any,
+        context: {} as any,
+        interceptorContext: {
+            logger: {
+                info: jest.fn(),
+            },
+        },
+    } satisfies Omit<DeleteShoppingListChainedRequestInput, 'input'>;
+
+    jest.mock('../src/dynamo-client');
+
+    describe('DeleteShoppingList', () => {
+
+        it('should delete an item', async () => {
+            (ddbClient.send as jest.Mock).mockResolvedValue({ });
+
+            const listToDelete = 'deleted';
+            const response = await deleteShoppingList({
+                ...requestArguments,
+                input: {
+                    requestParameters: {
+                        shoppingListId: listToDelete,
+                    } as DeleteShoppingListRequestParameters,
+                    body: {} as never,
+                },
+            });
+
+            expect(response.statusCode).toBe(200);
+            expect((response.body as DeleteShoppingListResponseContent).shoppingListId).toEqual(listToDelete);
+        });
+    });
+    ```
+
+=== "get-shopping-lists.test.ts"
+
+    ```typescript
+    import {
+        GetShoppingListsChainedRequestInput,
+        GetShoppingListsRequestParameters,
+        GetShoppingListsResponseContent,
+    } from 'myapi-typescript-runtime';
+    import { ddbClient } from '../src/dynamo-client';
+    import {
+        getShoppingLists,
+    } from '../src/get-shopping-lists';
+
+    // Common request arguments
+    const requestArguments = {
+        chain: undefined as never,
+        event: {} as any,
+        context: {} as any,
+        interceptorContext: {
+            logger: {
+                info: jest.fn(),
+            },
+        },
+    } satisfies Omit<GetShoppingListsChainedRequestInput, 'input'>;
+
+    jest.mock('../src/dynamo-client');
+
+    const SHOPPING_LIST_ITEMS = [{
+        shoppingListId: { S: '1' },
+        name: { S: '1' },
+        shoppingItems: { S: '["a","b","c"]' },
+    }];
+
+    describe('GetShoppingLists', () => {
+        it('should return an item', async () => {
+            (ddbClient.send as jest.Mock).mockResolvedValue({ Items: SHOPPING_LIST_ITEMS });
+            const response = await getShoppingLists({
+                ...requestArguments,
+                input: {
+                    requestParameters: {} as GetShoppingListsRequestParameters,
+                    body: {} as never,
+                },
+            });
+            const responseContent = response.body as GetShoppingListsResponseContent;
+            expect(response.statusCode).toBe(200);
+            expect(responseContent.shoppingLists.length).toEqual(1);
+            expect(responseContent.shoppingLists[0].name).toEqual(SHOPPING_LIST_ITEMS[0].name.S);
+            expect(responseContent.shoppingLists[0].shoppingListId).toEqual(SHOPPING_LIST_ITEMS[0].shoppingListId.S);
+            expect(responseContent.shoppingLists[0].shoppingItems).toEqual(JSON.parse(SHOPPING_LIST_ITEMS[0].shoppingItems.S));
+        });
+    });
+    ```
+
+Let's move on to configuring the API infrastructure and deploying what we have so far.
 
 ## Submodule 3: Configure and deploy your API
 
@@ -548,9 +703,9 @@ export class DatabaseConstruct extends Construct {
 
 ### Modify API construct
 
-We now need to wire up all of the handlers that we implemented into the existing `ApiConstruct`. We additionally need to configure each of our operations specific permissions onto the dynamoDB table that we just configured. Perform the following highlighted changes to your `packages/infra/src/constructs/api.ts` file:
+We now need to wire up all of the handlers that we implemented into the existing `MyApi` construct. We additionally need to configure each of our operations specific permissions onto the dynamoDB table that we just configured. Perform the following highlighted changes to your `packages/infra/src/constructs/apis/myapi.ts` file:
 
-```typescript hl_lines="15-19 30-33 48-59 67-77 102-108"
+```typescript hl_lines="2 15-19 30-33 48-59 67-77 102-108"
 import { UserIdentity } from "@aws/pdk/identity";
 import { Authorizers, Integrations } from "@aws/pdk/type-safe-api";
 import { Stack } from "aws-cdk-lib";
@@ -569,12 +724,12 @@ import {
   GetShoppingListsFunction,
   PutShoppingListFunction,
 } from "myapi-typescript-infra";
-import { DatabaseConstruct } from "./database";
+import { DatabaseConstruct } from "../database";
 
 /**
  * Api construct props.
  */
-export interface ApiConstructProps {
+export interface MyApiProps {
   /**
    * Instance of the UserIdentity.
    */
@@ -589,13 +744,13 @@ export interface ApiConstructProps {
 /**
  * Infrastructure construct to deploy a Type Safe API.
  */
-export class ApiConstruct extends Construct {
+export class MyApi extends Construct {
   /**
    * API instance
    */
   public readonly api: Api;
 
-  constructor(scope: Construct, id: string, props?: ApiConstructProps) {
+  constructor(scope: Construct, id: string, props?: MyApiProps) {
     super(scope, id);
 
     const putShoppingListFunction = new PutShoppingListFunction(
@@ -656,8 +811,8 @@ export class ApiConstruct extends Construct {
     props?.databaseConstruct.shoppingListTable.grantReadData(
       getShoppingListsFunction,
     );
-    [putShoppingListFunction, deleteShoppingListFunction].forEach(
-      (f) => props?.databaseConstruct.shoppingListTable.grantWriteData(f),
+    [putShoppingListFunction, deleteShoppingListFunction].forEach((f) =>
+      props?.databaseConstruct.shoppingListTable.grantWriteData(f),
     );
 
     // Grant authenticated users access to invoke the api
@@ -676,15 +831,15 @@ You will notice that we are importing `DeleteShoppingListFunction, GetShoppingLi
 
 ### Wire in the DatabaseConstruct
 
-The final change we need to make is that we need to instantiate the `DatabaseConstruct` and pass the instance to the `ApiConstruct`. To do this, perform the following highlighted changes to `packages/infra/src/stacks/application-stack.ts`:
+The final change we need to make is that we need to instantiate the `DatabaseConstruct` and pass the instance to the `MyApi` construct. To do this, perform the following highlighted changes to `packages/infra/src/stacks/application-stack.ts`:
 
 ```typescript hl_lines="5 13 15"
 import { UserIdentity } from "@aws/pdk/identity";
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { ApiConstruct } from "../constructs/api";
+import { MyApi } from "../constructs/apis/myapi";
 import { DatabaseConstruct } from "../constructs/database";
-import { WebsiteConstruct } from "../constructs/website";
+import { Website } from "../constructs/websites/website";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -692,11 +847,14 @@ export class ApplicationStack extends Stack {
 
     const userIdentity = new UserIdentity(this, `${id}UserIdentity`);
     const databaseConstruct = new DatabaseConstruct(this, "Database");
-    const apiConstruct = new ApiConstruct(this, "Api", {
+    const myapi = new MyApi(this, "MyApi", {
       databaseConstruct,
       userIdentity,
     });
-    new WebsiteConstruct(this, "Website", { userIdentity, apiConstruct });
+    new Website(this, "Website", {
+      userIdentity,
+      myapi,
+    });
   }
 }
 ```
