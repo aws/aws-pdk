@@ -4390,7 +4390,13 @@
 </span></code></pre></div>
 <p>Once you have saved your <code>.projenrc.ts</code> file, run <code>pdk</code> from the root to synthesize and install your package.</p>
 <h3 id="implement-the-handlers">Implement the handlers</h3>
-<p>We now have everything we need to start implementing our handlers. Modify the respective handler files with the contents of the following:</p>
+<p>We now have everything we need to start implementing our handlers. </p>
+<p>Let's first by creating a shared file called <code>dynamo-client.ts</code> within the handlers <code>src</code> directory as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">DynamoDBClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-sdk/client-dynamodb&#39;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">ddbClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">DynamoDBClient</span><span class="p">({</span><span class="w"> </span><span class="nx">region</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.AWS_REGION</span><span class="w"> </span><span class="p">});</span>
+</code></pre></div>
+<p>Now modify the respective handler files with the contents of the following:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">put-shopping-list.ts</label><label for="__tabbed_5_2">delete-shopping-list.ts</label><label for="__tabbed_5_3">get-shopping-lists.ts</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -4404,8 +4410,7 @@
 <span class="w">    </span><span class="nx">Response</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">LoggingInterceptor</span><span class="p">,</span>
 <span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;myapi-typescript-runtime&#39;</span><span class="p">;</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">dbclient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">DynamoDBClient</span><span class="p">({</span><span class="w"> </span><span class="nx">region</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.AWS_REGION</span><span class="w"> </span><span class="p">});</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ddbClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./dynamo-client&#39;</span><span class="p">;</span>
 
 <span class="cm">/**</span>
 <span class="cm"> * Type-safe handler for the PutShoppingList operation</span>
@@ -4414,7 +4419,7 @@
 <span class="w">    </span><span class="nx">LoggingInterceptor</span><span class="p">.</span><span class="nx">getLogger</span><span class="p">(</span><span class="nx">request</span><span class="p">).</span><span class="nx">info</span><span class="p">(</span><span class="s1">&#39;Start PutShoppingList Operation&#39;</span><span class="p">);</span>
 
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">shoppingListId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">shoppingListId</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="nx">randomUUID</span><span class="p">();</span>
-<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">dbclient</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">PutItemCommand</span><span class="p">({</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">ddbClient</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">PutItemCommand</span><span class="p">({</span>
 <span class="w">        </span><span class="nx">TableName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;shopping_list&#39;</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">Item</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nx">shoppingListId</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
@@ -4451,8 +4456,7 @@
 <span class="w">    </span><span class="nx">Response</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">LoggingInterceptor</span><span class="p">,</span>
 <span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;myapi-typescript-runtime&#39;</span><span class="p">;</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">dbclient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">DynamoDBClient</span><span class="p">({</span><span class="w"> </span><span class="nx">region</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.AWS_REGION</span><span class="w"> </span><span class="p">});</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ddbClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./dynamo-client&#39;</span><span class="p">;</span>
 
 <span class="cm">/**</span>
 <span class="cm"> * Type-safe handler for the DeleteShoppingList operation</span>
@@ -4463,7 +4467,7 @@
 <span class="w">    </span><span class="p">);</span>
 
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">shoppingListId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nx">requestParameters</span><span class="p">.</span><span class="nx">shoppingListId</span><span class="p">;</span>
-<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">dbclient</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">ddbClient</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span>
 <span class="w">    </span><span class="ow">new</span><span class="w"> </span><span class="nx">DeleteItemCommand</span><span class="p">({</span>
 <span class="w">        </span><span class="nx">TableName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;shopping_list&#39;</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">Key</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
@@ -4491,7 +4495,7 @@
 </div>
 <div class="tabbed-block">
 <p><em>This logic either calls the Scan or Query command depending on the presense of a shoppingListId request parameter. It also handles pagination based on the presense of a pageSize and/or nextToken. The shoppingItems are stored as a serialized JSON string in the table/</em></p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">DynamoDBClient</span><span class="p">,</span><span class="w"> </span><span class="nx">QueryCommand</span><span class="p">,</span><span class="w"> </span><span class="nx">ScanCommand</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-sdk/client-dynamodb&#39;</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">DynamoDBClient</span><span class="p">,</span><span class="w"> </span><span class="nx">QueryCommand</span><span class="p">,</span><span class="w"> </span><span class="nx">QueryCommandInput</span><span class="p">,</span><span class="w"> </span><span class="nx">ScanCommand</span><span class="p">,</span><span class="w"> </span><span class="nx">ScanCommandInput</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@aws-sdk/client-dynamodb&#39;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">getShoppingListsHandler</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">GetShoppingListsChainedHandlerFunction</span><span class="p">,</span>
@@ -4500,8 +4504,7 @@
 <span class="w">    </span><span class="nx">LoggingInterceptor</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">ShoppingList</span><span class="p">,</span>
 <span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;myapi-typescript-runtime&#39;</span><span class="p">;</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">dbclient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">DynamoDBClient</span><span class="p">({</span><span class="w"> </span><span class="nx">region</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.AWS_REGION</span><span class="w"> </span><span class="p">});</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ddbClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./dynamo-client&#39;</span><span class="p">;</span>
 
 <span class="cm">/**</span>
 <span class="cm"> * Type-safe handler for the GetShoppingLists operation</span>
@@ -4512,32 +4515,31 @@
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">nextToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nx">requestParameters</span><span class="p">.</span><span class="nx">nextToken</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">pageSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nx">requestParameters</span><span class="p">.</span><span class="nx">pageSize</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">shoppingListId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nx">requestParameters</span><span class="p">.</span><span class="nx">shoppingListId</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">Command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">shoppingListId</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">QueryCommand</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">ScanCommand</span><span class="p">;</span>
-
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">dbclient</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">Command</span><span class="p">({</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">commandInput</span><span class="o">:</span><span class="w"> </span><span class="kt">ScanCommandInput</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">QueryCommandInput</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">TableName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;shopping_list&#39;</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">ConsistentRead</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">Limit</span><span class="o">:</span><span class="w"> </span><span class="kt">pageSize</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">ExclusiveStartKey</span><span class="o">:</span><span class="w"> </span><span class="kt">nextToken</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">fromToken</span><span class="p">(</span><span class="nx">nextToken</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kc">undefined</span><span class="p">,</span>
 <span class="w">        </span><span class="p">...(</span><span class="nx">shoppingListId</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">KeyConditionExpression</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;shoppingListId = :shoppingListId&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">ExpressionAttributeValues</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s1">&#39;:shoppingListId&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nx">S</span><span class="o">:</span><span class="w"> </span><span class="kt">request.input.requestParameters.shoppingListId</span><span class="o">!</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">KeyConditionExpression</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;shoppingListId = :shoppingListId&#39;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">ExpressionAttributeValues</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="s1">&#39;:shoppingListId&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nx">S</span><span class="o">:</span><span class="w"> </span><span class="kt">request.input.requestParameters.shoppingListId</span><span class="o">!</span><span class="p">,</span>
+<span class="w">                </span><span class="p">},</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">{}),</span>
-<span class="w">    </span><span class="p">}));</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">ddbClient</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">shoppingListId</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">QueryCommand</span><span class="p">(</span><span class="nx">commandInput</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">ScanCommand</span><span class="p">(</span><span class="nx">commandInput</span><span class="p">));</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">Response</span><span class="p">.</span><span class="nx">success</span><span class="p">({</span>
 <span class="w">        </span><span class="nx">shoppingLists</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">Items</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">[])</span>
 <span class="w">            </span><span class="p">.</span><span class="nx">map</span><span class="o">&lt;</span><span class="nx">ShoppingList</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">item</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
-<span class="w">                </span><span class="nx">shoppingListId</span><span class="o">:</span><span class="w"> </span><span class="kt">item.shoppingListId.S</span><span class="o">!</span><span class="p">,</span>
-<span class="w">                </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">item.name.S</span><span class="o">!</span><span class="p">,</span>
-<span class="w">                </span><span class="nx">shoppingItems</span><span class="o">:</span><span class="w"> </span><span class="kt">JSON.parse</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">shoppingItems</span><span class="p">.</span><span class="nx">S</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;[]&#39;</span><span class="p">),</span>
+<span class="w">            </span><span class="nx">shoppingListId</span><span class="o">:</span><span class="w"> </span><span class="kt">item.shoppingListId.S</span><span class="o">!</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">item.name.S</span><span class="o">!</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">shoppingItems</span><span class="o">:</span><span class="w"> </span><span class="kt">JSON.parse</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">shoppingItems</span><span class="p">.</span><span class="nx">S</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;[]&#39;</span><span class="p">),</span>
 <span class="w">            </span><span class="p">})),</span>
-<span class="w">        </span><span class="nx">nextToken</span><span class="o">:</span><span class="w"> </span><span class="kt">response.LastEvaluatedKey</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">toToken</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">LastEvaluatedKey</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kc">undefined</span><span class="p">,</span>
-<span class="w">    </span><span class="p">});</span>
+<span class="w">            </span><span class="nx">nextToken</span><span class="o">:</span><span class="w"> </span><span class="kt">response.LastEvaluatedKey</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">toToken</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">LastEvaluatedKey</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kc">undefined</span><span class="p">,</span>
+<span class="w">        </span><span class="p">});</span>
 <span class="p">};</span>
 
 <span class="cm">/**</span>
@@ -4563,7 +4565,152 @@
 </div>
 </div>
 </div>
-<p>Fantastic! We now have all of our API business logic implemented. Let's move on to configuring the API infrastructure and deploying what we have so far.</p>
+<p>Fantastic! We now have all of our API business logic implemented. Let's also update our unit tests:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">put-shopping-list.test.ts</label><label for="__tabbed_6_2">delete-shopping-list.test.ts</label><label for="__tabbed_6_3">get-shopping-lists.test.ts</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">PutShoppingListChainedRequestInput</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">PutShoppingListRequestParameters</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">PutShoppingListResponseContent</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;myapi-typescript-runtime&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ddbClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../src/dynamo-client&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">putShoppingList</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../src/put-shopping-list&#39;</span><span class="p">;</span>
+
+<span class="c1">// Common request arguments</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">requestArguments</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">chain</span><span class="o">:</span><span class="w"> </span><span class="kt">undefined</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">never</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">event</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">context</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">interceptorContext</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">logger</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="kt">jest.fn</span><span class="p">(),</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="p">}</span><span class="w"> </span><span class="nx">satisfies</span><span class="w"> </span><span class="nx">Omit</span><span class="o">&lt;</span><span class="nx">PutShoppingListChainedRequestInput</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;input&#39;</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="nx">jest</span><span class="p">.</span><span class="nx">mock</span><span class="p">(</span><span class="s1">&#39;../src/dynamo-client&#39;</span><span class="p">);</span>
+
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;PutShoppingList&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should put an item&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">(</span><span class="nx">ddbClient</span><span class="p">.</span><span class="nx">send</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">jest</span><span class="p">.</span><span class="nx">Mock</span><span class="p">).</span><span class="nx">mockResolvedValue</span><span class="p">({</span><span class="w"> </span><span class="p">});</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">putShoppingList</span><span class="p">({</span>
+<span class="w">            </span><span class="p">...</span><span class="nx">requestArguments</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">requestParameters</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">PutShoppingListRequestParameters</span><span class="p">,</span>
+<span class="w">                </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">,</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">        </span><span class="p">});</span>
+
+<span class="w">        </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">statusCode</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="mf">200</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">expect</span><span class="p">((</span><span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">PutShoppingListResponseContent</span><span class="p">).</span><span class="nx">shoppingListId</span><span class="p">).</span><span class="nx">toBeDefined</span><span class="p">();</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">});</span><span class="w">  </span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">DeleteShoppingListChainedRequestInput</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">DeleteShoppingListResponseContent</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">DeleteShoppingListRequestParameters</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;myapi-typescript-runtime&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">deleteShoppingList</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../src/delete-shopping-list&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ddbClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../src/dynamo-client&#39;</span><span class="p">;</span>
+
+<span class="c1">// Common request arguments</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">requestArguments</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">chain</span><span class="o">:</span><span class="w"> </span><span class="kt">undefined</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">never</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">event</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">context</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">interceptorContext</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">logger</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="kt">jest.fn</span><span class="p">(),</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="p">}</span><span class="w"> </span><span class="nx">satisfies</span><span class="w"> </span><span class="nx">Omit</span><span class="o">&lt;</span><span class="nx">DeleteShoppingListChainedRequestInput</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;input&#39;</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="nx">jest</span><span class="p">.</span><span class="nx">mock</span><span class="p">(</span><span class="s1">&#39;../src/dynamo-client&#39;</span><span class="p">);</span>
+
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;DeleteShoppingList&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should delete an item&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">(</span><span class="nx">ddbClient</span><span class="p">.</span><span class="nx">send</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">jest</span><span class="p">.</span><span class="nx">Mock</span><span class="p">).</span><span class="nx">mockResolvedValue</span><span class="p">({</span><span class="w"> </span><span class="p">});</span>
+
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">listToDelete</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;deleted&#39;</span><span class="p">;</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">deleteShoppingList</span><span class="p">({</span>
+<span class="w">            </span><span class="p">...</span><span class="nx">requestArguments</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">requestParameters</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nx">shoppingListId</span><span class="o">:</span><span class="w"> </span><span class="kt">listToDelete</span><span class="p">,</span>
+<span class="w">                </span><span class="p">}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">DeleteShoppingListRequestParameters</span><span class="p">,</span>
+<span class="w">                </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">never</span><span class="p">,</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">        </span><span class="p">});</span>
+
+<span class="w">        </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">statusCode</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="mf">200</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">expect</span><span class="p">((</span><span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">DeleteShoppingListResponseContent</span><span class="p">).</span><span class="nx">shoppingListId</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">listToDelete</span><span class="p">);</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">GetShoppingListsChainedRequestInput</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">GetShoppingListsRequestParameters</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">GetShoppingListsResponseContent</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;myapi-typescript-runtime&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ddbClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../src/dynamo-client&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">getShoppingLists</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../src/get-shopping-lists&#39;</span><span class="p">;</span>
+
+<span class="c1">// Common request arguments</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">requestArguments</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">chain</span><span class="o">:</span><span class="w"> </span><span class="kt">undefined</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">never</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">event</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">context</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">interceptorContext</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">logger</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="kt">jest.fn</span><span class="p">(),</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="p">}</span><span class="w"> </span><span class="nx">satisfies</span><span class="w"> </span><span class="nx">Omit</span><span class="o">&lt;</span><span class="nx">GetShoppingListsChainedRequestInput</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;input&#39;</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="nx">jest</span><span class="p">.</span><span class="nx">mock</span><span class="p">(</span><span class="s1">&#39;../src/dynamo-client&#39;</span><span class="p">);</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">SHOPPING_LIST_ITEMS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">    </span><span class="nx">shoppingListId</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">S</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">S</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nx">shoppingItems</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">S</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;[&quot;a&quot;,&quot;b&quot;,&quot;c&quot;]&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="p">}];</span>
+
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;GetShoppingLists&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should return an item&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">(</span><span class="nx">ddbClient</span><span class="p">.</span><span class="nx">send</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">jest</span><span class="p">.</span><span class="nx">Mock</span><span class="p">).</span><span class="nx">mockResolvedValue</span><span class="p">({</span><span class="w"> </span><span class="nx">Items</span><span class="o">:</span><span class="w"> </span><span class="kt">SHOPPING_LIST_ITEMS</span><span class="w"> </span><span class="p">});</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">getShoppingLists</span><span class="p">({</span>
+<span class="w">            </span><span class="p">...</span><span class="nx">requestArguments</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">requestParameters</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">GetShoppingListsRequestParameters</span><span class="p">,</span>
+<span class="w">                </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">never</span><span class="p">,</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">        </span><span class="p">});</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">responseContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">GetShoppingListsResponseContent</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">statusCode</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="mf">200</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">expect</span><span class="p">(</span><span class="nx">responseContent</span><span class="p">.</span><span class="nx">shoppingLists</span><span class="p">.</span><span class="nx">length</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="mf">1</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">expect</span><span class="p">(</span><span class="nx">responseContent</span><span class="p">.</span><span class="nx">shoppingLists</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">name</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">SHOPPING_LIST_ITEMS</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">name</span><span class="p">.</span><span class="nx">S</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">expect</span><span class="p">(</span><span class="nx">responseContent</span><span class="p">.</span><span class="nx">shoppingLists</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">shoppingListId</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">SHOPPING_LIST_ITEMS</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">shoppingListId</span><span class="p">.</span><span class="nx">S</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">expect</span><span class="p">(</span><span class="nx">responseContent</span><span class="p">.</span><span class="nx">shoppingLists</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">shoppingItems</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">SHOPPING_LIST_ITEMS</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">shoppingItems</span><span class="p">.</span><span class="nx">S</span><span class="p">));</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>Let's move on to configuring the API infrastructure and deploying what we have so far.</p>
 <h2 id="submodule-3-configure-and-deploy-your-api">Submodule 3: Configure and deploy your API</h2>
 <h3 id="create-a-database-construct">Create a Database construct</h3>
 <p>We need to create a DynamoDB table so that we can perform CRUD operations on our Shopping List(s). To do this, create a new file <code>packages/infra/src/constructs/database.ts</code> as follows:</p>
@@ -4590,10 +4737,10 @@
 <span class="p">}</span>
 </code></pre></div>
 <h3 id="modify-api-construct">Modify API construct</h3>
-<p>We now need to wire up all of the handlers that we implemented into the existing <code>ApiConstruct</code>. We additionally need to configure each of our operations specific permissions onto the dynamoDB table that we just configured. Perform the following highlighted changes to your <code>packages/infra/src/constructs/api.ts</code> file:</p>
+<p>We now need to wire up all of the handlers that we implemented into the existing <code>MyApi</code> construct. We additionally need to configure each of our operations specific permissions onto the dynamoDB table that we just configured. Perform the following highlighted changes to your <code>packages/infra/src/constructs/apis/myapi.ts</code> file:</p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">UserIdentity</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws/pdk/identity&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Authorizers</span><span class="p">,</span><span class="w"> </span><span class="nx">Integrations</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws/pdk/type-safe-api&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Stack</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">;</span>
+<span class="hll"><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Authorizers</span><span class="p">,</span><span class="w"> </span><span class="nx">Integrations</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws/pdk/type-safe-api&quot;</span><span class="p">;</span>
+</span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Stack</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Cors</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-cdk-lib/aws-apigateway&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">AccountPrincipal</span><span class="p">,</span>
@@ -4609,12 +4756,12 @@
 </span><span class="hll"><span class="w">  </span><span class="nx">GetShoppingListsFunction</span><span class="p">,</span>
 </span><span class="hll"><span class="w">  </span><span class="nx">PutShoppingListFunction</span><span class="p">,</span>
 </span><span class="hll"><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;myapi-typescript-infra&quot;</span><span class="p">;</span>
-</span><span class="hll"><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">DatabaseConstruct</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./database&quot;</span><span class="p">;</span>
+</span><span class="hll"><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">DatabaseConstruct</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../database&quot;</span><span class="p">;</span>
 </span>
 <span class="cm">/**</span>
 <span class="cm"> * Api construct props.</span>
 <span class="cm"> */</span>
-<span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">ApiConstructProps</span><span class="w"> </span><span class="p">{</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">MyApiProps</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="cm">/**</span>
 <span class="cm">   * Instance of the UserIdentity.</span>
 <span class="cm">   */</span>
@@ -4629,13 +4776,13 @@
 <span class="cm">/**</span>
 <span class="cm"> * Infrastructure construct to deploy a Type Safe API.</span>
 <span class="cm"> */</span>
-<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">ApiConstruct</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Construct</span><span class="w"> </span><span class="p">{</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">MyApi</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Construct</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="cm">/**</span>
 <span class="cm">   * API instance</span>
 <span class="cm">   */</span>
 <span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">api</span><span class="o">:</span><span class="w"> </span><span class="kt">Api</span><span class="p">;</span>
 
-<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">scope</span><span class="o">:</span><span class="w"> </span><span class="kt">Construct</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">props?</span><span class="o">:</span><span class="w"> </span><span class="kt">ApiConstructProps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">scope</span><span class="o">:</span><span class="w"> </span><span class="kt">Construct</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">props?</span><span class="o">:</span><span class="w"> </span><span class="kt">MyApiProps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">super</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">);</span>
 
 <span class="hll"><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">putShoppingListFunction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PutShoppingListFunction</span><span class="p">(</span>
@@ -4696,8 +4843,8 @@
 </span><span class="hll"><span class="w">    </span><span class="nx">props</span><span class="o">?</span><span class="p">.</span><span class="nx">databaseConstruct</span><span class="p">.</span><span class="nx">shoppingListTable</span><span class="p">.</span><span class="nx">grantReadData</span><span class="p">(</span>
 </span><span class="hll"><span class="w">      </span><span class="nx">getShoppingListsFunction</span><span class="p">,</span>
 </span><span class="hll"><span class="w">    </span><span class="p">);</span>
-</span><span class="hll"><span class="w">    </span><span class="p">[</span><span class="nx">putShoppingListFunction</span><span class="p">,</span><span class="w"> </span><span class="nx">deleteShoppingListFunction</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span>
-</span><span class="hll"><span class="w">      </span><span class="p">(</span><span class="nx">f</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">props</span><span class="o">?</span><span class="p">.</span><span class="nx">databaseConstruct</span><span class="p">.</span><span class="nx">shoppingListTable</span><span class="p">.</span><span class="nx">grantWriteData</span><span class="p">(</span><span class="nx">f</span><span class="p">),</span>
+</span><span class="hll"><span class="w">    </span><span class="p">[</span><span class="nx">putShoppingListFunction</span><span class="p">,</span><span class="w"> </span><span class="nx">deleteShoppingListFunction</span><span class="p">].</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">f</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+</span><span class="hll"><span class="w">      </span><span class="nx">props</span><span class="o">?</span><span class="p">.</span><span class="nx">databaseConstruct</span><span class="p">.</span><span class="nx">shoppingListTable</span><span class="p">.</span><span class="nx">grantWriteData</span><span class="p">(</span><span class="nx">f</span><span class="p">),</span>
 </span><span class="hll"><span class="w">    </span><span class="p">);</span>
 </span>
 <span class="w">    </span><span class="c1">// Grant authenticated users access to invoke the api</span>
@@ -4713,13 +4860,13 @@
 </code></pre></div>
 <p>You will notice that we are importing <code>DeleteShoppingListFunction, GetShoppingListsFunction &amp; PutShoppingListFunction</code> from the <code>myapi-typescript-infra</code> package. These are extensions to <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda.Function.html"><code>Function</code></a> which come pre-configured with runtime, index handler and asset location. The function accepts an optional third parameter which allows you to adjust any settings you would find within the <code>Function</code> interface i.e: vpc, subnets, etc.</p>
 <h3 id="wire-in-the-databaseconstruct">Wire in the DatabaseConstruct</h3>
-<p>The final change we need to make is that we need to instantiate the <code>DatabaseConstruct</code> and pass the instance to the <code>ApiConstruct</code>. To do this, perform the following highlighted changes to <code>packages/infra/src/stacks/application-stack.ts</code>:</p>
+<p>The final change we need to make is that we need to instantiate the <code>DatabaseConstruct</code> and pass the instance to the <code>MyApi</code> construct. To do this, perform the following highlighted changes to <code>packages/infra/src/stacks/application-stack.ts</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">UserIdentity</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@aws/pdk/identity&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Stack</span><span class="p">,</span><span class="w"> </span><span class="nx">StackProps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;aws-cdk-lib&quot;</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Construct</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;constructs&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ApiConstruct</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../constructs/api&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">MyApi</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../constructs/apis/myapi&quot;</span><span class="p">;</span>
 <span class="hll"><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">DatabaseConstruct</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../constructs/database&quot;</span><span class="p">;</span>
-</span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">WebsiteConstruct</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../constructs/website&quot;</span><span class="p">;</span>
+</span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Website</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../constructs/websites/website&quot;</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">ApplicationStack</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Stack</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">scope</span><span class="o">:</span><span class="w"> </span><span class="kt">Construct</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">props?</span><span class="o">:</span><span class="w"> </span><span class="kt">StackProps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -4727,11 +4874,14 @@
 
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">userIdentity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UserIdentity</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">id</span><span class="si">}</span><span class="sb">UserIdentity`</span><span class="p">);</span>
 <span class="hll"><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">databaseConstruct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">DatabaseConstruct</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Database&quot;</span><span class="p">);</span>
-</span><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">apiConstruct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">ApiConstruct</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Api&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+</span><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">myapi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">MyApi</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MyApi&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="hll"><span class="w">      </span><span class="nx">databaseConstruct</span><span class="p">,</span>
 </span><span class="w">      </span><span class="nx">userIdentity</span><span class="p">,</span>
 <span class="w">    </span><span class="p">});</span>
-<span class="w">    </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebsiteConstruct</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Website&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">userIdentity</span><span class="p">,</span><span class="w"> </span><span class="nx">apiConstruct</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="ow">new</span><span class="w"> </span><span class="nx">Website</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Website&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">userIdentity</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">myapi</span><span class="p">,</span>
+<span class="w">    </span><span class="p">});</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -4751,7 +4901,7 @@ pdk<span class="w"> </span>deploy:dev
 <p>Since we will no longer be using the <code>Home</code> page, we can simplify delete it from <code>pages/Home/index.tsx</code> along with it's <code>pages/Home</code> folder.</p>
 <h3 id="create-new-pages-components">Create new pages &amp; components</h3>
 <p>Within the <code>packages/website/src</code> directory, create the following three files with content as follows:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">pages/ShoppingLists/index.tsx</label><label for="__tabbed_6_2">pages/ShoppingList/index.tsx</label><label for="__tabbed_6_3">components/CreateItem/index.tsx</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="7:3"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><input id="__tabbed_7_3" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">pages/ShoppingLists/index.tsx</label><label for="__tabbed_7_2">pages/ShoppingList/index.tsx</label><label for="__tabbed_7_3">components/CreateItem/index.tsx</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>This creates the UI do managing our shoppings lists.</p>
@@ -5138,7 +5288,7 @@ pdk<span class="w"> </span>deploy:dev
 </div>
 <h3 id="wire-in-the-new-pages">Wire in the new pages</h3>
 <p>Next we need to modify the following two files in order to instrument the new pages correctly:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="7:2"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">layouts/App/navitems.ts</label><label for="__tabbed_7_2">layouts/Routes/index.tsx</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="8:2"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1">layouts/App/navitems.ts</label><label for="__tabbed_8_2">layouts/Routes/index.tsx</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Render the new pages as "Shopping Lists" in the nav bar.</p>
@@ -5214,7 +5364,7 @@ pdk<span class="w"> </span>deploy:dev
   <small>
     
       Last update:
-      2024-03-28
+      2024-03-29
     
   </small>
 </div>
