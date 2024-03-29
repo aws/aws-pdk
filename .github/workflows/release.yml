@@ -44,7 +44,7 @@ jobs:
         run: echo "latest_commit=$(git ls-remote origin -h ${{ github.ref }} | cut -f1)" >> $GITHUB_OUTPUT
       - name: Should skip release
         id: should_skip_release
-        run: echo "skip_release=$(git log --oneline -1 | grep -qE 'docs\(?.*\)?:|chore\(?.*\)?:|refactor\(?.*\)?:|test\(?.*\)?:' && echo true || echo false)" >> $GITHUB_OUTPUT
+        run: echo "skip_release=$(git log --oneline -1 | grep -qE 'build\(?.*\)?:|docs\(?.*\)?:|chore\(?.*\)?:|refactor\(?.*\)?:|test\(?.*\)?:' && echo true || echo false)" >> $GITHUB_OUTPUT
       - name: Extract Dists
         run: rsync -a . ./dist --include="*/" --include="/docs/dist/**" --include="/packages/pdk/dist/**" --exclude="*" --prune-empty-dirs
       - name: Upload artifact
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: needs.release.outputs.latest_commit == github.sha && needs.release.outputs.skip_release != 'true'
+    if: needs.release.outputs.latest_commit == github.sha
     steps:
       - uses: actions/setup-node@v2
         with:
@@ -70,6 +70,7 @@ jobs:
           name: build-artifact
           path: dist
       - name: Release
+        if: needs.release.outputs.skip_release != 'true'
         run: errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY -F dist/changelog.md -t $(cat dist/releasetag.txt) --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode -ne 0 ] && ! grep -q "Release.tag_name already exists" $errout; then cat $errout; exit $exitcode; fi
         working-directory: dist/packages/pdk
         env:
@@ -211,7 +212,7 @@ jobs:
           title: Publishing v${{ steps.extract-version.outputs.VERSION }} to pypi failed
           body: See https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
   release_docs:
-    needs: release_github
+    needs: [release, release_github]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -232,6 +233,7 @@ jobs:
           git config user.name "AWS PDK Automation"
           git config user.email "aws-pdk+automation@amazon.com"
       - name: Upload docs to Github
+        if: needs.release.outputs.skip_release != 'true'
         run: zip -r docs.zip dist/docs/dist/docs/* && gh release upload $(cat dist/packages/pdk/dist/releasetag.txt) -R $GITHUB_REPOSITORY docs.zip && rm docs.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
