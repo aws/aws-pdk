@@ -1,7 +1,7 @@
 import { UserIdentity } from "@aws/pdk/identity";
 import { StaticWebsite } from "@aws/pdk/static-website";
 import { Stack } from "aws-cdk-lib";
-import { GeoRestriction } from "aws-cdk-lib/aws-cloudfront";
+import { NagSuppressions } from "cdk-nag";
 import { Construct } from "constructs";
 {{#typeSafeApis}}
 import { {{{apiName}}} } from "../apis/{{{apiNameLowercase}}}";
@@ -53,17 +53,18 @@ export class {{{websiteName}}} extends Construct {
           typeSafeWebSocketApis: { {{#typeSafeWebSocketApis}}{{{apiName}}}: props?.{{{apiNameLowercase}}}.api.defaultStage.url{{^isLast}},{{/isLast}}{{/typeSafeWebSocketApis}} },
         },
       },
-      distributionProps: {
-        geoRestriction: GeoRestriction.allowlist(
-          "AU",
-          "ID",
-          "IN",
-          "JP",
-          "KR",
-          "SG",
-          "US",
-        ),
-      },
     });
+
+    NagSuppressions.addResourceSuppressions(
+      website,
+      [
+        {
+          id: "AwsPrototyping-CloudFrontDistributionGeoRestrictions",
+          reason:
+            "Suppressed to allow unrestricted access. Not recommended in production.",
+        },
+      ],
+      true,
+    );
   }
 }

@@ -86,7 +86,7 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
 
     InfrastructureCommands.ensure(this);
 
-    this.addDeps("@aws/pdk");
+    this.addDeps("@aws/pdk", "cdk-nag");
 
     const srcDir = path.resolve(
       __dirname,

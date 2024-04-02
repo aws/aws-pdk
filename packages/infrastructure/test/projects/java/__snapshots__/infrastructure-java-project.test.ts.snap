@@ -167,6 +167,11 @@ dist/java
         "version": "3.0.0",
       },
       {
+        "name": "io.github.cdklabs/cdknag",
+        "type": "runtime",
+        "version": "2.15.16",
+      },
+      {
         "name": "software.amazon.awscdk/aws-cdk-lib",
         "type": "runtime",
         "version": "2.133.0",
@@ -538,6 +543,11 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     </build>
     <dependencies>
         <dependency>
+            <groupId>io.github.cdklabs</groupId>
+            <artifactId>cdknag</artifactId>
+            <version>2.15.16</version>
+        </dependency>
+        <dependency>
             <groupId>software.amazon.awscdk</groupId>
             <artifactId>aws-cdk-lib</artifactId>
             <version>2.133.0</version>
@@ -834,6 +844,11 @@ dist/java
         "name": "com.generated.api/Api-java-infra",
         "type": "runtime",
         "version": "0.0.0",
+      },
+      {
+        "name": "io.github.cdklabs/cdknag",
+        "type": "runtime",
+        "version": "2.15.16",
       },
       {
         "name": "software.amazon.awscdk/aws-cdk-lib",
@@ -1355,6 +1370,11 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
             <groupId>com.generated.api</groupId>
             <artifactId>Api-java-infra</artifactId>
             <version>0.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.cdklabs</groupId>
+            <artifactId>cdknag</artifactId>
+            <version>2.15.16</version>
         </dependency>
         <dependency>
             <groupId>software.amazon.awscdk</groupId>
@@ -1841,6 +1861,11 @@ dist/java
         "version": "0.0.0",
       },
       {
+        "name": "io.github.cdklabs/cdknag",
+        "type": "runtime",
+        "version": "2.15.16",
+      },
+      {
         "name": "software.amazon.awscdk/aws-cdk-lib",
         "type": "runtime",
         "version": "2.133.0",
@@ -2362,6 +2387,11 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
             <version>0.0.0</version>
         </dependency>
         <dependency>
+            <groupId>io.github.cdklabs</groupId>
+            <artifactId>cdknag</artifactId>
+            <version>2.15.16</version>
+        </dependency>
+        <dependency>
             <groupId>software.amazon.awscdk</groupId>
             <artifactId>aws-cdk-lib</artifactId>
             <version>2.133.0</version>
@@ -2656,9 +2686,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import io.github.cdklabs.cdknag.NagSuppressions;
+import io.github.cdklabs.cdknag.NagPackSuppression;
 import software.aws.pdk.identity.UserIdentity;
-import software.aws.pdk.static_website.DistributionProps;
 import software.aws.pdk.static_website.RuntimeOptions;
 import software.aws.pdk.static_website.StaticWebsite;
 import software.aws.pdk.static_website.StaticWebsiteProps;
@@ -2672,7 +2702,7 @@ public class Website extends Construct {
     public Website(Construct scope, String id, UserIdentity userIdentity) {
         super(scope, id);
 
-        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+        StaticWebsite website = new StaticWebsite(this, id, StaticWebsiteProps.builder()
                 .websiteContentPath("../website/build")
                 .runtimeOptions(RuntimeOptions.builder()
                         .jsonPayload(new TreeMap<>(Map.of(
@@ -2684,17 +2714,12 @@ public class Website extends Construct {
                                 )
                                 )))
                         .build())
-                .distributionProps(DistributionProps.builder()
-                    .geoRestriction(GeoRestriction.allowlist(
-                        "AU",
-                        "ID",
-                        "IN",
-                        "JP",
-                        "KR",
-                        "SG",
-                        "US"))
-                    .build())
                 .build());
+        
+        NagSuppressions.addResourceSuppressions(website, Arrays.asList(NagPackSuppression.builder()
+            .id("AwsPrototyping-CloudFrontDistributionGeoRestrictions")
+            .reason("Suppressed to allow unrestricted access. Not recommended in production.")
+            .build()), true);
     }
 }
 ",
@@ -2900,6 +2925,11 @@ dist/java
         "name": "com.generated.api/Api2-java-infra",
         "type": "runtime",
         "version": "0.0.0",
+      },
+      {
+        "name": "io.github.cdklabs/cdknag",
+        "type": "runtime",
+        "version": "2.15.16",
       },
       {
         "name": "software.amazon.awscdk/aws-cdk-lib",
@@ -3432,6 +3462,11 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
             <version>0.0.0</version>
         </dependency>
         <dependency>
+            <groupId>io.github.cdklabs</groupId>
+            <artifactId>cdknag</artifactId>
+            <version>2.15.16</version>
+        </dependency>
+        <dependency>
             <groupId>software.amazon.awscdk</groupId>
             <artifactId>aws-cdk-lib</artifactId>
             <version>2.133.0</version>
@@ -3801,9 +3836,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import io.github.cdklabs.cdknag.NagSuppressions;
+import io.github.cdklabs.cdknag.NagPackSuppression;
 import software.aws.pdk.identity.UserIdentity;
-import software.aws.pdk.static_website.DistributionProps;
 import software.aws.pdk.static_website.RuntimeOptions;
 import software.aws.pdk.static_website.StaticWebsite;
 import software.aws.pdk.static_website.StaticWebsiteProps;
@@ -3817,7 +3852,7 @@ public class Website extends Construct {
     public Website(Construct scope, String id, UserIdentity userIdentity) {
         super(scope, id);
 
-        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+        StaticWebsite website = new StaticWebsite(this, id, StaticWebsiteProps.builder()
                 .websiteContentPath("../website/build")
                 .runtimeOptions(RuntimeOptions.builder()
                         .jsonPayload(new TreeMap<>(Map.of(
@@ -3829,17 +3864,12 @@ public class Website extends Construct {
                                 )
                                 )))
                         .build())
-                .distributionProps(DistributionProps.builder()
-                    .geoRestriction(GeoRestriction.allowlist(
-                        "AU",
-                        "ID",
-                        "IN",
-                        "JP",
-                        "KR",
-                        "SG",
-                        "US"))
-                    .build())
                 .build());
+        
+        NagSuppressions.addResourceSuppressions(website, Arrays.asList(NagPackSuppression.builder()
+            .id("AwsPrototyping-CloudFrontDistributionGeoRestrictions")
+            .reason("Suppressed to allow unrestricted access. Not recommended in production.")
+            .build()), true);
     }
 }
 ",
@@ -4047,6 +4077,11 @@ dist/java
         "name": "com.generated.api/Api2-java-infra",
         "type": "runtime",
         "version": "0.0.0",
+      },
+      {
+        "name": "io.github.cdklabs/cdknag",
+        "type": "runtime",
+        "version": "2.15.16",
       },
       {
         "name": "software.amazon.awscdk/aws-cdk-lib",
@@ -4579,6 +4614,11 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
             <version>0.0.0</version>
         </dependency>
         <dependency>
+            <groupId>io.github.cdklabs</groupId>
+            <artifactId>cdknag</artifactId>
+            <version>2.15.16</version>
+        </dependency>
+        <dependency>
             <groupId>software.amazon.awscdk</groupId>
             <artifactId>aws-cdk-lib</artifactId>
             <version>2.133.0</version>
@@ -4949,9 +4989,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import io.github.cdklabs.cdknag.NagSuppressions;
+import io.github.cdklabs.cdknag.NagPackSuppression;
 import software.aws.pdk.identity.UserIdentity;
-import software.aws.pdk.static_website.DistributionProps;
 import software.aws.pdk.static_website.RuntimeOptions;
 import software.aws.pdk.static_website.StaticWebsite;
 import software.aws.pdk.static_website.StaticWebsiteProps;
@@ -4965,7 +5005,7 @@ public class Website extends Construct {
     public Website(Construct scope, String id, UserIdentity userIdentity) {
         super(scope, id);
 
-        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+        StaticWebsite website = new StaticWebsite(this, id, StaticWebsiteProps.builder()
                 .websiteContentPath("../website/build")
                 .runtimeOptions(RuntimeOptions.builder()
                         .jsonPayload(new TreeMap<>(Map.of(
@@ -4977,17 +5017,12 @@ public class Website extends Construct {
                                 )
                                 )))
                         .build())
-                .distributionProps(DistributionProps.builder()
-                    .geoRestriction(GeoRestriction.allowlist(
-                        "AU",
-                        "ID",
-                        "IN",
-                        "JP",
-                        "KR",
-                        "SG",
-                        "US"))
-                    .build())
                 .build());
+        
+        NagSuppressions.addResourceSuppressions(website, Arrays.asList(NagPackSuppression.builder()
+            .id("AwsPrototyping-CloudFrontDistributionGeoRestrictions")
+            .reason("Suppressed to allow unrestricted access. Not recommended in production.")
+            .build()), true);
     }
 }
 ",
@@ -4997,9 +5032,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import io.github.cdklabs.cdknag.NagSuppressions;
+import io.github.cdklabs.cdknag.NagPackSuppression;
 import software.aws.pdk.identity.UserIdentity;
-import software.aws.pdk.static_website.DistributionProps;
 import software.aws.pdk.static_website.RuntimeOptions;
 import software.aws.pdk.static_website.StaticWebsite;
 import software.aws.pdk.static_website.StaticWebsiteProps;
@@ -5015,7 +5050,7 @@ public class Website2 extends Construct {
     public Website2(Construct scope, String id, UserIdentity userIdentity, Api api, Api2 api2) {
         super(scope, id);
 
-        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+        StaticWebsite website = new StaticWebsite(this, id, StaticWebsiteProps.builder()
                 .websiteContentPath("../website2/build")
                 .runtimeOptions(RuntimeOptions.builder()
                         .jsonPayload(new TreeMap<>(Map.of(
@@ -5029,17 +5064,12 @@ public class Website2 extends Construct {
                                 )
                                 )))
                         .build())
-                .distributionProps(DistributionProps.builder()
-                    .geoRestriction(GeoRestriction.allowlist(
-                        "AU",
-                        "ID",
-                        "IN",
-                        "JP",
-                        "KR",
-                        "SG",
-                        "US"))
-                    .build())
                 .build());
+        
+        NagSuppressions.addResourceSuppressions(website, Arrays.asList(NagPackSuppression.builder()
+            .id("AwsPrototyping-CloudFrontDistributionGeoRestrictions")
+            .reason("Suppressed to allow unrestricted access. Not recommended in production.")
+            .build()), true);
     }
 }
 ",
@@ -5244,6 +5274,11 @@ dist/java
         "name": "com.generated.api/Api-java-infra",
         "type": "runtime",
         "version": "0.0.0",
+      },
+      {
+        "name": "io.github.cdklabs/cdknag",
+        "type": "runtime",
+        "version": "2.15.16",
       },
       {
         "name": "software.amazon.awscdk/aws-cdk-lib",
@@ -5767,6 +5802,11 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
             <version>0.0.0</version>
         </dependency>
         <dependency>
+            <groupId>io.github.cdklabs</groupId>
+            <artifactId>cdknag</artifactId>
+            <version>2.15.16</version>
+        </dependency>
+        <dependency>
             <groupId>software.amazon.awscdk</groupId>
             <artifactId>aws-cdk-lib</artifactId>
             <version>2.133.0</version>
@@ -6062,9 +6102,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import io.github.cdklabs.cdknag.NagSuppressions;
+import io.github.cdklabs.cdknag.NagPackSuppression;
 import software.aws.pdk.identity.UserIdentity;
-import software.aws.pdk.static_website.DistributionProps;
 import software.aws.pdk.static_website.RuntimeOptions;
 import software.aws.pdk.static_website.StaticWebsite;
 import software.aws.pdk.static_website.StaticWebsiteProps;
@@ -6078,7 +6118,7 @@ public class Website extends Construct {
     public Website(Construct scope, String id, UserIdentity userIdentity) {
         super(scope, id);
 
-        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+        StaticWebsite website = new StaticWebsite(this, id, StaticWebsiteProps.builder()
                 .websiteContentPath("../website/build")
                 .runtimeOptions(RuntimeOptions.builder()
                         .jsonPayload(new TreeMap<>(Map.of(
@@ -6090,17 +6130,12 @@ public class Website extends Construct {
                                 )
                                 )))
                         .build())
-                .distributionProps(DistributionProps.builder()
-                    .geoRestriction(GeoRestriction.allowlist(
-                        "AU",
-                        "ID",
-                        "IN",
-                        "JP",
-                        "KR",
-                        "SG",
-                        "US"))
-                    .build())
                 .build());
+        
+        NagSuppressions.addResourceSuppressions(website, Arrays.asList(NagPackSuppression.builder()
+            .id("AwsPrototyping-CloudFrontDistributionGeoRestrictions")
+            .reason("Suppressed to allow unrestricted access. Not recommended in production.")
+            .build()), true);
     }
 }
 ",
@@ -6110,9 +6145,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import io.github.cdklabs.cdknag.NagSuppressions;
+import io.github.cdklabs.cdknag.NagPackSuppression;
 import software.aws.pdk.identity.UserIdentity;
-import software.aws.pdk.static_website.DistributionProps;
 import software.aws.pdk.static_website.RuntimeOptions;
 import software.aws.pdk.static_website.StaticWebsite;
 import software.aws.pdk.static_website.StaticWebsiteProps;
@@ -6128,7 +6163,7 @@ public class Website2 extends Construct {
     public Website2(Construct scope, String id, UserIdentity userIdentity, Api api, Api2 api2) {
         super(scope, id);
 
-        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+        StaticWebsite website = new StaticWebsite(this, id, StaticWebsiteProps.builder()
                 .websiteContentPath("../website2/build")
                 .runtimeOptions(RuntimeOptions.builder()
                         .jsonPayload(new TreeMap<>(Map.of(
@@ -6142,17 +6177,12 @@ public class Website2 extends Construct {
                                 )
                                 )))
                         .build())
-                .distributionProps(DistributionProps.builder()
-                    .geoRestriction(GeoRestriction.allowlist(
-                        "AU",
-                        "ID",
-                        "IN",
-                        "JP",
-                        "KR",
-                        "SG",
-                        "US"))
-                    .build())
                 .build());
+        
+        NagSuppressions.addResourceSuppressions(website, Arrays.asList(NagPackSuppression.builder()
+            .id("AwsPrototyping-CloudFrontDistributionGeoRestrictions")
+            .reason("Suppressed to allow unrestricted access. Not recommended in production.")
+            .build()), true);
     }
 }
 ",
@@ -6350,6 +6380,11 @@ dist/java
         "name": "org.apache.maven.plugins/maven-surefire-plugin",
         "type": "build",
         "version": "3.1.2",
+      },
+      {
+        "name": "io.github.cdklabs/cdknag",
+        "type": "runtime",
+        "version": "2.15.16",
       },
       {
         "name": "software.amazon.awscdk/aws-cdk-lib",
@@ -6862,6 +6897,11 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     </build>
     <dependencies>
         <dependency>
+            <groupId>io.github.cdklabs</groupId>
+            <artifactId>cdknag</artifactId>
+            <version>2.15.16</version>
+        </dependency>
+        <dependency>
             <groupId>software.amazon.awscdk</groupId>
             <artifactId>aws-cdk-lib</artifactId>
             <version>2.133.0</version>
@@ -7081,9 +7121,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import io.github.cdklabs.cdknag.NagSuppressions;
+import io.github.cdklabs.cdknag.NagPackSuppression;
 import software.aws.pdk.identity.UserIdentity;
-import software.aws.pdk.static_website.DistributionProps;
 import software.aws.pdk.static_website.RuntimeOptions;
 import software.aws.pdk.static_website.StaticWebsite;
 import software.aws.pdk.static_website.StaticWebsiteProps;
@@ -7097,7 +7137,7 @@ public class Website extends Construct {
     public Website(Construct scope, String id, UserIdentity userIdentity) {
         super(scope, id);
 
-        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+        StaticWebsite website = new StaticWebsite(this, id, StaticWebsiteProps.builder()
                 .websiteContentPath("../website/build")
                 .runtimeOptions(RuntimeOptions.builder()
                         .jsonPayload(new TreeMap<>(Map.of(
@@ -7109,17 +7149,12 @@ public class Website extends Construct {
                                 )
                                 )))
                         .build())
-                .distributionProps(DistributionProps.builder()
-                    .geoRestriction(GeoRestriction.allowlist(
-                        "AU",
-                        "ID",
-                        "IN",
-                        "JP",
-                        "KR",
-                        "SG",
-                        "US"))
-                    .build())
                 .build());
+        
+        NagSuppressions.addResourceSuppressions(website, Arrays.asList(NagPackSuppression.builder()
+            .id("AwsPrototyping-CloudFrontDistributionGeoRestrictions")
+            .reason("Suppressed to allow unrestricted access. Not recommended in production.")
+            .build()), true);
     }
 }
 ",

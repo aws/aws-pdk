@@ -82,7 +82,10 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
       "software.constructs/constructs",
       DependencyType.RUNTIME
     );
-    this.addDependency("software.constructs/constructs@10.3.0");
+    [
+      "software.constructs/constructs@10.3.0",
+      "io.github.cdklabs/cdknag@2.15.16",
+    ].forEach((d) => this.addDependency(d));
 
     InfrastructureCommands.ensure(this);
 

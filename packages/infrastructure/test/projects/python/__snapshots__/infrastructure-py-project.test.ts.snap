@@ -160,6 +160,11 @@ cython_debug/
         "version": "^2.1.0",
       },
       {
+        "name": "cdk_nag",
+        "type": "runtime",
+        "version": "^2",
+      },
+      {
         "name": "constructs",
         "type": "runtime",
         "version": "^10.0.5",
@@ -492,6 +497,7 @@ readme = "README.md"
   [tool.poetry.dependencies]
   aws_pdk = "^0"
   aws-cdk-lib = "^2.1.0"
+  cdk_nag = "^2"
   constructs = "^10.0.5"
   python = "^3.9"
 
@@ -645,6 +651,11 @@ cython_debug/
         "name": "aws-cdk-lib",
         "type": "runtime",
         "version": "^2.1.0",
+      },
+      {
+        "name": "cdk_nag",
+        "type": "runtime",
+        "version": "^2",
       },
       {
         "name": "constructs",
@@ -1336,6 +1347,7 @@ readme = "README.md"
   [tool.poetry.dependencies]
   aws_pdk = "^0"
   aws-cdk-lib = "^2.1.0"
+  cdk_nag = "^2"
   constructs = "^10.0.5"
   python = "^3.9"
 
@@ -1492,6 +1504,11 @@ cython_debug/
         "name": "aws-cdk-lib",
         "type": "runtime",
         "version": "^2.1.0",
+      },
+      {
+        "name": "cdk_nag",
+        "type": "runtime",
+        "version": "^2",
       },
       {
         "name": "constructs",
@@ -1987,6 +2004,7 @@ class Api(Construct):
 ",
   "infra/infra/constructs/websites/__init__.py": "",
   "infra/infra/constructs/websites/website.py": "from aws_cdk import Stack
+from cdk_nag import NagSuppressions, NagPackSuppression
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
 from aws_pdk.identity import UserIdentity
@@ -1997,7 +2015,7 @@ class Website(Construct):
     def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        StaticWebsite(self, id,
+        website = StaticWebsite(self, id,
                       website_content_path='../website/build',
                       runtime_options=RuntimeOptions(
                         json_payload={
@@ -2008,17 +2026,9 @@ class Website(Construct):
                             'typeSafeApis': {  }
                         }
                       ),
-                      distribution_props=DistributionProps(
-                        geo_restriction=GeoRestriction.allowlist(
-                          "AU",
-                          "ID",
-                          "IN",
-                          "JP",
-                          "KR",
-                          "SG",
-                          "US"
-                        )
-                      ))
+        )
+
+        NagSuppressions.add_resource_suppressions(website, [NagPackSuppression(id='AwsPrototyping-CloudFrontDistributionGeoRestrictions', reason='Suppressed to allow unrestricted access. Not recommended in production.')], True)
 ",
   "infra/infra/stacks/__init__.py": "",
   "infra/infra/stacks/application_stack.py": "from aws_cdk import Stack
@@ -2220,6 +2230,7 @@ readme = "README.md"
   [tool.poetry.dependencies]
   aws_pdk = "^0"
   aws-cdk-lib = "^2.1.0"
+  cdk_nag = "^2"
   constructs = "^10.0.5"
   python = "^3.9"
 
@@ -2381,6 +2392,11 @@ cython_debug/
         "name": "aws-cdk-lib",
         "type": "runtime",
         "version": "^2.1.0",
+      },
+      {
+        "name": "cdk_nag",
+        "type": "runtime",
+        "version": "^2",
       },
       {
         "name": "constructs",
@@ -2928,6 +2944,7 @@ class Api2(Construct):
 ",
   "infra/infra/constructs/websites/__init__.py": "",
   "infra/infra/constructs/websites/website.py": "from aws_cdk import Stack
+from cdk_nag import NagSuppressions, NagPackSuppression
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
 from aws_pdk.identity import UserIdentity
@@ -2938,7 +2955,7 @@ class Website(Construct):
     def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        StaticWebsite(self, id,
+        website = StaticWebsite(self, id,
                       website_content_path='../website/build',
                       runtime_options=RuntimeOptions(
                         json_payload={
@@ -2949,17 +2966,9 @@ class Website(Construct):
                             'typeSafeApis': {  }
                         }
                       ),
-                      distribution_props=DistributionProps(
-                        geo_restriction=GeoRestriction.allowlist(
-                          "AU",
-                          "ID",
-                          "IN",
-                          "JP",
-                          "KR",
-                          "SG",
-                          "US"
-                        )
-                      ))
+        )
+
+        NagSuppressions.add_resource_suppressions(website, [NagPackSuppression(id='AwsPrototyping-CloudFrontDistributionGeoRestrictions', reason='Suppressed to allow unrestricted access. Not recommended in production.')], True)
 ",
   "infra/infra/stacks/__init__.py": "",
   "infra/infra/stacks/application_stack.py": "from aws_cdk import Stack
@@ -3164,6 +3173,7 @@ readme = "README.md"
   [tool.poetry.dependencies]
   aws_pdk = "^0"
   aws-cdk-lib = "^2.1.0"
+  cdk_nag = "^2"
   constructs = "^10.0.5"
   python = "^3.9"
 
@@ -3329,6 +3339,11 @@ cython_debug/
         "name": "aws-cdk-lib",
         "type": "runtime",
         "version": "^2.1.0",
+      },
+      {
+        "name": "cdk_nag",
+        "type": "runtime",
+        "version": "^2",
       },
       {
         "name": "constructs",
@@ -3876,6 +3891,7 @@ class Api2(Construct):
 ",
   "infra/infra/constructs/websites/__init__.py": "",
   "infra/infra/constructs/websites/website.py": "from aws_cdk import Stack
+from cdk_nag import NagSuppressions, NagPackSuppression
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
 from aws_pdk.identity import UserIdentity
@@ -3886,7 +3902,7 @@ class Website(Construct):
     def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        StaticWebsite(self, id,
+        website = StaticWebsite(self, id,
                       website_content_path='../website/build',
                       runtime_options=RuntimeOptions(
                         json_payload={
@@ -3897,19 +3913,12 @@ class Website(Construct):
                             'typeSafeApis': {  }
                         }
                       ),
-                      distribution_props=DistributionProps(
-                        geo_restriction=GeoRestriction.allowlist(
-                          "AU",
-                          "ID",
-                          "IN",
-                          "JP",
-                          "KR",
-                          "SG",
-                          "US"
-                        )
-                      ))
+        )
+
+        NagSuppressions.add_resource_suppressions(website, [NagPackSuppression(id='AwsPrototyping-CloudFrontDistributionGeoRestrictions', reason='Suppressed to allow unrestricted access. Not recommended in production.')], True)
 ",
   "infra/infra/constructs/websites/website2.py": "from aws_cdk import Stack
+from cdk_nag import NagSuppressions, NagPackSuppression
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
 from infra.constructs.apis.api import Api
@@ -3922,7 +3931,7 @@ class Website2(Construct):
     def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, api: Api, api2: Api2, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        StaticWebsite(self, id,
+        website = StaticWebsite(self, id,
                       website_content_path='../website2/build',
                       runtime_options=RuntimeOptions(
                         json_payload={
@@ -3933,17 +3942,9 @@ class Website2(Construct):
                             'typeSafeApis': { 'Api': api.api.api.url_for_path(), 'Api2': api2.api.api.url_for_path() }
                         }
                       ),
-                      distribution_props=DistributionProps(
-                        geo_restriction=GeoRestriction.allowlist(
-                          "AU",
-                          "ID",
-                          "IN",
-                          "JP",
-                          "KR",
-                          "SG",
-                          "US"
-                        )
-                      ))
+        )
+
+        NagSuppressions.add_resource_suppressions(website, [NagPackSuppression(id='AwsPrototyping-CloudFrontDistributionGeoRestrictions', reason='Suppressed to allow unrestricted access. Not recommended in production.')], True)
 ",
   "infra/infra/stacks/__init__.py": "",
   "infra/infra/stacks/application_stack.py": "from aws_cdk import Stack
@@ -4151,6 +4152,7 @@ readme = "README.md"
   [tool.poetry.dependencies]
   aws_pdk = "^0"
   aws-cdk-lib = "^2.1.0"
+  cdk_nag = "^2"
   constructs = "^10.0.5"
   python = "^3.9"
 
@@ -4311,6 +4313,11 @@ cython_debug/
         "name": "aws-cdk-lib",
         "type": "runtime",
         "version": "^2.1.0",
+      },
+      {
+        "name": "cdk_nag",
+        "type": "runtime",
+        "version": "^2",
       },
       {
         "name": "constructs",
@@ -4806,6 +4813,7 @@ class Api(Construct):
 ",
   "infra/infra/constructs/websites/__init__.py": "",
   "infra/infra/constructs/websites/website.py": "from aws_cdk import Stack
+from cdk_nag import NagSuppressions, NagPackSuppression
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
 from aws_pdk.identity import UserIdentity
@@ -4816,7 +4824,7 @@ class Website(Construct):
     def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        StaticWebsite(self, id,
+        website = StaticWebsite(self, id,
                       website_content_path='../website/build',
                       runtime_options=RuntimeOptions(
                         json_payload={
@@ -4827,19 +4835,12 @@ class Website(Construct):
                             'typeSafeApis': {  }
                         }
                       ),
-                      distribution_props=DistributionProps(
-                        geo_restriction=GeoRestriction.allowlist(
-                          "AU",
-                          "ID",
-                          "IN",
-                          "JP",
-                          "KR",
-                          "SG",
-                          "US"
-                        )
-                      ))
+        )
+
+        NagSuppressions.add_resource_suppressions(website, [NagPackSuppression(id='AwsPrototyping-CloudFrontDistributionGeoRestrictions', reason='Suppressed to allow unrestricted access. Not recommended in production.')], True)
 ",
   "infra/infra/constructs/websites/website2.py": "from aws_cdk import Stack
+from cdk_nag import NagSuppressions, NagPackSuppression
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
 from infra.constructs.apis.api import Api
@@ -4852,7 +4853,7 @@ class Website2(Construct):
     def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, api: Api, api2: Api2, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        StaticWebsite(self, id,
+        website = StaticWebsite(self, id,
                       website_content_path='../website2/build',
                       runtime_options=RuntimeOptions(
                         json_payload={
@@ -4863,17 +4864,9 @@ class Website2(Construct):
                             'typeSafeApis': { 'Api': api.api.api.url_for_path(), 'Api2': api2.api.api.url_for_path() }
                         }
                       ),
-                      distribution_props=DistributionProps(
-                        geo_restriction=GeoRestriction.allowlist(
-                          "AU",
-                          "ID",
-                          "IN",
-                          "JP",
-                          "KR",
-                          "SG",
-                          "US"
-                        )
-                      ))
+        )
+
+        NagSuppressions.add_resource_suppressions(website, [NagPackSuppression(id='AwsPrototyping-CloudFrontDistributionGeoRestrictions', reason='Suppressed to allow unrestricted access. Not recommended in production.')], True)
 ",
   "infra/infra/stacks/__init__.py": "",
   "infra/infra/stacks/application_stack.py": "from aws_cdk import Stack
@@ -5078,6 +5071,7 @@ readme = "README.md"
   [tool.poetry.dependencies]
   aws_pdk = "^0"
   aws-cdk-lib = "^2.1.0"
+  cdk_nag = "^2"
   constructs = "^10.0.5"
   python = "^3.9"
 
@@ -5229,6 +5223,11 @@ cython_debug/
         "name": "aws-cdk-lib",
         "type": "runtime",
         "version": "^2.1.0",
+      },
+      {
+        "name": "cdk_nag",
+        "type": "runtime",
+        "version": "^2",
       },
       {
         "name": "constructs",
@@ -5672,6 +5671,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
   "infra/infra/constructs/apis/__init__.py": "",
   "infra/infra/constructs/websites/__init__.py": "",
   "infra/infra/constructs/websites/website.py": "from aws_cdk import Stack
+from cdk_nag import NagSuppressions, NagPackSuppression
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
 from aws_pdk.identity import UserIdentity
@@ -5682,7 +5682,7 @@ class Website(Construct):
     def __init__(self, scope: Construct, id: str, user_identity: UserIdentity, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        StaticWebsite(self, id,
+        website = StaticWebsite(self, id,
                       website_content_path='../website/build',
                       runtime_options=RuntimeOptions(
                         json_payload={
@@ -5693,17 +5693,9 @@ class Website(Construct):
                             'typeSafeApis': {  }
                         }
                       ),
-                      distribution_props=DistributionProps(
-                        geo_restriction=GeoRestriction.allowlist(
-                          "AU",
-                          "ID",
-                          "IN",
-                          "JP",
-                          "KR",
-                          "SG",
-                          "US"
-                        )
-                      ))
+        )
+
+        NagSuppressions.add_resource_suppressions(website, [NagPackSuppression(id='AwsPrototyping-CloudFrontDistributionGeoRestrictions', reason='Suppressed to allow unrestricted access. Not recommended in production.')], True)
 ",
   "infra/infra/stacks/__init__.py": "",
   "infra/infra/stacks/application_stack.py": "from aws_cdk import Stack
@@ -5902,6 +5894,7 @@ readme = "README.md"
   [tool.poetry.dependencies]
   aws_pdk = "^0"
   aws-cdk-lib = "^2.1.0"
+  cdk_nag = "^2"
   constructs = "^10.0.5"
   python = "^3.9"
 

@@ -4,9 +4,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.services.cloudfront.GeoRestriction;
+import io.github.cdklabs.cdknag.NagSuppressions;
+import io.github.cdklabs.cdknag.NagPackSuppression;
 import software.aws.pdk.identity.UserIdentity;
-import software.aws.pdk.static_website.DistributionProps;
 import software.aws.pdk.static_website.RuntimeOptions;
 import software.aws.pdk.static_website.StaticWebsite;
 import software.aws.pdk.static_website.StaticWebsiteProps;
@@ -23,7 +23,7 @@ public class {{{websiteName}}} extends Construct {
     public {{{websiteName}}}(Construct scope, String id, UserIdentity userIdentity{{#typeSafeApis}}, {{{apiName}}} {{{apiNameLowercase}}}{{/typeSafeApis}}) {
         super(scope, id);
 
-        new StaticWebsite(this, id, StaticWebsiteProps.builder()
+        StaticWebsite website = new StaticWebsite(this, id, StaticWebsiteProps.builder()
                 .websiteContentPath("{{{websiteDistRelativePath}}}")
                 .runtimeOptions(RuntimeOptions.builder()
                         .jsonPayload(new TreeMap<>(Map.of(
@@ -38,16 +38,11 @@ public class {{{websiteName}}} extends Construct {
                                 )
                                 )))
                         .build())
-                .distributionProps(DistributionProps.builder()
-                    .geoRestriction(GeoRestriction.allowlist(
-                        "AU",
-                        "ID",
-                        "IN",
-                        "JP",
-                        "KR",
-                        "SG",
-                        "US"))
-                    .build())
                 .build());
+        
+        NagSuppressions.addResourceSuppressions(website, Arrays.asList(NagPackSuppression.builder()
+            .id("AwsPrototyping-CloudFrontDistributionGeoRestrictions")
+            .reason("Suppressed to allow unrestricted access. Not recommended in production.")
+            .build()), true);
     }
 }
