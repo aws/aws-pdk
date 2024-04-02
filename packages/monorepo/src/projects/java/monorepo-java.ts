@@ -79,9 +79,11 @@ export class MonorepoJavaProject extends JavaProject implements INxProjectCore {
 
     this.nxConfigurator = new NxConfigurator(this, {
       defaultReleaseBranch: options.defaultReleaseBranch ?? "main",
-      licenseOptions: {
-        disableDefaultLicenses: options.disableDefaultLicenses,
-      },
+      licenseOptions: options.disableDefaultLicenses
+        ? {
+            disableDefaultLicenses: options.disableDefaultLicenses,
+          }
+        : undefined,
     });
 
     // Setup maven nx plugin

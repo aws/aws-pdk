@@ -158,6 +158,8 @@ export abstract class GeneratedJavaCdkInfrastructureBaseProject extends JavaProj
     generateTask.exec(
       "echo $(pwd) > src/main/resources/project-absolute-path.txt"
     );
+
+    this.preCompileTask.spawn(generateTask);
   }
 
   public buildGenerateCommandArgs = () => {

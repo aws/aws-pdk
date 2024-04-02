@@ -1,4 +1,5 @@
 from aws_cdk import Stack
+from cdk_nag import NagSuppressions, NagPackSuppression
 from constructs import Construct
 from aws_cdk.aws_cloudfront import GeoRestriction
 {{#typeSafeApis}}
@@ -12,7 +13,7 @@ class {{{websiteName}}}(Construct):
     def __init__(self, scope: Construct, id: str, user_identity: UserIdentity{{#typeSafeApis}}, {{{apiNameLowercase}}}: {{{apiName}}}{{/typeSafeApis}}, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        StaticWebsite(self, id,
+        website = StaticWebsite(self, id,
                       website_content_path='{{{websiteDistRelativePath}}}',
                       runtime_options=RuntimeOptions(
                         json_payload={
@@ -23,14 +24,6 @@ class {{{websiteName}}}(Construct):
                             'typeSafeApis': { {{#typeSafeApis}}'{{{apiName}}}': {{{apiNameLowercase}}}.api.api.url_for_path(){{^isLast}}, {{/isLast}}{{/typeSafeApis}} }
                         }
                       ),
-                      distribution_props=DistributionProps(
-                        geo_restriction=GeoRestriction.allowlist(
-                          "AU",
-                          "ID",
-                          "IN",
-                          "JP",
-                          "KR",
-                          "SG",
-                          "US"
-                        )
-                      ))
+        )
+
+        NagSuppressions.add_resource_suppressions(website, [NagPackSuppression(id='AwsPrototyping-CloudFrontDistributionGeoRestrictions', reason='Suppressed to allow unrestricted access. Not recommended in production.')], True)
