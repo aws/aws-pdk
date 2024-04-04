@@ -33,12 +33,12 @@ export class OpenApiGatewayWebAcl extends Construct {
 
     const aclName = `${PDKNag.getStackPrefix(Stack.of(this))
       .split("/")
-      .join("-")}-${id}-WebAcl`;
+      .join("-")}${id}-${this.node.addr.slice(-8)}`;
     const ipSetName = `${aclName}-IPSet`;
 
     // Create the IP Set if requested
     this.ipSet = props.cidrAllowList
-      ? new CfnIPSet(this, "IPSet", {
+      ? new CfnIPSet(this, "ApiIPSet", {
           name: ipSetName,
           addresses: props.cidrAllowList.cidrRanges,
           ipAddressVersion: props.cidrAllowList.cidrType,
@@ -120,7 +120,7 @@ export class OpenApiGatewayWebAcl extends Construct {
       ),
     ];
 
-    this.webAcl = new CfnWebACL(this, "WebACL", {
+    this.webAcl = new CfnWebACL(this, "ApiWebACL", {
       name: aclName,
       defaultAction: {
         // Allow by default, and use rules to deny unwanted requests
