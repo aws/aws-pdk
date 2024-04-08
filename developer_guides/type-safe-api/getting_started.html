@@ -3926,7 +3926,7 @@
 <p>We recommend you use these projects as part of an <code>monorepo</code> project (eg. by specifying <code>parent: monorepo</code>), as it makes setting up dependencies much easier, particularly when extending your project further with a CDK app and lambda functions.</p>
 </div>
 <p>1.) To start an empty <code>monorepo</code> project, use this command:</p>
-<div class="highlight"><pre><span></span><code>pdk<span class="w"> </span>new<span class="w"> </span>monorepo-ts<span class="w"> </span>--package-manager<span class="o">=</span>pnpm
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>@aws/pdk<span class="w"> </span>monorepo-ts<span class="w"> </span>--package-manager<span class="o">=</span>pnpm
 </code></pre></div>
 <p>2.) Edit your <code>.projenrc</code> and configure <code>TypeSafeApiProject</code>.</p>
 <div class="admonition tip">
@@ -4109,7 +4109,7 @@
 </div>
 </div>
 </div>
-<p>3.) Given we have modified our <code>projenrc</code> file we need to run the <code>pdk</code> command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with <code>pdk build</code>.</p>
+<p>3.) Given we have modified our <code>projenrc</code> file we need to run the <code>npx projen</code> command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with <code>npx projen build</code>.</p>
 <h2 id="implement-a-lambda-handler">Implement a Lambda handler</h2>
 <p>The generated runtime projects include lambda handler wrappers which provide type-safety for implementing your API operations. The generated <code>handlers</code> projects include generated stubs for you to implement for every operation which has been annotated accordingly:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">SMITHY</label><label for="__tabbed_2_2">OPENAPI</label></div>
@@ -4653,8 +4653,8 @@
 </div>
 </div>
 <h3 id="build-your-project">Build your project</h3>
-<p>To run a build in the root of your monorepo, use the <code>pdk build</code> command:</p>
-<div class="highlight"><pre><span></span><code>pdk build
+<p>To run a build in the root of your monorepo, use the <code>npx projen build</code> command:</p>
+<div class="highlight"><pre><span></span><code>npx projen build
 </code></pre></div>
 <p>The build will regenerate the infrastructure, runtime, documentation, and library projects based on your updated model. It will also generate a new stub for your new operation if you specified the <code>@handler</code> trait in Smithy or <code>x-handler</code> vendor extension in OpenAPI.</p>
 <p>As you must define an integration for every operation, you may see the following build error in your CDK application.</p>
@@ -4720,14 +4720,14 @@
 <p>As described above, you'll find a lambda handler stub for your new operation, which you can edit as you wish.</p>
 <h3 id="deploy-your-project">Deploy your project</h3>
 <p>After you implement your new operation, build your project again and deploy it:</p>
-<div class="highlight"><pre><span></span><code>pdk<span class="w"> </span>build
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen<span class="w"> </span>build
 <span class="nb">cd</span><span class="w"> </span>packages/infra
-pdk<span class="w"> </span>deploy:dev
+npx<span class="w"> </span>projen<span class="w"> </span>deploy:dev
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>If you want to quickly test changes to your lambda handler code, you can re-package the handlers, then run <code>pdk deploy:dev</code> in your infrastructure project to perform a fast <a href="https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/">hotswap deployment</a>. For example from the root of your project:</p>
-<div class="highlight"><pre><span></span><code>pdk<span class="w"> </span>nx<span class="w"> </span>run<span class="w"> </span>myapi-typescript-handlers:package<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pdk<span class="w"> </span>nx<span class="w"> </span>run<span class="w"> </span>infra:deploy<span class="se">\:</span>dev
+<p>If you want to quickly test changes to your lambda handler code, you can re-package the handlers, then run <code>npx projen deploy:dev</code> in your infrastructure project to perform a fast <a href="https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/">hotswap deployment</a>. For example from the root of your project:</p>
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>nx<span class="w"> </span>run<span class="w"> </span>myapi-typescript-handlers:package<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npx<span class="w"> </span>nx<span class="w"> </span>run<span class="w"> </span>infra:deploy<span class="se">\:</span>dev
 </code></pre></div>
 </div>
 <p>Try out your new API! You can use a tool such as <a href="https://github.com/okigan/awscurl">awscurl</a> to make Sigv4 signed requests to your API, since we set the default authorizer to <code>Authorizers.iam()</code>. Alternatively, you can deploy the <a href="../cloudscape-react-ts-website/index.html"><code>CloudscapeReactTsWebsiteProject</code></a> and try out the <a href="../cloudscape-react-ts-website/api_explorer.html">API Explorer</a>.</p>
@@ -4737,7 +4737,7 @@ pdk<span class="w"> </span>deploy:dev
   <small>
     
       Last update:
-      2024-04-04
+      2024-04-08
     
   </small>
 </div>

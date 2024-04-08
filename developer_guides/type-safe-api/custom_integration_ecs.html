@@ -3939,7 +3939,7 @@
 <p>In the usual way, create a monorepo which will be the base of your project:</p>
 <div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>smithy-ecs-workshop
 <span class="nb">cd</span><span class="w"> </span>smithy-ecs-workshop
-pdk<span class="w"> </span>new<span class="w"> </span>monorepo-ts
+npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>@aws/pdk<span class="w"> </span>monorepo-ts
 </code></pre></div>
 <h2 id="set-up-the-api-server-and-infrastructure-projects">Set up the API, Server and Infrastructure Projects</h2>
 <p>In your <code>.projenrc.ts</code>, we’ll add three more projects:</p>
@@ -4038,8 +4038,8 @@ pdk<span class="w"> </span>new<span class="w"> </span>monorepo-ts
 <span class="nx">monorepo</span><span class="p">.</span><span class="nx">synth</span><span class="p">();</span>
 </code></pre></div>
 <p>We can now synthesize and build our "empty" suite of projects:</p>
-<div class="highlight"><pre><span></span><code>pdk
-pdk<span class="w"> </span>build
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen
+npx<span class="w"> </span>projen<span class="w"> </span>build
 </code></pre></div>
 <h2 id="ecs-infrastructure">ECS Infrastructure</h2>
 <p>Inside <code>packages/infra/src</code>, let’s define a new file <code>load-balanced-ecs-service.ts</code> which will deploy our express service on ECS. This includes a VPC, the service within the VPC private subnet, and a VPC Link for API Gateway to connect to our service within the VPC:</p>
@@ -4395,12 +4395,12 @@ pdk<span class="w"> </span>build
 <h2 id="synthesize-build-and-deploy">Synthesize, Build and Deploy!</h2>
 <p>Make sure you're running <a href="https://www.docker.com/">Docker</a> since the deployment will build a docker container.</p>
 <p>Since we updated the <code>.projenrc.ts</code> we’ll need to synthesize again. After that we can build all the packages again.</p>
-<div class="highlight"><pre><span></span><code>pdk
-pdk<span class="w"> </span>build
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen
+npx<span class="w"> </span>projen<span class="w"> </span>build
 </code></pre></div>
 <p>After you have set up AWS credentials for your target AWS account (eg. run <code>aws configure</code>), you can deploy the CDK application:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>packages/infra
-pdk<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> </span>--require-approval<span class="w"> </span>never
+npx<span class="w"> </span>projen<span class="w"> </span>deploy<span class="w"> </span>--require-approval<span class="w"> </span>never
 </code></pre></div>
 <p>Once the deployment has completed, you'll see your API URL printed as a CloudFormation output.</p>
 <p>Since we used IAM (Sigv4) authentication for our API, we'll need to sign requests to our API. You can use <a href="https://github.com/okigan/awscurl">awscurl</a> as an easy way to call it from your command line:</p>
@@ -4413,7 +4413,7 @@ pdk<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> </s
   <small>
     
       Last update:
-      2024-04-04
+      2024-04-08
     
   </small>
 </div>

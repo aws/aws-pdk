@@ -3945,10 +3945,10 @@
 </ul>
 <p>The standard AWS PDK development workflow is similar to the standard Projen workflow you may already be familiar with:</p>
 <ol>
-<li>Bootstrap your project by executing the <code>pdk new monorepo-[ts/py/java]</code> command</li>
+<li>Bootstrap your project by executing the <code>npx projen new --from @aws/pdk monorepo-[ts/py/java]</code> command</li>
 <li>Define your project constructs within the <code>projenrc</code> file</li>
-<li>Synthesize your projects by running the <code>pdk</code> command</li>
-<li>Build your projects by running <code>pdk build</code></li>
+<li>Synthesize your projects by running the <code>npx projen</code> command</li>
+<li>Build your projects by running <code>npx projen build</code></li>
 <li>Deploy your infrastructure to the AWS cloud</li>
 </ol>
 <p>This tutorial walks you through creating the PDK Project from start to finish. The final application we create will comprise of a React based website, a Smithy API and the supporting CDK infrastructure to deploy it all.</p>
@@ -3965,23 +3965,27 @@
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="c1"># optional params can be passed in also - lets use PNPM to manage deps :)</span>
-pdk<span class="w"> </span>new<span class="w"> </span>--package-manager<span class="o">=</span>pnpm<span class="w"> </span>monorepo-ts
+npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>@aws/pdk<span class="w"> </span>--package-manager<span class="o">=</span>pnpm<span class="w"> </span>monorepo-ts
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>pdk<span class="w"> </span>new<span class="w"> </span>monorepo-py
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>@aws/pdk<span class="w"> </span>monorepo-py
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>pdk<span class="w"> </span>new<span class="w"> </span>monorepo-java
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen<span class="w"> </span>new<span class="w"> </span>--from<span class="w"> </span>@aws/pdk<span class="w"> </span>monorepo-java
 </code></pre></div>
 </div>
 </div>
 </div>
-<p>The <code>pdk new</code> command creates a number of files and folders inside the my-project directory to help you organize the source code for your AWS PDK based project. It also installs any dependencies on your behalf by default, although this can be suppressed with the optional <code>--no-post</code> argument.</p>
+<p>The <code>npx projen new</code> command creates a number of files and folders inside the my-project directory to help you organize the source code for your AWS PDK based project. It also installs any dependencies on your behalf by default, although this can be suppressed with the optional <code>--no-post</code> argument.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>If you have Git installed, each project you create using <code>pdk new</code> is also initialized as a Git repository. We'll ignore that for now, but it's there when you need it.</p>
+<p>If you have the <code>pdk</code> CLI installed, you can save some typing and replace <code>npx projen new --from @aws/pdk</code> with <code>pdk new</code>.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you have Git installed, each project you create using <code>npx projen new</code> is also initialized as a Git repository. We'll ignore that for now, but it's there when you need it.</p>
 </div>
 <p>Let's take a moment to examine the project structure that is created for you:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">TYPESCRIPT</label><label for="__tabbed_2_2">PYTHON</label><label for="__tabbed_2_3">JAVA</label></div>
@@ -3997,30 +4001,30 @@ pdk<span class="w"> </span>new<span class="w"> </span>--package-manager<span cla
 </div>
 </div>
 </div>
-<p>As you can see, alot of files have been created for you and each of these are managed by the PDK/Projen on your behalf. The only file you need to modify is the <code>projenrc</code> file which is repsonsible for synthesizing each of these files.</p>
+<p>As you can see, a lot of files have been created for you and each of these are managed by the PDK/Projen on your behalf. The only file you need to modify is the <code>projenrc</code> file which is repsonsible for synthesizing each of these files.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>It is important that you never modify synthesized files directly as it will result in your changes being overriden the next time you run the <code>pdk</code> command which will re-synthesize/override them.</p>
+<p>It is important that you never modify synthesized files directly as it will result in your changes being overriden the next time you run the <code>npx projen</code> command which will re-synthesize/override them.</p>
 </div>
 <p>Inspecting the <code>projenrc</code> file, we notice that a single construct is instantiated that represents the monorepo itself. Within this construct you can add new dependencies, update tsconfig, npmignore, gitignore, etc. In the default configuration, the following apply:</p>
 <ul>
 <li>The name of the project takes on the name of the folder it was created in.</li>
-<li>For typescript, the packageManager is set to <code>PNPM</code> as we passed this optional parameter in whilst running <code>pdk new</code>.<ul>
-<li>Any parameter listed here can be passed in via the <code>pdk new</code> command i.e: <code>--name="some-other-name"</code>.</li>
+<li>For typescript, the packageManager is set to <code>PNPM</code> as we passed this optional parameter in whilst running <code>npx projen new</code>.<ul>
+<li>Any parameter listed here can be passed in via the <code>npx projen new</code> command i.e: <code>--name="some-other-name"</code>.</li>
 </ul>
 </li>
 <li>For python, the moduleName defaults to a snake-cased project name.</li>
 </ul>
-<p>You will also notice that the <code>synth()</code> method is called on this instance at the end of the file. When you run the <code>pdk</code> command, this file will be executed by your runtime and will synthesize this instance which will result in all the files that you see in the previous image.</p>
+<p>You will also notice that the <code>synth()</code> method is called on this instance at the end of the file. When you run the <code>npx projen</code> command, this file will be executed by your runtime and will synthesize this instance which will result in all the files that you see in the previous image.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>Whenever you change the <code>projenrc</code> file, make sure you run the <code>pdk</code> command from the root of your project to ensure your files are synthesized.</p>
+<p>Whenever you change the <code>projenrc</code> file, make sure you run the <code>npx projen</code> command from the root of your project to ensure your files are synthesized.</p>
 </div>
 <p>For more details on the <code>Monorepo</code> construct, please refer to the <a href="../developer_guides/monorepo/index.html">Monorepo Developer Guide</a>.</p>
 <h2 id="building-your-project">Building your project</h2>
 <p>We now have a monorepo that can be used to manage projects and perform polyglot builds. Let's now test to make sure the build process works.</p>
-<p>To build your project, run the following command from the root of your project <code>pdk build</code>. This command delegates to <code>NX</code> under the covers which calls the <code>build</code> target for each of your subprojects in dependency-order. Given we don't have any subprojects at present we should see the following output:</p>
-<div class="highlight"><pre><span></span><code>pdk<span class="w"> </span>build
+<p>To build your project, run the following command from the root of your project <code>npx projen build</code>. This command delegates to <code>NX</code> under the covers which calls the <code>build</code> target for each of your subprojects in dependency-order. Given we don't have any subprojects at present we should see the following output:</p>
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>projen<span class="w"> </span>build
 
 👾<span class="w"> </span>build<span class="w"> </span><span class="p">|</span><span class="w"> </span>npx<span class="w"> </span>nx<span class="w"> </span>run-many<span class="w"> </span>--target<span class="o">=</span>build<span class="w"> </span>--output-style<span class="o">=</span>stream<span class="w"> </span>--nx-bail
 
@@ -4031,6 +4035,10 @@ pdk<span class="w"> </span>new<span class="w"> </span>--package-manager<span cla
 <span class="w"> </span>&gt;<span class="w">  </span>NX<span class="w">   </span>Successfully<span class="w"> </span>ran<span class="w"> </span>target<span class="w"> </span>build<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="m">0</span><span class="w"> </span>projects
 </code></pre></div>
 <p>In future, when we add new sub-projects to the monorepo - we will see the output from each individual sub-projects build task.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you have the <code>pdk</code> CLI installed, you can also build your project by running <code>pdk build</code></p>
+</div>
 <h2 id="add-a-type-safe-api-to-your-monorepo">Add a Type-Safe API to your monorepo</h2>
 <p>At this point, your monorepo project doesn't do anything because the <code>projenrc</code> file only defines the monorepo itself and no other sub-projects which isn't useful. Let's make things more interesting and add a Type-Safe API.</p>
 <p>The Type-Safe API construct is available within the AWS PDK library which is installed by default, so there is no need to install another library. We can define the Type-Safe API within the <code>projenrc</code> file as follows:</p>
@@ -4198,17 +4206,17 @@ pdk<span class="w"> </span>new<span class="w"> </span>--package-manager<span cla
         |_ typescript-react-query-hooks - react hooks to call the API
 </code></pre></div>
 <p>For more details on these packages, refer to the <a href="../developer_guides/type-safe-api/index.html">Type-Safe API Developer Guide</a>.</p>
-<p>Now, lets build our API by running <code>pdk build</code> from the root of our monorepo. You will notice that each package in the monorepo is built in dependency order.</p>
+<p>Now, lets build our API by running <code>npx projen build</code> from the root of our monorepo. You will notice that each package in the monorepo is built in dependency order.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>If you run the <code>pdk build</code> command again without changing any files, you will notice that the build completes in a fraction of the time (1.7s as per below snippet) as it uses <a href="https://nx.dev/concepts/how-caching-works">cached results</a> and will only re-build packages that have changed since the last time it was built.</p>
+<p>If you run the <code>npx projen build</code> command again without changing any files, you will notice that the build completes in a fraction of the time (1.7s as per below snippet) as it uses <a href="https://nx.dev/concepts/how-caching-works">cached results</a> and will only re-build packages that have changed since the last time it was built.</p>
 <div class="highlight"><pre><span></span><code>&gt;<span class="w">  </span>NX<span class="w">   </span>Successfully<span class="w"> </span>ran<span class="w"> </span>target<span class="w"> </span>build<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="m">7</span><span class="w"> </span>projects
 Nx<span class="w"> </span><span class="nb">read</span><span class="w"> </span>the<span class="w"> </span>output<span class="w"> </span>from<span class="w"> </span>the<span class="w"> </span>cache<span class="w"> </span>instead<span class="w"> </span>of<span class="w"> </span>running<span class="w"> </span>the<span class="w"> </span><span class="nb">command</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="m">7</span><span class="w"> </span>out<span class="w"> </span>of<span class="w"> </span><span class="m">7</span><span class="w"> </span>tasks.
-pdk<span class="w"> </span>build<span class="w">  </span><span class="m">1</span>.31s<span class="w"> </span>user<span class="w"> </span><span class="m">0</span>.37s<span class="w"> </span>system<span class="w"> </span><span class="m">96</span>%<span class="w"> </span>cpu<span class="w"> </span><span class="m">1</span>.732<span class="w"> </span>total
+npx<span class="w"> </span>projen<span class="w"> </span>build<span class="w">  </span><span class="m">1</span>.31s<span class="w"> </span>user<span class="w"> </span><span class="m">0</span>.37s<span class="w"> </span>system<span class="w"> </span><span class="m">96</span>%<span class="w"> </span>cpu<span class="w"> </span><span class="m">1</span>.732<span class="w"> </span>total
 </code></pre></div>
 </div>
 <h2 id="visualize-your-dependency-graph">Visualize your dependency graph</h2>
-<p>As your codebase grows, the number of sub-packages will likely increase and it is sometimes useful to be able to visualize your dependencies and task dependencies. To do this, simply run <code>pdk graph</code> from the root of the monorepo which will open a browser for you.</p>
+<p>As your codebase grows, the number of sub-packages will likely increase and it is sometimes useful to be able to visualize your dependencies and task dependencies. To do this, simply run <code>npx projen graph</code> from the root of the monorepo which will open a browser for you.</p>
 <p>You will now be able to visualize your project level dependencies (i.e. package a depends on package b) along with your task level (order in which tasks are performed i.e. build) dependencies.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Project Level</label><label for="__tabbed_4_2">Task Level</label></div>
 <div class="tabbed-content">
@@ -4219,6 +4227,10 @@ pdk<span class="w"> </span>build<span class="w">  </span><span class="m">1</span
 <p><img src="../assets/images/task_graph.png" width="800" /></p>
 </div>
 </div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you have the <code>pdk</code> CLI installed, you can also display the graph by running <code>pdk graph</code></p>
 </div>
 <h2 id="add-a-react-website-to-your-monorepo">Add a React website to your monorepo</h2>
 <p>Let's now add a React website to our monorepo so that we can make authenticated API calls to our newly created API. To do this, we modify our <code>projenrc</code> file to create a new <code>CloudscapeReactTsWebsite</code> as follows:</p>
@@ -4397,9 +4409,9 @@ pdk<span class="w"> </span>build<span class="w">  </span><span class="m">1</span
 </div>
 </div>
 </div>
-<p>As always, given we have modified our <code>projenrc</code> file we need to run the <code>pdk</code> command from the root to synthesize our new website onto the filesystem.</p>
-<p>Once the <code>pdk</code> command is executed, you should see a new <code>packages/website</code> folder which contains all the source code for your new website. To make sure everything is working, let's build our project by running <code>pdk build</code> from the root.</p>
-<p>We can now test that our website works by running the <code>pdk dev</code> command from the <code>packages/website</code> directory. You will be greeted with an error message as follows:</p>
+<p>As always, given we have modified our <code>projenrc</code> file we need to run the <code>npx projen</code> command from the root to synthesize our new website onto the filesystem.</p>
+<p>Once the <code>npx projen</code> command is executed, you should see a new <code>packages/website</code> folder which contains all the source code for your new website. To make sure everything is working, let's build our project by running <code>npx projen build</code> from the root.</p>
+<p>We can now test that our website works by running the <code>npx projen dev</code> command from the <code>packages/website</code> directory. You will be greeted with an error message as follows:</p>
 <p><img src="../assets/images/website_no_runtime_config.png" width="600" /></p>
 <p>This is completely normal as given we have passed in the api into the <code>CloudscapeReactTsWebsite</code> construct, it has automatically been configured to integrate with your API which has not been deployed as of yet, and hence no <code>runtime-config.json</code> is available which contains deployed resource identifiers and url's.</p>
 <p>In order to get everything working, we need to deploy everything we have just created which will be covered in the following section.</p>
@@ -4607,9 +4619,9 @@ pdk<span class="w"> </span>build<span class="w">  </span><span class="m">1</span
 </div>
 </div>
 </div>
-<p>As always, given we have modified our <code>projenrc</code> file we need to run the <code>pdk</code> command from the root to synthesize our new infrastructure onto the filesystem.</p>
+<p>As always, given we have modified our <code>projenrc</code> file we need to run the <code>npx projen</code> command from the root to synthesize our new infrastructure onto the filesystem.</p>
 <p>You should now see a <code>packages/infra</code> directory containing all of your pre-configured CDK code to deploy your website and API!</p>
-<p>Let's now build all of our code by running <code>pdk build</code> from the root directory. You should notice that all of your infrastructure now synthesizes by inspecting the <code>cdk.out</code> directory of your <code>packages/infra</code> folder. You will also notice a subfolder <code>cdk.out/cdkgraph</code> which will also contain all of your generated diagrams. If you open any of the diagrams, you should see the following which depicts the infrastructure we are about to deploy to AWS:</p>
+<p>Let's now build all of our code by running <code>npx projen build</code> from the root directory. You should notice that all of your infrastructure now synthesizes by inspecting the <code>cdk.out</code> directory of your <code>packages/infra</code> folder. You will also notice a subfolder <code>cdk.out/cdkgraph</code> which will also contain all of your generated diagrams. If you open any of the diagrams, you should see the following which depicts the infrastructure we are about to deploy to AWS:</p>
 <p><img src="../assets/images/generated_diagram.png" width="600" /></p>
 <h2 id="deploying-our-infrastructure-to-the-aws-cloud">Deploying our infrastructure to the AWS cloud</h2>
 <p>We now have everything we need to deploy our infrastructure. To do so, ensure you have <a href="https://docs.aws.amazon.com/sdkref/latest/guide/access.html">authenticated with AWS</a> and that your aws cli is able to communicate with your desired AWS account &amp; region.</p>
@@ -4620,11 +4632,11 @@ pdk<span class="w"> </span>build<span class="w">  </span><span class="m">1</span
 </div>
 <p>We now can deploy our infrastructure by running the following command:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>packages/infra
-pdk<span class="w"> </span>deploy:dev
+npx<span class="w"> </span>projen<span class="w"> </span>deploy:dev
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <code>pdk deploy:dev</code> command attempts a <a href="https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/">CDK hotswap deployment</a> if possible. In a production setting (for example in a ci/cd pipeline) use the <code>pdk deploy</code> command to ensure a full CloudFormation deployment is performed.</p>
+<p>The <code>npx projen deploy:dev</code> command attempts a <a href="https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/">CDK hotswap deployment</a> if possible. In a production setting (for example in a ci/cd pipeline) use the <code>npx projen deploy</code> command to ensure a full CloudFormation deployment is performed.</p>
 </div>
 <p>Once the deployment completes, you should see an output that resembles the following:</p>
 <p><img src="../assets/images/deployment_results.png" width="600" /></p>
@@ -4659,7 +4671,7 @@ pdk<span class="w"> </span>deploy:dev
 </code></pre></div>
 <p>Now you can start your dev server by running the following command:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>packages/website
-pdk<span class="w"> </span>dev
+npx<span class="w"> </span>projen<span class="w"> </span>dev
 </code></pre></div>
 <h2 id="destroying-the-deployed-resources">Destroying the deployed resources</h2>
 <blockquote>
@@ -4667,12 +4679,12 @@ pdk<span class="w"> </span>dev
 </blockquote>
 <p>Now that you're done creating your first PDK project, you can choose to destroy your deployed resources to avoid incurring any costs as follows:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>packages/infra
-pdk<span class="w"> </span>destroy
+npx<span class="w"> </span>projen<span class="w"> </span>destroy
 </code></pre></div>
 <p>Enter <strong>y</strong> to approve the changes and delete the <code>infra-dev</code> stack.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The Cognito UserPool and DynamoDB table that were created were configured with a <code>removalPolicy</code> of <code>RETAIN</code> and as such will not be destroyed by the <code>pdk run destroy</code> command. If you wish to remove these resources, you can do so via the AWS CLI or Console.</p>
+<p>The Cognito UserPool and DynamoDB table that were created were configured with a <code>removalPolicy</code> of <code>RETAIN</code> and as such will not be destroyed by the <code>npx projen destroy</code> command. If you wish to remove these resources, you can do so via the AWS CLI or Console.</p>
 </div>
 <h2 id="next-steps">Next steps</h2>
 <p>Congratulations, you have now set up your first PDK based monorepo project! Where do you go from here?</p>
@@ -4688,7 +4700,7 @@ pdk<span class="w"> </span>destroy
   <small>
     
       Last update:
-      2024-04-04
+      2024-04-08
     
   </small>
 </div>
