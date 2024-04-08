@@ -78,7 +78,7 @@ First, make sure you add a dependency on the generated hooks library. This is do
 
     If you are not using `CloudscapeReactTsWebsite`, you can add the dependency manually using `api.library.typescriptWebSocketHooks!.package.packageName`. You will also need to depend on `api.library.typescriptWebSocketClient`.
 
-Make sure to run `pdk` to synthesize your `.projenrc` changes.
+Make sure to run `npx projen` to synthesize your `.projenrc` changes.
 
 Next, create an instance of the API client from the `WebSocketLibrary.TYPESCRIPT_WEBSOCKET_CLIENT` library in your React Website (making sure to set the url and credentials). See the [WebSocket Clients](./websocket_clients.md) documentation for more details about configuring the client.
 

@@ -8,7 +8,7 @@
 
 ## Getting started
 
-Instantiate your `CloudscapeReactTsWebsiteProject` from within your `.projenrc` file and then run `pdk` from the root of your momorepo.
+Instantiate your `CloudscapeReactTsWebsiteProject` from within your `.projenrc` file and then run `npx projen` from the root of your monorepo.
 
 ```ts
 new CloudscapeReactTsWebsiteProject({
@@ -25,7 +25,7 @@ This will synthesize your new React website into the `outdir`. If a `type-safe-a
 
 ### Running your synthesized Application
 
-To run your synthesized application locally, run `pdk dev` from within your website directory.
+To run your synthesized application locally, run `npx projen dev` from within your website directory.
 
 ## Developer Notes
 

@@ -1,5 +1,3 @@
-<a href="https://aws.github.io/aws-pdk/getting_started/migration_guide.html"><img src="docs/content/assets/images/rebrand_banner.png" width="1024px"></a>
-
 # Getting started
 
 ## What is the AWS PDK?

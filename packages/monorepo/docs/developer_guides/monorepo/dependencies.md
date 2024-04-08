@@ -10,7 +10,7 @@ To add a dependency, use a project-type specific API such as `nodeProject.addDep
 project.deps.addDependency(dep, type);
 ```
 
-By default, `pdk` will automatically install dependencies in your project if they are not already installed. You can also install your dependencies manually by running `pdk install` from the root of your monorepo.
+By default, `npx projen` will automatically install dependencies in your project if they are not already installed. You can also install your dependencies manually by running `npx projen install` from the root of your monorepo.
 
 ## Semantic requirements
 
@@ -34,7 +34,7 @@ _Sourced from: https://projen.io/deps.html_
 The monorepo projects expose a task for updating dependencies across subprojects within your monorepo. You can invoke this by running the following command in the root of your monorepo:
 
 ```
-pdk upgrade-deps
+npx projen upgrade-deps
 ```
 
 This will have slightly different behaviour depending on the language of a subproject:
@@ -46,4 +46,4 @@ This will have slightly different behaviour depending on the language of a subpr
 !!!note
     If you're using the `MonorepoTsProject`, dependency versions in TypeScript subprojects will also be synchronised across the monorepo using [syncpack](https://github.com/JamieMason/syncpack).
 
-To upgrade dependencies for an individual TypeScript or Python project, you can run `pdk upgrade` within that package.
+To upgrade dependencies for an individual TypeScript or Python project, you can run `npx projen upgrade` within that package.

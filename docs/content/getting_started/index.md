@@ -7,7 +7,7 @@ This topic introduces you to important AWS PDK concepts and describes how to ins
 The AWS PDK lets you define your project structure as code in one of its supported programming languages. At its core, the AWS PDK is built on [Projen](https://github.com/projen/projen) and is a piece of software you should become familiar with if you want to become proficient with the PDK. In addition, alot of the constructs provided by the PDK generate CDK code which is used to deploy relevant infrastructure. The following expandable sections provide a quick primer on how these two key pieces of technology work.
 
 ??? "CDK Primer"
-    
+
     AWS Construct Development Kit (AWS CDK) allows you to model AWS infrastructure as code (IaC) in a variety of supported languages. By allowing you to define Infastructure programatically, you can create higher level abstractions which can be re-used in a variety of applications. The deployment mechanism used at AWS is Cloudformation and as such all CDK code 'synthesizes' into Cloudformation. You can think of this like code that compiles to some native format (i.e: Java -> ByteCode).
 
     To ground this in an example, let's create an S3 Bucket using the CDK:
@@ -143,7 +143,7 @@ The distributables for each language can be used directly as follows:
     ```
 
 !!!tip
-    Whilst the AWS PDK can be used directly via these package managers, we recommend bootstrapping via the `pdk new` command which negates the need to interact directly with these package managers. The package managers will still need to be installed however, refer to [prerequisites](index.md#prerequisites) for more information.
+    Whilst the AWS PDK can be used directly via these package managers, we recommend bootstrapping via the `npx projen new` command which negates the need to interact directly with these package managers. The package managers will still need to be installed however, refer to [prerequisites](index.md#prerequisites) for more information.
 
 ## Prerequisites
 
@@ -156,9 +156,11 @@ All AWS PDK developers, even those working in Python or Java, need Node.js 16 or
 !!!tip
     We recommend installing [`nvm`](https://github.com/nvm-sh/nvm#installing-and-updating) and configuring it to use Node 18.
 
-### PDK CLI
+### (Optional) PDK CLI
 
-Once your NodeJs runtime is set up, run the following command to install the pdk CLI:
+The PDK CLI is a wrapper command which delegates to either a package manager or a projen command depending on the context. As a rule of thumb, this replaces the use of `npx projen` for commands shown in the documentation.
+
+Once your NodeJS runtime is set up, run the following command to install the pdk CLI:
 
 ```bash
 npm install -g @aws/pdk
@@ -167,9 +169,6 @@ npm install -g @aws/pdk
 Run the following command to verify correct installation and print the version number of the AWS PDK.
 
 `pdk --version`
-
-!!!warning
-    The `pdk` command is a wrapper command which delegates to either a package manager or a projen command depending on the context. As such it may be possible that certain arguments may not operate as expected.
 
 ### Git
 

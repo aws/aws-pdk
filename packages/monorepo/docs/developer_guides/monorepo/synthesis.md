@@ -2,7 +2,7 @@
 
 Projen defines a standard way for building software through a [fixed set of synthesis phases](https://github.com/projen/projen/blob/main/src/project.ts#L564). This is implemented via a set of hooks defined in the Project base class which all constructs extend from.
 
-The `pdk` command which wraps the `projen` command, will execute these hooks in the following order:
+When you run the `npx projen` command, these hooks are executed in the following order:
 
 - **preSynthesize()** - Calls `preSynthesize()` on itself followed by all components attached to the subject project.
 - **synth()** - Calls `synth()` on all sub-projects followed by calling `synth()` on all attached components to the subject project.
@@ -15,9 +15,12 @@ To extend the synth process, components and projects can override each of these 
 
 ## Synthesizing your project
 
-Whenever you make a change to the `.projenrc` file, you will need to re-synthesize your project(s). To do so, run the `pdk` command from the root of your monorepo. This will re-generate all managed files and will any new dependencies.
+Whenever you make a change to the `.projenrc` file, you will need to re-synthesize your project(s). To do so, run the `npx projen` command from the root of your monorepo. This will re-generate all managed files and will any new dependencies.
+
+!!!tip
+    If you have the `pdk` CLI installed, you can run `pdk` to synthesize your project.
 
 ## Synthesizing your project without installing dependencies
 
 In some instances, it may be desirable to synthesize all your files without installing any dependencies.
-To do this, run the `pdk --no-post` command.
+To do this, run the `npx projen --no-post` command.

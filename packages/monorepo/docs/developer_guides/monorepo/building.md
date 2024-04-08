@@ -31,11 +31,14 @@ const helloTask = project.tasks.addTask("hello");
 helloTask.exec("echo world");
 ```
 
-After you synthesize this change, you can call your task by executing `pdk hello`.
+After you synthesize this change, you can call your task by executing `npx projen hello`.
+
+!!!tip
+    If you have the `pdk` CLI installed, you can also invoke your task by running `pdk hello`
 
 ### Changing a task
 
-There is no way to currently delete a task, however you can _reset_ a task as follows:
+Resetting a task removes any commands which may have already been configured (for example default commands provided by the projen project being used). You can _reset_ a task as follows:
 
 ```typescript
 const someTask = project.tasks.tryFind("<some-task>")?.reset();
@@ -50,10 +53,10 @@ This will make the `<some-task>` task a no-op. You can then add your own steps b
 
 ## Full build
 
-In order to perform a full build of your codebase, run the `pdk build` command from the root of your monorepo. This will build each of your projects in the dependency order.
+In order to perform a full build of your codebase, run the `npx projen build` command from the root of your monorepo. This will build each of your projects in the dependency order.
 
-The `pdk build` command is a convenience wrapper around an underlying `nx run-many --target=build --output-style=stream --nx-bail` command. You can pass in any options available in the [nx cli](https://nx.dev/packages/nx/documents/run-many), for example `pdk build --parallel=10` will perform the build with up to 10 parallel processes.
+The `npx projen build` command is a convenience wrapper around an underlying `nx run-many --target=build --output-style=stream --nx-bail` command. You can pass in any options available in the [nx cli](https://nx.dev/packages/nx/documents/run-many), for example `npx projen build --parallel=10` will perform the build with up to 10 parallel processes.
 
 ## Targeted build
 
-In order to perform a targeted build of a single package and its dependencies, run the `pdk nx run <package-name>:build` command. This will build the `package-name` and all of its dependencies in the correct dependency order.
+In order to perform a targeted build of a single package and its dependencies, run the `npx nx run <package-name>:build` command. This will build the `package-name` and all of its dependencies in the correct dependency order.

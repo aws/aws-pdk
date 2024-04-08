@@ -189,11 +189,15 @@ The final step is the ensure our operations are exposed as part of the API by li
 
     use aws.protocols#restJson1
 
-    /// A sample smithy api
+    /// My Shopping List API
     @restJson1
     service MyApi {
         version: "1.0"
-        operations: [GetShoppingLists, PutShoppingList, DeleteShoppingList]
+        operations: [
+            GetShoppingLists
+            PutShoppingList
+            DeleteShoppingList
+        ]
         errors: [
             BadRequestError
             NotAuthorizedError
@@ -210,7 +214,7 @@ The final step is the ensure our operations are exposed as part of the API by li
 
 ### Build the API
 
-Now that we have our API defined, the final step is to build our code which will generate all of our type-safe bindings. To do so, run `pdk build` from the root of your PDK project.
+Now that we have our API defined, the final step is to build our code which will generate all of our type-safe bindings. To do so, run `npx projen build` from the root of your PDK project.
 
 Take some time now to inspect the code that was generated for you in the following locations:
 
@@ -335,7 +339,7 @@ Once you have saved your `.projenrc.ts` file, run `pdk` from the root to synthes
 
 ### Implement the handlers
 
-We now have everything we need to start implementing our handlers. 
+We now have everything we need to start implementing our handlers.
 
 Let's first by creating a shared file called `dynamo-client.ts` within the handlers `src` directory as follows:
 
@@ -564,7 +568,7 @@ Fantastic! We now have all of our API business logic implemented. Let's also upd
             expect(response.statusCode).toBe(200);
             expect((response.body as PutShoppingListResponseContent).shoppingListId).toBeDefined();
         });
-    });  
+    });
     ```
 
 === "delete-shopping-list.test.ts"
@@ -864,9 +868,9 @@ export class ApplicationStack extends Stack {
 We are now ready to deploy our API. To do so, run the following steps:
 
 ```bash
-pdk build
+npx projen build
 cd packages/infra
-pdk deploy:dev
+npx projen deploy:dev
 ```
 
 Once the deployment completes, we can test our API by navigating the the website (either via Cloudfront or locally) and trying out the API Explorer.
@@ -1334,7 +1338,7 @@ We can now test our UI locally by running the following command:
 
 ```bash
 cd packages/website
-pdk dev
+npx projen dev
 ```
 
 This will load a local server and open a browser showing your new application.
@@ -1348,9 +1352,9 @@ Have a play around with your website to ensure it is working as expected.
 If you are happy with your website locally, you can go ahead and deploy it to AWS Cloudfront by performing the following steps from the root directory:
 
 ```bash
-pdk build
+npx projen build
 cd packages/infra
-pdk deploy:dev
+npx projen deploy:dev
 ```
 
 Once the deployment completes, navigate to your cloudfront URL to play around with your deployed website.
