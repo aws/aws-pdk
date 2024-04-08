@@ -2,16 +2,19 @@
 
 ## What is the AWS PDK?
 
-The AWS Project Development Kit (AWS PDK) provides building blocks for common patterns together with development tools to manage and build your projects.
+The AWS Project Development Kit (AWS PDK) provides building blocks for common patterns in order to rapidly develop projects in a scalable fashion.
 
-The AWS PDK lets you define your projects programatically via the expressive power of type safe constructs available in one of 3 languages (typescript, python or java). This approach yields many benefits, including:
+The AWS PDK utilises [Projen](https://github.com/projen/projen) to let you define your projects programatically via the expressive power of type safe constructs available in one of 3 languages (TypeScript, Python or Java). This approach yields many benefits, including:
 
 - Ability to set up new projects within seconds, with all boilerplate already pre-configured.
 - Receive updates to previously bootstrapped projects when new versions become available i.e: updated dependenies or lint configurations.
 - Build polyglot monorepos, with build caching, cross-language build dependencies, dependency visualization and much more.
-- Leverage codified patterns which vend project and infrastructure (CDK) code.
+- Leverage codified patterns which vend project and infrastructure ([CDK](https://aws.amazon.com/cdk/)) code.
 
-The AWS PDK is built on top of [Projen](https://github.com/projen/projen) and as such all constructs that you compose together need to be defined via a [projenrc](https://projen.io/programmatic-api.html) file.
+At its core, the AWS PDK is a set of Projen projects, CDK constructs, and tools which work synergistically with one other to provide a rapid and scalable developer experience. Since AWS PDK utilises Projen, the Projen constructs that you compose together need to be defined via a [projenrc](https://projen.io/programmatic-api.html) file.
+
+!!!info
+    For more details about AWS PDK, for example the difference between PDK and Projen, check out the [FAQ](../faqs/index.md).
 
 ## Why use the AWS PDK?
 

@@ -26,7 +26,7 @@ The `TypeSafeApiProject` projen project sets up the project structure for you. C
 1.) To start an empty `monorepo` project, use this command:
 
 ```bash
-pdk new monorepo-ts --package-manager=pnpm
+npx projen new --from @aws/pdk monorepo-ts --package-manager=pnpm
 ```
 
 2.) Edit your `.projenrc` and configure `TypeSafeApiProject`.
@@ -213,7 +213,7 @@ pdk new monorepo-ts --package-manager=pnpm
     monorepo.synth()
     ```
 
-3.) Given we have modified our `projenrc` file we need to run the `pdk` command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with `pdk build`.
+3.) Given we have modified our `projenrc` file we need to run the `npx projen` command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with `npx projen build`.
 
 ## Implement a Lambda handler
 
@@ -788,10 +788,10 @@ Add the new operation in the `model` project, for example:
 
 ### Build your project
 
-To run a build in the root of your monorepo, use the `pdk build` command:
+To run a build in the root of your monorepo, use the `npx projen build` command:
 
 ```
-pdk build
+npx projen build
 ```
 
 The build will regenerate the infrastructure, runtime, documentation, and library projects based on your updated model. It will also generate a new stub for your new operation if you specified the `@handler` trait in Smithy or `x-handler` vendor extension in OpenAPI.
@@ -872,16 +872,16 @@ As described above, you'll find a lambda handler stub for your new operation, wh
 After you implement your new operation, build your project again and deploy it:
 
 ```bash
-pdk build
+npx projen build
 cd packages/infra
-pdk deploy:dev
+npx projen deploy:dev
 ```
 
 !!!tip
-    If you want to quickly test changes to your lambda handler code, you can re-package the handlers, then run `pdk deploy:dev` in your infrastructure project to perform a fast [hotswap deployment](https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/). For example from the root of your project:
+    If you want to quickly test changes to your lambda handler code, you can re-package the handlers, then run `npx projen deploy:dev` in your infrastructure project to perform a fast [hotswap deployment](https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/). For example from the root of your project:
 
     ```bash
-    pdk nx run myapi-typescript-handlers:package && pdk nx run infra:deploy\:dev
+    npx nx run myapi-typescript-handlers:package && npx nx run infra:deploy\:dev
     ```
 
 Try out your new API! You can use a tool such as [awscurl](https://github.com/okigan/awscurl) to make Sigv4 signed requests to your API, since we set the default authorizer to `Authorizers.iam()`. Alternatively, you can deploy the [`CloudscapeReactTsWebsiteProject`](../cloudscape-react-ts-website/index.md) and try out the [API Explorer](../cloudscape-react-ts-website/api_explorer.md).

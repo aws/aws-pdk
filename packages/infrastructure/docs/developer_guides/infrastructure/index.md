@@ -113,11 +113,11 @@ To create the necessary boilerplate infrastructure, we need to instantiate an in
     }
     ```
 
-As always, given we have modified our `projenrc` file we need to run the `pdk` command from the root to synthesize our new infrastructure onto the filesystem.
+As always, given we have modified our `projenrc` file we need to run the `npx projen` command from the root to synthesize our new infrastructure onto the filesystem.
 
 You should now see a `packages/infra` directory containing all of your pre-configured CDK code to deploy your website and API!
 
-Let's now build all of our code by running `pdk build` from the root directory. You should notice that all of your infrastructure now synthesizes by inspecting the `cdk.out` directory of your `packages/infra` folder. You will also notice a subfolder `cdk.out/cdkgraph` which will also contain all of your generated diagrams. If you open any of the diagrams, you should see the following which depicts the infrastructure we are about to deploy to AWS:
+Let's now build all of our code by running `npx projen build` from the root directory. You should notice that all of your infrastructure now synthesizes by inspecting the `cdk.out` directory of your `packages/infra` folder. You will also notice a subfolder `cdk.out/cdkgraph` which will also contain all of your generated diagrams. If you open any of the diagrams, you should see the following which depicts the infrastructure we are about to deploy to AWS:
 
 <img src="../../assets/images/generated_diagram.png" width="600" />
 
@@ -134,7 +134,7 @@ We now can deploy our infrastructure by running the following command:
 
 ```bash
 cd packages/infra
-pdk run deploy --require-approval never
+npx projen deploy --require-approval never
 ```
 
 Once the deployment completes, you should see an output that resembles the following:
@@ -146,7 +146,7 @@ Congratulations! You have successfully deployed a website and api to AWS!
 To check out your website, navigate to the distribution link in the CDK deployment output above to view your website.
 
 !!!tip
-    Use the `pdk deploy:dev` command in your infrastructure package to perform a CDK hotswap deployment for faster development iterations!
+    Use the `npx projen deploy:dev` command in your infrastructure package to perform a CDK hotswap deployment for faster development iterations!
 
 ## Destroying the deployed resources
 
@@ -154,7 +154,7 @@ Now that you're done creating your first PDK project, destroy your deployed reso
 
 ```bash
 cd packages/infra
-pdk run destroy
+npx projen destroy
 ```
 
 Enter **y** to approve the changes and delete the `infra-dev` stack.

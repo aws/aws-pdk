@@ -1,5 +1,15 @@
 # Frequently Asked Questions
 
+## What's the difference between PDK and Projen?
+
+[Projen](https://projen.io/) is a framework which allows you to define and maintain complex project configuration through code. PDK uses this framework, and vends several Projen projects. PDK is not a replacement or alternative to Projen, but rather builds on Projen to define opinionated projects which work synergistically with one another.
+
+## What's the difference between PDK and CDK?
+
+[CDK](https://aws.amazon.com/cdk/) is a framework for defining AWS infrastructure as code. PDK vends several CDK constructs which can be used in traditional CDK projects, but are more powerful when used within the context of a PDK project. For example, the `StaticWebsite` CDK construct vended by PDK can be used in any CDK project to deploy the infrastructure to host a static website on AWS, however when the Infrastructure and CloudscapeReactTsWebsite PDK projects are used, the `StaticWebsite` CDK construct is automatically configured to deploy your Cloudscape website, and deploy the necessary runtime configuration to set up Cognito login for your website.
+
+While many of the PDK projects generate CDK code, PDK is not considered an abstraction over CDK. You still work with CDK to define your AWS infrastructure, but you may use these generated CDK constructs to supplement your CDK code.
+
 ## I want to change a “pre-defined” task (e.g.: add --verbose to a tsc compile task)
 
 Use the `reset` function:

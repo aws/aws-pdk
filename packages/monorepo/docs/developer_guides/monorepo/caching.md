@@ -1,6 +1,6 @@
 # Caching
 
-Whenever executing a build via the `pdk build` command (or any nx command), [NX](https://nx.dev/) (the underlying build system) will [cache your outputs](https://nx.dev/concepts/how-caching-works) so that subsequent builds which do not have any changes can be skipped and use cached results. It does this by generating a hash, based on an input set which typically comprises of:
+Whenever executing a build via the `npx projen build` command (or any nx command), [NX](https://nx.dev/) (the underlying build system) will [cache your outputs](https://nx.dev/concepts/how-caching-works) so that subsequent builds which do not have any changes can be skipped and use cached results. It does this by generating a hash, based on an input set which typically comprises of:
 
 - All the source files of your package and its dependencies
 - Relevant global config
@@ -19,7 +19,7 @@ NxProject.ensure(<construct>).setTarget(
       "build", // target to configure cache for
       {
         inputs: [
-          { "fileset": "{workspaceRoot}/<some-file>" }, // generate a new hash if <some-file> changes   
+          { "fileset": "{workspaceRoot}/<some-file>" }, // generate a new hash if <some-file> changes
           { "runtime": "node -v" }, // generate a new hash if the node runtime changes
         ],
         outputs: [

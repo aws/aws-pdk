@@ -78,7 +78,7 @@ First, make sure you add a dependency on the generated hooks library. This is do
 
     If you are not using `CloudscapeReactTsWebsite`, you can add the dependency manually using `api.library.typescriptReactQueryHooks!.package.packageName`
 
-Make sure to run `pdk` to synthesize your `.projenrc` changes.
+Make sure to run `npx projen` to synthesize your `.projenrc` changes.
 
 Next, create an instance of the API client in your React Website (making sure to set the base URL and fetch instance). For example:
 

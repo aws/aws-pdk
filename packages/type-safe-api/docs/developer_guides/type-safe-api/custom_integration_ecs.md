@@ -11,7 +11,7 @@ In the usual way, create a monorepo which will be the base of your project:
 ```bash
 mkdir smithy-ecs-workshop
 cd smithy-ecs-workshop
-pdk new monorepo-ts
+npx projen new --from @aws/pdk monorepo-ts
 ```
 
 ## Set up the API, Server and Infrastructure Projects
@@ -116,8 +116,8 @@ monorepo.synth();
 We can now synthesize and build our "empty" suite of projects:
 
 ```bash
-pdk
-pdk build
+npx projen
+npx projen build
 ```
 
 ## ECS Infrastructure
@@ -519,15 +519,15 @@ Make sure you're running [Docker](https://www.docker.com/) since the deployment 
 Since we updated the `.projenrc.ts` we’ll need to synthesize again. After that we can build all the packages again.
 
 ```bash
-pdk
-pdk build
+npx projen
+npx projen build
 ```
 
 After you have set up AWS credentials for your target AWS account (eg. run `aws configure`), you can deploy the CDK application:
 
 ```bash
 cd packages/infra
-pdk run deploy --require-approval never
+npx projen deploy --require-approval never
 ```
 
 Once the deployment has completed, you'll see your API URL printed as a CloudFormation output.

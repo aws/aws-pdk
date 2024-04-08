@@ -12,7 +12,7 @@ The AWS PDK itself uses the `monorepo` submodule and is a good reference for see
 
 ## How does it work?
 
-The construct will set up your root project to function as a Monorepo using [NX](https://nx.dev/getting-started/intro), and manage all of the NX configuration for you by default. Depending on the language you decide to bootstrap your project with, a `projenrc`` file in your preferred language  allows you to add new sub-packages to your project to be managed by NX.
+The construct will set up your root project to function as a Monorepo using [NX](https://nx.dev/getting-started/intro), and manage all of the NX configuration for you by default. Depending on the language you decide to bootstrap your project with, a `projenrc` file in your preferred language  allows you to add new sub-packages to your project to be managed by NX.
 
 The default structure of your project will be created with the following key files as shown:
 
@@ -32,7 +32,7 @@ The default structure of your project will be created with the following key fil
     node_modules          -- needed as NX is deployed via npm
     nx.json               -- nx configuration (this file is managed by projen)
     package.json          -- nx dependency declaration (do not delete)
-    yarn.json     -- pinned nx dependency declaration (do not delete)
+    pnpm-lock.yaml        -- pinned nx dependency declaration (do not delete)
     pyproject.toml        -- declared pypi dependencies (this file is managed by projen)
     ```
 
@@ -45,7 +45,7 @@ The default structure of your project will be created with the following key fil
     node_modules          -- needed as NX is deployed via npm
     nx.json               -- nx configuration (this file is managed by projen)
     package.json          -- nx dependency declaration (do not delete)
-    yarn.json     -- pinned nx dependency declaration (do not delete)
+    pnpm-lock.yaml        -- pinned nx dependency declaration (do not delete)
     pom.xml               -- declared maven dependencies (this file is managed by projen)
     src/
       test/
@@ -67,7 +67,7 @@ To get started, run the following command in an empty directory to create your M
 === "TS"
 
     ```bash
-    pdk new monorepo-ts
+    npx projen new --from @aws/pdk monorepo-ts
     ```
 
     This will bootstrap your project given the above structure and contain the _.projenrc.ts_ file with your project definition which should contain the following:
@@ -85,7 +85,7 @@ To get started, run the following command in an empty directory to create your M
 === "JAVA"
 
     ```bash
-    pdk new monorepo-java
+    npx projen new --from @aws/pdk monorepo-java
     ```
 
     This will bootstrap your project given the above structure and contain the _projenrc.java_ file with your project definition which should contain the following:
@@ -107,7 +107,7 @@ To get started, run the following command in an empty directory to create your M
 === "PYTHON"
 
     ```bash
-    pdk new monorepo-py
+    npx projen new --from @aws/pdk monorepo-py
     ```
 
     This will bootstrap your project given the above structure and contain the _.projenrc.py_ file with your project definition which should contain the following:
@@ -128,10 +128,10 @@ To get started, run the following command in an empty directory to create your M
         You can remove `@aws/pdk/monorepo` from _dev_deps_ as this is incorrectly added by Projen due to a bug in their bootstrapping process.
 
 !!!tip
-    You can also pass in options parameters into the `pdk new` command. For example, if you want to bootstrap a typescript monorepo with PNPM as the default package manager you could do: `pdk new monorepo-ts --package-manager=pnpm`. You can pass all the attributes available within the construct as options in a _kebab-case_ format.
+    You can also pass in options parameters into the `npx projen new` command. For example, if you want to bootstrap a typescript monorepo with PNPM as the default package manager you could do: `npx projen new --from @aws/pdk monorepo-ts --package-manager=pnpm`. You can pass all the attributes available within the construct as options in a _kebab-case_ format.
 
 ## Synthesizing your project(s)
 
-Whenever you make a change to the `projenrc` file, you will need to re-synthesize your project by running `pdk` from the root directory. This will re-generate any projen managed files i.e: _nx.json_, eslint, etc.
+Whenever you make a change to the `projenrc` file, you will need to re-synthesize your project by running `npx projen` from the root directory. This will re-generate any projen managed files i.e: _nx.json_, eslint, etc.
 
 For more information, refer to [synthesis](./synthesis.md).

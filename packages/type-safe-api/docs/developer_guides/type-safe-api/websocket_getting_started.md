@@ -25,7 +25,7 @@ The `TypeSafeWebSocketApiProject` projen project sets up the project structure f
 1.) To start an empty `monorepo` project, use this command:
 
 ```bash
-pdk new monorepo-ts --package-manager=pnpm
+npx projen new --from @aws/pdk monorepo-ts --package-manager=pnpm
 ```
 
 2.) Edit your `.projenrc` and configure `TypeSafeWebSocketApiProject`.
@@ -116,7 +116,7 @@ pdk new monorepo-ts --package-manager=pnpm
 
         Python is not yet supported.
 
-3.) Given we have modified our `projenrc` file we need to run the `pdk` command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with `pdk build`.
+3.) Given we have modified our `projenrc` file we need to run the `npx projen` command to synthesize our new API and infrastructure onto the filesystem. We can then run a first build with `npx projen build`.
 
 A sample API definition is generated for you in `packages/api/model`, which you are free to modify. Modelling WebSocket APIs is slightly different to REST APIs, namely each operation in a WebSocket API is one-way, sent either from a client to a server or from a server to a client. This means that WebSocket operations define only an input and do not define response types. For more details please refer to [Using Smithy](./websocket_using_smithy.md) and [Using OpenAPI](./websocket_using_smithy.md),
 
@@ -426,10 +426,10 @@ Add the new operation in the `model` project, for example:
 
 ### Build your project
 
-To run a build in the root of your monorepo, use the `pdk build` command:
+To run a build in the root of your monorepo, use the `npx projen build` command:
 
 ```
-pdk build
+npx projen build
 ```
 
 The build will regenerate the infrastructure, runtime, and library projects based on your updated model. It will also generate a new stub for your new operation if you specified the `@handler` trait in Smithy or `x-handler` vendor extension in OpenAPI.
@@ -486,16 +486,16 @@ As described above, you'll find a lambda handler stub for your new operation, wh
 After you implement your new operation, build your project again and deploy it:
 
 ```bash
-pdk build
+npx projen build
 cd packages/infra
-pdk deploy:dev
+npx projen deploy:dev
 ```
 
 !!!tip
-    If you want to quickly test changes to your lambda handler code, you can re-package the handlers, then run `pdk deploy:dev` in your infrastructure project to perform a fast [hotswap deployment](https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/). For example from the root of your project:
+    If you want to quickly test changes to your lambda handler code, you can re-package the handlers, then run `npx projen deploy:dev` in your infrastructure project to perform a fast [hotswap deployment](https://aws.amazon.com/blogs/developer/increasing-development-speed-with-cdk-watch/). For example from the root of your project:
 
     ```bash
-    pdk nx run myapi-typescript-handlers:package && pdk nx run infra:deploy\:dev
+    npx nx run myapi-typescript-handlers:package && npx nx run infra:deploy\:dev
     ```
 
 Try out your new API! Since we included the [`CloudscapeReactTsWebsiteProject`](../cloudscape-react-ts-website/index.md) in our `projenrc`, we can test our API with the API Explorer.
