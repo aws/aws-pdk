@@ -1,0 +1,143 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "MyService",
+    "version": "1.0",
+    "description": "A sample smithy websocket api"
+  },
+  "channels": {
+    "default": {
+      "address": "/",
+      "messages": {
+        "SendNotification": {
+          "$ref": "#/components/messages/SendNotification"
+        },
+        "SubscribeToNotifications": {
+          "$ref": "#/components/messages/SubscribeToNotifications"
+        }
+      }
+    }
+  },
+  "operations": {
+    "OnSendNotification": {
+      "action": "receive",
+      "title": "OnSendNotification",
+      "channel": {
+        "$ref": "#/channels/default"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/default/messages/SendNotification"
+        }
+      ]
+    },
+    "SubscribeToNotifications": {
+      "action": "send",
+      "title": "SubscribeToNotifications",
+      "channel": {
+        "$ref": "#/channels/default"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/default/messages/SubscribeToNotifications"
+        }
+      ]
+    }
+  },
+  "components": {
+    "messages": {
+      "SendNotification": {
+        "name": "SendNotification",
+        "title": "SendNotification",
+        "summary": "Send a notification to a connected client",
+        "tags": [
+          {
+            "name": "Default"
+          },
+          {
+            "name": "Foo"
+          }
+        ],
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "properties": {
+            "route": {
+              "type": "string",
+              "const": "SendNotification"
+            },
+            "payload": {
+              "$ref": "#/components/schemas/SendNotificationRequestContent"
+            }
+          },
+          "required": [
+            "route",
+            "payload"
+          ]
+        }
+      },
+      "SubscribeToNotifications": {
+        "name": "SubscribeToNotifications",
+        "title": "SubscribeToNotifications",
+        "summary": "Subscribe to notifications",
+        "tags": [
+          {
+            "name": "Default"
+          },
+          {
+            "name": "Bar"
+          }
+        ],
+        "contentType": "application/json",
+        "payload": {
+          "type": "object",
+          "properties": {
+            "route": {
+              "type": "string",
+              "const": "SubscribeToNotifications"
+            },
+            "payload": {
+              "$ref": "#/components/schemas/SubscribeToNotificationsRequestContent"
+            }
+          },
+          "required": [
+            "route",
+            "payload"
+          ]
+        }
+      }
+    },
+    "schemas": {
+      "SendNotificationRequestContent": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "title",
+          "topic"
+        ]
+      },
+      "SubscribeToNotificationsRequestContent": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic"
+        ]
+      }
+    }
+  }
+}

@@ -42,9 +42,12 @@ export enum TypeSafeApiScript {
   GENERATE = "type-safe-api.generate",
   GENERATE_MOCK_DATA = "type-safe-api.generate-mock-data",
   GENERATE_HTML_REDOC_DOCS = "type-safe-api.generate-html-redoc-docs",
+  GENERATE_ASYNCAPI_HTML_DOCS = "type-safe-api.generate-asyncapi-html-docs",
+  GENERATE_ASYNCAPI_MARKDOWN_DOCS = "type-safe-api.generate-asyncapi-markdown-docs",
   CLEAN_OPENAPI_GENERATED_CODE = "type-safe-api.clean-openapi-generated-code",
   COPY_GRADLE_WRAPPER = "type-safe-api.copy-gradle-wrapper",
   COPY_ASYNC_SMITHY_TRANSFORMER = "type-safe-api.copy-async-smithy-transformer",
+  GENERATE_ASYNCAPI_SPEC = "type-safe-api.generate-asyncapi-spec",
 }
 
 /**

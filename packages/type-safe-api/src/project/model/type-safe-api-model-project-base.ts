@@ -54,6 +54,7 @@ export abstract class TypeSafeApiModelProjectBase extends Project {
 
     // Add the API definition
     const { specPath, smithyJsonModelPath } = this.addApiDefinition(options);
+
     this.apiName =
       options.modelOptions.smithy?.serviceName.serviceName ??
       options.modelOptions.openapi?.title;

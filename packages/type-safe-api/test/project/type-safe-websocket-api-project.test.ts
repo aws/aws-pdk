@@ -5,10 +5,10 @@ import { MonorepoTsProject } from "@aws/monorepo";
 import { NodePackageManager } from "projen/lib/javascript";
 import { synthProject, synthSmithyProject } from "./snapshot-utils";
 import {
-  DocumentationFormat,
   Language,
   ModelLanguage,
   TypeSafeWebSocketApiProject,
+  WebSocketDocumentationFormat,
   WebSocketLibrary,
 } from "../../src";
 
@@ -28,14 +28,12 @@ describe("Type Safe Api Project Unit Tests", () => {
         runtime: {
           languages: [/*Language.JAVA, Language.PYTHON,*/ Language.TYPESCRIPT],
         },
-        // documentation: {
-        //   formats: [
-        //     DocumentationFormat.HTML2,
-        //     DocumentationFormat.MARKDOWN,
-        //     DocumentationFormat.PLANTUML,
-        //     DocumentationFormat.HTML_REDOC,
-        //   ],
-        // },
+        documentation: {
+          formats: [
+            WebSocketDocumentationFormat.HTML,
+            WebSocketDocumentationFormat.MARKDOWN,
+          ],
+        },
         model: {
           language: ModelLanguage.SMITHY,
           options: {
@@ -72,14 +70,12 @@ describe("Type Safe Api Project Unit Tests", () => {
         runtime: {
           languages: [/*Language.JAVA, Language.PYTHON,*/ Language.TYPESCRIPT],
         },
-        // documentation: {
-        //   formats: [
-        //     DocumentationFormat.HTML2,
-        //     DocumentationFormat.MARKDOWN,
-        //     DocumentationFormat.PLANTUML,
-        //     DocumentationFormat.HTML_REDOC,
-        //   ],
-        // },
+        documentation: {
+          formats: [
+            WebSocketDocumentationFormat.HTML,
+            WebSocketDocumentationFormat.MARKDOWN,
+          ],
+        },
         model: {
           language: ModelLanguage.OPENAPI,
           options: {
@@ -116,14 +112,12 @@ describe("Type Safe Api Project Unit Tests", () => {
         runtime: {
           languages: [/*Language.JAVA, Language.PYTHON,*/ Language.TYPESCRIPT],
         },
-        // documentation: {
-        //   formats: [
-        //     DocumentationFormat.HTML2,
-        //     DocumentationFormat.MARKDOWN,
-        //     DocumentationFormat.PLANTUML,
-        //     DocumentationFormat.HTML_REDOC,
-        //   ],
-        // },
+        documentation: {
+          formats: [
+            WebSocketDocumentationFormat.HTML,
+            WebSocketDocumentationFormat.MARKDOWN,
+          ],
+        },
         model: {
           language: ModelLanguage.SMITHY,
           options: {
@@ -163,14 +157,12 @@ describe("Type Safe Api Project Unit Tests", () => {
         runtime: {
           languages: [/*Language.JAVA, Language.PYTHON,*/ Language.TYPESCRIPT],
         },
-        // documentation: {
-        //   formats: [
-        //     DocumentationFormat.HTML2,
-        //     DocumentationFormat.MARKDOWN,
-        //     DocumentationFormat.PLANTUML,
-        //     DocumentationFormat.HTML_REDOC,
-        //   ],
-        // },
+        documentation: {
+          formats: [
+            WebSocketDocumentationFormat.HTML,
+            WebSocketDocumentationFormat.MARKDOWN,
+          ],
+        },
         model: {
           language: ModelLanguage.OPENAPI,
           options: {
@@ -210,14 +202,12 @@ describe("Type Safe Api Project Unit Tests", () => {
       runtime: {
         languages: [Language.TYPESCRIPT],
       },
-      // documentation: {
-      //   formats: [
-      //     DocumentationFormat.HTML2,
-      //     DocumentationFormat.MARKDOWN,
-      //     DocumentationFormat.PLANTUML,
-      //     DocumentationFormat.HTML_REDOC,
-      //   ],
-      // },
+      documentation: {
+        formats: [
+          WebSocketDocumentationFormat.HTML,
+          WebSocketDocumentationFormat.MARKDOWN,
+        ],
+      },
       model: {
         language: ModelLanguage.SMITHY,
         options: {
@@ -268,14 +258,12 @@ describe("Type Safe Api Project Unit Tests", () => {
       runtime: {
         languages: [Language.TYPESCRIPT],
       },
-      // documentation: {
-      //   formats: [
-      //     DocumentationFormat.HTML2,
-      //     DocumentationFormat.MARKDOWN,
-      //     DocumentationFormat.PLANTUML,
-      //     DocumentationFormat.HTML_REDOC,
-      //   ],
-      // },
+      documentation: {
+        formats: [
+          WebSocketDocumentationFormat.HTML,
+          WebSocketDocumentationFormat.MARKDOWN,
+        ],
+      },
       model: {
         language: ModelLanguage.SMITHY,
         options: {
@@ -399,37 +387,4 @@ describe("Type Safe Api Project Unit Tests", () => {
       );
     }
   );
-
-  // TODO: Remove this test and uncomment documentation in above tests when documentation support is added!
-  it("Throws an error when documentation is specified", () => {
-    expect(() => {
-      new TypeSafeWebSocketApiProject({
-        name: `unsupported`,
-        infrastructure: {
-          language: Language.TYPESCRIPT,
-        },
-        model: {
-          language: ModelLanguage.SMITHY,
-          options: {
-            smithy: {
-              serviceName: {
-                namespace: "com.test",
-                serviceName: "MyService",
-              },
-            },
-          },
-        },
-        documentation: {
-          formats: [
-            DocumentationFormat.HTML2,
-            DocumentationFormat.MARKDOWN,
-            DocumentationFormat.PLANTUML,
-            DocumentationFormat.HTML_REDOC,
-          ],
-        },
-      });
-    }).toThrow(
-      "Documentation generation is not yet supported for WebSocket APIs"
-    );
-  });
 });

@@ -27,19 +27,23 @@ import { GeneratedTypescriptAsyncHandlersProject } from "./codegen/handlers/gene
 import { GeneratedJavaAsyncRuntimeProject } from "./codegen/runtime/generated-java-async-runtime-project";
 import { GeneratedPythonAsyncRuntimeProject } from "./codegen/runtime/generated-python-async-runtime-project";
 import { GeneratedTypescriptAsyncRuntimeProject } from "./codegen/runtime/generated-typescript-async-runtime-project";
-import { DocumentationFormat, Language, WebSocketLibrary } from "./languages";
+import {
+  Language,
+  WebSocketDocumentationFormat,
+  WebSocketLibrary,
+} from "./languages";
 import { TypeSafeWebSocketApiModelProject } from "./model/type-safe-websocket-api-model-project";
 import { ModelConfiguration } from "./type-safe-api-project";
 import {
   GeneratedRuntimeCodeOptions,
   GeneratedCodeProjects,
-  GeneratedDocumentationOptions,
-  GeneratedDocumentationProjects,
   GeneratedInfrastructureCodeOptions,
   GeneratedHandlersCodeOptions,
   ProjectCollections,
   GeneratedWebSocketLibraryOptions,
   GeneratedWebSocketLibraryProjects,
+  GeneratedWebSocketDocumentationProjects,
+  GeneratedWebSocketDocumentationOptions,
 } from "./types";
 
 /**
@@ -93,11 +97,11 @@ export interface WebSocketDocumentationConfiguration {
   /**
    * Formats for generated documentation
    */
-  readonly formats: DocumentationFormat[];
+  readonly formats: WebSocketDocumentationFormat[];
   /**
    * Options for the generated documentation projects. Note that only those provided for the specified formats will apply
    */
-  readonly options?: GeneratedDocumentationOptions;
+  readonly options?: GeneratedWebSocketDocumentationOptions;
 }
 
 /**
@@ -180,7 +184,7 @@ export class TypeSafeWebSocketApiProject extends Project {
   /**
    * Generated documentation projects. Only the properties corresponding to specified `documentation.formats` will be defined.
    */
-  public readonly documentation: GeneratedDocumentationProjects;
+  public readonly documentation: GeneratedWebSocketDocumentationProjects;
   /**
    * Collections of all sub-projects managed by this project
    */
@@ -284,32 +288,39 @@ export class TypeSafeWebSocketApiProject extends Project {
       ...new Set(options.documentation?.formats ?? []),
     ];
 
-    // TODO: Delete when documentation support is implemented
-    if (documentationFormats.length > 0) {
-      throw new Error(
-        "Documentation generation is not yet supported for WebSocket APIs"
-      );
-    }
-
     const docsDir = path.join(generatedDir, "documentation");
     const docsDirRelativeToParent = nxWorkspace
       ? path.join(options.outdir!, docsDir)
       : docsDir;
+
+    // AsyncAPI specification is used for WebSocket documentation generation
+    const asyncapiJsonFilePathRelativeToGeneratedPackageDir = path.join(
+      relativePathToModelDirFromGeneratedPackageDir,
+      this.model.asyncApiSpecFile
+    );
 
     const generatedDocs = generateDocsProjects(documentationFormats, {
       parent: nxWorkspace ? this.parent! : this,
       parentPackageName: this.name,
       generatedDocsDir: docsDirRelativeToParent,
       // Spec path relative to each generated doc format dir
-      parsedSpecPath: parsedSpecRelativeToGeneratedPackageDir,
-      documentationOptions: options.documentation?.options,
+      parsedSpecPath: asyncapiJsonFilePathRelativeToGeneratedPackageDir,
+      asyncDocumentationOptions: options.documentation?.options,
+    });
+
+    // Documentation projects use AsyncAPI generator which can intermittently fail
+    // when executed in parallel to other AsyncAPI generator commands. We protect against this
+    // by ensuring documentation projects are built sequentially.
+    const docProjects = Object.values(generatedDocs);
+    docProjects.forEach((docProject, i) => {
+      if (docProjects[i - 1]) {
+        NxProject.ensure(docProjects[i - 1]).addImplicitDependency(docProject);
+      }
     });
 
     this.documentation = {
-      htmlRedoc: generatedDocs[DocumentationFormat.HTML_REDOC],
-      html2: generatedDocs[DocumentationFormat.HTML2],
-      markdown: generatedDocs[DocumentationFormat.MARKDOWN],
-      plantuml: generatedDocs[DocumentationFormat.PLANTUML],
+      html: generatedDocs[WebSocketDocumentationFormat.HTML],
+      markdown: generatedDocs[WebSocketDocumentationFormat.MARKDOWN],
     };
 
     const librarySet = new Set(options.library?.libraries ?? []);

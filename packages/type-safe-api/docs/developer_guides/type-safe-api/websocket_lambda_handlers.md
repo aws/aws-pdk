@@ -139,7 +139,7 @@ As well as generating lambda handler stubs, when you use the `@handler` Smithy t
 === "TS"
 
     ```ts hl_lines="1 11"
-    import { Api, SayHelloFunction } from "myapi-typescript-infra";
+    import { WebSocketApi, SayHelloFunction } from "myapi-typescript-infra";
 
     new WebSocketApi(this, id, {
       authorizer: new WebSocketIamAuthorizer(),

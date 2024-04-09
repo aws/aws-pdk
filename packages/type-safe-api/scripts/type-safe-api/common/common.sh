@@ -30,6 +30,9 @@ install_packages() {
     ts-node@10.9.1 \
     ts-command-line-args@2.4.2 \
     @redocly/cli@1.0.0-beta.126 \
+    @asyncapi/cli@1.7.3 \
+    @asyncapi/html-template@2.3.2 \
+    @asyncapi/markdown-template@1.5.0 \
     reregexp@1.6.1 \
     @faker-js/faker@8.1.0 \
     @openapitools/openapi-generator-cli@2.6.0 \
@@ -38,6 +41,22 @@ install_packages() {
     @apidevtools/swagger-parser@10.1.0 \
     openapi-types@12.1.0 \
     projen@0.73.8
+}
+
+##
+# runs an install command to install the given packages
+run_install_command() {
+  cmd="$@"
+
+  if [ "$pkg_manager" == "pnpm" ]; then
+    runner="$pkg_manager install --reporter=default"
+  else
+    runner="$pkg_manager install"
+  fi
+
+  log "running command $runner $cmd"
+
+  $runner $cmd
 }
 
 ##
@@ -59,6 +78,8 @@ _install_packages() {
 
     # The .committed file contains the identifier of the directory already installed to
     _install_dir_identifier=$(cat $_install_packages_committed_file)
+
+    log "packages already installed to :: $_install_packages_pdk_base_dir/$_install_dir_identifier"
   fi
 
   _install_packages_pdk_dir="$_install_packages_pdk_base_dir/$_install_dir_identifier"
@@ -69,11 +90,7 @@ _install_packages() {
   # Install if any packages are missing
   if [ "$_install_packages_should_install" == "true" ]; then
     npm init --yes
-    if [ "$pkg_manager" == "pnpm" ]; then
-      $pkg_manager install --reporter=default "$@"
-    else
-      $pkg_manager install "$@"
-    fi
+    run_install_command "$@"
   fi
 
   # Mark that we have installed the dependencies (if there's a race and we installed multiple times,
