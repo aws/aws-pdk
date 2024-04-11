@@ -479,6 +479,16 @@ export interface GeneratedPlantumlDocumentationOptions
   extends GeneratedWithOpenApiGeneratorOptions {}
 
 /**
+ * Options for the async api html documentation project
+ */
+export interface GeneratedAsyncApiHtmlDocumentationOptions {}
+
+/**
+ * Options for the async api markdown documentation project
+ */
+export interface GeneratedAsyncApiMarkdownDocumentationOptions {}
+
+/**
  * Options for generated documentation projects
  */
 export interface GeneratedDocumentationOptions {
@@ -501,6 +511,20 @@ export interface GeneratedDocumentationOptions {
 }
 
 /**
+ * Options for generated websocket documentation projects
+ */
+export interface GeneratedWebSocketDocumentationOptions {
+  /**
+   * Generated AsyncAPI html documentation project options
+   */
+  readonly html?: GeneratedAsyncApiHtmlDocumentationOptions;
+  /**
+   * Generated AsyncAPI markdown documentation project options
+   */
+  readonly markdown?: GeneratedAsyncApiMarkdownDocumentationOptions;
+}
+
+/**
  * Generated documentation project references
  */
 export interface GeneratedDocumentationProjects {
@@ -520,6 +544,17 @@ export interface GeneratedDocumentationProjects {
    * Generated plantuml documentation project
    */
   readonly plantuml?: Project;
+}
+
+export interface GeneratedWebSocketDocumentationProjects {
+  /**
+   * Generated AsyncAPI html documentation project
+   */
+  readonly html?: Project;
+  /**
+   * Generated AsyncAPI markdown documentation project
+   */
+  readonly markdown?: Project;
 }
 
 /**

@@ -53,4 +53,32 @@ describe("Docs Generation Script Unit Tests", () => {
       )
     ).toMatchSnapshot();
   });
+
+  it("Generates AsyncAPI Markdown docs", () => {
+    const specPath = path.resolve(
+      __dirname,
+      "../../resources/specs/async/asyncapi/sample.json"
+    );
+
+    expect(
+      withTmpDirSnapshot(
+        os.tmpdir(),
+        (outdir) => {
+          exec(`cp ${specPath} ${outdir}/asyncapi.json`, {
+            cwd: path.resolve(__dirname),
+          });
+          exec(
+            `${path.resolve(
+              __dirname,
+              "../../../scripts/type-safe-api/custom/docs/asyncapi-markdown"
+            )} --spec-path asyncapi.json --output-path .`,
+            {
+              cwd: outdir,
+            }
+          );
+        },
+        { excludeGlobs: ["asyncapi.json"] }
+      )
+    ).toMatchSnapshot();
+  });
 });

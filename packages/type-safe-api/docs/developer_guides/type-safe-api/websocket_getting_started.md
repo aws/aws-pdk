@@ -15,6 +15,7 @@ The `TypeSafeWebSocketApiProject` projen project sets up the project structure f
 - `handlers` - Optionally select the `languages` in which you wish to write lambda handlers for operations in.
 - `runtime` - Optionally configure additional generated runtime projects. Include one or more `languages` you want to write your server-side code in. These projects contain generated types defined in your model, as well as type-safe lambda handler wrappers for implementing each operation, and server SDKs for sending messages to connected clients. You'll notice runtime packages are automatically generated for languages you picked for `infrastructure` and `handlers`.
 - `library` - Optionally specify additional `libraries` to generate, such as clients or React hooks for use in a React website.
+- `documentation` - Optionally specify `formats` to generate documentation in.
 
 ## Create your API project
 
@@ -39,6 +40,7 @@ npx projen new --from @aws/pdk monorepo-ts --package-manager=pnpm
       ModelLanguage,
       TypeSafeWebSocketApiProject,
       WebSocketLibrary,
+      WebSocketDocumentationFormat,
     } from "@aws/pdk/type-safe-api";
     import { InfrastructureTsProject } from "@aws/pdk/infrastructure";
     import { CloudscapeReactTsWebsiteProject } from "@aws/pdk/cloudscape-react-ts-website";
@@ -81,6 +83,12 @@ npx projen new --from @aws/pdk monorepo-ts --package-manager=pnpm
       // Generate react hooks to interact with the API from a React website
       library: {
         libraries: [WebSocketLibrary.TYPESCRIPT_WEBSOCKET_HOOKS],
+      },
+      // Generate HTML documentation
+      documentation: {
+        formats: [
+          WebSocketDocumentationFormat.HTML,
+        ],
       },
     });
 

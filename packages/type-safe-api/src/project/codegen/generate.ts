@@ -3,6 +3,8 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { getLogger } from "log4js";
 import { Project, TextFile } from "projen";
+import { GeneratedAsyncApiHtmlDocumentationProject } from "./documentation/generated-asyncapi-html-documentation-project";
+import { GeneratedAsyncApiMarkdownDocumentationProject } from "./documentation/generated-asyncapi-markdown-documentation-project";
 import { GeneratedHtmlRedocDocumentationProject } from "./documentation/generated-html-redoc-documentation-project";
 import { GeneratedHtml2DocumentationProject } from "./documentation/generated-html2-documentation-project";
 import { GeneratedMarkdownDocumentationProject } from "./documentation/generated-markdown-documentation-project";
@@ -56,9 +58,13 @@ import {
   DocumentationFormat,
   Language,
   Library,
+  WebSocketDocumentationFormat,
   WebSocketLibrary,
 } from "../languages";
-import { GeneratedDocumentationOptions } from "../types";
+import {
+  GeneratedDocumentationOptions,
+  GeneratedWebSocketDocumentationOptions,
+} from "../types";
 
 const logger = getLogger();
 
@@ -741,10 +747,14 @@ export interface GenerateDocsProjectsOptions {
    * User-specified options for generated documentation
    */
   readonly documentationOptions?: GeneratedDocumentationOptions;
+  /**
+   * User-specified options for generated websocket documentation
+   */
+  readonly asyncDocumentationOptions?: GeneratedWebSocketDocumentationOptions;
 }
 
 const generateDocsProject = (
-  format: DocumentationFormat,
+  format: DocumentationFormat | WebSocketDocumentationFormat,
   options: GenerateDocsProjectsOptions
 ): Project => {
   const commonProps = {
@@ -782,13 +792,25 @@ const generateDocsProject = (
         ...options.documentationOptions?.plantuml,
       });
     }
+    case WebSocketDocumentationFormat.HTML: {
+      return new GeneratedAsyncApiHtmlDocumentationProject({
+        ...commonProps,
+        ...options.asyncDocumentationOptions?.html,
+      });
+    }
+    case WebSocketDocumentationFormat.MARKDOWN: {
+      return new GeneratedAsyncApiMarkdownDocumentationProject({
+        ...commonProps,
+        ...options.asyncDocumentationOptions?.markdown,
+      });
+    }
     default:
       throw new Error(`Unknown documentation format ${format}`);
   }
 };
 
 export const generateDocsProjects = (
-  formats: DocumentationFormat[],
+  formats: (DocumentationFormat | WebSocketDocumentationFormat)[],
   options: GenerateDocsProjectsOptions
 ): { [language: string]: Project } => {
   if (formats.length > 0) {
