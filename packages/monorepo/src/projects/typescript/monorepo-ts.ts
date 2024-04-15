@@ -547,24 +547,6 @@ export class MonorepoTsProject
       this.linkLocalWorkspaceBins();
     }
 
-    if (this.package.packageManager === NodePackageManager.PNPM) {
-      // PNPM hoisting hides transitive bundled dependencies which results in
-      // transitive dependencies being packed incorrectly.
-      this.subprojects.forEach((subProject) => {
-        if (
-          NodePackageUtils.isNodeProject(subProject) &&
-          getBundledDeps(subProject).length
-        ) {
-          const pkgFolder = path.relative(this.root.outdir, subProject.outdir);
-          // Create a symlink in the sub-project node_modules for all transitive deps
-          // before running "package" task
-          subProject.packageTask.prependExec(
-            `monorepo.pnpm-link-bundled-transitive-deps ${pkgFolder}`
-          );
-        }
-      });
-    }
-
     this.subprojects.forEach((subProject) => {
       if (NodePackageUtils.isNodeProject(subProject)) {
         // Remove any subproject .npmrc files since only the root one matters

@@ -1,6 +1,5 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
-import { Project } from "projen";
 import { NodePackageManager, NodeProject } from "projen/lib/javascript";
 import { MonorepoTsProject, Syncpack } from "../../packages/monorepo/src";
 import { PDK_NAMESPACE } from "../abstract/pdk-project";
@@ -147,9 +146,6 @@ export class PDKMonorepoProject extends MonorepoTsProject {
   synth() {
     this.subprojects.forEach((subProject) => {
       resolveDependencies(subProject);
-      updateJsPackageTask(subProject);
-      updateJavaPackageTask(subProject);
-      updatePythonPackageTask(subProject);
       this.configureEsLint(subProject);
     });
 
@@ -164,39 +160,6 @@ export class PDKMonorepoProject extends MonorepoTsProject {
     }
   }
 }
-
-/**
- * Updates the java package task to use the pack command.
- *
- * @param project project to update.
- */
-const updateJavaPackageTask = (project: Project): void => {
-  project.tasks
-    .tryFind("package:java")
-    ?.reset("jsii-pacmak -v --target java --pack-command='pnpm pack'");
-};
-
-/**
- * Changes the pack command to use pnpm.
- *
- * @param project project to update.
- */
-const updateJsPackageTask = (project: Project): void => {
-  project.tasks
-    .tryFind("package:js")
-    ?.reset(`jsii-pacmak -v --target js --pack-command='pnpm pack'`);
-};
-
-/**
- * Changes the pack command to use pnpm.
- *
- * @param project project to update.
- */
-const updatePythonPackageTask = (project: Project): void => {
-  project.tasks
-    .tryFind("package:python")
-    ?.reset(`jsii-pacmak -v --target python --pack-command='pnpm pack'`);
-};
 
 /**
  * Resolves dependencies for projects of type NodeProject.
