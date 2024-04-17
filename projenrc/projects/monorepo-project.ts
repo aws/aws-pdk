@@ -44,11 +44,6 @@ export class MonorepoProject extends PDKProject {
       "monorepo.nx-dir-hasher": "./scripts/monorepo/nx-dir-hasher.js",
     });
 
-    this.package.addBin({
-      "monorepo.pnpm-link-bundled-transitive-deps":
-        "./scripts/monorepo/pnpm/link-bundled-transitive-deps.js",
-    });
-
     // Don't check for a license header etc for projen-version.ts so this can be written via automation
     this.eslint?.addIgnorePattern("src/components/projen-version.ts");
 

@@ -86,9 +86,6 @@
       "description": "Creates the distribution package",
       "steps": [
         {
-          "exec": "monorepo.pnpm-link-bundled-transitive-deps packages/pdk"
-        },
-        {
           "exec": "pnpm exec license-checker --summary --production --onlyAllow 'MIT;Apache-2.0;Unlicense;BSD;BSD-2-Clause;BSD-3-Clause;ISC;'"
         },
         {
@@ -119,7 +116,7 @@
       "description": "Create java language bindings",
       "steps": [
         {
-          "exec": "jsii-pacmak -v --target java --pack-command='pnpm pack'"
+          "exec": "jsii-pacmak -v --target java --pack-command='rm -rf build && pnpm --config.shamefully-hoist=true --config.hoist=true --config.symlinks=false --config.shared-workspace-lockfile=false --filter=@aws/pdk deploy build && cd build && pnpm pack && mv *.tgz .. && cd .. && rm -rf build'"
         }
       ]
     },
@@ -128,7 +125,7 @@
       "description": "Create js language bindings",
       "steps": [
         {
-          "exec": "jsii-pacmak -v --target js --pack-command='pnpm pack'"
+          "exec": "jsii-pacmak -v --target js --pack-command='rm -rf build && pnpm --config.shamefully-hoist=true --config.hoist=true --config.symlinks=false --config.shared-workspace-lockfile=false --filter=@aws/pdk deploy build && cd build && pnpm pack && mv *.tgz .. && cd .. && rm -rf build'"
         }
       ]
     },
@@ -137,7 +134,7 @@
       "description": "Create python language bindings",
       "steps": [
         {
-          "exec": "jsii-pacmak -v --target python --pack-command='pnpm pack'"
+          "exec": "jsii-pacmak -v --target python --pack-command='rm -rf build && pnpm --config.shamefully-hoist=true --config.hoist=true --config.symlinks=false --config.shared-workspace-lockfile=false --filter=@aws/pdk deploy build && cd build && pnpm pack && mv *.tgz .. && cd .. && rm -rf build'"
         }
       ]
     },

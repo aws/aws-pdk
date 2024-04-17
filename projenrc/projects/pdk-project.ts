@@ -13,6 +13,16 @@ import {
   PublishConfig,
 } from "../abstract/pdk-project";
 
+const PACK_COMMAND = [
+  "rm -rf build",
+  "pnpm --config.shamefully-hoist=true --config.hoist=true --config.symlinks=false --config.shared-workspace-lockfile=false --filter=@aws/pdk deploy build",
+  "cd build",
+  "pnpm pack",
+  "mv *.tgz ..",
+  "cd ..",
+  "rm -rf build",
+].join(" && ");
+
 /**
  * Contains configuration for the UberProject.
  */
@@ -276,6 +286,10 @@ class PDKRelease extends Release {
     );
     project.packageTask.spawn(project.tasks.tryFind("package-all")!);
 
+    this.updateJsPackageTask(project);
+    this.updateJavaPackageTask(project);
+    this.updatePythonPackageTask(project);
+
     const releaseTask = project.tasks.tryFind("release:mainline")!;
     releaseTask.reset();
     releaseTask.env("RELEASE", "true");
@@ -326,4 +340,39 @@ class PDKRelease extends Release {
       ["{projectRoot}/LICENSE_THIRD_PARTY"]
     );
   }
+
+  /**
+   * Updates the java package task to use the pack command.
+   *
+   * @param project project to update.
+   */
+  private updateJavaPackageTask = (project: Project): void => {
+    project.tasks
+      .tryFind("package:java")
+      ?.reset(`jsii-pacmak -v --target java --pack-command='${PACK_COMMAND}'`);
+  };
+
+  /**
+   * Changes the pack command to use pnpm.
+   *
+   * @param project project to update.
+   */
+  private updateJsPackageTask = (project: Project): void => {
+    project.tasks
+      .tryFind("package:js")
+      ?.reset(`jsii-pacmak -v --target js --pack-command='${PACK_COMMAND}'`);
+  };
+
+  /**
+   * Changes the pack command to use pnpm.
+   *
+   * @param project project to update.
+   */
+  private updatePythonPackageTask = (project: Project): void => {
+    project.tasks
+      .tryFind("package:python")
+      ?.reset(
+        `jsii-pacmak -v --target python --pack-command='${PACK_COMMAND}'`
+      );
+  };
 }
