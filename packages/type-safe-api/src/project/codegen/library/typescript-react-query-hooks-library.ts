@@ -22,7 +22,7 @@ export class TypescriptReactQueryHooksLibrary extends GeneratedTypescriptLibrary
   constructor(options: GeneratedTypescriptReactQueryHooksProjectOptions) {
     super({
       ...options,
-      tsconfig: {
+      tsconfig: options.tsconfig ?? {
         compilerOptions: {
           jsx: TypeScriptJsxMode.REACT,
         },
