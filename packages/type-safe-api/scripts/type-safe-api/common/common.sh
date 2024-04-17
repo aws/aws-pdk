@@ -91,7 +91,7 @@ _install_packages() {
   # Install if any packages are missing
   if [ "$_install_packages_should_install" == "true" ]; then
     npm init --yes
-    cp $_script_dir/.pnpmfile.cjs $_install_packages_pdk_dir
+    cp $_script_dir/.pnpmfile $_install_packages_pdk_dir/.pnpmfile.cjs
     run_install_command "$@"
   fi
 
