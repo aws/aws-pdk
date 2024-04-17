@@ -26,7 +26,7 @@ export class TypescriptWebsocketHooksLibrary extends GeneratedTypescriptLibraryP
   constructor(options: TypescriptWebsocketHooksLibraryOptions) {
     super({
       ...options,
-      tsconfig: {
+      tsconfig: options.tsconfig ?? {
         compilerOptions: {
           jsx: TypeScriptJsxMode.REACT,
         },
