@@ -3,6 +3,7 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import {
   Component,
+  IniFile,
   JsonFile,
   License,
   Project,
@@ -484,6 +485,27 @@ export class NxConfigurator extends Component implements INxProjectCore {
             .map((p) => path.relative(this.project.outdir, p.outdir)),
         },
       }).synthesize();
+    }
+
+    if (
+      !ProjectUtils.isNamedInstanceOf(this.project, NodeProject) &&
+      !this.project.tryFindFile(".npmrc")
+    ) {
+      new IniFile(this.project, ".npmrc", {
+        obj: {
+          "resolution-mode": "highest",
+          yes: "true",
+          "prefer-workspace-packages": "true",
+          "link-workspace-packages": "true",
+        },
+      }).synthesize();
+    } else if (
+      ProjectUtils.isNamedInstanceOf(this.project, NodeProject) &&
+      this.project.package.packageManager === NodePackageManager.PNPM
+    ) {
+      this.project.npmrc.addConfig("prefer-workspace-packages", "true");
+      this.project.npmrc.addConfig("link-workspace-packages", "true");
+      this.project.npmrc.addConfig("yes", "true");
     }
   }
 

@@ -63,6 +63,7 @@ run_install_command() {
 # installs the passed packages with the package manager in use
 _install_packages() {
   log "installing packages :: $@"
+  _script_dir="$( cd -- "$(dirname $([ -L "${BASH_SOURCE[0]:-$0}" ] && readlink -f "${BASH_SOURCE[0]:-$0}" || echo "${BASH_SOURCE[0]:-$0}"))" >/dev/null 2>&1 ; pwd -P )";
   _install_packages_working_dir=`pwd`
   _install_packages_pdk_base_dir="$HOME/.pdk/$AWS_PDK_VERSION/type-safe-api/$pkg_manager"
 
@@ -90,6 +91,7 @@ _install_packages() {
   # Install if any packages are missing
   if [ "$_install_packages_should_install" == "true" ]; then
     npm init --yes
+    cp $_script_dir/.pnpmfile.cjs $_install_packages_pdk_dir
     run_install_command "$@"
   fi
 
