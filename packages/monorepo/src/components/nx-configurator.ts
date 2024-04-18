@@ -197,14 +197,16 @@ export class NxConfigurator extends Component implements INxProjectCore {
       ["install", "install:ci"].forEach((t) => {
         const task = project.tasks.tryFind(t);
 
-        // Setup env and ensure the projen & pdk bins are removed from the venv as we always want to use the npx variant
-        [
-          "rm -f `poetry env info -p`/bin/projen `poetry env info -p`/bin/pdk",
-          "poetry env use python$PYTHON_VERSION",
-        ].forEach(
-          (cmd) =>
-            !task?.steps.find((s) => s.exec === cmd) && task?.prependExec(cmd)
-        );
+        // Setup env
+        const createVenvCmd = "poetry env use python$PYTHON_VERSION";
+        !task?.steps.find((s) => s.exec === createVenvCmd) &&
+          task?.prependExec(createVenvCmd);
+
+        // Ensure the projen & pdk bins are removed from the venv as we always want to use the npx variant
+        const removeBinsCmd =
+          "rm -f `poetry env info -p`/bin/projen `poetry env info -p`/bin/pdk";
+        !task?.steps.find((s) => s.exec === removeBinsCmd) &&
+          task?.exec(removeBinsCmd);
 
         const pythonVersion = project.deps.tryGetDependency("python")?.version;
         task!.env(
@@ -526,7 +528,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
     const task = this.project.tasks.tryFind("install:ci");
     task?.steps?.length &&
       task.steps.length > 0 &&
-      task?.steps[task.steps.length - 1]?.exec !== cmd &&
+      !task?.steps.find((s) => s.exec === cmd) &&
       task?.exec(cmd, { receiveArgs: true });
   }
 
