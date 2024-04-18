@@ -197,9 +197,14 @@ export class NxConfigurator extends Component implements INxProjectCore {
       ["install", "install:ci"].forEach((t) => {
         const task = project.tasks.tryFind(t);
 
-        // Setup env
-        const cmd = "poetry env use python$PYTHON_VERSION";
-        task?.steps[0]?.exec !== cmd && task?.prependExec(cmd);
+        // Setup env and ensure the projen & pdk bins are removed from the venv as we always want to use the npx variant
+        [
+          "rm -f `poetry env info -p`/bin/projen `poetry env info -p`/bin/pdk",
+          "poetry env use python$PYTHON_VERSION",
+        ].forEach(
+          (cmd) =>
+            !task?.steps.find((s) => s.exec === cmd) && task?.prependExec(cmd)
+        );
 
         const pythonVersion = project.deps.tryGetDependency("python")?.version;
         task!.env(
