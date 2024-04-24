@@ -125,6 +125,59 @@ export class TypeSafeRestApi extends Construct {
 
     const stack = Stack.of(this);
 
+    const serializedCorsOptions: SerializedCorsOptions | undefined =
+      corsOptions && {
+        allowHeaders: corsOptions.allowHeaders || [
+          ...Cors.DEFAULT_HEADERS,
+          "x-amz-content-sha256",
+        ],
+        allowMethods: corsOptions.allowMethods || Cors.ALL_METHODS,
+        allowOrigins: corsOptions.allowOrigins,
+        statusCode: corsOptions.statusCode || 204,
+      };
+
+    const prepareSpecOptions: PrepareApiSpecOptions = {
+      defaultAuthorizerReference:
+        serializeAsAuthorizerReference(defaultAuthorizer),
+      integrations: Object.fromEntries(
+        Object.entries(integrations).map(([operationId, integration]) => [
+          operationId,
+          {
+            integration: integration.integration.render({
+              operationId,
+              scope: this,
+              ...operationLookup[operationId],
+              corsOptions: serializedCorsOptions,
+              operationLookup,
+            }),
+            methodAuthorizer: serializeAsAuthorizerReference(
+              integration.authorizer
+            ),
+            options: integration.options,
+          },
+        ])
+      ),
+      securitySchemes: prepareSecuritySchemes(
+        this,
+        integrations,
+        defaultAuthorizer,
+        options.apiKeyOptions
+      ),
+      corsOptions: serializedCorsOptions,
+      operationLookup,
+      apiKeyOptions: options.apiKeyOptions,
+    };
+
+    // We'll write the configuration to a file in the same bucket as the spec (in order to prevent large inline payloads)
+    const inputConfigurationPath = path.join(specPath, "-config.json");
+
+    fs.writeFileSync(inputConfigurationPath, JSON.stringify(prepareSpecOptions));
+
+    // Create a new S3 asset and upload the file to S3
+    const inputConfigurationAsset = new Asset(this, 'InputConfiguration', {
+      path: inputConfigurationPath,
+    });
+
     // Lambda name prefix is truncated to 48 characters (16 below the max of 64)
     const lambdaNamePrefix = `${PDKNag.getStackPrefix(stack)
       .split("/")
@@ -157,6 +210,9 @@ export class TypeSafeRestApi extends Construct {
               actions: ["s3:getObject"],
               resources: [
                 inputSpecAsset.bucket.arnForObjects(inputSpecAsset.s3ObjectKey),
+                inputConfigurationAsset.bucket.arnForObjects(
+                  inputConfigurationAsset.s3ObjectKey
+                ),
               ],
             }),
             new PolicyStatement({
@@ -285,48 +341,6 @@ export class TypeSafeRestApi extends Construct {
       }
     );
 
-    const serializedCorsOptions: SerializedCorsOptions | undefined =
-      corsOptions && {
-        allowHeaders: corsOptions.allowHeaders || [
-          ...Cors.DEFAULT_HEADERS,
-          "x-amz-content-sha256",
-        ],
-        allowMethods: corsOptions.allowMethods || Cors.ALL_METHODS,
-        allowOrigins: corsOptions.allowOrigins,
-        statusCode: corsOptions.statusCode || 204,
-      };
-
-    const prepareSpecOptions: PrepareApiSpecOptions = {
-      defaultAuthorizerReference:
-        serializeAsAuthorizerReference(defaultAuthorizer),
-      integrations: Object.fromEntries(
-        Object.entries(integrations).map(([operationId, integration]) => [
-          operationId,
-          {
-            integration: integration.integration.render({
-              operationId,
-              scope: this,
-              ...operationLookup[operationId],
-              corsOptions: serializedCorsOptions,
-              operationLookup,
-            }),
-            methodAuthorizer: serializeAsAuthorizerReference(
-              integration.authorizer
-            ),
-            options: integration.options,
-          },
-        ])
-      ),
-      securitySchemes: prepareSecuritySchemes(
-        this,
-        integrations,
-        defaultAuthorizer,
-        options.apiKeyOptions
-      ),
-      corsOptions: serializedCorsOptions,
-      operationLookup,
-      apiKeyOptions: options.apiKeyOptions,
-    };
 
     // Spec preparation will happen in a custom resource lambda so that references to lambda integrations etc can be
     // resolved. However, we also prepare inline to perform some additional validation at synth time.
@@ -339,11 +353,14 @@ export class TypeSafeRestApi extends Construct {
           bucket: inputSpecAsset.bucket.bucketName,
           key: inputSpecAsset.s3ObjectKey,
         },
+        inputConfigurationLocation: {
+          bucket: inputConfigurationAsset.bucket.bucketName,
+          key: inputConfigurationAsset.s3ObjectKey,
+        },
         outputSpecLocation: {
           bucket: inputSpecAsset.bucket.bucketName,
           key: preparedSpecOutputKeyPrefix,
         },
-        ...prepareSpecOptions,
       };
 
     const prepareSpecCustomResource = new CustomResource(
