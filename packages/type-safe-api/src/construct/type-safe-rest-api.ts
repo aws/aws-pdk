@@ -1,6 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import { PDKNag } from "@aws/pdk-nag";
 import { CustomResource, Duration, Size, Stack } from "aws-cdk-lib";
@@ -169,14 +170,32 @@ export class TypeSafeRestApi extends Construct {
     };
 
     // We'll write the configuration to a file in the same bucket as the spec (in order to prevent large inline payloads)
-    const inputConfigurationPath = path.join(specPath, "-config.json");
+    const inputConfigurationFolderPath = path.join(
+      os.tmpdir(),
+      "@aws",
+      "type-safe-api"
+    );
 
-    fs.writeFileSync(inputConfigurationPath, JSON.stringify(prepareSpecOptions));
+    // Ensure the directory exists
+    fs.mkdirSync(inputConfigurationFolderPath, { recursive: true });
+    const inputConfigurationPath = path.join(
+      inputConfigurationFolderPath,
+      "config.json"
+    );
 
-    // Create a new S3 asset and upload the file to S3
-    const inputConfigurationAsset = new Asset(this, 'InputConfiguration', {
+    // Write the configuration to a temporary file
+    fs.writeFileSync(
+      inputConfigurationPath,
+      JSON.stringify(prepareSpecOptions)
+    );
+
+    // Upload the configuration to s3 as an asset
+    const inputConfigurationAsset = new Asset(this, "InputConfiguration", {
       path: inputConfigurationPath,
     });
+
+    // Delete the temporary configuration file
+    fs.unlinkSync(inputConfigurationPath);
 
     // Lambda name prefix is truncated to 48 characters (16 below the max of 64)
     const lambdaNamePrefix = `${PDKNag.getStackPrefix(stack)
@@ -340,7 +359,6 @@ export class TypeSafeRestApi extends Construct {
         );
       }
     );
-
 
     // Spec preparation will happen in a custom resource lambda so that references to lambda integrations etc can be
     // resolved. However, we also prepare inline to perform some additional validation at synth time.
