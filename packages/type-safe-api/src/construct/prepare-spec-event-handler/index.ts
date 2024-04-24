@@ -33,7 +33,7 @@ export interface PrepareApiSpecCustomResourceProperties {
   /**
    * The location from which to read the configuration for the input spec (integrations, cors, authorizers, etc)
    */
-  readonly inputConfigurationLocation: S3Location;
+  readonly inputConfigLocation: S3Location;
   /**
    * The location to write the prepared spec. Note that the key is used as a prefix and the output location will
    * include a hash.
@@ -89,13 +89,13 @@ const s3 = new S3Client({
 /**
  * Prepare the api spec for API Gateway
  * @param inputSpecLocation location of the specification to prepare
- * @param inputConfigurationLocation location of the configuration for the input spec (integrations, cors, authorizers, etc)
+ * @param inputConfigLocation location of the configuration for the input spec (integrations, cors, authorizers, etc)
  * @param outputSpecLocation location to write the prepared spec to
  * @return the output location of the prepared spec
  */
 const prepare = async ({
   inputSpecLocation,
-  inputConfigurationLocation,
+  inputConfigLocation,
   outputSpecLocation,
 }: PrepareApiSpecCustomResourceProperties): Promise<S3Location> => {
   // Read the spec from the s3 input location
@@ -110,19 +110,19 @@ const prepare = async ({
     ).Body!.transformToString("utf-8")
   );
 
-  const inputConfiguration: PrepareApiSpecOptions = JSON.parse(
+  const inputConfig: PrepareApiSpecOptions = JSON.parse(
     await (
       await s3.send(
         new GetObjectCommand({
-          Bucket: inputConfigurationLocation.bucket,
-          Key: inputConfigurationLocation.key,
+          Bucket: inputConfigLocation.bucket,
+          Key: inputConfigLocation.key,
         })
       )
     ).Body!.transformToString("utf-8")
   );
 
   // Prepare the spec
-  const preparedSpec = prepareApiSpec(inputSpec, inputConfiguration);
+  const preparedSpec = prepareApiSpec(inputSpec, inputConfig);
   const preparedSpecHash = crypto
     .createHash("sha256")
     .update(JSON.stringify(preparedSpec))

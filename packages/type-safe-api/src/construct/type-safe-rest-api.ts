@@ -170,32 +170,26 @@ export class TypeSafeRestApi extends Construct {
     };
 
     // We'll write the configuration to a file in the same bucket as the spec (in order to prevent large inline payloads)
-    const inputConfigurationFolderPath = path.join(
+    const inputConfigFolderPath = path.join(
       os.tmpdir(),
       "@aws",
       "type-safe-api"
     );
+    const inputConfigPath = path.join(inputConfigFolderPath, "config.json");
 
     // Ensure the directory exists
-    fs.mkdirSync(inputConfigurationFolderPath, { recursive: true });
-    const inputConfigurationPath = path.join(
-      inputConfigurationFolderPath,
-      "config.json"
-    );
+    fs.mkdirSync(inputConfigFolderPath, { recursive: true });
 
     // Write the configuration to a temporary file
-    fs.writeFileSync(
-      inputConfigurationPath,
-      JSON.stringify(prepareSpecOptions)
-    );
+    fs.writeFileSync(inputConfigPath, JSON.stringify(prepareSpecOptions));
 
     // Upload the configuration to s3 as an asset
-    const inputConfigurationAsset = new Asset(this, "InputConfiguration", {
-      path: inputConfigurationPath,
+    const inputConfigAsset = new Asset(this, "InputConfig", {
+      path: inputConfigPath,
     });
 
     // Delete the temporary configuration file
-    fs.unlinkSync(inputConfigurationPath);
+    fs.unlinkSync(inputConfigPath);
 
     // Lambda name prefix is truncated to 48 characters (16 below the max of 64)
     const lambdaNamePrefix = `${PDKNag.getStackPrefix(stack)
@@ -229,8 +223,8 @@ export class TypeSafeRestApi extends Construct {
               actions: ["s3:getObject"],
               resources: [
                 inputSpecAsset.bucket.arnForObjects(inputSpecAsset.s3ObjectKey),
-                inputConfigurationAsset.bucket.arnForObjects(
-                  inputConfigurationAsset.s3ObjectKey
+                inputConfigAsset.bucket.arnForObjects(
+                  inputConfigAsset.s3ObjectKey
                 ),
               ],
             }),
@@ -371,9 +365,9 @@ export class TypeSafeRestApi extends Construct {
           bucket: inputSpecAsset.bucket.bucketName,
           key: inputSpecAsset.s3ObjectKey,
         },
-        inputConfigurationLocation: {
-          bucket: inputConfigurationAsset.bucket.bucketName,
-          key: inputConfigurationAsset.s3ObjectKey,
+        inputConfigLocation: {
+          bucket: inputConfigAsset.bucket.bucketName,
+          key: inputConfigAsset.s3ObjectKey,
         },
         outputSpecLocation: {
           bucket: inputSpecAsset.bucket.bucketName,
