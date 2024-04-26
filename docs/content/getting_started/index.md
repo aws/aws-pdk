@@ -149,6 +149,42 @@ The distributables for each language can be used directly as follows:
 
 The following subsections outline what you need to install and use the AWS PDK.
 
+
+### Windows Linux Subsystem (WSL)
+
+If you work on a Windows OS, it's possible to run PDK through the Windows Linux Subsystem (WSL).
+
+The WSL comes in two versions where version 1 is [more performant](https://learn.microsoft.com/en-us/windows/wsl/compare-versions) regarding files access protocol between the Windows OS and the Linux subsystem.
+
+As PDK is downloading a lot of packages and write a lot of small files, this setting has a significant impact.
+
+By default, WSL will install a Ubuntu Linux flavor in version 2.
+
+```ps
+wsl --install
+wsl --set-version Ubuntu 1
+```
+
+Then connect in the subsystem by doing:
+```ps
+wsl
+```
+
+
+Ubuntu comes without some packages that you have to install:
+```bash
+sudo apt install build-essential graphviz
+```
+
+Where **build-essential** brings the **make** utils and **graphviz** is used for PNG/SVG schema generation.
+
+Finally, and this is related to the Ubuntu **urllib3** package, we have to install a complementary version as **awscli** is not supporting yet the version 2 of this lib:
+
+```python
+pip install 'urllib3<2'
+```
+
+
 ### Node runtime
 
 All AWS PDK developers, even those working in Python or Java, need Node.js 16 or later. All supported languages use the same backend, which runs on Node.js. We recommend a version in active long-term support. Your organization may have a different recommendation.
