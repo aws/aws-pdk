@@ -464,7 +464,7 @@ export class NxConfigurator extends Component implements INxProjectCore {
           private: true,
           engines: {
             node: ">=16",
-            pnpm: ">=8",
+            pnpm: ">=8 <9",
           },
           scripts: Object.fromEntries(
             this.project.tasks.all
