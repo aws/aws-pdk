@@ -10,7 +10,7 @@ RUN set -ex \
     && chmod 600 ~/.ssh/known_hosts \
     && dnf install docker -y \
     && dnf install -y gzip jq openssl openssl-devel tar wget which sudo unzip make gettext gcc curl-devel expat-devel iptables \
-    && dnf install -y bzip2-devel libffi-devel ncurses-devel readline-devel sqlite-devel xz-devel zlib-devel libicu
+    && dnf install -y bzip2-devel libffi-devel ncurses-devel readline-devel sqlite-devel xz-devel zlib-devel libicu procps-ng
 
 # Install Git
 RUN set -ex \
@@ -180,7 +180,7 @@ RUN set -ex \
 # ===== PDK dependencies =====
 
 # Package managers
-RUN npm install -g @aws/pdk aws-cdk bun pnpm projen yarn
+RUN npm install -g @aws/pdk aws-cdk bun pnpm@8 projen yarn
 
 # Poetry setup
 RUN curl -sSL https://install.python-poetry.org | python
