@@ -15,9 +15,9 @@ import {
 
 const PACK_COMMAND = [
   "rm -rf build",
-  "pnpm --config.shamefully-hoist=true --config.node-linker=hoisted --config.hoist=true --config.symlinks=false --config.shared-workspace-lockfile=false --filter=@aws/pdk -P deploy build",
+  "pnpm --config.shamefully-hoist=true --config.hoist=true --config.symlinks=false --config.shared-workspace-lockfile=false --filter=@aws/pdk deploy build",
   "cd build",
-  "npm pack",
+  "pnpm pack",
   "mv *.tgz ..",
   "cd ..",
   "rm -rf build",
@@ -349,9 +349,7 @@ class PDKRelease extends Release {
   private updateJavaPackageTask = (project: Project): void => {
     project.tasks
       .tryFind("package:java")
-      ?.reset(
-        `jsii-pacmak -vvvv --target java --pack-command='${PACK_COMMAND}'`
-      );
+      ?.reset(`jsii-pacmak -v --target java --pack-command='${PACK_COMMAND}'`);
   };
 
   /**
@@ -362,7 +360,7 @@ class PDKRelease extends Release {
   private updateJsPackageTask = (project: Project): void => {
     project.tasks
       .tryFind("package:js")
-      ?.reset(`jsii-pacmak -vvvv --target js --pack-command='${PACK_COMMAND}'`);
+      ?.reset(`jsii-pacmak -v --target js --pack-command='${PACK_COMMAND}'`);
   };
 
   /**
@@ -374,7 +372,7 @@ class PDKRelease extends Release {
     project.tasks
       .tryFind("package:python")
       ?.reset(
-        `jsii-pacmak -vvvv --target python --pack-command='${PACK_COMMAND}'`
+        `jsii-pacmak -v --target python --pack-command='${PACK_COMMAND}'`
       );
   };
 }
