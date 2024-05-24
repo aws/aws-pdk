@@ -1,7 +1,6 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
 import { PDKNag } from "@aws/pdk-nag";
 import { CustomResource, Duration, Size, Stack } from "aws-cdk-lib";
@@ -29,6 +28,7 @@ import {
 } from "aws-cdk-lib/aws-lambda";
 import { LogGroup } from "aws-cdk-lib/aws-logs";
 import { Asset } from "aws-cdk-lib/aws-s3-assets";
+import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import {
   CfnIPSet,
   CfnWebACL,
@@ -121,6 +121,9 @@ export class TypeSafeRestApi extends Construct {
     const inputSpecAsset = new Asset(this, "InputSpec", {
       path: specPath,
     });
+    // We'll output the prepared spec options in the same asset bucket
+    const preparedSpecOptionsKeyPrefix = `${inputSpecAsset.s3ObjectKey}-options`;
+
     // We'll output the prepared spec in the same asset bucket
     const preparedSpecOutputKeyPrefix = `${inputSpecAsset.s3ObjectKey}-prepared`;
 
@@ -169,27 +172,14 @@ export class TypeSafeRestApi extends Construct {
       apiKeyOptions: options.apiKeyOptions,
     };
 
-    // We'll write the configuration to a file in the same bucket as the spec (in order to prevent large inline payloads)
-    const inputConfigFolderPath = path.join(
-      os.tmpdir(),
-      "@aws",
-      "type-safe-api"
-    );
-    const inputConfigPath = path.join(inputConfigFolderPath, "config.json");
-
-    // Ensure the directory exists
-    fs.mkdirSync(inputConfigFolderPath, { recursive: true });
-
-    // Write the configuration to a temporary file
-    fs.writeFileSync(inputConfigPath, JSON.stringify(prepareSpecOptions));
-
-    // Upload the configuration to s3 as an asset
-    const inputConfigAsset = new Asset(this, "InputConfig", {
-      path: inputConfigPath,
+    // Upload the configuration to s3 as a s3 deployment asset (support deploy-time values)
+    new BucketDeployment(this, "OptionsDeployment", {
+      sources: [
+        Source.jsonData("preparedSpecOptions.json", prepareSpecOptions),
+      ],
+      destinationBucket: inputSpecAsset.bucket,
+      destinationKeyPrefix: preparedSpecOptionsKeyPrefix,
     });
-
-    // Delete the temporary configuration file
-    fs.unlinkSync(inputConfigPath);
 
     // Lambda name prefix is truncated to 48 characters (16 below the max of 64)
     const lambdaNamePrefix = `${PDKNag.getStackPrefix(stack)
@@ -223,8 +213,10 @@ export class TypeSafeRestApi extends Construct {
               actions: ["s3:getObject"],
               resources: [
                 inputSpecAsset.bucket.arnForObjects(inputSpecAsset.s3ObjectKey),
-                inputConfigAsset.bucket.arnForObjects(
-                  inputConfigAsset.s3ObjectKey
+                // The options file will include a hash of the prepared spec, which is not known until deploy time since
+                // tokens must be resolved
+                inputSpecAsset.bucket.arnForObjects(
+                  `${preparedSpecOptionsKeyPrefix}/*`
                 ),
               ],
             }),
@@ -365,9 +357,9 @@ export class TypeSafeRestApi extends Construct {
           bucket: inputSpecAsset.bucket.bucketName,
           key: inputSpecAsset.s3ObjectKey,
         },
-        inputConfigLocation: {
-          bucket: inputConfigAsset.bucket.bucketName,
-          key: inputConfigAsset.s3ObjectKey,
+        inputOptionsLocation: {
+          bucket: inputSpecAsset.bucket.bucketName,
+          key: `${preparedSpecOptionsKeyPrefix}/preparedSpecOptions.json`,
         },
         outputSpecLocation: {
           bucket: inputSpecAsset.bucket.bucketName,
