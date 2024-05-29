@@ -173,13 +173,18 @@ export class TypeSafeRestApi extends Construct {
     };
 
     // Upload the configuration to s3 as a s3 deployment asset (support deploy-time values)
-    new BucketDeployment(this, "OptionsDeployment", {
-      sources: [
-        Source.jsonData("preparedSpecOptions.json", prepareSpecOptions),
-      ],
-      destinationBucket: inputSpecAsset.bucket,
-      destinationKeyPrefix: preparedSpecOptionsKeyPrefix,
-    });
+    const inputOptionsDeployment = new BucketDeployment(
+      this,
+      "OptionsDeployment",
+      {
+        sources: [
+          Source.jsonData("preparedSpecOptions.json", prepareSpecOptions),
+        ],
+        destinationBucket: inputSpecAsset.bucket,
+        destinationKeyPrefix: preparedSpecOptionsKeyPrefix,
+        prune: false,
+      }
+    );
 
     // Lambda name prefix is truncated to 48 characters (16 below the max of 64)
     const lambdaNamePrefix = `${PDKNag.getStackPrefix(stack)
@@ -358,7 +363,7 @@ export class TypeSafeRestApi extends Construct {
           key: inputSpecAsset.s3ObjectKey,
         },
         inputOptionsLocation: {
-          bucket: inputSpecAsset.bucket.bucketName,
+          bucket: inputOptionsDeployment.deployedBucket.bucketName,
           key: `${preparedSpecOptionsKeyPrefix}/preparedSpecOptions.json`,
         },
         outputSpecLocation: {
