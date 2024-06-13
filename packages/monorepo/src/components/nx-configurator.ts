@@ -537,12 +537,9 @@ export class NxConfigurator extends Component implements INxProjectCore {
    */
   private _addLicenses() {
     [this.project, ...this.project.subprojects]
-      .filter(
-        (p) =>
-          !this.licenseOptions?.disableDefaultLicenses &&
-          p.components.find((c) => c instanceof License) === undefined
-      )
+      .filter(() => !this.licenseOptions?.disableDefaultLicenses)
       .forEach((p) => {
+        p.tryRemoveFile("LICENSE");
         if (!this.licenseOptions) {
           new License(p, {
             spdx: DEFAULT_LICENSE,
