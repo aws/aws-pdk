@@ -12,7 +12,7 @@ class ApplicationStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
+        user_identity = UserIdentity(self, '{}UserIdentity'.format(id){{#allowSignup}}, allow_signup=True{{/allowSignup}})
         {{#typeSafeApis}}
         {{#cloudscapeReactTsWebsites.0}}{{{apiNameLowercase}}} = {{/cloudscapeReactTsWebsites.0}}{{{apiName}}}(self, '{{{apiName}}}', user_identity)
         {{/typeSafeApis}}

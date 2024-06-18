@@ -9,7 +9,8 @@ import {{{groupId}}}.constructs.apis.{{{apiName}}};
 import {{{groupId}}}.constructs.websites.{{{websiteName}}};
 {{/cloudscapeReactTsWebsites}}
 import software.aws.pdk.identity.UserIdentity;
-import software.constructs.Construct;
+{{#allowSignup}}import software.aws.pdk.identity.UserIdentityProps;
+{{/allowSignup}}import software.constructs.Construct;
 
 public class ApplicationStack extends Stack {
     public ApplicationStack(Construct scope, String id) {
@@ -19,7 +20,10 @@ public class ApplicationStack extends Stack {
     public ApplicationStack(Construct scope, String id, StackProps props) {
         super(scope, id, props);
 
-        UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id));
+        UserIdentity userIdentity = new UserIdentity(this, String.format("%sUserIdentity", id){{#allowSignup}},
+          UserIdentityProps.builder()
+            .allowSignup(true)
+            .build(){{/allowSignup}});
         {{#typeSafeApis}}
         {{#cloudscapeReactTsWebsites.0}}{{{apiName}}} {{{apiNameLowercase}}} = {{/cloudscapeReactTsWebsites.0}}new {{{apiName}}}(this, "{{{apiName}}}", userIdentity);
         {{/typeSafeApis}}
