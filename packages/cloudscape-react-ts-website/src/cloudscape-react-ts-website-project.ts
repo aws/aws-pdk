@@ -31,6 +31,13 @@ export interface CloudscapeReactTsWebsiteProjectOptions
   readonly publicDir?: string;
 
   /**
+   * Whether to enable self sign-up.
+   *
+   * @default false
+   */
+  readonly allowSignup?: boolean;
+
+  /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
    * @deprecated use typeSafeApis
    */
@@ -54,6 +61,7 @@ export interface CloudscapeReactTsWebsiteProjectOptions
  */
 export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
   public readonly applicationName: string;
+  public readonly allowSignup: boolean;
   public readonly publicDir: string;
   public readonly typeSafeApis?: TypeSafeApiProject[];
   public readonly typeSafeWebSocketApis?: TypeSafeWebSocketApiProject[];
@@ -106,6 +114,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
     this.testTask.exec("react-scripts test --watchAll=false --passWithNoTests");
 
     this.applicationName = options.applicationName ?? "Sample App";
+    this.allowSignup = options.allowSignup ?? false;
     this.publicDir = options.publicDir ?? "public";
     const srcDir = path.resolve(
       __dirname,
@@ -173,6 +182,7 @@ export class CloudscapeReactTsWebsiteProject extends ReactTypeScriptProject {
       typeSafeApisReversed: [...apis].reverse(),
       typeSafeWebSocketApis: webSocketApis,
       typeSafeWebSocketApisReversed: [...webSocketApis].reverse(),
+      allowSignup: options.allowSignup ?? false,
     };
 
     new SampleDir(this, this.srcdir, {

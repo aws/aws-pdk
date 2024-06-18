@@ -15,7 +15,9 @@ export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const userIdentity = new UserIdentity(this, `${id}UserIdentity`);
+    const userIdentity = new UserIdentity(this, `${id}UserIdentity`{{#allowSignup}}, {
+      allowSignup: true,
+    }{{/allowSignup}});
     {{#typeSafeApis}}
     {{#cloudscapeReactTsWebsites.0}}const {{{apiNameLowercase}}} = {{/cloudscapeReactTsWebsites.0}}new {{{apiName}}}(this, "{{{apiName}}}", {
       userIdentity,

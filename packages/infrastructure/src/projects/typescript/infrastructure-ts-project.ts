@@ -29,6 +29,13 @@ export interface InfrastructureTsProjectOptions
   readonly stackName?: string;
 
   /**
+   * Allow self sign up for the UserIdentity construct.
+   *
+   * @default - false
+   */
+  readonly allowSignup?: boolean;
+
+  /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
    * @deprecated use typeSafeApis
    */
@@ -135,6 +142,7 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
 
     const mustacheConfig = {
       stackName: options.stackName || DEFAULT_STACK_NAME,
+      allowSignup: options.allowSignup ?? false,
       typeSafeApis: this.generateTypeSafeMustacheConfig(typeSafeApis),
       typeSafeWebSocketApis: this.generateTypeSafeMustacheConfig(
         typeSafeWebSocketApis

@@ -24,6 +24,13 @@ export interface InfrastructureJavaProjectOptions extends AwsCdkJavaAppOptions {
   readonly stackName?: string;
 
   /**
+   * Allow self sign up for the UserIdentity construct.
+   *
+   * @default - false
+   */
+  readonly allowSignup?: boolean;
+
+  /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
    * @deprecated use typeSafeApis
    */
@@ -149,6 +156,7 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
 
     const mustacheConfig = {
       stackName: options.stackName || DEFAULT_STACK_NAME,
+      allowSignup: options.allowSignup ?? false,
       groupId,
       typeSafeApis: this.generateTypeSafeMustacheConfig(groupId, typeSafeApis),
       cloudscapeReactTsWebsites: cloudscapeReactTsWebsites.map((csWebsite) => {

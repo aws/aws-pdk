@@ -24,6 +24,13 @@ export interface InfrastructurePyProjectOptions extends AwsCdkPythonAppOptions {
   readonly stackName?: string;
 
   /**
+   * Allow self sign up for the UserIdentity construct.
+   *
+   * @default - false
+   */
+  readonly allowSignup?: boolean;
+
+  /**
    * TypeSafeApi instance to use when setting up the initial project sample code.
    * @deprecated use typeSafeApis
    */
@@ -128,6 +135,7 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
 
     const mustacheConfig = {
       stackName: options.stackName || DEFAULT_STACK_NAME,
+      allowSignup: options.allowSignup ?? false,
       moduleName,
       typeSafeApis: this.generateTypeSafeMustacheConfig(
         moduleName,

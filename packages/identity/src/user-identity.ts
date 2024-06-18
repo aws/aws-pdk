@@ -17,6 +17,13 @@ const WEB_CLIENT_ID = "WebClient";
  */
 export interface UserIdentityProps {
   /**
+   * Allow self sign up
+   *
+   * @default - false
+   */
+  readonly allowSignup?: boolean;
+
+  /**
    * User provided Cognito UserPool.
    *
    * @default - a userpool with mfa will be created.
@@ -42,7 +49,11 @@ export class UserIdentity extends Construct {
 
     // Unless explicitly stated, created a default Cognito User Pool and Web Client.
     this.userPool = !props?.userPool
-      ? new UserPoolWithMfa(this, "UserPool")
+      ? new UserPoolWithMfa(
+          this,
+          "UserPool",
+          props?.allowSignup ? { selfSignUpEnabled: true } : undefined
+        )
       : props.userPool;
 
     this.identityPool = new IdentityPool(
