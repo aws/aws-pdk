@@ -1,5 +1,7 @@
 package {{{groupId}}};
 
+import software.amazon.awscdk.Environment;
+import software.amazon.awscdk.StackProps;
 import software.aws.pdk.cdk_graph.CdkGraph;
 import software.aws.pdk.cdk_graph.FilterPreset;
 import software.aws.pdk.cdk_graph.Filters;
@@ -26,7 +28,20 @@ public class Main {
         .nagPacks(Arrays.asList(new AwsPrototypingChecks()))
         .build());
 
-    new ApplicationStack(app, "{{{stackName}}}");
+    new ApplicationStack(app, "{{{stackName}}}-sandbox", StackProps.builder()
+        .env(Environment.builder()
+            .account(System.getenv("CDK_DEFAULT_ACCOUNT"))
+            .region(System.getenv("CDK_DEFAULT_REGION"))
+            .build())
+        .build());
+    {{#stages}}
+    new ApplicationStack(app, "{{{stackName}}}-{{{stageName}}}", StackProps.builder()
+        .env(Environment.builder()
+            .account("{{{account}}}")
+            .region("{{{region}}}")
+            .build())
+        .build());
+    {{/stages}}
 
     CdkGraph graph = new CdkGraph(app, ICdkGraphProps.builder()
         .plugins(Arrays.asList(

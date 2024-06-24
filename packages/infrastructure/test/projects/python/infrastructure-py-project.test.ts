@@ -28,6 +28,30 @@ describe("InfrastructurePyProject", () => {
     expect(synthSnapshot(project)).toMatchSnapshot();
   });
 
+  it("With Stages", () => {
+    const project = new InfrastructurePyProject({
+      name: "WithStages",
+      stages: [
+        {
+          stageName: "Beta",
+          account: 1,
+          region: "us-west-2",
+        },
+        {
+          stageName: "Gamma",
+          account: 2,
+          region: "us-west-2",
+        },
+        {
+          stageName: "Prod",
+          account: 3,
+          region: "us-west-2",
+        },
+      ],
+    });
+    expect(synthSnapshot(project)).toMatchSnapshot();
+  });
+
   it("With Api", () => {
     expect(
       snapshot(({ typeSafeApi }) => ({
