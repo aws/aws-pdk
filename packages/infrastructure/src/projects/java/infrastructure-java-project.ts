@@ -9,6 +9,7 @@ import * as Mustache from "mustache";
 import { DependencyType, SampleFile } from "projen";
 import { AwsCdkJavaApp } from "projen/lib/awscdk";
 import { AwsCdkJavaAppOptions } from "./aws-cdk-java-app-options";
+import { DeploymentStage } from "../../components/deployment-stage";
 import { InfrastructureCommands } from "../../components/infrastructure-commands";
 import { DEFAULT_STACK_NAME } from "../../consts";
 
@@ -22,6 +23,11 @@ export interface InfrastructureJavaProjectOptions extends AwsCdkJavaAppOptions {
    * @default infra-dev
    */
   readonly stackName?: string;
+
+  /**
+   * List of deployment stages.
+   */
+  readonly stages?: DeploymentStage[];
 
   /**
    * Allow self sign up for the UserIdentity construct.
@@ -158,6 +164,7 @@ export class InfrastructureJavaProject extends AwsCdkJavaApp {
       stackName: options.stackName || DEFAULT_STACK_NAME,
       allowSignup: options.allowSignup ?? false,
       groupId,
+      stages: options.stages || [],
       typeSafeApis: this.generateTypeSafeMustacheConfig(groupId, typeSafeApis),
       cloudscapeReactTsWebsites: cloudscapeReactTsWebsites.map((csWebsite) => {
         const websiteName = this.capitalize(

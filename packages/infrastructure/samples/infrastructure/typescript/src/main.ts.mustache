@@ -10,7 +10,21 @@ import { ApplicationStack } from "./stacks/application-stack";
     nagPacks: [new AwsPrototypingChecks()],
   });
 
-  new ApplicationStack(app, "{{{stackName}}}");
+  // Use this to deploy your own sandbox environment (assumes your CLI credentials)
+  new ApplicationStack(app, "{{{stackName}}}-sandbox", {
+    env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION,
+    },
+  });
+  {{#stages}}
+  new ApplicationStack(app, "{{{stackName}}}-{{{stageName}}}", {
+    env: {
+        account: "{{{account}}}",
+        region: "{{{region}}}",
+    },
+  });
+  {{/stages}}
 
   const graph = new CdkGraph(app, {
     plugins: [

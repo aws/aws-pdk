@@ -454,6 +454,7 @@ class ApplicationStack(Stack):
 
 ",
   "main.py": "import os
+from aws_cdk import Environment
 from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
 from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
 from aws_pdk.cdk_graph_plugin_threat_composer import CdkGraphThreatComposerPlugin
@@ -461,7 +462,10 @@ from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
 from infra.stacks.application_stack import ApplicationStack
 
 app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
-ApplicationStack(app, "infra-dev")
+ApplicationStack(app, "infra-dev-sandbox", Environment(
+    account=os.environ["CDK_DEFAULT_ACCOUNT"],
+    region=os.environ["CDK_DEFAULT_REGION"]
+))
 
 graph = CdkGraph(app, plugins=[
     CdkGraphDiagramPlugin(
@@ -1171,6 +1175,7 @@ class ApplicationStack(Stack):
 
 ",
   "infra/main.py": "import os
+from aws_cdk import Environment
 from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
 from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
 from aws_pdk.cdk_graph_plugin_threat_composer import CdkGraphThreatComposerPlugin
@@ -1178,7 +1183,10 @@ from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
 from infra.stacks.application_stack import ApplicationStack
 
 app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
-ApplicationStack(app, "infra-dev")
+ApplicationStack(app, "infra-dev-sandbox", Environment(
+    account=os.environ["CDK_DEFAULT_ACCOUNT"],
+    region=os.environ["CDK_DEFAULT_REGION"]
+))
 
 graph = CdkGraph(app, plugins=[
     CdkGraphDiagramPlugin(
@@ -2060,6 +2068,7 @@ class ApplicationStack(Stack):
 
 ",
   "infra/main.py": "import os
+from aws_cdk import Environment
 from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
 from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
 from aws_pdk.cdk_graph_plugin_threat_composer import CdkGraphThreatComposerPlugin
@@ -2067,7 +2076,10 @@ from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
 from infra.stacks.application_stack import ApplicationStack
 
 app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
-ApplicationStack(app, "infra-dev")
+ApplicationStack(app, "infra-dev-sandbox", Environment(
+    account=os.environ["CDK_DEFAULT_ACCOUNT"],
+    region=os.environ["CDK_DEFAULT_REGION"]
+))
 
 graph = CdkGraph(app, plugins=[
     CdkGraphDiagramPlugin(
@@ -3009,6 +3021,7 @@ class ApplicationStack(Stack):
 
 ",
   "infra/main.py": "import os
+from aws_cdk import Environment
 from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
 from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
 from aws_pdk.cdk_graph_plugin_threat_composer import CdkGraphThreatComposerPlugin
@@ -3016,7 +3029,10 @@ from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
 from infra.stacks.application_stack import ApplicationStack
 
 app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
-ApplicationStack(app, "infra-dev")
+ApplicationStack(app, "infra-dev-sandbox", Environment(
+    account=os.environ["CDK_DEFAULT_ACCOUNT"],
+    region=os.environ["CDK_DEFAULT_REGION"]
+))
 
 graph = CdkGraph(app, plugins=[
     CdkGraphDiagramPlugin(
@@ -3995,6 +4011,7 @@ class ApplicationStack(Stack):
 
 ",
   "infra/main.py": "import os
+from aws_cdk import Environment
 from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
 from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
 from aws_pdk.cdk_graph_plugin_threat_composer import CdkGraphThreatComposerPlugin
@@ -4002,7 +4019,10 @@ from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
 from infra.stacks.application_stack import ApplicationStack
 
 app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
-ApplicationStack(app, "infra-dev")
+ApplicationStack(app, "infra-dev-sandbox", Environment(
+    account=os.environ["CDK_DEFAULT_ACCOUNT"],
+    region=os.environ["CDK_DEFAULT_REGION"]
+))
 
 graph = CdkGraph(app, plugins=[
     CdkGraphDiagramPlugin(
@@ -4923,6 +4943,7 @@ class ApplicationStack(Stack):
 
 ",
   "infra/main.py": "import os
+from aws_cdk import Environment
 from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
 from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
 from aws_pdk.cdk_graph_plugin_threat_composer import CdkGraphThreatComposerPlugin
@@ -4930,7 +4951,10 @@ from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
 from infra.stacks.application_stack import ApplicationStack
 
 app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
-ApplicationStack(app, "infra-dev")
+ApplicationStack(app, "infra-dev-sandbox", Environment(
+    account=os.environ["CDK_DEFAULT_ACCOUNT"],
+    region=os.environ["CDK_DEFAULT_REGION"]
+))
 
 graph = CdkGraph(app, plugins=[
     CdkGraphDiagramPlugin(
@@ -5121,6 +5145,543 @@ readme = "README.md"
 ",
   "infra/tests/__init__.py": "",
   "infra/tests/test_application_stack.py": "import pytest
+from aws_cdk import App
+from aws_cdk.assertions import Template
+from infra.stacks.application_stack import ApplicationStack
+
+def test_template_with_snapshot(snapshot):
+    app = App()
+    stack = ApplicationStack(app, "my-stack-test")
+    template = Template.from_stack(stack)
+    assert template.to_json() == snapshot
+",
+}
+`;
+
+exports[`InfrastructurePyProject With Stages 1`] = `
+{
+  ".gitattributes": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
+
+/.gitattributes linguist-generated
+/.github/workflows/pull-request-lint.yml linguist-generated
+/.gitignore linguist-generated
+/.projen/** linguist-generated
+/.projen/deps.json linguist-generated
+/.projen/files.json linguist-generated
+/.projen/tasks.json linguist-generated
+/cdk.json linguist-generated
+/pyproject.toml linguist-generated",
+  ".github/workflows/pull-request-lint.yml": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
+
+name: pull-request-lint
+on:
+  pull_request_target:
+    types:
+      - labeled
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - edited
+jobs:
+  validate:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5.4.0
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |-
+            feat
+            fix
+            chore
+          requireScope: false
+",
+  ".gitignore": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
+node_modules/
+!/.gitattributes
+!/.projen/tasks.json
+!/.projen/deps.json
+!/.projen/files.json
+!/.github/workflows/pull-request-lint.yml
+!/pyproject.toml
+/poetry.toml
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+*.mo
+*.pot
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+.scrapy
+docs/_build/
+.pybuilder/
+target/
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+__pypackages__/
+celerybeat-schedule
+celerybeat.pid
+*.sage.py
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.spyderproject
+.spyproject
+.ropeproject
+/site
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+cython_debug/
+!/cdk.json
+/cdk.out/
+.cdk.staging/
+!/.projenrc.py
+",
+  ".projen/deps.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".",
+    "dependencies": [
+      {
+        "name": "projen",
+        "type": "devenv",
+        "version": "99.99.99",
+      },
+      {
+        "name": "pytest",
+        "type": "devenv",
+        "version": "^7",
+      },
+      {
+        "name": "syrupy",
+        "type": "devenv",
+        "version": "^4",
+      },
+      {
+        "name": "aws_pdk",
+        "type": "runtime",
+        "version": "^0",
+      },
+      {
+        "name": "aws-cdk-lib",
+        "type": "runtime",
+        "version": "^2.1.0",
+      },
+      {
+        "name": "cdk_nag",
+        "type": "runtime",
+        "version": "^2",
+      },
+      {
+        "name": "constructs",
+        "type": "runtime",
+        "version": "^10.0.5",
+      },
+      {
+        "name": "python",
+        "type": "runtime",
+        "version": "^3.9",
+      },
+    ],
+  },
+  ".projen/files.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".",
+    "files": [
+      ".gitattributes",
+      ".github/workflows/pull-request-lint.yml",
+      ".gitignore",
+      ".projen/deps.json",
+      ".projen/files.json",
+      ".projen/tasks.json",
+      "cdk.json",
+      "poetry.toml",
+      "pyproject.toml",
+    ],
+  },
+  ".projen/tasks.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".",
+    "env": {
+      "PATH": "$(echo $(poetry env info -p)/bin:$PATH)",
+      "VIRTUAL_ENV": "$(poetry env info -p)",
+    },
+    "tasks": {
+      "build": {
+        "description": "Full release build",
+        "name": "build",
+        "steps": [
+          {
+            "spawn": "default",
+          },
+          {
+            "spawn": "pre-compile",
+          },
+          {
+            "spawn": "compile",
+          },
+          {
+            "spawn": "post-compile",
+          },
+          {
+            "spawn": "test",
+          },
+          {
+            "spawn": "package",
+          },
+        ],
+      },
+      "clobber": {
+        "condition": "git diff --exit-code > /dev/null",
+        "description": "hard resets to HEAD of origin and cleans the local repo",
+        "env": {
+          "BRANCH": "$(git branch --show-current)",
+        },
+        "name": "clobber",
+        "steps": [
+          {
+            "exec": "git checkout -b scratch",
+            "name": "save current HEAD in "scratch" branch",
+          },
+          {
+            "exec": "git checkout $BRANCH",
+          },
+          {
+            "exec": "git fetch origin",
+            "name": "fetch latest changes from origin",
+          },
+          {
+            "exec": "git reset --hard origin/$BRANCH",
+            "name": "hard reset to origin commit",
+          },
+          {
+            "exec": "git clean -fdx",
+            "name": "clean all untracked files",
+          },
+          {
+            "say": "ready to rock! (unpushed commits are under the "scratch" branch)",
+          },
+        ],
+      },
+      "compile": {
+        "description": "Only compile",
+        "name": "compile",
+      },
+      "default": {
+        "description": "Synthesize project files",
+        "name": "default",
+        "steps": [
+          {
+            "exec": "python .projenrc.py",
+          },
+        ],
+      },
+      "deploy": {
+        "description": "Deploys your CDK app to the AWS cloud",
+        "name": "deploy",
+        "steps": [
+          {
+            "exec": "cdk deploy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "deploy:dev": {
+        "description": "Performs a hotswap CDK deployment, useful for faster development cycles",
+        "name": "deploy:dev",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap-fallback --require-approval never",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "destroy": {
+        "description": "Destroys your cdk app in the AWS cloud",
+        "name": "destroy",
+        "steps": [
+          {
+            "exec": "cdk destroy",
+            "receiveArgs": true,
+          },
+        ],
+      },
+      "diff": {
+        "description": "Diffs the currently deployed app against your code",
+        "name": "diff",
+        "steps": [
+          {
+            "exec": "cdk diff",
+          },
+        ],
+      },
+      "eject": {
+        "description": "Remove projen from the project",
+        "env": {
+          "PROJEN_EJECTING": "true",
+        },
+        "name": "eject",
+        "steps": [
+          {
+            "spawn": "default",
+          },
+        ],
+      },
+      "install": {
+        "description": "Install dependencies and update lockfile",
+        "name": "install",
+        "steps": [
+          {
+            "exec": "poetry update",
+          },
+        ],
+      },
+      "install:ci": {
+        "description": "Install dependencies with frozen lockfile",
+        "name": "install:ci",
+        "steps": [
+          {
+            "exec": "poetry check --lock && poetry install",
+          },
+        ],
+      },
+      "package": {
+        "description": "Creates the distribution package",
+        "name": "package",
+        "steps": [
+          {
+            "exec": "poetry build",
+          },
+        ],
+      },
+      "post-compile": {
+        "description": "Runs after successful compilation",
+        "name": "post-compile",
+        "steps": [
+          {
+            "spawn": "synth:silent",
+          },
+        ],
+      },
+      "pre-compile": {
+        "description": "Prepare the project for compilation",
+        "name": "pre-compile",
+      },
+      "publish": {
+        "description": "Uploads the package to PyPI.",
+        "name": "publish",
+        "steps": [
+          {
+            "exec": "poetry publish",
+          },
+        ],
+      },
+      "publish:test": {
+        "description": "Uploads the package against a test PyPI endpoint.",
+        "name": "publish:test",
+        "steps": [
+          {
+            "exec": "poetry publish -r testpypi",
+          },
+        ],
+      },
+      "synth": {
+        "description": "Synthesizes your cdk app into cdk.out",
+        "name": "synth",
+        "steps": [
+          {
+            "exec": "cdk synth",
+          },
+        ],
+      },
+      "synth:silent": {
+        "description": "Synthesizes your cdk app into cdk.out and suppresses the template in stdout (part of "yarn build")",
+        "name": "synth:silent",
+        "steps": [
+          {
+            "exec": "cdk synth -q",
+          },
+        ],
+      },
+      "test": {
+        "description": "Run tests",
+        "name": "test",
+        "steps": [
+          {
+            "exec": "poetry run pytest tests/ \${CI:-'--snapshot-update'}",
+          },
+        ],
+      },
+      "watch": {
+        "description": "Watches changes in your source code and rebuilds and deploys to the current account",
+        "name": "watch",
+        "steps": [
+          {
+            "exec": "cdk deploy --hotswap",
+          },
+          {
+            "exec": "cdk watch",
+          },
+        ],
+      },
+    },
+  },
+  "README.md": "## Getting started
+
+Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infrastructure/index.html)",
+  "cdk.json": {
+    "//": "~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".",
+    "app": "python main.py",
+    "output": "cdk.out",
+    "watch": {
+      "exclude": [
+        "README.md",
+        "cdk*.json",
+        "requirements*.txt",
+        "source.bat",
+        "**/__init__.py",
+        "python/__pycache__",
+        "tests",
+      ],
+      "include": [
+        "**",
+      ],
+    },
+  },
+  "infra/__init__.py": "",
+  "infra/constructs/apis/__init__.py": "",
+  "infra/constructs/websites/__init__.py": "",
+  "infra/stacks/__init__.py": "",
+  "infra/stacks/application_stack.py": "from aws_cdk import Stack
+from aws_pdk.identity import UserIdentity
+from constructs import Construct
+
+class ApplicationStack(Stack):
+    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        user_identity = UserIdentity(self, '{}UserIdentity'.format(id))
+
+",
+  "main.py": "import os
+from aws_cdk import Environment
+from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
+from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
+from aws_pdk.cdk_graph_plugin_threat_composer import CdkGraphThreatComposerPlugin
+from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
+from infra.stacks.application_stack import ApplicationStack
+
+app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
+ApplicationStack(app, "infra-dev-sandbox", Environment(
+    account=os.environ["CDK_DEFAULT_ACCOUNT"],
+    region=os.environ["CDK_DEFAULT_REGION"]
+))
+ApplicationStack(app, "infra-dev-Beta", Environment(
+    account="1",
+    region="us-west-2"
+))
+ApplicationStack(app, "infra-dev-Gamma", Environment(
+    account="2",
+    region="us-west-2"
+))
+ApplicationStack(app, "infra-dev-Prod", Environment(
+    account="3",
+    region="us-west-2"
+))
+
+graph = CdkGraph(app, plugins=[
+    CdkGraphDiagramPlugin(
+        defaults=IDiagramConfigBase(
+            filter_plan=IGraphFilterPlan(
+                preset=FilterPreset.COMPACT,
+                filters=[IFilter(store=Filters.prune_custom_resources())]
+            )
+        )
+    ),
+    CdkGraphThreatComposerPlugin(),
+])
+app.synth()
+graph.report()",
+  "poetry.toml": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
+
+[repositories.testpypi]
+url = "https://test.pypi.org/legacy/"
+",
+  "pyproject.toml": "# ~~ Generated by projen. To modify, edit .projenrc.py and run "npx projen".
+
+[build-system]
+requires = [ "poetry_core>=1.0.0" ]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "WithStages"
+version = "0.0.0"
+description = ""
+authors = [ "pdkuser <user@pdk.com>" ]
+readme = "README.md"
+
+  [tool.poetry.dependencies]
+  aws_pdk = "^0"
+  aws-cdk-lib = "^2.1.0"
+  cdk_nag = "^2"
+  constructs = "^10.0.5"
+  python = "^3.9"
+
+  [tool.poetry.dev-dependencies]
+  projen = "99.99.99"
+  pytest = "^7"
+  syrupy = "^4"
+",
+  "tests/__init__.py": "",
+  "tests/test_application_stack.py": "import pytest
 from aws_cdk import App
 from aws_cdk.assertions import Template
 from infra.stacks.application_stack import ApplicationStack
@@ -5755,6 +6316,7 @@ class ApplicationStack(Stack):
 
 ",
   "infra/main.py": "import os
+from aws_cdk import Environment
 from aws_pdk.cdk_graph import CdkGraph, FilterPreset, Filters, IFilter, IGraphFilterPlan
 from aws_pdk.cdk_graph_plugin_diagram import CdkGraphDiagramPlugin, IDiagramConfigBase
 from aws_pdk.cdk_graph_plugin_threat_composer import CdkGraphThreatComposerPlugin
@@ -5762,7 +6324,10 @@ from aws_pdk.pdk_nag import PDKNag, AwsPrototypingChecks
 from infra.stacks.application_stack import ApplicationStack
 
 app = PDKNag.app(nag_packs=[AwsPrototypingChecks()])
-ApplicationStack(app, "infra-dev")
+ApplicationStack(app, "infra-dev-sandbox", Environment(
+    account=os.environ["CDK_DEFAULT_ACCOUNT"],
+    region=os.environ["CDK_DEFAULT_REGION"]
+))
 
 graph = CdkGraph(app, plugins=[
     CdkGraphDiagramPlugin(

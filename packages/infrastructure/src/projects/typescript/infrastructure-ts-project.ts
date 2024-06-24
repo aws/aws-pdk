@@ -13,6 +13,7 @@ import { SampleFile } from "projen";
 import { AwsCdkTypeScriptApp } from "projen/lib/awscdk";
 import { NodeProject } from "projen/lib/javascript";
 import { AwsCdkTypeScriptAppOptions } from "./aws-cdk-ts-app-options";
+import { DeploymentStage } from "../../components/deployment-stage";
 import { InfrastructureCommands } from "../../components/infrastructure-commands";
 import { DEFAULT_STACK_NAME } from "../../consts";
 
@@ -27,6 +28,11 @@ export interface InfrastructureTsProjectOptions
    * @default infra-dev
    */
   readonly stackName?: string;
+
+  /**
+   * List of deployment stages.
+   */
+  readonly stages?: DeploymentStage[];
 
   /**
    * Allow self sign up for the UserIdentity construct.
@@ -147,6 +153,7 @@ export class InfrastructureTsProject extends AwsCdkTypeScriptApp {
       typeSafeWebSocketApis: this.generateTypeSafeMustacheConfig(
         typeSafeWebSocketApis
       ),
+      stages: options.stages || [],
       cloudscapeReactTsWebsites: cloudscapeReactTsWebsites.map((csWebsite) => {
         const websiteName = this.capitalize(
           csWebsite.package.packageName

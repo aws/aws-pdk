@@ -9,6 +9,7 @@ import * as Mustache from "mustache";
 import { SampleFile } from "projen";
 import { AwsCdkPythonApp } from "projen/lib/awscdk";
 import { AwsCdkPythonAppOptions } from "./aws-cdk-py-app-options";
+import { DeploymentStage } from "../../components/deployment-stage";
 import { InfrastructureCommands } from "../../components/infrastructure-commands";
 import { DEFAULT_STACK_NAME } from "../../consts";
 
@@ -22,6 +23,11 @@ export interface InfrastructurePyProjectOptions extends AwsCdkPythonAppOptions {
    * @default infra-dev
    */
   readonly stackName?: string;
+
+  /**
+   * List of deployment stages.
+   */
+  readonly stages?: DeploymentStage[];
 
   /**
    * Allow self sign up for the UserIdentity construct.
@@ -141,6 +147,7 @@ export class InfrastructurePyProject extends AwsCdkPythonApp {
         moduleName,
         typeSafeApis
       ),
+      stages: options.stages || [],
       cloudscapeReactTsWebsites: cloudscapeReactTsWebsites.map((csWebsite) => {
         const websiteName = this.capitalize(
           csWebsite.package.packageName
