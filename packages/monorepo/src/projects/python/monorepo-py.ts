@@ -84,7 +84,7 @@ export class MonorepoPythonProject
     // Setup python NX plugin
     this.nx.plugins.push("@nxlv/python");
     this.installTask = this.nxConfigurator.ensureNxInstallTask({
-      "@nxlv/python": "^16",
+      "@nxlv/python": "^18",
     });
 
     // Map tasks to nx run-many

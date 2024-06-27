@@ -188,8 +188,8 @@ export class MonorepoTsProject
         },
         include: ["**/*.ts", ".projenrc.ts"],
       },
-      peerDeps: ["nx@^16", ...(options.peerDeps || [])],
-      devDeps: ["nx@^16", "@aws/pdk@^0", ...(options.devDeps || [])],
+      peerDeps: ["nx@^19", ...(options.peerDeps || [])],
+      devDeps: ["nx@^19", "@aws/pdk@^0", ...(options.devDeps || [])],
       deps: [
         "aws-cdk-lib",
         "cdk-nag",
@@ -211,10 +211,12 @@ export class MonorepoTsProject
     this.package.addEngine("node", ">=16");
     this.package.setScript(
       "install:ci",
-      NodePackageUtils.command.exec(
-        this.package.packageManager,
-        "projen install:ci"
-      )
+      !this.ejected
+        ? NodePackageUtils.command.exec(
+            this.package.packageManager,
+            "projen install:ci"
+          )
+        : "scripts/run-task install:ci"
     );
 
     switch (this.package.packageManager) {
@@ -239,17 +241,21 @@ export class MonorepoTsProject
         // Yarn Berry cannot call yarn exec without an install first! Use NPX instead.
         this.package.setScript(
           "install:ci",
-          NodePackageUtils.command.exec(
-            NodePackageManager.NPM,
-            "projen install:ci"
-          )
+          !this.ejected
+            ? NodePackageUtils.command.exec(
+                NodePackageManager.NPM,
+                "projen install:ci"
+              )
+            : "scripts/run-task install:ci"
         );
         this.package.setScript(
           "install",
-          NodePackageUtils.command.exec(
-            NodePackageManager.NPM,
-            "projen install"
-          )
+          !this.ejected
+            ? NodePackageUtils.command.exec(
+                NodePackageManager.NPM,
+                "projen install"
+              )
+            : "scripts/run-task install"
         );
         this.gitignore.addPatterns(
           ".yarn/*",
@@ -274,10 +280,11 @@ export class MonorepoTsProject
     this.package.addField("private", true);
 
     // Add alias task for "projen" to synthesize workspace
-    this.package.setScript(
-      "synth-workspace",
-      NodePackageUtils.command.projen(this.package.packageManager)
-    );
+    !this.ejected &&
+      this.package.setScript(
+        "synth-workspace",
+        NodePackageUtils.command.projen(this.package.packageManager)
+      );
 
     // Map tasks to nx run-many
     if (options.scripts == null || options.scripts.build == null) {
@@ -523,9 +530,10 @@ export class MonorepoTsProject
       upgradeDepsTask.exec(
         NodePackageUtils.command.install(this.package.packageManager)
       );
-      upgradeDepsTask.exec(
-        NodePackageUtils.command.exec(this.package.packageManager, "projen")
-      );
+      !this.ejected &&
+        upgradeDepsTask.exec(
+          NodePackageUtils.command.exec(this.package.packageManager, "projen")
+        );
 
       new JsonFile(this, ".syncpackrc.json", {
         obj:
