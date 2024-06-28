@@ -499,11 +499,6 @@ resolution-mode=highest
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
       },
       {
         "name": "typescript",
@@ -655,7 +650,7 @@ resolution-mode=highest
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -688,13 +683,13 @@ resolution-mode=highest
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,projen,typescript,constructs,openapi-typescript-typescript-runtime",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript openapi-typescript-typescript-runtime",
+            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript openapi-typescript-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -931,7 +926,6 @@ resolution-mode=highest
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -942,6 +936,9 @@ resolution-mode=highest
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -1232,15 +1229,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -1378,7 +1366,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -1411,13 +1399,13 @@ src/apis/*
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=projen,typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "pnpm update @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -1653,13 +1641,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "openapi-typescript-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -2094,6 +2083,9 @@ exports[`Type Safe Api Project Unit Tests OpenApi With typescript Infra in Monor
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -2127,9 +2119,6 @@ exports[`Type Safe Api Project Unit Tests OpenApi With typescript Infra in Monor
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -2254,6 +2243,7 @@ tsconfig.tsbuildinfo
 /.eslintrc.json
 /.gitattributes
 /.projenrc.ts
+/projenrc
 ",
   ".nxignore": "# ~~ Generated by projen. To modify, edit .projenrc.ts and run "npx projen".
 .tmp
@@ -2281,12 +2271,12 @@ tsconfig.tsbuildinfo
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "constructs",
@@ -2321,7 +2311,7 @@ tsconfig.tsbuildinfo
       {
         "name": "nx",
         "type": "build",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "prettier",
@@ -2330,7 +2320,7 @@ tsconfig.tsbuildinfo
       {
         "name": "projen",
         "type": "build",
-        "version": "^0.79.24",
+        "version": "^0.82.8",
       },
       {
         "name": "syncpack",
@@ -2363,7 +2353,7 @@ tsconfig.tsbuildinfo
       {
         "name": "nx",
         "type": "peer",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "@aws-cdk/aws-cognito-identitypool-alpha",
@@ -2586,7 +2576,7 @@ tsconfig.tsbuildinfo
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,cdk-nag",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,aws-cdk-lib,cdk-nag",
           },
           {
             "exec": "yarn install --check-files",
@@ -2936,8 +2926,8 @@ tsconfig.tsbuildinfo
     "devDependencies": {
       "@aws/pdk": "^0",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "constructs": "^10.0.0",
       "eslint": "^8",
       "eslint-config-prettier": "*",
@@ -2945,9 +2935,9 @@ tsconfig.tsbuildinfo
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
-      "nx": "16.0.0",
+      "nx": "19.0.0",
       "prettier": "*",
-      "projen": "^0.79.24",
+      "projen": "^0.82.8",
       "syncpack": "^12",
       "ts-node": "*",
       "typescript": "*",
@@ -2960,9 +2950,12 @@ tsconfig.tsbuildinfo
     "main": "lib/index.js",
     "name": "monorepo",
     "peerDependencies": {
-      "nx": "^16",
+      "nx": "^19",
     },
     "private": true,
+    "publishConfig": {
+      "access": "public",
+    },
     "resolutions": {
       "@types/babel__traverse": "7.18.2",
       "@zkochan/js-yaml": "npm:js-yaml@4.1.0",
@@ -4119,12 +4112,6 @@ mocks
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "typescript",
@@ -4266,7 +4253,7 @@ mocks
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -4299,13 +4286,13 @@ mocks
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,typescript,constructs,openapi-typescript-typescript-runtime",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript openapi-typescript-typescript-runtime",
+            "exec": "yarn upgrade @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript openapi-typescript-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -4542,7 +4529,6 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -4553,6 +4539,9 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -4837,16 +4826,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -4978,7 +4957,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -5017,7 +4996,7 @@ src/apis/*
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "yarn upgrade @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -5253,13 +5232,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "openapi-typescript-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -6069,7 +6049,6 @@ components:
       "test/**/*.ts",
       "**/*.ts",
       ".projenrc.ts",
-      ".projenrc.ts",
       "projenrc/**/*.ts",
     ],
   },
@@ -6351,11 +6330,6 @@ resolution-mode=highest
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
       },
       {
         "name": "typescript",
@@ -6507,7 +6481,7 @@ resolution-mode=highest
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -6540,13 +6514,13 @@ resolution-mode=highest
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,projen,typescript,constructs,smithy-handlers-typescript-runtime",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-handlers-typescript-runtime",
+            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-handlers-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -6783,7 +6757,6 @@ resolution-mode=highest
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -6794,6 +6767,9 @@ resolution-mode=highest
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -7084,15 +7060,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -7230,7 +7197,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -7263,13 +7230,13 @@ src/apis/*
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=projen,typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "pnpm update @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -7505,13 +7472,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-handlers-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -7703,6 +7671,9 @@ Whenever an operation is annotated with the \`@handler\` trait in Smithy (or the
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -7751,9 +7722,6 @@ Whenever an operation is annotated with the \`@handler\` trait in Smithy (or the
         },
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multi-spaces": [
@@ -7945,17 +7913,12 @@ resolution-mode=highest
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
-      },
-      {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
+        "version": "^7",
       },
       {
         "name": "esbuild",
@@ -7982,10 +7945,6 @@ resolution-mode=highest
         "name": "jest-junit",
         "type": "build",
         "version": "^15",
-      },
-      {
-        "name": "projen",
-        "type": "build",
       },
       {
         "name": "ts-jest",
@@ -8130,7 +8089,7 @@ resolution-mode=highest
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
           {
             "exec": "mkdir -p dist/lambda && rm -rf dist/lambda/*",
@@ -8190,13 +8149,13 @@ resolution-mode=highest
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/aws-lambda,@types/jest,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,ts-jest,typescript,smithy-handlers-typescript-runtime",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/aws-lambda,@types/jest,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,ts-jest,typescript",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser constructs esbuild eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen ts-jest typescript smithy-handlers-typescript-runtime",
+            "exec": "pnpm update @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser esbuild eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit ts-jest typescript smithy-handlers-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -8430,16 +8389,14 @@ resolution-mode=highest
       "@types/aws-lambda": "*",
       "@types/jest": "*",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
-      "constructs": "^10.0.0",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "esbuild": "*",
       "eslint": "^8",
       "eslint-import-resolver-typescript": "*",
       "eslint-plugin-import": "*",
       "jest": "*",
       "jest-junit": "^15",
-      "projen": "*",
       "ts-jest": "*",
       "typescript": "*",
     },
@@ -8450,6 +8407,7 @@ resolution-mode=highest
       "coveragePathIgnorePatterns": [
         "/node_modules/",
       ],
+      "coverageProvider": "v8",
       "coverageReporters": [
         "json",
         "lcov",
@@ -8468,7 +8426,7 @@ resolution-mode=highest
       ],
       "testMatch": [
         "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+        "<rootDir>/@(test|src)/**/*(*.)@(spec|test).ts?(x)",
       ],
       "testPathIgnorePatterns": [
         "/node_modules/",
@@ -8488,6 +8446,9 @@ resolution-mode=highest
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-handlers-typescript-handlers",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -9450,11 +9411,6 @@ resolution-mode=highest
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
       },
       {
         "name": "typescript",
@@ -9606,7 +9562,7 @@ resolution-mode=highest
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -9639,13 +9595,13 @@ resolution-mode=highest
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,projen,typescript,constructs,smithy-typescript-websocket-hooks-typescript-runtime",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-typescript-websocket-hooks-typescript-runtime",
+            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-typescript-websocket-hooks-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -9882,7 +9838,6 @@ resolution-mode=highest
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -9893,6 +9848,9 @@ resolution-mode=highest
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -10174,15 +10132,6 @@ src/apis/**/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -10340,7 +10289,7 @@ src/apis/**/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -10373,13 +10322,13 @@ src/apis/**/*
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=projen,typescript,@aws-crypto/sha256-js,@aws-sdk/protocol-http,@aws-sdk/signature-v4,@aws-sdk/types",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=typescript,@aws-crypto/sha256-js,@aws-sdk/protocol-http,@aws-sdk/signature-v4,@aws-sdk/types",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/node constructs projen typescript @aws-crypto/sha256-js @aws-sdk/protocol-http @aws-sdk/signature-v4 @aws-sdk/types @types/uuid @types/ws isomorphic-ws uuid ws",
+            "exec": "pnpm update @types/node typescript @aws-crypto/sha256-js @aws-sdk/protocol-http @aws-sdk/signature-v4 @aws-sdk/types @types/uuid @types/ws isomorphic-ws uuid ws",
           },
           {
             "exec": "npx projen",
@@ -10619,13 +10568,14 @@ src/apis/**/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-typescript-websocket-hooks-typescript-websocket-client",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -10816,15 +10766,6 @@ tsconfig.esm.json
         "type": "build",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-      },
-      {
         "name": "react",
         "type": "build",
       },
@@ -10953,7 +10894,7 @@ tsconfig.esm.json
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -10986,13 +10927,13 @@ tsconfig.esm.json
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/react,projen,react,typescript,smithy-typescript-websocket-hooks-typescript-websocket-client",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/react,react,typescript,smithy-typescript-websocket-hooks-typescript-websocket-client",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/node @types/react constructs projen react typescript smithy-typescript-websocket-hooks-typescript-websocket-client",
+            "exec": "pnpm update @types/node @types/react react typescript smithy-typescript-websocket-hooks-typescript-websocket-client",
           },
           {
             "exec": "npx projen",
@@ -11225,8 +11166,6 @@ tsconfig.esm.json
     "devDependencies": {
       "@types/node": "^18",
       "@types/react": "*",
-      "constructs": "^10.0.0",
-      "projen": "*",
       "react": "*",
       "typescript": "*",
     },
@@ -11235,6 +11174,9 @@ tsconfig.esm.json
     "name": "smithy-typescript-websocket-hooks-typescript-websocket-hooks",
     "peerDependencies": {
       "react": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -11432,15 +11374,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -11578,7 +11511,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -11611,13 +11544,13 @@ src/apis/*
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=projen,typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "pnpm update @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -11853,13 +11786,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-typescript-websocket-hooks-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -12944,11 +12878,6 @@ mocks
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
       },
       {
         "name": "typescript",
@@ -13099,7 +13028,7 @@ mocks
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -13132,13 +13061,13 @@ mocks
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,projen,typescript,constructs,smithy-npm-typescript-runtime",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "npm install",
           },
           {
-            "exec": "npm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-npm-typescript-runtime",
+            "exec": "npm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-npm-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -13375,7 +13304,6 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -13386,6 +13314,9 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -13676,15 +13607,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -13822,7 +13744,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -13855,13 +13777,13 @@ src/apis/*
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=projen,typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "pnpm update @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -14097,13 +14019,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-npm-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -14765,6 +14688,9 @@ exports[`Type Safe Api Project Unit Tests Smithy With npm Package Manager in Mon
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -14798,9 +14724,6 @@ exports[`Type Safe Api Project Unit Tests Smithy With npm Package Manager in Mon
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -14925,6 +14848,7 @@ tsconfig.tsbuildinfo
 /.eslintrc.json
 /.gitattributes
 /.projenrc.ts
+/projenrc
 ",
   ".nxignore": "# ~~ Generated by projen. To modify, edit .projenrc.ts and run "npx projen".
 .tmp
@@ -14952,12 +14876,12 @@ tsconfig.tsbuildinfo
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "constructs",
@@ -14992,7 +14916,7 @@ tsconfig.tsbuildinfo
       {
         "name": "nx",
         "type": "build",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "prettier",
@@ -15001,7 +14925,7 @@ tsconfig.tsbuildinfo
       {
         "name": "projen",
         "type": "build",
-        "version": "^0.79.24",
+        "version": "^0.82.8",
       },
       {
         "name": "syncpack",
@@ -15034,7 +14958,7 @@ tsconfig.tsbuildinfo
       {
         "name": "nx",
         "type": "peer",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "@aws-cdk/aws-cognito-identitypool-alpha",
@@ -15257,7 +15181,7 @@ tsconfig.tsbuildinfo
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,cdk-nag",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,aws-cdk-lib,cdk-nag",
           },
           {
             "exec": "npm install",
@@ -15607,8 +15531,8 @@ tsconfig.tsbuildinfo
     "devDependencies": {
       "@aws/pdk": "^0",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "constructs": "^10.0.0",
       "eslint": "^8",
       "eslint-config-prettier": "*",
@@ -15616,9 +15540,9 @@ tsconfig.tsbuildinfo
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
-      "nx": "16.0.0",
+      "nx": "19.0.0",
       "prettier": "*",
-      "projen": "^0.79.24",
+      "projen": "^0.82.8",
       "syncpack": "^12",
       "ts-node": "*",
       "typescript": "*",
@@ -15635,9 +15559,12 @@ tsconfig.tsbuildinfo
       "wrap-ansi": "^7.0.0",
     },
     "peerDependencies": {
-      "nx": "^16",
+      "nx": "^19",
     },
     "private": true,
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "clobber": "npx projen clobber",
@@ -16789,12 +16716,6 @@ mocks
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "typescript",
@@ -16936,7 +16857,7 @@ mocks
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -16969,13 +16890,13 @@ mocks
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,typescript,constructs,smithy-npm-typescript-runtime",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "npm install",
           },
           {
-            "exec": "npm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-npm-typescript-runtime",
+            "exec": "npm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-npm-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -17212,7 +17133,6 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -17223,6 +17143,9 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -17507,16 +17430,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -17648,7 +17561,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -17687,7 +17600,7 @@ src/apis/*
             "exec": "npm install",
           },
           {
-            "exec": "npm update @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "npm update @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -17923,13 +17836,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-npm-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -18966,7 +18880,6 @@ operation SubscribeToNotifications {
       "test/**/*.ts",
       "**/*.ts",
       ".projenrc.ts",
-      ".projenrc.ts",
       "projenrc/**/*.ts",
     ],
   },
@@ -19507,11 +19420,6 @@ resolution-mode=highest
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
       },
       {
         "name": "typescript",
@@ -19663,7 +19571,7 @@ resolution-mode=highest
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -19696,13 +19604,13 @@ resolution-mode=highest
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,projen,typescript,constructs,smithy-pnpm-typescript-runtime",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-pnpm-typescript-runtime",
+            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-pnpm-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -19939,7 +19847,6 @@ resolution-mode=highest
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -19950,6 +19857,9 @@ resolution-mode=highest
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -20240,15 +20150,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -20386,7 +20287,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -20419,13 +20320,13 @@ src/apis/*
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=projen,typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "pnpm update @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -20661,13 +20562,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-pnpm-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -21329,6 +21231,9 @@ exports[`Type Safe Api Project Unit Tests Smithy With pnpm Package Manager in Mo
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -21362,9 +21267,6 @@ exports[`Type Safe Api Project Unit Tests Smithy With pnpm Package Manager in Mo
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -21493,6 +21395,7 @@ tsconfig.tsbuildinfo
 /.eslintrc.json
 /.gitattributes
 /.projenrc.ts
+/projenrc
 ",
   ".npmrc": "# ~~ Generated by projen. To modify, edit .projenrc.ts and run "pnpm exec projen".
 
@@ -21527,12 +21430,12 @@ yes=true
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "constructs",
@@ -21567,7 +21470,7 @@ yes=true
       {
         "name": "nx",
         "type": "build",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "prettier",
@@ -21576,7 +21479,7 @@ yes=true
       {
         "name": "projen",
         "type": "build",
-        "version": "^0.79.24",
+        "version": "^0.82.8",
       },
       {
         "name": "syncpack",
@@ -21609,7 +21512,7 @@ yes=true
       {
         "name": "nx",
         "type": "peer",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "@aws-cdk/aws-cognito-identitypool-alpha",
@@ -21834,7 +21737,7 @@ yes=true
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,cdk-nag",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,aws-cdk-lib,cdk-nag",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
@@ -22184,8 +22087,8 @@ yes=true
     "devDependencies": {
       "@aws/pdk": "^0",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "constructs": "^10.0.0",
       "eslint": "^8",
       "eslint-config-prettier": "*",
@@ -22193,9 +22096,9 @@ yes=true
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
-      "nx": "16.0.0",
+      "nx": "19.0.0",
       "prettier": "*",
-      "projen": "^0.79.24",
+      "projen": "^0.82.8",
       "syncpack": "^12",
       "ts-node": "*",
       "typescript": "*",
@@ -22208,7 +22111,7 @@ yes=true
     "main": "lib/index.js",
     "name": "monorepo",
     "peerDependencies": {
-      "nx": "^16",
+      "nx": "^19",
     },
     "pnpm": {
       "overrides": {
@@ -22218,6 +22121,9 @@ yes=true
       },
     },
     "private": true,
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "pnpm exec projen build",
       "clobber": "pnpm exec projen clobber",
@@ -23371,12 +23277,6 @@ mocks
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "typescript",
@@ -23518,7 +23418,7 @@ mocks
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -23551,13 +23451,13 @@ mocks
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,typescript,constructs,smithy-pnpm-typescript-runtime",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-pnpm-typescript-runtime",
+            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-pnpm-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -23794,7 +23694,6 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -23805,6 +23704,9 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -24091,16 +23993,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -24232,7 +24124,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -24271,7 +24163,7 @@ src/apis/*
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "pnpm update @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -24507,13 +24399,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-pnpm-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -25556,7 +25449,6 @@ packages:
       "test/**/*.ts",
       "**/*.ts",
       ".projenrc.ts",
-      ".projenrc.ts",
       "projenrc/**/*.ts",
     ],
   },
@@ -26097,11 +25989,6 @@ resolution-mode=highest
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
       },
       {
         "name": "typescript",
@@ -26253,7 +26140,7 @@ resolution-mode=highest
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -26286,13 +26173,13 @@ resolution-mode=highest
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,projen,typescript,constructs,smithy-typescript-typescript-runtime",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-typescript-typescript-runtime",
+            "exec": "pnpm update @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-typescript-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -26529,7 +26416,6 @@ resolution-mode=highest
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -26540,6 +26426,9 @@ resolution-mode=highest
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -26830,15 +26719,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -26976,7 +26856,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -27009,13 +26889,13 @@ src/apis/*
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=projen,typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "pnpm update @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -27251,13 +27131,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-typescript-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -27919,6 +27800,9 @@ exports[`Type Safe Api Project Unit Tests Smithy With typescript Infra in Monore
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -27952,9 +27836,6 @@ exports[`Type Safe Api Project Unit Tests Smithy With typescript Infra in Monore
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -28079,6 +27960,7 @@ tsconfig.tsbuildinfo
 /.eslintrc.json
 /.gitattributes
 /.projenrc.ts
+/projenrc
 ",
   ".nxignore": "# ~~ Generated by projen. To modify, edit .projenrc.ts and run "npx projen".
 .tmp
@@ -28106,12 +27988,12 @@ tsconfig.tsbuildinfo
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "constructs",
@@ -28146,7 +28028,7 @@ tsconfig.tsbuildinfo
       {
         "name": "nx",
         "type": "build",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "prettier",
@@ -28155,7 +28037,7 @@ tsconfig.tsbuildinfo
       {
         "name": "projen",
         "type": "build",
-        "version": "^0.79.24",
+        "version": "^0.82.8",
       },
       {
         "name": "syncpack",
@@ -28188,7 +28070,7 @@ tsconfig.tsbuildinfo
       {
         "name": "nx",
         "type": "peer",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "@aws-cdk/aws-cognito-identitypool-alpha",
@@ -28411,7 +28293,7 @@ tsconfig.tsbuildinfo
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,cdk-nag",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,aws-cdk-lib,cdk-nag",
           },
           {
             "exec": "yarn install --check-files",
@@ -28761,8 +28643,8 @@ tsconfig.tsbuildinfo
     "devDependencies": {
       "@aws/pdk": "^0",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "constructs": "^10.0.0",
       "eslint": "^8",
       "eslint-config-prettier": "*",
@@ -28770,9 +28652,9 @@ tsconfig.tsbuildinfo
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
-      "nx": "16.0.0",
+      "nx": "19.0.0",
       "prettier": "*",
-      "projen": "^0.79.24",
+      "projen": "^0.82.8",
       "syncpack": "^12",
       "ts-node": "*",
       "typescript": "*",
@@ -28785,9 +28667,12 @@ tsconfig.tsbuildinfo
     "main": "lib/index.js",
     "name": "monorepo",
     "peerDependencies": {
-      "nx": "^16",
+      "nx": "^19",
     },
     "private": true,
+    "publishConfig": {
+      "access": "public",
+    },
     "resolutions": {
       "@types/babel__traverse": "7.18.2",
       "@zkochan/js-yaml": "npm:js-yaml@4.1.0",
@@ -29944,12 +29829,6 @@ mocks
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "typescript",
@@ -30091,7 +29970,7 @@ mocks
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -30124,13 +30003,13 @@ mocks
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,typescript,constructs,smithy-typescript-typescript-runtime",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-typescript-typescript-runtime",
+            "exec": "yarn upgrade @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-typescript-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -30367,7 +30246,6 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -30378,6 +30256,9 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -30662,16 +30543,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -30803,7 +30674,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -30842,7 +30713,7 @@ src/apis/*
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "yarn upgrade @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -31078,13 +30949,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-typescript-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -32121,7 +31993,6 @@ operation SubscribeToNotifications {
       "test/**/*.ts",
       "**/*.ts",
       ".projenrc.ts",
-      ".projenrc.ts",
       "projenrc/**/*.ts",
     ],
   },
@@ -32669,11 +32540,6 @@ mocks
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
       },
       {
         "name": "typescript",
@@ -32825,7 +32691,7 @@ mocks
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -32858,13 +32724,13 @@ mocks
         "name": "upgrade",
         "steps": [
           {
-            "exec": "yarn dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,projen,typescript,constructs,smithy-yarn-berry-typescript-runtime",
+            "exec": "yarn dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "yarn install",
           },
           {
-            "exec": "yarn up @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-yarn-berry-typescript-runtime",
+            "exec": "yarn up @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-yarn-berry-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -33105,7 +32971,6 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -33117,6 +32982,9 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -33407,15 +33275,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -33553,7 +33412,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -33586,13 +33445,13 @@ src/apis/*
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=projen,typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "pnpm update @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -33828,13 +33687,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-yarn-berry-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -34496,6 +34356,9 @@ exports[`Type Safe Api Project Unit Tests Smithy With yarn_berry Package Manager
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -34529,9 +34392,6 @@ exports[`Type Safe Api Project Unit Tests Smithy With yarn_berry Package Manager
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -34670,6 +34530,7 @@ tsconfig.tsbuildinfo
 /.eslintrc.json
 /.gitattributes
 /.projenrc.ts
+/projenrc
 ",
   ".nxignore": "# ~~ Generated by projen. To modify, edit .projenrc.ts and run "yarn exec projen".
 .tmp
@@ -34697,12 +34558,12 @@ tsconfig.tsbuildinfo
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "constructs",
@@ -34737,7 +34598,7 @@ tsconfig.tsbuildinfo
       {
         "name": "nx",
         "type": "build",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "prettier",
@@ -34746,7 +34607,7 @@ tsconfig.tsbuildinfo
       {
         "name": "projen",
         "type": "build",
-        "version": "^0.79.24",
+        "version": "^0.82.8",
       },
       {
         "name": "syncpack",
@@ -34779,7 +34640,7 @@ tsconfig.tsbuildinfo
       {
         "name": "nx",
         "type": "peer",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "@aws-cdk/aws-cognito-identitypool-alpha",
@@ -35003,7 +34864,7 @@ tsconfig.tsbuildinfo
         "name": "upgrade",
         "steps": [
           {
-            "exec": "yarn dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,cdk-nag",
+            "exec": "yarn dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,aws-cdk-lib,cdk-nag",
           },
           {
             "exec": "yarn install",
@@ -35357,8 +35218,8 @@ tsconfig.tsbuildinfo
     "devDependencies": {
       "@aws/pdk": "^0",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "constructs": "^10.0.0",
       "eslint": "^8",
       "eslint-config-prettier": "*",
@@ -35366,9 +35227,9 @@ tsconfig.tsbuildinfo
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
-      "nx": "16.0.0",
+      "nx": "19.0.0",
       "prettier": "*",
-      "projen": "^0.79.24",
+      "projen": "^0.82.8",
       "syncpack": "^12",
       "ts-node": "*",
       "typescript": "*",
@@ -35382,9 +35243,12 @@ tsconfig.tsbuildinfo
     "name": "monorepo",
     "packageManager": "yarn@4.0.1",
     "peerDependencies": {
-      "nx": "^16",
+      "nx": "^19",
     },
     "private": true,
+    "publishConfig": {
+      "access": "public",
+    },
     "resolutions": {
       "@types/babel__traverse": "7.18.2",
       "@zkochan/js-yaml": "npm:js-yaml@4.1.0",
@@ -36555,12 +36419,6 @@ mocks
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "typescript",
@@ -36703,7 +36561,7 @@ mocks
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -36736,13 +36594,13 @@ mocks
         "name": "upgrade",
         "steps": [
           {
-            "exec": "yarn dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,typescript,constructs,smithy-yarn-berry-typescript-runtime",
+            "exec": "yarn dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "yarn install",
           },
           {
-            "exec": "yarn up @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-yarn-berry-typescript-runtime",
+            "exec": "yarn up @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-yarn-berry-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -36983,7 +36841,6 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -36995,6 +36852,9 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -37292,16 +37152,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -37434,7 +37284,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -37473,7 +37323,7 @@ src/apis/*
             "exec": "yarn install",
           },
           {
-            "exec": "yarn up @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "yarn up @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -37713,14 +37563,15 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-yarn-berry-typescript-runtime",
     "packageManager": "yarn@4.0.1",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -38757,7 +38608,6 @@ operation SubscribeToNotifications {
       "test/**/*.ts",
       "**/*.ts",
       ".projenrc.ts",
-      ".projenrc.ts",
       "projenrc/**/*.ts",
     ],
   },
@@ -39292,11 +39142,6 @@ mocks
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
       },
       {
         "name": "typescript",
@@ -39447,7 +39292,7 @@ mocks
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -39480,13 +39325,13 @@ mocks
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,projen,typescript,constructs,smithy-yarn-classic-typescript-runtime",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-yarn-classic-typescript-runtime",
+            "exec": "yarn upgrade @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-yarn-classic-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -39723,7 +39568,6 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -39734,6 +39578,9 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -40024,15 +39871,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -40170,7 +40008,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(pnpm pack) dist/js/",
+            "exec": "pnpm pack --pack-destination dist/js",
           },
         ],
       },
@@ -40203,13 +40041,13 @@ src/apis/*
         "name": "upgrade",
         "steps": [
           {
-            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=projen,typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
+            "exec": "pnpm dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=typescript,@aws-lambda-powertools/logger,@aws-lambda-powertools/metrics,@aws-lambda-powertools/tracer,@aws-sdk/client-apigatewaymanagementapi,@types/aws-lambda",
           },
           {
             "exec": "pnpm i --no-frozen-lockfile",
           },
           {
-            "exec": "pnpm update @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "pnpm update @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -40445,13 +40283,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "*",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-yarn-classic-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -41113,6 +40952,9 @@ exports[`Type Safe Api Project Unit Tests Smithy With yarn_classic Package Manag
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -41146,9 +40988,6 @@ exports[`Type Safe Api Project Unit Tests Smithy With yarn_classic Package Manag
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -41273,6 +41112,7 @@ tsconfig.tsbuildinfo
 /.eslintrc.json
 /.gitattributes
 /.projenrc.ts
+/projenrc
 ",
   ".nxignore": "# ~~ Generated by projen. To modify, edit .projenrc.ts and run "yarn projen".
 .tmp
@@ -41300,12 +41140,12 @@ tsconfig.tsbuildinfo
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "constructs",
@@ -41340,7 +41180,7 @@ tsconfig.tsbuildinfo
       {
         "name": "nx",
         "type": "build",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "prettier",
@@ -41349,7 +41189,7 @@ tsconfig.tsbuildinfo
       {
         "name": "projen",
         "type": "build",
-        "version": "^0.79.24",
+        "version": "^0.82.8",
       },
       {
         "name": "syncpack",
@@ -41382,7 +41222,7 @@ tsconfig.tsbuildinfo
       {
         "name": "nx",
         "type": "peer",
-        "version": "^16",
+        "version": "^19",
       },
       {
         "name": "@aws-cdk/aws-cognito-identitypool-alpha",
@@ -41605,7 +41445,7 @@ tsconfig.tsbuildinfo
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,cdk-nag",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,npm-check-updates,prettier,ts-node,typescript,aws-cdk-lib,cdk-nag",
           },
           {
             "exec": "yarn install --check-files",
@@ -41955,8 +41795,8 @@ tsconfig.tsbuildinfo
     "devDependencies": {
       "@aws/pdk": "^0",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "constructs": "^10.0.0",
       "eslint": "^8",
       "eslint-config-prettier": "*",
@@ -41964,9 +41804,9 @@ tsconfig.tsbuildinfo
       "eslint-plugin-import": "*",
       "eslint-plugin-prettier": "*",
       "npm-check-updates": "*",
-      "nx": "16.0.0",
+      "nx": "19.0.0",
       "prettier": "*",
-      "projen": "^0.79.24",
+      "projen": "^0.82.8",
       "syncpack": "^12",
       "ts-node": "*",
       "typescript": "*",
@@ -41979,9 +41819,12 @@ tsconfig.tsbuildinfo
     "main": "lib/index.js",
     "name": "monorepo",
     "peerDependencies": {
-      "nx": "^16",
+      "nx": "^19",
     },
     "private": true,
+    "publishConfig": {
+      "access": "public",
+    },
     "resolutions": {
       "@types/babel__traverse": "7.18.2",
       "@zkochan/js-yaml": "npm:js-yaml@4.1.0",
@@ -43138,12 +42981,6 @@ mocks
       {
         "name": "constructs",
         "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "typescript",
@@ -43285,7 +43122,7 @@ mocks
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -43318,13 +43155,13 @@ mocks
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,typescript,constructs,smithy-yarn-classic-typescript-runtime",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws/pdk,@types/aws-lambda,aws-cdk-lib,cdk-nag,constructs,typescript",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs projen typescript smithy-yarn-classic-typescript-runtime",
+            "exec": "yarn upgrade @aws/pdk @types/aws-lambda @types/node aws-cdk-lib cdk-nag constructs typescript smithy-yarn-classic-typescript-runtime",
           },
           {
             "exec": "npx projen",
@@ -43561,7 +43398,6 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
@@ -43572,6 +43408,9 @@ mocks
       "aws-cdk-lib": "*",
       "cdk-nag": "*",
       "constructs": "*",
+    },
+    "publishConfig": {
+      "access": "public",
     },
     "scripts": {
       "build": "npx projen build",
@@ -43856,16 +43695,6 @@ src/apis/*
         "version": "^18",
       },
       {
-        "name": "constructs",
-        "type": "build",
-        "version": "^10.0.0",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
-      },
-      {
         "name": "typescript",
         "type": "build",
       },
@@ -43997,7 +43826,7 @@ src/apis/*
             "exec": "mkdir -p dist/js",
           },
           {
-            "exec": "mv $(npm pack) dist/js/",
+            "exec": "npm pack --pack-destination dist/js",
           },
         ],
       },
@@ -44036,7 +43865,7 @@ src/apis/*
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @types/node constructs projen typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
+            "exec": "yarn upgrade @types/node typescript @aws-lambda-powertools/logger @aws-lambda-powertools/metrics @aws-lambda-powertools/tracer @aws-sdk/client-apigatewaymanagementapi @types/aws-lambda",
           },
           {
             "exec": "npx projen",
@@ -44272,13 +44101,14 @@ src/apis/*
     },
     "devDependencies": {
       "@types/node": "^18",
-      "constructs": "^10.0.0",
-      "projen": "^0.79.24",
       "typescript": "*",
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
     "name": "smithy-yarn-classic-typescript-runtime",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "compile": "npx projen compile",
@@ -45314,7 +45144,6 @@ operation SubscribeToNotifications {
       "src/**/*.ts",
       "test/**/*.ts",
       "**/*.ts",
-      ".projenrc.ts",
       ".projenrc.ts",
       "projenrc/**/*.ts",
     ],

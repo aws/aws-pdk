@@ -348,7 +348,9 @@ export class NxProject extends Component {
       })
       .forEach((task) => {
         // Non-NodeProject don't have package.json so exec bubbles to the root.
-        const command = isNodeProject
+        const command = this.project.ejected
+          ? `scripts/run-task ${task.name}`
+          : isNodeProject
           ? NodePackageUtils.command.projen(packageManager, task.name)
           : NodePackageUtils.command.downloadExec(
               packageManager,

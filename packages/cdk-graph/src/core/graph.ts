@@ -2578,7 +2578,7 @@ export class RootNode extends Node {
   static readonly PATH = "";
 
   /** Indicates if node is a {@link RootNode} */
-  static isRootNode(node: Node): node is RootNode {
+  static isRootNode(node: Node): boolean {
     return node.nodeType === NodeTypeEnum.ROOT;
   }
 

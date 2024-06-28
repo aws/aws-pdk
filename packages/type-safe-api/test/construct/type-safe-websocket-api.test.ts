@@ -79,7 +79,7 @@ describe("Type Safe WebSocket Api Construct Unit Tests", () => {
     ["AwsPrototypingChecks", new AwsPrototypingChecks()],
     ["AwsSolutionsChecks", new AwsSolutionsChecks()],
   ])("Has no nag errors for pack %s", (_name, nagPack) => {
-    const app = PDKNag.app({ nagPacks: [nagPack] });
+    const app = PDKNag.app({ nagPacks: [nagPack], failOnError: true });
     const stack = new Stack(app);
     const func = new Function(stack, "Lambda", {
       code: Code.fromInline("code"),
@@ -113,8 +113,7 @@ describe("Type Safe WebSocket Api Construct Unit Tests", () => {
         },
       });
     });
-    app.synth();
-    expect(app.nagResults()).toHaveLength(0);
+    app.synth(); // Should not throw
   });
 
   it("Synthesizes With Connect and Disconnect", () => {

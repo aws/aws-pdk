@@ -458,8 +458,8 @@ export class NxConfigurator extends Component implements INxProjectCore {
         obj: {
           devDependencies: {
             ...this.nxPlugins,
-            nx: "^16",
-            "@nx/devkit": "^16",
+            nx: "^19",
+            "@nx/devkit": "^19",
           },
           private: true,
           engines: {
@@ -471,10 +471,12 @@ export class NxConfigurator extends Component implements INxProjectCore {
               .filter((t) => t.name !== "install")
               .map((c) => [
                 c.name,
-                NodePackageUtils.command.projen(
-                  NodePackageManager.PNPM,
-                  c.name
-                ),
+                !this.project.ejected
+                  ? NodePackageUtils.command.projen(
+                      NodePackageManager.PNPM,
+                      c.name
+                    )
+                  : `scripts/run-task ${c.name}`,
               ])
           ),
         },

@@ -73,6 +73,9 @@ exports[`InfrastructureTsProject Defaults 1`] = `
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -104,9 +107,6 @@ exports[`InfrastructureTsProject Defaults 1`] = `
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -193,6 +193,7 @@ jobs:
         run: |-
           git add .
           git diff --staged --patch --exit-code > .repo.patch || echo "self_mutation_happened=true" >> $GITHUB_OUTPUT
+        working-directory: ./
       - name: Upload patch
         if: steps.self_mutation.outputs.self_mutation_happened
         uses: actions/upload-artifact@v4
@@ -294,6 +295,7 @@ jobs:
         run: |-
           git add .
           git diff --staged --patch --exit-code > .repo.patch || echo "patch_created=true" >> $GITHUB_OUTPUT
+        working-directory: ./
       - name: Upload patch
         if: steps.create_patch.outputs.patch_created
         uses: actions/upload-artifact@v4
@@ -479,12 +481,12 @@ cdk.out/
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "aws-cdk",
@@ -1083,8 +1085,8 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     "devDependencies": {
       "@types/jest": "*",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "aws-cdk": "^2.1.0",
       "esbuild": "*",
       "eslint": "^8",
@@ -1107,6 +1109,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "coveragePathIgnorePatterns": [
         "/node_modules/",
       ],
+      "coverageProvider": "v8",
       "coverageReporters": [
         "json",
         "lcov",
@@ -1125,7 +1128,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
       "testMatch": [
         "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+        "<rootDir>/@(test|src)/**/*(*.)@(spec|test).ts?(x)",
       ],
       "testPathIgnorePatterns": [
         "/node_modules/",
@@ -1144,6 +1147,9 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     },
     "license": "Apache-2.0",
     "name": "Defaults",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "bundle": "npx projen bundle",
@@ -1295,9 +1301,7 @@ test("Snapshot", () => {
       "stripInternal": true,
       "target": "ES2019",
     },
-    "exclude": [
-      "cdk.out",
-    ],
+    "exclude": [],
     "include": [
       "src/**/*.ts",
     ],
@@ -1367,6 +1371,9 @@ exports[`InfrastructureTsProject With Api 1`] = `
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -1398,9 +1405,6 @@ exports[`InfrastructureTsProject With Api 1`] = `
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -1547,12 +1551,12 @@ cdk.out/
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "aws-cdk",
@@ -1596,11 +1600,6 @@ cdk.out/
       {
         "name": "prettier",
         "type": "build",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "ts-jest",
@@ -1832,13 +1831,13 @@ cdk.out/
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,@aws/pdk,Api-typescript-infra,cdk-nag",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,@aws/pdk,cdk-nag",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen ts-jest ts-node typescript @aws/pdk Api-typescript-infra aws-cdk-lib cdk-nag constructs",
+            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier ts-jest ts-node typescript @aws/pdk Api-typescript-infra aws-cdk-lib cdk-nag constructs",
           },
           {
             "exec": "npx projen",
@@ -2102,8 +2101,8 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     "devDependencies": {
       "@types/jest": "*",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "aws-cdk": "^2.1.0",
       "esbuild": "*",
       "eslint": "^8",
@@ -2114,7 +2113,6 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "jest": "*",
       "jest-junit": "^15",
       "prettier": "*",
-      "projen": "^0.79.24",
       "ts-jest": "*",
       "ts-node": "*",
       "typescript": "*",
@@ -2126,6 +2124,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "coveragePathIgnorePatterns": [
         "/node_modules/",
       ],
+      "coverageProvider": "v8",
       "coverageReporters": [
         "json",
         "lcov",
@@ -2144,7 +2143,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
       "testMatch": [
         "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+        "<rootDir>/@(test|src)/**/*(*.)@(spec|test).ts?(x)",
       ],
       "testPathIgnorePatterns": [
         "/node_modules/",
@@ -2163,6 +2162,9 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     },
     "license": "Apache-2.0",
     "name": "WithApi",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "bundle": "npx projen bundle",
@@ -2532,9 +2534,7 @@ test("Snapshot", () => {
       "stripInternal": true,
       "target": "ES2019",
     },
-    "exclude": [
-      "cdk.out",
-    ],
+    "exclude": [],
     "include": [
       "src/**/*.ts",
     ],
@@ -2604,6 +2604,9 @@ exports[`InfrastructureTsProject With Api and Website 1`] = `
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -2635,9 +2638,6 @@ exports[`InfrastructureTsProject With Api and Website 1`] = `
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -2784,12 +2784,12 @@ cdk.out/
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "aws-cdk",
@@ -2833,11 +2833,6 @@ cdk.out/
       {
         "name": "prettier",
         "type": "build",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "ts-jest",
@@ -3074,13 +3069,13 @@ cdk.out/
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,Website,@aws/pdk,Api-typescript-infra,cdk-nag",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,@aws/pdk,cdk-nag",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen ts-jest ts-node typescript Website @aws/pdk Api-typescript-infra aws-cdk-lib cdk-nag constructs",
+            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier ts-jest ts-node typescript Website @aws/pdk Api-typescript-infra aws-cdk-lib cdk-nag constructs",
           },
           {
             "exec": "npx projen",
@@ -3344,8 +3339,8 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     "devDependencies": {
       "@types/jest": "*",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "Website": "0.0.0",
       "aws-cdk": "^2.1.0",
       "esbuild": "*",
@@ -3357,7 +3352,6 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "jest": "*",
       "jest-junit": "^15",
       "prettier": "*",
-      "projen": "^0.79.24",
       "ts-jest": "*",
       "ts-node": "*",
       "typescript": "*",
@@ -3369,6 +3363,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "coveragePathIgnorePatterns": [
         "/node_modules/",
       ],
+      "coverageProvider": "v8",
       "coverageReporters": [
         "json",
         "lcov",
@@ -3387,7 +3382,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
       "testMatch": [
         "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+        "<rootDir>/@(test|src)/**/*(*.)@(spec|test).ts?(x)",
       ],
       "testPathIgnorePatterns": [
         "/node_modules/",
@@ -3406,6 +3401,9 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     },
     "license": "Apache-2.0",
     "name": "WithApi",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "bundle": "npx projen bundle",
@@ -3832,9 +3830,7 @@ test("Snapshot", () => {
       "stripInternal": true,
       "target": "ES2019",
     },
-    "exclude": [
-      "cdk.out",
-    ],
+    "exclude": [],
     "include": [
       "src/**/*.ts",
     ],
@@ -3904,6 +3900,9 @@ exports[`InfrastructureTsProject With Multiple Apis and Single Website 1`] = `
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -3935,9 +3934,6 @@ exports[`InfrastructureTsProject With Multiple Apis and Single Website 1`] = `
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -4084,12 +4080,12 @@ cdk.out/
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "aws-cdk",
@@ -4133,11 +4129,6 @@ cdk.out/
       {
         "name": "prettier",
         "type": "build",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "ts-jest",
@@ -4379,13 +4370,13 @@ cdk.out/
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,Website,@aws/pdk,Api-typescript-infra,Api2-typescript-infra,cdk-nag",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,@aws/pdk,cdk-nag",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen ts-jest ts-node typescript Website @aws/pdk Api-typescript-infra Api2-typescript-infra aws-cdk-lib cdk-nag constructs",
+            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier ts-jest ts-node typescript Website @aws/pdk Api-typescript-infra Api2-typescript-infra aws-cdk-lib cdk-nag constructs",
           },
           {
             "exec": "npx projen",
@@ -4650,8 +4641,8 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     "devDependencies": {
       "@types/jest": "*",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "Website": "0.0.0",
       "aws-cdk": "^2.1.0",
       "esbuild": "*",
@@ -4663,7 +4654,6 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "jest": "*",
       "jest-junit": "^15",
       "prettier": "*",
-      "projen": "^0.79.24",
       "ts-jest": "*",
       "ts-node": "*",
       "typescript": "*",
@@ -4675,6 +4665,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "coveragePathIgnorePatterns": [
         "/node_modules/",
       ],
+      "coverageProvider": "v8",
       "coverageReporters": [
         "json",
         "lcov",
@@ -4693,7 +4684,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
       "testMatch": [
         "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+        "<rootDir>/@(test|src)/**/*(*.)@(spec|test).ts?(x)",
       ],
       "testPathIgnorePatterns": [
         "/node_modules/",
@@ -4712,6 +4703,9 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     },
     "license": "Apache-2.0",
     "name": "WithMultipleApiAndSingleWebsite",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "bundle": "npx projen bundle",
@@ -5220,9 +5214,7 @@ test("Snapshot", () => {
       "stripInternal": true,
       "target": "ES2019",
     },
-    "exclude": [
-      "cdk.out",
-    ],
+    "exclude": [],
     "include": [
       "src/**/*.ts",
     ],
@@ -5292,6 +5284,9 @@ exports[`InfrastructureTsProject With Multiple Apis and Website 1`] = `
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -5323,9 +5318,6 @@ exports[`InfrastructureTsProject With Multiple Apis and Website 1`] = `
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -5472,12 +5464,12 @@ cdk.out/
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "aws-cdk",
@@ -5521,11 +5513,6 @@ cdk.out/
       {
         "name": "prettier",
         "type": "build",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "ts-jest",
@@ -5772,13 +5759,13 @@ cdk.out/
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,Website,Website2,@aws/pdk,Api-typescript-infra,Api2-typescript-infra,cdk-nag",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,@aws/pdk,cdk-nag",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen ts-jest ts-node typescript Website Website2 @aws/pdk Api-typescript-infra Api2-typescript-infra aws-cdk-lib cdk-nag constructs",
+            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier ts-jest ts-node typescript Website Website2 @aws/pdk Api-typescript-infra Api2-typescript-infra aws-cdk-lib cdk-nag constructs",
           },
           {
             "exec": "npx projen",
@@ -6043,8 +6030,8 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     "devDependencies": {
       "@types/jest": "*",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "Website": "0.0.0",
       "Website2": "0.0.0",
       "aws-cdk": "^2.1.0",
@@ -6057,7 +6044,6 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "jest": "*",
       "jest-junit": "^15",
       "prettier": "*",
-      "projen": "^0.79.24",
       "ts-jest": "*",
       "ts-node": "*",
       "typescript": "*",
@@ -6069,6 +6055,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "coveragePathIgnorePatterns": [
         "/node_modules/",
       ],
+      "coverageProvider": "v8",
       "coverageReporters": [
         "json",
         "lcov",
@@ -6087,7 +6074,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
       "testMatch": [
         "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+        "<rootDir>/@(test|src)/**/*(*.)@(spec|test).ts?(x)",
       ],
       "testPathIgnorePatterns": [
         "/node_modules/",
@@ -6106,6 +6093,9 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     },
     "license": "Apache-2.0",
     "name": "WithMultipleApiAndWebsites",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "bundle": "npx projen bundle",
@@ -6683,9 +6673,7 @@ test("Snapshot", () => {
       "stripInternal": true,
       "target": "ES2019",
     },
-    "exclude": [
-      "cdk.out",
-    ],
+    "exclude": [],
     "include": [
       "src/**/*.ts",
     ],
@@ -6755,6 +6743,9 @@ exports[`InfrastructureTsProject With Multiple Websites and Single API 1`] = `
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -6786,9 +6777,6 @@ exports[`InfrastructureTsProject With Multiple Websites and Single API 1`] = `
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -6935,12 +6923,12 @@ cdk.out/
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "aws-cdk",
@@ -6984,11 +6972,6 @@ cdk.out/
       {
         "name": "prettier",
         "type": "build",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "ts-jest",
@@ -7230,13 +7213,13 @@ cdk.out/
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,Website,Website2,@aws/pdk,Api-typescript-infra,cdk-nag",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,@aws/pdk,cdk-nag",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen ts-jest ts-node typescript Website Website2 @aws/pdk Api-typescript-infra aws-cdk-lib cdk-nag constructs",
+            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier ts-jest ts-node typescript Website Website2 @aws/pdk Api-typescript-infra aws-cdk-lib cdk-nag constructs",
           },
           {
             "exec": "npx projen",
@@ -7500,8 +7483,8 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     "devDependencies": {
       "@types/jest": "*",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "Website": "0.0.0",
       "Website2": "0.0.0",
       "aws-cdk": "^2.1.0",
@@ -7514,7 +7497,6 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "jest": "*",
       "jest-junit": "^15",
       "prettier": "*",
-      "projen": "^0.79.24",
       "ts-jest": "*",
       "ts-node": "*",
       "typescript": "*",
@@ -7526,6 +7508,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "coveragePathIgnorePatterns": [
         "/node_modules/",
       ],
+      "coverageProvider": "v8",
       "coverageReporters": [
         "json",
         "lcov",
@@ -7544,7 +7527,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
       "testMatch": [
         "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+        "<rootDir>/@(test|src)/**/*(*.)@(spec|test).ts?(x)",
       ],
       "testPathIgnorePatterns": [
         "/node_modules/",
@@ -7563,6 +7546,9 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     },
     "license": "Apache-2.0",
     "name": "WithMultipleWebsiteSingleApi",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "bundle": "npx projen bundle",
@@ -8058,9 +8044,7 @@ test("Snapshot", () => {
       "stripInternal": true,
       "target": "ES2019",
     },
-    "exclude": [
-      "cdk.out",
-    ],
+    "exclude": [],
     "include": [
       "src/**/*.ts",
     ],
@@ -8141,6 +8125,9 @@ exports[`InfrastructureTsProject With Stages 1`] = `
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -8172,9 +8159,6 @@ exports[`InfrastructureTsProject With Stages 1`] = `
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -8261,6 +8245,7 @@ jobs:
         run: |-
           git add .
           git diff --staged --patch --exit-code > .repo.patch || echo "self_mutation_happened=true" >> $GITHUB_OUTPUT
+        working-directory: ./
       - name: Upload patch
         if: steps.self_mutation.outputs.self_mutation_happened
         uses: actions/upload-artifact@v4
@@ -8362,6 +8347,7 @@ jobs:
         run: |-
           git add .
           git diff --staged --patch --exit-code > .repo.patch || echo "patch_created=true" >> $GITHUB_OUTPUT
+        working-directory: ./
       - name: Upload patch
         if: steps.create_patch.outputs.patch_created
         uses: actions/upload-artifact@v4
@@ -8547,12 +8533,12 @@ cdk.out/
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "aws-cdk",
@@ -9151,8 +9137,8 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     "devDependencies": {
       "@types/jest": "*",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "aws-cdk": "^2.1.0",
       "esbuild": "*",
       "eslint": "^8",
@@ -9175,6 +9161,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "coveragePathIgnorePatterns": [
         "/node_modules/",
       ],
+      "coverageProvider": "v8",
       "coverageReporters": [
         "json",
         "lcov",
@@ -9193,7 +9180,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
       "testMatch": [
         "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+        "<rootDir>/@(test|src)/**/*(*.)@(spec|test).ts?(x)",
       ],
       "testPathIgnorePatterns": [
         "/node_modules/",
@@ -9212,6 +9199,9 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     },
     "license": "Apache-2.0",
     "name": "WithStages",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "bundle": "npx projen bundle",
@@ -9381,9 +9371,7 @@ test("Snapshot", () => {
       "stripInternal": true,
       "target": "ES2019",
     },
-    "exclude": [
-      "cdk.out",
-    ],
+    "exclude": [],
     "include": [
       "src/**/*.ts",
     ],
@@ -9453,6 +9441,9 @@ exports[`InfrastructureTsProject With Website 1`] = `
       "dot-notation": [
         "error",
       ],
+      "import/no-duplicates": [
+        "error",
+      ],
       "import/no-extraneous-dependencies": [
         "error",
         {
@@ -9484,9 +9475,6 @@ exports[`InfrastructureTsProject With Website 1`] = `
         "error",
       ],
       "no-bitwise": [
-        "error",
-      ],
-      "no-duplicate-imports": [
         "error",
       ],
       "no-multiple-empty-lines": [
@@ -9633,12 +9621,12 @@ cdk.out/
       {
         "name": "@typescript-eslint/eslint-plugin",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "@typescript-eslint/parser",
         "type": "build",
-        "version": "^6",
+        "version": "^7",
       },
       {
         "name": "aws-cdk",
@@ -9682,11 +9670,6 @@ cdk.out/
       {
         "name": "prettier",
         "type": "build",
-      },
-      {
-        "name": "projen",
-        "type": "build",
-        "version": "^0.79.24",
       },
       {
         "name": "ts-jest",
@@ -9918,13 +9901,13 @@ cdk.out/
         "name": "upgrade",
         "steps": [
           {
-            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,Website,@aws/pdk,cdk-nag",
+            "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,ts-jest,ts-node,typescript,@aws/pdk,cdk-nag",
           },
           {
             "exec": "yarn install --check-files",
           },
           {
-            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen ts-jest ts-node typescript Website @aws/pdk aws-cdk-lib cdk-nag constructs",
+            "exec": "yarn upgrade @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier ts-jest ts-node typescript Website @aws/pdk aws-cdk-lib cdk-nag constructs",
           },
           {
             "exec": "npx projen",
@@ -10187,8 +10170,8 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     "devDependencies": {
       "@types/jest": "*",
       "@types/node": "^18",
-      "@typescript-eslint/eslint-plugin": "^6",
-      "@typescript-eslint/parser": "^6",
+      "@typescript-eslint/eslint-plugin": "^7",
+      "@typescript-eslint/parser": "^7",
       "Website": "0.0.0",
       "aws-cdk": "^2.1.0",
       "esbuild": "*",
@@ -10200,7 +10183,6 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "jest": "*",
       "jest-junit": "^15",
       "prettier": "*",
-      "projen": "^0.79.24",
       "ts-jest": "*",
       "ts-node": "*",
       "typescript": "*",
@@ -10212,6 +10194,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       "coveragePathIgnorePatterns": [
         "/node_modules/",
       ],
+      "coverageProvider": "v8",
       "coverageReporters": [
         "json",
         "lcov",
@@ -10230,7 +10213,7 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
       ],
       "testMatch": [
         "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-        "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)",
+        "<rootDir>/@(test|src)/**/*(*.)@(spec|test).ts?(x)",
       ],
       "testPathIgnorePatterns": [
         "/node_modules/",
@@ -10249,6 +10232,9 @@ Refer to [Developer Guide](https://aws.github.io/aws-pdk/developer_guides/infras
     },
     "license": "Apache-2.0",
     "name": "WithApi",
+    "publishConfig": {
+      "access": "public",
+    },
     "scripts": {
       "build": "npx projen build",
       "bundle": "npx projen bundle",
@@ -10593,9 +10579,7 @@ test("Snapshot", () => {
       "stripInternal": true,
       "target": "ES2019",
     },
-    "exclude": [
-      "cdk.out",
-    ],
+    "exclude": [],
     "include": [
       "src/**/*.ts",
     ],

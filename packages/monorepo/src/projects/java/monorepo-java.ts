@@ -96,7 +96,7 @@ export class MonorepoJavaProject extends JavaProject implements INxProjectCore {
     });
     this.nx.plugins.push("@jnxplus/nx-maven", MVN_PLUGIN_PATH);
     this.installTask = this.nxConfigurator.ensureNxInstallTask({
-      "@jnxplus/nx-maven": "^0.x",
+      "@jnxplus/nx-maven": "^1.x",
     });
 
     // Map tasks to nx run-many
