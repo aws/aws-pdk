@@ -27,6 +27,7 @@ import {
   Runtime,
 } from "aws-cdk-lib/aws-lambda";
 import { LogGroup } from "aws-cdk-lib/aws-logs";
+import { IBucket } from "aws-cdk-lib/aws-s3";
 import { Asset } from "aws-cdk-lib/aws-s3-assets";
 import {
   CfnIPSet,
@@ -77,6 +78,12 @@ export interface TypeSafeRestApiProps
    * @default - Compression is disabled.
    */
   readonly minCompressionSize?: Size;
+
+  /**
+   * By default, the spec is prepared and outputted into the CDK assets bucket. If this is undesired,
+   * use this option to specify the output bucket.
+   */
+  readonly outputSpecBucket?: IBucket;
 }
 
 /**
@@ -113,6 +120,7 @@ export class TypeSafeRestApi extends Construct {
       operationLookup,
       defaultAuthorizer,
       corsOptions,
+      outputSpecBucket,
       ...options
     } = props;
 
@@ -120,6 +128,8 @@ export class TypeSafeRestApi extends Construct {
     const inputSpecAsset = new Asset(this, "InputSpec", {
       path: specPath,
     });
+
+    const prepareSpecOutputBucket = outputSpecBucket ?? inputSpecAsset.bucket;
     // We'll output the prepared spec in the same asset bucket
     const preparedSpecOutputKeyPrefix = `${inputSpecAsset.s3ObjectKey}-prepared`;
 
@@ -165,7 +175,7 @@ export class TypeSafeRestApi extends Construct {
               resources: [
                 // The output file will include a hash of the prepared spec, which is not known until deploy time since
                 // tokens must be resolved
-                inputSpecAsset.bucket.arnForObjects(
+                prepareSpecOutputBucket.arnForObjects(
                   `${preparedSpecOutputKeyPrefix}/*`
                 ),
               ],
@@ -340,7 +350,7 @@ export class TypeSafeRestApi extends Construct {
           key: inputSpecAsset.s3ObjectKey,
         },
         outputSpecLocation: {
-          bucket: inputSpecAsset.bucket.bucketName,
+          bucket: prepareSpecOutputBucket.bucketName,
           key: preparedSpecOutputKeyPrefix,
         },
         ...prepareSpecOptions,
@@ -361,7 +371,7 @@ export class TypeSafeRestApi extends Construct {
       apiDefinition: this.node.tryGetContext("type-safe-api-local")
         ? ApiDefinition.fromInline(this.extendedApiSpecification)
         : ApiDefinition.fromBucket(
-            inputSpecAsset.bucket,
+            prepareSpecOutputBucket,
             prepareSpecCustomResource.getAttString("outputSpecKey")
           ),
       deployOptions: {
