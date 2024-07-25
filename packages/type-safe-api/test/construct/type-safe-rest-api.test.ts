@@ -6,7 +6,7 @@ import { Template } from "aws-cdk-lib/assertions";
 import { ApiKeySourceType, Cors } from "aws-cdk-lib/aws-apigateway";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
-import { Bucket } from "aws-cdk-lib/aws-s3";
+import { BlockPublicAccess, Bucket } from "aws-cdk-lib/aws-s3";
 import { NagSuppressions } from "cdk-nag";
 import * as _ from "lodash";
 import { OpenAPIV3 } from "openapi-types";
@@ -141,6 +141,45 @@ describe("Type Safe Rest Api Construct Unit Tests", () => {
             integration: Integrations.lambda(func),
           },
         },
+      });
+      ["AwsSolutions-IAM4", "AwsPrototyping-IAMNoManagedPolicies"].forEach(
+        (RuleId) => {
+          NagSuppressions.addResourceSuppressions(
+            func,
+            [
+              {
+                id: RuleId,
+                reason: "This is a test construct.",
+              },
+            ],
+            true
+          );
+        }
+      );
+      expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
+      snapshotExtendedSpec(api);
+    });
+  });
+
+  it("Synth with dedicated prepareSpecOutput bucket", () => {
+    const stack = new Stack(PDKNag.app());
+    const func = new Function(stack, "Lambda", {
+      code: Code.fromInline("code"),
+      handler: "handler",
+      runtime: Runtime.NODEJS_16_X,
+    });
+    withTempSpec(sampleSpec, (specPath) => {
+      const api = new TypeSafeRestApi(stack, "ApiTest", {
+        specPath,
+        operationLookup,
+        integrations: {
+          testOperation: {
+            integration: Integrations.lambda(func),
+          },
+        },
+        outputSpecBucket: new Bucket(stack, "PrepareSpecBucket", {
+          blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+        }),
       });
       ["AwsSolutions-IAM4", "AwsPrototyping-IAMNoManagedPolicies"].forEach(
         (RuleId) => {
