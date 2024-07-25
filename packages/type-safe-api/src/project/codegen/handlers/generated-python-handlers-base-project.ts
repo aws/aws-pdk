@@ -132,7 +132,7 @@ export abstract class GeneratedPythonHandlersBaseProject extends PythonProject {
       `cp -r ${this.moduleName} dist/lambda/${this.moduleName}`
     );
     this.packageTask.exec(
-      "poetry export --without-hashes --format=requirements.txt > dist/lambda/requirements.txt"
+      "poetry export --without-hashes --format=requirements.txt | sed -E 's/^-e[[:space:]]+//' > dist/lambda/requirements.txt"
     );
     // Select the platform based on the specified architecture, defaulting to x86_64
     // See: https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-native-libraries
