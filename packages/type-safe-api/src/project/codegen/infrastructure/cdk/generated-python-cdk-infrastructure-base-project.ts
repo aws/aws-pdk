@@ -120,13 +120,13 @@ export abstract class GeneratedPythonCdkInfrastructureBaseProject extends Python
     // The poetry install that runs as part of post synthesis expects there to be some code present, but code isn't
     // generated until build time. This means that the first install will fail when either generating the project for
     // the first time or checking out a fresh copy (since generated code is not checked in to version control). We
-    // therefore add a blank __init__.py as our first install step to keep poetry happy until the generator overwrites
-    // it.
+    // therefore add a blank __init__.py and README.md as our first install step to keep poetry happy until the
+    // generator overwrites it.
     ["install", "install:ci"].forEach((t) =>
       this.tasks
         .tryFind(t)
         ?.prependExec(
-          `mkdir -p ${this.moduleName} && touch ${this.moduleName}/__init__.py`
+          `mkdir -p ${this.moduleName} && touch ${this.moduleName}/__init__.py README.md`
         )
     );
   }
