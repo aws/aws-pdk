@@ -127,13 +127,17 @@ export abstract class GeneratedTypescriptRuntimeBaseProject extends TypeScriptPr
 
     this.preCompileTask.spawn(generateTask);
 
-    // Ignore all the generated code
-    this.gitignore.addPatterns(
-      this.srcdir,
-      ".npmignore",
-      "README.md",
-      ".openapi-generator"
-    );
+    if (!options.commitGeneratedCode) {
+      // Ignore all the generated code
+      this.gitignore.addPatterns(
+        this.srcdir,
+        ".npmignore",
+        "README.md",
+        ".openapi-generator"
+      );
+    } else {
+      this.gitignore.addPatterns(".openapi-generator");
+    }
 
     // If we're not in a monorepo, we need to link the generated client such that any local dependency on it can be
     // resolved

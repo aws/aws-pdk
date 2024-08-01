@@ -159,12 +159,18 @@ export abstract class GeneratedTypescriptCdkInfrastructureBaseProject extends Ty
     generateTask.exec(
       `cp -f ${this.options.specPath} ${this.packagedSpecPath}`
     );
-    this.gitignore.addPatterns(`/${this.packagedSpecPath}`);
+    if (!options.commitGeneratedCode) {
+      this.gitignore.addPatterns(`/${this.packagedSpecPath}`);
+    }
 
     this.preCompileTask.spawn(generateTask);
 
-    // Ignore the generated code
-    this.gitignore.addPatterns(this.srcdir, ".openapi-generator", "mocks");
+    if (!options.commitGeneratedCode) {
+      // Ignore the generated code
+      this.gitignore.addPatterns(this.srcdir, ".openapi-generator", "mocks");
+    } else {
+      this.gitignore.addPatterns(".openapi-generator");
+    }
 
     // If we're not in a monorepo, we need to link the generated types such that the local dependency can be resolved
     if (!options.isWithinMonorepo) {

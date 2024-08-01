@@ -47,11 +47,15 @@ export class GeneratedMarkdownDocumentationProject extends Project {
 
     this.compileTask.spawn(this.generateTask);
 
-    this.gitignore.addPatterns(
-      ".openapi-generator",
-      "Apis",
-      "Models",
-      "README.md"
-    );
+    if (!options.commitGeneratedCode) {
+      this.gitignore.addPatterns(
+        ".openapi-generator",
+        "Apis",
+        "Models",
+        "README.md"
+      );
+    } else {
+      this.gitignore.addPatterns(".openapi-generator");
+    }
   }
 }

@@ -102,13 +102,17 @@ export abstract class GeneratedPythonRuntimeBaseProject extends PythonProject {
 
     this.preCompileTask.spawn(generateTask);
 
-    // Ignore all the generated code
-    this.gitignore.addPatterns(
-      this.moduleName,
-      "docs",
-      "README.md",
-      ".openapi-generator"
-    );
+    if (!this.options.commitGeneratedCode) {
+      // Ignore all the generated code
+      this.gitignore.addPatterns(
+        this.moduleName,
+        "docs",
+        "README.md",
+        ".openapi-generator"
+      );
+    } else {
+      this.gitignore.addPatterns(".openapi-generator");
+    }
 
     // The poetry install that runs as part of post synthesis expects there to be some code present, but code isn't
     // generated until build time. This means that the first install will fail when either generating the project for
