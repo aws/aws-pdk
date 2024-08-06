@@ -33,6 +33,8 @@ export class GeneratedAsyncApiHtmlDocumentationProject extends Project {
     );
     this.compileTask.spawn(this.generateTask);
 
-    this.gitignore.addPatterns("index.html");
+    if (!options.commitGeneratedCode) {
+      this.gitignore.addPatterns("index.html");
+    }
   }
 }

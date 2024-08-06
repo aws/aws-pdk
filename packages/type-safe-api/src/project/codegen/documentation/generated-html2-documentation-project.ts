@@ -47,6 +47,10 @@ export class GeneratedHtml2DocumentationProject extends Project {
 
     this.compileTask.spawn(this.generateTask);
 
-    this.gitignore.addPatterns(".openapi-generator", "index.html");
+    if (!options.commitGeneratedCode) {
+      this.gitignore.addPatterns(".openapi-generator", "index.html");
+    } else {
+      this.gitignore.addPatterns(".openapi-generator");
+    }
   }
 }

@@ -47,6 +47,10 @@ export class GeneratedPlantumlDocumentationProject extends Project {
 
     this.compileTask.spawn(this.generateTask);
 
-    this.gitignore.addPatterns(".openapi-generator", "schemas.plantuml");
+    if (!options.commitGeneratedCode) {
+      this.gitignore.addPatterns(".openapi-generator", "schemas.plantuml");
+    } else {
+      this.gitignore.addPatterns(".openapi-generator");
+    }
   }
 }

@@ -33,6 +33,8 @@ export class GeneratedAsyncApiMarkdownDocumentationProject extends Project {
     );
     this.compileTask.spawn(this.generateTask);
 
-    this.gitignore.addPatterns("index.md");
+    if (!options.commitGeneratedCode) {
+      this.gitignore.addPatterns("index.md");
+    }
   }
 }

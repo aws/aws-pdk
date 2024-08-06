@@ -136,14 +136,18 @@ export abstract class GeneratedJavaRuntimeBaseProject extends JavaProject {
 
     this.preCompileTask.spawn(generateTask);
 
-    // Ignore all the generated code
-    this.gitignore.addPatterns(
-      "src",
-      "docs",
-      "api",
-      "README.md",
-      ".openapi-generator"
-    );
+    if (!options.commitGeneratedCode) {
+      // Ignore all the generated code
+      this.gitignore.addPatterns(
+        "src",
+        "docs",
+        "api",
+        "README.md",
+        ".openapi-generator"
+      );
+    } else {
+      this.gitignore.addPatterns(".openapi-generator");
+    }
   }
 
   public buildGenerateCommandArgs = () => {

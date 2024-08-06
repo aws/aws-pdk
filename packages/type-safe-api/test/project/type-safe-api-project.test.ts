@@ -469,4 +469,166 @@ describe("Type Safe Api Project Unit Tests", () => {
       ]
     ).toMatchSnapshot();
   });
+
+  it("commitGeneratedCode includes generated code", () => {
+    const project = new TypeSafeApiProject({
+      name: `openapi-commitAll`,
+      outdir: path.resolve(__dirname, `openapi-commitAll`),
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+      },
+      runtime: {
+        languages: [Language.PYTHON, Language.TYPESCRIPT],
+      },
+      model: {
+        language: ModelLanguage.OPENAPI,
+        options: {
+          openapi: {
+            title: "MyService",
+          },
+        },
+      },
+      commitGeneratedCode: true,
+    });
+
+    const snapshot = synthProject(project);
+    expect(
+      (
+        snapshot[
+          `${path.relative(
+            project.outdir,
+            project.infrastructure.typescript!.outdir
+          )}/.gitignore`
+        ] as string
+      ).split("\n")
+    ).toEqual(
+      expect.not.arrayContaining([project.infrastructure.typescript!.srcdir])
+    );
+    expect(
+      (
+        snapshot[
+          `${path.relative(
+            project.outdir,
+            project.runtime.python!.outdir
+          )}/.gitignore`
+        ] as string
+      ).split("\n")
+    ).toEqual(
+      expect.not.arrayContaining([
+        "README.md",
+        project.runtime.python!.moduleName,
+      ])
+    );
+  });
+
+  it("commitGeneratedCode override in subproject", () => {
+    const project = new TypeSafeApiProject({
+      name: `openapi-commitOverride`,
+      outdir: path.resolve(__dirname, `openapi-commitOverride`),
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+        options: {
+          typescript: {
+            commitGeneratedCode: false,
+          },
+        },
+      },
+      runtime: {
+        languages: [Language.PYTHON, Language.TYPESCRIPT],
+      },
+      model: {
+        language: ModelLanguage.OPENAPI,
+        options: {
+          openapi: {
+            title: "MyService",
+          },
+        },
+      },
+      commitGeneratedCode: true,
+    });
+
+    const snapshot = synthProject(project);
+    expect(
+      (
+        snapshot[
+          `${path.relative(
+            project.outdir,
+            project.infrastructure.typescript!.outdir
+          )}/.gitignore`
+        ] as string
+      ).split("\n")
+    ).toEqual(
+      expect.arrayContaining([project.infrastructure.typescript!.srcdir])
+    );
+    expect(
+      (
+        snapshot[
+          `${path.relative(
+            project.outdir,
+            project.runtime.python!.outdir
+          )}/.gitignore`
+        ] as string
+      ).split("\n")
+    ).toEqual(
+      expect.not.arrayContaining([
+        "README.md",
+        project.runtime.python!.moduleName,
+      ])
+    );
+  });
+
+  it("commitGeneratedCode only python runtime", () => {
+    const project = new TypeSafeApiProject({
+      name: `openapi-commitRuntime`,
+      outdir: path.resolve(__dirname, `openapi-commitRuntime`),
+      infrastructure: {
+        language: Language.TYPESCRIPT,
+      },
+      runtime: {
+        languages: [Language.PYTHON, Language.TYPESCRIPT],
+        options: {
+          python: {
+            commitGeneratedCode: true,
+          },
+        },
+      },
+      model: {
+        language: ModelLanguage.OPENAPI,
+        options: {
+          openapi: {
+            title: "MyService",
+          },
+        },
+      },
+    });
+
+    const snapshot = synthProject(project);
+    expect(
+      (
+        snapshot[
+          `${path.relative(
+            project.outdir,
+            project.infrastructure.typescript!.outdir
+          )}/.gitignore`
+        ] as string
+      ).split("\n")
+    ).toEqual(
+      expect.arrayContaining([project.infrastructure.typescript!.srcdir])
+    );
+    expect(
+      (
+        snapshot[
+          `${path.relative(
+            project.outdir,
+            project.runtime.python!.outdir
+          )}/.gitignore`
+        ] as string
+      ).split("\n")
+    ).toEqual(
+      expect.not.arrayContaining([
+        "README.md",
+        project.runtime.python!.moduleName,
+      ])
+    );
+  });
 });
