@@ -171,7 +171,8 @@ const resolveDependencies = (project: any): void => {
   if (project instanceof NodeProject || project.package) {
     project.package.addPackageResolutions(
       "tar@^4.4.18",
-      "@babel/traverse@7.23.2"
+      "@babel/traverse@7.23.2",
+      "syncpack@12.3.3"
     );
   }
 };
