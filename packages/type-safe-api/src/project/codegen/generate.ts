@@ -3,6 +3,17 @@ SPDX-License-Identifier: Apache-2.0 */
 import * as path from "path";
 import { getLogger } from "log4js";
 import { Project, TextFile } from "projen";
+import {
+  DocumentationFormat,
+  Language,
+  Library,
+  WebSocketDocumentationFormat,
+  WebSocketLibrary,
+} from "../languages";
+import {
+  GeneratedDocumentationOptions,
+  GeneratedWebSocketDocumentationOptions,
+} from "../types";
 import { GeneratedAsyncApiHtmlDocumentationProject } from "./documentation/generated-asyncapi-html-documentation-project";
 import { GeneratedAsyncApiMarkdownDocumentationProject } from "./documentation/generated-asyncapi-markdown-documentation-project";
 import { GeneratedHtmlRedocDocumentationProject } from "./documentation/generated-html-redoc-documentation-project";
@@ -54,17 +65,6 @@ import {
   GeneratedTypescriptRuntimeProject,
   GeneratedTypescriptTypesProjectOptions,
 } from "./runtime/generated-typescript-runtime-project";
-import {
-  DocumentationFormat,
-  Language,
-  Library,
-  WebSocketDocumentationFormat,
-  WebSocketLibrary,
-} from "../languages";
-import {
-  GeneratedDocumentationOptions,
-  GeneratedWebSocketDocumentationOptions,
-} from "../types";
 
 const logger = getLogger();
 

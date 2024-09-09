@@ -382,7 +382,7 @@ export interface TypeScriptProjectOptions {
    */
   readonly workflowContainerImage?: string;
   /**
-   * Custom configuration used when creating changelog with standard-version package.
+   * Custom configuration used when creating changelog with commit-and-tag-version package.
    * Given values either append to default configuration or overwrite values in it.
    * @default - standard configuration applicable for GitHub repositories
    * @stability experimental

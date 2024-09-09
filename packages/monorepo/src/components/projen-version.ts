@@ -1,1 +1,1 @@
-export default "^0.82.8";
+export default "^0.87.0";
