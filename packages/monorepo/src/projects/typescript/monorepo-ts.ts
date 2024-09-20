@@ -480,7 +480,7 @@ export class MonorepoTsProject
 
   private addUpgradeDepsTask() {
     if (this._options.monorepoUpgradeDeps !== false) {
-      this.addDevDeps("npm-check-updates", "syncpack@^12");
+      this.addDevDeps("npm-check-updates", "syncpack@^13");
 
       const upgradeDepsTask = this.addTask(
         this._options.monorepoUpgradeDepsOptions?.taskName || "upgrade-deps",
