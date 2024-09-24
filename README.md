@@ -110,7 +110,7 @@ From this ~70 lines of code above, the AWS PDK produces the following packages o
 
 ### Generated Diagram
 
-<img src="docs/content/assets/images/generated_diagram.png" width="800"  />
+<img src="docs/content/assets/images/generated_diagram.png" width="800" />
 
 As you can see, the AWS PDK provides you with valuable time savings so you can focus on working on what matters most to your project.
 
@@ -127,3 +127,4 @@ https://aws.github.io/aws-pdk/contributing/index.html
 ## License
 
 This project is licensed under the Apache-2.0 License.
+
