@@ -1,0 +1,115 @@
+<%_ services.forEach((service) => { _%>
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%- metadata.srcDir || 'src' %>/apis",
+  "name": "<%- service.className %>Hooks",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###// Import models
+<%_ if (service.modelImports.length > 0) { _%>
+import type {
+<%_ service.modelImports.forEach((modelImport) => { _%>
+  <%- modelImport %>,
+<%_ }); _%>
+} from '../models';
+<%_ } _%>
+// Import request parameter interfaces
+import {
+<%_ service.operations.forEach((operation) => { _%>
+    <%_ if (operation.parameters.length > 0) { _%>
+    <%- operation.operationIdPascalCase %>Request,
+    <%_ } _%>
+<%_ }); _%>
+} from '..';
+
+import { ResponseError } from '../runtime';
+import { <%- service.className %> } from './<%- service.className %>';
+import { <%- service.className %>DefaultContext } from "./<%- service.className %>ClientProvider";
+
+import {
+    useQuery,
+    UseQueryResult,
+    UseQueryOptions,
+    useInfiniteQuery,
+    UseInfiniteQueryResult,
+    UseInfiniteQueryOptions,
+    useMutation,
+    UseMutationOptions,
+    UseMutationResult
+} from "@tanstack/react-query";
+import { createContext, useContext } from "react";
+
+/**
+ * Context for the API client used by the hooks.
+ */
+export const <%- service.className %>ClientContext = createContext<<%- service.className %> | undefined>(undefined);
+
+const NO_API_ERROR = new Error(`<%- service.className %> client missing. Please ensure you have instantiated the <%- service.className %>ClientProvider with a client instance.`);
+
+<%_ service.operations.forEach((operation) => { _%>
+<%_ const result = operation.results[0]; _%>
+<%_ const resultType = result ? result.typescriptType : 'void'; _%>
+<%_ if (operation.method === 'GET') { _%>
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-paginated']) { _%>
+<%_ const pagination = operation.vendorExtensions['x-paginated']; _%>
+<%_ const paginationInputParam = operation.parameters.find(p => p.prop === pagination.inputToken); _%>
+/**
+ * useInfiniteQuery hook for the <%- operation.operationIdPascalCase %> operation
+ */
+export const use<%- operation.operationIdPascalCase %> = <TError = ResponseError>(
+    <%_ if (operation.parameters.length > 0) { _%>
+    params: <%- operation.operationIdPascalCase %>Request,
+    <%_ } _%>
+    options?: Omit<UseInfiniteQueryOptions<<%- resultType %>, TError>, 'queryKey' | 'queryFn' | 'getNextPageParam'>
+): UseInfiniteQueryResult<<%- resultType %>, TError> => {
+    const api = useContext(<%- service.className %>ClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useInfiniteQuery(["<%- operation.name %>"<% if (operation.parameters.length > 0) { %>, params<% } %>], ({ pageParam }) => api.<%- operation.name %>({ <% if (operation.parameters.length > 0) { %>...params, <% } %><%- paginationInputParam.typescriptName %>: pageParam }), {
+        getNextPageParam: (response) => response.<%- pagination.outputToken %>,
+        context: <%- service.className %>DefaultContext,
+        ...options as any,
+    });
+};
+<%_ } else { _%>
+/**
+ * useQuery hook for the <%- operation.operationIdPascalCase %> operation
+ */
+export const use<%- operation.operationIdPascalCase %> = <TError = ResponseError>(
+    <%_ if (operation.parameters.length > 0) { _%>
+    params: <%- operation.operationIdPascalCase %>Request,
+    <%_ } _%>
+    options?: Omit<UseQueryOptions<<%- resultType %>, TError>, 'queryKey' | 'queryFn'>
+): UseQueryResult<<%- resultType %>, TError> => {
+    const api = useContext(<%- service.className %>ClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useQuery(["<%- operation.name %>"<% if (operation.parameters.length > 0) { %>, params<% } %>], () => api.<%- operation.name %>(<% if (operation.parameters.length > 0) { %>params<% } %>), {
+        context: <%- service.className %>DefaultContext,
+        ...options,
+    });
+};
+<%_ } _%>
+<%_ } else { _%>
+/**
+ * useMutation hook for the <%- operation.operationIdPascalCase %> operation
+ */
+export const use<%- operation.operationIdPascalCase %> = <TError = ResponseError>(
+    options?: Omit<UseMutationOptions<<%- resultType %>, TError, <% if (operation.parameters.length > 0) { %><%- operation.operationIdPascalCase %>Request<% } %><% if (operation.parameters.length === 0 ) { %>void<% } %>>, 'mutationFn'>
+): UseMutationResult<<%- resultType %>, TError, <% if (operation.parameters.length > 0) { %><%- operation.operationIdPascalCase %>Request<% } %><% if (operation.parameters.length === 0 ) { %>void<% } %>> => {
+    const api = useContext(<%- service.className %>ClientContext);
+    if (!api) {
+        throw NO_API_ERROR;
+    }
+    return useMutation((<% if (operation.parameters.length > 0) { %>params: <%- operation.operationIdPascalCase %>Request<% } %>) => api.<%- operation.name %>(<% if (operation.parameters.length > 0) { %>params<% } %>), {
+        context: <%- service.className %>DefaultContext,
+        ...options,
+    });
+};
+<%_ } _%>
+
+<%_ }); _%>
+<%_ }); _%>

@@ -7,7 +7,15 @@ import {
 } from "./generated-typescript-library-project";
 import { WebSocketLibrary } from "../../languages";
 import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
-import { GenerationOptions } from "../components/utils";
+import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
+import {
+  buildCleanOpenApiGeneratedCodeCommand,
+  buildInvokeOpenApiGeneratorCommandArgs,
+  buildTypeSafeApiExecCommand,
+  CodegenOptions,
+  GenerationOptions,
+  TypeSafeApiScript,
+} from "../components/utils";
 
 /**
  * Configuration for the generated typescript websocket hooks project
@@ -21,7 +29,19 @@ export interface TypescriptWebsocketHooksLibraryOptions
  * Typescript project containing generated websocket hooks
  */
 export class TypescriptWebsocketHooksLibrary extends GeneratedTypescriptLibraryProject {
+  /**
+   * Patterns that are excluded from code generation
+   */
+  public static openApiIgnorePatterns: string[] = [
+    "package.json",
+    "tsconfig.json",
+    "tsconfig.esm.json",
+    ".npmignore",
+  ];
+
   protected readonly options: TypescriptWebsocketHooksLibraryOptions;
+
+  protected readonly openapiGeneratorIgnore: OpenApiGeneratorIgnoreFile;
 
   constructor(options: TypescriptWebsocketHooksLibraryOptions) {
     super({
@@ -37,7 +57,28 @@ export class TypescriptWebsocketHooksLibrary extends GeneratedTypescriptLibraryP
     this.addDevDeps("react", "@types/react");
     this.addPeerDeps("react");
 
-    this.openapiGeneratorIgnore.addPatterns(
+    // Tell OpenAPI Generator CLI not to generate files that we will generate via this project, or don't need.
+    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
+    this.openapiGeneratorIgnore = openapiGeneratorIgnore;
+    openapiGeneratorIgnore.addPatterns(
+      ...TypescriptWebsocketHooksLibrary.openApiIgnorePatterns
+    );
+
+    // Add OpenAPI Generator cli configuration
+    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
+      options.openApiGeneratorCliConfig
+    );
+
+    this.generateTask.reset();
+    this.generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
+    this.generateTask.exec(
+      buildTypeSafeApiExecCommand(
+        TypeSafeApiScript.GENERATE,
+        this.buildGenerateCommandArgs()
+      )
+    );
+
+    openapiGeneratorIgnore.addPatterns(
       // Ignore all but relevant hooks files
       ...OpenApiGeneratorIgnoreFile.ALL_FILES_PATTERNS,
       `!${this.srcdir}/index.ts`,
@@ -45,6 +86,20 @@ export class TypescriptWebsocketHooksLibrary extends GeneratedTypescriptLibraryP
       `!${this.srcdir}/hooks/**/*`
     );
   }
+
+  protected buildCodegenOptions(): CodegenOptions {
+    // TODO: update when switch to new codegen
+    return {
+      specPath: this.options.specPath,
+      templateDirs: [WebSocketLibrary.TYPESCRIPT_WEBSOCKET_HOOKS],
+    };
+  }
+
+  public buildGenerateCommandArgs = (): string => {
+    return buildInvokeOpenApiGeneratorCommandArgs(
+      this.buildOpenApiGeneratorOptions()
+    );
+  };
 
   public buildOpenApiGeneratorOptions(): GenerationOptions {
     return {

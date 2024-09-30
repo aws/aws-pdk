@@ -2,6 +2,7 @@
 SPDX-License-Identifier: Apache-2.0 */
 import { ProjectUtils } from "@aws/monorepo";
 import { Component, Project } from "projen";
+import { TypeScriptProject } from "projen/lib/typescript";
 import { getTypeSafeApiTaskEnvironment } from "./utils";
 
 /**
@@ -39,5 +40,10 @@ export class TypeSafeApiCommandEnvironment extends Component {
     Object.entries(getTypeSafeApiTaskEnvironment()).forEach(([key, value]) =>
       project.tasks.addEnvironment(key, value)
     );
+
+    // TypeScript projects need a dev dependency on PDK to ensure npx resolves to the correct pdk
+    if (ProjectUtils.isNamedInstanceOf(project, TypeScriptProject)) {
+      project.addDevDeps("@aws/pdk@^0");
+    }
   }
 }

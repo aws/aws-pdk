@@ -1,0 +1,54 @@
+<%_ services.forEach((service) => { _%>
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%- metadata.srcDir || 'src' %>/apis",
+  "name": "<%- service.className %>ClientProvider",
+  "ext": ".tsx",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import * as React from "react";
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import { <%- service.className %> } from "./<%- service.className %>";
+import { <%- service.className %>ClientContext } from "./<%- service.className %>Hooks";
+
+const queryClient = new QueryClient();
+
+/**
+ * Default QueryClient context for <%- service.className %>
+ */
+export const <%- service.className %>DefaultContext = React.createContext<QueryClient | undefined>(
+  undefined
+);
+
+/**
+ * Properties for the <%- service.className %>ClientProvider
+ */
+export interface <%- service.className %>ClientProviderProps {
+  readonly apiClient: <%- service.className %>;
+  readonly client?: QueryClient;
+  readonly context?: React.Context<QueryClient | undefined>;
+  readonly children?: React.ReactNode;
+}
+
+/**
+ * Provider for the API Client and Query Client used by the hooks.
+ * This must parent any components which make use of the hooks.
+ */
+export const <%- service.className %>ClientProvider = ({
+  apiClient,
+  client = queryClient,
+  context = <%- service.className %>DefaultContext,
+  children,
+}: <%- service.className %>ClientProviderProps): JSX.Element => {
+  return (
+    <QueryClientProvider client={client} context={context}>
+      <<%- service.className %>ClientContext.Provider value={apiClient}>
+        {children}
+      </<%- service.className %>ClientContext.Provider>
+    </QueryClientProvider>
+  );
+};
+<%_ }); _%>

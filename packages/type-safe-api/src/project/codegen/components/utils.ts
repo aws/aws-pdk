@@ -40,6 +40,7 @@ export enum OtherGenerators {
 export enum TypeSafeApiScript {
   PARSE_OPENAPI_SPEC = "type-safe-api.parse-openapi-spec",
   GENERATE = "type-safe-api.generate",
+  GENERATE_NEXT = "type-safe-api.generate-next",
   GENERATE_MOCK_DATA = "type-safe-api.generate-mock-data",
   GENERATE_HTML_REDOC_DOCS = "type-safe-api.generate-html-redoc-docs",
   GENERATE_ASYNCAPI_HTML_DOCS = "type-safe-api.generate-asyncapi-html-docs",
@@ -64,6 +65,12 @@ export type GeneratorDirectory =
  * @see https://openapi-generator.tech/docs/customization/#openapi-normalizer
  */
 export type OpenApiNormalizer = "KEEP_ONLY_FIRST_TAG_IN_OPERATION";
+
+export interface CodegenOptions {
+  readonly specPath: string;
+  readonly templateDirs: string[];
+  readonly metadata?: object;
+}
 
 /**
  * Options for generating code or docs using OpenAPI Generator CLI
@@ -139,6 +146,17 @@ const serializeProperties = (properties: { [key: string]: string }) =>
   Object.entries(properties)
     .map(([key, value]) => `${key}=${value}`)
     .join(",");
+
+export const buildCodegenCommandArgs = (options: CodegenOptions): string => {
+  const metadata = options.metadata
+    ? ` --metadata '${JSON.stringify(options.metadata)}'`
+    : "";
+  return `--specPath ${
+    options.specPath
+  } --outputPath . --templateDirs ${options.templateDirs
+    .map((t) => `"${t}"`)
+    .join(" ")}${metadata}`;
+};
 
 /**
  * Generate code or docs by invoking the root generate script

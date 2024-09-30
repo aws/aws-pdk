@@ -1,0 +1,63 @@
+###TSAPI_WRITE_FILE###
+{
+  "dir": "<%- metadata.srcDir || 'src' %>",
+  "name": "functions",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import { Construct } from "constructs";
+import { Duration } from "aws-cdk-lib";
+import { SnapStartFunction, SnapStartFunctionProps } from "@aws/pdk/type-safe-api";
+import { Code, Function, Runtime, Tracing, FunctionProps } from "aws-cdk-lib/aws-lambda";
+import * as path from "path";
+
+<%_ allOperations.forEach((operation) => { _%>
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-handler']) { _%>
+<%_ const language = operation.vendorExtensions['x-handler'].language; _%>
+<%_ const isTypeScript = language === 'typescript'; _%>
+<%_ const isJava = language === 'java'; _%>
+<%_ const isPython = language === 'python'; _%>
+/**
+ * Options for the <%- operation.operationIdPascalCase %>Function construct
+ */
+export interface <%- operation.operationIdPascalCase %>FunctionProps extends Omit<<% if (isJava) { %>SnapStart<% } %>FunctionProps, 'code' | 'handler' | 'runtime'> {}
+
+/**
+ * Lambda function construct which points to the <%- language %> implementation of <%- operation.operationIdPascalCase %>
+ */
+export class <%- operation.operationIdPascalCase %>Function extends <% if (isJava) { %>SnapStart<% } %>Function {
+  constructor(scope: Construct, id: string, props?: <%- operation.operationIdPascalCase %>FunctionProps) {
+    super(scope, id, {
+      <%_ if (isTypeScript) { _%>
+      runtime: Runtime.<%- metadata['x-handlers-node-lambda-runtime-version'] %>,
+      <%_ } else if (isPython) { _%>
+      runtime: Runtime.<%- metadata['x-handlers-python-lambda-runtime-version'] %>,
+      <%_ } else if (isJava) { _%>
+      runtime: Runtime.<%- metadata['x-handlers-java-lambda-runtime-version'] %>,
+      <%_ } _%>
+      <%_ if (isTypeScript) { _%>
+      handler: "index.handler",
+      <%_ } else if (isPython) { _%>
+      handler: "<%- metadata['x-handlers-python-module'] %>.<%- operation.operationIdSnakeCase %>.handler",
+      <%_ } else if (isJava) { _%>
+      handler: "<%- metadata['x-handlers-java-package'] %>.<%- operation.operationIdPascalCase %>Handler",
+      <%_ } _%>
+      code: Code.fromAsset(path.resolve(__dirname, "..",
+        <%_ if (isTypeScript) { _%>
+        "<%- metadata['x-handlers-typescript-asset-path'] %>",
+        "<%- operation.operationIdKebabCase %>",
+        <%_ } else if (isPython) { _%>
+        "<%- metadata['x-handlers-python-asset-path'] %>",
+        <%_ } else if (isJava) { _%>
+        "<%- metadata['x-handlers-java-asset-path'] %>",
+        <%_ } _%>
+      )),
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(30),
+      ...props,
+    });
+  }
+}
+
+<%_ } _%>
+<%_ }); _%>

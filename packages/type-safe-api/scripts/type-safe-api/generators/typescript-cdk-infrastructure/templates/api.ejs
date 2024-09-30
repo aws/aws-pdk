@@ -1,6 +1,14 @@
-import { TypeSafeRestApi, TypeSafeRestApiProps, TypeSafeApiIntegration } from "@aws/pdk/type-safe-api";
+###TSAPI_WRITE_FILE###
+{
+  "id": "api",
+  "dir": "<%= metadata.srcDir || 'src' %>",
+  "name": "api",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###import { TypeSafeRestApi, TypeSafeRestApiProps, TypeSafeApiIntegration } from "@aws/pdk/type-safe-api";
 import { Construct } from "constructs";
-import { OperationLookup, OperationConfig } from "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-runtime-package-name}}{{/apis.0}}{{/apiInfo}}";
+import { OperationLookup, OperationConfig } from "<%- metadata.runtimePackageName %>";
 import * as path from "path";
 
 export type ApiIntegrations = OperationConfig<TypeSafeApiIntegration>;
@@ -18,7 +26,7 @@ export class Api extends TypeSafeRestApi {
     super(scope, id, {
       ...props,
       integrations: props.integrations as any,
-      specPath: path.resolve(__dirname, "{{#apiInfo}}{{#apis.0}}{{vendorExtensions.x-relative-spec-path}}{{/apis.0}}{{/apiInfo}}"),
+      specPath: path.resolve(__dirname, "<%- metadata.relativeSpecPath %>"),
       operationLookup: OperationLookup as any,
     });
   }

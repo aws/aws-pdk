@@ -44,6 +44,7 @@ export class PDKMonorepoProject extends MonorepoTsProject {
         "husky",
         "got@^11.8.5",
         "@jsii/spec",
+        "tsx",
       ],
       monorepoUpgradeDepsOptions: {
         syncpackConfig: {

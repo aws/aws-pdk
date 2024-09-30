@@ -1,0 +1,157 @@
+<%_ services.forEach((service) => { _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "<%- service.name %>Api",
+  "dir": "<%= metadata.srcDir || 'src' %>/apis",
+  "name": "<%- service.name %>Api",
+  "ext": ".ts",
+  "overwrite": true
+}
+###/TSAPI_WRITE_FILE###/* tslint:disable */
+/* eslint-disable */
+/**
+ * <%- info.title %>
+ * <%- info.description %>
+ *
+ * The version of the OpenAPI document: <%- info.version %>
+ *
+ *
+ * NOTE: This class is auto generated.
+ * Do not edit the class manually.
+ */
+
+import * as runtime from '../runtime';
+<%_ if (service.modelImports.length > 0) { _%>
+import type {
+<%_ service.modelImports.forEach((modelImport) => { _%>
+  <%- modelImport %>,
+<%_ }); _%>
+} from '../models';
+import {
+<%_ service.modelImports.forEach((modelImport) => { _%>
+    <%- modelImport %>FromJSON,
+    <%- modelImport %>ToJSON,
+<%_ }); _%>
+} from '../models';
+<%_ } _%>
+
+<%_ service.operations.forEach((operation) => { _%>
+<%_ if (operation.parameters.length > 0) { _%>
+export interface <%- operation.operationIdPascalCase %>Request {
+    <%_ operation.parameters.forEach((parameter) => { _%>
+    <%- parameter.name %><%- parameter.isRequired ? '' : '?' %>: <%- parameter.typescriptType %><%= (parameter.isNullable || parameter.type === "any") ? ' | null' : '' %>;
+    <%_ }); _%>
+}
+<%_ } _%>
+
+<%_ }); _%>
+/**
+ * <%- service.description || '' %>
+ */
+export class <%- service.name %>Api extends runtime.BaseAPI {
+<%_ service.operations.forEach((operation) => { _%>
+<%_ const result = operation.results[0] _%>
+    /**
+     * <%- operation.description || '' %>
+     */
+    async <%- operation.name %>Raw(<% if (operation.parameters.length > 0) { %>requestParameters: <%- operation.operationIdPascalCase %>Request, <% } %>initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<<%- result ? result.typescriptType : 'void' %>>> {
+        <%_ operation.parameters.filter(p => p.isRequired).forEach((parameter) => { _%>
+        if (requestParameters.<%- parameter.typescriptName %> === null || requestParameters.<%- parameter.typescriptName %> === undefined) {
+            throw new runtime.RequiredError('<%- parameter.typescriptName %>','Required parameter requestParameters.<%- parameter.typescriptName %> was null or undefined when calling <%- operation.name %>.');
+        }
+
+        <%_ }); _%>
+        const queryParameters: any = {};
+
+        <%_ operation.parameters.filter(p => p.in === "query").forEach((parameter) => { _%>
+        if (requestParameters.<%- parameter.typescriptName %><% if (parameter.export !== "array") { %> !== undefined<% } %>) {
+          <%_ if (parameter.export === "array") { _%>
+            <%_ if (parameter.collectionFormat === "multi") { _%>
+            queryParameters['<%- parameter.prop %>'] = requestParameters.<%- parameter.typescriptName %>;
+            <%_ } else { _%>
+            queryParameters['<%- parameter.prop %>'] = <% if (parameter.uniqueItems) { %>Array.from(<% } %>requestParameters.<%- parameter.typescriptName %><% if (parameter.uniqueItems) { %>)<% } %>.join(runtime.COLLECTION_FORMATS["<%- parameter.collectionFormat %>"]);
+            <%_ } _%>
+          <%_ } else { _%>
+            <%_ if (parameter.isPrimitive && ["date", "date-time"].includes(parameter.format)) { _%>
+            queryParameters['<%- parameter.prop %>'] = (requestParameters.<%- parameter.typescriptName %> as any).toISOString()<%- parameter.format === "date" ? ".substr(0,10)" : "" %>;
+            <%_ } else { _%>
+            queryParameters['<%- parameter.prop %>'] = requestParameters.<%- parameter.typescriptName %>;
+            <%_ } _%>
+          <%_ } _%>
+        }
+
+        <%_ }); _%>
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        <%_ if (operation.parametersBody) { _%>
+        headerParameters['Content-Type'] = '<%- operation.parametersBody.mediaType || 'application/json' %>';
+        <%_ } _%>
+
+        <%_ operation.parameters.filter(p => p.in === "header").forEach((parameter) => { _%>
+        if (requestParameters.<%- parameter.typescriptName %><% if (parameter.export !== "array") { %> !== undefined && requestParameters.<%- parameter.typescriptName %> !== null<% } %>) {
+          <%_ if (parameter.export === "array") { _%>
+            <%_ if (parameter.collectionFormat === "multi") { _%>
+            headerParameters['<%- parameter.prop %>'] = requestParameters.<%- parameter.typescriptName %>;
+            <%_ } else { _%>
+            headerParameters['<%- parameter.prop %>'] = <% if (parameter.uniqueItems) { %>Array.from(<% } %>requestParameters.<%- parameter.typescriptName %><% if (parameter.uniqueItems) { %>)<% } %>.join(runtime.COLLECTION_FORMATS["<%- parameter.collectionFormat %>"]);
+            <%_ } _%>
+          <%_ } else { _%>
+            headerParameters['<%- parameter.prop %>'] = String(requestParameters.<%- parameter.typescriptName %>);
+          <%_ } _%>
+        }
+        <%_ }); _%>
+
+        const response = await this.request({
+            path: `<%- operation.path %>`<% operation.parameters.filter(p => p.in === "path").forEach((parameter) => { %>.replace(`{${"<%- parameter.prop %>"}}`, encodeURIComponent(String(requestParameters.<%- parameter.typescriptName %>)))<% }); %>,
+            method: '<%- operation.method %>',
+            headers: headerParameters,
+            query: queryParameters,
+            <%_ if (operation.parametersBody) { _%>
+            <%_ if (operation.parametersBody.export === "array") { _%>
+            body: requestParameters.<%- operation.parametersBody.typescriptName %><% if (!operation.parametersBody.isPrimitive) { %>.map(<%- operation.parametersBody.type %>ToJSON)<% } %>,
+            <%_ } else if (operation.parametersBody.export === "dictionary") { _%>
+            body: requestParameters.<%- operation.parametersBody.typescriptName %>,
+            <%_ } else if (operation.parametersBody.isPrimitive || operation.parametersBody.type === "binary") { _%>
+            body: requestParameters.<%- operation.parametersBody.typescriptName %> as any,
+            <%_ } else { _%>
+            body: <%- operation.parametersBody.type %>ToJSON(requestParameters.<%- operation.parametersBody.typescriptName %>),
+            <%_ } _%>
+            <%_ } _%>
+        }, initOverrides);
+
+     <%_ if(result && result.type !== 'void') { _%>
+      <%_ if(result.isPrimitive) { _%>
+        <%_ if (["array", "dictionary"].includes(result.export)) { _%>
+        return new runtime.JSONApiResponse<any>(response);
+        <%_ } else { _%>
+        return new runtime.TextApiResponse(response) as any;
+        <%_ } _%>
+      <%_ } else { _%>
+        <%_ if (result.export === "array") { _%>
+        return new runtime.JSONApiResponse(response, (jsonValue) => <% if (result.uniqueItems) { %>new Set(<% } %>jsonValue.map(<%- result.type %>FromJSON)<% if (result.uniqueItems) { %>)<% } %>);
+        <%_ } else if (result.export === "dictionary") { _%>
+        return new runtime.JSONApiResponse(response, (jsonValue) => runtime.mapValues(jsonValue, <%- result.type %>FromJSON));
+        <%_ } else { _%>
+        return new runtime.JSONApiResponse(response, (jsonValue) => <%- result.type %>FromJSON(jsonValue));
+        <%_ } _%>
+      <%_ } _%>
+    <%_ } else { _%>
+        return new runtime.VoidApiResponse(response);
+    <%_ } _%>
+    }
+
+    /**
+     * <%- operation.description || '' %>
+     */
+    async <%- operation.name %>(<% if (operation.parameters.length > 0) { %>requestParameters: <%- operation.operationIdPascalCase %>Request<% if (!operation.parameters.some(p => p.isRequired)) { %> = {}<% } %>, <% } %>initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<<%- result ? result.typescriptType : 'void' %>> {
+        <% if(result && result.type !== 'void') { %>const response = <% } %>await this.<%- operation.name %>Raw(<% if (operation.parameters.length > 0) { %>requestParameters, <% } %>initOverrides);
+        <%_ if(result && result.type !== 'void') { _%>
+        return await response.value();
+        <%_ } _%>
+    }
+
+<%_ }); _%>
+}
+
+<%_ }); _%>

@@ -5,7 +5,7 @@ import {
   GeneratedTypescriptRuntimeBaseProjectOptions,
 } from "./generated-typescript-runtime-base-project";
 import { Language } from "../../languages";
-import { GenerationOptions } from "../components/utils";
+import { CodegenOptions } from "../components/utils";
 
 /**
  * Configuration for the generated typescript client project
@@ -21,20 +21,12 @@ export class GeneratedTypescriptRuntimeProject extends GeneratedTypescriptRuntim
     super(options);
   }
 
-  protected buildOpenApiGeneratorOptions(): GenerationOptions {
+  protected buildCodegenOptions(): CodegenOptions {
     return {
-      generator: "typescript-fetch",
       specPath: this.options.specPath,
-      generatorDirectory: Language.TYPESCRIPT,
-      additionalProperties: {
-        npmName: this.package.packageName,
-        typescriptThreePlus: "true",
-        useSingleParameter: "true",
-        supportsES6: "true",
-      },
-      srcDir: this.srcdir,
-      normalizers: {
-        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
+      templateDirs: [Language.TYPESCRIPT],
+      metadata: {
+        srcDir: this.srcdir,
       },
     };
   }

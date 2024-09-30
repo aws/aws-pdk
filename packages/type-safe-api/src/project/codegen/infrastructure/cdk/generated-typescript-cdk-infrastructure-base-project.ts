@@ -11,15 +11,11 @@ import {
   CodeGenerationSourceOptions,
   GeneratedWithOpenApiGeneratorOptions,
 } from "../../../types";
-import { OpenApiGeneratorHandlebarsIgnoreFile } from "../../components/open-api-generator-handlebars-ignore-file";
-import { OpenApiGeneratorIgnoreFile } from "../../components/open-api-generator-ignore-file";
-import { OpenApiToolsJsonFile } from "../../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../../components/type-safe-api-command-environment";
 import {
-  buildCleanOpenApiGeneratedCodeCommand,
-  buildInvokeOpenApiGeneratorCommandArgs,
+  buildCodegenCommandArgs,
   buildTypeSafeApiExecCommand,
-  GenerationOptions,
+  CodegenOptions,
   TypeSafeApiScript,
 } from "../../components/utils";
 import { GeneratedHandlersProjects } from "../../generate";
@@ -60,7 +56,6 @@ export abstract class GeneratedTypescriptCdkInfrastructureBaseProject extends Ty
   protected readonly packagedSpecPath = "assets/api.json";
 
   protected readonly generateTask: Task;
-  protected readonly openapiGeneratorIgnore: OpenApiGeneratorIgnoreFile;
 
   constructor(options: GeneratedTypescriptCdkInfrastructureBaseProjectOptions) {
     super({
@@ -118,38 +113,11 @@ export abstract class GeneratedTypescriptCdkInfrastructureBaseProject extends Ty
     const npmignore = new IgnoreFile(this, ".npmignore");
     npmignore.addPatterns("/.projen/", "/src", "/dist");
 
-    // Ignore everything but the target files
-    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
-    this.openapiGeneratorIgnore = openapiGeneratorIgnore;
-    openapiGeneratorIgnore.addPatterns(
-      "/*",
-      "**/*",
-      "*",
-      `!${this.srcdir}/index.ts`,
-      `!${this.srcdir}/api.ts`,
-      `!${this.srcdir}/mock-integrations.ts`
-    );
-
-    const openapiGeneratorHandlebarsIgnore =
-      new OpenApiGeneratorHandlebarsIgnoreFile(this);
-    openapiGeneratorHandlebarsIgnore.addPatterns(
-      "/*",
-      "**/*",
-      "*",
-      `!${this.srcdir}/__functions.ts`
-    );
-
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
-    );
-
     const generateTask = this.addTask("generate");
     this.generateTask = generateTask;
-    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
     generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE,
+        TypeSafeApiScript.GENERATE_NEXT,
         this.buildGenerateCommandArgs()
       )
     );
@@ -167,10 +135,10 @@ export abstract class GeneratedTypescriptCdkInfrastructureBaseProject extends Ty
 
     if (!options.commitGeneratedCode) {
       // Ignore the generated code
-      this.gitignore.addPatterns(this.srcdir, ".openapi-generator", "mocks");
-    } else {
-      this.gitignore.addPatterns(".openapi-generator");
+      this.gitignore.addPatterns(this.srcdir, "mocks");
     }
+
+    this.gitignore.addPatterns(".openapi-generator", ".tsapi-manifest");
 
     // If we're not in a monorepo, we need to link the generated types such that the local dependency can be resolved
     if (!options.isWithinMonorepo) {
@@ -197,10 +165,8 @@ export abstract class GeneratedTypescriptCdkInfrastructureBaseProject extends Ty
   }
 
   public buildGenerateCommandArgs = () => {
-    return buildInvokeOpenApiGeneratorCommandArgs(
-      this.buildOpenApiGeneratorOptions()
-    );
+    return buildCodegenCommandArgs(this.buildCodegenOptions());
   };
 
-  protected abstract buildOpenApiGeneratorOptions(): GenerationOptions;
+  protected abstract buildCodegenOptions(): CodegenOptions;
 }

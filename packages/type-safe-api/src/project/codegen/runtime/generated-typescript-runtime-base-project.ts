@@ -1,7 +1,7 @@
 /*! Copyright [Amazon.com](http://amazon.com/), Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0 */
 import { NodePackageUtils } from "@aws/monorepo";
-import { IgnoreFile } from "projen";
+import { IgnoreFile, Task } from "projen";
 import { NodePackageManager } from "projen/lib/javascript";
 import {
   TypeScriptProject,
@@ -11,14 +11,11 @@ import {
   CodeGenerationSourceOptions,
   GeneratedWithOpenApiGeneratorOptions,
 } from "../../types";
-import { OpenApiGeneratorIgnoreFile } from "../components/open-api-generator-ignore-file";
-import { OpenApiToolsJsonFile } from "../components/open-api-tools-json-file";
 import { TypeSafeApiCommandEnvironment } from "../components/type-safe-api-command-environment";
 import {
-  buildCleanOpenApiGeneratedCodeCommand,
-  buildInvokeOpenApiGeneratorCommandArgs,
+  buildCodegenCommandArgs,
   buildTypeSafeApiExecCommand,
-  GenerationOptions,
+  CodegenOptions,
   TypeSafeApiScript,
 } from "../components/utils";
 
@@ -40,21 +37,11 @@ export interface GeneratedTypescriptRuntimeBaseProjectOptions
  */
 export abstract class GeneratedTypescriptRuntimeBaseProject extends TypeScriptProject {
   /**
-   * Patterns that are excluded from code generation
-   */
-  public static openApiIgnorePatterns: string[] = [
-    "package.json",
-    "tsconfig.json",
-    "tsconfig.esm.json",
-    ".npmignore",
-  ];
-
-  /**
    * Options configured for the project
    */
   protected readonly options: GeneratedTypescriptRuntimeBaseProjectOptions;
 
-  protected readonly openapiGeneratorIgnore: OpenApiGeneratorIgnoreFile;
+  protected readonly generateTask: Task;
 
   constructor(options: GeneratedTypescriptRuntimeBaseProjectOptions) {
     super({
@@ -104,40 +91,22 @@ export abstract class GeneratedTypescriptRuntimeBaseProject extends TypeScriptPr
     const npmignore = new IgnoreFile(this, ".npmignore");
     npmignore.addPatterns("/.projen/", `/${this.srcdir}`, "/dist");
 
-    // Tell OpenAPI Generator CLI not to generate files that we will generate via this project, or don't need.
-    const openapiGeneratorIgnore = new OpenApiGeneratorIgnoreFile(this);
-    this.openapiGeneratorIgnore = openapiGeneratorIgnore;
-    openapiGeneratorIgnore.addPatterns(
-      ...GeneratedTypescriptRuntimeBaseProject.openApiIgnorePatterns
-    );
-
-    // Add OpenAPI Generator cli configuration
-    OpenApiToolsJsonFile.ensure(this).addOpenApiGeneratorCliConfig(
-      options.openApiGeneratorCliConfig
-    );
-
-    const generateTask = this.addTask("generate");
-    generateTask.exec(buildCleanOpenApiGeneratedCodeCommand());
-    generateTask.exec(
+    this.generateTask = this.addTask("generate");
+    this.generateTask.exec(
       buildTypeSafeApiExecCommand(
-        TypeSafeApiScript.GENERATE,
+        TypeSafeApiScript.GENERATE_NEXT,
         this.buildGenerateCommandArgs()
       )
     );
 
-    this.preCompileTask.spawn(generateTask);
+    this.preCompileTask.spawn(this.generateTask);
 
     if (!options.commitGeneratedCode) {
       // Ignore all the generated code
-      this.gitignore.addPatterns(
-        this.srcdir,
-        ".npmignore",
-        "README.md",
-        ".openapi-generator"
-      );
-    } else {
-      this.gitignore.addPatterns(".openapi-generator");
+      this.gitignore.addPatterns(this.srcdir, ".npmignore", "README.md");
     }
+
+    this.gitignore.addPatterns(".openapi-generator", ".tsapi-manifest");
 
     // If we're not in a monorepo, we need to link the generated client such that any local dependency on it can be
     // resolved
@@ -158,10 +127,8 @@ export abstract class GeneratedTypescriptRuntimeBaseProject extends TypeScriptPr
   }
 
   public buildGenerateCommandArgs = () => {
-    return buildInvokeOpenApiGeneratorCommandArgs(
-      this.buildOpenApiGeneratorOptions()
-    );
+    return buildCodegenCommandArgs(this.buildCodegenOptions());
   };
 
-  protected abstract buildOpenApiGeneratorOptions(): GenerationOptions;
+  protected abstract buildCodegenOptions(): CodegenOptions;
 }

@@ -1,0 +1,54 @@
+<%_ services.forEach((service) => { _%>
+<%_ service.operations.forEach((operation) => { _%>
+<%_ if (operation.vendorExtensions && operation.vendorExtensions['x-handler'] && operation.vendorExtensions['x-handler'].language === 'typescript') { _%>
+###TSAPI_WRITE_FILE###
+{
+  "id": "<%= operation.name %>Test",
+  "dir": "<%= metadata.tstDir || 'tst' %>",
+  "name": "<%= operation.operationIdKebabCase %>",
+  "ext": ".test.ts",
+  "overwrite": false,
+  "generateConditionallyId": "<%= operation.name %>"
+}
+###/TSAPI_WRITE_FILE###import {
+  InternalFailureErrorResponseContent,
+  <%= operation.operationIdPascalCase %>ChainedRequestInput,
+} from "<%= metadata.runtimePackageName %>";
+import {
+  <%= operation.name %>
+} from "../<%= metadata.srcDir || 'src' %>/<%= operation.operationIdKebabCase %>";
+
+// Common request arguments
+const requestArguments = {
+  chain: undefined as never,
+  event: {} as any,
+  context: {} as any,
+  interceptorContext: {
+    logger: {
+      info: jest.fn(),
+    },
+  },
+} satisfies Omit<<%= operation.operationIdPascalCase %>ChainedRequestInput, 'input'>;
+
+describe('<%= operation.operationIdPascalCase %>', () => {
+
+  it('should return not implemented error', async () => {
+    // TODO: Update the test as appropriate when you implement your handler
+    const response = await <%= operation.name %>({
+      ...requestArguments,
+      input: {
+        // TODO: remove the "as any" below and fill in test values for the requestParameters<%= operation.parametersBody ? ' and body' : '' %>
+        requestParameters: {} as any,
+        body: {} as <%= operation.parametersBody ? 'any' : 'never' %>,
+      },
+    });
+
+    expect(response.statusCode).toBe(500);
+    expect((response.body as InternalFailureErrorResponseContent).message).toEqual('Not Implemented!');
+  });
+
+});
+
+<%_ } _%>
+<%_ }); _%>
+<%_ }); _%>

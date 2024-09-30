@@ -8,7 +8,7 @@ import {
 import { MockResponseGenerationOptions } from "../../../types";
 import {
   buildInvokeMockDataGeneratorCommand,
-  GenerationOptions,
+  CodegenOptions,
   getHandlersProjectVendorExtensions,
   OtherGenerators,
 } from "../../components/utils";
@@ -33,22 +33,18 @@ export class GeneratedTypescriptCdkInfrastructureProject extends GeneratedTypesc
     }
   }
 
-  public buildOpenApiGeneratorOptions(): GenerationOptions {
+  protected buildCodegenOptions(): CodegenOptions {
     return {
-      generator: "typescript-fetch",
       specPath: this.options.specPath,
-      generatorDirectory: OtherGenerators.TYPESCRIPT_CDK_INFRASTRUCTURE,
-      srcDir: this.srcdir,
-      normalizers: {
-        KEEP_ONLY_FIRST_TAG_IN_OPERATION: true,
-      },
-      extraVendorExtensions: {
-        "x-runtime-package-name":
+      templateDirs: [OtherGenerators.TYPESCRIPT_CDK_INFRASTRUCTURE],
+      metadata: {
+        srcDir: this.srcdir,
+        runtimePackageName:
           this.options.generatedTypescriptTypes.package.packageName,
         // Spec path relative to the source directory
-        "x-relative-spec-path": path.join("..", this.packagedSpecPath),
+        relativeSpecPath: path.join("..", this.packagedSpecPath),
         // Enable mock integration generation by default
-        "x-enable-mock-integrations": !this.options.mockDataOptions?.disable,
+        enableMockIntegrations: !this.options.mockDataOptions?.disable,
         ...getHandlersProjectVendorExtensions(
           this,
           this.options.generatedHandlers
